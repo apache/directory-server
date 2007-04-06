@@ -179,8 +179,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        UnbindServiceContext unbindContext = new UnbindServiceContext();
-        unbindContext.setBindDn( new LdapDN( bindDn ) );
+        UnbindServiceContext unbindContext = new UnbindServiceContext( new LdapDN( bindDn ) );
         
         super.getNexusProxy().unbind( unbindContext );
     }
