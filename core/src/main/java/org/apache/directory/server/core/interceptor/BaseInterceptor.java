@@ -129,9 +129,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
     {
-        return next.hasEntry( name );
+        return next.hasEntry( entryContext );
     }
 
 

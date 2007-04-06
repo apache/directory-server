@@ -32,11 +32,11 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
 
 /**
  * A {@link Partition} that helps users to implement their own partition.
@@ -188,15 +188,15 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(ServiceContext)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( LdapDN name ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
         try
         {
-            return lookup( new LookupServiceContext( name ) ) != null;
+            return lookup( new LookupServiceContext( ((EntryServiceContext)entryContext).getEntryDn() ) ) != null;
         }
         catch ( NameNotFoundException e )
         {

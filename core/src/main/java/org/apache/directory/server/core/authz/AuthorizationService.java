@@ -30,6 +30,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -607,8 +608,9 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
     {
+        LdapDN name = ((EntryServiceContext)entryContext).getEntryDn();
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
@@ -624,7 +626,7 @@ public class AuthorizationService extends BaseInterceptor
             }
             else
             {
-                return next.hasEntry( name );
+                return next.hasEntry( entryContext );
             }
         }
 
@@ -638,7 +640,7 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             BROWSE_PERMS, tuples, entry );
 
-        return next.hasEntry( name );
+        return next.hasEntry( entryContext );
     }
 
 

@@ -218,18 +218,6 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
     
 
-    /**
-     * Note that we do nothing here. First because this is not an externally
-     * exposed function via the JNDI interfaces.  It is used internally by
-     * the provider for optimization purposes so there is no reason for us to
-     * start to constrain it.
-     */
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
-    {
-        return super.hasEntry( nextInterceptor, name );
-    }
-
-
     // ------------------------------------------------------------------------
     // Entry Modification Operations
     // ------------------------------------------------------------------------

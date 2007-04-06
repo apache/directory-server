@@ -205,12 +205,11 @@ public interface Partition
     /**
      * Fast operation to check and see if a particular entry exists.
      *
-     * @param name the normalized distinguished/absolute name of the object to
-     * check for existance
+     * @param ntry The entryContext used to pass informations
      * @return true if the entry exists, false if it does not
      * @throws NamingException if there are any problems
      */
-    boolean hasEntry( LdapDN name ) throws NamingException;
+    boolean hasEntry( ServiceContext entryContext ) throws NamingException;
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes

@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -260,15 +261,15 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing if entry name = '" + name.toString() + "' exists" );
+            log.debug( "Testing if entry name = '" + ((EntryServiceContext)entryContext).getEntryDn().getUpName() + "' exists" );
         }
 
         checkAuthenticated();
-        return next.hasEntry( name );
+        return next.hasEntry( entryContext );
     }
 
 

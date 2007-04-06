@@ -33,6 +33,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -111,7 +112,7 @@ public class ExceptionService extends BaseInterceptor
         }
         
         // check if the entry already exists
-        if ( nextInterceptor.hasEntry( normName ) )
+        if ( nextInterceptor.hasEntry( new EntryServiceContext( normName ) ) )
         {
             NamingException ne = new LdapNameAlreadyBoundException( normName.toString() + " already exists!" );
             ne.setResolvedName( new LdapDN( normName.getUpName() ) );
@@ -339,7 +340,7 @@ public class ExceptionService extends BaseInterceptor
         newDn.remove( dn.size() - 1 );
         newDn.add( newRn );
         newDn.normalize( normalizerMap );
-        if ( nextInterceptor.hasEntry( newDn ) )
+        if ( nextInterceptor.hasEntry( new EntryServiceContext( newDn ) ) )
         {
             LdapNameAlreadyBoundException e;
             e = new LdapNameAlreadyBoundException( "target entry " + newDn.getUpName() + " already exists!" );
@@ -377,7 +378,7 @@ public class ExceptionService extends BaseInterceptor
         String rdn = oriChildName.get( oriChildName.size() - 1 );
         LdapDN target = ( LdapDN ) newParentName.clone();
         target.add( rdn );
-        if ( nextInterceptor.hasEntry( target ) )
+        if ( nextInterceptor.hasEntry( new EntryServiceContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
             String upRdn = new LdapDN( oriChildName.getUpName() ).get( oriChildName.size() - 1 );
@@ -421,7 +422,7 @@ public class ExceptionService extends BaseInterceptor
         LdapDN target = ( LdapDN ) newParentName.clone();
         target.add( newRn );
         target.normalize( normalizerMap );
-        if ( nextInterceptor.hasEntry( target ) )
+        if ( nextInterceptor.hasEntry( new EntryServiceContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
             LdapDN upTarget = ( LdapDN ) newParentName.clone();
@@ -478,7 +479,7 @@ public class ExceptionService extends BaseInterceptor
         
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        if ( !nextInterceptor.hasEntry( dn ) )
+        if ( !nextInterceptor.hasEntry( new EntryServiceContext( dn ) ) )
         {
             LdapNameNotFoundException e;
 

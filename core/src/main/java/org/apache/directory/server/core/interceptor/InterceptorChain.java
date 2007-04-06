@@ -152,9 +152,9 @@ public class InterceptorChain
         }
 
 
-        public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+        public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
         {
-            return nexus.hasEntry( name );
+            return nexus.hasEntry( entryContext );
         }
 
 
@@ -854,14 +854,14 @@ public class InterceptorChain
     }
 
 
-    public boolean hasEntry( LdapDN name ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.hasEntry( next, name );
+            return head.hasEntry( next, entryContext );
         }
         catch ( NamingException ne )
         {
@@ -1247,14 +1247,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean hasEntry( LdapDN name ) throws NamingException
+                public boolean hasEntry( ServiceContext entryContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.hasEntry( next.nextInterceptor, name );
+                        return interceptor.hasEntry( next.nextInterceptor, entryContext );
                     }
                     catch ( NamingException ne )
                     {

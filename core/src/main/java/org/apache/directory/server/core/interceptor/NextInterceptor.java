@@ -131,9 +131,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#hasEntry(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#hasEntry(NextInterceptor,ServiceContext)}.
      */
-    boolean hasEntry( LdapDN name ) throws NamingException;
+    boolean hasEntry( ServiceContext entryContext ) throws NamingException;
 
 
     /**

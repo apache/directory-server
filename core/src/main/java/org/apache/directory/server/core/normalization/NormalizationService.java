@@ -34,6 +34,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -344,10 +345,10 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, ServiceContext entryContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attrNormalizers );
-        return nextInterceptor.hasEntry( name );
+        LdapDN.normalize( ((EntryServiceContext)entryContext).getEntryDn(), attrNormalizers );
+        return nextInterceptor.hasEntry( entryContext );
     }
 
 

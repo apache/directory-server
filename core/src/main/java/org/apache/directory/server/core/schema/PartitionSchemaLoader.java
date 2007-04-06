@@ -40,6 +40,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -408,7 +409,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticObjectClassesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -508,7 +509,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticAttributeTypeDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -605,7 +606,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticMatchingRulesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -637,7 +638,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticSyntaxesDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -668,7 +669,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticSyntaxCheckersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -701,7 +702,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticNormalizersDNs.put( schema.getSchemaName(), dn );
         }
         
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }
@@ -770,7 +771,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             staticComparatorsDNs.put( schema.getSchemaName(), dn );
         }
 
-        if ( ! partition.hasEntry( dn ) )
+        if ( ! partition.hasEntry( new EntryServiceContext( dn ) ) )
         {
             return;
         }

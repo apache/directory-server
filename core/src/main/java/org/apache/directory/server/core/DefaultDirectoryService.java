@@ -41,6 +41,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
@@ -455,7 +456,7 @@ class DefaultDirectoryService extends DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( PartitionNexus.getAdminName() ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( PartitionNexus.getAdminName() ) ) )
         {
             firstStart = true;
 
@@ -488,7 +489,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN userDn = new LdapDN( "ou=users,ou=system" );
         userDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( userDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( userDn ) ) )
         {
             firstStart = true;
 
@@ -512,7 +513,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN groupDn = new LdapDN( "ou=groups,ou=system" );
         groupDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( groupDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( groupDn ) ) )
         {
             firstStart = true;
 
@@ -537,7 +538,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN normName = new LdapDN( "cn=administrators,ou=groups,ou=system" );
         normName.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( normName ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( normName ) ) )
         {
             firstStart = true;
 
@@ -581,7 +582,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
         configurationDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( configurationDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( configurationDn ) ) )
         {
             firstStart = true;
 
@@ -605,7 +606,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
         partitionsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( partitionsDn ) ) 
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -629,7 +630,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
         servicesDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( servicesDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( servicesDn ) ) )
         {
             firstStart = true;
 
@@ -653,7 +654,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
         interceptorsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( interceptorsDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -677,7 +678,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN sysPrefRootDn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system");
         sysPrefRootDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( sysPrefRootDn ) )
+        if ( !partitionNexus.hasEntry( new EntryServiceContext( sysPrefRootDn ) ) )
         {
             firstStart = true;
 

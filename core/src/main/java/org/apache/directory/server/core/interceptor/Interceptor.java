@@ -204,9 +204,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])} call.
+     * Filters {@link Partition#hasEntry(ServiceContext)} call.
      */
-    boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException;
+    boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException;
 
 
     /**

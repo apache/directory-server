@@ -34,6 +34,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
@@ -461,9 +462,9 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public boolean hasEntry( LdapDN dn ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
-        return null != getEntryId( dn.toString() );
+        return null != getEntryId( ((EntryServiceContext)entryContext).getEntryDn().getNormName() );
     }
 
 

@@ -45,6 +45,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
@@ -593,7 +594,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         dn = ( LdapDN ) dn.clone();
         while ( dn.size() > 0 )
         {
-            if ( hasEntry( dn ) )
+            if ( hasEntry( new EntryServiceContext( dn ) ) )
             {
                 return dn;
             }
@@ -925,10 +926,12 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#hasEntry(org.apache.directory.shared.ldap.name.LdapDN)
+     * @see Partition#hasEntry(ServiceContext)
      */
-    public boolean hasEntry( LdapDN dn ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
+        LdapDN dn = ((EntryServiceContext)entryContext).getEntryDn();
+        
         if ( IS_DEBUG )
         {
             log.debug( "Check if DN '" + dn + "' exists." );
@@ -940,7 +943,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         Partition backend = getBackend( dn );
-        return backend.hasEntry( dn );
+        return backend.hasEntry( entryContext );
     }
 
 

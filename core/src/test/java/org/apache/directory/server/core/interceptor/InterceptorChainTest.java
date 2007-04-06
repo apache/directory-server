@@ -390,10 +390,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+        public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.hasEntry( name );
+            return next.hasEntry( entryContext );
         }
 
 

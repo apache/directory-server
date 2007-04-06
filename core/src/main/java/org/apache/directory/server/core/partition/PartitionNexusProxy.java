@@ -520,21 +520,21 @@ public class PartitionNexusProxy extends PartitionNexus
         }
     }
 
-    public boolean hasEntry( LdapDN name ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
     {
-        return hasEntry( name, null );
+        return hasEntry( entryContext, null );
     }
 
 
-    public boolean hasEntry( LdapDN name, Collection bypass ) throws NamingException
+    public boolean hasEntry( ServiceContext entryContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "hasEntry", new Object[]
-            { name }, bypass ) );
+            { entryContext }, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().hasEntry( name );
+            return this.configuration.getInterceptorChain().hasEntry( entryContext );
         }
         finally
         {

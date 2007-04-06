@@ -50,6 +50,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
@@ -134,7 +135,7 @@ public abstract class ServerContext implements EventContext
         // need to issue a bind operation here
         this.nexusProxy.bind( bindContext ); 
 
-        if ( ! nexusProxy.hasEntry( dn ) )
+        if ( ! nexusProxy.hasEntry( new EntryServiceContext( dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -530,10 +531,12 @@ public abstract class ServerContext implements EventContext
     public void rebind( Name name, Object obj ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        if ( nexusProxy.hasEntry( target ) )
+        
+        if ( nexusProxy.hasEntry( new EntryServiceContext( target ) ) )
         {
             nexusProxy.delete( target );
         }
+        
         bind( name, obj );
     }
 
