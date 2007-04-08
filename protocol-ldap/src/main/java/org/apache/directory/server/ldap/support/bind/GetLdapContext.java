@@ -126,23 +126,31 @@ public class GetLdapContext implements IoHandlerCommand
 
     private Hashtable getEnvironment( IoSession session, Object message )
     {
-        /**
-         * For simple, this is an LdapDN.  For GSSAPI, this is a principal String.
-         */
         Object principal = session.getAttribute( Context.SECURITY_PRINCIPAL );
 
+        /**
+         * For simple, this is a password.  For strong, this is unused.
+         */
         Object credentials = session.getAttribute( Context.SECURITY_CREDENTIALS );
+
+        String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
+        String authenticationLevel = getAuthenticationLevel( sessionMechanism );
 
         log.debug( Context.SECURITY_PRINCIPAL + " " + principal );
         log.debug( Context.SECURITY_CREDENTIALS + " " + credentials );
-        log.debug( Context.SECURITY_AUTHENTICATION + " " + "simple" );
+        log.debug( Context.SECURITY_AUTHENTICATION + " " + authenticationLevel );
         log.debug( PropertyKeys.PARSED_BIND_DN + " " + principal );
 
         // clone the environment first then add the required security settings
         Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
         env.put( Context.SECURITY_PRINCIPAL, principal );
-        env.put( Context.SECURITY_CREDENTIALS, credentials );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+
+        if ( credentials != null )
+        {
+            env.put( Context.SECURITY_CREDENTIALS, credentials );
+        }
+
+        env.put( Context.SECURITY_AUTHENTICATION, authenticationLevel );
         env.put( PropertyKeys.PARSED_BIND_DN, principal );
 
         BindRequest request = ( BindRequest ) message;
@@ -157,5 +165,18 @@ public class GetLdapContext implements IoHandlerCommand
         }
 
         return env;
+    }
+
+
+    private String getAuthenticationLevel( String sessionMechanism )
+    {
+        if ( sessionMechanism.equals( "SIMPLE" ) )
+        {
+            return "simple";
+        }
+        else
+        {
+            return "strong";
+        }
     }
 }

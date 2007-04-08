@@ -78,11 +78,9 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         // Don't actually want the entry, rather the hacked in dn.
         getPrincipal.execute( ctx, null );
         String bindDn = getPrincipal.getDn();
-        String userPassword = getPrincipal.getUserPassword();
 
-        log.debug( "Converted username " + username + " to DN " + bindDn + " with password " + userPassword );
+        log.debug( "Converted username " + username + " to DN " + bindDn + "." );
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
-        session.setAttribute( Context.SECURITY_CREDENTIALS, userPassword );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

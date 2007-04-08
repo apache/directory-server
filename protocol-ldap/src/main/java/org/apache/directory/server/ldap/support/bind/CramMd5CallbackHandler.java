@@ -80,7 +80,6 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
     {
         log.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword );
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
-        session.setAttribute( Context.SECURITY_CREDENTIALS, userPassword );
 
         authorizeCB.setAuthorizedID( bindDn );
         authorizeCB.setAuthorized( true );

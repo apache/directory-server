@@ -21,11 +21,11 @@ package org.apache.directory.server.core;
 
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -75,7 +75,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -379,10 +378,22 @@ class DefaultDirectoryService extends DirectoryService
         }
 
         /*
+         * If bind is strong make sure we have the principal name
+         * set within the environment, otherwise complain
+         */
+        if ( "strong".equalsIgnoreCase( authentication ) )
+        {
+            if ( principal == null )
+            {
+                throw new LdapConfigurationException( "missing required " + Context.SECURITY_PRINCIPAL
+                    + " property for strong authentication" );
+            }
+        }
+        /*
          * If bind is simple make sure we have the credentials and the
          * principal name set within the environment, otherwise complain
          */
-        if ( "simple".equalsIgnoreCase( authentication ) )
+        else if ( "simple".equalsIgnoreCase( authentication ) )
         {
             if ( credential == null )
             {
@@ -408,6 +419,7 @@ class DefaultDirectoryService extends DirectoryService
                     + "settings encountered where bind is anonymous yet " + Context.SECURITY_CREDENTIALS
                     + " property is set" );
             }
+
             if ( principal != null )
             {
                 throw new LdapConfigurationException( "ambiguous bind "
@@ -423,8 +435,7 @@ class DefaultDirectoryService extends DirectoryService
         else
         {
             /*
-             * If bind is anything other than simple or none we need to
-             * complain because SASL is not a supported auth method yet
+             * If bind is anything other than strong, simple, or none we need to complain
              */
             throw new LdapAuthenticationNotSupportedException( "Unknown authentication type: '" + authentication + "'",
                 ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );

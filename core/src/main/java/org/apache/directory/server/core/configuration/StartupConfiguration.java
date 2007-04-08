@@ -33,6 +33,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
@@ -113,6 +114,12 @@ public class StartupConfiguration extends Configuration
         authCfg = new MutableAuthenticatorConfiguration();
         authCfg.setName( "Simple" );
         authCfg.setAuthenticator( new SimpleAuthenticator() );
+        set.add( authCfg );
+
+        // Strong
+        authCfg = new MutableAuthenticatorConfiguration();
+        authCfg.setName( "Strong" );
+        authCfg.setAuthenticator( new StrongAuthenticator() );
         set.add( authCfg );
 
         setAuthenticatorConfigurations( set );
