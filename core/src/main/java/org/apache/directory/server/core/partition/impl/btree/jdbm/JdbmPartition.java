@@ -30,6 +30,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
@@ -307,9 +309,9 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void add( LdapDN normName, Attributes entry ) throws NamingException
+    public final void add( ServiceContext addContext ) throws NamingException
     {
-        store.add( normName, entry );
+        store.add( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
     }
 
 
@@ -372,9 +374,10 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
+    public final void modify( ServiceContext modifyContext ) throws NamingException
     {
-        store.modify( dn, modOp, mods );
+    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+        store.modify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
     }
 
 
