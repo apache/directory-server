@@ -155,27 +155,27 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#compare(org.apache.directory.shared.ldap.name.LdapDN,String,Object)} call.
+     * Filters {@link PartitionNexus#compare( ServiceContext )} call.
      */
-    boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException;
+    boolean compare( NextInterceptor next, ServiceContext  compareContext) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#delete(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#delete(ServiceContext)} call.
      */
-    void delete( NextInterceptor next, LdapDN name ) throws NamingException;
+    void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#add(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)} call.
+     * Filters {@link Partition#add(ServiceContext)} call.
      */
-    void add( NextInterceptor next, LdapDN name, Attributes entry ) throws NamingException;
+    void add( NextInterceptor next, ServiceContext addContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)} call.
+     * Filters {@link Partition#modify(ServiceContext)} call.
      */
-    void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attributes ) throws NamingException;
+    void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException;
 
 
     /**

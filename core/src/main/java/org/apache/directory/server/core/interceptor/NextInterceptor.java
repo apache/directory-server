@@ -48,7 +48,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#compare(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String,Object)}.
      */
-    boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
+    boolean compare( ServiceContext compareContext ) throws NamingException;
 
 
     /**
@@ -90,19 +90,19 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, org.apache.directory.shared.ldap.name.LdapDN)}.
      */
-    void delete( LdapDN name ) throws NamingException;
+    void delete( ServiceContext deleteContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#add(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)}.
+     * Calls the next interceptor's {@link Interceptor#add(NextInterceptor,ServiceContext)}.
      */
-    void add(LdapDN normName, Attributes entry) throws NamingException;
+    void add( ServiceContext addContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)}.
+     * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor,ServiceContext)}.
      */
-    void modify( LdapDN name, int modOp, Attributes attributes ) throws NamingException;
+    void modify( ServiceContext modifyContext ) throws NamingException;
 
 
     /**

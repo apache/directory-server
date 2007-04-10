@@ -79,9 +79,9 @@ public class InterceptorChain
         }
 
 
-        public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+        public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
         {
-            return nexus.compare( name, oid, value );
+            return nexus.compare( compareContext );
         }
 
 
@@ -109,21 +109,21 @@ public class InterceptorChain
         }
 
 
-        public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+        public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
         {
-            nexus.delete( name );
+            nexus.delete( deleteContext );
         }
 
 
-        public void add(NextInterceptor next, LdapDN normName, Attributes entry) throws NamingException
+        public void add(NextInterceptor next, ServiceContext addContext ) throws NamingException
         {
-            nexus.add( normName, entry );
+            nexus.add( addContext );
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+        public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
         {
-            nexus.modify( name, modOp, mods );
+            nexus.modify( modifyContext );
         }
 
 
@@ -585,14 +585,14 @@ public class InterceptorChain
     }
 
 
-    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( ServiceContext compareContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.compare( next, name, oid, value );
+            return head.compare( next, compareContext );
         }
         catch ( NamingException ne )
         {
@@ -669,14 +669,14 @@ public class InterceptorChain
     }
 
 
-    public void delete( LdapDN name ) throws NamingException
+    public void delete( ServiceContext deleteContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.delete( next, name );
+            head.delete( next, deleteContext );
         }
         catch ( NamingException ne )
         {
@@ -689,14 +689,14 @@ public class InterceptorChain
     }
 
 
-    public void add( LdapDN normName, Attributes entry ) throws NamingException
+    public void add( ServiceContext addContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
         try
         {
-            head.add( next, normName, entry );
+            head.add( next, addContext );
         }
         catch ( NamingException ne )
         {
@@ -750,14 +750,14 @@ public class InterceptorChain
     }
 
 
-    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( ServiceContext modifyContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.modify( next, name, modOp, mods );
+            head.modify( next, modifyContext );
         }
         catch ( NamingException ne )
         {
@@ -998,14 +998,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+                public boolean compare( ServiceContext compareContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.compare( next.nextInterceptor, name, oid, value );
+                        return interceptor.compare( next.nextInterceptor, compareContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1103,14 +1103,14 @@ public class InterceptorChain
                 }
 
 
-                public void delete( LdapDN name ) throws NamingException
+                public void delete( ServiceContext deleteContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.delete( next.nextInterceptor, name );
+                        interceptor.delete( next.nextInterceptor, deleteContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1123,14 +1123,14 @@ public class InterceptorChain
                 }
 
 
-                public void add( LdapDN normName, Attributes entry ) throws NamingException
+                public void add( ServiceContext addContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.add( next.nextInterceptor, normName, entry );
+                        interceptor.add( next.nextInterceptor, addContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1143,14 +1143,14 @@ public class InterceptorChain
                 }
 
 
-                public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+                public void modify( ServiceContext modifyContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modify( next.nextInterceptor, name, modOp, mods );
+                        interceptor.modify( next.nextInterceptor, modifyContext );
                     }
                     catch ( NamingException ne )
                     {

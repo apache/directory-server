@@ -99,15 +99,15 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add(NextInterceptor next, LdapDN normName, Attributes entry) throws NamingException
+    public void add(NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
-        next.add(normName, entry );
+        next.add( addContext );
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
     {
-        next.delete( name );
+        next.delete( deleteContext );
     }
 
 
@@ -153,9 +153,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
     
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
-        next.modify( name, modOp, mods );
+        next.modify( modifyContext );
     }
 
 
@@ -203,9 +203,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
     {
-        return next.compare( name, oid, value );
+        return next.compare( compareContext );
     }
 
 
