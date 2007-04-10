@@ -41,6 +41,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -477,8 +478,8 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
-            partitionNexus.add(PartitionNexus.getAdminName(),
-                attributes );
+            partitionNexus.add( new AddServiceContext( PartitionNexus.getAdminName(),
+                attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -503,7 +504,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( userDn, attributes );
+            partitionNexus.add( new AddServiceContext( userDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -527,7 +528,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( groupDn, attributes );
+            partitionNexus.add( new AddServiceContext( groupDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -552,7 +553,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add(normName, attributes );
+            partitionNexus.add( new AddServiceContext( normName, attributes ) );
             
             Interceptor authzInterceptor = interceptorChain.get( "authorizationService" );
             
@@ -596,7 +597,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( configurationDn, attributes );
+            partitionNexus.add( new AddServiceContext( configurationDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -620,7 +621,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( partitionsDn, attributes );
+            partitionNexus.add( new AddServiceContext( partitionsDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -644,7 +645,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( servicesDn, attributes );
+            partitionNexus.add( new AddServiceContext( servicesDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -668,7 +669,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( interceptorsDn, attributes );
+            partitionNexus.add( new AddServiceContext( interceptorsDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -693,7 +694,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( sysPrefRootDn, attributes );
+            partitionNexus.add( new AddServiceContext( sysPrefRootDn, attributes ) );
         }
 
         return firstStart;
