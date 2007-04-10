@@ -25,6 +25,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -62,6 +63,6 @@ public class AddAttributeOperation extends AttributeOperation
     {
         Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
-        nexus.modify( getName(), DirContext.ADD_ATTRIBUTE, attrs );
+        nexus.modify( new ModifyServiceContext( getName(), DirContext.ADD_ATTRIBUTE, attrs ) );
     }
 }

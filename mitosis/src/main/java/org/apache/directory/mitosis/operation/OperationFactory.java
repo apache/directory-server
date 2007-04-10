@@ -35,6 +35,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -156,23 +158,28 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( LdapDN normalizedName, int modOp, Attributes attributes )
+    public Operation newModify( ServiceContext modifyContext )
     {
-        CSN csn = newCSN();
+    	LdapDN name = modifyContext.getDn();
+    	int modOp = ((ModifyServiceContext)modifyContext).getModOp();
+    	Attributes mods = ((ModifyServiceContext)modifyContext).getMods();
+
+    	CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        NamingEnumeration e = attributes.getAll();
+        NamingEnumeration e = mods.getAll();
+        
         // Transform into multiple {@link AttributeOperation}s.
         while ( e.hasMoreElements() )
         {
             Attribute attr = ( Attribute ) e.nextElement();
-            result.add( newModify( csn, normalizedName, modOp, attr ) );
+            result.add( newModify( csn, name, modOp, attr ) );
         }
 
         // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
+        result.add( new ReplaceAttributeOperation( csn, name, new AttributeImpl( Constants.ENTRY_DELETED,
             "false" ) ) );
 
-        return addDefaultOperations( result, null, normalizedName );
+        return addDefaultOperations( result, null, name );
     }
 
 

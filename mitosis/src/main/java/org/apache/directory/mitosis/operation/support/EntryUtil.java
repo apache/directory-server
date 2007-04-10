@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -122,7 +123,7 @@ public class EntryUtil
         entry.put( objectClassAttr );
 
         // And add it to the nexus.
-        nexus.add( name, entry );
+        nexus.add( new AddServiceContext( name, entry ) );
     }
 
 

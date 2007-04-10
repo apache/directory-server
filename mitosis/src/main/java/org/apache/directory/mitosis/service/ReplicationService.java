@@ -56,7 +56,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -359,7 +360,7 @@ public class ReplicationService extends BaseInterceptor
             {
                 Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
                 log.info( "Purge: " + name + " (" + entry + ')' );
-                nexus.delete( name );
+                nexus.delete( new DeleteServiceContext( name ) );
             }
             catch ( NamingException ex )
             {
@@ -369,9 +370,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor nextInterceptor, LdapDN normalizedName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, ServiceContext addContext ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( normalizedName, entry );
+        Operation op = operationFactory.newAdd( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
         op.execute( nexus, store, attrRegistry );
     }
 
@@ -383,9 +384,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attrs ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
-        Operation op = operationFactory.newModify( name, modOp, attrs );
+        Operation op = operationFactory.newModify( modifyContext );
         op.execute( nexus, store, attrRegistry );
     }
 

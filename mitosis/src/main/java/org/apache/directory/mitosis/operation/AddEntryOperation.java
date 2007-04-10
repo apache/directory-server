@@ -28,6 +28,8 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.operation.support.EntryUtil;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -95,7 +97,7 @@ public class AddEntryOperation extends Operation
         // when we put a new one.
         entry.remove( NamespaceTools.getRdnAttribute( rdn ) );
         entry.put( NamespaceTools.getRdnAttribute( rdn ), NamespaceTools.getRdnValue( rdn ) );
-        nexus.add( normalizedName, entry );
+        nexus.add( new AddServiceContext( normalizedName, entry ) );
     }
 
 
@@ -106,7 +108,7 @@ public class AddEntryOperation extends Operation
         NamingEnumeration<SearchResult> ne = nexus.list( normalizedName );
         if ( !ne.hasMore() )
         {
-            nexus.delete( normalizedName );
+            nexus.delete( new DeleteServiceContext( normalizedName ) );
             return;
         }
 
@@ -118,6 +120,6 @@ public class AddEntryOperation extends Operation
             recursiveDelete( nexus, dn, registry );
         }
         
-        nexus.delete( normalizedName );
+        nexus.delete( new DeleteServiceContext( normalizedName ) );
     }
 }
