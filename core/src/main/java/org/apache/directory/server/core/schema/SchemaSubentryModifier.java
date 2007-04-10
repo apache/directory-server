@@ -28,6 +28,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -133,7 +135,7 @@ public class SchemaSubentryModifier
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddServiceContext( dn, attrs ), BYPASS );
     }
 
 
@@ -141,7 +143,7 @@ public class SchemaSubentryModifier
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteServiceContext( dn ), BYPASS );
     }
 
     
@@ -151,7 +153,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteServiceContext( dn ), BYPASS );
     }
 
 
@@ -161,7 +163,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteServiceContext( dn ), BYPASS );
     }
 
 
@@ -171,7 +173,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteServiceContext( dn ), BYPASS );
     }
 
 
@@ -182,7 +184,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddServiceContext( dn, attrs ), BYPASS );
     }
     
     
@@ -216,7 +218,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( normalizerDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddServiceContext( dn, attrs ), BYPASS );
     }
     
     
@@ -250,7 +252,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( syntaxCheckerDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddServiceContext( dn, attrs ), BYPASS );
     }
     
     

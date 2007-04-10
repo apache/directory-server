@@ -40,7 +40,9 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -232,12 +234,15 @@ public class TriggerService extends BaseInterceptor
         this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes addedEntry ) throws NamingException
+    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
+    	LdapDN name = addContext.getDn();
+    	Attributes entry = ((AddServiceContext)addContext).getEntry();
+    	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.add( normName, addedEntry );
+            next.add( addContext );
             return;
         }
         
@@ -245,11 +250,12 @@ public class TriggerService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( invocation, normName, addedEntry );
+        StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( invocation, name, entry );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
         List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, addedEntry );
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, entry );
+
         /**
          *  NOTE: We do not handle entryTriggerSpecs for ADD operation.
          */
@@ -257,72 +263,74 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.ADD.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.ADD );
         
-        next.add( normName, addedEntry );
-        triggerSpecCache.subentryAdded( normName, addedEntry );
+        next.add( addContext );
+        triggerSpecCache.subentryAdded( name, entry );
         
         // Fire AFTER Triggers.
         List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
 
-    public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
+    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
     {
+    	LdapDN name = deleteContext.getDn();
+    	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.delete( normName );
+            next.delete( deleteContext );
             return;
         }
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, normName );
+        StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
         List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, deletedEntry );
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, deletedEntry );
         addEntryTriggerSpecs( triggerSpecs, deletedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.DELETE.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
         
-        next.delete( normName );
-        triggerSpecCache.subentryDeleted( normName, deletedEntry );
+        next.delete( deleteContext );
+        triggerSpecCache.subentryDeleted( name, deletedEntry );
         
         // Fire AFTER Triggers.
         List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modify( normName, modOp, mods );
+            next.modify( modifyContext );
             return;
         }
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( modifyContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, modOp, mods );
+        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, modifyContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
         List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, modifiedEntry );
+        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, modifyContext.getDn(), modifiedEntry );
         addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
         
-        next.modify( normName, modOp, mods );
-        triggerSpecCache.subentryModified( normName, modOp, mods, modifiedEntry );
+        next.modify( modifyContext );
+        triggerSpecCache.subentryModified( modifyContext, modifiedEntry );
         
         // Fire AFTER Triggers.
         List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );

@@ -38,6 +38,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -215,17 +217,17 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( LdapDN normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void subentryModified( ServiceContext modifyContext, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
             return;
         }
 
-        if ( mods.get( PRESCRIPTIVE_TRIGGER_ATTR ) != null )
+        if ( ((ModifyServiceContext)modifyContext).getMods().get( PRESCRIPTIVE_TRIGGER_ATTR ) != null )
         {
-            subentryDeleted( normName, entry );
-            subentryAdded( normName, entry );
+            subentryDeleted( modifyContext.getDn(), entry );
+            subentryAdded( modifyContext.getDn(), entry );
         }
     }
 

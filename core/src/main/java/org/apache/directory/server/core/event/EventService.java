@@ -33,7 +33,10 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -230,16 +233,21 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
-        super.add( next, normName, entry );
-        Set selecting = getSelectingSources( normName, entry );
+        super.add( next, addContext );
+        LdapDN name = addContext.getDn();
+        Attributes entry = ((AddServiceContext)addContext).getEntry();
+        
+        Set selecting = getSelectingSources( name, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
         Iterator list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
@@ -248,7 +256,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( normName.getUpName(), entry, false );
+                Binding binding = new Binding( name.getUpName(), entry, false );
                 nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
                     null, entry ) );
             }
@@ -256,17 +264,20 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
     {
+    	LdapDN name = deleteContext.getDn();
         Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
-        super.delete( next, name );
+        super.delete( next, deleteContext );
         Set selecting = getSelectingSources( name, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
         Iterator list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
@@ -310,21 +321,24 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
+    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        super.modify( next, name, modOp, mods );
+        Attributes oriEntry = proxy.lookup( new LookupServiceContext( ctx.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
+        super.modify( next, modifyContext );
 
         // package modifications in ModItem format for event delivery
-        ModificationItemImpl[] modItems = new ModificationItemImpl[mods.size()];
-        NamingEnumeration list = mods.getAll();
+        ModificationItemImpl[] modItems = new ModificationItemImpl[ctx.getMods().size()];
+        NamingEnumeration list = ctx.getMods().getAll();
+        
         for ( int ii = 0; ii < modItems.length; ii++ )
         {
-            modItems[ii] = new ModificationItemImpl( modOp, ( Attribute ) list.next() );
+            modItems[ii] = new ModificationItemImpl( ctx.getModOp(), ( Attribute ) list.next() );
         }
-        notifyOnModify( name, modItems, oriEntry );
+        
+        notifyOnModify( ctx.getDn(), modItems, oriEntry );
     }
 
 

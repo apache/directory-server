@@ -41,9 +41,10 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
@@ -199,29 +200,30 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"
-                    + normName.getUpName() + "'" );
+            log.debug( "Adding the entry " + 
+            		AttributeUtils.toString( ((AddServiceContext)addContext).getEntry() ) + 
+            		" for DN = '" + addContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
-        next.add(normName, entry );
+        next.add( addContext );
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Deleting name = '" + name.toString() + "'" );
+            log.debug( "Deleting name = '" + deleteContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
-        next.delete( name );
-        invalidateAuthenticatorCaches( name );
+        next.delete( deleteContext );
+        invalidateAuthenticatorCaches( deleteContext.getDn() );
     }
 
 
@@ -335,16 +337,18 @@ public class AuthenticationService extends BaseInterceptor
     }
     
     
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
+            log.debug( "Modifying name = '" + modifyContext.getDn().getUpName() + 
+            		"', modifs = " + AttributeUtils.toString( 
+            				((ModifyServiceContext)modifyContext).getMods() ) );
         }
 
         checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
-        next.modify( name, modOp, mods );
-        invalidateAuthenticatorCaches( name );
+        next.modify( modifyContext );
+        invalidateAuthenticatorCaches( modifyContext.getDn() );
     }
 
     

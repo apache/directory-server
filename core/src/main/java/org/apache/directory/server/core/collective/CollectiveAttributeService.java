@@ -38,7 +38,9 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -323,17 +325,18 @@ public class CollectiveAttributeService extends BaseInterceptor
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkAdd( normName, entry );
-        super.add( next, normName, entry );
+        collectiveAttributesSchemaChecker.checkAdd( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
+        super.add( next, addContext );
     }
 
 
-    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkModify( normName, modOp, mods );
-        super.modify( next, normName, modOp, mods );
+    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+        collectiveAttributesSchemaChecker.checkModify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
+        super.modify( next, modifyContext );
     }
 
 

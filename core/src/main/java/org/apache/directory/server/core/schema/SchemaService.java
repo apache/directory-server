@@ -47,7 +47,9 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -1162,8 +1164,12 @@ public class SchemaService extends BaseInterceptor
      * current entry or is not added by a previous modification operation.
      * @throws LdapSchemaViolationException Another schema violation occured.
      */
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
     {
+    	LdapDN name = modifyContext.getDn();
+    	int modOp = ((ModifyServiceContext)modifyContext).getModOp();
+    	Attributes mods = ((ModifyServiceContext)modifyContext).getMods();
+    	
         Attributes entry = null; 
 
         // handle operations against the schema subentry in the schema service
@@ -1315,7 +1321,7 @@ public class SchemaService extends BaseInterceptor
             return;
         }
         
-        next.modify( name, modOp, mods );
+        next.modify( modifyContext );
     }
     
     
@@ -1837,16 +1843,19 @@ public class SchemaService extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, LdapDN normName, Attributes attrs ) throws NamingException
+    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
     {
-        check( normName, attrs );
+    	LdapDN name = addContext.getDn();
+        Attributes attrs = ((AddServiceContext)addContext).getEntry();
+        
+    	check( name, attrs );
 
-        if ( normName.startsWith( schemaBaseDN ) )
+        if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.add( normName, attrs );
+            schemaManager.add( name, attrs );
         }
 
-        next.add( normName, attrs );
+        next.add( addContext );
     }
     
 
@@ -1893,16 +1902,17 @@ public class SchemaService extends BaseInterceptor
     }
     
     
-    public void delete( NextInterceptor next, LdapDN normName ) throws NamingException
+    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( new LookupServiceContext( normName ) );
+    	LdapDN name = deleteContext.getDn();
+        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         
-        if ( normName.startsWith( schemaBaseDN ) )
+        if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.delete( normName, entry );
+            schemaManager.delete( name, entry );
         }
         
-        next.delete( normName );
+        next.delete( deleteContext );
     }
 
 

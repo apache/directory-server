@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -102,25 +103,27 @@ public class ExceptionService extends BaseInterceptor
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
      * does an exception is raised.
      */
-    public void add( NextInterceptor nextInterceptor, LdapDN normName, Attributes entry )
+    public void add( NextInterceptor nextInterceptor, ServiceContext addContext )
         throws NamingException
     {
-        if ( subschemSubentryDn.getNormName().equals( normName.getNormName() ) )
+    	LdapDN name = addContext.getDn();
+    	
+        if ( subschemSubentryDn.getNormName().equals( name.getNormName() ) )
         {
             throw new LdapNameAlreadyBoundException( 
                 "The global schema subentry cannot be added since it exists by default." );
         }
         
         // check if the entry already exists
-        if ( nextInterceptor.hasEntry( new EntryServiceContext( normName ) ) )
+        if ( nextInterceptor.hasEntry( new EntryServiceContext( name ) ) )
         {
-            NamingException ne = new LdapNameAlreadyBoundException( normName.toString() + " already exists!" );
-            ne.setResolvedName( new LdapDN( normName.getUpName() ) );
+            NamingException ne = new LdapNameAlreadyBoundException( name.getUpName() + " already exists!" );
+            ne.setResolvedName( new LdapDN( name.getUpName() ) );
             throw ne;
         }
 
-        LdapDN parentDn = ( LdapDN ) normName.clone();
-        parentDn.remove( normName.size() - 1 );
+        LdapDN parentDn = ( LdapDN ) name.clone();
+        parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
         Attributes attrs = null;
@@ -138,16 +141,17 @@ public class ExceptionService extends BaseInterceptor
         }
         
         Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
+        
         if ( objectClass.contains( "alias" ) )
         {
-            String msg = "Attempt to add entry to alias '" + normName.getUpName() + "' not allowed.";
+            String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
             ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
             NamingException e = new LdapNamingException( msg, rc );
             e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
             throw e;
         }
 
-        nextInterceptor.add( normName, entry );
+        nextInterceptor.add( addContext );
     }
 
 
@@ -155,8 +159,10 @@ public class ExceptionService extends BaseInterceptor
      * Checks to make sure the entry being deleted exists, and has no children, otherwise throws the appropriate
      * LdapException.
      */
-    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, ServiceContext deleteContext ) throws NamingException
     {
+    	LdapDN name = deleteContext.getDn();
+    	
         if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -172,12 +178,14 @@ public class ExceptionService extends BaseInterceptor
         // check if entry to delete has children (only leaves can be deleted)
         boolean hasChildren = false;
         NamingEnumeration list = nextInterceptor.list( name );
+        
         if ( list.hasMore() )
         {
             hasChildren = true;
         }
 
         list.close();
+        
         if ( hasChildren )
         {
             LdapContextNotEmptyException e = new LdapContextNotEmptyException();
@@ -185,7 +193,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.delete( name );
+        nextInterceptor.delete( deleteContext );
     }
 
 
@@ -231,31 +239,34 @@ public class ExceptionService extends BaseInterceptor
     /**
      * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
      */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
         throws NamingException
     {
+    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+
         // check if entry to modify exists
         String msg = "Attempt to modify non-existant entry: ";
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
-        if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
+        if ( ctx.getDn().getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
-            nextInterceptor.modify( name, modOp, attrs );
+            nextInterceptor.modify( modifyContext );
             return;
         }
         
-        assertHasEntry( nextInterceptor, msg, name );
+        assertHasEntry( nextInterceptor, msg, ctx.getDn() );
 
-        Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
-        NamingEnumeration attrIds = attrs.getIDs();
+        Attributes entry = nexus.lookup( new LookupServiceContext( ctx.getDn() ) );
+        NamingEnumeration attrIds = ctx.getMods().getIDs();
+        
         while ( attrIds.hasMore() )
         {
             String attrId = ( String ) attrIds.next();
-            Attribute modAttr = attrs.get( attrId );
+            Attribute modAttr = ctx.getMods().get( attrId );
             Attribute entryAttr = entry.get( attrId );
 
-            if ( modOp == DirContext.ADD_ATTRIBUTE )
+            if ( ctx.getModOp() == DirContext.ADD_ATTRIBUTE )
             {
                 if ( entryAttr != null )
                 {
@@ -270,7 +281,8 @@ public class ExceptionService extends BaseInterceptor
                 }
             }
         }
-        nextInterceptor.modify( name, modOp, attrs );
+        
+        nextInterceptor.modify( modifyContext );
     }
 
 

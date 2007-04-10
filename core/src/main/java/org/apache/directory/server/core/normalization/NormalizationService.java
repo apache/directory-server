@@ -33,8 +33,6 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.BindServiceContext;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -110,26 +108,26 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
-    public void add(NextInterceptor nextInterceptor, LdapDN name, Attributes attrs)
+    public void add(NextInterceptor nextInterceptor, ServiceContext addContext)
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attrNormalizers );
-        nextInterceptor.add( normalized, attrs );
+        LdapDN.normalize( addContext.getDn(), attrNormalizers );
+        nextInterceptor.add( addContext );
     }
 
 
-    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, ServiceContext deleteContext ) throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attrNormalizers );
-        nextInterceptor.delete( normalized );
+        LdapDN.normalize( deleteContext.getDn(), attrNormalizers );
+        nextInterceptor.delete( deleteContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attrNormalizers );
-        nextInterceptor.modify( normalized, modOp, attrs );
+        LdapDN.normalize( modifyContext.getDn(), attrNormalizers );
+        nextInterceptor.modify( modifyContext );
     }
 
 
@@ -384,10 +382,10 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attrNormalizers );
-        return next.compare( name, oid, value );
+        LdapDN.normalize( compareContext.getDn(), attrNormalizers );
+        return next.compare( compareContext );
     }
     
     

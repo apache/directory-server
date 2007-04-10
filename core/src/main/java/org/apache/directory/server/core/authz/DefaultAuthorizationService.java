@@ -150,11 +150,13 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, ServiceContext deleteContext ) throws NamingException
     {
+    	LdapDN name = deleteContext.getDn();
+    	
         if ( !enabled )
         {
-            nextInterceptor.delete( name );
+            nextInterceptor.delete( deleteContext );
             return;
         }
 
@@ -196,7 +198,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        nextInterceptor.delete( name );
+        nextInterceptor.delete( deleteContext );
     }
 
     
@@ -228,23 +230,24 @@ public class DefaultAuthorizationService extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectModifyAlterations( name );
-            nextInterceptor.modify( name, modOp, attrs );
+            protectModifyAlterations( modifyContext.getDn() );
+            nextInterceptor.modify( modifyContext );
 
             // update administrators if we change administrators group
-            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+            if ( modifyContext.getDn().getNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
             {
                 loadAdministrators();
             }
+            
             return;
         }
 
-        nextInterceptor.modify( name, modOp, attrs );
+        nextInterceptor.modify( modifyContext );
     }
 
 

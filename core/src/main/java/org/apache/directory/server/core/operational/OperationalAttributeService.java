@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -43,7 +42,9 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -148,10 +149,11 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add(NextInterceptor nextInterceptor, LdapDN normName, Attributes entry)
+    public void add(NextInterceptor nextInterceptor, ServiceContext addContext )
         throws NamingException
     {
         String principal = getPrincipal().getName();
+        Attributes entry = ((AddServiceContext)addContext).getEntry();
 
         Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
         attribute.add( principal );
@@ -161,16 +163,16 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
-        nextInterceptor.add(normName, entry );
+        nextInterceptor.add( addContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
         throws NamingException
     {
-        nextInterceptor.modify( name, modOp, attrs );
+        nextInterceptor.modify( modifyContext );
 
-        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        if ( modifyContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
         {
             return;
         }
@@ -185,7 +187,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		modifyContext.getDn(),
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        nexus.modify( newModify );
     }
 
 
@@ -208,7 +214,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		name,
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        nexus.modify( newModify );
     }
 
 
@@ -231,7 +241,12 @@ public class OperationalAttributeService extends BaseInterceptor
         newDn.remove( name.size() - 1 );
         newDn.add( newRn );
         newDn.normalize( registry.getNormalizerMapping() );
-        nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
+        
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		newDn,
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        nexus.modify( newModify );
     }
 
 
@@ -249,7 +264,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		newParentName,
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        nexus.modify( newModify );
     }
 
 
@@ -268,7 +287,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		newParentName,
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        nexus.modify( newModify );
     }
 
 

@@ -28,6 +28,8 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -49,9 +51,12 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         init( modifiedEntryName, modifications );
     }
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, int modOp, Attributes modifications ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, ServiceContext modifyContext ) throws NamingException
     {
         super( invocation );
+        Attributes modifications = ((ModifyServiceContext)modifyContext).getMods();
+        int modOp = ((ModifyServiceContext)modifyContext).getModOp();
+
         ModificationItemImpl[] mods = new ModificationItemImpl[ modifications.size() ];
         NamingEnumeration modEnum = modifications.getAll();
         int i = 0;
