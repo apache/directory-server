@@ -168,11 +168,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     {
     	if ( name instanceof LdapDN )
     	{
-    		getNexusProxy().modify( new ModifyServiceContext( (LdapDN)name, modOp, attrs ) );
+    		getNexusProxy().modify( new ModifyServiceContext( buildTarget( name ), modOp, attrs ) );
     	}
     	else
     	{
-    		getNexusProxy().modify( new ModifyServiceContext( new LdapDN( name ), modOp, attrs ) );
+    		getNexusProxy().modify( new ModifyServiceContext( buildTarget( new LdapDN( name ) ), modOp, attrs ) );
     	}
     }
 
