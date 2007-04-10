@@ -60,11 +60,14 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         ModificationItemImpl[] mods = new ModificationItemImpl[ modifications.size() ];
         NamingEnumeration modEnum = modifications.getAll();
         int i = 0;
+        
         while ( modEnum.hasMoreElements() )
         {
             Attribute attribute = ( Attribute ) modEnum.nextElement();
             mods[ i++ ] = new ModificationItemImpl( modOp, attribute ); 
         }
+        
+        modifiedEntryName = modifyContext.getDn();
         
         init( modifiedEntryName, mods );
     }
