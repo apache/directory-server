@@ -47,6 +47,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -276,21 +277,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( ServiceContext compareContext ) throws NamingException
     {
-        return compare( name, oid, value, null );
+        return compare( compareContext, null );
     }
 
 
-    public boolean compare( LdapDN name, String oid, Object value, Collection bypass ) throws NamingException
+    public boolean compare( ServiceContext compareContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "compare", new Object[]
-            { name, oid, value }, bypass ) );
+            { compareContext }, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().compare( name, oid, value );
+            return this.configuration.getInterceptorChain().compare( compareContext );
         }
         finally
         {
@@ -299,21 +300,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void delete( LdapDN name ) throws NamingException
+    public void delete( ServiceContext deleteContext ) throws NamingException
     {
-        delete( name, null );
+        delete( deleteContext, null );
     }
 
 
-    public void delete( LdapDN name, Collection bypass ) throws NamingException
+    public void delete( ServiceContext deleteContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "delete", new Object[]
-            { name }, bypass ) );
+            { deleteContext }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().delete( name );
+            this.configuration.getInterceptorChain().delete( deleteContext );
         }
         finally
         {
@@ -322,21 +323,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void add( LdapDN normName, Attributes entry ) throws NamingException
+    public void add( ServiceContext addContext ) throws NamingException
     {
-        add( normName, entry, null );
+        add( addContext, null );
     }
 
 
-    public void add( LdapDN normName, Attributes entry, Collection bypass ) throws NamingException
+    public void add( ServiceContext addContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "add", new Object[]
-            { normName, entry }, bypass ) );
+            { addContext }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().add( normName, entry );
+            this.configuration.getInterceptorChain().add( addContext );
         }
         finally
         {
@@ -345,38 +346,43 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( ServiceContext modifyContext ) throws NamingException
     {
-        modify( name, modOp, mods, null );
+        modify( modifyContext, null );
     }
 
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Collection bypass ) throws NamingException
+    public void modify( ServiceContext modifyContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Integer modOpObj;
+        
+        int modOp = ((ModifyServiceContext)modifyContext).getModOp();
 
         switch ( modOp )
         {
             case ( DirContext.ADD_ATTRIBUTE  ):
                 modOpObj = ADD_MODOP;
                 break;
+
             case ( DirContext.REMOVE_ATTRIBUTE  ):
                 modOpObj = REMOVE_MODOP;
                 break;
+            
             case ( DirContext.REPLACE_ATTRIBUTE  ):
                 modOpObj = REPLACE_MODOP;
                 break;
+            
             default:
                 throw new IllegalArgumentException( "bad modification operation value: " + modOp );
         }
 
         stack.push( new Invocation( this, caller, "modify", new Object[]
-            { name, modOpObj, mods }, bypass ) );
+            { modifyContext }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().modify( name, modOp, mods );
+            this.configuration.getInterceptorChain().modify( modifyContext );
         }
         finally
         {

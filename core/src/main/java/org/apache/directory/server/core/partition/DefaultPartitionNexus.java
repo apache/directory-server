@@ -44,11 +44,10 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.CompareServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
-import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -464,20 +463,22 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ContextPartitionNexus Method Implementations
     // ------------------------------------------------------------------------
 
-    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( ServiceContext compareContext ) throws NamingException
     {
-        Partition partition = getBackend( name );
+        Partition partition = getBackend( compareContext.getDn() );
         AttributeTypeRegistry registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        
+        CompareServiceContext ctx = (CompareServiceContext)compareContext;
 
         // complain if we do not recognize the attribute being compared
-        if ( !registry.hasAttributeType( oid ) )
+        if ( !registry.hasAttributeType( ctx.getOid() ) )
         {
-            throw new LdapInvalidAttributeIdentifierException( oid + " not found within the attributeType registry" );
+            throw new LdapInvalidAttributeIdentifierException( ctx.getOid() + " not found within the attributeType registry" );
         }
 
-        AttributeType attrType = registry.lookup( oid );
+        AttributeType attrType = registry.lookup( ctx.getOid() );
         
-        Attribute attr = partition.lookup( new LookupServiceContext( name ) ).get( attrType.getName() );
+        Attribute attr = partition.lookup( new LookupServiceContext( ctx.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -486,7 +487,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         // see first if simple match without normalization succeeds
-        if ( attr.contains( value ) )
+        if ( attr.contains( ctx.getValue() ) )
         {
             return true;
         }
@@ -499,11 +500,12 @@ public class DefaultPartitionNexus extends PartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        Object reqVal = normalizer.normalize( value );
+        Object reqVal = normalizer.normalize( ctx.getValue() );
 
         for ( int ii = 0; ii < attr.size(); ii++ )
         {
             Object attrValObj = normalizer.normalize( attr.get( ii ) );
+            
             if ( attrValObj instanceof String )
             {
                 String attrVal = ( String ) attrValObj;
@@ -681,10 +683,10 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#delete(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public void delete( LdapDN dn ) throws NamingException
+    public void delete( ServiceContext deleteContext ) throws NamingException
     {
-        Partition backend = getBackend( dn );
-        backend.delete( dn );
+        Partition backend = getBackend( deleteContext.getDn() );
+        backend.delete( deleteContext );
     }
 
 
@@ -695,22 +697,22 @@ public class DefaultPartitionNexus extends PartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see Partition#add(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)
+     * @see Partition#add( ServiceContext )
      */
-    public void add( LdapDN dn, Attributes entry ) throws NamingException
+    public void add( ServiceContext addContext ) throws NamingException
     {
-        Partition backend = getBackend( dn );
-        backend.add( dn, entry );
+        Partition backend = getBackend( addContext.getDn() );
+        backend.add( addContext );
     }
 
 
     /**
      * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)
      */
-    public void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
+    public void modify( ServiceContext modifyContext ) throws NamingException
     {
-        Partition backend = getBackend( dn );
-        backend.modify( dn, modOp, mods );
+        Partition backend = getBackend( modifyContext.getDn() );
+        backend.modify( modifyContext );
     }
 
 

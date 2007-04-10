@@ -106,40 +106,37 @@ public interface Partition
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
+     * @param deleteContext the context of the entry to
      * delete from this ContextPartition.
      * @throws NamingException if there are any problems
      */
-    void delete( LdapDN name ) throws NamingException;
+    void delete( ServiceContext deleteContext ) throws NamingException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param name
-     * @param entry the entry to add to this ContextPartition
+     * @param addContext the context used  to add and entry to this ContextPartition
      * @throws NamingException if there are any problems
      */
-    void add( LdapDN name, Attributes entry ) throws NamingException;
+    void add( ServiceContext addContext ) throws NamingException;
 
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
-     * modify
-     * @param modOp the modification operation to perform on the entry which
-     * is one of constants specified by the DirContext interface:
+     * @param modifyContext The contetx containin the modification operation 
+     * to perform on the entry which is one of constants specified by the 
+     * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
-     * @param attributes the attributes and their values used to affect the
-     * modification with.
+     * 
      * @throws NamingException if there are any problems
      * @see javax.naming.directory.DirContext
      * @see javax.naming.directory.DirContext#ADD_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( LdapDN name, int modOp, Attributes attributes ) throws NamingException;
+    void modify( ServiceContext modifyContext ) throws NamingException;
 
 
     /**

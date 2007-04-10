@@ -34,7 +34,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
@@ -330,7 +330,7 @@ public abstract class BTreePartition implements Partition
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, entry );
+            add( new AddServiceContext( normalizedSuffix, entry ) );
         }
     }
 
@@ -382,8 +382,10 @@ public abstract class BTreePartition implements Partition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void delete( LdapDN dn ) throws NamingException
+    public void delete( ServiceContext deleteContext ) throws NamingException
     {
+    	LdapDN dn = deleteContext.getDn();
+    	
         Long id = getEntryId( dn.toString() );
 
         // don't continue if id is null
@@ -404,10 +406,10 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void add(LdapDN dn, Attributes entry) throws NamingException;
+    public abstract void add( ServiceContext addContext ) throws NamingException;
 
 
-    public abstract void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException;
+    public abstract void modify( ServiceContext modifyContext ) throws NamingException;
 
 
     public abstract void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException;

@@ -32,8 +32,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -224,10 +224,15 @@ public abstract class AbstractPartition implements Partition
      * Please override this method if there is more effactive way for your
      * implementation.
      */
-    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( ServiceContext modifyContext ) throws NamingException
     {
+    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+    	int modOp = ctx.getModOp();
+    	Attributes mods = ctx.getMods(); 
+    	
         List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( mods.size() );
         NamingEnumeration e = mods.getAll();
+        
         while ( e.hasMore() )
         {
             items.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
@@ -235,7 +240,7 @@ public abstract class AbstractPartition implements Partition
 
         ModificationItemImpl[] itemsArray = new ModificationItemImpl[items.size()];
         itemsArray = items.toArray( itemsArray );
-        modify( name, itemsArray );
+        modify( ctx.getDn(), itemsArray );
     }
 
 

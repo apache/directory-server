@@ -31,6 +31,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -188,13 +189,11 @@ public abstract class PartitionNexus implements Partition
      * Performs a comparison check to see if an attribute of an entry has
      * a specified value.
      *
-     * @param name the normalized name of the entry
-     * @param oid the attribute being compared
-     * @param value the value the attribute is compared to
+     * @param compareContext the context used to compare
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
+    public abstract boolean compare( ServiceContext compareContext ) throws NamingException;
 
 
     public abstract void addContextPartition( PartitionConfiguration config ) throws NamingException;
