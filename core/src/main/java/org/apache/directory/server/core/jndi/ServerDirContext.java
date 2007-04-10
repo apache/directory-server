@@ -44,8 +44,12 @@ import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -156,14 +160,20 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         modifyAttributes( new LdapDN( name ), modOp, attrs );
     }
 
-
     /**
-     * @see javax.naming.directory.DirContext#modifyAttributes(
-     * javax.naming.Name,int, javax.naming.directory.Attributes)
+     * @see javax.naming.directory.DirContext#modifyAttributes(java.lang.String,
+     *      int, javax.naming.directory.Attributes)
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        getNexusProxy().modify( buildTarget( name ), modOp, attrs );
+    	if ( name instanceof LdapDN )
+    	{
+    		getNexusProxy().modify( new ModifyServiceContext( (LdapDN)name, modOp, attrs ) );
+    	}
+    	else
+    	{
+    		getNexusProxy().modify( new ModifyServiceContext( new LdapDN( name ), modOp, attrs ) );
+    	}
     }
 
     /**
@@ -254,7 +264,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             Attributes clone = ( Attributes ) attrs.clone();
             LdapDN target = buildTarget( name );
-            getNexusProxy().add( target, clone );
+            getNexusProxy().add( new AddServiceContext( target, clone ) );
             return;
         }
 
@@ -274,7 +284,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     attributes.put( ( Attribute ) list.next() );
                 }
             }
-            getNexusProxy().add( target, attributes );
+            getNexusProxy().add( new AddServiceContext( target, attributes ) );
             return;
         }
 
@@ -306,7 +316,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            getNexusProxy().add( target, attributes );
+            getNexusProxy().add( new AddServiceContext( target, attributes ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -321,7 +331,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 }
             }
             LdapDN target = buildTarget( name );
-            getNexusProxy().add( target, attributes );
+            getNexusProxy().add( new AddServiceContext( target, attributes ) );
         }
         else
         {
@@ -349,7 +359,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         LdapDN target = buildTarget( name );
         if ( getNexusProxy().hasEntry( new EntryServiceContext( target ) ) )
         {
-            getNexusProxy().delete( target );
+            getNexusProxy().delete( new DeleteServiceContext( target ) );
         }
         bind( name, obj, attrs );
     }
@@ -380,6 +390,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Rdn rdn = target.getRdn( target.size() - 1 );
         
         Attributes attributes = ( Attributes ) attrs.clone();
+        
         if ( rdn.size() == 1 )
         {
             String rdnAttribute = rdn.getUpType();
@@ -414,7 +425,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         // Add the new context to the server which as a side effect adds
-        getNexusProxy().add( target, attributes );
+        getNexusProxy().add( new AddServiceContext( target, attributes ) );
 
         // Initialize the new context
         return new ServerLdapContext( getService(), getPrincipal(), target );
