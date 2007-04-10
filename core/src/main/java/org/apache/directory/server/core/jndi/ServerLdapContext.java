@@ -31,6 +31,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.CompareServiceContext;
 import org.apache.directory.server.core.interceptor.context.UnbindServiceContext;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -164,7 +165,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
-        return super.getNexusProxy().compare( name, oid, value );
+        return super.getNexusProxy().compare( new CompareServiceContext( name, oid, value ) );
     }
 
 
@@ -179,9 +180,8 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        UnbindServiceContext unbindContext = new UnbindServiceContext( new LdapDN( bindDn ) );
         
-        super.getNexusProxy().unbind( unbindContext );
+        super.getNexusProxy().unbind( new UnbindServiceContext( new LdapDN( bindDn ) ) );
     }
 
 
