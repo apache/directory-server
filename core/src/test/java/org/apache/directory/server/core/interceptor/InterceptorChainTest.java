@@ -332,32 +332,32 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+        public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.compare( name, oid, value );
+            return next.compare( compareContext );
         }
 
 
-        public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+        public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
         {
             interceptors.add( this );
-            next.delete( name );
+            next.delete( deleteContext );
         }
 
 
-        public void add(NextInterceptor next, LdapDN name, Attributes entry)
+        public void add(NextInterceptor next, ServiceContext addContext )
             throws NamingException
         {
             interceptors.add( this );
-            next.add(name, entry );
+            next.add( addContext );
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attributes ) throws NamingException
+        public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
         {
             interceptors.add( this );
-            next.modify( name, modOp, attributes );
+            next.modify( modifyContext );
         }
 
 
