@@ -49,7 +49,9 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
+import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -315,7 +317,7 @@ public abstract class ServerContext implements EventContext
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for env.
          */
-        nexusProxy.add(target, attributes );
+        nexusProxy.add( new AddServiceContext( target, attributes ) );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -335,12 +337,13 @@ public abstract class ServerContext implements EventContext
     public void destroySubcontext( Name name ) throws NamingException
     {
         LdapDN target = buildTarget( name );
+        
         if ( target.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't delete the rootDSE" );
         }
 
-        nexusProxy.delete( target );
+        nexusProxy.delete( new DeleteServiceContext( target ) );
     }
 
 
@@ -384,7 +387,7 @@ public abstract class ServerContext implements EventContext
         if ( outAttrs != null )
         {
             LdapDN target = buildTarget( name );
-            nexusProxy.add( target, outAttrs );
+            nexusProxy.add( new AddServiceContext( target, outAttrs ) );
             return;
         }
 
@@ -419,7 +422,7 @@ public abstract class ServerContext implements EventContext
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            nexusProxy.add( target, attributes );
+            nexusProxy.add( new AddServiceContext( target, attributes ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -436,7 +439,7 @@ public abstract class ServerContext implements EventContext
 
             LdapDN target = buildTarget( name );
             injectRdnAttributeValues( target, attributes );
-            nexusProxy.add( target, attributes );
+            nexusProxy.add( new AddServiceContext( target, attributes ) );
         }
         else
         {
@@ -534,7 +537,7 @@ public abstract class ServerContext implements EventContext
         
         if ( nexusProxy.hasEntry( new EntryServiceContext( target ) ) )
         {
-            nexusProxy.delete( target );
+            nexusProxy.delete( new DeleteServiceContext( target ) );
         }
         
         bind( name, obj );
@@ -555,7 +558,7 @@ public abstract class ServerContext implements EventContext
      */
     public void unbind( Name name ) throws NamingException
     {
-        nexusProxy.delete( buildTarget( name ) );
+        nexusProxy.delete( new DeleteServiceContext( buildTarget( name ) ) );
     }
 
 
