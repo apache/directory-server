@@ -35,9 +35,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class LookupServiceContext  extends AbstractServiceContext
 {
-    /** The entry DN */
-    private LdapDN dn;
-    
     /** The list of attributes id to return */
     private List<String> attrsId;
     
@@ -51,6 +48,7 @@ public class LookupServiceContext  extends AbstractServiceContext
      */
     public LookupServiceContext()
     {
+    	super();
     }
 
     /**
@@ -60,7 +58,7 @@ public class LookupServiceContext  extends AbstractServiceContext
      */
     public LookupServiceContext( LdapDN dn )
     {
-        this.dn = dn;
+        super( dn );
     }
 
     /**
@@ -70,6 +68,7 @@ public class LookupServiceContext  extends AbstractServiceContext
      */
     public LookupServiceContext( String attrsId[] )
     {
+    	super();
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
@@ -82,28 +81,10 @@ public class LookupServiceContext  extends AbstractServiceContext
      */
     public LookupServiceContext( LdapDN dn, String attrsId[] )
     {
-        this.dn = dn;
+        super( dn );
         this.attrsId = new ArrayList<String>();
         attrsOid = new ArrayList<String>();
         setAttrsId( attrsId );
-    }
-
-    /**
-     * @return The entry's DN
-     */
-    public LdapDN getDn()
-    {
-        return dn;
-    }
-    
-    /**
-     * Set the principal's DN.
-     *
-     * @param unbindDn The principal's DN
-     */
-    public void setDn( LdapDN dn )
-    {
-        this.dn = dn;
     }
 
     /**
@@ -231,6 +212,6 @@ public class LookupServiceContext  extends AbstractServiceContext
      */
     public String toString()
     {
-        return "LookupContext for DN '" + dn.getUpName() + "'" + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
+        return "LookupContext for DN '" + getDn().getUpName() + "'" + ( ( attrsId != null ) ? ", attributes : <" + StringTools.listToString( attrsId ) + ">" : "" );
     }
 }
