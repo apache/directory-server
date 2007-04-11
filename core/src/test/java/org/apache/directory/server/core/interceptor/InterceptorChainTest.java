@@ -405,10 +405,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException
+        public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
         {
             interceptors.add( this );
-            next.move( oldName, newParentName );
+            next.replace( replaceContext );
         }
 
 
