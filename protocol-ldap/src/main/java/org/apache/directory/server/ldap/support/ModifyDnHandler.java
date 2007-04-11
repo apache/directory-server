@@ -90,7 +90,7 @@ public class ModifyDnHandler implements LdapMessageHandler
                     ctx.addToEnvironment( Context.REFERRAL, "throw" );
                 }
                 
-                ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+                ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
                 ctx.addToEnvironment( "java.naming.ldap.deleteRDN", deleteRDN );
 
