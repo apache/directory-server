@@ -149,9 +149,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)}.
+     * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,ServiceContext)}.
      */
-    void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+    void move( ServiceContext moveContext ) throws NamingException;
 
 
     /**

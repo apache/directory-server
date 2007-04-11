@@ -50,6 +50,7 @@ import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -497,19 +498,21 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oldName, LdapDN newParent, String newRdn, boolean deleteOldRdn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
+        LdapDN oldName = moveContext.getDn();
+        
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-        LdapDN newName = ( LdapDN ) newParent.clone();
-        newName.add( newRdn );
+        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
+        newName.add( ((MoveServiceContext)moveContext).getNewDn() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.move( oldName, newParent, newRdn, deleteOldRdn );
+            next.move( moveContext );
             if ( lut.isReferral( oldName ) )
             {
                 lut.referralChanged( oldName, newName );
@@ -523,7 +526,7 @@ public class ReferralService extends BaseInterceptor
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName ); // safe to use - does not return newName
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
-                next.move( oldName, newParent, newRdn, deleteOldRdn );
+                next.move( moveContext );
                 if ( lut.isReferral( oldName ) )
                 {
                     lut.referralChanged( oldName, newName );

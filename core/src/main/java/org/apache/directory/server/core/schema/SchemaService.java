@@ -51,6 +51,7 @@ import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -1327,17 +1328,22 @@ public class SchemaService extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
+        LdapDN oriChildName = moveContext.getDn();
+
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            schemaManager.move( oriChildName, 
+                ((MoveServiceContext)moveContext).getParent(), 
+                ((MoveServiceContext)moveContext).getNewDn(), 
+                ((MoveServiceContext)moveContext).getDelOldDn(), entry );
         }
         
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        next.move( moveContext );
     }
 
 

@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -420,12 +421,17 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN parent = ((MoveServiceContext)moveContext).getParent();
+        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        boolean deleteOldRn = ((MoveServiceContext)moveContext).getDelOldDn();
+
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            next.move( moveContext );
             return;
         }
         
@@ -439,9 +445,9 @@ public class TriggerService extends BaseInterceptor
         LdapDN newRDN = new LdapDN( newRn );
         LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
-        LdapDN newSuperiorDN = ( LdapDN ) newParentName.clone();
+        LdapDN newSuperiorDN = ( LdapDN ) parent.clone();
         LdapDN oldDN = ( LdapDN ) oriChildName.clone();
-        LdapDN newDN = ( LdapDN ) newParentName.clone();
+        LdapDN newDN = ( LdapDN ) parent.clone();
         newDN.add( newRn );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
@@ -482,7 +488,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
         Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        next.move( moveContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.

@@ -31,7 +31,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -239,16 +238,11 @@ public interface Partition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param oldName the normalized distinguished/absolute name of the
-     * original child name representing the child entry to move
-     * @param newParentName the normalized distinguished/absolute name of the
-     * new parent to move the targeted entry to
-     * @param newRn the new RN of the entry
-     * @param deleteOldRn boolean flag which removes the old RN attribute
-     * from the entry if set to true, and has no affect if set to false
+     * @param moveContext The context contain all the information about
+     * the modifyDN operation
      * @throws NamingException if there are any problems
      */
-    void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+    void move( ServiceContext moveContext ) throws NamingException;
 
 
     /**

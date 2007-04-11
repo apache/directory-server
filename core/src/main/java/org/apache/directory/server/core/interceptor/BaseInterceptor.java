@@ -171,10 +171,10 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        next.move( moveContext );
     }
 
 

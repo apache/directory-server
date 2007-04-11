@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -392,13 +393,13 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
-        super.move( next, oriChildName, newParentName, newRn, deleteOldRn );
-        LdapDN newName = ( LdapDN ) newParentName.clone();
-        newName.add( newRn );
-        notifyOnNameChange( oriChildName, newName );
+        super.move( next, moveContext );
+        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
+        newName.add( ((MoveServiceContext)moveContext).getNewDn() );
+        notifyOnNameChange( moveContext.getDn(), newName );
     }
 
 

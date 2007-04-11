@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.CompareServiceContex
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -778,9 +779,13 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
+        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
@@ -793,14 +798,14 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            next.move( moveContext );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            next.move( moveContext );
             tupleCache.subentryRenamed( oriChildName, newName );
             groupCache.groupRenamed( oriChildName, newName );
             return;
@@ -830,6 +835,7 @@ public class AuthorizationService extends BaseInterceptor
         SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
+        
         while ( attrList.hasMore() )
         {
             subentryAttrs.put( ( Attribute ) attrList.next() );
@@ -843,34 +849,8 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
-        //        if ( deleteOldRn )
-        //        {
-        //            String oldRn = oriChildName.get( oriChildName.size() - 1 );
-        //            if ( NamespaceTools.hasCompositeComponents( oldRn ) )
-        //            {
-        //                String[] comps = NamespaceTools.getCompositeComponents( oldRn );
-        //                for ( int ii = 0; ii < comps.length; ii++ )
-        //                {
-        //                    String id = NamespaceTools.getRdnAttribute( comps[ii] );
-        //                    String value = NamespaceTools.getRdnValue( comps[ii] );
-        //                    engine.checkPermission( next, userGroups, user.getJndiName(),
-        //                            user.getAuthenticationLevel(), oriChildName, id,
-        //                            value, Collections.singleton( MicroOperation.REMOVE ),
-        //                            tuples, entry );
-        //                }
-        //            }
-        //            else
-        //            {
-        //                String id = NamespaceTools.getRdnAttribute( oldRn );
-        //                String value = NamespaceTools.getRdnValue( oldRn );
-        //                engine.checkPermission( next, userGroups, user.getJndiName(),
-        //                        user.getAuthenticationLevel(), oriChildName, id,
-        //                        value, Collections.singleton( MicroOperation.REMOVE ),
-        //                        tuples, entry );
-        //            }
-        //        }
 
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        next.move( moveContext );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }

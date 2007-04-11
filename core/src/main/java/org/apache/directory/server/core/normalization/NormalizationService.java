@@ -34,6 +34,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -155,12 +156,12 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attrNormalizers );
-        newParentName.normalize( attrNormalizers);
-        nextInterceptor.move( normalized, newParentName, newRn, deleteOldRn );
+        LdapDN.normalize( moveContext.getDn(), attrNormalizers );
+        LdapDN.normalize( ((MoveServiceContext)moveContext).getParent(), attrNormalizers);
+        nextInterceptor.move( moveContext );
     }
 
 

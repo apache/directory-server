@@ -596,23 +596,23 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( ServiceContext moveContext ) throws NamingException
     {
-        move( oriChildName, newParentName, newRn, deleteOldRn, null );
+        move( moveContext, null );
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Collection bypass )
+    public void move( ServiceContext moveContext, Collection bypass )
         throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { oriChildName, newParentName, newRn, deleteOldRn ? Boolean.TRUE : Boolean.FALSE };
+            { moveContext };
         stack.push( new Invocation( this, caller, "move", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().move( oriChildName, newParentName, newRn, deleteOldRn );
+            this.configuration.getInterceptorChain().move( moveContext );
         }
         finally
         {

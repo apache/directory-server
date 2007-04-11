@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -420,9 +421,12 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName, String newRn,
-        boolean deleteOldRn ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
     {
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN parent = ((MoveServiceContext)moveContext).getParent();
+        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -437,16 +441,16 @@ public class ExceptionService extends BaseInterceptor
 
         // check if parent to move to exists
         msg = "Attempt to move to non-existant parent: ";
-        assertHasEntry( nextInterceptor, msg, newParentName );
+        assertHasEntry( nextInterceptor, msg, parent );
 
         // check to see if target entry exists
-        LdapDN target = ( LdapDN ) newParentName.clone();
+        LdapDN target = ( LdapDN ) parent.clone();
         target.add( newRn );
         target.normalize( normalizerMap );
         if ( nextInterceptor.hasEntry( new EntryServiceContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
-            LdapDN upTarget = ( LdapDN ) newParentName.clone();
+            LdapDN upTarget = ( LdapDN ) parent.clone();
             upTarget.add( newRn );
 
             LdapNameAlreadyBoundException e;
@@ -455,7 +459,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.move( oriChildName, newParentName, newRn, deleteOldRn );
+        nextInterceptor.move( moveContext );
     }
 
 

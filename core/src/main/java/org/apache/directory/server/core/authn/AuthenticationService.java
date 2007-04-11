@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -382,18 +383,20 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void move( NextInterceptor next, ServiceContext moveContext )
         throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '"
-                + newRn + "', oldRDN = '" + deleteOldRn + "'" );
+            log.debug( "Moving name = '" + moveContext.getDn().getUpName() + "' to name = '" + 
+                ((MoveServiceContext)moveContext).getParent() + "', new RDN = '" + 
+                ((MoveServiceContext)moveContext).getNewDn() + "', oldRDN = '" + 
+                ((MoveServiceContext)moveContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
-        invalidateAuthenticatorCaches( oriChildName );
+        next.move( moveContext );
+        invalidateAuthenticatorCaches( moveContext.getDn() );
     }
 
 

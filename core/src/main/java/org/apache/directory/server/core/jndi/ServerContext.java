@@ -518,8 +518,7 @@ public abstract class ServerContext implements EventContext
             }
             else
             {
-                //nexusProxy.move( new MoveServiceContext( oldDn, parent, newRdn, delOldRdn ) );
-                nexusProxy.move( oldDn, parent, newRdn, delOldRdn );
+                nexusProxy.move( new MoveServiceContext( oldDn, parent, newRdn, delOldRdn ) );
             }
         }
     }

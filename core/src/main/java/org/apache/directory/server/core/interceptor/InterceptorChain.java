@@ -171,10 +171,10 @@ public class InterceptorChain
         }
 
 
-        public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+        public void move( NextInterceptor next, ServiceContext moveContext )
             throws NamingException
         {
-            nexus.move( oriChildName, newParentName, newRn, deleteOldRn );
+            nexus.move( moveContext );
         }
 
 
@@ -915,14 +915,14 @@ public class InterceptorChain
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( ServiceContext moveContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.move( next, oriChildName, newParentName, newRn, deleteOldRn );
+            head.move( next, moveContext );
         }
         catch ( NamingException ne )
         {
@@ -1308,7 +1308,7 @@ public class InterceptorChain
                 }
 
 
-                public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+                public void move( ServiceContext moveContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1316,7 +1316,7 @@ public class InterceptorChain
 
                     try
                     {
-                        interceptor.move( next.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
+                        interceptor.move( next.nextInterceptor, moveContext );
                     }
                     catch ( NamingException ne )
                     {

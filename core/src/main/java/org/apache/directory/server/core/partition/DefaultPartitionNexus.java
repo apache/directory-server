@@ -970,12 +970,12 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)
+     * @see Partition#move( ServiceContext )
      */
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void move( ServiceContext moveContext ) throws NamingException
     {
-        Partition backend = getBackend( oldChildDn );
-        backend.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
+        Partition backend = getBackend( moveContext.getDn() );
+        backend.move( moveContext );
     }
 
 
