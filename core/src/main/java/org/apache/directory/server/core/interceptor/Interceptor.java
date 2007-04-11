@@ -216,9 +216,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link Partition#replace(ServiceContext)} call.
      */
-    void move( NextInterceptor next, LdapDN oldName, LdapDN newParentName ) throws NamingException;
+    void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException;
 
 
     /**

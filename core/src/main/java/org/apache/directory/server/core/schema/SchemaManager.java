@@ -453,17 +453,18 @@ public class SchemaManager
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
             String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.move( oriChildName, newParentName, entry );
+                handler.replace( oriChildName, newParentName, entry );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -471,7 +472,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.move( oriChildName, newParentName, entry );
+            metaSchemaHandler.replace( oriChildName, newParentName, entry );
             updateSchemaModificationAttributes();
             return;
         }

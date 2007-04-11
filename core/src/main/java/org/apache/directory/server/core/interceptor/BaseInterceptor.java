@@ -178,9 +178,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
     {
-        next.move( oriChildName, newParentName );
+        next.replace( replaceContext );
     }
 
 

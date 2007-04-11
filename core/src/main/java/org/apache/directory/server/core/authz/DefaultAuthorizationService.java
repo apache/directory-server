@@ -344,13 +344,14 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( oriChildName );
+            protectDnAlterations( replaceContext.getDn() );
         }
-        nextInterceptor.move( oriChildName, newParentName );
+        
+        nextInterceptor.replace( replaceContext );
     }
 
 

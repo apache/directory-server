@@ -35,6 +35,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -255,7 +256,7 @@ public abstract class AbstractPartition implements Partition
     {
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
-        move( oldName, newParentName );
+        replace( new ReplaceServiceContext( oldName, newParentName ) );
         modifyRn( new ModifyDNServiceContext( newName, newRn, deleteOldRn ) );
     }
 
@@ -264,7 +265,7 @@ public abstract class AbstractPartition implements Partition
      * This method throws {@link OperationNotSupportedException} by default.
      * Please override this method to implement move operation.
      */
-    public void move( LdapDN oldName, LdapDN newParentName ) throws NamingException
+    public void replace( ServiceContext replaceContext ) throws NamingException
     {
         throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }

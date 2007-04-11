@@ -165,9 +165,9 @@ public class InterceptorChain
         }
 
 
-        public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+        public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
         {
-            nexus.move( oriChildName, newParentName );
+            nexus.replace( replaceContext );
         }
 
 
@@ -895,14 +895,14 @@ public class InterceptorChain
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( ServiceContext replaceContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.move( next, oriChildName, newParentName );
+            head.replace( next, replaceContext );
         }
         catch ( NamingException ne )
         {
@@ -1288,14 +1288,14 @@ public class InterceptorChain
                 }
 
 
-                public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+                public void replace( ServiceContext replaceContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.move( next.nextInterceptor, oriChildName, newParentName );
+                        interceptor.replace( next.nextInterceptor, replaceContext );
                     }
                     catch ( NamingException ne )
                     {

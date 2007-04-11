@@ -348,7 +348,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
             ResultCodeEnum.UNWILLING_TO_PERFORM );

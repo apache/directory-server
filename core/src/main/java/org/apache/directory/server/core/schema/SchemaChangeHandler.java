@@ -42,5 +42,5 @@ public interface SchemaChangeHandler
     void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException;
     void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry ) throws NamingException;
     void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) throws NamingException;
-    void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException;
+    void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException;
 }

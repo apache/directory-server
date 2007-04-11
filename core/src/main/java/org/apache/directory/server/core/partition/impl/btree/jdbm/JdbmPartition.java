@@ -33,6 +33,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
@@ -401,9 +402,10 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException
+    public final void replace( ServiceContext replaceContext ) throws NamingException
     {
-        store.move( oldChildDn, newParentDn );
+        ReplaceServiceContext ctx = (ReplaceServiceContext)replaceContext;
+        store.move( ctx.getDn(), ctx.getParent() );
     }
 
 

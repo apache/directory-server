@@ -55,6 +55,8 @@ import org.apache.directory.server.core.interceptor.context.DeleteServiceContext
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -512,8 +514,7 @@ public abstract class ServerContext implements EventContext
             
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
-                //nexusProxy.move( new MoveServiceContext( oldDn, parent ) );
-                nexusProxy.move( oldDn, parent );
+                nexusProxy.replace( new ReplaceServiceContext( oldDn, parent ) );
             }
             else
             {

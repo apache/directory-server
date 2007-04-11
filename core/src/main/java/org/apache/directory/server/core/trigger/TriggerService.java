@@ -43,6 +43,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -492,14 +493,17 @@ public class TriggerService extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.move( oriChildName, newParentName );
+            next.replace( replaceContext );
             return;
         }
+        
+        LdapDN oriChildName = replaceContext.getDn();
+        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
         
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -538,6 +542,7 @@ public class TriggerService extends BaseInterceptor
         SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
+        
         while ( attrList.hasMore() )
         {
             fakeImportedEntry.put( ( Attribute ) attrList.next() );
@@ -554,7 +559,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
         Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
-        next.move( oriChildName, newParentName );
+        next.replace( replaceContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.

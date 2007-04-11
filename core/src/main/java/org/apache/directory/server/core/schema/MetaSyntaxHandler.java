@@ -202,7 +202,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
         throws NamingException
     {
         checkNewParent( newParentName );

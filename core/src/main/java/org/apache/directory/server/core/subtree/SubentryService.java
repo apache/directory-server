@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -842,8 +843,11 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
     {
+        LdapDN oriChildName = replaceContext.getDn();
+        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -861,7 +865,7 @@ public class SubentryService extends BaseInterceptor
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.move( oriChildName, newParentName );
+            next.replace( replaceContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
@@ -871,6 +875,7 @@ public class SubentryService extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -893,7 +898,8 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.move( oriChildName, newParentName );
+            
+            next.replace( replaceContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

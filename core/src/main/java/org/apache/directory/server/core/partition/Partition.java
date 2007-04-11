@@ -225,13 +225,10 @@ public interface Partition
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param oldName the normalized distinguished/absolute name of the
-     * original child name representing the child entry to move
-     * @param newParentName the normalized distinguished/absolute name of the
-     * new parent to move the target entry to
+     * @param replaceContext The context containing the DNs to move
      * @throws NamingException if there are any problems
      */
-    void move( LdapDN oldName, LdapDN newParentName ) throws NamingException;
+    void replace( ServiceContext replaceContext ) throws NamingException;
 
 
     /**

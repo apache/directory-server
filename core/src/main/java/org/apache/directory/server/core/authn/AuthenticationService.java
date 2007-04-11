@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
@@ -396,16 +397,17 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
+            log.debug( "Moving name = '" + replaceContext.getDn().getUpName() + " to name = '" + 
+                ((ReplaceServiceContext)replaceContext).getParent().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.move( oriChildName, newParentName );
-        invalidateAuthenticatorCaches( oriChildName );
+        next.replace( replaceContext );
+        invalidateAuthenticatorCaches( replaceContext.getDn() );
     }
 
 

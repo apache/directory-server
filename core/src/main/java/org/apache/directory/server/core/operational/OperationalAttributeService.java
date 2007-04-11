@@ -46,6 +46,7 @@ import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -251,9 +252,9 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
     {
-        nextInterceptor.move( name, newParentName );
+        nextInterceptor.replace( replaceContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -266,9 +267,10 @@ public class OperationalAttributeService extends BaseInterceptor
         attributes.put( attribute );
 
         ModifyServiceContext newModify = new ModifyServiceContext( 
-        		newParentName,
+        		((ReplaceServiceContext)replaceContext).getParent(),
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
+        
         nexus.modify( newModify );
     }
 

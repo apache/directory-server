@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.context.CompareServiceContex
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -875,8 +876,11 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
     {
+        LdapDN oriChildName = replaceContext.getDn();
+        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
@@ -889,14 +893,14 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.move( oriChildName, newParentName );
+            next.replace( replaceContext );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.move( oriChildName, newParentName );
+            next.replace( replaceContext );
             tupleCache.subentryRenamed( oriChildName, newName );
             groupCache.groupRenamed( oriChildName, newName );
             return;
@@ -926,6 +930,7 @@ public class AuthorizationService extends BaseInterceptor
         SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
+        
         while ( attrList.hasMore() )
         {
             subentryAttrs.put( ( Attribute ) attrList.next() );
@@ -939,7 +944,7 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
-        next.move( oriChildName, newParentName );
+        next.replace( replaceContext );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }

@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -372,8 +373,11 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
     {
+        LdapDN oriChildName = replaceContext.getDn();
+        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -394,6 +398,7 @@ public class ExceptionService extends BaseInterceptor
         String rdn = oriChildName.get( oriChildName.size() - 1 );
         LdapDN target = ( LdapDN ) newParentName.clone();
         target.add( rdn );
+        
         if ( nextInterceptor.hasEntry( new EntryServiceContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
@@ -407,7 +412,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.move( oriChildName, newParentName );
+        nextInterceptor.replace( replaceContext );
     }
 
 
