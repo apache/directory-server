@@ -168,7 +168,6 @@ public class BindRequestPerfTest extends TestCase
             message.setMessageId( 1 );
             
             BindRequest br = new BindRequest();
-            br.setMessageId( 1 );
             br.setName( name );
             
             Control control = new Control();
@@ -177,7 +176,7 @@ public class BindRequestPerfTest extends TestCase
             LdapAuthentication authentication = new SimpleAuthentication();
             ((SimpleAuthentication)authentication).setSimple( StringTools.getBytesUtf8( "password" ) );
 
-            br.addControl( control );
+            message.addControl( control );
             br.setAuthentication( authentication );
             message.setProtocolOP( br );
     
