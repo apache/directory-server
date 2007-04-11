@@ -33,6 +33,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -255,7 +256,7 @@ public abstract class AbstractPartition implements Partition
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRn );
         move( oldName, newParentName );
-        modifyRn( newName, newRn, deleteOldRn );
+        modifyRn( new ModifyDNServiceContext( newName, newRn, deleteOldRn ) );
     }
 
 

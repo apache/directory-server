@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -332,9 +333,11 @@ public class ExceptionService extends BaseInterceptor
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN dn, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
         throws NamingException
     {
+        LdapDN dn = modifyDnContext.getDn();
+        
         if ( dn.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -350,8 +353,9 @@ public class ExceptionService extends BaseInterceptor
         // check to see if target entry exists
         LdapDN newDn = ( LdapDN ) dn.clone();
         newDn.remove( dn.size() - 1 );
-        newDn.add( newRn );
+        newDn.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
         newDn.normalize( normalizerMap );
+        
         if ( nextInterceptor.hasEntry( new EntryServiceContext( newDn ) ) )
         {
             LdapNameAlreadyBoundException e;
@@ -360,7 +364,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.modifyRn( dn, newRn, deleteOldRn );
+        nextInterceptor.modifyRn( modifyDnContext );
     }
 
 

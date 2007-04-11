@@ -397,11 +397,11 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
+        public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
             throws NamingException
         {
             interceptors.add( this );
-            next.modifyRn( name, newRn, deleteOldRn );
+            next.modifyRn( modifyDnContext );
         }
 
 

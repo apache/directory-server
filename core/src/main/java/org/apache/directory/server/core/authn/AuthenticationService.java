@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -365,17 +366,18 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '"
-                + deleteOldRn + "'" );
+            log.debug( "Modifying name = '" + modifyDnContext.getDn().getUpName() + "', new RDN = '" + 
+                ((ModifyDNServiceContext)modifyDnContext).getNewDn() + "', " +
+                "oldRDN = '" + ((ModifyDNServiceContext)modifyDnContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.modifyRn( name, newRn, deleteOldRn );
-        invalidateAuthenticatorCaches( name );
+        next.modifyRn( modifyDnContext );
+        invalidateAuthenticatorCaches( modifyDnContext.getDn() );
     }
 
 

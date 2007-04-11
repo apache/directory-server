@@ -35,6 +35,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -379,14 +380,14 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
-        super.modifyRn( next, name, newRn, deleteOldRn );
-        LdapDN newName = ( LdapDN ) name.clone();
+        super.modifyRn( next, modifyDnContext );
+        LdapDN newName = ( LdapDN ) modifyDnContext.getDn().clone();
         newName.remove( newName.size() - 1 );
-        newName.add( newRn );
+        newName.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
         newName.normalize( attributeRegistry.getNormalizerMapping() );
-        notifyOnNameChange( name, newName );
+        notifyOnNameChange( modifyDnContext.getDn(), newName );
     }
 
 

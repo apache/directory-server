@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -696,8 +697,11 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
+        LdapDN name = modifyDnContext.getDn();
+        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
+        
         Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
@@ -719,7 +723,7 @@ public class SubentryService extends BaseInterceptor
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.modifyRn( name, newRn, deleteOldRn );
+            next.modifyRn( modifyDnContext );
 
             subentry = subentryCache.getSubentry( newNormName );
             ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
@@ -748,7 +752,7 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.modifyRn( name, newRn, deleteOldRn );
+            next.modifyRn( modifyDnContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

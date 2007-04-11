@@ -470,7 +470,7 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
+    public abstract void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
 
 
     public abstract void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException;

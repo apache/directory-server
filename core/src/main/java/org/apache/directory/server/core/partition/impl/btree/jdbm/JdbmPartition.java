@@ -31,6 +31,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
@@ -387,9 +388,10 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public final void modifyRn( ServiceContext modifyDnContext ) throws NamingException
     {
-        store.modifyRn( dn, newRdn, deleteOldRdn );
+        ModifyDNServiceContext ctx = (ModifyDNServiceContext)modifyDnContext;
+        store.modifyRn( ctx.getDn(), ctx.getNewDn(), ctx.getDelOldDn() );
     }
 
 

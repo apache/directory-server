@@ -49,6 +49,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -1352,8 +1353,12 @@ public class SchemaService extends BaseInterceptor
     }
     
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
+        LdapDN name = modifyDnContext.getDn();
+        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
+        boolean deleteOldRn = ((ModifyDNServiceContext)modifyDnContext).getDelOldDn();
+        
         Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
@@ -1361,7 +1366,7 @@ public class SchemaService extends BaseInterceptor
             schemaManager.modifyRn( name, newRn, deleteOldRn, entry );
         }
         
-        next.modifyRn( name, newRn, deleteOldRn );
+        next.modifyRn( modifyDnContext );
     }
 
     private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };

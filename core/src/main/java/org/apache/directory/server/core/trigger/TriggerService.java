@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -371,12 +372,16 @@ public class TriggerService extends BaseInterceptor
     }
     
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
+        LdapDN name = modifyDnContext.getDn();
+        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
+        boolean deleteOldRn = ((ModifyDNServiceContext)modifyDnContext).getDelOldDn();
+        
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modifyRn( name, newRn, deleteOldRn );
+            next.modifyRn( modifyDnContext );
             return;
         }
         
@@ -406,7 +411,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_RENAME.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFYDN_RENAME );
         
-        next.modifyRn( name, newRn, deleteOldRn );
+        next.modifyRn( modifyDnContext );
         triggerSpecCache.subentryRenamed( name, newDN );
         
         // Fire AFTER Triggers.

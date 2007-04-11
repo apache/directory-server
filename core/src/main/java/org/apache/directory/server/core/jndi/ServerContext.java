@@ -54,6 +54,7 @@ import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -464,6 +465,7 @@ public abstract class ServerContext implements EventContext
     {
         LdapDN oldDn = buildTarget( oldName );
         LdapDN newDn = buildTarget( newName );
+        
         if ( oldDn.size() == 0 )
         {
             throw new LdapNoPermissionException( "can't rename the rootDSE" );
@@ -499,20 +501,23 @@ public abstract class ServerContext implements EventContext
          * a move operation.  Furthermore if the RDN in the move operation 
          * changes it is both an RDN change and a move operation.
          */
-        if ( oldName.size() == newName.size() && oldBase.equals( newBase ) )
+        if ( ( oldName.size() == newName.size() ) && oldBase.equals( newBase ) )
         {
-            nexusProxy.modifyRn( oldDn, newRdn, delOldRdn );
+            nexusProxy.modifyRn( new ModifyDNServiceContext( oldDn, newRdn, delOldRdn ) );
         }
         else
         {
             LdapDN parent = ( LdapDN ) newDn.clone();
             parent.remove( newDn.size() - 1 );
+            
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
+                //nexusProxy.move( new MoveServiceContext( oldDn, parent ) );
                 nexusProxy.move( oldDn, parent );
             }
             else
             {
+                //nexusProxy.move( new MoveServiceContext( oldDn, parent, newRdn, delOldRdn ) );
                 nexusProxy.move( oldDn, parent, newRdn, delOldRdn );
             }
         }

@@ -210,9 +210,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} call.
+     * Filters {@link Partition#modifyRn(ServiceContext)} call.
      */
-    void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException;
 
 
     /**

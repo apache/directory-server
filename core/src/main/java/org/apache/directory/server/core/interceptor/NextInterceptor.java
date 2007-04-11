@@ -137,9 +137,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)}.
+     * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor,ServiceContext)}.
      */
-    void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
 
 
     /**

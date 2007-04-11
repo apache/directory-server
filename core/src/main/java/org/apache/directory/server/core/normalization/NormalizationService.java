@@ -138,11 +138,11 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attrNormalizers );
-        nextInterceptor.modifyRn( normalized, newRn, deleteOldRn );
+        LdapDN.normalize( modifyDnContext.getDn(), attrNormalizers );
+        nextInterceptor.modifyRn( modifyDnContext );
     }
 
 

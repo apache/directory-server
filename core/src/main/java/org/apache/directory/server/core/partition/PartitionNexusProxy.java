@@ -549,22 +549,22 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
     {
-        modifyRn( name, newRn, deleteOldRn, null );
+        modifyRn( modifyDnContext, null );
     }
 
 
-    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn, Collection bypass ) throws NamingException
+    public void modifyRn( ServiceContext modifyDnContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { name, newRn, deleteOldRn ? Boolean.TRUE : Boolean.FALSE };
+            { modifyDnContext };
         stack.push( new Invocation( this, caller, "modifyRn", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().modifyRn( name, newRn, deleteOldRn );
+            this.configuration.getInterceptorChain().modifyRn( modifyDnContext );
         }
         finally
         {

@@ -332,14 +332,15 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( name );
+            protectDnAlterations( modifyDnContext.getDn() );
         }
-        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
+        
+        nextInterceptor.modifyRn( modifyDnContext );
     }
 
 

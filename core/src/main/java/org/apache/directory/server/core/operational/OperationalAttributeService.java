@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -222,10 +223,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
         throws NamingException
     {
-        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
+        nextInterceptor.modifyRn( modifyDnContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -237,9 +238,9 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        LdapDN newDn = ( LdapDN ) name.clone();
-        newDn.remove( name.size() - 1 );
-        newDn.add( newRn );
+        LdapDN newDn = ( LdapDN ) modifyDnContext.getDn().clone();
+        newDn.remove( modifyDnContext.getDn().size() - 1 );
+        newDn.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
         ModifyServiceContext newModify = new ModifyServiceContext( 

@@ -165,9 +165,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
     {
-        next.modifyRn( name, newRn, deleteOldRn );
+        next.modifyRn( modifyDnContext );
     }
 
 

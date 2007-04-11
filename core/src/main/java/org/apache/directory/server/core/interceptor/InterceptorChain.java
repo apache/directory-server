@@ -158,10 +158,10 @@ public class InterceptorChain
         }
 
 
-        public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
+        public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
             throws NamingException
         {
-            nexus.modifyRn( name, newRn, deleteOldRn );
+            nexus.modifyRn( modifyDnContext );
         }
 
 
@@ -875,14 +875,14 @@ public class InterceptorChain
     }
 
 
-    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.modifyRn( next, name, newRn, deleteOldRn );
+            head.modifyRn( next, modifyDnContext );
         }
         catch ( NamingException ne )
         {
@@ -1268,14 +1268,14 @@ public class InterceptorChain
                 }
 
 
-                public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+                public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modifyRn( next.nextInterceptor, name, newRn, deleteOldRn );
+                        interceptor.modifyRn( next.nextInterceptor, modifyDnContext );
                     }
                     catch ( NamingException ne )
                     {

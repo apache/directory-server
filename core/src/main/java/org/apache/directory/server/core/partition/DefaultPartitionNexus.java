@@ -952,10 +952,10 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)
      */
-    public void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
     {
-        Partition backend = getBackend( dn );
-        backend.modifyRn( dn, newRdn, deleteOldRdn );
+        Partition backend = getBackend( modifyDnContext.getDn() );
+        backend.modifyRn( modifyDnContext );
     }
 
 

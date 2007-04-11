@@ -31,6 +31,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -214,14 +215,10 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelavent.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
-     * modify the RN of.
-     * @param newRn the new RN of the entry specified by name
-     * @param deleteOldRn boolean flag which removes the old RN attribute
-     * from the entry if set to true, and has no affect if set to false
+     * @param modifyDnContext the modify DN context
      * @throws NamingException if there are any problems
      */
-    void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
 
 
     /**

@@ -48,6 +48,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -556,27 +557,31 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN oldName, String newRdn, boolean deleteOldRdn )
+    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
         throws NamingException
     {
+        LdapDN oldName = modifyDnContext.getDn();
+        
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN newName = ( LdapDN ) oldName.clone();
         newName.remove( oldName.size() - 1 );
 
-        LdapDN newRdnName = new LdapDN( newRdn );
+        LdapDN newRdnName = new LdapDN( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
         newRdnName.normalize( attrRegistry.getNormalizerMapping() );
         newName.add( newRdnName.toNormName() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.modifyRn( oldName, newRdn, deleteOldRdn );
+            next.modifyRn( modifyDnContext );
+            
             if ( lut.isReferral( oldName ) )
             {
                 lut.referralChanged( oldName, newName );
             }
+            
             return;
         }
 
@@ -584,15 +589,19 @@ public class ReferralService extends BaseInterceptor
         {
             LdapDN farthestSrc = lut.getFarthestReferralAncestor( oldName );
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName );
+            
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
-                next.modifyRn( oldName, newRdn, deleteOldRdn );
+                next.modifyRn( modifyDnContext );
+                
                 if ( lut.isReferral( oldName ) )
                 {
                     lut.referralChanged( oldName, newName );
                 }
+                
                 return;
             }
+            
             if ( farthestSrc != null )
             {
                 Attributes referral = invocation.getProxy().lookup( new LookupServiceContext( farthestSrc ),
