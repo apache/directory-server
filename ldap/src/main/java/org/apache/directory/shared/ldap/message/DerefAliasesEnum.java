@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.Map;
 
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+
 
 /**
  * Type-safe derefAliases search parameter enumeration which determines the mode
@@ -69,21 +71,6 @@ public enum DerefAliasesEnum
         return value;
     }
 
-    /** java.naming.ldap.derefAliases JNDI property */
-    public static final String JNDI_DEREF_ALIAS_PROP = "java.naming.ldap.derefAliases";
-
-    /** Alias handling mode name that treats aliases like entries */
-    //public static final String NEVER_DEREF_ALIASES_NAME = "never";
-
-    /** Alias handling mode name that dereferences only when searching */
-    //public static final String DEREF_IN_SEARCHING_NAME = "searching";
-
-    /** Alias handling mode name that dereferences only in finding the base */
-    //public static final String DEREF_FINDING_BASE_OBJ_NAME = "finding";
-
-    /** Alias handling mode name that dereferences always */
-    //public static final String DEREF_ALWAYS_NAME = "always";
-
     /**
      * Gets the enumeration from by extracting the value for the JNDI LDAP
      * specific environment property, java.naming.ldap.derefAliases, from the
@@ -96,7 +83,7 @@ public enum DerefAliasesEnum
      */
     public static DerefAliasesEnum getEnum( Map<String, DerefAliasesEnum> env )
     {
-        DerefAliasesEnum property = env.get( JNDI_DEREF_ALIAS_PROP );
+        DerefAliasesEnum property = env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
         
         if ( null == property )
         {

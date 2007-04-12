@@ -32,6 +32,7 @@ import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
@@ -51,7 +52,7 @@ public final class MessageDecoder implements ProviderDecoder
 {
     private static final Logger log = LoggerFactory.getLogger( MessageDecoder.class );
 
-    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
     /** Environment parameters stored here */
     private final Hashtable env;
