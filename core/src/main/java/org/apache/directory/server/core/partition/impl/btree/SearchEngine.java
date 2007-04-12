@@ -27,6 +27,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
@@ -43,7 +44,7 @@ public interface SearchEngine
      * @todo put this in the right place
      * The alias dereferencing mode key for JNDI providers 
      */
-    String ALIASMODE_KEY = "java.naming.ldap.derefAliases";
+    String ALIASMODE_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
     /** 
      * @todo put this in the right place
      * The alias dereferencing mode value for JNDI providers 

@@ -67,6 +67,7 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -647,7 +648,7 @@ public class PartitionFrame extends JFrame
 
         Hashtable env = new Hashtable();
 
-        env.put( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.DEREF_ALWAYS );
+        env.put( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.DEREF_ALWAYS );
 
         NamingEnumeration cursor = eng.search( new LdapDN( base ), env, root, ctls );
         String[] cols = new String[2];

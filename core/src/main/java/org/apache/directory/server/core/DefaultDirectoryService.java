@@ -68,6 +68,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
@@ -95,7 +96,7 @@ import org.slf4j.LoggerFactory;
 class DefaultDirectoryService extends DirectoryService
 {
     private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryService.class );
-    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
     private final String instanceId;
 

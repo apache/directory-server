@@ -61,6 +61,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
@@ -108,7 +109,7 @@ import org.slf4j.LoggerFactory;
 public class SchemaService extends BaseInterceptor
 {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
+    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaService.class );

@@ -59,6 +59,7 @@ import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -79,7 +80,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public abstract class ServerContext implements EventContext
 {
     /** property key used for deleting the old RDN on a rename */
-    public static final String DELETE_OLD_RDN_PROP = "java.naming.ldap.deleteRDN";
+    public static final String DELETE_OLD_RDN_PROP = JndiPropertyConstants.JNDI_LDAP_DELETE_RDN;
 
     /** The directory service which owns this context **/
     private final DirectoryService service;
