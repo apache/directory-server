@@ -34,6 +34,7 @@ import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 
 /**
@@ -256,7 +257,7 @@ public class KdcConfiguration extends ServiceConfiguration
     public Map<String, String> getProperties()
     {
         // Request that the krb5key value be returned as binary
-        configuration.put( "java.naming.ldap.attributes.binary", "krb5Key" );
+        configuration.put( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY, "krb5Key" );
 
         return configuration;
     }
