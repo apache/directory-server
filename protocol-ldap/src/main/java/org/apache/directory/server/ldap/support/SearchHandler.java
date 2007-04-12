@@ -37,6 +37,7 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
@@ -74,7 +75,7 @@ public class SearchHandler implements LdapMessageHandler
     //TM private static Object lock = new Object();
 
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
-    private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
+    private static final String DEREFALIASES_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
     private StartupConfiguration cfg;
 
     /** Speedup for logs */
