@@ -88,8 +88,10 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
+import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
@@ -1807,6 +1809,8 @@ public class SchemaService extends BaseInterceptor
 
     /**
      * Check that all the attributes exist in the schema for this entry.
+     * 
+     * We also check the syntaxes
      */
     private void check( LdapDN dn, Attributes entry ) throws NamingException
     {
@@ -1853,6 +1857,9 @@ public class SchemaService extends BaseInterceptor
 
         // Check the attributes values and transform them to String if necessary
         assertHumanReadible( entry );
+        
+        // Now check the syntaxes
+        assertSyntaxes( entry );
     }
 
     /**
@@ -1986,6 +1993,50 @@ public class SchemaService extends BaseInterceptor
     
 
     /**
+     * Check the entry attributes syntax, using the syntaxCheckers
+     */
+    private void assertSyntaxes( Attributes entry ) throws NamingException
+    {
+        NamingEnumeration attributes = entry.getAll();
+
+        // First, loop on all attributes
+        while ( attributes.hasMoreElements() )
+        {
+            Attribute attribute = ( Attribute ) attributes.nextElement();
+
+            AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
+            SyntaxChecker syntaxChecker =  attributeType.getSyntax().getSyntaxChecker();
+            
+            if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
+            {
+                // This is a speedup : no need to check the syntax of any value
+                // if all the sytanxes are accepted...
+                continue;
+            }
+            
+            NamingEnumeration<?> values = attribute.getAll();
+
+            // Then loop on all values
+            while ( values.hasMoreElements() )
+            {
+                Object value = values.nextElement();
+                
+                try
+                {
+                    syntaxChecker.assertSyntax( value );
+                }
+                catch ( NamingException ne )
+                {
+                    log.error( "Attribute value '{}' for attribute '{}' is synatxically incorrect", 
+                        (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ), 
+                        attribute.getID());
+                    throw ne;
+                }
+            }
+        }
+    }
+    
+    /**
      * Check that all the attribute's values which are Human Readible can be transformed
      * to valid String if they are stored as byte[].
      */
@@ -2002,7 +2053,7 @@ public class SchemaService extends BaseInterceptor
 
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
 
-            // If the attributeType is H-R, check alll of its values
+            // If the attributeType is H-R, check all of its values
             if ( attributeType.getSyntax().isHumanReadible() )
             {
                 Enumeration values = attribute.getAll();
