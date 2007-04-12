@@ -491,9 +491,9 @@ public abstract class ServerContext implements EventContext
         if ( null != env.get( DELETE_OLD_RDN_PROP ) )
         {
             String delOldRdnStr = ( String ) env.get( DELETE_OLD_RDN_PROP );
-            delOldRdn = !delOldRdnStr.equals( "false" );
-            delOldRdn = delOldRdn || delOldRdnStr.equals( "no" );
-            delOldRdn = delOldRdn || delOldRdnStr.equals( "0" );
+            delOldRdn = !delOldRdnStr.equalsIgnoreCase( "false" ) && 
+                            !delOldRdnStr.equalsIgnoreCase( "no" ) && 
+                            !delOldRdnStr.equals( "0" );
         }
 
         /*
