@@ -111,28 +111,14 @@ public class ModifyDnHandler implements LdapMessageHandler
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
                 ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DELETE_RDN, deleteRDN );
 
-                if ( req.isMove() )
+                LdapDN newSuperior = req.getNewSuperior();
+
+                if ( ( newSuperior != null ) && ( !newSuperior.isEmpty() ) )
                 {
                     LdapDN oldDn = req.getName();
                     LdapDN newDn = null;
 
-                    LdapDN newSuperior = req.getNewSuperior();
-                    
-                    if ( newSuperior.isEmpty() )
-                    {
-                        if ( oldDn.isEmpty() )
-                        {
-                            newDn = oldDn;
-                        }
-                        else
-                        {
-                            newDn = (LdapDN)oldDn.getPrefix( oldDn.size() - 1 );
-                        }
-                    }
-                    else
-                    {
-                        newDn = newSuperior;
-                    }
+                    newDn = newSuperior;
 
                     if ( req.getNewRdn() != null )
                     {
