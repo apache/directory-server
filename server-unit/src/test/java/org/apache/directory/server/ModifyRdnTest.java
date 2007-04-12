@@ -150,6 +150,52 @@ public class ModifyRdnTest extends AbstractServerTest
         ctx.unbind( newRdn );
     }
 
+    /**
+     * Modify Rdn of an entry, without deleting its old rdn value.
+     * 
+     * The JNDI property is set with 'False'
+     * 
+     * @throws NamingException
+     */
+    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+    {
+        // Create a person, cn value is rdn
+        String oldCn = "Myra Ellen Amos";
+        String oldRdn = "cn=" + oldCn;
+        Attributes attributes = this.getPersonAttributes( "Amos", oldCn );
+        ctx.createSubcontext( oldRdn, attributes );
+
+        // modify Rdn
+        String newCn = "Tori Amos";
+        String newRdn = "cn=" + newCn;
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "False" );
+        ctx.rename( oldRdn, newRdn );
+
+        // Check, whether old Entry does not exists
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+            assertTrue( true );
+        }
+
+        // Check, whether new Entry exists
+        DirContext tori = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( tori );
+
+        // Check values of cn
+        Attribute cn = tori.getAttributes( "" ).get( "cn" );
+        assertTrue( cn.contains( newCn ) );
+        assertTrue( cn.contains( oldCn ) ); // old value is gone
+        assertEquals( 2, cn.size() );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
 
     /**
      * Modify Rdn of an entry, keep its old rdn value.
