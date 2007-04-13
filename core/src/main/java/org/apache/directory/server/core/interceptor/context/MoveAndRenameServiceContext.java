@@ -22,83 +22,63 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A ModifyDN context used for Interceptors. It contains all the informations
+ * A Move And Rename context used for Interceptors. It contains all the informations
  * needed for the modify DN operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyDNServiceContext extends AbstractServiceContext
+public class MoveAndRenameServiceContext extends RenameServiceContext
 {
-    /** The new DN */
-    private String newDn;
-
-    /** The flag to remove the old DN Attribute  */
-    private boolean delOldDn;
+    /** The parent DN */
+    private LdapDN parent;
     
     /**
      * 
-     * Creates a new instance of ModifyDNServiceContext.
+     * Creates a new instance of MoveAndRenameServiceContext.
      *
      */
-    public ModifyDNServiceContext()
+    public MoveAndRenameServiceContext()
     {
     	super();
     }
 
     /**
      * 
-     * Creates a new instance of ModifyDNServiceContext.
+     * Creates a new instance of MoveAndRenameServiceContext.
      *
      */
-    public ModifyDNServiceContext( LdapDN oldDn, String newDn, boolean delOldDn )
+    public MoveAndRenameServiceContext( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
     {
-        super( oldDn );
-        this.newDn = newDn;
-        this.delOldDn = delOldDn;
+        super( oldDn, newRdn, delOldDn );
+        this.parent = parent;
     }
 
     /**
-     * @return The delete old DN flag
+     *  @return The parent DN
      */
-	public boolean getDelOldDn() 
-	{
-		return delOldDn;
-	}
+    public LdapDN getParent()
+    {
+        return parent;
+    }
 
-	/**
-	 * Set the flag to delete the old DN
-	 * @param delOldDn the flag to set
-	 */
-	public void setDelOldDn( boolean delOldDn ) 
-	{
-		this.delOldDn = delOldDn;
-	}
+    /**
+     * Set the parent DN
+     *
+     * @param parent The parent
+     */
+    public void setParent( LdapDN parent )
+    {
+        this.parent = parent;
+    }
 
-	/**
-	 * @return The new DN
-	 */
-	public String getNewDn() 
-	{
-		return newDn;
-	}
-
-	/**
-	 * Set the new DN
-	 * @param newDn The new Dn
-	 */
-	public void setNewDn( String newDn ) 
-	{
-		this.newDn = newDn;
-	}
-
-	/**
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "ModifyDNContext for old DN '" + getDn().getUpName() + "'" +
-        ", newDn '" + newDn + "'" +
-        ( delOldDn ? ", delete old Dn" : "" ) ; 
+        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
+        ", parent '" + parent + "'";
     }
+
 }
