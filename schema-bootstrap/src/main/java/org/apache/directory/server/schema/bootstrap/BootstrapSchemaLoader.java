@@ -210,7 +210,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
      */
     private void register( ProducerTypeEnum type, String id, Object schemaObject ) throws NamingException
     {
-        BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
+        BootstrapSchema schema = this.schemas.get();
         DefaultRegistries registries = ( DefaultRegistries ) this.registries.get();
         List<String> values = new ArrayList<String>(1);
         values.add( schema.getSchemaName() );
