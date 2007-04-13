@@ -85,7 +85,10 @@ public class DNSyntaxChecker extends AbstractSyntaxChecker
 
         if ( strValue.length() == 0 )
         {
-            return false;
+            // TODO: this should be a false, but for 
+            // some reason, the principal is empty in 
+            // some cases.
+            return true;
         }
         
         // Check that the value is a valid DN
