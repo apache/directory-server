@@ -88,13 +88,17 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    /* TODO: Temporarily commented until we get a clear status about this package
     public void testCreateAndSetByteArray() throws BackingStoreException
     {
+        byte[] jpegValue = new byte[]
+                                   { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
         Preferences testNode = prefs.node( "testNode" );
-        testNode.put( "jpegPhoto", "testNodeValue" );
+        testNode.putByteArray( "jpegPhoto", jpegValue );
         testNode.sync();
         testNode = prefs.node( "testNode" );
     }
+    */
 
 
     /**
