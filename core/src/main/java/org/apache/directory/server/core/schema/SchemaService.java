@@ -2005,7 +2005,7 @@ public class SchemaService extends BaseInterceptor
             Attribute attribute = ( Attribute ) attributes.nextElement();
 
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
-            SyntaxChecker syntaxChecker =  attributeType.getSyntax().getSyntaxChecker();
+            SyntaxChecker syntaxChecker =  registries.getSyntaxCheckerRegistry().lookup( attributeType.getSyntax().getOid() );
             
             if ( syntaxChecker instanceof AcceptAllSyntaxChecker )
             {
