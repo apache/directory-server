@@ -1546,7 +1546,7 @@ public class JdbmStore
      * @throws NamingException if there are any errors propagating the name
      *        changes.
      */
-    public void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void rename( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         String newRdnAttr = NamespaceTools.getRdnAttribute( newRdn );
         String newRdnValue = NamespaceTools.getRdnValue( newRdn );
@@ -1730,7 +1730,7 @@ public class JdbmStore
     public void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         Long childId = getEntryId( oldChildDn.toString() );
-        modifyRn( oldChildDn, newRdn, deleteOldRdn );
+        rename( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn );
         
         if ( isSyncOnWrite )
