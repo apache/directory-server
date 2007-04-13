@@ -41,7 +41,7 @@ public class DNSyntaxCheckerTest extends TestCase
 
     public void testEmptyString()
     {
-        assertFalse( checker.isValidSyntax( "" ) );
+        assertTrue( checker.isValidSyntax( "" ) );
     }
 
 
