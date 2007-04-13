@@ -44,10 +44,10 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
@@ -368,49 +368,49 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + modifyDnContext.getDn().getUpName() + "', new RDN = '" + 
-                ((ModifyDNServiceContext)modifyDnContext).getNewDn() + "', " +
-                "oldRDN = '" + ((ModifyDNServiceContext)modifyDnContext).getDelOldDn() + "'" );
+            log.debug( "Modifying name = '" + renameContext.getDn().getUpName() + "', new RDN = '" + 
+                ((RenameServiceContext)renameContext).getNewRdn() + "', " +
+                "oldRDN = '" + ((RenameServiceContext)renameContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.modifyRn( modifyDnContext );
-        invalidateAuthenticatorCaches( modifyDnContext.getDn() );
+        next.rename( renameContext );
+        invalidateAuthenticatorCaches( renameContext.getDn() );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + moveContext.getDn().getUpName() + "' to name = '" + 
-                ((MoveServiceContext)moveContext).getParent() + "', new RDN = '" + 
-                ((MoveServiceContext)moveContext).getNewDn() + "', oldRDN = '" + 
-                ((MoveServiceContext)moveContext).getDelOldDn() + "'" );
+            log.debug( "Moving name = '" + moveAndRenameContext.getDn().getUpName() + "' to name = '" + 
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getParent() + "', new RDN = '" + 
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn() + "', oldRDN = '" + 
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getDelOldDn() + "'" );
+        }
+
+        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
+        next.moveAndRename( moveAndRenameContext );
+        invalidateAuthenticatorCaches( moveAndRenameContext.getDn() );
+    }
+
+
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+    {
+        if ( IS_DEBUG )
+        {
+            log.debug( "Moving name = '" + moveContext.getDn().getUpName() + " to name = '" + 
+                ((MoveServiceContext)moveContext).getParent().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
         next.move( moveContext );
         invalidateAuthenticatorCaches( moveContext.getDn() );
-    }
-
-
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Moving name = '" + replaceContext.getDn().getUpName() + " to name = '" + 
-                ((ReplaceServiceContext)replaceContext).getParent().getUpName() + "'" );
-        }
-
-        checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.replace( replaceContext );
-        invalidateAuthenticatorCaches( replaceContext.getDn() );
     }
 
 

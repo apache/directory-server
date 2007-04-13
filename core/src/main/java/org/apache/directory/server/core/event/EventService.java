@@ -35,10 +35,10 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -382,33 +382,33 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        super.modifyRn( next, modifyDnContext );
-        LdapDN newName = ( LdapDN ) modifyDnContext.getDn().clone();
+        super.rename( next, renameContext );
+        LdapDN newName = ( LdapDN ) renameContext.getDn().clone();
         newName.remove( newName.size() - 1 );
-        newName.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
+        newName.add( ((RenameServiceContext)renameContext).getNewRdn() );
         newName.normalize( attributeRegistry.getNormalizerMapping() );
-        notifyOnNameChange( modifyDnContext.getDn(), newName );
+        notifyOnNameChange( renameContext.getDn(), newName );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        super.move( next, moveContext );
-        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
-        newName.add( ((MoveServiceContext)moveContext).getNewDn() );
-        notifyOnNameChange( moveContext.getDn(), newName );
+        super.moveAndRename( next, moveAndRenameContext );
+        LdapDN newName = ( LdapDN ) ((MoveAndRenameServiceContext)moveAndRenameContext).getParent().clone();
+        newName.add( ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn() );
+        notifyOnNameChange( moveAndRenameContext.getDn(), newName );
     }
 
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        super.replace( next, replaceContext );
-        LdapDN oriChildName = replaceContext.getDn();
+        super.move( next, moveContext );
+        LdapDN oriChildName = moveContext.getDn();
         
-        LdapDN newName = ( LdapDN ) ((ReplaceServiceContext)replaceContext).getParent().clone();
+        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         notifyOnNameChange( oriChildName, newName );
     }

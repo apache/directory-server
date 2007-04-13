@@ -31,10 +31,10 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
@@ -390,23 +390,23 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void modifyRn( ServiceContext modifyDnContext ) throws NamingException
+    public final void rename( ServiceContext renameContext ) throws NamingException
     {
-        ModifyDNServiceContext ctx = (ModifyDNServiceContext)modifyDnContext;
-        store.modifyRn( ctx.getDn(), ctx.getNewDn(), ctx.getDelOldDn() );
+        RenameServiceContext ctx = (RenameServiceContext)renameContext;
+        store.rename( ctx.getDn(), ctx.getNewRdn(), ctx.getDelOldDn() );
+    }
+
+
+    public final void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException
+    {
+        MoveAndRenameServiceContext ctx = (MoveAndRenameServiceContext)moveAndRenameContext;
+        store.move( ctx.getDn(), ctx.getParent(), ctx.getNewRdn(), ctx.getDelOldDn() );
     }
 
 
     public final void move( ServiceContext moveContext ) throws NamingException
     {
         MoveServiceContext ctx = (MoveServiceContext)moveContext;
-        store.move( ctx.getDn(), ctx.getParent(), ctx.getNewDn(), ctx.getDelOldDn() );
-    }
-
-
-    public final void replace( ServiceContext replaceContext ) throws NamingException
-    {
-        ReplaceServiceContext ctx = (ReplaceServiceContext)replaceContext;
         store.move( ctx.getDn(), ctx.getParent() );
     }
 

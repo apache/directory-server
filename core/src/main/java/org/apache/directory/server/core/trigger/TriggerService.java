@@ -42,9 +42,9 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -374,16 +374,16 @@ public class TriggerService extends BaseInterceptor
     }
     
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        LdapDN name = modifyDnContext.getDn();
-        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
-        boolean deleteOldRn = ((ModifyDNServiceContext)modifyDnContext).getDelOldDn();
+        LdapDN name = renameContext.getDn();
+        String newRdn = ((RenameServiceContext)renameContext).getNewRdn();
+        boolean deleteOldRn = ((RenameServiceContext)renameContext).getDelOldDn();
         
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
             return;
         }
         
@@ -394,13 +394,13 @@ public class TriggerService extends BaseInterceptor
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
-        LdapDN newRDN = new LdapDN( newRn );
+        LdapDN newRDN = new LdapDN( newRdn );
         LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         LdapDN newSuperiorDN = ( LdapDN ) oldSuperiorDN.clone();
         LdapDN oldDN = ( LdapDN ) name.clone();
         LdapDN newDN = ( LdapDN ) name.clone();
-        newDN.add( newRn );
+        newDN.add( newRdn );
         
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
             invocation, deleteOldRn, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
@@ -413,7 +413,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_RENAME.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFYDN_RENAME );
         
-        next.modifyRn( modifyDnContext );
+        next.rename( renameContext );
         triggerSpecCache.subentryRenamed( name, newDN );
         
         // Fire AFTER Triggers.
@@ -421,17 +421,17 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext ) throws NamingException
     {
-        LdapDN oriChildName = moveContext.getDn();
-        LdapDN parent = ((MoveServiceContext)moveContext).getParent();
-        String newRn = ((MoveServiceContext)moveContext).getNewDn();
-        boolean deleteOldRn = ((MoveServiceContext)moveContext).getDelOldDn();
+        LdapDN oriChildName = moveAndRenameContext.getDn();
+        LdapDN parent = ((MoveAndRenameServiceContext)moveAndRenameContext).getParent();
+        String newRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn();
+        boolean deleteOldRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.move( moveContext );
+            next.moveAndRename( moveAndRenameContext );
             return;
         }
         
@@ -488,7 +488,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
         Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
-        next.move( moveContext );
+        next.moveAndRename( moveAndRenameContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.
@@ -499,17 +499,17 @@ public class TriggerService extends BaseInterceptor
     }
     
     
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.replace( replaceContext );
+            next.move( moveContext );
             return;
         }
         
-        LdapDN oriChildName = replaceContext.getDn();
-        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
         
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -565,7 +565,7 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
         Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
-        next.replace( replaceContext );
+        next.move( moveContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.

@@ -165,22 +165,22 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        next.modifyRn( modifyDnContext );
+        next.rename( renameContext );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        next.move( moveContext );
+        next.moveAndRename( moveAndRenameContext );
     }
 
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        next.replace( replaceContext );
+        next.move( moveContext );
     }
 
 

@@ -332,26 +332,15 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
+    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( modifyDnContext.getDn() );
+            protectDnAlterations( renameContext.getDn() );
         }
         
-        nextInterceptor.modifyRn( modifyDnContext );
-    }
-
-
-    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
-    {
-        if ( enabled )
-        {
-            protectDnAlterations( replaceContext.getDn() );
-        }
-        
-        nextInterceptor.replace( replaceContext );
+        nextInterceptor.rename( renameContext );
     }
 
 
@@ -363,6 +352,17 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
         
         nextInterceptor.move( moveContext );
+    }
+
+
+    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext ) throws NamingException
+    {
+        if ( enabled )
+        {
+            protectDnAlterations( moveAndRenameContext.getDn() );
+        }
+        
+        nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 

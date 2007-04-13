@@ -49,10 +49,10 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -1331,54 +1331,54 @@ public class SchemaService extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        LdapDN oriChildName = moveContext.getDn();
+        LdapDN oriChildName = moveAndRenameContext.getDn();
 
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
             schemaManager.move( oriChildName, 
-                ((MoveServiceContext)moveContext).getParent(), 
-                ((MoveServiceContext)moveContext).getNewDn(), 
-                ((MoveServiceContext)moveContext).getDelOldDn(), entry );
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getParent(), 
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn(), 
+                ((MoveAndRenameServiceContext)moveAndRenameContext).getDelOldDn(), entry );
         }
         
-        next.move( moveContext );
+        next.moveAndRename( moveAndRenameContext );
     }
 
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        LdapDN oriChildName = replaceContext.getDn();
+        LdapDN oriChildName = moveContext.getDn();
         
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.replace( oriChildName, ((ReplaceServiceContext)replaceContext).getParent(), entry );
+            schemaManager.replace( oriChildName, ((MoveServiceContext)moveContext).getParent(), entry );
         }
         
-        next.replace( replaceContext );
+        next.move( moveContext );
     }
     
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        LdapDN name = modifyDnContext.getDn();
-        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
-        boolean deleteOldRn = ((ModifyDNServiceContext)modifyDnContext).getDelOldDn();
+        LdapDN name = renameContext.getDn();
+        String newRdn = ((RenameServiceContext)renameContext).getNewRdn();
+        boolean deleteOldRn = ((RenameServiceContext)renameContext).getDelOldDn();
         
         Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modifyRn( name, newRn, deleteOldRn, entry );
+            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry );
         }
         
-        next.modifyRn( modifyDnContext );
+        next.rename( renameContext );
     }
 
     private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };

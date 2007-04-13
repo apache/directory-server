@@ -549,45 +549,22 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
+    public void rename( ServiceContext renameContext ) throws NamingException
     {
-        modifyRn( modifyDnContext, null );
+        rename( renameContext, null );
     }
 
 
-    public void modifyRn( ServiceContext modifyDnContext, Collection bypass ) throws NamingException
+    public void rename( ServiceContext renameContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { modifyDnContext };
-        stack.push( new Invocation( this, caller, "modifyRn", args, bypass ) );
+            { renameContext };
+        stack.push( new Invocation( this, caller, "rename", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().modifyRn( modifyDnContext );
-        }
-        finally
-        {
-            stack.pop();
-        }
-    }
-
-
-    public void replace( ServiceContext replaceContext ) throws NamingException
-    {
-        replace( replaceContext, null );
-    }
-
-
-    public void replace( ServiceContext replaceContext, Collection bypass ) throws NamingException
-    {
-        ensureStarted();
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( this, caller, "move", new Object[]
-            { replaceContext }, bypass ) );
-        try
-        {
-            this.configuration.getInterceptorChain().replace( replaceContext );
+            this.configuration.getInterceptorChain().rename( renameContext );
         }
         finally
         {
@@ -602,17 +579,40 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void move( ServiceContext moveContext, Collection bypass )
+    public void move( ServiceContext moveContext, Collection bypass ) throws NamingException
+    {
+        ensureStarted();
+        InvocationStack stack = InvocationStack.getInstance();
+        stack.push( new Invocation( this, caller, "move", new Object[]
+            { moveContext }, bypass ) );
+        try
+        {
+            this.configuration.getInterceptorChain().move( moveContext );
+        }
+        finally
+        {
+            stack.pop();
+        }
+    }
+
+
+    public void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException
+    {
+        moveAndRename( moveAndRenameContext, null );
+    }
+
+
+    public void moveAndRename( ServiceContext moveAndRenameContext, Collection bypass )
         throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[]
-            { moveContext };
-        stack.push( new Invocation( this, caller, "move", args, bypass ) );
+            { moveAndRenameContext };
+        stack.push( new Invocation( this, caller, "moveAndRename", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().move( moveContext );
+            this.configuration.getInterceptorChain().moveAndRename( moveAndRenameContext );
         }
         finally
         {

@@ -158,23 +158,23 @@ public class InterceptorChain
         }
 
 
-        public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
+        public void rename( NextInterceptor next, ServiceContext renameContext )
             throws NamingException
         {
-            nexus.modifyRn( modifyDnContext );
+            nexus.rename( renameContext );
         }
 
 
-        public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
-        {
-            nexus.replace( replaceContext );
-        }
-
-
-        public void move( NextInterceptor next, ServiceContext moveContext )
-            throws NamingException
+        public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
         {
             nexus.move( moveContext );
+        }
+
+
+        public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
+            throws NamingException
+        {
+            nexus.moveAndRename( moveAndRenameContext );
         }
 
 
@@ -875,34 +875,14 @@ public class InterceptorChain
     }
 
 
-    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
+    public void rename( ServiceContext renameContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.modifyRn( next, modifyDnContext );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-        }
-    }
-
-
-    public void replace( ServiceContext replaceContext ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-        try
-        {
-            head.replace( next, replaceContext );
+            head.rename( next, renameContext );
         }
         catch ( NamingException ne )
         {
@@ -923,6 +903,26 @@ public class InterceptorChain
         try
         {
             head.move( next, moveContext );
+        }
+        catch ( NamingException ne )
+        {
+            throw ne;
+        }
+        catch ( Throwable e )
+        {
+            throwInterceptorException( head, e );
+        }
+    }
+
+
+    public void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException
+    {
+        Entry entry = getStartingEntry();
+        Interceptor head = entry.configuration.getInterceptor();
+        NextInterceptor next = entry.nextInterceptor;
+        try
+        {
+            head.moveAndRename( next, moveAndRenameContext );
         }
         catch ( NamingException ne )
         {
@@ -1268,14 +1268,14 @@ public class InterceptorChain
                 }
 
 
-                public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
+                public void rename( ServiceContext renameContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modifyRn( next.nextInterceptor, modifyDnContext );
+                        interceptor.rename( next.nextInterceptor, renameContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1288,28 +1288,7 @@ public class InterceptorChain
                 }
 
 
-                public void replace( ServiceContext replaceContext ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        interceptor.replace( next.nextInterceptor, replaceContext );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public void move( ServiceContext moveContext )
-                    throws NamingException
+                public void move( ServiceContext moveContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1317,6 +1296,27 @@ public class InterceptorChain
                     try
                     {
                         interceptor.move( next.nextInterceptor, moveContext );
+                    }
+                    catch ( NamingException ne )
+                    {
+                        throw ne;
+                    }
+                    catch ( Throwable e )
+                    {
+                        throwInterceptorException( interceptor, e );
+                    }
+                }
+
+
+                public void moveAndRename( ServiceContext moveAndRenameContext )
+                    throws NamingException
+                {
+                    Entry next = getNextEntry();
+                    Interceptor interceptor = next.configuration.getInterceptor();
+
+                    try
+                    {
+                        interceptor.moveAndRename( next.nextInterceptor, moveAndRenameContext );
                     }
                     catch ( NamingException ne )
                     {

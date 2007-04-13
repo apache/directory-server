@@ -397,26 +397,26 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
+        public void rename( NextInterceptor next, ServiceContext renameContext )
             throws NamingException
         {
             interceptors.add( this );
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
         }
 
 
-        public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.replace( replaceContext );
-        }
-
-
-        public void move( NextInterceptor next, ServiceContext moveContext )
-            throws NamingException
+        public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
         {
             interceptors.add( this );
             next.move( moveContext );
+        }
+
+
+        public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
+            throws NamingException
+        {
+            interceptors.add( this );
+            next.moveAndRename( moveAndRenameContext );
         }
 
 

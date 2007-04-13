@@ -210,21 +210,21 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#modifyRn(ServiceContext)} call.
+     * Filters {@link Partition#rename(ServiceContext)} call.
      */
-    void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException;
-
-
-    /**
-     * Filters {@link Partition#replace(ServiceContext)} call.
-     */
-    void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException;
+    void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException;
 
 
     /**
      * Filters {@link Partition#move(ServiceContext)} call.
      */
-    void move( NextInterceptor next, ServiceContext moveContext )
+    void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException;
+
+
+    /**
+     * Filters {@link Partition#moveAndRename(ServiceContext)} call.
+     */
+    void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException;
 
     /**

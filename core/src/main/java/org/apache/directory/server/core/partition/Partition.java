@@ -214,20 +214,20 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelavent.
      *
-     * @param modifyDnContext the modify DN context
+     * @param renameContext the modify DN context
      * @throws NamingException if there are any problems
      */
-    void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
+    void rename( ServiceContext renameContext ) throws NamingException;
 
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param replaceContext The context containing the DNs to move
+     * @param moveContext The context containing the DNs to move
      * @throws NamingException if there are any problems
      */
-    void replace( ServiceContext replaceContext ) throws NamingException;
+    void move( ServiceContext moveContext ) throws NamingException;
 
 
     /**
@@ -238,11 +238,11 @@ public interface Partition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param moveContext The context contain all the information about
+     * @param moveAndRenameContext The context contain all the information about
      * the modifyDN operation
      * @throws NamingException if there are any problems
      */
-    void move( ServiceContext moveContext ) throws NamingException;
+    void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException;
 
 
     /**

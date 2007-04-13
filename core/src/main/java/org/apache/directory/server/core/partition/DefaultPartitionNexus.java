@@ -950,32 +950,32 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)
+     * @see Partition#rename(ServiceContext)
      */
-    public void modifyRn( ServiceContext modifyDnContext ) throws NamingException
+    public void rename( ServiceContext renameContext ) throws NamingException
     {
-        Partition backend = getBackend( modifyDnContext.getDn() );
-        backend.modifyRn( modifyDnContext );
+        Partition backend = getBackend( renameContext.getDn() );
+        backend.rename( renameContext );
     }
 
 
     /**
-     * @see Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)
-     */
-    public void replace( ServiceContext replaceContext ) throws NamingException
-    {
-        Partition backend = getBackend( replaceContext.getDn() );
-        backend.replace( replaceContext );
-    }
-
-
-    /**
-     * @see Partition#move( ServiceContext )
+     * @see Partition#move(ServiceContext)
      */
     public void move( ServiceContext moveContext ) throws NamingException
     {
         Partition backend = getBackend( moveContext.getDn() );
         backend.move( moveContext );
+    }
+
+
+    /**
+     * @see Partition#moveAndRename( ServiceContext )
+     */
+    public void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException
+    {
+        Partition backend = getBackend( moveAndRenameContext.getDn() );
+        backend.moveAndRename( moveAndRenameContext );
     }
 
 

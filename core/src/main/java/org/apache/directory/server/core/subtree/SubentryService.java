@@ -33,10 +33,10 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -699,10 +699,10 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        LdapDN name = modifyDnContext.getDn();
-        String newRn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
+        LdapDN name = renameContext.getDn();
+        String newRdn = ((RenameServiceContext)renameContext).getNewRdn();
         
         Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
@@ -718,14 +718,14 @@ public class SubentryService extends BaseInterceptor
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
 
-            LdapDN rdn = new LdapDN( newRn );
+            LdapDN rdn = new LdapDN( newRdn );
             newName.addAll( rdn );
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
 
             subentry = subentryCache.getSubentry( newNormName );
             ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
@@ -733,6 +733,7 @@ public class SubentryService extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -754,13 +755,14 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.modifyRn( modifyDnContext );
+            
+            next.rename( renameContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
-            newName.add( newRn );
+            newName.add( newRdn );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             ModificationItemImpl[] mods = getModsOnEntryRdnChange( name, newName, entry );
 
@@ -772,12 +774,12 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        LdapDN oriChildName = moveContext.getDn();
-        LdapDN parent = ((MoveServiceContext)moveContext).getParent();
-        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        LdapDN oriChildName = moveAndRenameContext.getDn();
+        LdapDN parent = ((MoveAndRenameServiceContext)moveAndRenameContext).getParent();
+        String newRn = ((RenameServiceContext)moveAndRenameContext).getNewRdn();
         
         
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
@@ -801,7 +803,7 @@ public class SubentryService extends BaseInterceptor
             
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.move( moveContext );
+            next.moveAndRename( moveAndRenameContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
@@ -810,6 +812,7 @@ public class SubentryService extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
             NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -832,7 +835,8 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.move( moveContext );
+            
+            next.moveAndRename( moveAndRenameContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
@@ -849,10 +853,10 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        LdapDN oriChildName = replaceContext.getDn();
-        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
         
         Attributes entry = nexus.lookup( new LookupServiceContext( oriChildName ) );
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
@@ -871,7 +875,7 @@ public class SubentryService extends BaseInterceptor
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.replace( replaceContext );
+            next.move( moveContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
@@ -905,7 +909,7 @@ public class SubentryService extends BaseInterceptor
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
             
-            next.replace( replaceContext );
+            next.move( moveContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes

@@ -54,9 +54,9 @@ import org.apache.directory.server.core.interceptor.context.BindServiceContext;
 import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -506,20 +506,20 @@ public abstract class ServerContext implements EventContext
          */
         if ( ( oldName.size() == newName.size() ) && oldBase.equals( newBase ) )
         {
-            nexusProxy.modifyRn( new ModifyDNServiceContext( oldDn, newRdn, delOldRdn ) );
+            nexusProxy.rename( new RenameServiceContext( oldDn, newRdn, delOldRdn ) );
         }
         else
         {
-            LdapDN parent = ( LdapDN ) newDn.clone();
-            parent.remove( newDn.size() - 1 );
+            LdapDN target = ( LdapDN ) newDn.clone();
+            target.remove( newDn.size() - 1 );
             
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
-                nexusProxy.replace( new ReplaceServiceContext( oldDn, parent ) );
+                nexusProxy.move( new MoveServiceContext( oldDn, target ) );
             }
             else
             {
-                nexusProxy.move( new MoveServiceContext( oldDn, parent, newRdn, delOldRdn ) );
+                nexusProxy.moveAndRename( new MoveAndRenameServiceContext( oldDn, target, newRdn, delOldRdn ) );
             }
         }
     }

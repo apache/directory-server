@@ -44,10 +44,10 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -225,10 +225,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
+    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
         throws NamingException
     {
-        nextInterceptor.modifyRn( modifyDnContext );
+        nextInterceptor.rename( renameContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -240,44 +240,21 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        LdapDN newDn = ( LdapDN ) modifyDnContext.getDn().clone();
-        newDn.remove( modifyDnContext.getDn().size() - 1 );
-        newDn.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
+        LdapDN newDn = ( LdapDN ) renameContext.getDn().clone();
+        newDn.remove( renameContext.getDn().size() - 1 );
+        newDn.add( ((RenameServiceContext)renameContext).getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
         ModifyServiceContext newModify = new ModifyServiceContext( 
         		newDn,
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
-        nexus.modify( newModify );
-    }
-
-
-    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
-    {
-        nextInterceptor.replace( replaceContext );
-
-        // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
-
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-
-        ModifyServiceContext newModify = new ModifyServiceContext( 
-        		((ReplaceServiceContext)replaceContext).getParent(),
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
         
         nexus.modify( newModify );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext )
-        throws NamingException
+    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
     {
         nextInterceptor.move( moveContext );
 
@@ -293,6 +270,30 @@ public class OperationalAttributeService extends BaseInterceptor
 
         ModifyServiceContext newModify = new ModifyServiceContext( 
         		((MoveServiceContext)moveContext).getParent(),
+        		DirContext.REPLACE_ATTRIBUTE, 
+        		attributes);
+        
+        nexus.modify( newModify );
+    }
+
+
+    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext )
+        throws NamingException
+    {
+        nextInterceptor.moveAndRename( moveAndRenameContext );
+
+        // add operational attributes after call in case the operation fails
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
+        attribute.add( getPrincipal().getName() );
+        attributes.put( attribute );
+
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
+        attribute.add( DateUtils.getGeneralizedTime() );
+        attributes.put( attribute );
+
+        ModifyServiceContext newModify = new ModifyServiceContext( 
+        		((MoveAndRenameServiceContext)moveAndRenameContext).getParent(),
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
         nexus.modify( newModify );

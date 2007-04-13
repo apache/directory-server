@@ -137,21 +137,21 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor,ServiceContext)}.
+     * Calls the next interceptor's {@link Interceptor#rename(NextInterceptor,ServiceContext)}.
      */
-    void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,ServiceContext)}.
-     */
-    void replace( ServiceContext replaceContext ) throws NamingException;
+    void rename( ServiceContext renameContext ) throws NamingException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,ServiceContext)}.
      */
     void move( ServiceContext moveContext ) throws NamingException;
+
+
+    /**
+     * Calls the next interceptor's {@link Interceptor#moveAndRename(NextInterceptor,ServiceContext)}.
+     */
+    void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException;
 
 
     /**

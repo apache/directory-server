@@ -33,10 +33,10 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.CompareServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -730,10 +730,10 @@ public class AuthorizationService extends BaseInterceptor
         return next.lookup( lookupContext );
     }
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext ) throws NamingException
+    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
     {
-        LdapDN name = modifyDnContext.getDn();
-        String newDn = ((ModifyDNServiceContext)modifyDnContext).getNewDn();
+        LdapDN name = renameContext.getDn();
+        String newRdn = ((RenameServiceContext)renameContext).getNewRdn();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -743,19 +743,19 @@ public class AuthorizationService extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
-        newName.add( parseNormalized( newDn ).get( 0 ) );
+        newName.add( parseNormalized( newRdn ).get( 0 ) );
 
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
             tupleCache.subentryRenamed( name, newName );
             
             // TODO : this method returns a boolean : what should we do with the result ?
@@ -773,18 +773,18 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
             RENAME_PERMS, tuples, entry );
 
-        next.modifyRn( modifyDnContext );
+        next.rename( renameContext );
         tupleCache.subentryRenamed( name, newName );
         groupCache.groupRenamed( name, newName );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        LdapDN oriChildName = moveContext.getDn();
-        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
-        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        LdapDN oriChildName = moveAndRenameContext.getDn();
+        LdapDN newParentName = ((MoveAndRenameServiceContext)moveAndRenameContext).getParent();
+        String newRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -798,14 +798,14 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.move( moveContext );
+            next.moveAndRename( moveAndRenameContext );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.move( moveContext );
+            next.moveAndRename( moveAndRenameContext );
             tupleCache.subentryRenamed( oriChildName, newName );
             groupCache.groupRenamed( oriChildName, newName );
             return;
@@ -850,16 +850,16 @@ public class AuthorizationService extends BaseInterceptor
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
 
-        next.move( moveContext );
+        next.moveAndRename( moveAndRenameContext );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }
 
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        LdapDN oriChildName = replaceContext.getDn();
-        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -873,14 +873,14 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.replace( replaceContext );
+            next.move( moveContext );
             return;
         }
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.replace( replaceContext );
+            next.move( moveContext );
             tupleCache.subentryRenamed( oriChildName, newName );
             groupCache.groupRenamed( oriChildName, newName );
             return;
@@ -924,7 +924,7 @@ public class AuthorizationService extends BaseInterceptor
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
             null, IMPORT_PERMS, destTuples, subentryAttrs );
 
-        next.replace( replaceContext );
+        next.move( moveContext );
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }

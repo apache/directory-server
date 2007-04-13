@@ -34,8 +34,8 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
@@ -140,28 +140,28 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
+    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
         throws NamingException
     {
-        LdapDN.normalize( modifyDnContext.getDn(), attrNormalizers );
-        nextInterceptor.modifyRn( modifyDnContext );
+        LdapDN.normalize( renameContext.getDn(), attrNormalizers );
+        nextInterceptor.rename( renameContext );
     }
 
 
-    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
-    {
-        LdapDN.normalize( replaceContext.getDn(), attrNormalizers );
-        ((ReplaceServiceContext)replaceContext).getParent().normalize( attrNormalizers);
-        nextInterceptor.replace( replaceContext );
-    }
-
-
-    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext )
-        throws NamingException
+    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
     {
         LdapDN.normalize( moveContext.getDn(), attrNormalizers );
-        LdapDN.normalize( ((MoveServiceContext)moveContext).getParent(), attrNormalizers);
+        ((MoveServiceContext)moveContext).getParent().normalize( attrNormalizers);
         nextInterceptor.move( moveContext );
+    }
+
+
+    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext )
+        throws NamingException
+    {
+        LdapDN.normalize( moveAndRenameContext.getDn(), attrNormalizers );
+        LdapDN.normalize( ((MoveAndRenameServiceContext)moveAndRenameContext).getParent(), attrNormalizers);
+        nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 

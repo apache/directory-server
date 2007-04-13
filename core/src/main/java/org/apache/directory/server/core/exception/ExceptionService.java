@@ -35,10 +35,10 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -335,10 +335,10 @@ public class ExceptionService extends BaseInterceptor
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.
      */
-    public void modifyRn( NextInterceptor nextInterceptor, ServiceContext modifyDnContext )
+    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
         throws NamingException
     {
-        LdapDN dn = modifyDnContext.getDn();
+        LdapDN dn = renameContext.getDn();
         
         if ( dn.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
@@ -355,7 +355,7 @@ public class ExceptionService extends BaseInterceptor
         // check to see if target entry exists
         LdapDN newDn = ( LdapDN ) dn.clone();
         newDn.remove( dn.size() - 1 );
-        newDn.add( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
+        newDn.add( ((RenameServiceContext)renameContext).getNewRdn() );
         newDn.normalize( normalizerMap );
         
         if ( nextInterceptor.hasEntry( new EntryServiceContext( newDn ) ) )
@@ -366,7 +366,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.modifyRn( modifyDnContext );
+        nextInterceptor.rename( renameContext );
     }
 
 
@@ -374,10 +374,10 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void replace( NextInterceptor nextInterceptor, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
     {
-        LdapDN oriChildName = replaceContext.getDn();
-        LdapDN newParentName = ((ReplaceServiceContext)replaceContext).getParent();
+        LdapDN oriChildName = moveContext.getDn();
+        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
         
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
@@ -413,7 +413,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.replace( replaceContext );
+        nextInterceptor.move( moveContext );
     }
 
 
@@ -421,11 +421,11 @@ public class ExceptionService extends BaseInterceptor
      * Checks to see the entry being moved exists, and so does its parent, otherwise throws the appropriate
      * LdapException.
      */
-    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
+    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext ) throws NamingException
     {
-        LdapDN oriChildName = moveContext.getDn();
-        LdapDN parent = ((MoveServiceContext)moveContext).getParent();
-        String newRn = ((MoveServiceContext)moveContext).getNewDn();
+        LdapDN oriChildName = moveAndRenameContext.getDn();
+        LdapDN parent = ((MoveAndRenameServiceContext)moveAndRenameContext).getParent();
+        String newRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn();
         
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
@@ -447,6 +447,7 @@ public class ExceptionService extends BaseInterceptor
         LdapDN target = ( LdapDN ) parent.clone();
         target.add( newRn );
         target.normalize( normalizerMap );
+        
         if ( nextInterceptor.hasEntry( new EntryServiceContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
@@ -459,7 +460,7 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
-        nextInterceptor.move( moveContext );
+        nextInterceptor.moveAndRename( moveAndRenameContext );
     }
 
 

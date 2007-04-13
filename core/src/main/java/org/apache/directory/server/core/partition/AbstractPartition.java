@@ -33,9 +33,9 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -247,17 +247,17 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#move(org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)} and
-     * {@link Partition#modifyRn(org.apache.directory.shared.ldap.name.LdapDN,String,boolean)} subsequently
+     * This method calls {@link Partition#move(ServiceContext)} and
+     * {@link Partition#rename(ServiceContext)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */
-    public void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void move( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn ) throws NamingException
     {
         LdapDN newName = ( LdapDN ) newParentName.clone();
-        newName.add( newRn );
-        replace( new ReplaceServiceContext( oldName, newParentName ) );
-        modifyRn( new ModifyDNServiceContext( newName, newRn, deleteOldRn ) );
+        newName.add( newRdn );
+        replace( new MoveServiceContext( oldName, newParentName ) );
+        rename( new RenameServiceContext( newName, newRdn, deleteOldRn ) );
     }
 
 

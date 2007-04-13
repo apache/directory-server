@@ -48,10 +48,10 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyDNServiceContext;
+import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -426,20 +426,20 @@ public class ReferralService extends BaseInterceptor
      * -----------------------------------------------------------------------
      */
 
-    public void replace( NextInterceptor next, ServiceContext replaceContext ) throws NamingException
+    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
     {
-        LdapDN oldName = replaceContext.getDn();
+        LdapDN oldName = moveContext.getDn();
         
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-        LdapDN newName = ( LdapDN ) ((ReplaceServiceContext)replaceContext).getParent().clone();
+        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
         newName.add( oldName.get( oldName.size() - 1 ) );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.replace( replaceContext );
+            next.move( moveContext );
             
             if ( lut.isReferral( oldName ) )
             {
@@ -455,7 +455,7 @@ public class ReferralService extends BaseInterceptor
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName ); // note will not return newName so safe
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
-                next.replace( replaceContext );
+                next.move( moveContext );
                 
                 if ( lut.isReferral( oldName ) )
                 {
@@ -498,21 +498,21 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext )
+    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException
     {
-        LdapDN oldName = moveContext.getDn();
+        LdapDN oldName = moveAndRenameContext.getDn();
         
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-        LdapDN newName = ( LdapDN ) ((MoveServiceContext)moveContext).getParent().clone();
-        newName.add( ((MoveServiceContext)moveContext).getNewDn() );
+        LdapDN newName = ( LdapDN ) ((MoveAndRenameServiceContext)moveAndRenameContext).getParent().clone();
+        newName.add( ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.move( moveContext );
+            next.moveAndRename( moveAndRenameContext );
             if ( lut.isReferral( oldName ) )
             {
                 lut.referralChanged( oldName, newName );
@@ -526,7 +526,7 @@ public class ReferralService extends BaseInterceptor
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName ); // safe to use - does not return newName
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
-                next.move( moveContext );
+                next.moveAndRename( moveAndRenameContext );
                 if ( lut.isReferral( oldName ) )
                 {
                     lut.referralChanged( oldName, newName );
@@ -567,10 +567,10 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, ServiceContext modifyDnContext )
+    public void rename( NextInterceptor next, ServiceContext renameContext )
         throws NamingException
     {
-        LdapDN oldName = modifyDnContext.getDn();
+        LdapDN oldName = renameContext.getDn();
         
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
@@ -578,14 +578,14 @@ public class ReferralService extends BaseInterceptor
         LdapDN newName = ( LdapDN ) oldName.clone();
         newName.remove( oldName.size() - 1 );
 
-        LdapDN newRdnName = new LdapDN( ((ModifyDNServiceContext)modifyDnContext).getNewDn() );
+        LdapDN newRdnName = new LdapDN( ((RenameServiceContext)renameContext).getNewRdn() );
         newRdnName.normalize( attrRegistry.getNormalizerMapping() );
         newName.add( newRdnName.toNormName() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.modifyRn( modifyDnContext );
+            next.rename( renameContext );
             
             if ( lut.isReferral( oldName ) )
             {
@@ -602,7 +602,7 @@ public class ReferralService extends BaseInterceptor
             
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
-                next.modifyRn( modifyDnContext );
+                next.rename( renameContext );
                 
                 if ( lut.isReferral( oldName ) )
                 {

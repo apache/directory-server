@@ -470,13 +470,13 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void modifyRn( ServiceContext modifyDnContext ) throws NamingException;
+    public abstract void rename( ServiceContext renameContext ) throws NamingException;
 
 
-    public abstract void replace( ServiceContext replaceContext ) throws NamingException;
+    public abstract void move( ServiceContext moveContext ) throws NamingException;
 
 
-    public abstract void move( ServiceContext moveContext )
+    public abstract void moveAndRename( ServiceContext moveAndRenameContext )
         throws NamingException;
 
 
