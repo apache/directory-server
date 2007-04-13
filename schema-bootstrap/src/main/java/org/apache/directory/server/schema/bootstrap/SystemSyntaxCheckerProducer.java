@@ -24,9 +24,63 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.syntax.ACIItemSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.AccessPointSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.AudioSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.BinarySyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.BitStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.BooleanSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.CertificateListSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.CertificatePairSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.CertificateSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.CountrySyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DITContentRuleDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DITStructureRuleDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DLSubmitPermissionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DNSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DSAQualitySyntaxSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DSETypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DataQualitySyntaxSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DeliveryMethodSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.DirectoryStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.EnhancedGuideSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.FacsimileTelephoneNumberSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.FaxSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.GeneralizedTimeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.GuideSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.Ia5StringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.IntegerSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.JpegSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.MHSORAddressSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.MailPreferenceSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.MasterAndShadowAccessPointSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleUseDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.NameAndOptionalUIDSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.NameFormDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.NumericStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescriptionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.OctetStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.OidSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.OtherMailboxSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.PostalAddressSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.PresentationAddressSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.PrintableStringSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.ProtocolInformationSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SubstringAssertionSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SubtreeSpecificationSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SupplierAndConsumerSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SupplierInformationSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SupplierOrConsumerSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.SupportedAlgorithmSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.TelephoneNumberSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.TeletexTerminalIdentifierSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.TelexNumberSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.UtcTimeSyntaxChecker;
 
 
 /**
@@ -50,8 +104,6 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
 
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
-        SyntaxChecker syntaxChecker;
-
         /*
          * We are going to need a syntax checker for each and every one of
          * these syntaxes.  However right now we're probably not going to be
@@ -78,35 +130,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 8 Certificate List                 N  1.3.6.1.4.1.1466.115.121.1.9
          * 9 Certificate Pair                 N  1.3.6.1.4.1.1466.115.121.1.10
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.1" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.2" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.3" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.4" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = BinarySyntaxChecker.INSTANCE;
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.6" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.7" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.8" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.9" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.10" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.1", new ACIItemSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.2", new AccessPointSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.3", new AttributeTypeDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.4", new AudioSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.5", new BinarySyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.6", new BitStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.7", new BooleanSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.8", new CertificateSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.9", new CertificateListSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.10", new CertificatePairSyntaxChecker() );
 
         /*
          * 10 Country String                  Y  1.3.6.1.4.1.1466.115.121.1.11
@@ -120,35 +153,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 18 DSA Quality Syntax              Y  1.3.6.1.4.1.1466.115.121.1.19
          * 19 DSE Type                        Y  1.3.6.1.4.1.1466.115.121.1.20
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.11" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.12" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.13" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.14" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.15" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.16" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.17" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.18" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.19" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.20" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.11", new CountrySyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.12", new DNSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.13", new DataQualitySyntaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.14", new DeliveryMethodSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.15", new DirectoryStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.16", new DITContentRuleDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.17", new DITStructureRuleDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.18", new DLSubmitPermissionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.19", new DSAQualitySyntaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.20", new DSETypeSyntaxChecker() );
 
         /* 20 Enhanced Guide                  Y  1.3.6.1.4.1.1466.115.121.1.21
          * 21 Facsimile Telephone Number      Y  1.3.6.1.4.1.1466.115.121.1.22
@@ -161,35 +175,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 28 Master And Shadow Access Points Y  1.3.6.1.4.1.1466.115.121.1.29
          * 29 Matching Rule Description       Y  1.3.6.1.4.1.1466.115.121.1.30
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.21" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.22" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.23" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.24" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.25" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.26" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.27" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.28" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.29" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.30" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.21", new EnhancedGuideSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.22", new FacsimileTelephoneNumberSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.23", new FaxSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.24", new GeneralizedTimeSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.25", new GuideSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.26", new Ia5StringSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.27", new IntegerSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.28", new JpegSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.29", new MasterAndShadowAccessPointSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.30", new MatchingRuleDescriptionSyntaxChecker() );
 
         /* 30 Matching Rule Use Description   Y  1.3.6.1.4.1.1466.115.121.1.31
          * 31 Mail Preference                 Y  1.3.6.1.4.1.1466.115.121.1.32
@@ -202,35 +197,16 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 38 Other Mailbox                   Y  1.3.6.1.4.1.1466.115.121.1.39
          * 39 Octet String                    Y  1.3.6.1.4.1.1466.115.121.1.40
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.31" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.32" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.33" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.34" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.35" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.36" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.37" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.38" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.39" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.40" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.31", new MatchingRuleUseDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.32", new MailPreferenceSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.33", new MHSORAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.34", new NameAndOptionalUIDSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.35", new NameFormDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.36", new NumericStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.37", new ObjectClassDescriptionSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.38", new OidSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.39", new OtherMailboxSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.40", new OctetStringSyntaxChecker() );
 
         /*
          * 40 Postal Address                  Y  1.3.6.1.4.1.1466.115.121.1.41
@@ -244,71 +220,44 @@ public class SystemSyntaxCheckerProducer extends AbstractBootstrapProducer
          * 48 Supported Algorithm             N  1.3.6.1.4.1.1466.115.121.1.49
          * 49 Telephone Number                Y  1.3.6.1.4.1.1466.115.121.1.50
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.41" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.42" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.43" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.44" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.45" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.46" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.47" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.48" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.49" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.50" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.41", new PostalAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.42", new ProtocolInformationSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.43", new PresentationAddressSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.44", new PrintableStringSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.45", new SubtreeSpecificationSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.46", new SupplierInformationSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.47", new SupplierOrConsumerSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.48", new SupplierAndConsumerSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.49", new SupportedAlgorithmSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.50", new TelephoneNumberSyntaxChecker() );
 
         /*
          * 50 Teletex Terminal Identifier     Y  1.3.6.1.4.1.1466.115.121.1.51
          * 51 Telex Number                    Y  1.3.6.1.4.1.1466.115.121.1.52
          * 52 UTC Time                        Y  1.3.6.1.4.1.1466.115.121.1.53
          * 53 LDAP Syntax Description         Y  1.3.6.1.4.1.1466.115.121.1.54
-         * 54 Modify Rights                   Y  1.3.6.1.4.1.1466.115.121.1.55
-         * 55 LDAP BootstrapSchema Definition Y  1.3.6.1.4.1.1466.115.121.1.56
-         * 56 LDAP BootstrapSchema Description Y  1.3.6.1.4.1.1466.115.121.1.57
+         * 54 Modify Rights                   Y  1.3.6.1.4.1.1466.115.121.1.55  (No defined SC yet)
+         * 55 LDAP BootstrapSchema Definition Y  1.3.6.1.4.1.1466.115.121.1.56  (No defined SC yet) 
+         * 56 LDAP BootstrapSchema DescriptionY  1.3.6.1.4.1.1466.115.121.1.57  (No defined SC yet)
          * 57 Substring Assertion             Y  1.3.6.1.4.1.1466.115.121.1.58
          */
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.51" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.51", new TeletexTerminalIdentifierSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.52", new TelexNumberSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.53", new UtcTimeSyntaxChecker() );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.54", new LdapSyntaxDescriptionSyntaxChecker() );
 
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.52" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.53" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.54" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.55" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.56" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.57" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
-
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.58" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.55", 
+            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.55" ) );
         
-        syntaxChecker = new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.59" );
-        cb.schemaObjectProduced( this, syntaxChecker.getSyntaxOid(), syntaxChecker );
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.56", 
+            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.56" ) );
+        
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.57", 
+            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.57" ) );
+        
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.58", new SubstringAssertionSyntaxChecker() );
+
+        cb.schemaObjectProduced( this, "1.3.6.1.4.1.1466.115.121.1.59", 
+            new AcceptAllSyntaxChecker( "1.3.6.1.4.1.1466.115.121.1.59" ) );
     }
 }
