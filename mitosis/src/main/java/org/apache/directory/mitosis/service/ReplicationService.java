@@ -58,6 +58,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -517,8 +518,8 @@ public class ReplicationService extends BaseInterceptor
     {
         if ( isDeleted( entry ) )
         {
-            LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name );
-            e.setResolvedName( nexus.getMatchedName( name ) );
+            LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );
+            e.setResolvedName( nexus.getMatchedName( new GetMatchedNameServiceContext( name ) ) );
             throw e;
         }
     }
