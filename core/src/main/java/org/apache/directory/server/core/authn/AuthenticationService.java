@@ -290,7 +290,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -298,7 +298,7 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.listSuffixes();
+        return next.listSuffixes( emptyContext );
     }
 
 

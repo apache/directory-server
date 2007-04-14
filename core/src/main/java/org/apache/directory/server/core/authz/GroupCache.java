@@ -124,7 +124,8 @@ public class GroupCache
         filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, GROUPOFNAMES_OC, AssertionEnum.EQUALITY ) );
         filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, GROUPOFUNIQUENAMES_OC, AssertionEnum.EQUALITY ) );
 
-        Iterator suffixes = nexus.listSuffixes();
+        Iterator suffixes = nexus.listSuffixes( null );
+        
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();

@@ -310,10 +310,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+        public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.listSuffixes();
+            return next.listSuffixes( emptyContext );
         }
 
 

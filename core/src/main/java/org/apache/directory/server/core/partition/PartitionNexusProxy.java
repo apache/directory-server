@@ -255,13 +255,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Iterator listSuffixes () throws NamingException
+    public Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException
     {
-        return listSuffixes( null );
+        return listSuffixes( emptyContext );
     }
 
 
-    public Iterator listSuffixes( Collection bypass ) throws NamingException
+    public Iterator listSuffixes( ServiceContext emptyContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -269,7 +269,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "listSuffixes", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().listSuffixes();
+            return this.configuration.getInterceptorChain().listSuffixes( emptyContext );
         }
         finally
         {

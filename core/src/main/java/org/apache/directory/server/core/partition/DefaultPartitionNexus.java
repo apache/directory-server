@@ -631,9 +631,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see PartitionNexus#listSuffixes()
+     * @see PartitionNexus#listSuffixes( ServiceContext )
      */
-    public Iterator listSuffixes () throws NamingException
+    public Iterator listSuffixes ( ServiceContext emptyContext ) throws NamingException
     {
         return Collections.unmodifiableSet( partitions.keySet() ).iterator();
     }

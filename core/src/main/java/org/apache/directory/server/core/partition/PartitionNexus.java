@@ -252,7 +252,7 @@ public abstract class PartitionNexus implements Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    public abstract Iterator listSuffixes () throws NamingException;
+    public abstract Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException;
 
 
     /**

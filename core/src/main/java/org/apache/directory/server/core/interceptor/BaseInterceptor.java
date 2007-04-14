@@ -141,9 +141,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
     {
-        return next.listSuffixes();
+        return next.listSuffixes( emptyContext );
     }
 
 

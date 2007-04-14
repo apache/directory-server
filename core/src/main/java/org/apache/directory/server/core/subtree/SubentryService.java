@@ -145,7 +145,7 @@ public class SubentryService extends BaseInterceptor
         evaluator = new SubtreeEvaluator( factoryCfg.getRegistries().getOidRegistry(), factoryCfg.getRegistries().getAttributeTypeRegistry() );
 
         // prepare to find all subentries in all namingContexts
-        Iterator suffixes = this.nexus.listSuffixes();
+        Iterator suffixes = this.nexus.listSuffixes( null );
         ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

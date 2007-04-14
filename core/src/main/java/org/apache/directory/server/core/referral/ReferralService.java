@@ -176,7 +176,8 @@ public class ReferralService extends BaseInterceptor
         oidRegistry = dsConfig.getRegistries().getOidRegistry();
         env = dsConfig.getEnvironment();
 
-        Iterator suffixes = nexus.listSuffixes();
+        Iterator suffixes = nexus.listSuffixes( null );
+        
         while ( suffixes.hasNext() )
         {
             LdapDN suffix = new LdapDN( ( String ) suffixes.next() );

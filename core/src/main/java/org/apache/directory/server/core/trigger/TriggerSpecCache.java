@@ -112,7 +112,8 @@ public class TriggerSpecCache
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes();
+        Iterator suffixes = nexus.listSuffixes( null );
+        
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
@@ -121,11 +122,13 @@ public class TriggerSpecCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            
             while ( results.hasMore() )
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String subentryDn = result.getName();
                 Attribute triggerSpec = result.getAttributes().get( PRESCRIPTIVE_TRIGGER_ATTR );
+                
                 if ( triggerSpec == null )
                 {
                     log.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
@@ -136,6 +139,7 @@ public class TriggerSpecCache
                 normSubentryName.normalize( attrRegistry.getNormalizerMapping() );
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
+            
             results.close();
         }
     }

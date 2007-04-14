@@ -103,9 +103,9 @@ public class InterceptorChain
         }
 
 
-        public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+        public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
         {
-            return nexus.listSuffixes();
+            return nexus.listSuffixes( emptyContext );
         }
 
 
@@ -608,14 +608,14 @@ public class InterceptorChain
     }
 
 
-    public Iterator listSuffixes() throws NamingException
+    public Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.listSuffixes( next );
+            return head.listSuffixes( next, emptyContext );
         }
         catch ( NamingException ne )
         {
@@ -1042,7 +1042,7 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getMatchedName ( ServiceContext getMatchedNameContext ) throws NamingException
+                public LdapDN getMatchedName( ServiceContext getMatchedNameContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1063,7 +1063,7 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
+                public LdapDN getSuffix( ServiceContext getSuffixContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
@@ -1084,14 +1084,14 @@ public class InterceptorChain
                 }
 
 
-                public Iterator listSuffixes () throws NamingException
+                public Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.listSuffixes( next.nextInterceptor );
+                        return interceptor.listSuffixes( next.nextInterceptor, emptyContext );
                     }
                     catch ( NamingException ne )
                     {

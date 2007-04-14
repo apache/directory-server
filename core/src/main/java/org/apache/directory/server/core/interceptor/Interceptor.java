@@ -137,9 +137,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#listSuffixes()} call.
+     * Filters {@link PartitionNexus#listSuffixes( ServiceContext )} call.
      */
-    Iterator listSuffixes ( NextInterceptor next ) throws NamingException;
+    Iterator listSuffixes( NextInterceptor next, ServiceContext emptyContext ) throws NamingException;
 
 
     /**

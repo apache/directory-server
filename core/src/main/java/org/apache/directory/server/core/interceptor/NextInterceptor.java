@@ -70,9 +70,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#listSuffixes(NextInterceptor)}.
+     * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor), ServiceContext )}.
      */
-    Iterator listSuffixes() throws NamingException;
+    Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException;
 
 
     /**
