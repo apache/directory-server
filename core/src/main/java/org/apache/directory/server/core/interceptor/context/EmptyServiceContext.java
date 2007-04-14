@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 /**
  * An EmptySuffix context used for Interceptors. It contains no data, and mask
  * the DN in AbstractServiceContext
@@ -26,7 +28,7 @@ package org.apache.directory.server.core.interceptor.context;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmptyServiceContext  extends AbstractServiceContext
+public class EmptyServiceContext implements ServiceContext
 {
     /**
      * Creates a new instance of EmptyServiceContext.
@@ -36,6 +38,24 @@ public class EmptyServiceContext  extends AbstractServiceContext
         super();
     }
     
+    /**
+     * @return The associated DN
+     */
+    public LdapDN getDn()
+    {
+        return LdapDN.EMPTY_LDAPDN;
+    }
+    
+    /**
+     * Set the context DN
+     *
+     * @param dn The DN to set
+     */
+    public void setDn( LdapDN dn )
+    {
+        // do nothing
+    }
+
     /**
      * @see Object#toString()
      */
