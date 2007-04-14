@@ -221,13 +221,14 @@ public abstract class PartitionNexus implements Partition
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
      *
-     * @param name the normalized distinguished name to use for matching.
+     * @param getMatchedDNContext the context containing the  distinguished name 
+     * to use for matching.
      * @return a distinguished name representing the matching portion of dn,
      * as originally provided by the user on creation of the matched entry or 
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getMatchedName ( LdapDN name ) throws NamingException;
+    public abstract LdapDN getMatchedName ( ServiceContext getMatchedDNContext ) throws NamingException;
 
 
     /**

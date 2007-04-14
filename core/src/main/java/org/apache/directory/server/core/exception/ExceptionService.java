@@ -34,6 +34,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedDNServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
 import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
@@ -139,7 +140,7 @@ public class ExceptionService extends BaseInterceptor
         {
             LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.getUpName() 
                 + " not found" );
-            e2.setResolvedName( new LdapDN( nexus.getMatchedName( parentDn ).getUpName() ) );
+            e2.setResolvedName( new LdapDN( nexus.getMatchedName( new GetMatchedDNServiceContext( parentDn ) ).getUpName() ) );
             throw e2;
         }
         
@@ -505,6 +506,7 @@ public class ExceptionService extends BaseInterceptor
         
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
+        
         if ( !nextInterceptor.hasEntry( new EntryServiceContext( dn ) ) )
         {
             LdapNameNotFoundException e;
@@ -518,7 +520,10 @@ public class ExceptionService extends BaseInterceptor
                 e = new LdapNameNotFoundException( dn.toString() );
             }
 
-            e.setResolvedName( new LdapDN( proxy.getMatchedName( dn ).getUpName() ) );
+            e.setResolvedName( 
+                new LdapDN( 
+                    proxy.getMatchedName( 
+                        new GetMatchedDNServiceContext( dn ) ).getUpName() ) );
             throw e;
         }
     }

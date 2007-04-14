@@ -296,10 +296,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public LdapDN getMatchedName ( NextInterceptor next, LdapDN name ) throws NamingException
+        public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.getMatchedName( name );
+            return next.getMatchedName( getMatchedDNContext );
         }
 
 

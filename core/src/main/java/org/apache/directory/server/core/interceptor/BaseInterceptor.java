@@ -111,9 +111,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException
     {
-        return next.getMatchedName( dn );
+        return next.getMatchedName( getMatchedDNContext );
     }
 
 

@@ -370,10 +370,10 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
 
-    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, ServiceContext getMatchedDNContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attrNormalizers );
-        return nextInterceptor.getMatchedName( name );
+        LdapDN.normalize( getMatchedDNContext.getDn(), attrNormalizers );
+        return nextInterceptor.getMatchedName( getMatchedDNContext );
     }
 
 

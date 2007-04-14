@@ -208,21 +208,22 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getMatchedName ( LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( ServiceContext getMatchedDNContext ) throws NamingException
     {
-        return getMatchedName( dn, null );
+        return getMatchedName( getMatchedDNContext, null );
     }
 
 
-    public LdapDN getMatchedName( LdapDN dn, Collection bypass ) throws NamingException
+    public LdapDN getMatchedName( ServiceContext getMatchedDNContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Object[] args = new Object[] { dn };
+        Object[] args = new Object[] { getMatchedDNContext };
         stack.push( new Invocation( this, caller, "getMatchedDn", args, bypass ) );
+        
         try
         {
-            return this.configuration.getInterceptorChain().getMatchedName( dn );
+            return this.configuration.getInterceptorChain().getMatchedName( getMatchedDNContext );
         }
         finally
         {

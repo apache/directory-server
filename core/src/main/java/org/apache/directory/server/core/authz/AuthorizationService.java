@@ -1010,7 +1010,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -1020,12 +1020,12 @@ public class AuthorizationService extends BaseInterceptor
         
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
-            return next.getMatchedName( dn );
+            return next.getMatchedName( getMatchedDNContext );
         }
 
         // get the present matched name
         Attributes entry;
-        LdapDN matched = next.getMatchedName( dn );
+        LdapDN matched = next.getMatchedName( getMatchedDNContext );
 
         // check if we have disclose on error permission for the entry at the matched dn
         // if not remove rdn and check that until nothing is left in the name and return

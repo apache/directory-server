@@ -125,9 +125,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#getMatchedName(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#getMatchedName( ServiceContext )} call.
      */
-    LdapDN getMatchedName ( NextInterceptor next, LdapDN name ) throws NamingException;
+    LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException;
 
 
     /**
@@ -161,19 +161,19 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#delete(ServiceContext)} call.
+     * Filters {@link Partition#delete( ServiceContext )} call.
      */
     void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#add(ServiceContext)} call.
+     * Filters {@link Partition#add( ServiceContext )} call.
      */
     void add( NextInterceptor next, ServiceContext addContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#modify(ServiceContext)} call.
+     * Filters {@link Partition#modify( ServiceContext )} call.
      */
     void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException;
 
@@ -198,43 +198,43 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#lookup(ServiceContext)} call.
+     * Filters {@link Partition#lookup( ServiceContext )} call.
      */
     Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#hasEntry(ServiceContext)} call.
+     * Filters {@link Partition#hasEntry( ServiceContext )} call.
      */
     boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#rename(ServiceContext)} call.
+     * Filters {@link Partition#rename( ServiceContext )} call.
      */
     void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#move(ServiceContext)} call.
+     * Filters {@link Partition#move( ServiceContext )} call.
      */
     void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#moveAndRename(ServiceContext)} call.
+     * Filters {@link Partition#moveAndRename( ServiceContext) } call.
      */
     void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
         throws NamingException;
 
     /**
-     * Filters {@link Partition#bind(ServiceContext)} call.
+     * Filters {@link Partition#bind( ServiceContext )} call.
      */
     void bind( NextInterceptor next, ServiceContext bindContext )
         throws NamingException;
 
     /**
-     * Filters {@link Partition#unbind(ServiceContext)} call.
+     * Filters {@link Partition#unbind( ServiceContext )} call.
      */
     void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException;
 }

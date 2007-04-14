@@ -2027,10 +2027,13 @@ public class SchemaService extends BaseInterceptor
                 }
                 catch ( NamingException ne )
                 {
-                    log.error( "Attribute value '{}' for attribute '{}' is synatxically incorrect", 
-                        (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ), 
-                        attribute.getID());
-                    throw ne;
+                    String message = "Attribute value '" + 
+                        (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ) + 
+                        "' for attribute '" + attribute.getID() + "' is syntaxically incorrect";
+                    log.info( message );
+                    
+                    throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
+
                 }
             }
         }

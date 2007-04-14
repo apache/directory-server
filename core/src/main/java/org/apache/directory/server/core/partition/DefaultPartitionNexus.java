@@ -591,9 +591,10 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see PartitionNexus#getMatchedName(org.apache.directory.shared.ldap.name.LdapDN)
      */
-    public LdapDN getMatchedName ( LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( ServiceContext getMatchedDNContext ) throws NamingException
     {
-        dn = ( LdapDN ) dn.clone();
+        LdapDN dn = ( LdapDN ) getMatchedDNContext.getDn().clone();
+        
         while ( dn.size() > 0 )
         {
             if ( hasEntry( new EntryServiceContext( dn ) ) )
