@@ -43,7 +43,7 @@ public class AddContextPartitionServiceContext  extends EmptyServiceContext
     /**
      * Creates a new instance of AddContextPartitionServiceContext.
      *
-     * @param entryDn The Entry DN to unbind
+     * @param entryDn The partition configuration to add
      */
     public AddContextPartitionServiceContext( PartitionConfiguration cfg )
     {
@@ -56,7 +56,7 @@ public class AddContextPartitionServiceContext  extends EmptyServiceContext
      */
     public String toString()
     {
-        return "AddContextPartitionServiceContext for partition context '" + getDn().getUpName() + "'";
+        return "AddContextPartitionServiceContext for partition context '" + cfg.getName() + "'";
     }
 
     /**
