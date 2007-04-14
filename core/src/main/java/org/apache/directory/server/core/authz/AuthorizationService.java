@@ -202,7 +202,7 @@ public class AuthorizationService extends BaseInterceptor
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE().get( "subschemaSubentry" )
+        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE( null ).get( "subschemaSubentry" )
             .get();
         LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
         subschemaSubentryDnName.normalize( attrRegistry.getNormalizerMapping() );

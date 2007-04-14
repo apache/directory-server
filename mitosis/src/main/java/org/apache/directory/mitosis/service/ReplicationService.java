@@ -274,7 +274,7 @@ public class ReplicationService extends BaseInterceptor
      */
     public void purgeAgedData() throws NamingException
     {
-        Attributes rootDSE = nexus.getRootDSE();
+        Attributes rootDSE = nexus.getRootDSE( null );
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {

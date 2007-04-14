@@ -289,10 +289,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+        public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.getRootDSE();
+            return next.getRootDSE( getRootDSEContext );
         }
 
 

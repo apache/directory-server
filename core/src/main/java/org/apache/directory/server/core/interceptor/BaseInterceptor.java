@@ -117,9 +117,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
     {
-        return next.getRootDSE();
+        return next.getRootDSE( getRootDSEContext );
     }
 
 

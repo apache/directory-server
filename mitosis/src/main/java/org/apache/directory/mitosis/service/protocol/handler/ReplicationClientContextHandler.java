@@ -311,7 +311,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     private void sendAllEntries( ReplicationContext ctx ) throws NamingException
     {
-        Attributes rootDSE = ctx.getServiceConfiguration().getPartitionNexus().getRootDSE();
+        Attributes rootDSE = ctx.getServiceConfiguration().getPartitionNexus().getRootDSE( null );
 
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )

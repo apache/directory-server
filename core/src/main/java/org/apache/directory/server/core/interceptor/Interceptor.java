@@ -119,9 +119,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#getRootDSE()} call.
+     * Filters {@link PartitionNexus#getRootDSE( ServiceContext )} call.
      */
-    Attributes getRootDSE( NextInterceptor next ) throws NamingException;
+    Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException;
 
 
     /**

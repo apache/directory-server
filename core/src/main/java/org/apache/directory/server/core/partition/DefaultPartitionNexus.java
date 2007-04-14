@@ -638,7 +638,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE()
+    public Attributes getRootDSE( ServiceContext getRootDSEContext )
     {
         return rootDSE;
     }
@@ -764,7 +764,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // -----------------------------------------------------------
                 if ( ids == null || ids.length == 0 )
                 {
-                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE().clone(), false );
+                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
                     return new SingletonEnumeration( result );
                 }
                 
@@ -815,14 +815,14 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
-                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE().clone(), false );
+                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
                     return new SingletonEnumeration( result );
                 }
                 
                 Attributes attrs = new AttributesImpl();
                 if ( containsAsterisk )
                 {
-                    for ( NamingEnumeration ii = getRootDSE().getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all user attribute
                         Attribute attr = ( Attribute ) ii.next();
@@ -840,7 +840,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
                 else if ( containsPlus )
                 {
-                    for ( NamingEnumeration ii = getRootDSE().getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all operational attributes
                         Attribute attr = ( Attribute ) ii.next();
@@ -858,7 +858,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
                 else
                 {
-                    for ( NamingEnumeration ii = getRootDSE().getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                       // add user attributes specifically asked for
                         Attribute attr = ( Attribute ) ii.next();

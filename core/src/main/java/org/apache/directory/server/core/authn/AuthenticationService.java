@@ -242,7 +242,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -250,7 +250,7 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.getRootDSE();
+        return next.getRootDSE( getRootDSEContext );
     }
 
 

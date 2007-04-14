@@ -91,7 +91,7 @@ public class ExceptionService extends BaseInterceptor
     {
         nexus = factoryCfg.getPartitionNexus();
         normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        Attribute attr = nexus.getRootDSE().get( "subschemaSubentry" );
+        Attribute attr = nexus.getRootDSE( null ).get( "subschemaSubentry" );
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
     }
@@ -228,7 +228,7 @@ public class ExceptionService extends BaseInterceptor
         
         if ( ctx.getDn().getNormName().equals( subschemSubentryDn.getNormName() ) )
         {
-            return nexus.getRootDSE();
+            return nexus.getRootDSE( null );
         }
         
         // check if entry to lookup exists

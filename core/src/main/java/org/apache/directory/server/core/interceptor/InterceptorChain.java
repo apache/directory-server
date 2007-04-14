@@ -85,9 +85,9 @@ public class InterceptorChain
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+        public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
         {
-            return nexus.getRootDSE();
+            return nexus.getRootDSE( getRootDSEContext );
         }
 
 
@@ -522,14 +522,14 @@ public class InterceptorChain
     }
 
 
-    public Attributes getRootDSE() throws NamingException
+    public Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            return head.getRootDSE( next );
+            return head.getRootDSE( next, getRootDSEContext );
         }
         catch ( NamingException ne )
         {
@@ -1019,14 +1019,14 @@ public class InterceptorChain
                 }
 
 
-                public Attributes getRootDSE() throws NamingException
+                public Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getRootDSE( next.nextInterceptor );
+                        return interceptor.getRootDSE( next.nextInterceptor, getRootDSEContext );
                     }
                     catch ( NamingException ne )
                     {

@@ -182,7 +182,7 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE() throws NamingException;
+    public abstract Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException;
 
 
     /**

@@ -680,20 +680,20 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE() throws NamingException
+    public Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException
     {
-        return getRootDSE( null );
+        return getRootDSE( null, null );
     }
 
 
-    public Attributes getRootDSE( Collection bypass ) throws NamingException
+    public Attributes getRootDSE( ServiceContext getRootDSEContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "getRootDSE", null, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getRootDSE();
+            return this.configuration.getInterceptorChain().getRootDSE( getRootDSEContext );
         }
         finally
         {

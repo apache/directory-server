@@ -52,9 +52,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#getRootDSE(NextInterceptor)}.
+     * Calls the next interceptor's {@link Interceptor#getRootDSE(NextInterceptor, ServiceContext )}.
      */
-    Attributes getRootDSE() throws NamingException;
+    Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException;
 
 
     /**
