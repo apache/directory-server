@@ -22,28 +22,28 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A GetMatchedDN context used for Interceptors. It contains all the informations
- * needed for the getMatchedDN operation, and used by all the interceptors
+ * A GetMatchedName context used for Interceptors. It contains all the informations
+ * needed for the getMatchedName operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetMatchedDNServiceContext  extends AbstractServiceContext
+public class GetMatchedNameServiceContext  extends AbstractServiceContext
 {
     /**
-     * Creates a new instance of GetMatchedDNServiceContext.
+     * Creates a new instance of GetMatchedNameServiceContext.
      */
-    public GetMatchedDNServiceContext()
+    public GetMatchedNameServiceContext()
     {
         super();
     }
     
     /**
-     * Creates a new instance of GetMatchedDNServiceContext.
+     * Creates a new instance of GetMatchedNameServiceContext.
      *
-     * @param dn The entry DN used to get the rootDSE
+     * @param dn The DN to match
      */
-    public GetMatchedDNServiceContext( LdapDN dn )
+    public GetMatchedNameServiceContext( LdapDN dn )
     {
         super( dn );
     }
@@ -53,6 +53,6 @@ public class GetMatchedDNServiceContext  extends AbstractServiceContext
      */
     public String toString()
     {
-        return "GetMatchedDNContext with DN '" + getDn().getUpName() + "'";
+        return "GetMatchedNameContext with DN '" + getDn().getUpName() + "'";
     }
 }

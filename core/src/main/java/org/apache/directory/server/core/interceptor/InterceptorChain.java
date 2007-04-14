@@ -91,9 +91,9 @@ public class InterceptorChain
         }
 
 
-        public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException
+        public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
         {
-            return ( LdapDN ) nexus.getMatchedName( getMatchedDNContext ).clone();
+            return ( LdapDN ) nexus.getMatchedName( getMatchedNameContext ).clone();
         }
 
 
@@ -543,7 +543,7 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getMatchedName( ServiceContext getMatchedDNContext ) throws NamingException
+    public LdapDN getMatchedName( ServiceContext getMatchedNameContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -551,7 +551,7 @@ public class InterceptorChain
 
         try
         {
-            return head.getMatchedName( next, getMatchedDNContext );
+            return head.getMatchedName( next, getMatchedNameContext );
         }
         catch ( NamingException ne )
         {
@@ -1041,14 +1041,14 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getMatchedName ( ServiceContext getMatchedDNContext ) throws NamingException
+                public LdapDN getMatchedName ( ServiceContext getMatchedNameContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getMatchedName( next.nextInterceptor, getMatchedDNContext );
+                        return interceptor.getMatchedName( next.nextInterceptor, getMatchedNameContext );
                     }
                     catch ( NamingException ne )
                     {

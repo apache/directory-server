@@ -60,7 +60,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getMatchedName( NextInterceptor, ServiceContext )}.
      */
-    LdapDN getMatchedName ( ServiceContext getMatchedDNContext ) throws NamingException;
+    LdapDN getMatchedName ( ServiceContext getMatchedNameContext ) throws NamingException;
 
 
     /**

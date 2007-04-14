@@ -230,15 +230,15 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Matching name = '" + getMatchedDNContext.getDn().getUpName() + "'" );
+            log.debug( "Matching name = '" + getMatchedNameContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getMatchedName( getMatchedDNContext );
+        return next.getMatchedName( getMatchedNameContext );
     }
 
 

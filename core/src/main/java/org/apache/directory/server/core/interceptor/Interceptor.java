@@ -127,7 +127,7 @@ public interface Interceptor
     /**
      * Filters {@link PartitionNexus#getMatchedName( ServiceContext )} call.
      */
-    LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedDNContext ) throws NamingException;
+    LdapDN getMatchedName( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException;
 
 
     /**
