@@ -48,6 +48,7 @@ import org.apache.directory.server.core.interceptor.context.AddContextPartitionS
 import org.apache.directory.server.core.interceptor.context.CompareServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionServiceContext;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -409,9 +410,10 @@ public class DefaultPartitionNexus extends PartitionNexus
         while ( suffixes.hasNext() )
         {
             String suffix = suffixes.next();
+            
             try
             {
-                removeContextPartition( new LdapDN( suffix ) );
+                removeContextPartition( new RemoveContextPartitionServiceContext( new LdapDN( suffix ) ) );
             }
             catch ( NamingException e )
             {
@@ -557,10 +559,11 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public synchronized void removeContextPartition( LdapDN suffix ) throws NamingException
+    public synchronized void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException
     {
-        String key = suffix.toString();
+        String key = removeContextPartition.getDn().getNormName();
         Partition partition = partitions.get( key );
+        
         if ( partition == null )
         {
             throw new NameNotFoundException( "No partition with suffix: " + key );

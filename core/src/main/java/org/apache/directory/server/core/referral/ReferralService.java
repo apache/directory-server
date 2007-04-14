@@ -882,15 +882,20 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration list = invocation.getProxy().search( suffix, env, getReferralFilter(), getControls(),
+        NamingEnumeration list = invocation.getProxy().search( 
+            removeContextPartition.getDn(), 
+            env, 
+            getReferralFilter(), 
+            getControls(),
             SEARCH_BYPASS );
-        deleteReferrals( list, suffix );
+        
+        deleteReferrals( list, removeContextPartition.getDn() );
 
-        next.removeContextPartition( suffix );
+        next.removeContextPartition( removeContextPartition );
     }
 
 

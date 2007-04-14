@@ -726,21 +726,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void removeContextPartition( LdapDN suffix ) throws NamingException
+    public void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException
     {
-        removeContextPartition( suffix, null );
+        removeContextPartition( removeContextPartition, null );
     }
 
 
-    public void removeContextPartition( LdapDN suffix, Collection bypass ) throws NamingException
+    public void removeContextPartition( ServiceContext removeContextPartition, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "removeContextPartition", new Object[]
-            { suffix }, bypass ) );
+            { removeContextPartition }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().removeContextPartition( suffix );
+            this.configuration.getInterceptorChain().removeContextPartition( removeContextPartition );
         }
         finally
         {

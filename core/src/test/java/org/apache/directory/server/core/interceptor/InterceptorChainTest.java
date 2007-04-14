@@ -325,10 +325,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+        public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
         {
             interceptors.add( this );
-            next.removeContextPartition( suffix );
+            next.removeContextPartition( removeContextPartition );
         }
 
 

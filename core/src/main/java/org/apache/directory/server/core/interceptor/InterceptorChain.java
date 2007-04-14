@@ -185,9 +185,9 @@ public class InterceptorChain
         }
 
 
-        public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+        public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
         {
-            nexus.removeContextPartition( suffix );
+            nexus.removeContextPartition( removeContextPartition );
         }
 
 
@@ -651,14 +651,14 @@ public class InterceptorChain
     }
 
 
-    public void removeContextPartition( LdapDN suffix ) throws NamingException
+    public void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
         try
         {
-            head.removeContextPartition( next, suffix );
+            head.removeContextPartition( next, removeContextPartition );
         }
         catch ( NamingException ne )
         {
@@ -1393,14 +1393,14 @@ public class InterceptorChain
                 }
 
 
-                public void removeContextPartition( LdapDN suffix ) throws NamingException
+                public void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.removeContextPartition( next.nextInterceptor, suffix );
+                        interceptor.removeContextPartition( next.nextInterceptor, removeContextPartition );
                     }
                     catch ( NamingException ne )
                     {

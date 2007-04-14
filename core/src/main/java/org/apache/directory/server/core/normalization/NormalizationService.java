@@ -404,9 +404,9 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
     {
-        suffix = LdapDN.normalize( suffix, attrNormalizers );
-        next.removeContextPartition( suffix );
+        LdapDN.normalize( removeContextPartition.getDn(), attrNormalizers );
+        next.removeContextPartition( removeContextPartition );
     }
 }

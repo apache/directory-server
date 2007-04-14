@@ -149,9 +149,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#removeContextPartition( ServiceContext )} call.
      */
-    void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException;
+    void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException;
 
 
     /**

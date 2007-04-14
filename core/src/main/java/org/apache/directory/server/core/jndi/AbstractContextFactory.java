@@ -37,6 +37,7 @@ import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -134,7 +135,8 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         {
             Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" );
             PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, service );
-            proxy.removeContextPartition( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() );
+            proxy.removeContextPartition( 
+                new RemoveContextPartitionServiceContext( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() ) );
         }
         else if ( service == null )
         {

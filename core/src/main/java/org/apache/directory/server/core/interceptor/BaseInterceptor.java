@@ -196,9 +196,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
     {
-        next.removeContextPartition( suffix );
+        next.removeContextPartition( removeContextPartition );
     }
 
 

@@ -199,7 +199,7 @@ public abstract class PartitionNexus implements Partition
     public abstract void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException;
 
 
-    public abstract void removeContextPartition( LdapDN suffix ) throws NamingException;
+    public abstract void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException;
 
 
     public abstract Partition getSystemPartition();
