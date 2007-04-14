@@ -97,9 +97,9 @@ public class InterceptorChain
         }
 
 
-        public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+        public LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
         {
-            return ( LdapDN ) nexus.getSuffix( dn ).clone();
+            return ( LdapDN ) nexus.getSuffix( getSuffixContext ).clone();
         }
 
 
@@ -565,14 +565,15 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getSuffix ( LdapDN name ) throws NamingException
+    public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.getSuffix( next, name );
+            return head.getSuffix( next, getSuffixContext );
         }
         catch ( NamingException ne )
         {
@@ -1062,14 +1063,14 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getSuffix ( LdapDN dn ) throws NamingException
+                public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getSuffix( next.nextInterceptor, dn );
+                        return interceptor.getSuffix( next.nextInterceptor, getSuffixContext );
                     }
                     catch ( NamingException ne )
                     {

@@ -123,9 +123,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
     {
-        return next.getSuffix( dn );
+        return next.getSuffix( getSuffixContext );
     }
 
 

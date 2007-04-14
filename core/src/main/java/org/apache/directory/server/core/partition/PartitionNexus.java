@@ -236,12 +236,13 @@ public abstract class PartitionNexus implements Partition
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param name the normalized distinguished name to use for finding a suffix.
+     * @param getSuffixContext the Context containing normalized distinguished 
+     * name to use for finding a suffix.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getSuffix ( LdapDN name ) throws NamingException;
+    public abstract LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException;
 
 
     /**

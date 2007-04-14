@@ -254,15 +254,15 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
+            log.debug( "Getting suffix for name = '" + getSuffixContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getSuffix( dn );
+        return next.getSuffix( getSuffixContext );
     }
 
 

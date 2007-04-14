@@ -232,21 +232,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getSuffix ( LdapDN dn ) throws NamingException
+    public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
     {
-        return getSuffix( dn, null );
+        return getSuffix( getSuffixContext, null );
     }
 
 
-    public LdapDN getSuffix( LdapDN dn, Collection bypass ) throws NamingException
+    public LdapDN getSuffix( ServiceContext getSuffixContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Object[] args = new Object[] { dn };
+        Object[] args = new Object[] { getSuffixContext };
         stack.push( new Invocation( this, caller, "getSuffix", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getSuffix( dn );
+            return this.configuration.getInterceptorChain().getSuffix( getSuffixContext );
         }
         finally
         {

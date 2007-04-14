@@ -377,10 +377,10 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor nextInterceptor, ServiceContext getSuffixContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attrNormalizers );
-        return nextInterceptor.getSuffix( name );
+        LdapDN.normalize( getSuffixContext.getDn(), attrNormalizers );
+        return nextInterceptor.getSuffix( getSuffixContext );
     }
 
 

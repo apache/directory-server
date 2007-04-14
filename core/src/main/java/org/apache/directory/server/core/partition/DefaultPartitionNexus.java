@@ -621,11 +621,11 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getSuffix(org.apache.directory.shared.ldap.name.LdapDN)
+     * @see PartitionNexus#getSuffix( ServiceContext )
      */
-    public LdapDN getSuffix ( LdapDN dn ) throws NamingException
+    public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
     {
-        Partition backend = getBackend( dn );
+        Partition backend = getBackend( getSuffixContext.getDn() );
         return backend.getSuffix();
     }
 

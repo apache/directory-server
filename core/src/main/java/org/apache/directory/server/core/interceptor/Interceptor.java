@@ -131,9 +131,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#getSuffix(org.apache.directory.shared.ldap.name.LdapDN)} call.
+     * Filters {@link PartitionNexus#getSuffix( ServiceContext )} call.
      */
-    LdapDN getSuffix ( NextInterceptor next, LdapDN name ) throws NamingException;
+    LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException;
 
 
     /**

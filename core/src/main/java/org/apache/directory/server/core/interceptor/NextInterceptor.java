@@ -60,19 +60,19 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#getMatchedName( NextInterceptor, ServiceContext )}.
      */
-    LdapDN getMatchedName ( ServiceContext getMatchedNameContext ) throws NamingException;
+    LdapDN getMatchedName( ServiceContext getMatchedNameContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#getSuffix(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#getSuffix( NextInterceptor, ServiceContext getSuffixContext )}.
      */
-    LdapDN getSuffix ( LdapDN name ) throws NamingException;
+    LdapDN getSuffix( ServiceContext getSuffixContext ) throws NamingException;
 
 
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes(NextInterceptor)}.
      */
-    Iterator listSuffixes () throws NamingException;
+    Iterator listSuffixes() throws NamingException;
 
 
     /**
