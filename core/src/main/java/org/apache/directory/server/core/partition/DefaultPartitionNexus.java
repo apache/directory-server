@@ -44,6 +44,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
 import org.apache.directory.server.core.interceptor.context.CompareServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
@@ -210,7 +211,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             while ( i.hasNext() )
             {
                 PartitionConfiguration c = ( PartitionConfiguration ) i.next();
-                addContextPartition( c );
+                addContextPartition( new AddContextPartitionServiceContext( c ) );
                 initializedPartitionCfgs.add( 0, c );
             }
             initialized = true;
@@ -532,8 +533,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public synchronized void addContextPartition( PartitionConfiguration config ) throws NamingException
+    public synchronized void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException
     {
+        PartitionConfiguration config = ((AddContextPartitionServiceContext)addContextPartitionContext).getCfg();
         Partition partition = config.getContextPartition();
 
         // Turn on default indices

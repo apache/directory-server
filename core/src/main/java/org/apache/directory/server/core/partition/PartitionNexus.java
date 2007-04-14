@@ -196,7 +196,7 @@ public abstract class PartitionNexus implements Partition
     public abstract boolean compare( ServiceContext compareContext ) throws NamingException;
 
 
-    public abstract void addContextPartition( PartitionConfiguration config ) throws NamingException;
+    public abstract void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException;
 
 
     public abstract void removeContextPartition( LdapDN suffix ) throws NamingException;

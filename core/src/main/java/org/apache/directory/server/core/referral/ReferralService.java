@@ -39,13 +39,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
 import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
@@ -868,12 +868,12 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext ) throws NamingException
     {
-        next.addContextPartition( cfg );
+        next.addContextPartition( addContextPartitionContext );
 
         // add referrals immediately after adding the new partition
-        Partition partition = cfg.getContextPartition();
+        Partition partition = ((AddContextPartitionServiceContext)addContextPartitionContext).getCfg().getContextPartition();
         LdapDN suffix = partition.getSuffix();
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration list = invocation.getProxy().search( suffix, env, getReferralFilter(), getControls(),

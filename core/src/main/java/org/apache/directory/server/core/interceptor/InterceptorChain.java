@@ -91,19 +91,19 @@ public class InterceptorChain
         }
 
 
-        public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
+        public LdapDN getMatchedName( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
         {
             return ( LdapDN ) nexus.getMatchedName( getMatchedNameContext ).clone();
         }
 
 
-        public LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
+        public LdapDN getSuffix( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
         {
             return ( LdapDN ) nexus.getSuffix( getSuffixContext ).clone();
         }
 
 
-        public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
+        public Iterator listSuffixes( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
         {
             return nexus.listSuffixes( emptyContext );
         }
@@ -115,7 +115,7 @@ public class InterceptorChain
         }
 
 
-        public void add(NextInterceptor next, ServiceContext addContext ) throws NamingException
+        public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
         {
             nexus.add( addContext );
         }
@@ -178,10 +178,10 @@ public class InterceptorChain
         }
 
 
-        public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg )
+        public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext )
             throws NamingException
         {
-            nexus.addContextPartition( cfg );
+            nexus.addContextPartition( addContextPartitionContext );
         }
 
 
@@ -565,7 +565,7 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException
+    public LdapDN getSuffix( ServiceContext getSuffixContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -629,14 +629,15 @@ public class InterceptorChain
     }
 
 
-    public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.addContextPartition( next, cfg );
+            head.addContextPartition( next, addContextPartitionContext );
         }
         catch ( NamingException ne )
         {
@@ -1371,14 +1372,14 @@ public class InterceptorChain
                 }
 
 
-                public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
+                public void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.addContextPartition( next.nextInterceptor, cfg );
+                        interceptor.addContextPartition( next.nextInterceptor, addContextPartitionContext );
                     }
                     catch ( NamingException ne )
                     {

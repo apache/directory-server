@@ -398,9 +398,9 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext ) throws NamingException
     {
-        next.addContextPartition( cfg );
+        next.addContextPartition( addContextPartitionContext );
     }
 
 

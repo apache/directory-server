@@ -41,6 +41,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
 import org.apache.directory.server.core.interceptor.context.AddServiceContext;
 import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
 import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
@@ -988,7 +989,7 @@ class DefaultDirectoryService extends DirectoryService
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( configuration, null );
-        partitionNexus.addContextPartition( schemaPartitionConfig );
+        partitionNexus.addContextPartition( new AddContextPartitionServiceContext( schemaPartitionConfig ) );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );

@@ -703,21 +703,21 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void addContextPartition( PartitionConfiguration config ) throws NamingException
+    public void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException
     {
-        addContextPartition( config, null );
+        addContextPartition( addContextPartitionContext, null );
     }
 
 
-    public void addContextPartition( PartitionConfiguration config, Collection bypass ) throws NamingException
+    public void addContextPartition( ServiceContext addContextPartitionContext, Collection bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "addContextPartition", new Object[]
-            { config }, bypass ) );
+            { addContextPartitionContext }, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().addContextPartition( config );
+            this.configuration.getInterceptorChain().addContextPartition( addContextPartitionContext );
         }
         finally
         {

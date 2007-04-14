@@ -317,11 +317,11 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg )
+        public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext )
             throws NamingException
         {
             interceptors.add( this );
-            next.addContextPartition( cfg );
+            next.addContextPartition( addContextPartitionContext );
         }
 
 

@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -76,9 +75,9 @@ public interface NextInterceptor
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#addContextPartition(PartitionConfiguration)}.
+     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( ServiceContext )}.
      */
-    void addContextPartition( PartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException;
 
 
     /**

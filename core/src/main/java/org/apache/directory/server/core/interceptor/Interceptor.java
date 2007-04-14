@@ -143,9 +143,9 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#addContextPartition(PartitionConfiguration)} call.
+     * Filters {@link PartitionNexus#addContextPartition( ServiceContext )} call.
      */
-    void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext ) throws NamingException;
 
 
     /**

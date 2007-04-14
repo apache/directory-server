@@ -32,7 +32,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.ServiceContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -191,9 +190,9 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext ) throws NamingException
     {
-        next.addContextPartition( cfg );
+        next.addContextPartition( addContextPartitionContext );
     }
 
 
