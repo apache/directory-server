@@ -33,10 +33,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -158,11 +158,11 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( ServiceContext modifyContext )
+    public Operation newModify( OperationContext modifyContext )
     {
     	LdapDN name = modifyContext.getDn();
-    	int modOp = ((ModifyServiceContext)modifyContext).getModOp();
-    	Attributes mods = ((ModifyServiceContext)modifyContext).getMods();
+    	int modOp = ((ModifyOperationContext)modifyContext).getModOp();
+    	Attributes mods = ((ModifyOperationContext)modifyContext).getMods();
 
     	CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
@@ -332,9 +332,9 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if ( nexus.hasEntry( new EntryServiceContext( newEntryName ) ) )
+        if ( nexus.hasEntry( new EntryOperationContext( newEntryName ) ) )
         {
-            Attributes entry = nexus.lookup( new LookupServiceContext( newEntryName ) );
+            Attributes entry = nexus.lookup( new LookupOperationContext( newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

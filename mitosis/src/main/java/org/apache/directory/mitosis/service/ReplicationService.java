@@ -56,11 +56,11 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -359,9 +359,9 @@ public class ReplicationService extends BaseInterceptor
             LdapDN name = it.next();
             try
             {
-                Attributes entry = nexus.lookup( new LookupServiceContext( name ) );
+                Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
                 log.info( "Purge: " + name + " (" + entry + ')' );
-                nexus.delete( new DeleteServiceContext( name ) );
+                nexus.delete( new DeleteOperationContext( name ) );
             }
             catch ( NamingException ex )
             {
@@ -371,9 +371,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor nextInterceptor, ServiceContext addContext ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, OperationContext addContext ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
+        Operation op = operationFactory.newAdd( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
         op.execute( nexus, store, attrRegistry );
     }
 
@@ -385,7 +385,7 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
     {
         Operation op = operationFactory.newModify( modifyContext );
         op.execute( nexus, store, attrRegistry );
@@ -422,7 +422,7 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, ServiceContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, OperationContext entryContext ) throws NamingException
     {
         // Ask others first.
         boolean hasEntry = nextInterceptor.hasEntry( entryContext );
@@ -433,7 +433,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( new LookupServiceContext( entryContext.getDn() ) );
+                Attributes entry = nextInterceptor.lookup( new LookupOperationContext( entryContext.getDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
@@ -447,9 +447,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext lookupContext ) throws NamingException
     {
-        LookupServiceContext ctx = ((LookupServiceContext)lookupContext);
+        LookupOperationContext ctx = ((LookupOperationContext)lookupContext);
         
         if ( ctx.getAttrsId() != null )
         {
@@ -519,7 +519,7 @@ public class ReplicationService extends BaseInterceptor
         if ( isDeleted( entry ) )
         {
             LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );
-            e.setResolvedName( nexus.getMatchedName( new GetMatchedNameServiceContext( name ) ) );
+            e.setResolvedName( nexus.getMatchedName( new GetMatchedNameOperationContext( name ) ) );
             throw e;
         }
     }
