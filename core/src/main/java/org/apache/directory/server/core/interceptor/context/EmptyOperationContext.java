@@ -22,37 +22,45 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A GetMatchedName context used for Interceptors. It contains all the informations
- * needed for the getMatchedName operation, and used by all the interceptors
+ * An EmptySuffix context used for Interceptors. It contains no data, and mask
+ * the DN in AbstractOperationContext
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetMatchedNameServiceContext  extends AbstractServiceContext
+public class EmptyOperationContext implements OperationContext
 {
     /**
-     * Creates a new instance of GetMatchedNameServiceContext.
+     * Creates a new instance of EmptyOperationContext.
      */
-    public GetMatchedNameServiceContext()
+    public EmptyOperationContext()
     {
         super();
     }
     
     /**
-     * Creates a new instance of GetMatchedNameServiceContext.
-     *
-     * @param dn The DN to match
+     * @return The associated DN
      */
-    public GetMatchedNameServiceContext( LdapDN dn )
+    public LdapDN getDn()
     {
-        super( dn );
+        return LdapDN.EMPTY_LDAPDN;
     }
     
+    /**
+     * Set the context DN
+     *
+     * @param dn The DN to set
+     */
+    public void setDn( LdapDN dn )
+    {
+        // do nothing
+    }
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "GetMatchedNameContext with DN '" + getDn().getUpName() + "'";
+        return "EmptyOperationContext";
     }
 }

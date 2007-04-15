@@ -22,29 +22,30 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Entry context used for Interceptors. It contains all the informations
- * needed for the hasEntry operation, and used by all the interceptors
+ * A Unbind context used for Interceptors. It contains all the informations
+ * needed for the unbind operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EntryServiceContext  extends AbstractServiceContext
+public class UnbindOperationContext  extends AbstractOperationContext
 {
     /**
-     * Creates a new instance of EntryServiceContext.
+     * Creates a new instance of UnbindOperationContext.
      */
-    public EntryServiceContext()
+    public UnbindOperationContext()
     {
+        super();
     }
     
     /**
-     * Creates a new instance of EntryServiceContext.
+     * Creates a new instance of UnbindOperationContext.
      *
-     * @param entryDn The Entry DN to unbind
+     * @param unbindDn The principal DN to unbind
      */
-    public EntryServiceContext( LdapDN entryDn )
+    public UnbindOperationContext( LdapDN unbindDn )
     {
-        super( entryDn );
+        super( unbindDn );
     }
     
     /**
@@ -52,6 +53,6 @@ public class EntryServiceContext  extends AbstractServiceContext
      */
     public String toString()
     {
-        return "EntryContext for DN '" + getDn().getUpName() + "'";
+        return "UnbindContext for DN '" + getDn().getUpName() + "'";
     }
 }

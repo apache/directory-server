@@ -22,24 +22,63 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * This interface represent the context passed as an argument to each interceptor.
- * It will contain data used by all the operations.
+ * A Replace context used for Interceptors. It contains all the informations
+ * needed for the modify DN operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServiceContext
+public class ReplaceOperationContext extends AbstractOperationContext
 {
-    /**
-     * @return The associated DN
-     */
-    LdapDN getDn();
+    /** The parent DN */
+    private LdapDN parent;
     
     /**
-     * Set the context DN
+     * 
+     * Creates a new instance of ReplaceOperationContext.
      *
-     * @param dn The DN to set
      */
-    void setDn( LdapDN dn );
+    public ReplaceOperationContext()
+    {
+    	super();
+    }
+
+    /**
+     * 
+     * Creates a new instance of ReplaceOperationContext.
+     *
+     */
+    public ReplaceOperationContext( LdapDN oldDn, LdapDN parent )
+    {
+        super( oldDn );
+        this.parent = parent;
+    }
+
+    /**
+     *  @return The parent DN
+     */
+    public LdapDN getParent()
+    {
+        return parent;
+    }
+
+    /**
+     * Set the parent DN
+     *
+     * @param parent The parent
+     */
+    public void setParent( LdapDN parent )
+    {
+        this.parent = parent;
+    }
+
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
+        ", parent '" + parent + "'";
+    }
 
 }

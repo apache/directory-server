@@ -36,8 +36,8 @@ import org.apache.directory.server.core.configuration.RemovePartitionConfigurati
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -124,8 +124,8 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         }
         else if ( cfg instanceof AddPartitionConfiguration )
         {
-            AddContextPartitionServiceContext ctxPartition = 
-                new AddContextPartitionServiceContext( ( ( AddPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
+            AddContextPartitionOperationContext ctxPartition = 
+                new AddContextPartitionOperationContext( ( ( AddPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
             
             Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" ); 
             
@@ -136,7 +136,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
             Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" );
             PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, service );
             proxy.removeContextPartition( 
-                new RemoveContextPartitionServiceContext( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() ) );
+                new RemoveContextPartitionOperationContext( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() ) );
         }
         else if ( service == null )
         {

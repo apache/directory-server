@@ -34,7 +34,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -266,7 +266,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
         try
         {
-            LookupServiceContext lookupContex  = new LookupServiceContext( new String[] { SchemaConstants.USER_PASSWORD_AT } );
+            LookupOperationContext lookupContex  = new LookupOperationContext( new String[] { SchemaConstants.USER_PASSWORD_AT } );
             lookupContex.setDn( principalDn );
             
             userEntry = proxy.lookup( lookupContex, USERLOOKUP_BYPASS );

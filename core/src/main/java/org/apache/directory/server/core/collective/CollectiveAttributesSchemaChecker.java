@@ -26,7 +26,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -95,7 +95,7 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkModify( LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
     {
-        Attributes originalEntry = nexus.lookup( new LookupServiceContext( normName ) );
+        Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
         Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         

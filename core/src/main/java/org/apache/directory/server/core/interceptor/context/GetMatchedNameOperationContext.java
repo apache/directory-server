@@ -22,63 +22,37 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Move context used for Interceptors. It contains all the informations
- * needed for the modify DN operation, and used by all the interceptors
+ * A GetMatchedName context used for Interceptors. It contains all the informations
+ * needed for the getMatchedName operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveServiceContext extends AbstractServiceContext
+public class GetMatchedNameOperationContext  extends AbstractOperationContext
 {
-    /** The parent DN */
-    private LdapDN parent;
+    /**
+     * Creates a new instance of GetMatchedNameOperationContext.
+     */
+    public GetMatchedNameOperationContext()
+    {
+        super();
+    }
     
     /**
-     * 
-     * Creates a new instance of MoveServiceContext.
+     * Creates a new instance of GetMatchedNameOperationContext.
      *
+     * @param dn The DN to match
      */
-    public MoveServiceContext()
+    public GetMatchedNameOperationContext( LdapDN dn )
     {
-    	super();
+        super( dn );
     }
-
-    /**
-     * 
-     * Creates a new instance of MoveServiceContext.
-     *
-     */
-    public MoveServiceContext( LdapDN oldDn, LdapDN parent )
-    {
-        super( oldDn );
-        this.parent = parent;
-    }
-
-    /**
-     *  @return The parent DN
-     */
-    public LdapDN getParent()
-    {
-        return parent;
-    }
-
-    /**
-     * Set the parent DN
-     *
-     * @param parent The parent
-     */
-    public void setParent( LdapDN parent )
-    {
-        this.parent = parent;
-    }
-
+    
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
-        ", parent '" + parent + "'";
+        return "GetMatchedNameContext with DN '" + getDn().getUpName() + "'";
     }
-
 }

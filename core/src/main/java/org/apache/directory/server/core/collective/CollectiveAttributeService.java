@@ -38,10 +38,10 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -116,7 +116,7 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attributes entryWithCAS = nexus.lookup( new LookupServiceContext( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } ) );
+        Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } ) );
         Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
         /*
@@ -187,7 +187,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            Attributes subentry = nexus.lookup( new LookupServiceContext( subentryDn ) );
+            Attributes subentry = nexus.lookup( new LookupOperationContext( subentryDn ) );
             NamingEnumeration attrIds = subentry.getIDs();
             
             while ( attrIds.hasMore() )
@@ -281,16 +281,16 @@ public class CollectiveAttributeService extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( lookupContext );
+        Attributes result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
             return null;
         }
         
-        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+        LookupOperationContext ctx = (LookupOperationContext)opContext;
         
         if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) ) 
         {
@@ -305,9 +305,9 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
     }
@@ -325,18 +325,18 @@ public class CollectiveAttributeService extends BaseInterceptor
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkAdd( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
-        super.add( next, addContext );
+        collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), ((AddOperationContext)opContext).getEntry() );
+        super.add( next, opContext );
     }
 
 
-    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+    	ModifyOperationContext ctx = (ModifyOperationContext)opContext;
         collectiveAttributesSchemaChecker.checkModify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
-        super.modify( next, modifyContext );
+        super.modify( next, opContext );
     }
 
 

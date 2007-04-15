@@ -40,12 +40,12 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -136,7 +136,7 @@ public class TriggerService extends BaseInterceptor
         {
             LdapDN parentDn = ( LdapDN ) dn.clone();
             parentDn.remove( dn.size() - 1 );
-            entry = proxy.lookup( new LookupServiceContext( parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
+            entry = proxy.lookup( new LookupOperationContext( parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
         Attribute subentries = entry.get( TRIGGER_SUBENTRIES_ATTR );
@@ -237,10 +237,10 @@ public class TriggerService extends BaseInterceptor
         this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
-    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
+    public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
     {
     	LdapDN name = addContext.getDn();
-    	Attributes entry = ((AddServiceContext)addContext).getEntry();
+    	Attributes entry = ((AddOperationContext)addContext).getEntry();
     	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -274,7 +274,7 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
 
-    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext deleteContext ) throws NamingException
     {
     	LdapDN name = deleteContext.getDn();
     	
@@ -288,7 +288,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes deletedEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
 
@@ -308,7 +308,7 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -320,7 +320,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( modifyContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( modifyContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, modifyContext );
 
@@ -353,7 +353,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupServiceContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, mods );
 
@@ -374,11 +374,11 @@ public class TriggerService extends BaseInterceptor
     }
     
 
-    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext renameContext ) throws NamingException
     {
         LdapDN name = renameContext.getDn();
-        String newRdn = ((RenameServiceContext)renameContext).getNewRdn();
-        boolean deleteOldRn = ((RenameServiceContext)renameContext).getDelOldDn();
+        String newRdn = ((RenameOperationContext)renameContext).getNewRdn();
+        boolean deleteOldRn = ((RenameOperationContext)renameContext).getDelOldDn();
         
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -390,7 +390,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes renamedEntry = proxy.lookup( new LookupServiceContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes renamedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
@@ -421,12 +421,12 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, OperationContext moveAndRenameContext ) throws NamingException
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
-        LdapDN parent = ((MoveAndRenameServiceContext)moveAndRenameContext).getParent();
-        String newRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn();
-        boolean deleteOldRn = ((MoveAndRenameServiceContext)moveAndRenameContext).getDelOldDn();
+        LdapDN parent = ((MoveAndRenameOperationContext)moveAndRenameContext).getParent();
+        String newRn = ((MoveAndRenameOperationContext)moveAndRenameContext).getNewRdn();
+        boolean deleteOldRn = ((MoveAndRenameOperationContext)moveAndRenameContext).getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -438,7 +438,7 @@ public class TriggerService extends BaseInterceptor
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -463,7 +463,7 @@ public class TriggerService extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryService,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
@@ -499,7 +499,7 @@ public class TriggerService extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, OperationContext moveContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -509,12 +509,12 @@ public class TriggerService extends BaseInterceptor
         }
         
         LdapDN oriChildName = moveContext.getDn();
-        LdapDN newParentName = ((MoveServiceContext)moveContext).getParent();
+        LdapDN newParentName = ((MoveOperationContext)moveContext).getParent();
         
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes movedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes movedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
@@ -539,7 +539,7 @@ public class TriggerService extends BaseInterceptor
         // will not be valid at the new location.
         // This will certainly be fixed by the SubentryService,
         // but after this service.
-        Attributes importedEntry = proxy.lookup( new LookupServiceContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it

@@ -41,8 +41,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -128,7 +128,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( new LookupServiceContext( ADMIN_GROUP_DN_NORMALIZED ) );
+        Attributes adminGroup = nexus.lookup( new LookupOperationContext( ADMIN_GROUP_DN_NORMALIZED ) );
         
         if ( adminGroup == null )
         {
@@ -150,13 +150,13 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, ServiceContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-    	LdapDN name = deleteContext.getDn();
+    	LdapDN name = opContext.getDn();
     	
         if ( !enabled )
         {
-            nextInterceptor.delete( deleteContext );
+            nextInterceptor.delete( opContext );
             return;
         }
 
@@ -198,7 +198,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             throw new LdapNoPermissionException( msg );
         }
 
-        nextInterceptor.delete( deleteContext );
+        nextInterceptor.delete( opContext );
     }
 
     
@@ -230,16 +230,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
+    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectModifyAlterations( modifyContext.getDn() );
-            nextInterceptor.modify( modifyContext );
+            protectModifyAlterations( opContext.getDn() );
+            nextInterceptor.modify( opContext );
 
             // update administrators if we change administrators group
-            if ( modifyContext.getDn().getNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+            if ( opContext.getDn().getNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
             {
                 loadAdministrators();
             }
@@ -247,7 +247,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             return;
         }
 
-        nextInterceptor.modify( modifyContext );
+        nextInterceptor.modify( opContext );
     }
 
 
@@ -332,37 +332,37 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
+    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( renameContext.getDn() );
+            protectDnAlterations( opContext.getDn() );
         }
         
-        nextInterceptor.rename( renameContext );
+        nextInterceptor.rename( opContext );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( moveContext.getDn() );
+            protectDnAlterations( opContext.getDn() );
         }
         
-        nextInterceptor.move( moveContext );
+        nextInterceptor.move( opContext );
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext ) throws NamingException
+    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( moveAndRenameContext.getDn() );
+            protectDnAlterations( opContext.getDn() );
         }
         
-        nextInterceptor.moveAndRename( moveAndRenameContext );
+        nextInterceptor.moveAndRename( opContext );
     }
 
 
@@ -409,16 +409,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes attributes = nextInterceptor.lookup( lookupContext );
+        Attributes attributes = nextInterceptor.lookup( opContext );
         
         if ( !enabled || attributes == null )
         {
             return attributes;
         }
 
-        protectLookUp( ((LookupServiceContext)lookupContext).getDn() );
+        protectLookUp( ((LookupOperationContext)opContext).getDn() );
         return attributes;
     }
 
@@ -499,15 +499,17 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
+        
         if ( !enabled )
         {
             return e;
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
+        
         return new SearchResultFilteringEnumeration( e, null, invocation, new SearchResultFilter()
         {
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )

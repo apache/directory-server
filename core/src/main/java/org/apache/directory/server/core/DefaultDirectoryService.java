@@ -41,10 +41,10 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionServiceContext;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.PropertyKeys;
@@ -459,7 +459,7 @@ class DefaultDirectoryService extends DirectoryService
         /*
          * If the admin entry is there, then the database was already created
          */
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( PartitionNexus.getAdminName() ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( PartitionNexus.getAdminName() ) ) )
         {
             firstStart = true;
 
@@ -480,7 +480,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
-            partitionNexus.add( new AddServiceContext( PartitionNexus.getAdminName(),
+            partitionNexus.add( new AddOperationContext( PartitionNexus.getAdminName(),
                 attributes ) );
         }
 
@@ -492,7 +492,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN userDn = new LdapDN( "ou=users,ou=system" );
         userDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( userDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( userDn ) ) )
         {
             firstStart = true;
 
@@ -506,7 +506,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( userDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( userDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -516,7 +516,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN groupDn = new LdapDN( "ou=groups,ou=system" );
         groupDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( groupDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( groupDn ) ) )
         {
             firstStart = true;
 
@@ -530,7 +530,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( groupDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( groupDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -541,7 +541,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN normName = new LdapDN( "cn=administrators,ou=groups,ou=system" );
         normName.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( normName ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( normName ) ) )
         {
             firstStart = true;
 
@@ -555,7 +555,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( normName, attributes ) );
+            partitionNexus.add( new AddOperationContext( normName, attributes ) );
             
             Interceptor authzInterceptor = interceptorChain.get( "authorizationService" );
             
@@ -585,7 +585,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN configurationDn = new LdapDN( "ou=configuration,ou=system" );
         configurationDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( configurationDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( configurationDn ) ) )
         {
             firstStart = true;
 
@@ -599,7 +599,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( configurationDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( configurationDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -609,7 +609,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN partitionsDn = new LdapDN( "ou=partitions,ou=configuration,ou=system" );
         partitionsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( partitionsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( partitionsDn ) ) )
         {
             firstStart = true;
 
@@ -623,7 +623,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( partitionsDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( partitionsDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -633,7 +633,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN servicesDn = new LdapDN( "ou=services,ou=configuration,ou=system" );
         servicesDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( servicesDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( servicesDn ) ) )
         {
             firstStart = true;
 
@@ -647,7 +647,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( servicesDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( servicesDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -657,7 +657,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN interceptorsDn = new LdapDN( "ou=interceptors,ou=configuration,ou=system" );
         interceptorsDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( interceptorsDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( interceptorsDn ) ) )
         {
             firstStart = true;
 
@@ -671,7 +671,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( interceptorsDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( interceptorsDn, attributes ) );
         }
 
         // -------------------------------------------------------------------
@@ -681,7 +681,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN sysPrefRootDn = new LdapDN( "prefNodeName=sysPrefRoot,ou=system");
         sysPrefRootDn.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryServiceContext( sysPrefRootDn ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( sysPrefRootDn ) ) )
         {
             firstStart = true;
 
@@ -696,7 +696,7 @@ class DefaultDirectoryService extends DirectoryService
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddServiceContext( sysPrefRootDn, attributes ) );
+            partitionNexus.add( new AddOperationContext( sysPrefRootDn, attributes ) );
         }
 
         return firstStart;
@@ -714,7 +714,7 @@ class DefaultDirectoryService extends DirectoryService
         LdapDN adminDn = new LdapDN( PartitionNexus.ADMIN_PRINCIPAL );
         adminDn.normalize( configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         
-        Attributes adminEntry = partitionNexus.lookup( new LookupServiceContext( adminDn ) );
+        Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
         if ( userPassword instanceof byte[] )
         {
@@ -989,7 +989,7 @@ class DefaultDirectoryService extends DirectoryService
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( configuration, null );
-        partitionNexus.addContextPartition( new AddContextPartitionServiceContext( schemaPartitionConfig ) );
+        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( schemaPartitionConfig ) );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );

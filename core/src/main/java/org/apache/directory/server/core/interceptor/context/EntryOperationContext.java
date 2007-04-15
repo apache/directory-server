@@ -22,30 +22,29 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Delete context used for Interceptors. It contains all the informations
- * needed for the delete operation, and used by all the interceptors
+ * A Entry context used for Interceptors. It contains all the informations
+ * needed for the hasEntry operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DeleteServiceContext  extends AbstractServiceContext
+public class EntryOperationContext  extends AbstractOperationContext
 {
     /**
-     * Creates a new instance of DeleteServiceContext.
+     * Creates a new instance of EntryOperationContext.
      */
-    public DeleteServiceContext()
+    public EntryOperationContext()
     {
-        super();
     }
     
     /**
-     * Creates a new instance of DeleteServiceContext.
+     * Creates a new instance of EntryOperationContext.
      *
-     * @param deleteDn The entry DN to delete
+     * @param entryDn The Entry DN to unbind
      */
-    public DeleteServiceContext( LdapDN deleteDn )
+    public EntryOperationContext( LdapDN entryDn )
     {
-        super( deleteDn );
+        super( entryDn );
     }
     
     /**
@@ -53,6 +52,6 @@ public class DeleteServiceContext  extends AbstractServiceContext
      */
     public String toString()
     {
-        return "DeleteContext for DN '" + getDn().getUpName() + "'";
+        return "EntryContext for DN '" + getDn().getUpName() + "'";
     }
 }

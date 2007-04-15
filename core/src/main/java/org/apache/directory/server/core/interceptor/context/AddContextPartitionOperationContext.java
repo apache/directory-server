@@ -28,24 +28,24 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddContextPartitionServiceContext  extends EmptyServiceContext
+public class AddContextPartitionOperationContext  extends EmptyOperationContext
 {
     /** The context partition configuration */
     private PartitionConfiguration cfg;
     
     /**
-     * Creates a new instance of AddContextPartitionServiceContext.
+     * Creates a new instance of AddContextPartitionOperationContext.
      */
-    public AddContextPartitionServiceContext()
+    public AddContextPartitionOperationContext()
     {
     }
     
     /**
-     * Creates a new instance of AddContextPartitionServiceContext.
+     * Creates a new instance of AddContextPartitionOperationContext.
      *
      * @param entryDn The partition configuration to add
      */
-    public AddContextPartitionServiceContext( PartitionConfiguration cfg )
+    public AddContextPartitionOperationContext( PartitionConfiguration cfg )
     {
         super();
         this.cfg = cfg;
@@ -56,7 +56,7 @@ public class AddContextPartitionServiceContext  extends EmptyServiceContext
      */
     public String toString()
     {
-        return "AddContextPartitionServiceContext for partition context '" + cfg.getName() + "'";
+        return "AddContextPartitionOperationContext for partition context '" + cfg.getName() + "'";
     }
 
     /**

@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindServiceContext extends AbstractServiceContext
+public class BindOperationContext extends AbstractOperationContext
 {
     /** The list of supported mechanisms */
     private List<String> mechanisms;

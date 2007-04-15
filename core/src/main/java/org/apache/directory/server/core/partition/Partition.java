@@ -31,7 +31,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -106,26 +106,26 @@ public interface Partition
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
      *
-     * @param deleteContext the context of the entry to
+     * @param opContext the context of the entry to
      * delete from this ContextPartition.
      * @throws NamingException if there are any problems
      */
-    void delete( ServiceContext deleteContext ) throws NamingException;
+    void delete( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param addContext the context used  to add and entry to this ContextPartition
+     * @param opContext the context used  to add and entry to this ContextPartition
      * @throws NamingException if there are any problems
      */
-    void add( ServiceContext addContext ) throws NamingException;
+    void add( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param modifyContext The contetx containin the modification operation 
+     * @param opContext The contetx containin the modification operation 
      * to perform on the entry which is one of constants specified by the 
      * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
@@ -136,7 +136,7 @@ public interface Partition
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( ServiceContext modifyContext ) throws NamingException;
+    void modify( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -157,11 +157,11 @@ public interface Partition
      * used to optimize operations rather than conducting a full search with 
      * retrieval.
      *
-     * @param baseName the base distinguished/absolute name for the search/listing
+     * @param opContext the context containing the distinguished/absolute name for the search/listing
      * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
-    NamingEnumeration list( LdapDN baseName ) throws NamingException;
+    NamingEnumeration list( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -197,16 +197,16 @@ public interface Partition
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( ServiceContext lookupContext ) throws NamingException;
+    Attributes lookup( OperationContext lookupContext ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.
      *
-     * @param ntry The entryContext used to pass informations
+     * @param opContext The context used to pass informations
      * @return true if the entry exists, false if it does not
      * @throws NamingException if there are any problems
      */
-    boolean hasEntry( ServiceContext entryContext ) throws NamingException;
+    boolean hasEntry( OperationContext opContext ) throws NamingException;
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
@@ -214,20 +214,20 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelavent.
      *
-     * @param renameContext the modify DN context
+     * @param opContext the modify DN context
      * @throws NamingException if there are any problems
      */
-    void rename( ServiceContext renameContext ) throws NamingException;
+    void rename( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param moveContext The context containing the DNs to move
+     * @param opContext The context containing the DNs to move
      * @throws NamingException if there are any problems
      */
-    void move( ServiceContext moveContext ) throws NamingException;
+    void move( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -238,11 +238,11 @@ public interface Partition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param moveAndRenameContext The context contain all the information about
+     * @param opContext The context contain all the information about
      * the modifyDN operation
      * @throws NamingException if there are any problems
      */
-    void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException;
+    void moveAndRename( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -250,18 +250,18 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindContext the bind context, containing all the needed informations to bind
+     * @param opContext the bind context, containing all the needed informations to bind
      * @throws NamingException if something goes wrong
      */
-    void bind( ServiceContext bindContext ) throws NamingException;
+    void bind( OperationContext opContext ) throws NamingException;
 
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param unbindContext the context used to unbind
+     * @param opContext the context used to unbind
      * @throws NamingException if something goes wrong
      */
-    void unbind( ServiceContext unbindContext ) throws NamingException;
+    void unbind( OperationContext opContext ) throws NamingException;
 }

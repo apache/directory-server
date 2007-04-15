@@ -61,7 +61,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
@@ -454,7 +454,7 @@ public class PartitionFrame extends JFrame
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    partition.add( new AddServiceContext( ndn, attrs ) );
+                    partition.add( new AddOperationContext( ndn, attrs ) );
                     load();
                 }
             }

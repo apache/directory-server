@@ -30,12 +30,12 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
@@ -312,9 +312,9 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void add( ServiceContext addContext ) throws NamingException
+    public final void add( OperationContext addContext ) throws NamingException
     {
-        store.add( addContext.getDn(), ((AddServiceContext)addContext).getEntry() );
+        store.add( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
     }
 
 
@@ -377,9 +377,9 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void modify( ServiceContext modifyContext ) throws NamingException
+    public final void modify( OperationContext modifyContext ) throws NamingException
     {
-    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+    	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
         store.modify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
     }
 
@@ -390,23 +390,23 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void rename( ServiceContext renameContext ) throws NamingException
+    public final void rename( OperationContext renameContext ) throws NamingException
     {
-        RenameServiceContext ctx = (RenameServiceContext)renameContext;
+        RenameOperationContext ctx = (RenameOperationContext)renameContext;
         store.rename( ctx.getDn(), ctx.getNewRdn(), ctx.getDelOldDn() );
     }
 
 
-    public final void moveAndRename( ServiceContext moveAndRenameContext ) throws NamingException
+    public final void moveAndRename( OperationContext moveAndRenameContext ) throws NamingException
     {
-        MoveAndRenameServiceContext ctx = (MoveAndRenameServiceContext)moveAndRenameContext;
+        MoveAndRenameOperationContext ctx = (MoveAndRenameOperationContext)moveAndRenameContext;
         store.move( ctx.getDn(), ctx.getParent(), ctx.getNewRdn(), ctx.getDelOldDn() );
     }
 
 
-    public final void move( ServiceContext moveContext ) throws NamingException
+    public final void move( OperationContext moveContext ) throws NamingException
     {
-        MoveServiceContext ctx = (MoveServiceContext)moveContext;
+        MoveOperationContext ctx = (MoveOperationContext)moveContext;
         store.move( ctx.getDn(), ctx.getParent() );
     }
 
@@ -420,7 +420,7 @@ public class JdbmPartition extends BTreePartition
             ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 
-    public final void bind( ServiceContext bindContext ) throws NamingException
+    public final void bind( OperationContext bindContext ) throws NamingException
     {
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
@@ -430,7 +430,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void unbind( ServiceContext unbindContext ) throws NamingException
+    public final void unbind( OperationContext unbindContext ) throws NamingException
     {
     }
 }

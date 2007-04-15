@@ -22,30 +22,29 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Unbind context used for Interceptors. It contains all the informations
- * needed for the unbind operation, and used by all the interceptors
+ * A RemoveContextPartition context used for Interceptors. It contains all the informations
+ * needed for the removeContextPartition operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class UnbindServiceContext  extends AbstractServiceContext
+public class RemoveContextPartitionOperationContext  extends AbstractOperationContext
 {
     /**
-     * Creates a new instance of UnbindServiceContext.
+     * Creates a new instance of RemoveContextPartitionOperationContext.
      */
-    public UnbindServiceContext()
+    public RemoveContextPartitionOperationContext()
     {
-        super();
     }
     
     /**
-     * Creates a new instance of UnbindServiceContext.
+     * Creates a new instance of RemoveContextPartitionOperationContext.
      *
-     * @param unbindDn The principal DN to unbind
+     * @param entryDn The Entry DN from which the partition should be removed
      */
-    public UnbindServiceContext( LdapDN unbindDn )
+    public RemoveContextPartitionOperationContext( LdapDN dn )
     {
-        super( unbindDn );
+        super( dn );
     }
     
     /**
@@ -53,6 +52,6 @@ public class UnbindServiceContext  extends AbstractServiceContext
      */
     public String toString()
     {
-        return "UnbindContext for DN '" + getDn().getUpName() + "'";
+        return "RemoveContextPartitionOperationContext for DN '" + getDn().getUpName() + "'";
     }
 }

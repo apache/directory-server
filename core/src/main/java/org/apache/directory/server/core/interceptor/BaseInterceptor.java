@@ -33,7 +33,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -98,63 +98,63 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add(NextInterceptor next, ServiceContext addContext ) throws NamingException
+    public void add(NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.add( addContext );
+        next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.delete( deleteContext );
+        next.delete( opContext );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getMatchedName( getMatchedNameContext );
+        return next.getMatchedName( opContext );
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getRootDSE( getRootDSEContext );
+        return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getSuffix( getSuffixContext );
+        return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.hasEntry( entryContext );
+        return next.hasEntry( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.list( base );
+        return next.list( opContext );
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.listSuffixes( emptyContext );
+        return next.listSuffixes( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.lookup( lookupContext );
+        return next.lookup( opContext );
     }
 
     
-    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.modify( modifyContext );
+        next.modify( opContext );
     }
 
 
@@ -164,22 +164,22 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.rename( renameContext );
+        next.rename( opContext );
     }
 
 
-    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
-        next.moveAndRename( moveAndRenameContext );
+        next.moveAndRename( opContext );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.move( moveContext );
+        next.move( opContext );
     }
 
 
@@ -190,33 +190,32 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext ) throws NamingException
+    public void addContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.addContextPartition( addContextPartitionContext );
+        next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.removeContextPartition( removeContextPartition );
+        next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
+    public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.compare( compareContext );
+        return next.compare( opContext );
     }
 
 
-    public void bind( NextInterceptor next, ServiceContext bindContext )
-    throws NamingException
+    public void bind( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.bind( bindContext );
+        next.bind( opContext );
     }
 
 
-    public void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException
+    public void unbind( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.unbind( unbindContext );
+        next.unbind( opContext );
     }
 }

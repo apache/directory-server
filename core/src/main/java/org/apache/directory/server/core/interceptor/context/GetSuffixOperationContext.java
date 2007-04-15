@@ -22,52 +22,37 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * This abstract class stores common context elements, like the DN, which is used
- * in all the contexts.
+ * A GetSuffix context used for Interceptors. It contains all the informations
+ * needed for the GetSuffix operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AbstractServiceContext implements ServiceContext
+public class GetSuffixOperationContext  extends AbstractOperationContext
 {
-    /** The DN associated with the context */
-    private LdapDN dn;
+    /**
+     * Creates a new instance of GetSuffixOperationContext.
+     */
+    public GetSuffixOperationContext()
+    {
+        super();
+    }
     
     /**
-     * 
-     * Creates a new instance of AbstractServiceContext.
+     * Creates a new instance of GetSuffixOperationContext.
      *
+     * @param dn The DN to get the suffix from
      */
-    public AbstractServiceContext()
+    public GetSuffixOperationContext( LdapDN dn )
     {
+        super( dn );
     }
-
+    
     /**
-     * 
-     * Creates a new instance of AbstractServiceContext.
-     *
-     * @param dn The associated DN
+     * @see Object#toString()
      */
-    public AbstractServiceContext( LdapDN dn )
+    public String toString()
     {
-        this.dn = dn;
-    }
-
-    /**
-     * @return The associated DN
-     */
-    public LdapDN getDn()
-    {
-        return dn;
-    }
-
-    /**
-     * Set the context DN
-     *
-     * @param dn The DN to set
-     */
-    public void setDn( LdapDN dn )
-    {
-        this.dn = dn;
+        return "GetSuffixOperationContext with DN '" + getDn().getUpName() + "'";
     }
 }

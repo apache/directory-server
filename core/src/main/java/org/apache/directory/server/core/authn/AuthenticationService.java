@@ -41,14 +41,14 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.BindServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -203,46 +203,46 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, ServiceContext addContext ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
             log.debug( "Adding the entry " + 
-            		AttributeUtils.toString( ((AddServiceContext)addContext).getEntry() ) + 
-            		" for DN = '" + addContext.getDn().getUpName() + "'" );
+            		AttributeUtils.toString( ((AddOperationContext)opContext).getEntry() ) + 
+            		" for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
-        next.add( addContext );
+        next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Deleting name = '" + deleteContext.getDn().getUpName() + "'" );
+            log.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
-        next.delete( deleteContext );
-        invalidateAuthenticatorCaches( deleteContext.getDn() );
+        next.delete( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Matching name = '" + getMatchedNameContext.getDn().getUpName() + "'" );
+            log.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getMatchedName( getMatchedNameContext );
+        return next.getMatchedName( opContext );
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -250,47 +250,47 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.getRootDSE( getRootDSEContext );
+        return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Getting suffix for name = '" + getSuffixContext.getDn().getUpName() + "'" );
+            log.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getSuffix( getSuffixContext );
+        return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing if entry name = '" + entryContext.getDn().getUpName() + "' exists" );
+            log.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
         }
 
         checkAuthenticated();
-        return next.hasEntry( entryContext );
+        return next.hasEntry( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Listing base = '" + base.toString() + "'" );
+            log.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.list( base );
+        return next.list( opContext );
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -298,15 +298,15 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.listSuffixes( emptyContext );
+        return next.listSuffixes( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+            LookupOperationContext ctx = (LookupOperationContext)opContext;
             
             List<String> attrIds = ctx.getAttrsId();
             
@@ -322,7 +322,7 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.lookup( lookupContext );
+        return next.lookup( opContext );
     }
 
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
@@ -340,18 +340,18 @@ public class AuthenticationService extends BaseInterceptor
     }
     
     
-    public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + modifyContext.getDn().getUpName() + 
+            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + 
             		"', modifs = " + AttributeUtils.toString( 
-            				((ModifyServiceContext)modifyContext).getMods() ) );
+            				((ModifyOperationContext)opContext).getMods() ) );
         }
 
         checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
-        next.modify( modifyContext );
-        invalidateAuthenticatorCaches( modifyContext.getDn() );
+        next.modify( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
     
@@ -368,49 +368,49 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, ServiceContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + renameContext.getDn().getUpName() + "', new RDN = '" + 
-                ((RenameServiceContext)renameContext).getNewRdn() + "', " +
-                "oldRDN = '" + ((RenameServiceContext)renameContext).getDelOldDn() + "'" );
+            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" + 
+                ((RenameOperationContext)opContext).getNewRdn() + "', " +
+                "oldRDN = '" + ((RenameOperationContext)opContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.rename( renameContext );
-        invalidateAuthenticatorCaches( renameContext.getDn() );
+        next.rename( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + moveAndRenameContext.getDn().getUpName() + "' to name = '" + 
-                ((MoveAndRenameServiceContext)moveAndRenameContext).getParent() + "', new RDN = '" + 
-                ((MoveAndRenameServiceContext)moveAndRenameContext).getNewRdn() + "', oldRDN = '" + 
-                ((MoveAndRenameServiceContext)moveAndRenameContext).getDelOldDn() + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" + 
+                ((MoveAndRenameOperationContext)opContext).getParent() + "', new RDN = '" + 
+                ((MoveAndRenameOperationContext)opContext).getNewRdn() + "', oldRDN = '" + 
+                ((MoveAndRenameOperationContext)opContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.moveAndRename( moveAndRenameContext );
-        invalidateAuthenticatorCaches( moveAndRenameContext.getDn() );
+        next.moveAndRename( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + moveContext.getDn().getUpName() + " to name = '" + 
-                ((MoveServiceContext)moveContext).getParent().getUpName() + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" + 
+                ((MoveOperationContext)opContext).getParent().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.move( moveContext );
-        invalidateAuthenticatorCaches( moveContext.getDn() );
+        next.move( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
@@ -459,12 +459,12 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, ServiceContext bindContext )
+    public void bind( NextInterceptor next, OperationContext opContext )
     throws NamingException
     {   
         // The DN is always normalized here
-        LdapDN normBindDn = bindContext.getDn();
-        String bindUpDn = bindContext.getDn().getUpName();
+        LdapDN normBindDn = opContext.getDn();
+        String bindUpDn = opContext.getDn().getUpName();
         
         if ( IS_DEBUG )
         {
@@ -493,7 +493,7 @@ public class AuthenticationService extends BaseInterceptor
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
         
-        for ( String mechanism:((BindServiceContext)bindContext).getMechanisms() )
+        for ( String mechanism:((BindOperationContext)opContext).getMechanisms() )
         {
             authenticators = getAuthenticators( mechanism );
     
@@ -508,7 +508,7 @@ public class AuthenticationService extends BaseInterceptor
             log.debug( "No authenticators found, delegating bind to the nexus." );
             
             // as a last resort try binding via the nexus
-            next.bind( bindContext );
+            next.bind( opContext );
             
             log.debug( "Nexus succeeded on bind operation." );
             

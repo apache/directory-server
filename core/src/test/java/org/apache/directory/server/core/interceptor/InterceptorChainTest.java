@@ -37,8 +37,8 @@ import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
@@ -102,7 +102,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -128,7 +128,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -161,7 +161,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -195,7 +195,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -225,7 +225,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -252,7 +252,7 @@ public class InterceptorChainTest extends TestCase
 
         try
         {
-            chain.lookup( new LookupServiceContext( dn ) );
+            chain.lookup( new LookupOperationContext( dn ) );
         }
         catch ( Exception e )
         {
@@ -289,35 +289,35 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next, ServiceContext getRootDSEContext ) throws NamingException
+        public Attributes getRootDSE( NextInterceptor next, OperationContext getRootDSEContext ) throws NamingException
         {
             interceptors.add( this );
             return next.getRootDSE( getRootDSEContext );
         }
 
 
-        public LdapDN getMatchedName ( NextInterceptor next, ServiceContext getMatchedNameContext ) throws NamingException
+        public LdapDN getMatchedName ( NextInterceptor next, OperationContext getMatchedNameContext ) throws NamingException
         {
             interceptors.add( this );
             return next.getMatchedName( getMatchedNameContext );
         }
 
 
-        public LdapDN getSuffix ( NextInterceptor next, ServiceContext getSuffixContext ) throws NamingException
+        public LdapDN getSuffix ( NextInterceptor next, OperationContext getSuffixContext ) throws NamingException
         {
             interceptors.add( this );
             return next.getSuffix( getSuffixContext );
         }
 
 
-        public Iterator listSuffixes ( NextInterceptor next, ServiceContext emptyContext ) throws NamingException
+        public Iterator listSuffixes ( NextInterceptor next, OperationContext emptyContext ) throws NamingException
         {
             interceptors.add( this );
             return next.listSuffixes( emptyContext );
         }
 
 
-        public void addContextPartition( NextInterceptor next, ServiceContext addContextPartitionContext )
+        public void addContextPartition( NextInterceptor next, OperationContext addContextPartitionContext )
             throws NamingException
         {
             interceptors.add( this );
@@ -325,28 +325,28 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void removeContextPartition( NextInterceptor next, ServiceContext removeContextPartition ) throws NamingException
+        public void removeContextPartition( NextInterceptor next, OperationContext removeContextPartition ) throws NamingException
         {
             interceptors.add( this );
             next.removeContextPartition( removeContextPartition );
         }
 
 
-        public boolean compare( NextInterceptor next, ServiceContext compareContext ) throws NamingException
+        public boolean compare( NextInterceptor next, OperationContext compareContext ) throws NamingException
         {
             interceptors.add( this );
             return next.compare( compareContext );
         }
 
 
-        public void delete( NextInterceptor next, ServiceContext deleteContext ) throws NamingException
+        public void delete( NextInterceptor next, OperationContext deleteContext ) throws NamingException
         {
             interceptors.add( this );
             next.delete( deleteContext );
         }
 
 
-        public void add(NextInterceptor next, ServiceContext addContext )
+        public void add(NextInterceptor next, OperationContext addContext )
             throws NamingException
         {
             interceptors.add( this );
@@ -354,7 +354,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void modify( NextInterceptor next, ServiceContext modifyContext ) throws NamingException
+        public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
         {
             interceptors.add( this );
             next.modify( modifyContext );
@@ -368,10 +368,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public NamingEnumeration list( NextInterceptor next, LdapDN baseName ) throws NamingException
+        public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.list( baseName );
+            return next.list( opContext );
         }
 
 
@@ -383,21 +383,21 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Attributes lookup( NextInterceptor next, ServiceContext lookupContext ) throws NamingException
+        public Attributes lookup( NextInterceptor next, OperationContext lookupContext ) throws NamingException
         {
             interceptors.add( this );
             return next.lookup( lookupContext );
         }
 
 
-        public boolean hasEntry( NextInterceptor next, ServiceContext entryContext ) throws NamingException
+        public boolean hasEntry( NextInterceptor next, OperationContext entryContext ) throws NamingException
         {
             interceptors.add( this );
             return next.hasEntry( entryContext );
         }
 
 
-        public void rename( NextInterceptor next, ServiceContext renameContext )
+        public void rename( NextInterceptor next, OperationContext renameContext )
             throws NamingException
         {
             interceptors.add( this );
@@ -405,14 +405,14 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void move( NextInterceptor next, ServiceContext moveContext ) throws NamingException
+        public void move( NextInterceptor next, OperationContext moveContext ) throws NamingException
         {
             interceptors.add( this );
             next.move( moveContext );
         }
 
 
-        public void moveAndRename( NextInterceptor next, ServiceContext moveAndRenameContext )
+        public void moveAndRename( NextInterceptor next, OperationContext moveAndRenameContext )
             throws NamingException
         {
             interceptors.add( this );
@@ -420,7 +420,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void bind( NextInterceptor next, ServiceContext bindContext )
+        public void bind( NextInterceptor next, OperationContext bindContext )
         throws NamingException
         {
             interceptors.add( this );
@@ -428,7 +428,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public void unbind( NextInterceptor next, ServiceContext unbindContext ) throws NamingException
+        public void unbind( NextInterceptor next, OperationContext unbindContext ) throws NamingException
         {
             interceptors.add( this );
             next.unbind( unbindContext );

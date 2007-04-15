@@ -42,13 +42,13 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -152,11 +152,11 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add(NextInterceptor nextInterceptor, ServiceContext addContext )
+    public void add(NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         String principal = getPrincipal().getName();
-        Attributes entry = ((AddServiceContext)addContext).getEntry();
+        Attributes entry = ((AddOperationContext)opContext).getEntry();
 
         Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
         attribute.add( principal );
@@ -166,16 +166,16 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
-        nextInterceptor.add( addContext );
+        nextInterceptor.add( opContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, ServiceContext modifyContext )
+    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.modify( modifyContext );
+        nextInterceptor.modify( opContext );
 
-        if ( modifyContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
         {
             return;
         }
@@ -190,8 +190,8 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyServiceContext newModify = new ModifyServiceContext( 
-        		modifyContext.getDn(),
+        ModifyOperationContext newModify = new ModifyOperationContext( 
+            opContext.getDn(),
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
         nexus.modify( newModify );
@@ -217,7 +217,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyServiceContext newModify = new ModifyServiceContext( 
+        ModifyOperationContext newModify = new ModifyOperationContext( 
         		name,
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
@@ -225,10 +225,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, ServiceContext renameContext )
+    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.rename( renameContext );
+        nextInterceptor.rename( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -240,12 +240,12 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        LdapDN newDn = ( LdapDN ) renameContext.getDn().clone();
-        newDn.remove( renameContext.getDn().size() - 1 );
-        newDn.add( ((RenameServiceContext)renameContext).getNewRdn() );
+        LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
+        newDn.remove( opContext.getDn().size() - 1 );
+        newDn.add( ((RenameOperationContext)opContext).getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
-        ModifyServiceContext newModify = new ModifyServiceContext( 
+        ModifyOperationContext newModify = new ModifyOperationContext( 
         		newDn,
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
@@ -254,9 +254,9 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, ServiceContext moveContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        nextInterceptor.move( moveContext );
+        nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -268,8 +268,8 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyServiceContext newModify = new ModifyServiceContext( 
-        		((MoveServiceContext)moveContext).getParent(),
+        ModifyOperationContext newModify = new ModifyOperationContext( 
+        		((MoveOperationContext)opContext).getParent(),
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
         
@@ -277,10 +277,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, ServiceContext moveAndRenameContext )
+    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.moveAndRename( moveAndRenameContext );
+        nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
@@ -292,39 +292,39 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyServiceContext newModify = new ModifyServiceContext( 
-        		((MoveAndRenameServiceContext)moveAndRenameContext).getParent(),
+        ModifyOperationContext newModify = new ModifyOperationContext( 
+        		((MoveAndRenameOperationContext)opContext).getParent(),
         		DirContext.REPLACE_ATTRIBUTE, 
         		attributes);
         nexus.modify( newModify );
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( lookupContext );
+        Attributes result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
             return null;
         }
 
-        if ( ((LookupServiceContext)lookupContext).getAttrsId() == null )
+        if ( ((LookupOperationContext)opContext).getAttrsId() == null )
         {
             filter( result );
         }
         else
         {
-            filter( lookupContext, result );
+            filter( opContext, result );
         }
         
         return result;
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
     }
@@ -380,10 +380,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    private void filter( ServiceContext lookupContext, Attributes entry ) throws NamingException
+    private void filter( OperationContext lookupContext, Attributes entry ) throws NamingException
     {
-        LdapDN dn = ((LookupServiceContext)lookupContext).getDn();
-        List<String> ids = ((LookupServiceContext)lookupContext).getAttrsId();
+        LdapDN dn = ((LookupOperationContext)lookupContext).getDn();
+        List<String> ids = ((LookupOperationContext)lookupContext).getAttrsId();
         
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )

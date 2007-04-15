@@ -49,14 +49,15 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.BindServiceContext;
-import org.apache.directory.server.core.interceptor.context.DeleteServiceContext;
-import org.apache.directory.server.core.interceptor.context.EntryServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -132,7 +133,7 @@ public abstract class ServerContext implements EventContext
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
         
-        BindServiceContext bindContext = new BindServiceContext();
+        BindOperationContext bindContext = new BindOperationContext();
         bindContext.setDn( props.getBindDn() );
         bindContext.setCredentials( props.getCredentials() );
         bindContext.setMechanisms( props.getAuthenticationMechanisms() );
@@ -141,7 +142,7 @@ public abstract class ServerContext implements EventContext
         // need to issue a bind operation here
         this.nexusProxy.bind( bindContext ); 
 
-        if ( ! nexusProxy.hasEntry( new EntryServiceContext( dn ) ) )
+        if ( ! nexusProxy.hasEntry( new EntryOperationContext( dn ) ) )
         {
             throw new NameNotFoundException( dn + " does not exist" );
         }
@@ -321,7 +322,7 @@ public abstract class ServerContext implements EventContext
          * we need to copy over the controls as well to propagate the complete 
          * environment besides whats in the hashtable for env.
          */
-        nexusProxy.add( new AddServiceContext( target, attributes ) );
+        nexusProxy.add( new AddOperationContext( target, attributes ) );
         return new ServerLdapContext( service, principal, target );
     }
 
@@ -347,7 +348,7 @@ public abstract class ServerContext implements EventContext
             throw new LdapNoPermissionException( "can't delete the rootDSE" );
         }
 
-        nexusProxy.delete( new DeleteServiceContext( target ) );
+        nexusProxy.delete( new DeleteOperationContext( target ) );
     }
 
 
@@ -391,7 +392,7 @@ public abstract class ServerContext implements EventContext
         if ( outAttrs != null )
         {
             LdapDN target = buildTarget( name );
-            nexusProxy.add( new AddServiceContext( target, outAttrs ) );
+            nexusProxy.add( new AddOperationContext( target, outAttrs ) );
             return;
         }
 
@@ -426,7 +427,7 @@ public abstract class ServerContext implements EventContext
 
             // Serialize object into entry attributes and add it.
             JavaLdapSupport.serialize( attributes, obj );
-            nexusProxy.add( new AddServiceContext( target, attributes ) );
+            nexusProxy.add( new AddOperationContext( target, attributes ) );
         }
         else if ( obj instanceof DirContext )
         {
@@ -443,7 +444,7 @@ public abstract class ServerContext implements EventContext
 
             LdapDN target = buildTarget( name );
             injectRdnAttributeValues( target, attributes );
-            nexusProxy.add( new AddServiceContext( target, attributes ) );
+            nexusProxy.add( new AddOperationContext( target, attributes ) );
         }
         else
         {
@@ -506,7 +507,7 @@ public abstract class ServerContext implements EventContext
          */
         if ( ( oldName.size() == newName.size() ) && oldBase.equals( newBase ) )
         {
-            nexusProxy.rename( new RenameServiceContext( oldDn, newRdn, delOldRdn ) );
+            nexusProxy.rename( new RenameOperationContext( oldDn, newRdn, delOldRdn ) );
         }
         else
         {
@@ -515,11 +516,11 @@ public abstract class ServerContext implements EventContext
             
             if ( newRdn.equalsIgnoreCase( oldRdn ) )
             {
-                nexusProxy.move( new MoveServiceContext( oldDn, target ) );
+                nexusProxy.move( new MoveOperationContext( oldDn, target ) );
             }
             else
             {
-                nexusProxy.moveAndRename( new MoveAndRenameServiceContext( oldDn, target, newRdn, delOldRdn ) );
+                nexusProxy.moveAndRename( new MoveAndRenameOperationContext( oldDn, target, newRdn, delOldRdn ) );
             }
         }
     }
@@ -541,9 +542,9 @@ public abstract class ServerContext implements EventContext
     {
         LdapDN target = buildTarget( name );
         
-        if ( nexusProxy.hasEntry( new EntryServiceContext( target ) ) )
+        if ( nexusProxy.hasEntry( new EntryOperationContext( target ) ) )
         {
-            nexusProxy.delete( new DeleteServiceContext( target ) );
+            nexusProxy.delete( new DeleteOperationContext( target ) );
         }
         
         bind( name, obj );
@@ -564,7 +565,7 @@ public abstract class ServerContext implements EventContext
      */
     public void unbind( Name name ) throws NamingException
     {
-        nexusProxy.delete( new DeleteServiceContext( buildTarget( name ) ) );
+        nexusProxy.delete( new DeleteOperationContext( buildTarget( name ) ) );
     }
 
 
@@ -592,7 +593,7 @@ public abstract class ServerContext implements EventContext
         Object obj;
         LdapDN target = buildTarget( name );
         
-        Attributes attributes = nexusProxy.lookup( new LookupServiceContext( target ) );
+        Attributes attributes = nexusProxy.lookup( new LookupOperationContext( target ) );
 
         try
         {
@@ -706,7 +707,7 @@ public abstract class ServerContext implements EventContext
      */
     public NamingEnumeration list( Name name ) throws NamingException
     {
-        return nexusProxy.list( buildTarget( name ) );
+        return nexusProxy.list( new ListOperationContext( buildTarget( name ) ) );
     }
 
 

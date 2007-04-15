@@ -22,63 +22,37 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A Move And Rename context used for Interceptors. It contains all the informations
- * needed for the modify DN operation, and used by all the interceptors
+ * A ListContext context used for Interceptors. It contains all the informations
+ * needed for the List operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MoveAndRenameServiceContext extends RenameServiceContext
+public class ListOperationContext  extends AbstractOperationContext
 {
-    /** The parent DN */
-    private LdapDN parent;
+    /**
+     * Creates a new instance of ListOperationContext.
+     */
+    public ListOperationContext()
+    {
+        super();
+    }
     
     /**
-     * 
-     * Creates a new instance of MoveAndRenameServiceContext.
+     * Creates a new instance of ListOperationContext.
      *
+     * @param dn The DN to get the suffix from
      */
-    public MoveAndRenameServiceContext()
+    public ListOperationContext( LdapDN dn )
     {
-    	super();
+        super( dn );
     }
-
-    /**
-     * 
-     * Creates a new instance of MoveAndRenameServiceContext.
-     *
-     */
-    public MoveAndRenameServiceContext( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
-    {
-        super( oldDn, newRdn, delOldDn );
-        this.parent = parent;
-    }
-
-    /**
-     *  @return The parent DN
-     */
-    public LdapDN getParent()
-    {
-        return parent;
-    }
-
-    /**
-     * Set the parent DN
-     *
-     * @param parent The parent
-     */
-    public void setParent( LdapDN parent )
-    {
-        this.parent = parent;
-    }
-
+    
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
-        ", parent '" + parent + "'";
+        return "ListOperationContext with DN '" + getDn().getUpName() + "'";
     }
-
 }

@@ -28,22 +28,22 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetRootDSEServiceContext  extends AbstractServiceContext
+public class GetRootDSEOperationContext  extends AbstractOperationContext
 {
     /**
-     * Creates a new instance of GetRootDSEServiceContext.
+     * Creates a new instance of GetRootDSEOperationContext.
      */
-    public GetRootDSEServiceContext()
+    public GetRootDSEOperationContext()
     {
         super();
     }
     
     /**
-     * Creates a new instance of GetRootDSEServiceContext.
+     * Creates a new instance of GetRootDSEOperationContext.
      *
      * @param dn The entry DN used to get the rootDSE
      */
-    public GetRootDSEServiceContext( LdapDN dn )
+    public GetRootDSEOperationContext( LdapDN dn )
     {
         super( dn );
     }

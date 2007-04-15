@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class CompareServiceContext  extends AbstractServiceContext
+public class CompareOperationContext  extends AbstractOperationContext
 {
     /** The entry OID */
     private String oid;
@@ -39,30 +39,30 @@ public class CompareServiceContext  extends AbstractServiceContext
     
     /**
      * 
-     * Creates a new instance of CompareServiceContext.
+     * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareServiceContext()
+    public CompareOperationContext()
     {
     	super();
     }
 
     /**
      * 
-     * Creates a new instance of CompareServiceContext.
+     * Creates a new instance of CompareOperationContext.
      *
      */
-    public CompareServiceContext( LdapDN dn )
+    public CompareOperationContext( LdapDN dn )
     {
         super( dn );
     }
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareServiceContext( String oid )
+    public CompareOperationContext( String oid )
     {
     	super();
         this.oid = oid;
@@ -70,10 +70,10 @@ public class CompareServiceContext  extends AbstractServiceContext
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareServiceContext( LdapDN dn, String oid )
+    public CompareOperationContext( LdapDN dn, String oid )
     {
     	super( dn );
         this.oid = oid;
@@ -81,10 +81,10 @@ public class CompareServiceContext  extends AbstractServiceContext
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public CompareServiceContext( LdapDN dn, String oid, Object value )
+    public CompareOperationContext( LdapDN dn, String oid, Object value )
     {
     	super( dn );
         this.oid = oid;

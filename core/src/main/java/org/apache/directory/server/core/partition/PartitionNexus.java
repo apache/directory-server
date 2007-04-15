@@ -30,8 +30,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -182,7 +181,7 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE( ServiceContext getRootDSEContext ) throws NamingException;
+    public abstract Attributes getRootDSE( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -193,13 +192,13 @@ public abstract class PartitionNexus implements Partition
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( ServiceContext compareContext ) throws NamingException;
+    public abstract boolean compare( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void addContextPartition( ServiceContext addContextPartitionContext ) throws NamingException;
+    public abstract void addContextPartition( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void removeContextPartition( ServiceContext removeContextPartition ) throws NamingException;
+    public abstract void removeContextPartition( OperationContext opContext ) throws NamingException;
 
 
     public abstract Partition getSystemPartition();
@@ -228,7 +227,7 @@ public abstract class PartitionNexus implements Partition
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getMatchedName ( ServiceContext getMatchedNameContext ) throws NamingException;
+    public abstract LdapDN getMatchedName ( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -242,7 +241,7 @@ public abstract class PartitionNexus implements Partition
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getSuffix ( ServiceContext getSuffixContext ) throws NamingException;
+    public abstract LdapDN getSuffix ( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -252,7 +251,7 @@ public abstract class PartitionNexus implements Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    public abstract Iterator listSuffixes( ServiceContext emptyContext ) throws NamingException;
+    public abstract Iterator listSuffixes( OperationContext opContext ) throws NamingException;
 
 
     /**

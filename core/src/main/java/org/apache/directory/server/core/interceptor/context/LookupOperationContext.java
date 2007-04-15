@@ -33,7 +33,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LookupServiceContext  extends AbstractServiceContext
+public class LookupOperationContext  extends AbstractOperationContext
 {
     /** The list of attributes id to return */
     private List<String> attrsId;
@@ -43,30 +43,30 @@ public class LookupServiceContext  extends AbstractServiceContext
     
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupServiceContext()
+    public LookupOperationContext()
     {
     	super();
     }
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupServiceContext( LdapDN dn )
+    public LookupOperationContext( LdapDN dn )
     {
         super( dn );
     }
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupServiceContext( String attrsId[] )
+    public LookupOperationContext( String attrsId[] )
     {
     	super();
         this.attrsId = new ArrayList<String>();
@@ -76,10 +76,10 @@ public class LookupServiceContext  extends AbstractServiceContext
 
     /**
      * 
-     * Creates a new instance of LookupServiceContext.
+     * Creates a new instance of LookupOperationContext.
      *
      */
-    public LookupServiceContext( LdapDN dn, String attrsId[] )
+    public LookupOperationContext( LdapDN dn, String attrsId[] )
     {
         super( dn );
         this.attrsId = new ArrayList<String>();

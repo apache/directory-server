@@ -22,36 +22,63 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A RemoveContextPartition context used for Interceptors. It contains all the informations
- * needed for the removeContextPartition operation, and used by all the interceptors
+ * A Move And Rename context used for Interceptors. It contains all the informations
+ * needed for the modify DN operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RemoveContextPartitionServiceContext  extends AbstractServiceContext
+public class MoveAndRenameOperationContext extends RenameOperationContext
 {
-    /**
-     * Creates a new instance of RemoveContextPartitionServiceContext.
-     */
-    public RemoveContextPartitionServiceContext()
-    {
-    }
+    /** The parent DN */
+    private LdapDN parent;
     
     /**
-     * Creates a new instance of RemoveContextPartitionServiceContext.
+     * 
+     * Creates a new instance of MoveAndRenameOperationContext.
      *
-     * @param entryDn The Entry DN from which the partition should be removed
      */
-    public RemoveContextPartitionServiceContext( LdapDN dn )
+    public MoveAndRenameOperationContext()
     {
-        super( dn );
+    	super();
     }
-    
+
+    /**
+     * 
+     * Creates a new instance of MoveAndRenameOperationContext.
+     *
+     */
+    public MoveAndRenameOperationContext( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
+    {
+        super( oldDn, newRdn, delOldDn );
+        this.parent = parent;
+    }
+
+    /**
+     *  @return The parent DN
+     */
+    public LdapDN getParent()
+    {
+        return parent;
+    }
+
+    /**
+     * Set the parent DN
+     *
+     * @param parent The parent
+     */
+    public void setParent( LdapDN parent )
+    {
+        this.parent = parent;
+    }
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "RemoveContextPartitionServiceContext for DN '" + getDn().getUpName() + "'";
+        return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
+        ", parent '" + parent + "'";
     }
+
 }

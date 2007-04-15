@@ -27,9 +27,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -51,11 +51,11 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         init( modifiedEntryName, modifications );
     }
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, ServiceContext modifyContext ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, OperationContext modifyContext ) throws NamingException
     {
         super( invocation );
-        Attributes modifications = ((ModifyServiceContext)modifyContext).getMods();
-        int modOp = ((ModifyServiceContext)modifyContext).getModOp();
+        Attributes modifications = ((ModifyOperationContext)modifyContext).getMods();
+        int modOp = ((ModifyOperationContext)modifyContext).getModOp();
 
         ModificationItemImpl[] mods = new ModificationItemImpl[ modifications.size() ];
         NamingEnumeration modEnum = modifications.getAll();
@@ -124,7 +124,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return proxy.lookup( new LookupServiceContext( modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        return proxy.lookup( new LookupOperationContext( modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
     }
 
 }

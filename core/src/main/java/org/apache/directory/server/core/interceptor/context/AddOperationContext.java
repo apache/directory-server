@@ -22,86 +22,66 @@ package org.apache.directory.server.core.interceptor.context;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 /**
- * A Modify context used for Interceptors. It contains all the informations
- * needed for the modify operation, and used by all the interceptors
+ * A Add context used for Interceptors. It contains all the informations
+ * needed for the add operation, and used by all the interceptors
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ModifyServiceContext extends AbstractServiceContext
+public class AddOperationContext extends AbstractOperationContext
 {
-    /** The modification type */
-    private int modOp;
-
-    /** The modified Attribute  */
-    private Attributes mods;
+    /** The added Attribute  */
+    private Attributes entry;
     
     /**
      * 
-     * Creates a new instance of ModifyServiceContext.
+     * Creates a new instance of AddOperationContext.
      *
      */
-    public ModifyServiceContext()
+    public AddOperationContext()
     {
     	super();
     }
 
     /**
      * 
-     * Creates a new instance of ModifyServiceContext.
+     * Creates a new instance of AddOperationContext.
      *
      */
-    public ModifyServiceContext( LdapDN dn )
+    public AddOperationContext( LdapDN dn )
     {
         super( dn );
     }
 
     /**
      * 
-     * Creates a new instance of ModifyServiceContext.
+     * Creates a new instance of ModifyOperationContext.
      *
      */
-    public ModifyServiceContext( LdapDN dn, int modOp, Attributes mods )
+    public AddOperationContext( LdapDN dn, Attributes entry )
     {
     	super( dn );
-        this.modOp = modOp;
-        this.mods = mods;
+        this.entry = entry;
     }
 
-    /**
-     * @return The modify type
-     */
-	public int getModOp() 
+	/**
+	 * @return The added attributes
+	 */
+	public Attributes getEntry() 
 	{
-		return modOp;
+		return entry;
 	}
 
 	/**
-	 * Set modification operation type
-	 * @param modOp the Modification operation type
+	 * Set the added attributes
+	 * @param entry The added attributes
 	 */
-	public void setModOp( int modOp ) 
+	public void setEntry( Attributes entry ) 
 	{
-		this.modOp = modOp;
-	}
-
-	/**
-	 * @return The modified attributes
-	 */
-	public Attributes getMods() 
-	{
-		return mods;
-	}
-
-	/**
-	 * Set the modified attributes
-	 * @param value The modified attributes
-	 */
-	public void setMods( Attributes mods ) 
-	{
-		this.mods = mods;
+		this.entry = entry;
 	}
 
 	/**
@@ -109,6 +89,7 @@ public class ModifyServiceContext extends AbstractServiceContext
      */
     public String toString()
     {
-        return "ModifyContext for DN '" + getDn().getUpName() + "'"; 
+        return "AddContext for DN '" + getDn().getUpName() + "'" +
+        ", added entry: " + AttributeUtils.toString( entry ); 
     }
 }

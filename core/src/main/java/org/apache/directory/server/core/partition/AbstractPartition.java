@@ -32,11 +32,11 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.RenameServiceContext;
-import org.apache.directory.server.core.interceptor.context.ModifyServiceContext;
-import org.apache.directory.server.core.interceptor.context.MoveServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -190,15 +190,15 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(ServiceContext)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(OperationContext)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
+    public boolean hasEntry( OperationContext entryContext ) throws NamingException
     {
         try
         {
-            return lookup( new LookupServiceContext( entryContext.getDn() ) ) != null;
+            return lookup( new LookupOperationContext( entryContext.getDn() ) ) != null;
         }
         catch ( NameNotFoundException e )
         {
@@ -212,7 +212,7 @@ public abstract class AbstractPartition implements Partition
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( OperationContext lookupContext ) throws NamingException
     {
         return null;
         //return lookup( lookupContext );
@@ -226,9 +226,9 @@ public abstract class AbstractPartition implements Partition
      * Please override this method if there is more effactive way for your
      * implementation.
      */
-    public void modify( ServiceContext modifyContext ) throws NamingException
+    public void modify( OperationContext modifyContext ) throws NamingException
     {
-    	ModifyServiceContext ctx = (ModifyServiceContext)modifyContext;
+    	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
     	int modOp = ctx.getModOp();
     	Attributes mods = ctx.getMods(); 
     	
@@ -247,8 +247,8 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#move(ServiceContext)} and
-     * {@link Partition#rename(ServiceContext)} subsequently
+     * This method calls {@link Partition#move(OperationContext)} and
+     * {@link Partition#rename(OperationContext)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */
@@ -256,8 +256,8 @@ public abstract class AbstractPartition implements Partition
     {
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRdn );
-        replace( new MoveServiceContext( oldName, newParentName ) );
-        rename( new RenameServiceContext( newName, newRdn, deleteOldRn ) );
+        replace( new MoveOperationContext( oldName, newParentName ) );
+        rename( new RenameOperationContext( newName, newRdn, deleteOldRn ) );
     }
 
 
@@ -265,7 +265,7 @@ public abstract class AbstractPartition implements Partition
      * This method throws {@link OperationNotSupportedException} by default.
      * Please override this method to implement move operation.
      */
-    public void replace( ServiceContext replaceContext ) throws NamingException
+    public void replace( OperationContext replaceContext ) throws NamingException
     {
         throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }

@@ -19,77 +19,55 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 /**
- * A Add context used for Interceptors. It contains all the informations
- * needed for the add operation, and used by all the interceptors
+ * This abstract class stores common context elements, like the DN, which is used
+ * in all the contexts.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AddServiceContext extends AbstractServiceContext
+public class AbstractOperationContext implements OperationContext
 {
-    /** The added Attribute  */
-    private Attributes entry;
+    /** The DN associated with the context */
+    private LdapDN dn;
     
     /**
      * 
-     * Creates a new instance of AddServiceContext.
+     * Creates a new instance of AbstractOperationContext.
      *
      */
-    public AddServiceContext()
+    public AbstractOperationContext()
     {
-    	super();
     }
 
     /**
      * 
-     * Creates a new instance of AddServiceContext.
+     * Creates a new instance of AbstractOperationContext.
      *
+     * @param dn The associated DN
      */
-    public AddServiceContext( LdapDN dn )
+    public AbstractOperationContext( LdapDN dn )
     {
-        super( dn );
+        this.dn = dn;
     }
 
     /**
-     * 
-     * Creates a new instance of ModifyServiceContext.
-     *
+     * @return The associated DN
      */
-    public AddServiceContext( LdapDN dn, Attributes entry )
+    public LdapDN getDn()
     {
-    	super( dn );
-        this.entry = entry;
+        return dn;
     }
 
-	/**
-	 * @return The added attributes
-	 */
-	public Attributes getEntry() 
-	{
-		return entry;
-	}
-
-	/**
-	 * Set the added attributes
-	 * @param entry The added attributes
-	 */
-	public void setEntry( Attributes entry ) 
-	{
-		this.entry = entry;
-	}
-
-	/**
-     * @see Object#toString()
+    /**
+     * Set the context DN
+     *
+     * @param dn The DN to set
      */
-    public String toString()
+    public void setDn( LdapDN dn )
     {
-        return "AddContext for DN '" + getDn().getUpName() + "'" +
-        ", added entry: " + AttributeUtils.toString( entry ); 
+        this.dn = dn;
     }
 }

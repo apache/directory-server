@@ -22,37 +22,24 @@ package org.apache.directory.server.core.interceptor.context;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
- * A GetSuffix context used for Interceptors. It contains all the informations
- * needed for the GetSuffix operation, and used by all the interceptors
+ * This interface represent the context passed as an argument to each interceptor.
+ * It will contain data used by all the operations.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSuffixServiceContext  extends AbstractServiceContext
+public interface OperationContext
 {
     /**
-     * Creates a new instance of GetSuffixServiceContext.
+     * @return The associated DN
      */
-    public GetSuffixServiceContext()
-    {
-        super();
-    }
+    LdapDN getDn();
     
     /**
-     * Creates a new instance of GetSuffixServiceContext.
+     * Set the context DN
      *
-     * @param dn The DN to get the suffix from
+     * @param dn The DN to set
      */
-    public GetSuffixServiceContext( LdapDN dn )
-    {
-        super( dn );
-    }
-    
-    /**
-     * @see Object#toString()
-     */
-    public String toString()
-    {
-        return "GetSuffixServiceContext with DN '" + getDn().getUpName() + "'";
-    }
+    void setDn( LdapDN dn );
+
 }

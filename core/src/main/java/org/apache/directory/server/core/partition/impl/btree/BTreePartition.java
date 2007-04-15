@@ -34,9 +34,9 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
-import org.apache.directory.server.core.interceptor.context.AddServiceContext;
-import org.apache.directory.server.core.interceptor.context.LookupServiceContext;
-import org.apache.directory.server.core.interceptor.context.ServiceContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -330,7 +330,7 @@ public abstract class BTreePartition implements Partition
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( new AddServiceContext( normalizedSuffix, entry ) );
+            add( new AddOperationContext( normalizedSuffix, entry ) );
         }
     }
 
@@ -382,9 +382,9 @@ public abstract class BTreePartition implements Partition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void delete( ServiceContext deleteContext ) throws NamingException
+    public void delete( OperationContext opContext ) throws NamingException
     {
-    	LdapDN dn = deleteContext.getDn();
+    	LdapDN dn = opContext.getDn();
     	
         Long id = getEntryId( dn.toString() );
 
@@ -406,20 +406,21 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void add( ServiceContext addContext ) throws NamingException;
+    public abstract void add( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void modify( ServiceContext modifyContext ) throws NamingException;
+    public abstract void modify( OperationContext opContext ) throws NamingException;
 
 
     public abstract void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException;
 
 
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
-    public NamingEnumeration list( LdapDN base ) throws NamingException
+    
+    public NamingEnumeration list( OperationContext opContext ) throws NamingException
     {
         SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( base.toString() ) ),
+        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
             this, attributeTypeRegistry );
         return list;
     }
@@ -437,9 +438,9 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public Attributes lookup( ServiceContext lookupContext ) throws NamingException
+    public Attributes lookup( OperationContext opContext ) throws NamingException
     {
-        LookupServiceContext ctx = (LookupServiceContext)lookupContext;
+        LookupOperationContext ctx = (LookupOperationContext)opContext;
         
         Attributes entry = lookup( getEntryId( ctx.getDn().getNormName() ) );
 
@@ -464,19 +465,19 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public boolean hasEntry( ServiceContext entryContext ) throws NamingException
+    public boolean hasEntry( OperationContext opContext ) throws NamingException
     {
-        return null != getEntryId( entryContext.getDn().getNormName() );
+        return null != getEntryId( opContext.getDn().getNormName() );
     }
 
 
-    public abstract void rename( ServiceContext renameContext ) throws NamingException;
+    public abstract void rename( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void move( ServiceContext moveContext ) throws NamingException;
+    public abstract void move( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void moveAndRename( ServiceContext moveAndRenameContext )
+    public abstract void moveAndRename( OperationContext opContext )
         throws NamingException;
 
 
