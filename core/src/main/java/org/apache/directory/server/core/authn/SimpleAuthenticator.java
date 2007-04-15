@@ -184,6 +184,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             // Found ! Are the password equals ?
             credentialsMatch = Arrays.equals( credentials, principal.getUserPassword() );
+            
+            if ( ! credentialsMatch )
+            {
+                credentialsMatch = authenticateHashedPassword(credentials, principal.getUserPassword());
+            }            
         }
         else
         {
@@ -205,24 +210,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     
             if ( ! credentialsMatch )
             {
-                // Check if password is stored as a message digest, i.e. one-way
-                // encrypted
-                String algorithm = getAlgorithmForHashedPassword( userPassword );
-                
-                if ( algorithm != null )
-                {
-                    try
-                    {
-                        // create a corresponding digested password from creds
-                        String digestedCredits = createDigestedPassword( algorithm, credentials );
-        
-                        credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), userPassword );
-                    }
-                    catch ( IllegalArgumentException e )
-                    {
-                        log.warn( "Exception during authentication", e.getMessage() );
-                    }
-                }
+                credentialsMatch = authenticateHashedPassword( credentials, userPassword );
             }
             
             // Last, if we have found the credential, we have to store it in the cache
@@ -254,6 +242,32 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    private boolean authenticateHashedPassword( byte[] credentials, byte[] storedPassword ) 
+    {
+        boolean credentialsMatch = false;
+        
+        // Check if password is stored as a message digest, i.e. one-way
+        // encrypted
+        String algorithm = getAlgorithmForHashedPassword( storedPassword );
+        
+        if ( algorithm != null )
+        {
+            try
+            {
+                // create a corresponding digested password from creds
+                String digestedCredits = createDigestedPassword( algorithm, credentials );
+                credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), storedPassword );
+            }
+            catch ( IllegalArgumentException e )
+            {
+                log.warn( "Exception during authentication", e.getMessage() );
+            }
+        }
+        
+        return credentialsMatch;
+    }
+
+
     /**
      * Local function which request the password from the backend
      */
