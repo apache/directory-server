@@ -317,6 +317,6 @@ public abstract class AbstractSchemaObject implements SchemaObject
      */
     public String toString()
     {
-        return "<" + oid + ", " + ( names == null ? "null" : names[0] ) + ">";
+        return "<" + oid + ", " + ( ( names == null ) || ( names.length == 0 ) ? "null" : names[0] ) + ">";
     }
 }
