@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
@@ -45,7 +43,6 @@ import jdbm.helper.IntegerComparator;
 
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
