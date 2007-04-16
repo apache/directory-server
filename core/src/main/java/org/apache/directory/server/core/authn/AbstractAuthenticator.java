@@ -98,7 +98,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * Implement your initialization code here.
      */
-    protected void doInit() throws NamingException
+    protected void doInit()
     {
     }
 
