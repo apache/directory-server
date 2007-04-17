@@ -143,6 +143,44 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         private byte[] salt;
         private byte[] password;
+        private String algorithm;
+    }
+    
+    private byte[] getStoredPassword( LdapDN principalDN ) throws NamingException
+    {
+        LdapPrincipal principal = null;
+        String principalNorm = principalDN.getNormName();
+        
+        synchronized( credentialCache )
+        {
+            principal = (LdapPrincipal)credentialCache.get( principalNorm );
+        }
+        
+        byte[] storedPassword = null;
+        
+        if ( principal == null )
+        {
+            // Not found in the cache
+            // Get the user password from the backend
+            storedPassword = lookupUserPassword( principalDN );
+            
+            
+            // Deal with the special case where the user didn't enter a password
+            // We will compare the empty array with the credentials. Sometime,
+            // a user does not set a password. This is bad, but there is nothing
+            // we can do against that, except education ...
+            if ( storedPassword == null )
+            {
+                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+            }
+        }
+        else
+        {
+            // Found ! 
+            storedPassword = principal.getUserPassword();
+        }
+        
+        return storedPassword;
     }
     
     /**
@@ -210,39 +248,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         boolean credentialsMatch = false;
         LdapPrincipal principal = null;
         
-        // Check to see if the password is stored in the cache for this principal
-        synchronized( credentialCache )
-        {
-            principal = (LdapPrincipal)credentialCache.get( principalNorm );
-        }
-        
-        byte[] storedPassword = null;
-        
-        if ( principal == null )
-        {
-            // Not found in the cache
-            // Get the user password from the backend
-            storedPassword = lookupUserPassword( principalDn );
-            
-            
-            // Deal with the special case where the user didn't enter a password
-            // We will compare the empty array with the credentials. Sometime,
-            // a user does not set a password. This is bad, but there is nothing
-            // we can do against that, except education ...
-            if ( storedPassword == null )
-            {
-                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
-            }
-        }
-        else
-        {
-            // Found ! 
-            storedPassword = principal.getUserPassword();
-        }
+        // Get the stored password, either from cache or from backend
+        byte[] storedPassword = getStoredPassword( principalDn );
         
         // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
         // Are the passwords equal ?
         credentialsMatch = Arrays.equals( credentials, storedPassword );
+        
+        
         
         if ( !credentialsMatch )
         {
@@ -254,11 +267,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 SaltedPassword saltedPassword = new SaltedPassword();
                 saltedPassword.password = storedPassword;
                 saltedPassword.salt = null;
+                saltedPassword.algorithm = algorithm;
                 
                 // Let's get the encrypted part of the stored password
-                byte[] encryptedStored = splitCredentials( saltedPassword, algorithm );
+                byte[] encryptedStored = splitCredentials( saltedPassword );
                 
-                byte[] userPassword = encryptPassword( credentials, algorithm, saltedPassword.salt );
+                saltedPassword.password = credentials;
+                byte[] userPassword = encryptPassword( credentials, saltedPassword );
                 
                 credentialsMatch = Arrays.equals( userPassword, encryptedStored );
             }
@@ -271,7 +286,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             if ( principal == null )
             {
                 // Last, if we have found the credential, we have to store it in the cache
-                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword );
+                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword  );
     
                 // Now, update the local cache.
                 synchronized( credentialCache )
@@ -300,9 +315,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         System.arraycopy( all, offset + left.length, right, 0, right.length );
     }
 
-    private byte[] splitCredentials( SaltedPassword saltedPassword , String algorithm )
+    private byte[] splitCredentials( SaltedPassword saltedPassword )
     {
         byte[] credentials = saltedPassword.password;
+        String algorithm = saltedPassword.algorithm;
         
         int pos = algorithm.length() + 2;
         
@@ -429,18 +445,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             digest.update( password );
             digest.update( salt );
-            byte[] hashedPasswordBytes = digest.digest();
-            return hashedPasswordBytes;
+            return digest.digest();
         }
         else
         {
-            byte[] hashedPasswordBytes = digest.digest( password );
-            return hashedPasswordBytes;
+            return digest.digest( password );
         }
     }
 
-    private byte[] encryptPassword( byte[] credentials, String algorithm, byte[] salt )
+    private byte[] encryptPassword( byte[] credentials, SaltedPassword saltedPassword )
     {
+        String algorithm = saltedPassword.algorithm;
+        byte[] salt = saltedPassword.salt;
+        
         if ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) || 
              LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) )
         {   
