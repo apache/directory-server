@@ -20,8 +20,10 @@
 package org.apache.directory.server.core.authn;
 
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,12 +43,14 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.util.UnixCrypt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,11 +139,41 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
 
+    private class SaltedPassword
+    {
+        private byte[] salt;
+        private byte[] password;
+    }
     
     /**
      * Looks up <tt>userPassword</tt> attribute of the entry whose name is the
      * value of {@link Context#SECURITY_PRINCIPAL} environment variable, and
      * authenticates a user with the plain-text password.
+     * 
+     * We have at least 6 algorithms to encrypt the password :
+     * - SHA
+     * - SSHA (salted SHA)
+     * - MD5
+     * - SMD5 (slated MD5)
+     * - crypt (unix crypt)
+     * - plain text, ie no encryption.
+     * 
+     *  If we get an encrypted password, it is prefixed by the used algorithm, between
+     *  brackets : {SSHA}password ...
+     *  
+     *  If the password is using SSHA, SMD5 or crypt, some 'salt' is added to the password :
+     *  - length(password) - 20, starting at 21th position for SSHA
+     *  - length(password) - 16, starting at 16th position for SMD5
+     *  - length(password) - 2, starting at 3rd position for crypt
+     *  
+     *  For (S)SHA and (S)MD5, we have to transform the password from Base64 encoded text
+     *  to a byte[] before comparing the password with the stored one.
+     *  For crypt, we only have to remove the salt.
+     *  
+     *  At the end, we use the digest() method for (S)SHA and (S)MD5, the crypt() method for
+     *  the CRYPT algorithm and a straight comparison for PLAIN TEXT passwords.
+     *  
+     *  The stored password is always using the unsalted form, and is stored as a bytes array.
      */
     public LdapPrincipal authenticate( LdapDN principalDn, ServerContext ctx ) throws NamingException
     {
@@ -163,6 +197,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else if ( creds instanceof byte[] )
         {
+            // This is the general case. When dealing with a BindRequest operation,
+            // received by the server, the credentials are always stored into a byte array
             credentials = (byte[])creds;
         }
         else
@@ -170,64 +206,80 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             log.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
             throw new LdapAuthenticationException();
         }
-
+        
         boolean credentialsMatch = false;
         LdapPrincipal principal = null;
         
-        // Check to see if the password is stored in the cache
+        // Check to see if the password is stored in the cache for this principal
         synchronized( credentialCache )
         {
             principal = (LdapPrincipal)credentialCache.get( principalNorm );
         }
         
-        if ( principal != null )
+        byte[] storedPassword = null;
+        
+        if ( principal == null )
         {
-            // Found ! Are the password equals ?
-            credentialsMatch = Arrays.equals( credentials, principal.getUserPassword() );
-            
-            if ( ! credentialsMatch )
-            {
-                credentialsMatch = authenticateHashedPassword(credentials, principal.getUserPassword());
-            }            
-        }
-        else
-        {
-            // Not found :(...
+            // Not found in the cache
             // Get the user password from the backend
-            byte[] userPassword = lookupUserPassword( principalDn );
+            storedPassword = lookupUserPassword( principalDn );
+            
             
             // Deal with the special case where the user didn't enter a password
             // We will compare the empty array with the credentials. Sometime,
             // a user does not set a password. This is bad, but there is nothing
             // we can do against that, except education ...
-            if ( userPassword == null )
+            if ( storedPassword == null )
             {
-                userPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
+                storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
             }
-    
-            // Compare the passwords
-            credentialsMatch = Arrays.equals( credentials, userPassword );
-    
-            if ( ! credentialsMatch )
-            {
-                credentialsMatch = authenticateHashedPassword( credentials, userPassword );
-            }
+        }
+        else
+        {
+            // Found ! 
+            storedPassword = principal.getUserPassword();
+        }
+        
+        // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
+        // Are the passwords equal ?
+        credentialsMatch = Arrays.equals( credentials, storedPassword );
+        
+        if ( !credentialsMatch )
+        {
+            // Let's see if the stored password was encrypted
+            String algorithm = findAlgorithm( storedPassword );
             
-            // Last, if we have found the credential, we have to store it in the cache
-            if ( credentialsMatch )
+            if ( algorithm != null )
             {
-                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, userPassword );
+                SaltedPassword saltedPassword = new SaltedPassword();
+                saltedPassword.password = storedPassword;
+                saltedPassword.salt = null;
+                
+                // Let's get the encrypted part of the stored password
+                byte[] encryptedStored = splitCredentials( saltedPassword, algorithm );
+                
+                byte[] userPassword = encryptPassword( credentials, algorithm, saltedPassword.salt );
+                
+                credentialsMatch = Arrays.equals( userPassword, encryptedStored );
+            }
 
+        }
+            
+        // If the password match, we can return
+        if ( credentialsMatch )
+        {
+            if ( principal == null )
+            {
+                // Last, if we have found the credential, we have to store it in the cache
+                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword );
+    
                 // Now, update the local cache.
                 synchronized( credentialCache )
                 {
                     credentialCache.put( principalNorm, principal );
                 }
             }
-        }
-        
-        if ( credentialsMatch )
-        {
+
             if ( IS_DEBUG )
             {
                 log.debug( "{} Authenticated", principalDn );
@@ -235,38 +287,193 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             
             return principal;
         }
-        else
-        {
-            log.info( "Password not correct for user '{}'", principalDn );
-            throw new LdapAuthenticationException();
-        }
+        
+        // Bad password ...
+        String message = "Password not correct for user '" + principalDn.getUpName() + "'";
+        log.info( message );
+        throw new LdapAuthenticationException(message);
     }
     
-    private boolean authenticateHashedPassword( byte[] credentials, byte[] storedPassword ) 
+    private static void split( byte[] all, int offset, byte[] left, byte[] right )
     {
-        boolean credentialsMatch = false;
+        System.arraycopy( all, offset, left, 0, left.length );
+        System.arraycopy( all, offset + left.length, right, 0, right.length );
+    }
+
+    private byte[] splitCredentials( SaltedPassword saltedPassword , String algorithm )
+    {
+        byte[] credentials = saltedPassword.password;
         
-        // Check if password is stored as a message digest, i.e. one-way
-        // encrypted
-        String algorithm = getAlgorithmForHashedPassword( storedPassword );
+        int pos = algorithm.length() + 2;
         
-        if ( algorithm != null )
+        if ( ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ) ||
+            ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) ) )
         {
             try
             {
-                // create a corresponding digested password from creds
-                String digestedCredits = createDigestedPassword( algorithm, credentials );
-                credentialsMatch = Arrays.equals( StringTools.getBytesUtf8( digestedCredits ), storedPassword );
+                return Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
             }
-            catch ( IllegalArgumentException e )
+            catch ( UnsupportedEncodingException uee )
             {
-                log.warn( "Exception during authentication", e.getMessage() );
+                // do nothing 
+                return credentials;
             }
         }
+        else if ( ( LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) ) ||
+                 ( LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) ) )
+        {
+            try
+            {
+                byte[] password = Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
+                
+                saltedPassword.salt = new byte[8];
+                byte[] hashedPassword = new byte[password.length - saltedPassword.salt.length];
+                split( password, 0, hashedPassword, saltedPassword.salt );
+                
+                return hashedPassword;
+            }
+            catch ( UnsupportedEncodingException uee )
+            {
+                // do nothing 
+                return credentials;
+            }
+        }
+        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) )
+        {
+            saltedPassword.salt = new byte[2];
+            byte[] hashedPassword = new byte[credentials.length - saltedPassword.salt.length - pos];
+            split( credentials, pos, saltedPassword.salt, hashedPassword );
+            
+            return hashedPassword;
+        }
+        else
+        {
+            // unknown method
+            return credentials;
+        }
+    }
+    
+    private String findAlgorithm( byte[] credentials )
+    {
+        if ( ( credentials == null ) || ( credentials.length == 0 ) )
+        {
+            return null;
+        }
         
-        return credentialsMatch;
+        if ( credentials[0] == '{' )
+        {
+            // get the algorithm
+            int pos = 1;
+            
+            while ( pos < credentials.length )
+            {
+                if ( credentials[pos] == '}' )
+                {
+                    break;
+                }
+                
+                pos++;
+            }
+            
+            if ( pos < credentials.length )
+            {
+                if ( pos == 1 )
+                {
+                    // We don't have an algorithm : return the credentials as is
+                    return null;
+                }
+                
+                String algorithm = new String( credentials, 1, pos - 1 ).toLowerCase();
+                
+                if ( ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ) ||
+                    ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) ) ||
+                    ( LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) ) ||
+                    ( LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) ) ||
+                    ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) ) )
+                {
+                    return algorithm;
+                }
+                else
+                {
+                    // unknown method
+                    return null;
+                }
+            }
+            else
+            {
+                // We don't have an algorithm
+                return null;
+            }
+        }
+        else
+        {
+            // No '{algo}' part
+            return null;
+        }
+    }
+    
+    private static byte[] digest( String algorithm, byte[] password, byte[] salt )
+    {
+        MessageDigest digest;
+
+        try
+        {
+            digest = MessageDigest.getInstance( algorithm );
+        }
+        catch ( NoSuchAlgorithmException e1 )
+        {
+            return null;
+        }
+
+        if ( salt != null )
+        {
+            digest.update( password );
+            digest.update( salt );
+            byte[] hashedPasswordBytes = digest.digest();
+            return hashedPasswordBytes;
+        }
+        else
+        {
+            byte[] hashedPasswordBytes = digest.digest( password );
+            return hashedPasswordBytes;
+        }
     }
 
+    private byte[] encryptPassword( byte[] credentials, String algorithm, byte[] salt )
+    {
+        if ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) || 
+             LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) )
+        {   
+            return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
+        }
+        else if ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ||
+                  LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) )
+       {            
+            return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
+        }
+        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) )
+        {
+            if ( salt == null )
+            {
+                salt = new byte[2];
+                SecureRandom sr = new SecureRandom();
+                int i1 = sr.nextInt( 64 );
+                int i2 = sr.nextInt( 64 );
+            
+                salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
+                salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
+            }
+
+            String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools.utf8ToString( salt ) );
+            String crypted = saltWithCrypted.substring( 2 );
+            
+            return StringTools.getBytesUtf8( crypted );
+        }
+        else
+        {
+            return credentials;
+        }
+    }
 
     /**
      * Local function which request the password from the backend
@@ -344,6 +551,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             String algorithm = sPassword.substring( 1, rightParen );
 
+            if ( "crypt".equals( algorithm ) )
+            {
+                return algorithm;
+            }
+            
             try
             {
                 MessageDigest.getInstance( algorithm );
@@ -384,14 +596,23 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // create message digest object
         try
         {
-            MessageDigest digest = MessageDigest.getInstance( algorithm );
-            
-            // calculate hashed value of password
-            byte[] fingerPrint = digest.digest( password );
-            char[] encoded = Base64.encode( fingerPrint );
+            if ( "crypt".equalsIgnoreCase( algorithm ) )
+            {
+                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( password ), "" );
+                String crypted = saltWithCrypted.substring( 2 );
+                return '{' + algorithm + '}' + StringTools.getBytesUtf8( crypted );
+            }
+            else
+            {
+                MessageDigest digest = MessageDigest.getInstance( algorithm );
+                
+                // calculate hashed value of password
+                byte[] fingerPrint = digest.digest( password );
+                char[] encoded = Base64.encode( fingerPrint );
 
-            // create return result of form "{alg}bbbbbbb"
-            return '{' + algorithm + '}' + new String( encoded );
+                // create return result of form "{alg}bbbbbbb"
+                return '{' + algorithm + '}' + new String( encoded );
+            }
         }
         catch ( NoSuchAlgorithmException nsae )
         {
