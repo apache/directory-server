@@ -62,6 +62,8 @@ import org.slf4j.LoggerFactory;
  * password is stored with a one-way encryption applied (e.g. SHA), the password
  * is hashed the same way before comparison.
  * 
+ * We use a cache to speedup authentication, where the DN/password are stored.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
@@ -139,13 +141,42 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }
 
-    private class SaltedPassword
+    /**
+     * A private class to store all informations about the existing
+     * password found in the cache or get from the backend.
+     * 
+     * This is necessary as we have to compute :
+     * - the used algorithm
+     * - the salt if any
+     * - the password itself.
+     * 
+     * If we have a on-way encrypted password, it is stored using this 
+     * format :
+     * {<algorithm>}<encrypted password>
+     * where the encrypted password format can be :
+     * - MD5/SHA : base64([<salt (8 bytes)>]<password>)
+     * - crypt : <salt (2 btytes)><password> 
+     * 
+     * Algorithm are currently MD5, SMD5, SHA, SSHA, CRYPT and empty
+     */
+    private class EncryptionMethod
     {
         private byte[] salt;
-        private byte[] password;
         private String algorithm;
+        
+        private EncryptionMethod( String algorithm, byte[] salt )
+        {
+        	this.algorithm = algorithm;
+        	this.salt = salt;
+        }
     }
     
+    /**
+     * Get the password either from cache or from backend.
+     * @param principalDN The DN from which we want the password
+     * @return A byte array which can be empty if the password was not found
+     * @throws NamingException If we have a problem during the lookup operation
+     */
     private byte[] getStoredPassword( LdapDN principalDN ) throws NamingException
     {
         LdapPrincipal principal = null;
@@ -182,7 +213,71 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         
         return storedPassword;
     }
-    
+
+    /**
+     * Get the user credentials from the environment. It is stored into the
+     * ServcerContext.
+     * @param ctx
+     * @param principalDn
+     * @return
+     * @throws LdapAuthenticationException
+     */
+    private byte[] getCredentials( ServerContext ctx, LdapDN principalDn ) throws LdapAuthenticationException
+    {
+        Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
+        byte[] credentials = null;
+
+        if ( creds == null )
+        {
+            credentials = ArrayUtils.EMPTY_BYTE_ARRAY;
+        }
+        else if ( creds instanceof String )
+        {
+            credentials = StringTools.getBytesUtf8( ( String ) creds );
+        }
+        else if ( creds instanceof byte[] )
+        {
+            // This is the general case. When dealing with a BindRequest operation,
+            // received by the server, the credentials are always stored into a byte array
+            credentials = (byte[])creds;
+        }
+        else
+        {
+            log.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
+            throw new LdapAuthenticationException();
+        }
+        
+        return credentials;
+    }
+
+    /**
+     * Helper function used to update the cache with the user's password,
+     * if the cache is not containing this information.
+     * 
+     * The LdapPrincipal will be empty if this password is not cached.
+     */
+    private LdapPrincipal updateCache( LdapPrincipal principal, LdapDN principalDn, byte[] storedPassword )
+    {
+        if ( principal == null )
+        {
+            // If we have found the credential, we have to store it in the cache
+            principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword  );
+
+            // Now, update the local cache.
+            synchronized( credentialCache )
+            {
+                credentialCache.put( principalDn.getNormName(), principal );
+            }
+        }
+
+        if ( IS_DEBUG )
+        {
+            log.debug( "{} Authenticated", principalDn );
+        }
+        
+        return principal;
+    }
+
     /**
      * Looks up <tt>userPassword</tt> attribute of the entry whose name is the
      * value of {@link Context#SECURITY_PRINCIPAL} environment variable, and
@@ -221,29 +316,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         
         // ---- extract password from JNDI environment
-        Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
-        byte[] credentials = null;
-        String principalNorm = principalDn.getNormName();
-
-        if ( creds == null )
-        {
-            credentials = ArrayUtils.EMPTY_BYTE_ARRAY;
-        }
-        else if ( creds instanceof String )
-        {
-            credentials = StringTools.getBytesUtf8( ( String ) creds );
-        }
-        else if ( creds instanceof byte[] )
-        {
-            // This is the general case. When dealing with a BindRequest operation,
-            // received by the server, the credentials are always stored into a byte array
-            credentials = (byte[])creds;
-        }
-        else
-        {
-            log.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
-            throw new LdapAuthenticationException();
-        }
+        byte[] credentials = getCredentials( ctx, principalDn );
         
         boolean credentialsMatch = false;
         LdapPrincipal principal = null;
@@ -253,60 +326,49 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         
         // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
         // Are the passwords equal ?
-        credentialsMatch = Arrays.equals( credentials, storedPassword );
-        
-        
-        
-        if ( !credentialsMatch )
+        if ( Arrays.equals( credentials, storedPassword ) )
         {
-            // Let's see if the stored password was encrypted
-            String algorithm = findAlgorithm( storedPassword );
-            
-            if ( algorithm != null )
-            {
-                SaltedPassword saltedPassword = new SaltedPassword();
-                saltedPassword.password = storedPassword;
-                saltedPassword.salt = null;
-                saltedPassword.algorithm = algorithm;
-                
-                // Let's get the encrypted part of the stored password
-                byte[] encryptedStored = splitCredentials( saltedPassword );
-                
-                saltedPassword.password = credentials;
-                byte[] userPassword = encryptPassword( credentials, saltedPassword );
-                
-                credentialsMatch = Arrays.equals( userPassword, encryptedStored );
-            }
-
-        }
-            
-        // If the password match, we can return
-        if ( credentialsMatch )
-        {
-            if ( principal == null )
-            {
-                // Last, if we have found the credential, we have to store it in the cache
-                principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword  );
-    
-                // Now, update the local cache.
-                synchronized( credentialCache )
-                {
-                    credentialCache.put( principalNorm, principal );
-                }
-            }
-
-            if ( IS_DEBUG )
-            {
-                log.debug( "{} Authenticated", principalDn );
-            }
-            
-            return principal;
+        	return updateCache( principal, principalDn, storedPassword );
         }
         
-        // Bad password ...
-        String message = "Password not correct for user '" + principalDn.getUpName() + "'";
-        log.info( message );
-        throw new LdapAuthenticationException(message);
+        // Let's see if the stored password was encrypted
+        String algorithm = findAlgorithm( storedPassword );
+        
+        if ( algorithm != null )
+        {
+            EncryptionMethod encryptionMethod = new EncryptionMethod( algorithm, null );
+            
+            // Let's get the encrypted part of the stored password
+            // We should just keep the password, excluding the algorithm
+            // and the salt, if any.
+            // But we should also get the algorithm and salt to
+            // be able to encrypt the submitted user password in the next step
+            byte[] encryptedStored = splitCredentials( storedPassword, encryptionMethod );
+            
+            // Reuse the slatedPassword informations to construct the encrypted
+            // password given by the user.
+            byte[] userPassword = encryptPassword( credentials, encryptionMethod );
+            
+            // Now, compare the two passwords.
+            if ( Arrays.equals( userPassword, encryptedStored ) )
+            {
+            	return updateCache( principal, principalDn, storedPassword );
+            }
+            else
+            {
+                // Bad password ...
+                String message = "Password not correct for user '" + principalDn.getUpName() + "'";
+                log.info( message );
+                throw new LdapAuthenticationException(message);
+            }
+        }
+        else
+        {
+            // Bad password ...
+            String message = "Password not correct for user '" + principalDn.getUpName() + "'";
+            log.info( message );
+            throw new LdapAuthenticationException(message);
+        }
     }
     
     private static void split( byte[] all, int offset, byte[] left, byte[] right )
@@ -315,10 +377,19 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         System.arraycopy( all, offset + left.length, right, 0, right.length );
     }
 
-    private byte[] splitCredentials( SaltedPassword saltedPassword )
+    /**
+     * Decopose the stored password in an algorithm, an eventual salt
+     * and the password itself.
+     * 
+     * If the algorithm is SHA, SSHA, MD5 or SMD5, the part following the algorithm
+     * is base64 encoded
+     * 
+     * @param encryptionMethod The structure to feed
+     * @return The password
+     */
+    private byte[] splitCredentials( byte[] credentials, EncryptionMethod encryptionMethod )
     {
-        byte[] credentials = saltedPassword.password;
-        String algorithm = saltedPassword.algorithm;
+        String algorithm = encryptionMethod.algorithm;
         
         int pos = algorithm.length() + 2;
         
@@ -327,6 +398,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             try
             {
+            	// We just have the password just after the algorithm, base64 encoded.
+            	// Just decode the password and return it.
                 return Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
             }
             catch ( UnsupportedEncodingException uee )
@@ -340,13 +413,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             try
             {
-                byte[] password = Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
+            	// The password is associated with a salt. Decompose it 
+            	// in two parts, after having decoded the password.
+            	// The salt will be stored into the EncryptionMethod structure
+            	// The salt is at the end of the credentials, and is 8 bytes long
+                byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
                 
-                saltedPassword.salt = new byte[8];
-                byte[] hashedPassword = new byte[password.length - saltedPassword.salt.length];
-                split( password, 0, hashedPassword, saltedPassword.salt );
+                encryptionMethod.salt = new byte[8];
+                byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
+                split( passwordAndSalt, 0, password, encryptionMethod.salt );
                 
-                return hashedPassword;
+                return password;
             }
             catch ( UnsupportedEncodingException uee )
             {
@@ -356,11 +433,14 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) )
         {
-            saltedPassword.salt = new byte[2];
-            byte[] hashedPassword = new byte[credentials.length - saltedPassword.salt.length - pos];
-            split( credentials, pos, saltedPassword.salt, hashedPassword );
+        	// The password is associated with a salt. Decompose it 
+        	// in two parts, storing the salt into the EncryptionMethod structure.
+        	// The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
+            encryptionMethod.salt = new byte[2];
+            byte[] password = new byte[credentials.length - encryptionMethod.salt.length - pos];
+            split( credentials, pos, encryptionMethod.salt, password );
             
-            return hashedPassword;
+            return password;
         }
         else
         {
@@ -369,6 +449,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
     
+    /**
+     * Get the algorithm from the stored password. 
+     * It can be found on the beginning of the stored password, between 
+     * curly brackets.
+     */
     private String findAlgorithm( byte[] credentials )
     {
         if ( ( credentials == null ) || ( credentials.length == 0 ) )
@@ -427,7 +512,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             return null;
         }
     }
-    
+
+    /**
+     * Compute the hashed password given an algorithm, the credentials and 
+     * an optional salt.
+     */
     private static byte[] digest( String algorithm, byte[] password, byte[] salt )
     {
         MessageDigest digest;
@@ -453,10 +542,10 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
     }
 
-    private byte[] encryptPassword( byte[] credentials, SaltedPassword saltedPassword )
+    private byte[] encryptPassword( byte[] credentials, EncryptionMethod encryptionMethod )
     {
-        String algorithm = saltedPassword.algorithm;
-        byte[] salt = saltedPassword.salt;
+        String algorithm = encryptionMethod.algorithm;
+        byte[] salt = encryptionMethod.salt;
         
         if ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) || 
              LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) )
