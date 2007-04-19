@@ -391,7 +391,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
             	// We just have the password just after the algorithm, base64 encoded.
             	// Just decode the password and return it.
-                return Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
+                return Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
             }
             catch ( UnsupportedEncodingException uee )
             {
@@ -408,7 +408,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             	// in two parts, after having decoded the password.
             	// The salt will be stored into the EncryptionMethod structure
             	// The salt is at the end of the credentials, and is 8 bytes long
-                byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - ( pos + 1 ), "UTF-8" ).toCharArray() );
+                byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
                 
                 encryptionMethod.salt = new byte[8];
                 byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
