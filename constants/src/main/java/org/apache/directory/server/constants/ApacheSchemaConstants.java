@@ -33,4 +33,5 @@ public interface ApacheSchemaConstants
     String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
 
     String SCHEMA_MODIFICATION_ATTRIBUTES_OC = "schemaModificationAttributes";
+    String SCHEMA_NAME = "apache";
 }

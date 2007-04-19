@@ -97,7 +97,7 @@ public class TupleCache
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
     	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
@@ -199,8 +199,15 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on " + aciStr + ". Cannnot add ACITuples to TupleCache.";
-                log.warn( msg, e );
+                String msg = "ACIItem parser failure on \n'" + item + "'\ndue to syntax error. " +
+                        "Cannnot add ACITuples to TupleCache.\n" +
+                        "Check that the syntax of the ACI item is correct. \nUntil this error " +
+                        "is fixed your security settings will not be as expected.";
+                log.error( msg, e );
+                
+                // do not process this ACI Item because it will be null
+                // continue on to process the next ACI item in the entry
+                continue;
             }
         }
         
