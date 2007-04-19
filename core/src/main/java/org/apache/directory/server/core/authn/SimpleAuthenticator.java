@@ -177,7 +177,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return A byte array which can be empty if the password was not found
      * @throws NamingException If we have a problem during the lookup operation
      */
-    private byte[] getStoredPassword( LdapDN principalDN ) throws NamingException
+    private LdapPrincipal getStoredPassword( LdapDN principalDN ) throws NamingException
     {
         LdapPrincipal principal = null;
         String principalNorm = principalDN.getNormName();
@@ -204,6 +204,15 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 storedPassword = ArrayUtils.EMPTY_BYTE_ARRAY;
             }
+
+            // Create the new principal before storing it in the cache
+            principal = new LdapPrincipal( principalDN, AuthenticationLevel.SIMPLE, storedPassword );
+            
+            // Now, update the local cache.
+            synchronized( credentialCache )
+            {
+                credentialCache.put( principalDN.getNormName(), principal );
+            }
         }
         else
         {
@@ -211,7 +220,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             storedPassword = principal.getUserPassword();
         }
         
-        return storedPassword;
+        return principal;
     }
 
     /**
@@ -250,33 +259,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         return credentials;
     }
 
-    /**
-     * Helper function used to update the cache with the user's password,
-     * if the cache is not containing this information.
-     * 
-     * The LdapPrincipal will be empty if this password is not cached.
-     */
-    private LdapPrincipal updateCache( LdapPrincipal principal, LdapDN principalDn, byte[] storedPassword )
-    {
-        if ( principal == null )
-        {
-            // If we have found the credential, we have to store it in the cache
-            principal = new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE, storedPassword  );
-
-            // Now, update the local cache.
-            synchronized( credentialCache )
-            {
-                credentialCache.put( principalDn.getNormName(), principal );
-            }
-        }
-
-        if ( IS_DEBUG )
-        {
-            log.debug( "{} Authenticated", principalDn );
-        }
-        
-        return principal;
-    }
 
     /**
      * Looks up <tt>userPassword</tt> attribute of the entry whose name is the
@@ -318,17 +300,21 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // ---- extract password from JNDI environment
         byte[] credentials = getCredentials( ctx, principalDn );
         
-        boolean credentialsMatch = false;
-        LdapPrincipal principal = null;
+        LdapPrincipal principal = getStoredPassword( principalDn );
         
         // Get the stored password, either from cache or from backend
-        byte[] storedPassword = getStoredPassword( principalDn );
+        byte[] storedPassword = principal.getUserPassword();
         
         // Short circuit for PLAIN TEXT passwords : we compare the byte array directly
         // Are the passwords equal ?
         if ( Arrays.equals( credentials, storedPassword ) )
         {
-        	return updateCache( principal, principalDn, storedPassword );
+            if ( IS_DEBUG )
+            {
+                log.debug( "{} Authenticated", principalDn );
+            }
+            
+        	return principal;
         }
         
         // Let's see if the stored password was encrypted
@@ -352,7 +338,12 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             // Now, compare the two passwords.
             if ( Arrays.equals( userPassword, encryptedStored ) )
             {
-            	return updateCache( principal, principalDn, storedPassword );
+                if ( IS_DEBUG )
+                {
+                    log.debug( "{} Authenticated", principalDn );
+                }
+
+                return principal;
             }
             else
             {
