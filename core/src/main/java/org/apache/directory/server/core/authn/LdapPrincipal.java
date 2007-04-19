@@ -27,6 +27,7 @@ import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -135,7 +136,7 @@ public final class LdapPrincipal implements Principal, Serializable
      */
     public String toString()
     {
-        return name.toString();
+        return "['" + name.getUpName() + "', '" + StringTools.utf8ToString( userPassword ) +"']'";
     }
 
 
