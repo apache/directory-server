@@ -132,25 +132,6 @@ public abstract class StoredProcedureParameter
     }
 
     
-    // Operation Specific Subclasses
-
-    /*public static class ModifyStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final ModifyStoredProcedureParameter OBJECT = new ModifyStoredProcedureParameter( "$object" );
-        public static final ModifyStoredProcedureParameter MODIFICATION = new ModifyStoredProcedureParameter(
-            "$modification" );
-        public static final ModifyStoredProcedureParameter OLD_ENTRY = new ModifyStoredProcedureParameter( "$oldEntry" );
-        public static final ModifyStoredProcedureParameter NEW_ENTRY = new ModifyStoredProcedureParameter( "$newEntry" );
-
-
-        private ModifyStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }*/
-    
     public static class Modify_OBJECT extends StoredProcedureParameter
     {
         private static Modify_OBJECT instance = new Modify_OBJECT( "$object" );
@@ -211,20 +192,6 @@ public abstract class StoredProcedureParameter
         }
     }
 
-    /*public static class AddStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final AddStoredProcedureParameter ENTRY = new AddStoredProcedureParameter( "$entry" );
-        public static final AddStoredProcedureParameter ATTRIBUTES = new AddStoredProcedureParameter( "$attributes" );
-
-
-        private AddStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }*/
-    
     public static class Add_ENTRY extends StoredProcedureParameter
     {
         private static Add_ENTRY instance = new Add_ENTRY( "$entry" );
@@ -255,21 +222,6 @@ public abstract class StoredProcedureParameter
         }
     }
 
-    /*public static class DeleteStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final DeleteStoredProcedureParameter NAME = new DeleteStoredProcedureParameter( "$name" );
-        public static final DeleteStoredProcedureParameter DELETED_ENTRY = new DeleteStoredProcedureParameter(
-            "$deletedEntry" );
-
-
-        private DeleteStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }*/
-    
     public static class Delete_NAME extends StoredProcedureParameter
     {
         private static Delete_NAME instance = new Delete_NAME( "$name" );
@@ -300,24 +252,6 @@ public abstract class StoredProcedureParameter
         }
     }
 
-    /*public static class ModifyDNStoredProcedureParameter extends StoredProcedureParameter
-    {
-
-        public static final ModifyDNStoredProcedureParameter ENTRY = new ModifyDNStoredProcedureParameter( "$entry" );
-        public static final ModifyDNStoredProcedureParameter NEW_RDN = new ModifyDNStoredProcedureParameter( "$newrdn" );
-        public static final ModifyDNStoredProcedureParameter DELETE_OLD_RDN = new ModifyDNStoredProcedureParameter(
-            "$deleteoldrdn" );
-        public static final ModifyDNStoredProcedureParameter NEW_SUPERIOR = new ModifyDNStoredProcedureParameter(
-            "$newSuperior" );
-
-
-        private ModifyDNStoredProcedureParameter( String name )
-        {
-            super( name );
-        }
-
-    }*/
-    
     public static class ModifyDN_ENTRY extends StoredProcedureParameter
     {
         private static ModifyDN_ENTRY instance = new ModifyDN_ENTRY( "$entry" );
