@@ -202,6 +202,51 @@
                   <filtered>true</filtered>
                 </packagedFile>
               </packagedFiles>
+              <id>linux-jsvc-x86_64</id>
+              <izPackInstallFile>
+                src/main/installers/izpack-unix.xml
+              </izPackInstallFile>
+              <izPackShortcutsUnixFile>
+                src/main/installers/unix_shortcuts.xml
+              </izPackShortcutsUnixFile>
+              <finalName>
+                apacheds-${pom.version}-linux-x86_64-setup.jar
+              </finalName>
+              <osName>Linux</osName>
+              <osFamily>unix</osFamily>
+              <osArch>x86_64</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+            </izPackTarget>
+            <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>stop.png</source>
+                  <destinationPath>stop.png</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                </packagedFile>
+                <packagedFile>
+                  <source>src/main/installers/debug.png</source>
+                  <destinationPath>debug.png</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                </packagedFile>
+                <packagedFile>
+                  <source>src/main/installers/start.png</source>
+                  <destinationPath>start.png</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                </packagedFile>
+                <packagedFile>
+                  <source>src/main/installers/docs.png</source>
+                  <destinationPath>docs/docs.png</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                </packagedFile>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
               <id>linux-jsvc-ppc</id>
               <izPackInstallFile>
                 src/main/installers/izpack-unix.xml
