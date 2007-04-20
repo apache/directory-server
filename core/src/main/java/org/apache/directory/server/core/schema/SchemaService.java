@@ -23,11 +23,11 @@ package org.apache.directory.server.core.schema;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -49,11 +49,11 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -1147,190 +1147,6 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
-    /**
-     * Check that the modify operations are allowed, and the conform to
-     * the schema.
-     * 
-     * @param next The next interceptor to call when we are done with the local operation
-     * @param name The DN on which the modification is being done 
-     * @param modOp The modification. One of :
-     *   DirContext.ADD_ATTRIBUTE
-     *   DirContext.REMOVE_ATTRIBUTE
-     *   DirContext.REPLACE_ATTRIBUTE
-     * @param mods The modifications to check. Each operation is atomic, and should
-     * be applied to a copy of the entry, in order to check that the schema is not
-     * violated at the end. For instance, we can't delete an attribute that does
-     * not exist and add it later. The opposite is legal.
-     * 
-     * @throws NamingException The generic exception we get if an illegal operation occurs
-     * @throws LdapNameNotFoundException If we don't find the entry, then this exception is thrown.
-     * @throws LdapInvalidAttributeIdentifierException The modified attribute is not known
-     * by the schema, or the Entry is not extensible.
-     * @throws LdapNoSuchAttributeException The modified Attribute does not exist in the 
-     * current entry or is not added by a previous modification operation.
-     * @throws LdapSchemaViolationException Another schema violation occured.
-     */
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
-    {
-    	LdapDN name = opContext.getDn();
-    	int modOp = ((ModifyOperationContext)opContext).getModOp();
-    	Attributes mods = ((ModifyOperationContext)opContext).getMods();
-    	
-        Attributes entry = null; 
-
-        // handle operations against the schema subentry in the schema service
-        // and never try to look it up in the nexus below
-        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDn.getNormName() ) )
-        {
-            entry = getSubschemaEntry( schemaSubentryReturnAttributes );
-        }
-        else
-        {
-            entry = nexus.lookup( new LookupOperationContext( name ) );
-        }
-
-        Attributes targetEntry = SchemaUtils.getTargetEntry( modOp, mods, entry );
-        
-        if ( entry == null )
-        {
-            log.error( "No entry with this name :{}", name );
-            throw new LdapNameNotFoundException( "The entry which name is " + name + " is not found." );
-        }
-        
-        Attribute objectClass = getResultantObjectClasses( modOp, mods.get( SchemaConstants.OBJECT_CLASS_AT ), entry.get( SchemaConstants.OBJECT_CLASS_AT ) );
-        ObjectClassRegistry ocRegistry = this.registries.getObjectClassRegistry();
-        AttributeTypeRegistry atRegistry = this.registries.getAttributeTypeRegistry();
-
-        NamingEnumeration changes = mods.getIDs();
-        
-        Attributes tmpEntryForAdd = ( Attributes ) entry.clone();
-        
-        while ( changes.hasMore() )
-        {
-            String id = ( String ) changes.next();
-            Attribute change = mods.get( id );
-
-            if ( !atRegistry.hasAttributeType( change.getID() ) && 
-                !objectClass.contains( SchemaConstants.EXTENSIBLE_OBJECT_OC ) )
-            {
-                throw new LdapInvalidAttributeIdentifierException( "unrecognized attributeID " + change.getID() );
-            }
-            
-            if ( modOp == DirContext.ADD_ATTRIBUTE )
-            {
-                tmpEntryForAdd.put( change );
-                
-                if ( change.size() == 0 )
-                {
-                    // not ok for add but ok for replace and delete
-                    throw new LdapInvalidAttributeValueException( "No value is not a valid value for an attribute.", 
-                        ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-                }
-            }
-
-            if ( ( modOp == DirContext.REMOVE_ATTRIBUTE ) && ( entry.get( change.getID() ) == null ) )
-            {
-                throw new LdapNoSuchAttributeException();
-            }
-
-            // for required attributes we need to check if all values are removed
-            // if so then we have a schema violation that must be thrown
-            if ( ( modOp == DirContext.REMOVE_ATTRIBUTE ) && isRequired( change.getID(), objectClass )
-                && isCompleteRemoval( change, entry ) )
-            {
-                throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
-            }
-        }
-
-        if ( modOp == DirContext.ADD_ATTRIBUTE )
-        {
-            assertNumberOfAttributeValuesValid( tmpEntryForAdd );
-        }
-        
-        if ( modOp == DirContext.REMOVE_ATTRIBUTE )
-        {
-            SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, mods, registries.getOidRegistry() );
-            SchemaChecker.preventStructuralClassRemovalOnModifyRemove( ocRegistry, name, modOp, mods, objectClass );
-        }
-
-        if ( modOp == DirContext.REPLACE_ATTRIBUTE )
-        {
-            SchemaChecker.preventRdnChangeOnModifyReplace( name, modOp, mods, registries.getOidRegistry() );
-            SchemaChecker.preventStructuralClassRemovalOnModifyReplace( ocRegistry, name, modOp, mods );
-            assertNumberOfAttributeValuesValid( mods );
-        }
-
-        // let's figure out if we need to add or take away from mods to maintain 
-        // the objectClass attribute with it's hierarchy of ancestors 
-        if ( mods.get( SchemaConstants.OBJECT_CLASS_AT ) != null )
-        {
-            Attribute alteredObjectClass = ( Attribute ) objectClass.clone();
-            alterObjectClasses( alteredObjectClass );
-
-            if ( !alteredObjectClass.equals( objectClass ) )
-            {
-                Attribute ocMods = mods.get( SchemaConstants.OBJECT_CLASS_AT );
-                
-                switch ( modOp )
-                {
-                    case ( DirContext.ADD_ATTRIBUTE  ):
-                        if ( ocMods.contains( SchemaConstants.TOP_OC ) )
-                        {
-                            ocMods.remove( SchemaConstants.TOP_OC );
-                        }
-                    
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
-                        {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
-                            {
-                                ocMods.add( alteredObjectClass.get( ii ) );
-                            }
-                        }
-                        
-                        break;
-                        
-                    case ( DirContext.REMOVE_ATTRIBUTE  ):
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
-                        {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
-                            {
-                                ocMods.remove( alteredObjectClass.get( ii ) );
-                            }
-                        }
-                    
-                        break;
-                        
-                    case ( DirContext.REPLACE_ATTRIBUTE  ):
-                        for ( int ii = 0; ii < alteredObjectClass.size(); ii++ )
-                        {
-                            if ( !objectClass.contains( alteredObjectClass.get( ii ) ) )
-                            {
-                                ocMods.add( alteredObjectClass.get( ii ) );
-                            }
-                        }
-                    
-                        break;
-                        
-                    default:
-                        break;
-                }
-            }
-        }
-
-        if ( name.startsWith( schemaBaseDN ) )
-        {
-            schemaManager.modify( name, modOp, mods, entry, targetEntry );
-        }
-        else if ( subschemaSubentryDn.getNormName().equals( name.getNormName() ) )
-        {
-            schemaManager.modifySchemaSubentry( name, modOp, mods, entry, targetEntry );
-            return;
-        }
-        
-        next.modify( opContext );
-    }
-    
-    
     public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
@@ -1383,9 +1199,11 @@ public class SchemaService extends BaseInterceptor
 
     private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };
     
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         Attributes entry = null; 
+        LdapDN name = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -1688,7 +1506,7 @@ public class SchemaService extends BaseInterceptor
             return;
         }
         
-        next.modify( name, mods );
+        next.modify( opContext );
     }
 
 

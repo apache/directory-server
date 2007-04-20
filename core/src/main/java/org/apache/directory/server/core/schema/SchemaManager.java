@@ -35,6 +35,7 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -895,6 +896,7 @@ public class SchemaManager
             new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) );
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
         name.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
-        invocation.getProxy().modify( name, mods, SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        
+        invocation.getProxy().modify( new ModifyOperationContext( name, mods ), SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 }

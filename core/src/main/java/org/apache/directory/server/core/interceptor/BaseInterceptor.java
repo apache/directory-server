@@ -37,7 +37,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -155,12 +154,6 @@ public abstract class BaseInterceptor implements Interceptor
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         next.modify( opContext );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        next.modify( name, mods );
     }
 
 

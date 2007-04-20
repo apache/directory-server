@@ -31,7 +31,6 @@ import javax.naming.directory.SearchControls;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -102,13 +101,6 @@ public interface NextInterceptor
      * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, OperationContext )}.
      */
     void modify( OperationContext opContext ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])}.
-     */
-    void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
-
 
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, OperationContext )}.

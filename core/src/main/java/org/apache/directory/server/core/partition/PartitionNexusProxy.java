@@ -33,8 +33,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
@@ -47,14 +47,12 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -357,56 +355,12 @@ public class PartitionNexusProxy extends PartitionNexus
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        Integer modOpObj;
         
-        int modOp = ((ModifyOperationContext)opContext).getModOp();
-
-        switch ( modOp )
-        {
-            case ( DirContext.ADD_ATTRIBUTE  ):
-                modOpObj = ADD_MODOP;
-                break;
-
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                modOpObj = REMOVE_MODOP;
-                break;
-            
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                modOpObj = REPLACE_MODOP;
-                break;
-            
-            default:
-                throw new IllegalArgumentException( "bad modification operation value: " + modOp );
-        }
-
         stack.push( new Invocation( this, caller, "modify", new Object[]
             { opContext }, bypass ) );
         try
         {
             this.configuration.getInterceptorChain().modify( opContext );
-        }
-        finally
-        {
-            stack.pop();
-        }
-    }
-
-
-    public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        modify( name, mods, null );
-    }
-
-
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Collection bypass ) throws NamingException
-    {
-        ensureStarted();
-        InvocationStack stack = InvocationStack.getInstance();
-        stack.push( new Invocation( this, caller, "modify", new Object[]
-            { name, mods }, bypass ) );
-        try
-        {
-            this.configuration.getInterceptorChain().modify( name, mods );
         }
         finally
         {

@@ -20,24 +20,17 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -215,34 +208,6 @@ public abstract class AbstractPartition implements Partition
     public Attributes lookup( OperationContext lookupContext ) throws NamingException
     {
         return null;
-        //return lookup( lookupContext );
-    }
-
-
-    /**
-     * This method forwards the request to
-     * {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItemImpl[])} after
-     * translating parameters to {@link ModificationItemImpl}<tt>[]</tt> by default.
-     * Please override this method if there is more effactive way for your
-     * implementation.
-     */
-    public void modify( OperationContext modifyContext ) throws NamingException
-    {
-    	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
-    	int modOp = ctx.getModOp();
-    	Attributes mods = ctx.getMods(); 
-    	
-        List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( mods.size() );
-        NamingEnumeration e = mods.getAll();
-        
-        while ( e.hasMore() )
-        {
-            items.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
-        }
-
-        ModificationItemImpl[] itemsArray = new ModificationItemImpl[items.size()];
-        itemsArray = items.toArray( itemsArray );
-        modify( ctx.getDn(), itemsArray );
     }
 
 

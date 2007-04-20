@@ -48,7 +48,6 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -334,15 +333,7 @@ public class CollectiveAttributeService extends BaseInterceptor
 
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-    	ModifyOperationContext ctx = (ModifyOperationContext)opContext;
-        collectiveAttributesSchemaChecker.checkModify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
+        collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems() );
         super.modify( next, opContext );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
-    {
-        collectiveAttributesSchemaChecker.checkModify( normName, mods );
-        super.modify( next, normName, mods );
     }
 }

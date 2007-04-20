@@ -29,17 +29,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Binding;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamespaceChangeListener;
+import javax.naming.event.NamingEvent;
+import javax.naming.event.NamingListener;
+import javax.naming.event.ObjectChangeListener;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -57,22 +68,8 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.Binding;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingListener;
-import javax.naming.event.ObjectChangeListener;
 
 
 /**
@@ -326,32 +323,11 @@ public class EventService extends BaseInterceptor
 
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-    	ModifyOperationContext ctx = (ModifyOperationContext)opContext;
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( new LookupOperationContext( ctx.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
+        Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, opContext );
-
-        // package modifications in ModItem format for event delivery
-        ModificationItemImpl[] modItems = new ModificationItemImpl[ctx.getMods().size()];
-        NamingEnumeration list = ctx.getMods().getAll();
-        
-        for ( int ii = 0; ii < modItems.length; ii++ )
-        {
-            modItems[ii] = new ModificationItemImpl( ctx.getModOp(), ( Attribute ) list.next() );
-        }
-        
-        notifyOnModify( ctx.getDn(), modItems, oriEntry );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        super.modify( next, name, mods );
-        notifyOnModify( name, mods, oriEntry );
+        notifyOnModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems(), oriEntry );
     }
 
 

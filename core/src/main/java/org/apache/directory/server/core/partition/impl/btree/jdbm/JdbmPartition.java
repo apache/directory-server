@@ -31,20 +31,18 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.schema.registries.Registries;
-
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -380,15 +378,8 @@ public class JdbmPartition extends BTreePartition
     public final void modify( OperationContext modifyContext ) throws NamingException
     {
     	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
-        store.modify( ctx.getDn(), ctx.getModOp(), ctx.getMods() );
+        store.modify( ctx.getDn(), ctx.getModItems() );
     }
-
-
-    public final void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
-    {
-        store.modify( dn, mods );
-    }
-
 
     public final void rename( OperationContext renameContext ) throws NamingException
     {

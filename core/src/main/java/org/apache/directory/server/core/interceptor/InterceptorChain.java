@@ -34,7 +34,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
@@ -43,7 +42,6 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,10 +125,10 @@ public class InterceptorChain
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+        /*public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
         {
             nexus.modify( name, mods );
-        }
+        }*/
 
 
         public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
@@ -781,7 +779,7 @@ public class InterceptorChain
     }
 
 
-    public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    /*public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
@@ -799,7 +797,7 @@ public class InterceptorChain
         {
             throwInterceptorException( head, e );
         }
-    }
+    }*/
 
 
     public NamingEnumeration list( OperationContext opContext ) throws NamingException
@@ -1181,27 +1179,7 @@ public class InterceptorChain
                     }
                 }
 
-
-                public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        interceptor.modify( next.nextInterceptor, name, mods );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
+                
                 public NamingEnumeration list( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();

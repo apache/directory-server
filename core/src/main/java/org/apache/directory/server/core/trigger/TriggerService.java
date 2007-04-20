@@ -42,6 +42,7 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
@@ -308,54 +309,24 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
         {
-            next.modify( modifyContext );
+            next.modify( opContext );
             return;
         }
         
-        // Gather supplementary data.
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( modifyContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
-        ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, modifyContext );
-
-        // Gather Trigger Specifications which apply to the entry being modified.
-        List triggerSpecs = new ArrayList();
-        addPrescriptiveTriggerSpecs( triggerSpecs, proxy, modifyContext.getDn(), modifiedEntry );
-        addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
-        
-        // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
-        
-        next.modify( modifyContext );
-        triggerSpecCache.subentryModified( modifyContext, modifiedEntry );
-        
-        // Fire AFTER Triggers.
-        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
-        executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
-    {
-        // Bypass trigger handling if the service is disabled.
-        if ( !enabled )
-        {
-            next.modify( normName, mods );
-            return;
-        }
+        LdapDN normName = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
-        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, normName, mods );
+        StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, opContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
         List triggerSpecs = new ArrayList();
@@ -365,8 +336,8 @@ public class TriggerService extends BaseInterceptor
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
         Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
         
-        next.modify( normName, mods );
-        triggerSpecCache.subentryModified( normName, mods, modifiedEntry );
+        next.modify( opContext );
+        triggerSpecCache.subentryModified( opContext, modifiedEntry );
         
         // Fire AFTER Triggers.
         List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );

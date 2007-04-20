@@ -49,7 +49,6 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -166,13 +165,27 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
+        ModificationItemImpl[] modItems = null;
+        
+        if ( attrs != null )
+        {
+            modItems = new ModificationItemImpl[attrs.size()];
+            NamingEnumeration e = attrs.getAll();
+            int i = 0;
+            
+            while ( e.hasMore() )
+            {
+                modItems[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() ) ;
+            }
+        }
+
     	if ( name instanceof LdapDN )
     	{
-    		getNexusProxy().modify( new ModifyOperationContext( buildTarget( name ), modOp, attrs ) );
+    		getNexusProxy().modify( new ModifyOperationContext( buildTarget( name ), modItems ) );
     	}
     	else
     	{
-    		getNexusProxy().modify( new ModifyOperationContext( buildTarget( new LdapDN( name ) ), modOp, attrs ) );
+    		getNexusProxy().modify( new ModifyOperationContext( buildTarget( new LdapDN( name ) ), modItems ) );
     	}
     }
 
@@ -216,7 +229,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             newMods[i] = new ModificationItemImpl( mods[i] );
         }
         
-        getNexusProxy().modify( buildTarget( name ), newMods );
+        getNexusProxy().modify( new ModifyOperationContext( buildTarget( new LdapDN( name ) ), newMods ) );
     }
 
 
@@ -226,7 +239,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, ModificationItemImpl[] mods ) throws NamingException
     {
-        getNexusProxy().modify( buildTarget( name ), mods );
+        getNexusProxy().modify( new ModifyOperationContext( buildTarget( new LdapDN( name ) ), mods ) );
     }
 
 
@@ -620,10 +633,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public NamingEnumeration search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
-        /*Name newName = new LdapDN( name.toString() );
-         newName = LdapDN.oidToName( newName, DnOidContainer.getOids() );
-         Name target = buildTarget( ((LdapDN)newName).toLdapName() );*/
-
         LdapDN target = buildTarget( name );
         return getNexusProxy().search( target, getEnvironment(), filter, cons );
     }

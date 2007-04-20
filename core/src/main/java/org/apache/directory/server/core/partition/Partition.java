@@ -33,7 +33,6 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -137,18 +136,6 @@ public interface Partition
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
     void modify( OperationContext opContext ) throws NamingException;
-
-
-    /**
-     * Modifies an entry by using a combination of adds, removes or replace 
-     * operations using a set of ModificationItems.
-     *
-     * @param name the normalized distinguished/absolute name of the entry to modify
-     * @param items the ModificationItems used to affect the modification with
-     * @throws NamingException if there are any problems
-     * @see javax.naming.directory.ModificationItem
-     */
-    void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
 
 
     /**

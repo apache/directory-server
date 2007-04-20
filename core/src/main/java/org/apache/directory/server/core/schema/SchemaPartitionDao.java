@@ -36,6 +36,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -574,7 +575,7 @@ public class SchemaPartitionDao
         mods[2] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
         
-        partition.modify( dn, mods );
+        partition.modify( new ModifyOperationContext( dn, mods ) );
     }
 
 

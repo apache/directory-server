@@ -725,11 +725,11 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])
      */
-    public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
+    /*public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
     {
         Partition backend = getBackend( dn );
         backend.modify( dn, mods );
-    }
+    }*/
 
 
     /**

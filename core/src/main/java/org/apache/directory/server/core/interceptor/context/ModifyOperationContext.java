@@ -19,24 +19,28 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
  * A Modify context used for Interceptors. It contains all the informations
  * needed for the modify operation, and used by all the interceptors
+ * 
+ * This context can use either Attributes or ModificationItem, but not both.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ModifyOperationContext extends AbstractOperationContext
 {
-    /** The modification type */
-    private int modOp;
-
-    /** The modified Attribute  */
-    private Attributes mods;
+    /** The modification items */
+    private ModificationItemImpl[] modItems;
     
     /**
      * 
@@ -53,62 +57,57 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Creates a new instance of ModifyOperationContext.
      *
      */
-    public ModifyOperationContext( LdapDN dn )
+    public ModifyOperationContext( LdapDN dn, ModificationItemImpl[] modItems )
     {
         super( dn );
+        this.modItems = modItems;
     }
 
     /**
-     * 
-     * Creates a new instance of ModifyOperationContext.
-     *
+     * Set the modified attributes
+     * @param value The modified attributes
      */
-    public ModifyOperationContext( LdapDN dn, int modOp, Attributes mods )
+    public void setModItems( ModificationItemImpl[] modItems ) 
     {
-    	super( dn );
-        this.modOp = modOp;
-        this.mods = mods;
+        this.modItems = modItems;
     }
 
     /**
-     * @return The modify type
+     * @return The modifications
      */
-	public int getModOp() 
-	{
-		return modOp;
-	}
+    public ModificationItemImpl[] getModItems() 
+    {
+        return modItems;
+    }
+    
+    public static ModificationItemImpl[] createModItems( Attributes attributes, int modOp ) throws NamingException
+    {
+        ModificationItemImpl[] items = new ModificationItemImpl[attributes.size()];
+        NamingEnumeration e = attributes.getAll();
+        int i = 0;
+        
+        while ( e.hasMore() )
+        {
+            items[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() );
+        }
 
-	/**
-	 * Set modification operation type
-	 * @param modOp the Modification operation type
-	 */
-	public void setModOp( int modOp ) 
-	{
-		this.modOp = modOp;
-	}
-
-	/**
-	 * @return The modified attributes
-	 */
-	public Attributes getMods() 
-	{
-		return mods;
-	}
-
-	/**
-	 * Set the modified attributes
-	 * @param value The modified attributes
-	 */
-	public void setMods( Attributes mods ) 
-	{
-		this.mods = mods;
-	}
-
-	/**
+        return items;
+    }
+    
+    /**
      * @see Object#toString()
      */
     public String toString()
     {
-        return "ModifyContext for DN '" + getDn().getUpName() + "'"; 
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("ModifyContext for DN '").append( getDn().getUpName() ).append( "', modifications :\n" );
+        
+        for ( ModificationItem mod:modItems )
+        {
+            sb.append( mod ).append( '\n' );
+        }
+        
+        return sb.toString();
     }
 }

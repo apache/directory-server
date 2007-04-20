@@ -49,7 +49,6 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
@@ -248,31 +247,6 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
 
         nextInterceptor.modify( opContext );
-    }
-
-
-    /**
-     * This policy needs to be really tight too because some attributes may take part
-     * in giving the user permissions to protected resources.  We do not want users to
-     * self access these resources.  As far as we're concerned no one but the admin
-     * needs access.
-     */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        if ( enabled )
-        {
-            protectModifyAlterations( name );
-            nextInterceptor.modify( name, items );
-
-            // update administrators if we change administrators group
-            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
-            {
-                loadAdministrators();
-            }
-            return;
-        }
-        
-        nextInterceptor.modify( name, items );
     }
 
 

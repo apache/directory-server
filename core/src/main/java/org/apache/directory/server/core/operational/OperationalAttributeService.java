@@ -44,27 +44,27 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 
 /**
@@ -168,8 +168,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         nextInterceptor.add( opContext );
     }
-
-
+    
     public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
@@ -189,38 +188,10 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
-
-        ModifyOperationContext newModify = new ModifyOperationContext( 
-            opContext.getDn(),
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
-        nexus.modify( newModify );
-    }
-
-
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        nextInterceptor.modify( name, items );
-
-        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
-        {
-            return;
-        }
         
-        // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
-        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-
-        ModifyOperationContext newModify = new ModifyOperationContext( 
-        		name,
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), items );
         nexus.modify( newModify );
     }
 
@@ -245,10 +216,9 @@ public class OperationalAttributeService extends BaseInterceptor
         newDn.add( ((RenameOperationContext)opContext).getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
-        ModifyOperationContext newModify = new ModifyOperationContext( 
-        		newDn,
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+        ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
         
         nexus.modify( newModify );
     }
@@ -268,10 +238,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( 
-        		((MoveOperationContext)opContext).getParent(),
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+
+        ModifyOperationContext newModify = 
+            new ModifyOperationContext( ((MoveOperationContext)opContext).getParent(), items );
         
         nexus.modify( newModify );
     }
@@ -292,10 +263,11 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( 
-        		((MoveAndRenameOperationContext)opContext).getParent(),
-        		DirContext.REPLACE_ATTRIBUTE, 
-        		attributes);
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+        ModifyOperationContext newModify = 
+            new ModifyOperationContext( 
+        		((MoveAndRenameOperationContext)opContext).getParent(), items );
         nexus.modify( newModify );
     }
 

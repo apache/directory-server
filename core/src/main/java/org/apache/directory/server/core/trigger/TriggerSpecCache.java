@@ -201,37 +201,27 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( LdapDN normName, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( OperationContext opContext, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
             return;
         }
 
+        LdapDN normName = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+
         boolean isTriggerSpecModified = false;
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             isTriggerSpecModified |= mods[ii].getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }
+        
         if ( isTriggerSpecModified )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName, entry );
-        }
-    }
-
-
-    public void subentryModified( OperationContext modifyContext, Attributes entry ) throws NamingException
-    {
-        if ( !hasPrescriptiveTrigger( entry ) )
-        {
-            return;
-        }
-
-        if ( ((ModifyOperationContext)modifyContext).getMods().get( PRESCRIPTIVE_TRIGGER_ATTR ) != null )
-        {
-            subentryDeleted( modifyContext.getDn(), entry );
-            subentryAdded( modifyContext.getDn(), entry );
         }
     }
 

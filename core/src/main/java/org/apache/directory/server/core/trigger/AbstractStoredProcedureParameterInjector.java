@@ -40,12 +40,12 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter.Generic
 public abstract class AbstractStoredProcedureParameterInjector implements StoredProcedureParameterInjector
 {
     private Invocation invocation;
-    private Map injectors;
+    private Map<Class, MicroInjector> injectors;
     
     public AbstractStoredProcedureParameterInjector( Invocation invocation ) throws NamingException
     {
         this.invocation = invocation;
-        injectors = new HashMap();
+        injectors = new HashMap<Class, MicroInjector>();
         injectors.put( StoredProcedureParameter.Generic_OPERATION_PRINCIPAL.class, $operationPrincipalInjector );
         injectors.put( StoredProcedureParameter.Generic_LDAP_CONTEXT.class, $ldapContextInjector );
     }
@@ -57,7 +57,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         return userName;
     }
     
-    protected Map getInjectors()
+    protected Map<Class, MicroInjector> getInjectors()
     {
         return injectors;
     }
@@ -80,7 +80,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         while ( it.hasNext() )
         {
             StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
-            MicroInjector injector = ( MicroInjector ) injectors.get( spParameter.getClass() );
+            MicroInjector injector = injectors.get( spParameter.getClass() );
             arguments.add( injector.inject( spParameter ) );
         }
         

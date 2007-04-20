@@ -44,22 +44,19 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.MessageTypeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -344,9 +341,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + 
-            		"', modifs = " + AttributeUtils.toString( 
-            				((ModifyOperationContext)opContext).getMods() ) );
+            log.debug( opContext.toString() );
         }
 
         checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
@@ -355,19 +350,6 @@ public class AuthenticationService extends BaseInterceptor
     }
 
     
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Modifying name = '" + name.toString() + "'" );
-        }
-
-        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
-        next.modify( name, mods );
-        invalidateAuthenticatorCaches( name );
-    }
-
-
     public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )

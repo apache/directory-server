@@ -263,53 +263,8 @@ public class ExceptionService extends BaseInterceptor
         assertHasEntry( nextInterceptor, msg, ctx.getDn() );
 
         Attributes entry = nexus.lookup( new LookupOperationContext( ctx.getDn() ) );
-        NamingEnumeration attrIds = ctx.getMods().getIDs();
+        ModificationItemImpl[] items = ctx.getModItems();
         
-        while ( attrIds.hasMore() )
-        {
-            String attrId = ( String ) attrIds.next();
-            Attribute modAttr = ctx.getMods().get( attrId );
-            Attribute entryAttr = entry.get( attrId );
-
-            if ( ctx.getModOp() == DirContext.ADD_ATTRIBUTE )
-            {
-                if ( entryAttr != null )
-                {
-                    for ( int ii = 0; ii < modAttr.size(); ii++ )
-                    {
-                        if ( entryAttr.contains( modAttr.get( ii ) ) )
-                        {
-                            throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( ii )
-                                + "' to attribute " + attrId );
-                        }
-                    }
-                }
-            }
-        }
-        
-        nextInterceptor.modify( opContext );
-    }
-
-
-    /**
-     * Checks to see the entry being modified exists, otherwise throws the appropriate LdapException.
-     */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        // check if entry to modify exists
-        String msg = "Attempt to modify non-existant entry: ";
-
-        // handle operations against the schema subentry in the schema service
-        // and never try to look it up in the nexus below
-        if ( name.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
-        {
-            nextInterceptor.modify( name, items );
-            return;
-        }
-        
-        assertHasEntry( nextInterceptor, msg, name );
-
-        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         for ( int ii = 0; ii < items.length; ii++ )
         {
             if ( items[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
@@ -330,9 +285,9 @@ public class ExceptionService extends BaseInterceptor
                 }
             }
         }
-        nextInterceptor.modify( name, items );
-    }
 
+        nextInterceptor.modify( opContext );
+    }
 
     /**
      * Checks to see the entry being renamed exists, otherwise throws the appropriate LdapException.

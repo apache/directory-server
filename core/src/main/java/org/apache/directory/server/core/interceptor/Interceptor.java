@@ -34,7 +34,6 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -156,7 +155,7 @@ public interface Interceptor
     /**
      * Filters {@link PartitionNexus#compare( OperationContext )} call.
      */
-    boolean compare( NextInterceptor next, OperationContext  opContext) throws NamingException;
+    boolean compare( NextInterceptor next, OperationContext opContext) throws NamingException;
 
 
     /**
@@ -175,12 +174,6 @@ public interface Interceptor
      * Filters {@link Partition#modify( OperationContext )} call.
      */
     void modify( NextInterceptor next, OperationContext opContext ) throws NamingException;
-
-
-    /**
-     * Filters {@link Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])} call.
-     */
-    void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException;
 
 
     /**

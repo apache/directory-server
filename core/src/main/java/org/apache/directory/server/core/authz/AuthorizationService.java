@@ -490,15 +490,14 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        LdapDN name = modifyContext.getDn();
-        int modOp = ((ModifyOperationContext)modifyContext).getModOp();
-        Attributes mods = ((ModifyOperationContext)modifyContext).getMods();
+        LdapDN name = opContext.getDn();
 
+        // Access the principal requesting the operation, and bypass checks if it is the admin
         Attributes entry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
@@ -506,83 +505,17 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code if we are disabled
         if ( !enabled )
         {
-            next.modify( modifyContext );
+            next.modify( opContext );
             return;
         }
+
+        ModificationItemImpl[] mods =((ModifyOperationContext)opContext).getModItems();
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            next.modify( modifyContext );
-            tupleCache.subentryModified( name, modOp, mods, entry );
-            groupCache.groupModified( name, modOp, mods, entry );
-            return;
-        }
-
-        Set userGroups = groupCache.getGroups( principalDn.toString() );
-        Collection<ACITuple> tuples = new HashSet<ACITuple>();
-        addPerscriptiveAciTuples( proxy, tuples, name, entry );
-        addEntryAciTuples( tuples, entry );
-        addSubentryAciTuples( proxy, tuples, name, entry );
-
-        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
-
-        NamingEnumeration attrList = mods.getAll();
-        Collection<MicroOperation> perms = null;
-        
-        switch ( modOp )
-        {
-            case ( DirContext.ADD_ATTRIBUTE  ):
-                perms = ADD_PERMS;
-                break;
-        
-            case ( DirContext.REMOVE_ATTRIBUTE  ):
-                perms = REMOVE_PERMS;
-                break;
             
-            case ( DirContext.REPLACE_ATTRIBUTE  ):
-                perms = REPLACE_PERMS;
-                break;
-        }
-
-        while ( attrList.hasMore() )
-        {
-            Attribute attr = ( Attribute ) attrList.next();
-
-            for ( int ii = 0; ii < attr.size(); ii++ )
-            {
-                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
-                    .getID(), attr.get( ii ), perms, tuples, entry );
-            }
-        }
-
-        next.modify( modifyContext );
-        tupleCache.subentryModified( name, modOp, mods, entry );
-        groupCache.groupModified( name, modOp, mods, entry );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        // Access the principal requesting the operation, and bypass checks if it is the admin
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes entry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
-        LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
-        LdapDN principalDn = principal.getJndiName();
-
-        // bypass authz code if we are disabled
-        if ( !enabled )
-        {
-            next.modify( name, mods );
-            return;
-        }
-
-        // bypass authz code but manage caches if operation is performed by the admin
-        if ( isPrincipalAnAdministrator( principalDn ) )
-        {
-            next.modify( name, mods );
+            next.modify( opContext );
             tupleCache.subentryModified( name, mods, entry );
             groupCache.groupModified( name, mods, entry );
             return;
@@ -598,6 +531,7 @@ public class AuthorizationService extends BaseInterceptor
             Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
 
         Collection<MicroOperation> perms = null;
+
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             switch ( mods[ii].getModificationOp() )
@@ -605,15 +539,18 @@ public class AuthorizationService extends BaseInterceptor
                 case ( DirContext.ADD_ATTRIBUTE  ):
                     perms = ADD_PERMS;
                     break;
+                    
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
                     perms = REMOVE_PERMS;
                     break;
+                    
                 case ( DirContext.REPLACE_ATTRIBUTE  ):
                     perms = REPLACE_PERMS;
                     break;
             }
 
             Attribute attr = mods[ii].getAttribute();
+            
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
@@ -621,11 +558,12 @@ public class AuthorizationService extends BaseInterceptor
             }
         }
 
-        next.modify( name, mods );
+        
+
+        next.modify( opContext );
         tupleCache.subentryModified( name, mods, entry );
         groupCache.groupModified( name, mods, entry );
     }
-
 
     public boolean hasEntry( NextInterceptor next, OperationContext entryContext ) throws NamingException
     {

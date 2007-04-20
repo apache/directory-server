@@ -647,109 +647,6 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void checkModify( ModifyOperationContext opContext ) throws NamingException
-    {
-        // -------------------------------------------------------------------
-        // Check and update lut if we change the objectClass 
-        // -------------------------------------------------------------------
-    	LdapDN name = opContext.getDn();
-    	int modOp = opContext.getModOp();
-    	Attributes mods = opContext.getMods();
-    	
-        boolean isTargetReferral = lut.isReferral( name );
-        boolean isOcChange = mods.get( SchemaConstants.OBJECT_CLASS_AT ) != null;
-        boolean modsOcHasReferral = hasValue( mods.get( SchemaConstants.OBJECT_CLASS_AT ), REFERRAL_OC );
-        
-        if ( isOcChange )
-        {
-            switch ( modOp )
-            {
-                /* 
-                 * if ADD op where refferal is added to objectClass of a
-                 * non-referral entry then we add a new referral to lut
-                 */
-                case ( DirContext.ADD_ATTRIBUTE  ):
-                    if ( modsOcHasReferral && !isTargetReferral )
-                    {
-                        lut.referralAdded( name );
-                    }
-                    break;
-                /* 
-                 * if REMOVE op where refferal is removed from objectClass of a
-                 * referral entry then we remove the referral from lut
-                 */
-                case ( DirContext.REMOVE_ATTRIBUTE  ):
-                    if ( modsOcHasReferral && isTargetReferral )
-                    {
-                        lut.referralDeleted( name );
-                    }
-                    break;
-                /* 
-                 * if REPLACE op on referral has new set of OC values which does 
-                 * not contain a referral value then we remove the referral from 
-                 * the lut
-                 * 
-                 * if REPLACE op on non-referral has new set of OC values with 
-                 * referral value then we add the new referral to the lut
-                 */
-                case ( DirContext.REPLACE_ATTRIBUTE  ):
-                    if ( isTargetReferral && !modsOcHasReferral )
-                    {
-                        lut.referralDeleted( name );
-                    }
-                    else if ( !isTargetReferral && modsOcHasReferral )
-                    {
-                        lut.referralAdded( name );
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException( "undefined modification operation" );
-            }
-        }
-    }
-
-
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
-    {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
-        String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-
-        // handle a normal modify without following referrals
-        if ( refval == null || refval.equals( IGNORE ) )
-        {
-            next.modify( opContext );
-            checkModify( (ModifyOperationContext)opContext );
-            return;
-        }
-
-        if ( refval.equals( THROW ) )
-        {
-            LdapDN farthest = lut.getFarthestReferralAncestor( opContext.getDn() );
-            
-            if ( farthest == null )
-            {
-                next.modify( opContext );
-                checkModify( (ModifyOperationContext)opContext );
-                return;
-            }
-
-            Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
-            Attribute refs = referral.get( REF_ATTR );
-            doReferralException( farthest, new LdapDN( opContext.getDn().getUpName() ), refs );
-        }
-        else if ( refval.equals( FOLLOW ) )
-        {
-            throw new NotImplementedException( FOLLOW + " referral handling mode not implemented" );
-        }
-        else
-        {
-            throw new LdapNamingException( "Undefined value for " + Context.REFERRAL + " key: " + refval,
-                ResultCodeEnum.OTHER );
-        }
-    }
-
-
     private void checkModify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
@@ -814,16 +711,18 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
+        LdapDN name = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            next.modify( name, mods );
+            next.modify( opContext );
             checkModify( name, mods );
             return;
         }
@@ -833,7 +732,7 @@ public class ReferralService extends BaseInterceptor
             LdapDN farthest = lut.getFarthestReferralAncestor( name );
             if ( farthest == null )
             {
-                next.modify( name, mods );
+                next.modify( opContext );
                 checkModify( name, mods );
                 return;
             }
