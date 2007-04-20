@@ -70,7 +70,6 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.filter.LoggingFilter;
@@ -388,13 +387,6 @@ public class ReplicationService extends BaseInterceptor
     public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
     {
         Operation op = operationFactory.newModify( modifyContext );
-        op.execute( nexus, store, attrRegistry );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        Operation op = operationFactory.newModify( name, items );
         op.execute( nexus, store, attrRegistry );
     }
 

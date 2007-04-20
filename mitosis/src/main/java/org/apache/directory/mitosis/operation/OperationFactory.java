@@ -158,44 +158,15 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( OperationContext modifyContext )
+    public Operation newModify( OperationContext opContext )
     {
-    	LdapDN name = modifyContext.getDn();
-    	int modOp = ((ModifyOperationContext)modifyContext).getModOp();
-    	Attributes mods = ((ModifyOperationContext)modifyContext).getMods();
+        ModificationItemImpl[] items = ((ModifyOperationContext)opContext).getModItems();
+        LdapDN normalizedName = opContext.getDn();
 
-    	CSN csn = newCSN();
-        CompositeOperation result = new CompositeOperation( csn );
-        NamingEnumeration e = mods.getAll();
-        
-        // Transform into multiple {@link AttributeOperation}s.
-        while ( e.hasMoreElements() )
-        {
-            Attribute attr = ( Attribute ) e.nextElement();
-            result.add( newModify( csn, name, modOp, attr ) );
-        }
-
-        // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, name, new AttributeImpl( Constants.ENTRY_DELETED,
-            "false" ) ) );
-
-        return addDefaultOperations( result, null, name );
-    }
-
-
-    /**
-     * Returns a new {@link Operation} that performs "modify" operation.
-     * 
-     * @return a {@link CompositeOperation} that consists of one or more
-     * {@link AttributeOperation}s and one additional operation that
-     * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
-     * entry the modified attributes belong to.
-     */
-    public Operation newModify( LdapDN normalizedName, ModificationItemImpl[] items )
-    {
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        final int length = items.length;
+        int length = items.length;
+        
         // Transform into multiple {@link AttributeOperation}s.
         for ( int i = 0; i < length; i++ )
         {

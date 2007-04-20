@@ -28,6 +28,7 @@ import javax.naming.directory.DirContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 
@@ -63,6 +64,8 @@ public class ReplaceAttributeOperation extends AttributeOperation
     {
         Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
-        nexus.modify( new ModifyOperationContext( getName(), DirContext.REPLACE_ATTRIBUTE, attrs ) );
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attrs, DirContext.REPLACE_ATTRIBUTE );
+
+        nexus.modify( new ModifyOperationContext( getName(), items ) );
     }
 }
