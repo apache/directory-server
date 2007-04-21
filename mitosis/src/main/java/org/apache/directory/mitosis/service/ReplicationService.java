@@ -61,6 +61,7 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -332,7 +333,8 @@ public class ReplicationService extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration e = nexus.search( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl );
+        NamingEnumeration e = nexus.search( 
+            new SearchOperationContext( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
         try
@@ -479,9 +481,10 @@ public class ReplicationService extends BaseInterceptor
     {
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
         NamingEnumeration e = nextInterceptor.search(
+            new SearchOperationContext( 
                 baseName, ctx.getEnvironment(),
                 new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
-                new SearchControls() );
+                new SearchControls() ) );
 
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER );
@@ -500,7 +503,8 @@ public class ReplicationService extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
         
-        NamingEnumeration e = nextInterceptor.search( baseName, environment, filter, searchControls );
+        NamingEnumeration e = nextInterceptor.search( 
+            new SearchOperationContext( baseName, environment, filter, searchControls ) );
         return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER );
     }

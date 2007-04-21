@@ -53,6 +53,7 @@ import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
 import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -352,9 +353,10 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = ctx.getServiceConfiguration().getPartitionNexus().search( contextName,
+        NamingEnumeration e = ctx.getServiceConfiguration().getPartitionNexus().search( 
+            new SearchOperationContext( contextName,
             ctx.getServiceConfiguration().getEnvironment(),
-            new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl );
+            new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try
         {
