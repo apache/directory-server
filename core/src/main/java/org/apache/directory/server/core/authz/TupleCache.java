@@ -38,6 +38,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -132,7 +133,9 @@ public class TupleCache
             ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            NamingEnumeration<SearchResult> results = 
+                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
+            
             while ( results.hasMore() )
             {
                 SearchResult result = ( SearchResult ) results.next();
@@ -147,6 +150,7 @@ public class TupleCache
                 LdapDN normName = parseNormalized( subentryDn );
                 subentryAdded( subentryDn, normName, result.getAttributes() );
             }
+            
             results.close();
         }
     }

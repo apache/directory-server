@@ -27,6 +27,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -36,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -154,9 +156,11 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
+        LdapDN base = opContext.getDn();
+        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        
         base.normalize( attrNormalizers);
 
         if ( filter.isLeaf() )
@@ -330,7 +334,8 @@ public class NormalizationService extends BaseInterceptor
             }
         }
         
-        return nextInterceptor.search( base, env, filter, searchCtls );
+        ((SearchOperationContext)opContext).setFilter( filter );
+        return nextInterceptor.search( opContext );
     }
 
 

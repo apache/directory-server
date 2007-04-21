@@ -54,6 +54,7 @@ import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperati
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -450,9 +451,12 @@ public class SchemaService extends BaseInterceptor
     /**
      * 
      */
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
+        LdapDN base = opContext.getDn();
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
@@ -461,7 +465,7 @@ public class SchemaService extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
         if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
         {
-            NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+            NamingEnumeration e = nextInterceptor.search( opContext );
             
             Invocation invocation = InvocationStack.getInstance().peek();
 

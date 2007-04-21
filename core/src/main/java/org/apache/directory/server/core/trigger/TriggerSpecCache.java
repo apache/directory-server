@@ -40,6 +40,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -121,7 +122,9 @@ public class TriggerSpecCache
             ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            NamingEnumeration results = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, env, filter, ctls ) );
             
             while ( results.hasMore() )
             {

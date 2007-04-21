@@ -31,7 +31,7 @@ import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
@@ -41,7 +41,6 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,22 +124,15 @@ public class InterceptorChain
         }
 
 
-        /*public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-        {
-            nexus.modify( name, mods );
-        }*/
-
-
         public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
             return nexus.list( opContext );
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+        public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.search( base, env, filter, searchCtls );
+            return nexus.search( opContext );
         }
 
 
@@ -822,7 +814,7 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
         Entry entry = getStartingEntry();
@@ -831,7 +823,7 @@ public class InterceptorChain
         
         try
         {
-            return head.search( next, base, env, filter, searchCtls );
+            return head.search( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -1201,7 +1193,7 @@ public class InterceptorChain
                 }
 
 
-                public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+                public NamingEnumeration<SearchResult> search( OperationContext opContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1209,7 +1201,7 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.search( next.nextInterceptor, base, env, filter, searchCtls );
+                        return interceptor.search( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {

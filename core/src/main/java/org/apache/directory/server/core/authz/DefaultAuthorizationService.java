@@ -43,12 +43,12 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
@@ -448,21 +448,18 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+
         if ( !enabled )
         {
             return e;
         }
-        //if ( searchCtls.getReturningAttributes() != null )
-        //{
-        //    return null;
-        //}
 
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new SearchResultFilter()
+        return new SearchResultFilteringEnumeration( e, ((SearchOperationContext)opContext).getSearchControls(), invocation, 
+            new SearchResultFilter()
         {
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException

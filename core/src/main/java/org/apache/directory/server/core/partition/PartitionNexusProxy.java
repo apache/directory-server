@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -33,7 +32,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ServiceUnavailableException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
@@ -48,6 +46,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
@@ -83,15 +82,6 @@ public class PartitionNexusProxy extends PartitionNexus
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final Collection BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
     
-    /** Integer const for DirContext.ADD_ATTRIBUTE */
-    private static final Integer ADD_MODOP = new Integer( DirContext.ADD_ATTRIBUTE );
-    
-    /** Integer const for DirContext.REMOVE_ATTRIBUTE */
-    private static final Integer REMOVE_MODOP = new Integer( DirContext.REMOVE_ATTRIBUTE );
-    
-    /** Integer const for DirContext.REPLACE_ATTRIBUTE */
-    private static final Integer REPLACE_MODOP = new Integer( DirContext.REPLACE_ATTRIBUTE );
-
     private final Context caller;
     private final DirectoryService service;
     private final DirectoryServiceConfiguration configuration;
@@ -355,9 +345,9 @@ public class PartitionNexusProxy extends PartitionNexus
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
-        
         stack.push( new Invocation( this, caller, "modify", new Object[]
             { opContext }, bypass ) );
+        
         try
         {
             this.configuration.getInterceptorChain().modify( opContext );
@@ -392,14 +382,16 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
-        NamingEnumeration ne = search( base, env, filter, searchCtls, null );
+        NamingEnumeration<SearchResult> ne = search( opContext, null );
 
         if ( ne instanceof SearchResultFilteringEnumeration )
         {
             SearchResultFilteringEnumeration results = ( SearchResultFilteringEnumeration ) ne;
+            SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+            
             if ( searchCtls.getTimeLimit() + searchCtls.getCountLimit() > 0 )
             {
                 // this will be he last filter added so other filters before it must 
@@ -437,20 +429,21 @@ public class PartitionNexusProxy extends PartitionNexus
                 } );
             }
         }
+        
         return ne;
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls, Collection bypass )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext, Collection bypass )
         throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         stack.push( new Invocation( this, caller, "search", new Object[]
-            { base, env, filter, searchCtls }, bypass ) );
+            { opContext }, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().search( base, env, filter, searchCtls );
+            return this.configuration.getInterceptorChain().search( opContext );
         }
         finally
         {

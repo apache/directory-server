@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -132,7 +133,8 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            NamingEnumeration<SearchResult> results = 
+                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
 
             while ( results.hasMore() )
             {

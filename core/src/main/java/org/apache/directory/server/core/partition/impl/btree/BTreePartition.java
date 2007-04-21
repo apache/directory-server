@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -30,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
@@ -37,6 +37,7 @@ import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -45,7 +46,6 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -421,13 +421,18 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
         NamingEnumeration underlying = null;
 
-        underlying = searchEngine.search( base, env, filter, searchCtls );
+        underlying = searchEngine.search( 
+            opContext.getDn(), 
+            ((SearchOperationContext)opContext).getEnv(), 
+            ((SearchOperationContext)opContext).getFilter(), 
+            searchCtls );
 
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }

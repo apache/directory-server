@@ -21,19 +21,17 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -177,16 +175,15 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link Partition#list(OperationContext)} call.
+     * Filters {@link Partition#list( OperationContext )} call.
      */
     NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)} call.
+     * Filters {@link Partition#search( OperationContext )} call.
      */
-    NamingEnumeration search( NextInterceptor next, LdapDN baseName, Map environment, ExprNode filter,
-                              SearchControls searchControls ) throws NamingException;
+    NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException;
 
 
     /**

@@ -49,6 +49,7 @@ import org.apache.directory.server.core.interceptor.context.DeleteOperationConte
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -536,7 +537,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-            return getNexusProxy().search( target, getEnvironment(), filter, ctls );
+            return getNexusProxy().search( 
+                new SearchOperationContext( target, getEnvironment(), filter, ctls ) );
         }
 
         // Handle simple filter expressions without multiple terms
@@ -560,7 +562,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     node = new SimpleNode( attr.getID(), ( String ) value, AssertionEnum.EQUALITY );
                 }
 
-                return getNexusProxy().search( target, getEnvironment(), node, ctls );
+                return getNexusProxy().search( 
+                    new SearchOperationContext( target, getEnvironment(), node, ctls ) );
             }
         }
         
@@ -606,7 +609,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        return getNexusProxy().search( target, getEnvironment(), filter, ctls );
+        return getNexusProxy().search( 
+            new SearchOperationContext( target, getEnvironment(), filter, ctls ) );
     }
 
 
@@ -634,7 +638,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        return getNexusProxy().search( target, getEnvironment(), filter, cons );
+        return getNexusProxy().search( 
+            new SearchOperationContext( target, getEnvironment(), filter, cons ) );
     }
 
 
@@ -665,7 +670,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw ne;
         }
 
-        return getNexusProxy().search( target, getEnvironment(), filterNode, cons );
+        return getNexusProxy().search( 
+            new SearchOperationContext( target, getEnvironment(), filterNode, cons ) );
     }
 
 

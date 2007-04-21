@@ -50,6 +50,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -66,7 +67,6 @@ import org.apache.directory.shared.ldap.message.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -723,6 +723,8 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
+<<<<<<< .mine
+=======
      * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])
      */
     /*public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
@@ -733,6 +735,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
+>>>>>>> .r530934
      * @see Partition#list(org.apache.directory.shared.ldap.name.LdapDN)
      */
     public NamingEnumeration list( OperationContext opContext ) throws NamingException
@@ -745,10 +748,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
-
+        LdapDN base = opContext.getDn();
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        
         if ( base.size() == 0 )
         {
             boolean isObjectScope = searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
@@ -884,7 +890,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         Partition backend = getBackend( base );
-        return backend.search( base, env, filter, searchCtls );
+        return backend.search( opContext );
     }
 
 

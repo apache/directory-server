@@ -25,6 +25,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -33,17 +44,17 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
@@ -63,20 +74,8 @@ import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.LdapContext;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.Name;
 
 
 /**
@@ -157,7 +156,8 @@ public class SubentryService extends BaseInterceptor
             LdapDN suffix = new LdapDN( ( String ) suffixes.next() );
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( attrRegistry.getNormalizerMapping() );
-            NamingEnumeration subentries = nexus.search( suffix, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = nexus.search( 
+                new SearchOperationContext( suffix, factoryCfg.getEnvironment(), filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -239,11 +239,11 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
@@ -450,7 +450,9 @@ public class SubentryService extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
 
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
 
             while ( subentries.hasMore() )
             {
@@ -575,7 +577,9 @@ public class SubentryService extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
 
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -615,7 +619,9 @@ public class SubentryService extends BaseInterceptor
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration aps = nexus.search( name, factoryCfg.getEnvironment(), filter, controls );
+        NamingEnumeration aps = 
+            nexus.search( 
+                new SearchOperationContext( name, factoryCfg.getEnvironment(), filter, controls ) );
         if ( aps.hasMore() )
         {
             aps.close();
@@ -732,7 +738,9 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -811,7 +819,9 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -884,7 +894,9 @@ public class SubentryService extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -1049,7 +1061,9 @@ public class SubentryService extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( oldBaseDn, factoryCfg.getEnvironment(), filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -1069,7 +1083,8 @@ public class SubentryService extends BaseInterceptor
             Attributes operational = getSubentryOperatationalAttributes( name, subentry );
             LdapDN newBaseDn = ( LdapDN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
-            subentries = nexus.search( newBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            subentries = nexus.search( 
+                new SearchOperationContext( newBaseDn, factoryCfg.getEnvironment(), filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();

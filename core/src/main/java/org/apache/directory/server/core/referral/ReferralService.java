@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -48,11 +47,12 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -61,9 +61,8 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-
-import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -76,7 +75,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,7 +179,9 @@ public class ReferralService extends BaseInterceptor
         while ( suffixes.hasNext() )
         {
             LdapDN suffix = new LdapDN( ( String ) suffixes.next() );
-            addReferrals( nexus.search( suffix, env, getReferralFilter(), getControls() ), suffix );
+            addReferrals( 
+                nexus.search( 
+                    new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ) ), suffix );
         }
     }
 
@@ -776,7 +776,8 @@ public class ReferralService extends BaseInterceptor
         Partition partition = ((AddContextPartitionOperationContext)opContext).getCfg().getContextPartition();
         LdapDN suffix = partition.getSuffix();
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration list = invocation.getProxy().search( suffix, env, getReferralFilter(), getControls(),
+        NamingEnumeration list = invocation.getProxy().search( 
+            new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ),
             SEARCH_BYPASS );
         addReferrals( list, suffix );
     }
@@ -787,10 +788,11 @@ public class ReferralService extends BaseInterceptor
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration list = invocation.getProxy().search( 
-            opContext.getDn(), 
-            env, 
-            getReferralFilter(), 
-            getControls(),
+            new SearchOperationContext( 
+                opContext.getDn(), 
+                env, 
+                getReferralFilter(), 
+                getControls() ),
             SEARCH_BYPASS );
         
         deleteReferrals( list, opContext.getDn() );
@@ -849,7 +851,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter, SearchControls controls )
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -859,8 +861,12 @@ public class ReferralService extends BaseInterceptor
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
-            return next.search( base, env, filter, controls );
+            return next.search( opContext );
         }
+        
+        LdapDN base = opContext.getDn();
+        SearchControls controls = ((SearchOperationContext)opContext).getSearchControls();
+        
 
         /**
          * THROW_FINDING_BASE is a special setting which allows for finding base to 
@@ -877,9 +883,10 @@ public class ReferralService extends BaseInterceptor
             }
 
             LdapDN farthest = lut.getFarthestReferralAncestor( base );
+            
             if ( farthest == null )
             {
-                return next.search( base, env, filter, controls );
+                return next.search( opContext );
             }
 
             Attributes referral = invocation.getProxy().lookup( new LookupOperationContext( farthest ), PartitionNexusProxy.LOOKUP_BYPASS );
@@ -887,6 +894,7 @@ public class ReferralService extends BaseInterceptor
             doReferralExceptionOnSearchBase( farthest, new LdapDN( base.getUpName() ), refs, controls.getSearchScope() );
             throw new IllegalStateException( "Should never get here: shutting up compiler" );
         }
+        
         if ( refval.equals( THROW ) )
         {
             if ( lut.isReferral( base ) )
@@ -897,10 +905,11 @@ public class ReferralService extends BaseInterceptor
             }
 
             LdapDN farthest = lut.getFarthestReferralAncestor( base );
+            
             if ( farthest == null )
             {
-                SearchResultFilteringEnumeration srfe = ( SearchResultFilteringEnumeration ) next.search( base, env,
-                    filter, controls );
+                SearchResultFilteringEnumeration srfe = 
+                    ( SearchResultFilteringEnumeration ) next.search( opContext );
                 return new ReferralHandlingEnumeration( srfe, lut, attrRegistry, nexus, controls.getSearchScope(), true );
             }
 

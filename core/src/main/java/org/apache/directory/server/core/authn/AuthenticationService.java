@@ -33,7 +33,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
@@ -52,7 +52,6 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -396,16 +395,15 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Search for base = '" + base.toString() + "'" );
+            log.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
-        return next.search( base, env, filter, searchCtls );
+        return next.search( opContext );
     }
 
 

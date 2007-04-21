@@ -20,19 +20,15 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.Map;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -159,16 +155,13 @@ public interface Partition
      * namespace specific or implementation specific key for the set of LDAP
      * Controls.
      *
-     * @param baseName the normalized distinguished/absolute name of the search base
-     * @param environment the environment under which operation occurs
-     * @param filter the root node of the filter expression tree
-     * @param searchControls the search controls
+     * @param opContext The context containing the information used by the operation
      * @throws NamingException if there are any problems
      * @return a NamingEnumeration containing objects of type 
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration<SearchResult> search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
+    NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException;
 
 

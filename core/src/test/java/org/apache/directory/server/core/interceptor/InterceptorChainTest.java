@@ -26,14 +26,13 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import junit.framework.TestCase;
 
@@ -48,7 +47,6 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -366,11 +364,10 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, LdapDN baseName, Map environment, ExprNode filter,
-            SearchControls searchControls ) throws NamingException
+        public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
             interceptors.add( this );
-            return next.search( baseName, environment, filter, searchControls );
+            return next.search( opContext );
         }
 
 
