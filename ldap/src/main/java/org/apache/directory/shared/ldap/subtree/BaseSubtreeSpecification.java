@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.shared.ldap.subtree;
 
@@ -30,7 +30,7 @@ import java.util.Collections;
 
 /**
  * A simple implementation of the SubtreeSpecification interface.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -87,7 +87,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * Creates a simple subtree refinement whose administrative point is
      * necessarily the base and only those subordinates selected by the
      * refinement filter are included.
-     * 
+     *
      * @param refinement
      *            the filter expression only composed of objectClass attribute
      *            value assertions
@@ -112,7 +112,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * Creates a simple subtree whose administrative point above the base and
      * all subordinates underneath the base (excluding those that are part of
      * inner areas) are part of the the subtree.
-     * 
+     *
      * @param base
      *            the base of the subtree relative to the administrative point
      */
@@ -135,7 +135,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     /**
      * Creates a subtree without a refinement filter where all other aspects can
      * be varied.
-     * 
+     *
      * @param base
      *            the base of the subtree relative to the administrative point
      * @param minBaseDistance
@@ -159,7 +159,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * Creates a subtree which may be a refinement filter where all aspects of
      * the specification can be set. If the refinement filter is null this
      * defaults to {@link #BaseSubtreeSpecification(LdapDN, int, int, Set, Set)}.
-     * 
+     *
      * @param base
      *            the base of the subtree relative to the administrative point
      * @param minBaseDistance
@@ -239,7 +239,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
         return this.refinement;
     }
 
-    
+
     /**
      * Converts this item into its string representation as stored
      * in directory.
@@ -249,7 +249,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     public void printToBuffer( StringBuffer buffer )
     {
         buffer.append( '{' );
-        
+
         if(!base.isEmpty()) {
             buffer.append( ' ' );
             buffer.append( "base" );
@@ -259,7 +259,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( '"' );
             buffer.append( ',' );
         }
-        
+
         if(minBaseDistance > 0) {
             buffer.append( ' ' );
             buffer.append( "minimum" );
@@ -267,7 +267,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( minBaseDistance );
             buffer.append( ',' );
         }
-        
+
         if(maxBaseDistance > UNBOUNDED_MAX) {
             buffer.append( ' ' );
             buffer.append( "maximum" );
@@ -275,8 +275,8 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( maxBaseDistance );
             buffer.append( ',' );
         }
-        
-        if ( !chopBefore.isEmpty() || !chopAfter.isEmpty() ) 
+
+        if ( !chopBefore.isEmpty() || !chopAfter.isEmpty() )
         {
             buffer.append( ' ' );
             buffer.append( "specificExclusions" );
@@ -293,20 +293,20 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 buffer.append( '"' );
                 buffer.append( dn.getUpName() );
                 buffer.append( '"' );
-                
+
                 if(it.hasNext())
                 {
                     buffer.append( ',' );
                     buffer.append( ' ' );
                 }
             }
-            
+
             if ( !chopBefore.isEmpty() && !chopAfter.isEmpty() )
             {
                 buffer.append( ',' );
                 buffer.append( ' ' );
             }
-            
+
             for ( Iterator it = chopAfter.iterator(); it.hasNext(); )
             {
                 LdapDN dn = ( LdapDN ) it.next();
@@ -317,36 +317,49 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 buffer.append( '"' );
                 buffer.append( dn.getUpName() );
                 buffer.append( '"' );
-                
+
                 if(it.hasNext())
                 {
                     buffer.append( ',' );
                     buffer.append( ' ' );
                 }
             }
-            
+
             buffer.append( ' ' );
             buffer.append( '}' );
-            
+
             buffer.append( ',' );
         }
-        
-        if(refinement != null) 
+
+        if ( refinement != null )
         {
             buffer.append( ' ' );
             buffer.append( "specificationFilter" );
             buffer.append( ' ' );
-            refinement.printRefinementToBuffer( buffer );
+
+            // The ExprNode could represent both, a refinement
+            // or a filter. First we try to print the ExprNode
+            // as refinement. If that fails it is printed as
+            // LDAP filter.
+            try
+            {
+                refinement.printRefinementToBuffer( buffer );
+            }
+            catch ( UnsupportedOperationException e )
+            {
+                refinement.printToBuffer( buffer );
+            }
+
             buffer.append( ',' );
         }
-        
+
         if(buffer.charAt( buffer.length()-1 ) == ',') {
             buffer.deleteCharAt( buffer.length()-1 );
         }
-        
+
         buffer.append( ' ' );
         buffer.append( '}' );
     }
 
-    
+
 }
