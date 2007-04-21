@@ -111,11 +111,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SchemaService extends BaseInterceptor
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger log = LoggerFactory.getLogger( SchemaService.class );
+
+    /** The service name */
+    public static final String NAME = "schemaService";
+
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
-    /** The LoggerFactory used by this Interceptor */
-    private static Logger log = LoggerFactory.getLogger( SchemaService.class );
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();

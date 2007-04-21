@@ -140,6 +140,10 @@ import org.slf4j.LoggerFactory;
 public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
+    
+    /** The service name */
+    public static final String NAME = "replicationService";
+    
 
     private static final String ENTRY_CSN_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
     private static final String ENTRY_DELETED_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";

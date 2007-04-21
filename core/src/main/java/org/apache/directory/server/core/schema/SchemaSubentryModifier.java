@@ -28,10 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -67,12 +72,12 @@ public class SchemaSubentryModifier
     static
     {
         Set<String> bypass = new HashSet<String>();
-        bypass.add( "authenticationService" );
-        bypass.add( "referralService" );
-        bypass.add( "authorizationService" );
-        bypass.add( "defaultAuthorizationService" );
-        bypass.add( "exceptionService" );
-        bypass.add( "schemaService" );
+        bypass.add( AuthenticationService.NAME );
+        bypass.add( ReferralService.NAME );
+        bypass.add( AuthorizationService.NAME );
+        bypass.add( DefaultAuthorizationService.NAME );
+        bypass.add( ExceptionService.NAME );
+        bypass.add( SchemaService.NAME );
         BYPASS = Collections.unmodifiableCollection( bypass );
     }
     

@@ -32,8 +32,16 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
@@ -121,14 +129,14 @@ public class MaxImmSubFilter implements ACITupleFilter
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( "normalizationService" );
-        c.add( "authenticationService" );
-        c.add( "authorizationService" );
-        c.add( "defaultAuthorizationService" );
-        c.add( "schemaService" );
-        c.add( "subentryService" );
-        c.add( "operationalAttributeService" );
-        c.add( "eventService" );
+        c.add( NormalizationService.NAME );
+        c.add( AuthenticationService.NAME );
+        c.add( AuthorizationService.NAME );
+        c.add( DefaultAuthorizationService.NAME );
+        c.add( SchemaService.NAME );
+        c.add( SubentryService.NAME );
+        c.add( OperationalAttributeService.NAME );
+        c.add( EventService.NAME );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 

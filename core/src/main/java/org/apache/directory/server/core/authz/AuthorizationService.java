@@ -87,6 +87,10 @@ public class AuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( AuthorizationService.class );
+    
+    /** The service name */
+    public static final String NAME = "authorizationService";
+
     /** the entry ACI attribute string: entryACI */
     private static final String ENTRYACI_ATTR = "entryACI";
     /** the subentry ACI attribute string: subentryACI */
@@ -401,7 +405,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( name, entry );
         NamingEnumeration attrList = entry.getAll();
         
@@ -768,7 +772,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         
@@ -843,7 +847,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         

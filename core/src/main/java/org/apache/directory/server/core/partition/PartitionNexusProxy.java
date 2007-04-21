@@ -40,6 +40,9 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -49,6 +52,12 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
+import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -89,38 +98,38 @@ public class PartitionNexusProxy extends PartitionNexus
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( "normalizationService" );
-        c.add( "authenticationService" );
-        c.add( "authorizationService" );
-        c.add( "defaultAuthorizationService" );
-        c.add( "schemaService" );
-        c.add( "subentryService" );
-        c.add( "operationalAttributeService" );
-        c.add( "referralService" );
-        c.add( "eventService" );
+        c.add( NormalizationService.NAME );
+        c.add( AuthenticationService.NAME );
+        c.add( AuthorizationService.NAME );
+        c.add( DefaultAuthorizationService.NAME );
+        c.add( SchemaService.NAME );
+        c.add( SubentryService.NAME );
+        c.add( OperationalAttributeService.NAME );
+        c.add( ReferralService.NAME );
+        c.add( EventService.NAME );
         LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
 
         c = new HashSet<String>();
-        c.add( "authenticationService" );
-        c.add( "authorizationService" );
-        c.add( "defaultAuthorizationService" );
-        c.add( "schemaService" );
-        c.add( "subentryService" );
-        c.add( "operationalAttributeService" );
-        c.add( "referralService" );
-        c.add( "eventService" );
+        c.add( AuthenticationService.NAME );
+        c.add( AuthorizationService.NAME );
+        c.add( DefaultAuthorizationService.NAME );
+        c.add( SchemaService.NAME );
+        c.add( SubentryService.NAME );
+        c.add( OperationalAttributeService.NAME );
+        c.add( ReferralService.NAME );
+        c.add( EventService.NAME );
         GETMATCHEDDN_BYPASS = Collections.unmodifiableCollection( c );
 
     	c = new HashSet<String>();
-    	c.add( "normalizationService" );
-    	c.add( "authenticationService" );
-    	c.add( "authorizationService" );
-    	c.add( "defaultAuthorizationService" );
-    	c.add( "schemaService" );
-    	c.add( "subentryService" );
-    	c.add( "referralService" );
-    	c.add( "eventService" );
-    	c.add( "triggerService" );
+    	c.add( NormalizationService.NAME );
+    	c.add( AuthenticationService.NAME );
+    	c.add( AuthorizationService.NAME );
+    	c.add( DefaultAuthorizationService.NAME );
+    	c.add( SchemaService.NAME );
+    	c.add( SubentryService.NAME );
+    	c.add( ReferralService.NAME );
+    	c.add( EventService.NAME );
+    	c.add( TriggerService.NAME );
     	LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -723,7 +732,7 @@ public class PartitionNexusProxy extends PartitionNexus
                                    NamingListener namingListener ) throws NamingException
     {
         InterceptorChain chain = this.configuration.getInterceptorChain();
-        EventService interceptor = ( EventService ) chain.get( "eventService" );
+        EventService interceptor = ( EventService ) chain.get( EventService.NAME );
         interceptor.addNamingListener( ctx, name, filter, searchControls, namingListener );
     }
 
@@ -735,7 +744,7 @@ public class PartitionNexusProxy extends PartitionNexus
         {
             return;
         }
-        EventService interceptor = ( EventService ) chain.get( "eventService" );
+        EventService interceptor = ( EventService ) chain.get( EventService.NAME );
         interceptor.removeNamingListener( ctx, namingListener );
     }
 }

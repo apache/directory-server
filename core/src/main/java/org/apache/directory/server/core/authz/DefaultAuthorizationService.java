@@ -64,6 +64,9 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
  */
 public class DefaultAuthorizationService extends BaseInterceptor
 {
+    /** The service name */
+    public static final String NAME = "defaultAuthorizationService";
+
     /**
      * the base distinguished {@link Name} for all users
      */

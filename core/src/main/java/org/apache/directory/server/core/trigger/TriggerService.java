@@ -78,10 +78,12 @@ import org.slf4j.LoggerFactory;
  */
 public class TriggerService extends BaseInterceptor
 {
-    public static final String SERVICE_NAME = "triggerService";
-    
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerService.class );
+
+    /** The service name */
+    public static final String NAME = "triggerService";
+    
     
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
@@ -440,7 +442,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         while ( attrList.hasMore() )
@@ -516,7 +518,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( "subentryService" );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         

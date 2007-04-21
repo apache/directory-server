@@ -40,7 +40,6 @@ import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.normalization.NormalizationService;
 import org.apache.directory.server.core.operational.OperationalAttributeService;
-import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.subtree.SubentryService;
@@ -128,12 +127,12 @@ public class StartupConfiguration extends Configuration
         List<InterceptorConfiguration> list = new ArrayList<InterceptorConfiguration>();
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "normalizationService" );
+        interceptorCfg.setName( NormalizationService.NAME );
         interceptorCfg.setInterceptor( new NormalizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "authenticationService" );
+        interceptorCfg.setName( AuthenticationService.NAME );
         interceptorCfg.setInterceptor( new AuthenticationService() );
         list.add( interceptorCfg );
 
@@ -143,47 +142,47 @@ public class StartupConfiguration extends Configuration
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "authorizationService" );
+        interceptorCfg.setName( AuthorizationService.NAME );
         interceptorCfg.setInterceptor( new AuthorizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "defaultAuthorizationService" );
+        interceptorCfg.setName( DefaultAuthorizationService.NAME );
         interceptorCfg.setInterceptor( new DefaultAuthorizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "exceptionService" );
+        interceptorCfg.setName( ExceptionService.NAME );
         interceptorCfg.setInterceptor( new ExceptionService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "operationalAttributeService" );
+        interceptorCfg.setName( OperationalAttributeService.NAME );
         interceptorCfg.setInterceptor( new OperationalAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "schemaService" );
+        interceptorCfg.setName( SchemaService.NAME );
         interceptorCfg.setInterceptor( new SchemaService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "subentryService" );
+        interceptorCfg.setName( SubentryService.NAME );
         interceptorCfg.setInterceptor( new SubentryService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "collectiveAttributeService" );
+        interceptorCfg.setName( CollectiveAttributeService.NAME );
         interceptorCfg.setInterceptor( new CollectiveAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "eventService" );
+        interceptorCfg.setName( EventService.NAME );
         interceptorCfg.setInterceptor( new EventService() );
         list.add( interceptorCfg );
         
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "triggerService" );
+        interceptorCfg.setName( TriggerService.NAME );
         interceptorCfg.setInterceptor( new TriggerService() );
         list.add( interceptorCfg );
 

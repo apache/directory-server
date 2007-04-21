@@ -22,7 +22,6 @@ package org.apache.directory.server.core.collective;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -47,7 +46,6 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -66,6 +64,9 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
+    /** The service name */
+    public static final String NAME = "collectiveAttributeService";
+
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
     
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";

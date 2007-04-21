@@ -36,11 +36,21 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.collective.CollectiveAttributeService;
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
@@ -102,18 +112,18 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     static
     {
         Set<String> c = new HashSet<String>();
-        c.add( "normalizationService" );
-        c.add( "authenticationService" );
-        c.add( "referralService" );
-        c.add( "authorizationService" );
-        c.add( "defaultAuthorizationService" );
-        c.add( "exceptionService" );
-        c.add( "operationalAttributeService" );
-        c.add( "schemaService" );
-        c.add( "subentryService" );
-        c.add( "collectiveAttributeService" );
-        c.add( "eventService" );
-        c.add( TriggerService.SERVICE_NAME );
+        c.add( NormalizationService.NAME );
+        c.add( AuthenticationService.NAME );
+        c.add( ReferralService.NAME );
+        c.add( AuthorizationService.NAME );
+        c.add( DefaultAuthorizationService.NAME );
+        c.add( ExceptionService.NAME );
+        c.add( OperationalAttributeService.NAME );
+        c.add( SchemaService.NAME );
+        c.add( SubentryService.NAME );
+        c.add( CollectiveAttributeService.NAME );
+        c.add( EventService.NAME );
+        c.add( TriggerService.NAME );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 
