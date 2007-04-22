@@ -139,6 +139,22 @@ public class SchemaConstants
     public static final String STRUCTURAL_OBJECT_CLASS_AT = "structuralObjectClass";
     public static final String STRUCTURAL_OBJECT_CLASS_AT_OID = "2.5.21.9";
     
+    // AccessControlScheme
+    public static final String ACCESS_CONTROL_SCHEME_AT = "accessControlScheme";
+    public static final String ACCESS_CONTROL_SCHEME_OID = "2.5.24.1";
+    
+    // PrescriptiveACI
+    public static final String PRESCRIPTIVE_ACI_AT = "prescriptiveACI";
+    public static final String PRESCRIPTIVE_ACI_AT_OID = "2.5.24.4";
+    
+    // EntryACI
+    public static final String ENTRY_ACI_AT = "entryACI";
+    public static final String ENTRY_ACI_AT_OID = "2.5.24.5";
+    
+    // SubentryACI
+    public static final String SUBENTRY_ACI_AT = "subentryACI";
+    public static final String SUBENTRY_ACI_AT_OID = "2.5.24.6";
+    
     // Uid
     public static final String UID_AT = "uid";
     public static final String USER_ID_AT = "userid";
