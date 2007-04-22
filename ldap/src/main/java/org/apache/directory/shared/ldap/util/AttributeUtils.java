@@ -218,24 +218,33 @@ public class AttributeUtils
      */
     public final static Attribute getAttribute( Attributes attrs, AttributeType type )
     {
+        // check if the attribute's OID is used
+        Attribute attr = attrs.get( type.getOid() );
+        
+        if ( attr != null )
+        {
+            return attr;
+        }
+
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
         {
-            return attrs.get( type.getNames()[0] );
-        }
-        
-        // check if the attribute's OID is used
-        if ( attrs.get( type.getOid() ) != null )
-        {
-            return attrs.get( type.getOid() );
+            attr = attrs.get( type.getNames()[0] );
+            
+            if ( attr != null )
+            {
+                return attr;
+            }
         }
         
         // iterate through aliases
-        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        for ( String alias:type.getNames() )
         {
-            if ( attrs.get( type.getNames()[ii] ) != null )
+            attr = attrs.get( alias );
+            
+            if ( attr != null )
             {
-                return attrs.get( type.getNames()[ii] );
+                return attr;
             }
         }
         
