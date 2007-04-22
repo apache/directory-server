@@ -20,7 +20,6 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +51,7 @@ public class AttributesImpl implements Attributes
     /**
      * An holder to store <Id, Attribute> couples
      */
-    private class Holder implements Serializable, Cloneable
+    /*private class Holder implements Serializable, Cloneable
     {
         static transient final long serialVersionUID = 1L;
         
@@ -66,7 +65,7 @@ public class AttributesImpl implements Attributes
          * Create a new holder for the given ID
          * @param upId The attribute UP id
          * @param attribute The attribute
-         */
+         * /
         private Holder( String upId, Attribute attribute )
         {
             this.upId = upId;
@@ -75,7 +74,7 @@ public class AttributesImpl implements Attributes
         
         /**
          * @see Object#clone()
-         */
+         * /
         public Object clone() throws CloneNotSupportedException
         {
             Holder clone = (Holder)super.clone();
@@ -109,7 +108,7 @@ public class AttributesImpl implements Attributes
         
         /**
          * @see Object#toString()
-         */
+         * /
         public String toString()
         {
             StringBuffer sb = new StringBuffer();
@@ -120,7 +119,7 @@ public class AttributesImpl implements Attributes
             
             return sb.toString();
         }
-    }
+    }*/
     
     /**
      * An iterator which returns Attributes.  
@@ -128,7 +127,7 @@ public class AttributesImpl implements Attributes
     public class AttributeIterator<T> implements Iterator<Attribute>
     {
         /** The internal iterator */
-        private Iterator<Holder> iterator; 
+        private Iterator<AttributeImpl> iterator; 
         
         /** Create an attribute's iterator */
         private AttributeIterator( AttributesImpl attributes )
@@ -158,7 +157,7 @@ public class AttributesImpl implements Attributes
          */
         public Attribute next()
         {
-            return iterator.next().attribute;
+            return iterator.next();
         }
 
         /**
@@ -184,7 +183,7 @@ public class AttributesImpl implements Attributes
     }
     
     /** Cache of lowercase id Strings to mixed cased user provided String ids */
-    private Map<String, Holder> keyMap;
+    private Map<String, AttributeImpl> keyMap;
 
 
     // ------------------------------------------------------------------------
@@ -196,7 +195,7 @@ public class AttributesImpl implements Attributes
      */
     public AttributesImpl()
     {
-        keyMap = new HashMap<String, Holder>();
+        keyMap = new HashMap<String, AttributeImpl>();
         ignoreCase = true;
     }
 
@@ -205,7 +204,7 @@ public class AttributesImpl implements Attributes
      */
     public AttributesImpl( boolean ignoreCase )
     {
-        keyMap = new HashMap<String, Holder>();
+        keyMap = new HashMap<String, AttributeImpl>();
         this.ignoreCase = ignoreCase;
     }
 
@@ -214,7 +213,7 @@ public class AttributesImpl implements Attributes
      */
     public AttributesImpl( String id, Object value )
     {
-        keyMap = new HashMap<String, Holder>();
+        keyMap = new HashMap<String, AttributeImpl>();
         put( id, value );
         ignoreCase = true;
     }
@@ -224,7 +223,7 @@ public class AttributesImpl implements Attributes
      */
     public AttributesImpl(  String id, Object value, boolean ignoreCase )
     {
-        keyMap = new HashMap<String, Holder>();
+        keyMap = new HashMap<String, AttributeImpl>();
         put( id, value );
         this.ignoreCase = ignoreCase;
     }
@@ -243,7 +242,7 @@ public class AttributesImpl implements Attributes
             ignoreCase = attributes.isCaseIgnored();
             
             NamingEnumeration attrs = attributes.getAll();
-            keyMap = new HashMap<String, Holder>();
+            keyMap = new HashMap<String, AttributeImpl>();
 
             while ( attrs.hasMoreElements() )
             {
@@ -254,27 +253,20 @@ public class AttributesImpl implements Attributes
         }
         else if ( attributes instanceof AttributesImpl )
         {
-            try
+            AttributesImpl clone = (AttributesImpl)attributes.clone();
+            
+            keyMap = new HashMap<String, AttributeImpl>( clone.keyMap.size() );
+            
+            Iterator keys = clone.keyMap.keySet().iterator();
+    
+            while ( keys.hasNext() )
             {
-                AttributesImpl clone = (AttributesImpl)attributes.clone();
-                
-                keyMap = new HashMap<String, Holder>( clone.keyMap.size() );
-                
-                Iterator keys = clone.keyMap.keySet().iterator();
-        
-                while ( keys.hasNext() )
-                {
-                    String key = (String)keys.next();
-                    Holder holder = clone.keyMap.get( key );
-                    keyMap.put( key, (Holder)holder.clone() );
-                }
-                
-                ignoreCase = clone.ignoreCase;
+                String key = (String)keys.next();
+                AttributeImpl attribute = clone.keyMap.get( key );
+                keyMap.put( key, (AttributeImpl)attribute.clone() );
             }
-            catch ( CloneNotSupportedException cnse )
-            {
-                throw new NamingException( "Cannot copy a value inro the new atributes element" );
-            }
+            
+            ignoreCase = clone.ignoreCase;
         }
         else
         {
@@ -411,9 +403,7 @@ public class AttributesImpl implements Attributes
         {
             String key = idToLowerCase( attrId );
             
-            Holder holder = (Holder)keyMap.get( key );
-
-            return holder != null ? holder.attribute : null;
+            return (AttributeImpl)keyMap.get( key );
         }
         else
         {
@@ -457,7 +447,7 @@ public class AttributesImpl implements Attributes
         
         while ( values.hasNext() )
         {
-            ids[i++] = ((Holder)values.next()).upId;
+            ids[i++] = ((AttributeImpl)values.next()).getID();
         }
         
         return new ArrayNamingEnumeration<String>( ids );
@@ -480,12 +470,12 @@ public class AttributesImpl implements Attributes
      */
     public Attribute put( String attrId, Object val )
     {
-        Attribute attr = new AttributeImpl( attrId );
+        AttributeImpl attr = new AttributeImpl( attrId );
         attr.add( val );
         
         String key = idToLowerCase( attrId );
         
-        keyMap.put( key, new Holder( attrId, attr) );
+        keyMap.put( key, attr );
         return attr;
     }
 
@@ -508,11 +498,11 @@ public class AttributesImpl implements Attributes
         String key = idToLowerCase( id );
 
         Attribute old = null;
-        Attribute newAttr = attr;
+        AttributeImpl newAttr = null;
         
         if ( keyMap.containsKey( key ) )
         {
-            old = keyMap.remove( key ).attribute;
+            old = keyMap.remove( key );
         }
         else
         {
@@ -521,7 +511,7 @@ public class AttributesImpl implements Attributes
 
         if ( attr instanceof AttributeImpl )
         {
-            newAttr = attr;
+            newAttr = (AttributeImpl)attr;
         }
         else if ( attr instanceof BasicAttribute )
         {
@@ -542,7 +532,7 @@ public class AttributesImpl implements Attributes
             }
         }
         
-        keyMap.put( key, new Holder( id, newAttr ) );
+        keyMap.put( key, newAttr );
         return old;
     }
 
@@ -564,16 +554,7 @@ public class AttributesImpl implements Attributes
         
         if ( keyMap.containsKey( key ) )
         {
-            Holder holder = keyMap.remove( key );
-            
-            if ( holder != null ) 
-            {
-                return holder.attribute;
-            }
-            else
-            {
-                return null;
-            }
+            return keyMap.remove( key );
         }
         else
         {
@@ -613,15 +594,14 @@ public class AttributesImpl implements Attributes
         {
             AttributesImpl clone = (AttributesImpl)super.clone();
     
-            clone.keyMap = new HashMap<String, Holder>( keyMap.size() );
+            clone.keyMap = new HashMap<String, AttributeImpl>( keyMap.size() );
             
             Iterator keys = keyMap.keySet().iterator();
     
             while ( keys.hasNext() )
             {
                 String key = (String)keys.next();
-                Holder holder = keyMap.get( key );
-                clone.keyMap.put( key, (Holder)holder.clone() );
+                clone.keyMap.put( key, (AttributeImpl)keyMap.get( key ).clone() );
             }
             
             return clone;
@@ -646,11 +626,8 @@ public class AttributesImpl implements Attributes
         
         while ( attrs.hasNext() )
         {
-            Holder holder = (Holder)attrs.next();
-            Attribute attr = holder.attribute;
+            Attribute attr = (AttributeImpl)attrs.next();
 
-            buf.append( holder.upId );
-            buf.append( ": " );
             buf.append( attr );
         }
 
