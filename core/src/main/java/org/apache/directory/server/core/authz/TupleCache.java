@@ -71,8 +71,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TupleCache
 {
-    /** the attribute id for prescriptive aci: prescriptiveACI */
-    private static final String ACI_ATTR = "prescriptiveACI";
     /** the object class for access control subentries: accessControlSubentry */
     private static final String ACSUBENTRY_OC = "accessControlSubentry";
 
@@ -140,10 +138,10 @@ public class TupleCache
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String subentryDn = result.getName();
-                Attribute aci = result.getAttributes().get( ACI_ATTR );
+                Attribute aci = result.getAttributes().get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
                 if ( aci == null )
                 {
-                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + ACI_ATTR );
+                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
                     continue;
                 }
 
@@ -159,7 +157,7 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( ACI_ATTR );
+        Attribute aci = entry.get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
 
         if ( aci == null )
         {
@@ -183,7 +181,7 @@ public class TupleCache
     public void subentryAdded( String upName, LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( ACI_ATTR );
+        Attribute aci = entry.get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
@@ -240,7 +238,7 @@ public class TupleCache
         boolean isAciModified = false;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), ACI_ATTR );
+            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT );
         }
         if ( isAciModified )
         {
@@ -257,7 +255,7 @@ public class TupleCache
             return;
         }
 
-        if ( mods.get( ACI_ATTR ) != null )
+        if ( mods.get( SchemaConstants.PRESCRIPTIVE_ACI_AT ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName.getUpName(), normName, entry );
