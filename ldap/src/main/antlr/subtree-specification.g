@@ -84,8 +84,8 @@ options
     
     private NormalizerMappingResolver resolver;
     
-    private Set chopBeforeExclusions = new HashSet();
-    private Set chopAfterExclusions = new HashSet();
+    private Set chopBeforeExclusions = null;
+    private Set chopAfterExclusions = null;
 
     private SubtreeSpecificationModifier ssModifier = null;
     
@@ -153,12 +153,15 @@ wrapperEntryPoint returns [SubtreeSpecification ss]
 subtreeSpecification returns [SubtreeSpecification ss]
 {
     log.debug( "entered subtreeSpecification()" );
-    // clear out ss, ssModifier and subtreeSpecificationComponentsMonitor
+    // clear out ss, ssModifier, subtreeSpecificationComponentsMonitor,
+    // chopBeforeExclusions and chopAfterExclusions
     // in case something is left from the last parse
     ss = null;
     ssModifier = new SubtreeSpecificationModifier();
     subtreeSpecificationComponentsMonitor = new OptionalComponentsMonitor( 
             new String [] { "base", "specificExclusions", "minimum", "maximum", "specificationFilter" } );
+    chopBeforeExclusions = new HashSet();
+    chopAfterExclusions = new HashSet();
 }
     :
     OPEN_CURLY ( SP )*

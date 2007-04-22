@@ -357,6 +357,26 @@ public class SubtreeSpecificationParserTest extends TestCase
 
 
     /**
+     * Test reusability, especially if the state is resetted.
+     */
+    public void testReusabiltiy() throws Exception
+    {
+        LdapDN firstDN = new LdapDN("k=l");
+        String firstExclusion = "{ specificExclusions { chopAfter:\"k=l\" } }";
+        SubtreeSpecification firstSpec = parser.parse( firstExclusion );
+        assertEquals( 1, firstSpec.getChopAfterExclusions().size() );
+        assertEquals( firstDN, (LdapDN)firstSpec.getChopAfterExclusions().iterator().next() );
+
+        LdapDN secondDN = new LdapDN("x=y");
+        String secondExclusion = "{ specificExclusions { chopAfter:\"x=y\" } }";
+        SubtreeSpecification secondSpec = parser.parse( secondExclusion );
+        assertEquals( 1, secondSpec.getChopAfterExclusions().size() );
+        assertEquals( secondDN, (LdapDN)secondSpec.getChopAfterExclusions().iterator().next() );
+
+    }
+
+
+    /**
      * Tests the multithreaded use of a single parser.
      */
     public void testMultiThreaded() throws Exception
