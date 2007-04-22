@@ -343,7 +343,12 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             // LDAP filter.
             try
             {
-                refinement.printRefinementToBuffer( buffer );
+                // Must use a tempBuffer here because the 
+                // exception could occur after some characters
+                // were added to the buffer.
+                StringBuffer tempBuffer = new StringBuffer();
+                refinement.printRefinementToBuffer( tempBuffer );
+                buffer.append( tempBuffer );
             }
             catch ( UnsupportedOperationException e )
             {
