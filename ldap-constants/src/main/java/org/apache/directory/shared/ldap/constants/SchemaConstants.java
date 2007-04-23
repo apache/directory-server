@@ -50,6 +50,10 @@ public class SchemaConstants
     public static final String SUBENTRY_OC = "subentry";
     public static final String SUBENTRY_OC_OID = "2.5.17.0";
     
+    // AccessControlSubentry
+    public static final String ACCESS_CONTROL_SUBENTRY_OC = "accessControlSubentry";    
+    public static final String ACCESS_CONTROL_SUBENTRY_OC_OID = "2.5.17.1";    
+    
     // Subschema
     public static final String SUBSCHEMA_OC = "subschema";
     public static final String SUBSCHEMA_OC_OID = "2.5.20.1";
