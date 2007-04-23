@@ -55,6 +55,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
@@ -71,21 +72,27 @@ import org.slf4j.LoggerFactory;
  */
 public class TupleCache
 {
-    /** the object class for access control subentries: accessControlSubentry */
-    private static final String ACSUBENTRY_OC = "accessControlSubentry";
-
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
 
     /** cloned startup environment properties we use for subentry searching */
     private final Hashtable env;
+    
     /** a map of strings to ACITuple collections */
     private final Map<String,List> tuples = new HashMap<String,List>();
+    
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
+    
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
+    /** Stores a reference to the AtttributeType registry */ 
+    private AttributeTypeRegistry attributeTypeRegistry;
+    
+    /** A starage for the PrescriptiveACI attributeType */
+    private AttributeType prescriptiveAciAT;
+    
     /**
      * The OIDs normalizer map
      */
@@ -100,12 +107,13 @@ public class TupleCache
     {
     	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
-        AttributeTypeRegistry attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
+        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
     }
 
     
@@ -128,7 +136,7 @@ public class TupleCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration<SearchResult> results = 
@@ -138,7 +146,8 @@ public class TupleCache
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String subentryDn = result.getName();
-                Attribute aci = result.getAttributes().get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                Attribute aci = AttributeUtils.getAttribute( result.getAttributes(), prescriptiveAciAT );
+                
                 if ( aci == null )
                 {
                     log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
@@ -157,11 +166,12 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
 
         if ( aci == null )
         {
-            if ( AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), ACSUBENTRY_OC ) )
+            if ( AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) ||
+                 AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ))
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
@@ -181,7 +191,8 @@ public class TupleCache
     public void subentryAdded( String upName, LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( SchemaConstants.PRESCRIPTIVE_ACI_AT );
+        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
+        
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
@@ -236,10 +247,14 @@ public class TupleCache
         }
 
         boolean isAciModified = false;
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
+            // Check for the name and for the OID
             isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT );
+            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT_OID );
         }
+        
         if ( isAciModified )
         {
             subentryDeleted( normName, entry );
@@ -255,7 +270,7 @@ public class TupleCache
             return;
         }
 
-        if ( mods.get( SchemaConstants.PRESCRIPTIVE_ACI_AT ) != null )
+        if ( AttributeUtils.getAttribute( mods, prescriptiveAciAT ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName.getUpName(), normName, entry );
