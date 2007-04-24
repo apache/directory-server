@@ -73,6 +73,7 @@
 #         | 1.3.6.1.4.1.18060.0.4.0.2.34 | x-humanReadible             |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.37 | m-disabled                  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.38 | m-dependencies              |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.39 | m-length                    |
 #         +------------------------------+-----------------------------+
 #
 #         +------------------------------+-----------------------------+
@@ -170,7 +171,7 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.3
     STRUCTURAL
     MAY ( m-name $ m-obsolete $ m-supAttributeType $ m-equality $ m-ordering $ 
           m-substr $ m-syntax $ m-singleValue $ m-collective $
-          m-noUserModification $ m-usage )
+          m-noUserModification $ m-usage $ m-length )
 )
 
 # --- metaSyntax objectclass --------------------------------------------------
@@ -562,5 +563,13 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.38 NAME 'm-dependencies'
     DESC 'The dependencies of a schema: other schema names.'
     EQUALITY caseIgnoreMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+)
+
+# --- m-length AttributeType -----------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.39 NAME 'm-length'
+    DESC 'The maximum length for an attribute value.'
+    EQUALITY caseIgnoreMatch
+    SYNTAX 1.3.6.1.4.1.18060.0.4.0.0.4
+    SINGLE-VALUE
 )
 
