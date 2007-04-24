@@ -69,7 +69,9 @@ public class LdapDNTest extends TestCase
     */
    public void testLdapDNNull()
    {
-       assertEquals( "", new LdapDN().getUpName() );
+       LdapDN dn = new LdapDN();
+       assertEquals( "", dn.getUpName() );
+       assertTrue( dn.isEmpty() );
    }
 
 
@@ -78,7 +80,9 @@ public class LdapDNTest extends TestCase
     */
    public void testLdapDNEmpty() throws InvalidNameException
    {
-       assertEquals( "", new LdapDN( "" ).getUpName() );
+       LdapDN dn = new LdapDN( "" );
+       assertEquals( "", dn.getUpName() );
+       assertTrue( dn.isEmpty() );
    }
 
 
