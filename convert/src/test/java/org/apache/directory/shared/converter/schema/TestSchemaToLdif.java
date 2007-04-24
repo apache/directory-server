@@ -638,7 +638,8 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-syntax: 1.3.6.1.4.1.18060.0.4.2.3.15{123}\n\n";
+            "m-syntax: 1.3.6.1.4.1.18060.0.4.2.3.15\n" +
+            "m-length: 123\n\n";
 
         assertEquals( expected, transform( "testATSyntaxOidLen" ) );
     }
