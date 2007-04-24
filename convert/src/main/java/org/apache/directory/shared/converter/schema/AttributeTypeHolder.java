@@ -374,19 +374,19 @@ public class AttributeTypeHolder extends SchemaElementImpl
         // The single value flag
         if ( singleValue )
         {
-            sb.append( "m-singleValue: true\n" );
+            sb.append( "m-singleValue: TRUE\n" );
         }
 
         // The collective flag
         if ( collective )
         {
-            sb.append( "m-collective: true\n" );
+            sb.append( "m-collective: TRUE\n" );
         }
 
         // The not user modifiable flag
         if ( noUserModification )
         {
-            sb.append( "m-noUserModification: true\n" );
+            sb.append( "m-noUserModification: TRUE\n" );
         }
 
         // The usage value

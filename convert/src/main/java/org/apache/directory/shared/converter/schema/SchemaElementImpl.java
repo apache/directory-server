@@ -233,7 +233,7 @@ public abstract class SchemaElementImpl implements SchemaElement
         // The obsolete flag, only if "true"
         if ( obsolete )
         {
-            sb.append( "m-obsolete: true\n" );
+            sb.append( "m-obsolete: TRUE\n" );
         }
         
         return sb.toString();

@@ -85,7 +85,7 @@ public class TestSchemaToLdif extends TestCase
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
             "m-name: objectClass\n" +
             "m-description: An objectClass\n" +
-            "m-obsolete: true\n" +
+            "m-obsolete: TRUE\n" +
             "m-supObjectClass: top\n" +
             "m-typeObjectClass: ABSTRACT\n" +
             "m-must: attr1\n" +
@@ -121,7 +121,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
             "m-description: An objectClass\n" +
-            "m-obsolete: true\n" +
+            "m-obsolete: TRUE\n" +
             "m-supObjectClass: top\n" +
             "m-typeObjectClass: ABSTRACT\n" +
             "m-must: attr1\n" +
@@ -331,7 +331,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-obsolete: true\n\n";
+            "m-obsolete: TRUE\n\n";
 
         assertEquals( expected, transform( "testOCObsolete" ) );
     }
@@ -488,7 +488,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-obsolete: true\n\n";
+            "m-obsolete: TRUE\n\n";
 
         assertEquals( expected, transform( "testATObsolete" ) );
     }
@@ -653,7 +653,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-singleValue: true\n\n";
+            "m-singleValue: TRUE\n\n";
 
         assertEquals( expected, transform( "testATSingleValue" ) );
     }
@@ -668,7 +668,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-collective: true\n\n";
+            "m-collective: TRUE\n\n";
 
         assertEquals( expected, transform( "testATCollective" ) );
     }
@@ -683,7 +683,7 @@ public class TestSchemaToLdif extends TestCase
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
-            "m-noUserModification: true\n\n";
+            "m-noUserModification: TRUE\n\n";
 
         assertEquals( expected, transform( "testATNoUserModification" ) );
     }
