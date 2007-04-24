@@ -91,6 +91,10 @@ public class SchemaConstants
     public static final String USER_PASSWORD_AT = "userPassword";
     public static final String USER_PASSWORD_AT_OID = "2.5.4.35";
 
+    // UniqueMember
+    public static final String UNIQUE_MEMBER_AT = "uniqueMember";
+    public static final String UNIQUE_MEMBER_AT_OID = "2.5.4.50";
+
     // CreateTimestamp
     public static final String CREATE_TIMESTAMP_AT = "createTimestamp";
     public static final String CREATE_TIMESTAMP_AT_OID = "2.5.18.1";
