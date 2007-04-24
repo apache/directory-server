@@ -361,14 +361,12 @@ public class AttributeTypeHolder extends SchemaElementImpl
         // The value syntax
         if ( syntax != null )
         {
-            sb.append( "m-syntax: " ).append( syntax );
+            sb.append( "m-syntax: " ).append( syntax ).append(  '\n'  );
 
             if ( oidLen != -1 )
             {
-                sb.append( '{' ).append( oidLen ).append( '}' );
+                sb.append( "m-length: " ).append( oidLen ).append( '\n' );
             }
-
-            sb.append( '\n' );
         }
 
         // The single value flag
