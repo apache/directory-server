@@ -52,13 +52,14 @@ public final class ChecksumType implements Comparable
     public static final ChecksumType SHA1_2 = new ChecksumType( 14, "sha1 (unkeyed)" );
     public static final ChecksumType HMAC_SHA1_96_AES128 = new ChecksumType( 15, "hmac-sha1-96-aes128" );
     public static final ChecksumType HMAC_SHA1_96_AES256 = new ChecksumType( 16, "hmac-sha1-96-aes256" );
+    public static final ChecksumType HMAC_MD5 = new ChecksumType( -138, "hmac-md5" );
 
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
     private static final ChecksumType[] values =
         { UNKNOWN, NULL, CRC32, RSA_MD4, RSA_MD4_DES, DES_MAC, DES_MAC_K, RSA_MD4_DES_K, RSA_MD5, RSA_MD5_DES,
-            RSA_MD5_DES3, SHA1, HMAC_SHA1_DES3_KD, HMAC_SHA1_DES3, SHA1_2, HMAC_SHA1_96_AES128, HMAC_SHA1_96_AES256 };
+            RSA_MD5_DES3, SHA1, HMAC_SHA1_DES3_KD, HMAC_SHA1_DES3, SHA1_2, HMAC_SHA1_96_AES128, HMAC_SHA1_96_AES256, HMAC_MD5 };
     // VALUES needs to be located here, otherwise illegal forward reference
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 

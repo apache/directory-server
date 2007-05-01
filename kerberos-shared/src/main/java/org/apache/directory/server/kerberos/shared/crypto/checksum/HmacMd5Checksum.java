@@ -20,8 +20,11 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 
@@ -30,9 +33,9 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RsaMd5Checksum extends ChecksumEngine
+public class HmacMd5Checksum extends ChecksumEngine
 {
-    RsaMd5Checksum()
+    HmacMd5Checksum()
     {
         // Package-scoped constructor; use ChecksumHandler. 
     }
@@ -40,13 +43,13 @@ public class RsaMd5Checksum extends ChecksumEngine
 
     public ChecksumType checksumType()
     {
-        return ChecksumType.RSA_MD5;
+        return ChecksumType.HMAC_SHA1_DES3_KD;
     }
 
 
     public CipherType keyType()
     {
-        return CipherType.NULL;
+        return CipherType.DES3;
     }
 
 
@@ -54,11 +57,16 @@ public class RsaMd5Checksum extends ChecksumEngine
     {
         try
         {
-            MessageDigest digester = MessageDigest.getInstance( "MD5" );
-            return digester.digest( data );
+            SecretKey sk = new SecretKeySpec( key, "DESede" );
+
+            Mac mac = Mac.getInstance( "HmacSHA1" );
+            mac.init( sk );
+
+            return mac.doFinal( data );
         }
-        catch ( NoSuchAlgorithmException nsae )
+        catch ( GeneralSecurityException nsae )
         {
+            nsae.printStackTrace();
             return null;
         }
     }
