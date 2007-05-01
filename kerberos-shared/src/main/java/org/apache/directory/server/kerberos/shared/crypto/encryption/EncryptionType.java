@@ -109,6 +109,12 @@ public final class EncryptionType implements Comparable
     }
 
 
+    public String getName()
+    {
+        return name;
+    }
+
+
     public int compareTo( Object that )
     {
         return ordinal - ( ( EncryptionType ) that ).ordinal;
