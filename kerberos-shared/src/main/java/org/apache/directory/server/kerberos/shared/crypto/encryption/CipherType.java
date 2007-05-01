@@ -37,14 +37,15 @@ public final class CipherType implements Comparable
      */
     public static final CipherType NULL = new CipherType( "NULL" );
     public static final CipherType DES = new CipherType( "DES" );
-    public static final CipherType DES3 = new CipherType( "DES3" );
-    public static final CipherType AES128 = new CipherType( "AES128" );
+    public static final CipherType DES3 = new CipherType( "DESede" );
+    public static final CipherType AES = new CipherType( "AES" );
+    public static final CipherType ARCFOUR = new CipherType( "ARCFOUR" );
 
     /**
      * These two lines are all that's necessary to export a List of VALUES.
      */
     private static final CipherType[] values =
-        { NULL, DES, DES3, AES128 };
+        { NULL, DES, DES3, AES, ARCFOUR };
     // VALUES needs to be located here, otherwise illegal forward reference
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
