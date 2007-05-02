@@ -46,6 +46,14 @@ public class SchemaConstants
     public static final String ORGANIZATIONAL_PERSON_OC = "organizationalPerson";
     public static final String ORGANIZATIONAL_PERSON_OC_OID = "2.5.6.7";
 
+    // GroupOfNames
+    public static final String GROUP_OF_NAMES_OC = "groupOfNames";
+    public static final String GROUP_OF_NAMES_OC_OID = "2.5.6.9";
+    
+    // GroupOfUniqueNames
+    public static final String GROUP_OF_UNIQUE_NAMES_OC = "groupOfUniqueNames";
+    public static final String GROUP_OF_UNIQUE_NAMES_OC_OID = "2.5.6.17";
+    
     // Subentry
     public static final String SUBENTRY_OC = "subentry";
     public static final String SUBENTRY_OC_OID = "2.5.17.0";
@@ -87,6 +95,10 @@ public class SchemaConstants
     public static final String ORGANIZATIONAL_UNIT_NAME_AT = "organizationalUnitName";
     public static final String OU_AT_OID = "2.5.4.11";
     
+    // Member
+    public static final String MEMBER_AT = "member";
+    public static final String MEMBER_AT_OID = "2.5.4.31";
+
     // UserPassword
     public static final String USER_PASSWORD_AT = "userPassword";
     public static final String USER_PASSWORD_AT_OID = "2.5.4.35";
