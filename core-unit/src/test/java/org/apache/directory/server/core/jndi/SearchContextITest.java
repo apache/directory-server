@@ -393,7 +393,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( "contains ou=system", map.containsKey( "ou=system" ) ); 
         assertTrue( "contains ou=users,ou=system", map.containsKey( "ou=users,ou=system" ) ); 
         assertTrue( "contains uid=admin,ou=system", map.containsKey( "uid=admin,ou=system" ) ); 
-        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.containsKey( "cn=administrators,ou=groups,ou=system" ) ); 
+        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.containsKey( "cn=Administrators,ou=groups,ou=system" ) ); 
     }
     
     
