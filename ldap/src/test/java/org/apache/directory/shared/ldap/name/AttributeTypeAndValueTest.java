@@ -57,7 +57,7 @@ public class AttributeTypeAndValueTest extends TestCase
    {
        try
        {
-           new AttributeTypeAndValue( "", "" );
+           new AttributeTypeAndValue( "", "", "", "" );
            Assert.fail( "Should not occurs ... " );
        }
        catch ( InvalidNameException ine )
@@ -72,7 +72,7 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testLdapRDNSimple() throws InvalidNameException
    {
-       AttributeTypeAndValue atav = new AttributeTypeAndValue( "a", "b" );
+       AttributeTypeAndValue atav = new AttributeTypeAndValue( "a", "a", "b", "b" );
        assertEquals( "a=b", atav.toString() );
        assertEquals( "a=b", atav.getUpName());
        assertEquals( 0, atav.getStart());
@@ -85,8 +85,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareToEquals() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "b", "b" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "b", "b" );
 
        assertEquals( 0, atav1.compareTo( atav2 ) );
    }
@@ -97,8 +97,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareToEqualsCase() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "A", "b" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "b", "b" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "A", "A", "b", "b" );
 
        assertEquals( 0, atav1.compareTo( atav2 ) );
    }
@@ -110,8 +110,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareAtav1TypeSuperior() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "b", "b" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "b", "b", "b", "b" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "b", "b" );
 
        assertEquals( 1, atav1.compareTo( atav2 ) );
    }
@@ -123,8 +123,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareAtav2TypeSuperior() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "b", "b" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "b", "b" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "b", "b", "b", "b" );
 
        assertEquals( -1, atav1.compareTo( atav2 ) );
    }
@@ -136,8 +136,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareAtav1ValueSuperior() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "b" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "b", "b" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "a", "a" );
 
        assertEquals( 1, atav1.compareTo( atav2 ) );
    }
@@ -149,8 +149,8 @@ public class AttributeTypeAndValueTest extends TestCase
     */
    public void testCompareAtav2ValueSuperior() throws InvalidNameException
    {
-       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a" );
-       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "b" );
+       AttributeTypeAndValue atav1 = new AttributeTypeAndValue( "a", "a", "a", "a" );
+       AttributeTypeAndValue atav2 = new AttributeTypeAndValue( "a", "a", "b", "b" );
 
        assertEquals( -1, atav1.compareTo( atav2 ) );
    }
@@ -158,7 +158,7 @@ public class AttributeTypeAndValueTest extends TestCase
 
    public void testNormalize() throws InvalidNameException
    {
-       AttributeTypeAndValue atav = new AttributeTypeAndValue( " A ", "a" );
+       AttributeTypeAndValue atav = new AttributeTypeAndValue( " A "," A ", "a", "a" );
 
        assertEquals( "a=a", atav.normalize() );
 

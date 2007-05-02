@@ -2218,6 +2218,48 @@ public class LdapDNTest extends TestCase
        assertTrue( result.toString().equals( "ou=some people,dc=example,dc=com" ) );
    }
 
+   public void testRdnGetTypeUpName() throws Exception
+   {
+       List<String> list = new ArrayList<String>();
+       list.add( "ou= Some   People   " );
+       list.add( "dc = eXample" );
+       list.add( "dc= cOm" );
+       LdapDN name = new LdapDN( list.iterator() );
+
+       Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
+
+       oids.put( "dc", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "domaincomponent", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+
+       assertTrue( name.getUpName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
+
+       Rdn rdn = name.getRdn();
+       
+       assertEquals( "ou= Some   People   ", rdn.getUpName() );
+       //assertEquals( "2.5.4.11=some people", rdn.getNormName() );
+       assertEquals( "ou", rdn.getNormType() );
+       assertEquals( "ou", rdn.getUpType() );
+       //assertEquals( "some people", rdn.getNormValue() );
+       //assertEquals( "ou= Some   People   ", rdn.getUpValue() );
+
+       LdapDN result = LdapDN.normalize( name, oids );
+
+       assertTrue( result.getNormName().equals( "2.5.4.11=some people,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com" ) );
+       assertTrue( name.getUpName().equals( "ou= Some   People   ,dc = eXample,dc= cOm" ) );
+       
+       Rdn rdn2 = result.getRdn();
+       
+       assertEquals( "ou= Some   People   ", rdn2.getUpName() );
+       //assertEquals( "2.5.4.11=some people", rdn2.getNormName() );
+       assertEquals( "2.5.4.11", rdn2.getNormType() );
+       assertEquals( "ou", rdn2.getUpType() );
+       //assertEquals( "some people", rdn2.getNormValue() );
+       //assertEquals( "ou= Some   People   ", rdn2.getUpValue() );
+   }
 
    /**
     * Class to test for toOid( Name, Map) with a NULL dn
@@ -2250,16 +2292,16 @@ public class LdapDNTest extends TestCase
 
        Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
-       oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "dc", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "domaincomponent", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
 
        Name result = LdapDN.normalize( name, oids );
 
-       assertTrue( result.toString().equals( "dc=and some animals+ou=some people,dc=example,dc=com" ) );
+       assertEquals( result.toString(), "0.9.2342.19200300.100.1.25=and some animals+2.5.4.11=some people,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com" );
        assertTrue( ( ( LdapDN ) result )
            .getUpName()
            .equals(
@@ -2277,16 +2319,16 @@ public class LdapDNTest extends TestCase
 
        Map<String, OidNormalizer> oids = new HashMap<String, OidNormalizer>();
 
-       oids.put( "dc", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "domaincomponent", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "dc", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "ou", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "organizationalUnitName", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
-       oids.put( "2.5.4.11", new OidNormalizer( "ou", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "dc", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "domaincomponent", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "0.9.2342.19200300.100.1.25", new OidNormalizer( "0.9.2342.19200300.100.1.25", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "ou", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "organizationalUnitName", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
+       oids.put( "2.5.4.11", new OidNormalizer( "2.5.4.11", new DeepTrimToLowerNormalizer() ) );
 
        LdapDN result = LdapDN.normalize( name, oids );
 
-       assertTrue( result.toString().equals( "dc=and some animals+ou=some people,dc=example,dc=com" ) );
+       assertTrue( result.toString().equals( "0.9.2342.19200300.100.1.25=and some animals+2.5.4.11=some people,0.9.2342.19200300.100.1.25=example,0.9.2342.19200300.100.1.25=com" ) );
        assertTrue( result
            .getUpName()
            .equals(

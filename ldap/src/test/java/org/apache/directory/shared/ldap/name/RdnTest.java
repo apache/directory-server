@@ -204,7 +204,7 @@ public class RdnTest extends TestCase
     */
    public void testRDNCloningOneNameComponent() throws InvalidNameException
    {
-       Rdn rdn = new Rdn( "a", "b" );
+       Rdn rdn = new Rdn( "a", "a", "b", "b" );
 
        Rdn rdnClone = ( Rdn ) rdn.clone();
 
