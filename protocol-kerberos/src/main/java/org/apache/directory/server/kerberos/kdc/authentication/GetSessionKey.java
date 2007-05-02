@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import org.apache.directory.server.kerberos.shared.service.SessionKeyFactory;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.SessionKeyFactory;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
