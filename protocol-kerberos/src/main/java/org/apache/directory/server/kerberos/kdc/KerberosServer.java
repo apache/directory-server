@@ -64,7 +64,7 @@ public class KerberosServer
 
         try
         {
-            handler = new KerberosProtocolHandler( new KdcConfiguration(), this.store );
+            handler = new KerberosProtocolHandler( config, this.store );
 
             acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 

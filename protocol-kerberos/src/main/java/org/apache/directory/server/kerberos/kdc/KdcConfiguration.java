@@ -427,7 +427,7 @@ public class KdcConfiguration extends ServiceConfiguration
         {
             for ( EncryptionType type:EncryptionType.VALUES )
             {
-                if ( type.toString().equalsIgnoreCase( enc ) )
+                if ( type.getName().equalsIgnoreCase( enc ) )
                 {
                     encTypes.add( type );
                 }
