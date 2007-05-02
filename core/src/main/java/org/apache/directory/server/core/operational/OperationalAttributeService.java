@@ -459,7 +459,9 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-                newDn.add( new Rdn( registry.lookup( rdn.getNormType() ).getName(), (String)rdn.getAtav().getValue() ) );
+            	String name = registry.lookup( rdn.getNormType() ).getName();
+            	String value = (String)rdn.getAtav().getValue(); 
+                newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }
 
