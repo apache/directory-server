@@ -87,6 +87,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
+	/** Logger for this class */
     private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
@@ -105,7 +106,12 @@ public class ServerContextFactory extends CoreContextFactory
     private static NtpServer udpNtpServer;
     private DirectoryService directoryService;
 
-
+    /**
+     * Initialize the SocketAcceptor so that the server can accept
+     * incomming requests.
+     * 
+     * We will start N threads, spreaded on the available CPUs.
+     */
     public void beforeStartup( DirectoryService service )
     {
         int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
@@ -141,60 +147,72 @@ public class ServerContextFactory extends CoreContextFactory
         if ( tcpKdcServer != null )
         {
             tcpKdcServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of KRB5 Service (TCP) complete: " + tcpKdcServer );
             }
+            
             tcpKdcServer = null;
         }
 
         if ( udpKdcServer != null )
         {
             udpKdcServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of KRB5 Service (UDP) complete: " + udpKdcServer );
             }
+            
             udpKdcServer = null;
         }
 
         if ( tcpChangePasswordServer != null )
         {
             tcpChangePasswordServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of Change Password Service (TCP) complete: " + tcpChangePasswordServer );
             }
+            
             tcpChangePasswordServer = null;
         }
 
         if ( udpChangePasswordServer != null )
         {
             udpChangePasswordServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of Change Password Service (UDP) complete: " + udpChangePasswordServer );
             }
+            
             udpChangePasswordServer = null;
         }
 
         if ( tcpNtpServer != null )
         {
             tcpNtpServer.destroy();
+    
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of NTP Service (TCP) complete: " + tcpNtpServer );
             }
+            
             tcpNtpServer = null;
         }
 
         if ( udpNtpServer != null )
         {
             udpNtpServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of NTP Service complete: " + udpNtpServer );
             }
+            
             udpNtpServer = null;
         }
     }
@@ -224,6 +242,7 @@ public class ServerContextFactory extends CoreContextFactory
         Attributes entry = new AttributesImpl( SchemaConstants.OU_AT, "loadedLdifFiles", true );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        
         try
         {
             root.createSubcontext( LDIF_FILES_DN, entry );
@@ -284,6 +303,7 @@ public class ServerContextFactory extends CoreContextFactory
     private String getCanonical( File file )
     {
         String canonical = null;
+        
         try
         {
             canonical = file.getCanonicalPath();
@@ -395,6 +415,7 @@ public class ServerContextFactory extends CoreContextFactory
     {
         // Skip if disabled
         int port = cfg.getLdapPort();
+        
         if ( port < 0 )
         {
             return;
@@ -419,6 +440,7 @@ public class ServerContextFactory extends CoreContextFactory
 
         // We use the reflection API in case this is not running on JDK 1.5+.
         IoFilterChainBuilder chain;
+        
         try
         {
             chain = ( IoFilterChainBuilder ) Class.forName( "org.apache.directory.server.ssl.LdapsInitializer", true,
@@ -596,6 +618,7 @@ public class ServerContextFactory extends CoreContextFactory
             // is not bound - this is ok because the GracefulShutdown has already
             // sent notices to to the existing active sessions
             List sessions = null;
+        
             try
             {
                 sessions = new ArrayList( tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
@@ -607,6 +630,7 @@ public class ServerContextFactory extends CoreContextFactory
             }
 
             tcpAcceptor.unbind( new InetSocketAddress( port ) );
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of an LDAP service (" + port + ") is complete." );
@@ -625,6 +649,7 @@ public class ServerContextFactory extends CoreContextFactory
 
             // And close the connections when the NoDs are sent.
             Iterator sessionIt = sessions.iterator();
+            
             for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
             {
                 WriteFuture future = ( WriteFuture ) i.next();
