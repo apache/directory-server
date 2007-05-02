@@ -71,6 +71,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -537,25 +538,24 @@ class DefaultDirectoryService extends DirectoryService
         // create administrator group
         // -------------------------------------------------------------------
 
-        String upName = "cn=Administrators,ou=groups,ou=system";
-        LdapDN normName = new LdapDN( "cn=administrators,ou=groups,ou=system" );
-        normName.normalize( oidsMap );
+        LdapDN name = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        name.normalize( oidsMap );
         
-        if ( !partitionNexus.hasEntry( new EntryOperationContext( normName ) ) )
+        if ( !partitionNexus.hasEntry( new EntryOperationContext( name ) ) )
         {
             firstStart = true;
 
             Attributes attributes = new AttributesImpl();
             Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
             objectClass.add( SchemaConstants.TOP_OC );
-            objectClass.add( "groupOfUniqueNames" );
+            objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
             attributes.put( objectClass );
             attributes.put( SchemaConstants.CN_AT, "Administrators" );
-            attributes.put( "uniqueMember", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.UNIQUE_MEMBER_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
-            partitionNexus.add( new AddOperationContext( normName, attributes ) );
+            partitionNexus.add( new AddOperationContext( name, attributes ) );
             
             Interceptor authzInterceptor = interceptorChain.get( AuthorizationService.NAME );
             
@@ -574,7 +574,7 @@ class DefaultDirectoryService extends DirectoryService
             }
 
             AuthorizationService authzSrvc = ( AuthorizationService ) authzInterceptor;
-            authzSrvc.cacheNewGroup( upName, normName, attributes );
+            authzSrvc.cacheNewGroup( name, attributes );
 
         }
 
