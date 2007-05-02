@@ -69,6 +69,9 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
     /** The name value. It can be a String or a byte array */
     private Object value;
 
+    /** The name user provided value. It can be a String or a byte array */
+    private Object upValue;
+
     /** The user provided atav */
     private String upName;
 
@@ -93,6 +96,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
         normType = null;
         upType = null;
         value = null;
+        upValue = null;
         upName = "";
         start = -1;
         length = 0;
@@ -109,7 +113,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
      * @param value
      *            the value
      */
-    public AttributeTypeAndValue( String type, Object value ) throws InvalidNameException
+    public AttributeTypeAndValue( String upType, String type, Object upValue, Object value ) throws InvalidNameException
     {
         if ( StringTools.isEmpty( type ) || StringTools.isEmpty( type.trim() ) )
         {
@@ -118,7 +122,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
         }
 
         normType = type.trim().toLowerCase();
-        upType = type;
+        this.upType = upType;
+        this.upValue = upValue;
 
         if ( value instanceof String )
         {
@@ -129,7 +134,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
             this.value = value;
         }
 
-        upName = type + '=' + value;
+        upName = upType + '=' + upValue;
         start = 0;
         length = upName.length();
     }
@@ -162,7 +167,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
      * @param type
      *            The AttributeTypeAndValue type
      */
-    public void setType( String type ) throws InvalidNameException
+    public void setType( String upType, String type ) throws InvalidNameException
     {
         if ( StringTools.isEmpty( type ) || StringTools.isEmpty( type.trim() ) )
         {
@@ -171,8 +176,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
         }
 
         normType = type.trim().toLowerCase();
-        upType = type;
-        upName = type + upName.substring( upName.indexOf( '=' ) );
+        this.upType = upType;
+        upName = upType + upName.substring( upName.indexOf( '=' ) );
         start = -1;
         length = upName.length();
     }
@@ -211,6 +216,16 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
     }
 
     /**
+     * Get the User Provided Value of a AttributeTypeAndValue
+     *
+     * @return The value
+     */
+    public Object getUpValue()
+    {
+        return upValue;
+    }
+
+    /**
      * Get the normalized Value of a AttributeTypeAndValue
      *
      * @return The value
@@ -227,7 +242,7 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
      * @param value
      *            The value of the AttributeTypeAndValue
      */
-    public void setValue( Object value )
+    public void setValue( Object upValue, Object value )
     {
         if ( value instanceof String )
         {
@@ -238,7 +253,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
             this.value = value;
         }
 
-        upName = upName.substring( 0, upName.indexOf( '=' ) + 1 ) + value;
+        this.upValue = upValue;
+        upName = upName.substring( 0, upName.indexOf( '=' ) + 1 ) + upValue;
         start = -1;
         length = upName.length();
     }

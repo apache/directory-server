@@ -226,11 +226,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
     * @throws InvalidNameException
     *             If the RDN is invalid
     */
-   public Rdn( String type, String value ) throws InvalidNameException
+   public Rdn( String upType, String type, String upValue, String value ) throws InvalidNameException
    {
        super();
 
-       addAttributeTypeAndValue( type, value );
+       addAttributeTypeAndValue( upType, type, upValue, value );
 
        upName = type + '=' + value;
        start = 0;
@@ -354,7 +354,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    // We need this method to be visible from the DnParser class, but not
    // from outside this package.
    @SuppressWarnings({"unchecked"})
-   /* Unspecified protection */void addAttributeTypeAndValue( String type, Object value ) throws InvalidNameException
+   /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Object upValue, Object value ) throws InvalidNameException
    {
        // First, let's normalize the type
        String normalizedType = type.toLowerCase();
@@ -364,7 +364,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
        {
            case 0:
                // This is the first AttributeTypeAndValue. Just stores it.
-               atav = new AttributeTypeAndValue( type, normalizedValue );
+               atav = new AttributeTypeAndValue( upType, type, upValue, normalizedValue );
                nbAtavs = 1;
                atavType = normalizedType;
                return;
@@ -387,7 +387,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
            default:
                // add a new AttributeTypeAndValue
-               AttributeTypeAndValue newAtav = new AttributeTypeAndValue( type, normalizedValue );
+               AttributeTypeAndValue newAtav = new AttributeTypeAndValue( upType, type, upValue, normalizedValue );
                atavs.add( newAtav );
                atavTypes.put( normalizedType, newAtav );
 
@@ -852,6 +852,26 @@ public class Rdn implements Cloneable, Comparable, Serializable
    }
 
 
+   /**
+    * Return the User Provided value
+    * 
+    * @return The first User provided value of this RDN
+    */
+   public Object getUpValue()
+   {
+       switch ( nbAtavs )
+       {
+           case 0:
+               return null;
+
+           case 1:
+               return atav.getUpValue();
+
+           default:
+               return ( ( AttributeTypeAndValue )((TreeSet)atavs).first() ).getUpValue();
+       }
+   }
+   
    /**
     * Compares the specified Object with this Rdn for equality. Returns true if
     * the given object is also a Rdn and the two Rdns represent the same

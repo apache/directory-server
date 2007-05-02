@@ -1321,8 +1321,9 @@ public class LdapDN implements Name
 
                 if ( oidNormalizer != null )
                 {
-                    return new AttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), oidNormalizer
-                        .getNormalizer().normalize( atav.getValue() ) );
+                    return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
+                    		atav.getUpValue(),
+                    		oidNormalizer.getNormalizer().normalize( atav.getValue() ) );
 
                 }
                 else
@@ -1368,9 +1369,9 @@ public class LdapDN implements Name
 
             while ( atavs.hasNext() )
             {
-                Object val = atavs.next();
-                AttributeTypeAndValue newAtav = atavOidToName( ( AttributeTypeAndValue ) val, oidsMap );
-                rdn.addAttributeTypeAndValue( newAtav.getUpType(), newAtav.getValue() );
+            	AttributeTypeAndValue val = (AttributeTypeAndValue)atavs.next();
+                AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
+                rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getValue() );
             }
 
         }
@@ -1395,12 +1396,13 @@ public class LdapDN implements Name
 
                     if ( oidNormalizer != null )
                     {
-                        Object value = rdn.getValue();
+                        Object upValue = rdn.getUpValue();
+                        String upType = rdn.getUpType();
                         rdn.clear();
-                        Object normValue = DefaultStringNormalizer.normalizeString( ( String ) value );
+                        Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
 
-                        rdn.addAttributeTypeAndValue( oidNormalizer.getAttributeTypeOid(), oidNormalizer
-                            .getNormalizer().normalize( normValue ) );
+                        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
+                        		oidNormalizer.getNormalizer().normalize( normValue ) );
 
                     }
                     else

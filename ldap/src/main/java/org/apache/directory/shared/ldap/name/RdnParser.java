@@ -791,7 +791,7 @@ public class RdnParser
             {
                 if ( rdn != null )
                 {
-                    rdn.addAttributeTypeAndValue( type, value );
+                    rdn.addAttributeTypeAndValue( type, type, value, value );
                 }
             }
 
@@ -953,7 +953,7 @@ public class RdnParser
 
         if ( rdn != null )
         {
-            rdn.addAttributeTypeAndValue( type, value );
+            rdn.addAttributeTypeAndValue( type, type, value, value );
             rdn.normalize();
 
             pos.start = pos.end;
