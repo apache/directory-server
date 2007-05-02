@@ -37,7 +37,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LockBoxTest extends TestCase
+public class CipherTextHandlerTest extends TestCase
 {
     private byte[] desEncryptedTimeStamp =
         { ( byte ) 0x97, ( byte ) 0x21, ( byte ) 0x58, ( byte ) 0x5f, ( byte ) 0x81, ( byte ) 0x46, ( byte ) 0x17,
@@ -119,7 +119,7 @@ public class LockBoxTest extends TestCase
      */
     public void testDesGoodPasswordDecrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "erodriguez@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "kerby".toCharArray(), "DES" );
@@ -145,7 +145,7 @@ public class LockBoxTest extends TestCase
      */
     public void testDesBadPasswordDecrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "erodriguez@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "badpassword".toCharArray(), "DES" );
@@ -171,7 +171,7 @@ public class LockBoxTest extends TestCase
      */
     public void testTripleDesGoodPasswordDecrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
@@ -199,7 +199,7 @@ public class LockBoxTest extends TestCase
      */
     public void testTripleDesGoodPasswordEncrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES3_CBC_SHA1_KD, kerberosKey.getEncoded() );
@@ -230,7 +230,7 @@ public class LockBoxTest extends TestCase
      */
     public void testAes128GoodPasswordDecrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
@@ -258,7 +258,7 @@ public class LockBoxTest extends TestCase
      */
     public void testAes128GoodPasswordEncrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
         EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
@@ -289,7 +289,7 @@ public class LockBoxTest extends TestCase
      */
     public void testAes256GoodPasswordDecrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
@@ -317,7 +317,7 @@ public class LockBoxTest extends TestCase
      */
     public void testAes256GoodPasswordEncrypt()
     {
-        LockBox lockBox = new LockBox();
+        CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
         EncryptionKey key = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );

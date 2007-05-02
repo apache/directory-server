@@ -63,7 +63,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LockBox
+public class CipherTextHandler
 {
     /** a map of the default encodable class names to the encoder class names */
     private static final Map DEFAULT_ENCODERS;
