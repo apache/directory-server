@@ -20,9 +20,9 @@
 package org.apache.directory.server.changepw.service;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -34,7 +34,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 public class ConfigureChangePasswordChain implements IoHandlerCommand
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
-    private static final LockBox lockBox = new LockBox();
+    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private String contextKey = "context";
 
@@ -43,7 +43,7 @@ public class ConfigureChangePasswordChain implements IoHandlerCommand
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         changepwContext.setReplayCache( replayCache );
-        changepwContext.setLockBox( lockBox );
+        changepwContext.setCipherTextHandler( cipherTextHandler );
 
         next.execute( session, message );
     }

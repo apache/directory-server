@@ -25,6 +25,7 @@ import java.net.InetAddress;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordReplyModifier;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
@@ -37,7 +38,6 @@ import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class BuildReply implements IoHandlerCommand
 
         Authenticator authenticator = changepwContext.getAuthenticator();
         Ticket ticket = changepwContext.getTicket();
-        LockBox lockBox = changepwContext.getLockBox();
+        CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         // begin building reply
 
@@ -82,7 +82,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encPrivPart = lockBox.seal( subSessionKey, privPart );
+            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart );
         }
         catch ( KerberosException ke )
         {
@@ -105,7 +105,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encRepPart = lockBox.seal( ticket.getSessionKey(), repPart );
+            encRepPart = cipherTextHandler.seal( ticket.getSessionKey(), repPart );
         }
         catch ( KerberosException ke )
         {
