@@ -73,7 +73,6 @@ public class AuthenticationService extends BaseInterceptor
     /** The service name */
     public static final String NAME = "authenticationService";
     
-    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
@@ -88,7 +87,6 @@ public class AuthenticationService extends BaseInterceptor
     public AuthenticationService()
     {
     }
-
 
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
@@ -116,7 +114,6 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
-    @SuppressWarnings("unchecked")
     public void destroy()
     {
         Set<Collection<Authenticator>> clonedAuthenticatorCollections = new HashSet<Collection<Authenticator>>();
@@ -448,7 +445,7 @@ public class AuthenticationService extends BaseInterceptor
     {   
         // The DN is always normalized here
         LdapDN normBindDn = opContext.getDn();
-        String bindUpDn = opContext.getDn().getUpName();
+        String bindUpDn = normBindDn.getUpName();
         
         if ( IS_DEBUG )
         {
