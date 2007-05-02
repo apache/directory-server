@@ -20,11 +20,11 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -43,18 +43,18 @@ public class SealReply implements IoHandlerCommand
 
         TicketGrantReply reply = ( TicketGrantReply ) tgsContext.getReply();
         Ticket tgt = tgsContext.getTgt();
-        LockBox lockBox = tgsContext.getLockBox();
+        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
         Authenticator authenticator = tgsContext.getAuthenticator();
 
         EncryptedData encryptedData;
 
         if ( authenticator.getSubSessionKey() != null )
         {
-            encryptedData = lockBox.seal( authenticator.getSubSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubSessionKey(), reply );
         }
         else
         {
-            encryptedData = lockBox.seal( tgt.getSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( tgt.getSessionKey(), reply );
         }
 
         reply.setEncPart( encryptedData );

@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -35,7 +36,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class GenerateTicket implements IoHandlerCommand
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         KdcRequest request = authContext.getRequest();
-        LockBox lockBox = authContext.getLockBox();
+        CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         KerberosPrincipal serverPrincipal = request.getServerPrincipal();
         EncryptionKey serverKey = authContext.getServerEntry().getEncryptionKey();
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
@@ -172,7 +172,7 @@ public class GenerateTicket implements IoHandlerCommand
 
         EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
 
-        EncryptedData encryptedData = lockBox.seal( serverKey, ticketPart );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
         newTicket.setEncTicketPart( ticketPart );

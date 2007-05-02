@@ -22,12 +22,12 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
 
@@ -49,10 +49,10 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         ReplayCache replayCache = tgsContext.getReplayCache();
         boolean emptyAddressesAllowed = tgsContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = tgsContext.getClientAddress();
-        LockBox lockBox = tgsContext.getLockBox();
+        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, lockBox );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler );
 
         tgsContext.setAuthenticator( authenticator );
 

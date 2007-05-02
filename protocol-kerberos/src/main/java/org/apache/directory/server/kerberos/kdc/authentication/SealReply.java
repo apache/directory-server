@@ -20,10 +20,10 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -42,9 +42,9 @@ public class SealReply implements IoHandlerCommand
 
         AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
-        LockBox lockBox = authContext.getLockBox();
+        CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, reply );
+        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, reply );
         reply.setEncPart( encryptedData );
 
         next.execute( session, message );

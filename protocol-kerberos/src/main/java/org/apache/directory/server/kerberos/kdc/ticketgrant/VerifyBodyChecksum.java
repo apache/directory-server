@@ -20,11 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -36,7 +32,9 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  */
 public class VerifyBodyChecksum implements IoHandlerCommand
 {
+    private ChecksumHandler checksumHandler = new ChecksumHandler();
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -44,36 +42,14 @@ public class VerifyBodyChecksum implements IoHandlerCommand
         byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
         Checksum checksum = tgsContext.getAuthenticator().getChecksum();
 
-        verifyChecksum( checksum, bodyBytes );
+        checksumHandler.verifyChecksum( checksum, bodyBytes, null );
 
         next.execute( session, message );
     }
 
 
-    public String getContextKey()
+    private String getContextKey()
     {
         return ( this.contextKey );
-    }
-
-
-    private void verifyChecksum( Checksum checksum, byte[] bytes ) throws KerberosException
-    {
-        if ( checksum == null )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
-        }
-
-        if ( !checksum.getChecksumType().equals( ChecksumType.RSA_MD5 ) )
-        {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
-        }
-
-        ChecksumEngine digester = new RsaMd5Checksum();
-        Checksum newChecksum = new Checksum( digester.checksumType(), digester.calculateChecksum( bytes ) );
-
-        if ( !newChecksum.equals( checksum ) )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_MODIFIED );
-        }
     }
 }
