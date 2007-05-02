@@ -87,7 +87,7 @@ public class TupleCache
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
-    /** Stores a reference to the AtttributeType registry */ 
+    /** Stores a reference to the AttributeType registry */ 
     private AttributeTypeRegistry attributeTypeRegistry;
     
     /** A starage for the PrescriptiveACI attributeType */

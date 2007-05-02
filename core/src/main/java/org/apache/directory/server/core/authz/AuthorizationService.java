@@ -91,10 +91,6 @@ public class AuthorizationService extends BaseInterceptor
     /** The service name */
     public static final String NAME = "authorizationService";
 
-    /** the entry ACI attribute string: entryACI */
-    private static final String ENTRYACI_ATTR = "entryACI";
-    /** the subentry ACI attribute string: subentryACI */
-    private static final String SUBENTRYACI_ATTR = "subentryACI";
     /**
      * the multivalued op attr used to track the perscriptive access control
      * subentries that apply to an entry.
@@ -152,18 +148,25 @@ public class AuthorizationService extends BaseInterceptor
 
     /** a tupleCache that responds to add, delete, and modify attempts */
     private TupleCache tupleCache;
+    
     /** a groupCache that responds to add, delete, and modify attempts */
     private GroupCache groupCache;
+    
     /** a normalizing ACIItem parser */
     private ACIItemParser aciParser;
+    
     /** use and instance of the ACDF engine */
     private ACDFEngine engine;
+    
     /** interceptor chain */
     private InterceptorChain chain;
+    
     /** attribute type registry */
     private AttributeTypeRegistry attrRegistry;
+    
     /** whether or not this interceptor is activated */
     private boolean enabled = false;
+    
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
@@ -174,7 +177,14 @@ public class AuthorizationService extends BaseInterceptor
     private String subentryOid;
     private String acSubentryOid;
 
+    /** A storage for the entryACI attributeType */
+    private AttributeType entryAciType;
+
+    /** the subentry ACI attribute type */
+    private AttributeType subentryAciType;
     
+    public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
+
     /**
      * Initializes this interceptor based service by getting a handle on the nexus, setting up
      * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
@@ -197,6 +207,8 @@ public class AuthorizationService extends BaseInterceptor
         acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
         objectClassType = attrRegistry.lookup( objectClassOid );
         acSubentryType = attrRegistry.lookup( acSubentryOid );
+        entryAciType = attrRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
+        subentryAciType = attrRegistry.lookup( SchemaConstants.SUBENTRY_ACI_AT_OID );
         
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry, oidRegistry ), attrRegistry.getNormalizerMapping() );
         engine = new ACDFEngine( factoryCfg.getRegistries().getOidRegistry(), attrRegistry );
@@ -204,8 +216,8 @@ public class AuthorizationService extends BaseInterceptor
         enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE( null ).get( "subschemaSubentry" )
-            .get();
+        String subschemaSubentry = ( String ) factoryCfg.getPartitionNexus().getRootDSE( null ).
+        get( "subschemaSubentry" ).get();
         LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
         subschemaSubentryDnName.normalize( attrRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
@@ -256,10 +268,12 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         Attribute subentries = AttributeUtils.getAttribute( entry, acSubentryType );
+        
         if ( subentries == null )
         {
             return;
         }
+        
         for ( int ii = 0; ii < subentries.size(); ii++ )
         {
             String subentryDn = ( String ) subentries.get( ii );
@@ -278,7 +292,8 @@ public class AuthorizationService extends BaseInterceptor
      */
     private void addEntryAciTuples( Collection<ACITuple> tuples, Attributes entry ) throws NamingException
     {
-        Attribute entryAci = entry.get( ENTRYACI_ATTR );
+        Attribute entryAci = AttributeUtils.getAttribute( entry, entryAciType );
+        
         if ( entryAci == null )
         {
             return;
@@ -327,9 +342,10 @@ public class AuthorizationService extends BaseInterceptor
         // will contain the subentryACI attributes that effect subentries
         LdapDN parentDn = ( LdapDN ) dn.clone();
         parentDn.remove( dn.size() - 1 );
-        Attributes administrativeEntry = proxy.lookup( new LookupOperationContext( parentDn, new String[]
-            { SUBENTRYACI_ATTR }) , PartitionNexusProxy.LOOKUP_BYPASS );
-        Attribute subentryAci = administrativeEntry.get( SUBENTRYACI_ATTR );
+        Attributes administrativeEntry = proxy.lookup( 
+        		new LookupOperationContext( parentDn, new String[]
+            { SchemaConstants.SUBENTRY_ACI_AT }) , PartitionNexusProxy.LOOKUP_BYPASS );
+        Attribute subentryAci = AttributeUtils.getAttribute( administrativeEntry, subentryAciType );
 
         if ( subentryAci == null )
         {
@@ -400,7 +416,7 @@ public class AuthorizationService extends BaseInterceptor
         {
             next.add( addContext );
             tupleCache.subentryAdded( name.getUpName(), name, entry );
-            groupCache.groupAdded( name.getUpName(), name, entry );
+            groupCache.groupAdded( name, entry );
             return;
         }
 
@@ -430,9 +446,11 @@ public class AuthorizationService extends BaseInterceptor
 
         // now we must check if attribute type and value scope permission is granted
         NamingEnumeration attributeList = entry.getAll();
+        
         while ( attributeList.hasMore() )
         {
             Attribute attr = ( Attribute ) attributeList.next();
+        
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
@@ -446,7 +464,7 @@ public class AuthorizationService extends BaseInterceptor
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
         tupleCache.subentryAdded( name.getUpName(), name, entry );
-        groupCache.groupAdded( name.getUpName(), name, entry );
+        groupCache.groupAdded( name, entry );
     }
 
 
@@ -767,6 +785,7 @@ public class AuthorizationService extends BaseInterceptor
         // but after this service.
         Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), 
             PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        
         // As the target entry does not exist yet and so
         // its subentry operational attributes are not there,
         // we need to construct an entry to represent it
@@ -868,9 +887,6 @@ public class AuthorizationService extends BaseInterceptor
         tupleCache.subentryRenamed( oriChildName, newName );
         groupCache.groupRenamed( oriChildName, newName );
     }
-
-    public static final SearchControls DEFAULT_SEARCH_CONTROLS = new SearchControls();
-
 
     public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
@@ -996,9 +1012,9 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void cacheNewGroup( String upName, LdapDN normName, Attributes entry ) throws NamingException
+    public void cacheNewGroup( LdapDN name, Attributes entry ) throws NamingException
     {
-        this.groupCache.groupAdded( upName, normName, entry );
+        groupCache.groupAdded( name, entry );
     }
 
 
@@ -1032,11 +1048,13 @@ public class AuthorizationService extends BaseInterceptor
          * values remaining then the entire attribute is removed.
          */
         NamingEnumeration idList = result.getAttributes().getIDs();
+
         while ( idList.hasMore() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
             String id = ( String ) idList.next();
             Attribute attr = result.getAttributes().get( id );
+        
             if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
                 .getAuthenticationLevel(), normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
             {
