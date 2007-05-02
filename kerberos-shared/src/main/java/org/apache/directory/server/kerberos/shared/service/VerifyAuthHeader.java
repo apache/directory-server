@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.service;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
@@ -51,7 +52,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
     // RFC 1510 A.10.  KRB_AP_REQ verification
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
-        LockBox lockBox ) throws KerberosException
+        CipherTextHandler lockBox ) throws KerberosException
     {
         if ( authHeader.getProtocolVersionNumber() != 5 )
         {
