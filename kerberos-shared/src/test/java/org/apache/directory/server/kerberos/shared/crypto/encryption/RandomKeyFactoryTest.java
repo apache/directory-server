@@ -34,7 +34,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SessionKeyFactoryTest extends TestCase
+public class RandomKeyFactoryTest extends TestCase
 {
     /**
      * Tests that random DES keys can be generated.

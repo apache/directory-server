@@ -39,7 +39,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SessionKeyFactory
+public class RandomKeyFactory
 {
     /** a map of the default encryption types to the encryption engine class names */
     private static final Map<EncryptionType, String> DEFAULT_CIPHERS;
@@ -66,7 +66,7 @@ public class SessionKeyFactory
      * @return The new random session key.
      * @throws KerberosException 
      */
-    public static EncryptionKey getSessionKey( EncryptionType encryptionType ) throws KerberosException
+    public static EncryptionKey getRandomKey( EncryptionType encryptionType ) throws KerberosException
     {
         String algorithm = DEFAULT_CIPHERS.get( encryptionType );
 
