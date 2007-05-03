@@ -64,7 +64,7 @@ public class KerberosProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
-    public KerberosProtocolHandler(KdcConfiguration config, PrincipalStore store)
+    public KerberosProtocolHandler( KdcConfiguration config, PrincipalStore store )
     {
         this.config = config;
         this.store = store;
@@ -164,19 +164,31 @@ public class KerberosProtocolHandler implements IoHandler
 
                 case 11:
                 case 13:
-                    log.error( "Kerberos error:  " + ErrorType.KRB_AP_ERR_BADDIRECTION.getMessage() );
+                    throw new KerberosException( ErrorType.KRB_AP_ERR_BADDIRECTION );
 
                 default:
-                    log.error( "Kerberos error:  " + ErrorType.KRB_AP_ERR_MSG_TYPE.getMessage() );
+                    throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
             }
+        }
+        catch ( KerberosException ke )
+        {
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( ke.getMessage(), ke );
+            }
+            else
+            {
+                log.warn( ke.getMessage() );
+            }
+
+            session.write( getErrorMessage( config.getKdcPrincipal(), ke ) );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage() );
+            log.error( "Unexpected exception:  " + e.getMessage(), e );
 
-            KerberosException ke = ( KerberosException ) e;
-
-            session.write( getErrorMessage( config.getKdcPrincipal(), ke ) );
+            session.write( getErrorMessage( config.getKdcPrincipal(), new KerberosException(
+                ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
         }
     }
 
@@ -190,7 +202,7 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
-    public ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    protected ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
         ErrorMessageModifier modifier = new ErrorMessageModifier();
 
@@ -207,7 +219,7 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
