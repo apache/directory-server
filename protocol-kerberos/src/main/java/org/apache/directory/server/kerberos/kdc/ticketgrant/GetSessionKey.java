@@ -40,7 +40,7 @@ public class GetSessionKey implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
-        authContext.setSessionKey( SessionKeyFactory.getSessionKey() );
+        authContext.setSessionKey( SessionKeyFactory.getSessionKey( authContext.getEncryptionType() ) );
 
         next.execute( session, message );
     }

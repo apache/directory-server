@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -42,6 +43,7 @@ public class KdcContext
     private KerberosMessage reply;
     private InetAddress clientAddress;
     private CipherTextHandler cipherTextHandler;
+    private EncryptionType encryptionType;
 
 
     /**
@@ -149,5 +151,27 @@ public class KdcContext
     public void setCipherTextHandler( CipherTextHandler cipherTextHandler )
     {
         this.cipherTextHandler = cipherTextHandler;
+    }
+
+
+    /**
+     * Returns the encryption type to use for this session.
+     *
+     * @return The encryption type.
+     */
+    public EncryptionType getEncryptionType()
+    {
+        return encryptionType;
+    }
+
+
+    /**
+     * Sets the encryption type to use for this session.
+     *
+     * @param encryptionType The encryption type to set.
+     */
+    public void setEncryptionType( EncryptionType encryptionType )
+    {
+        this.encryptionType = encryptionType;
     }
 }

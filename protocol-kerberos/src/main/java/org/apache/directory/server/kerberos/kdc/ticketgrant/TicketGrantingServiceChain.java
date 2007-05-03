@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import org.apache.directory.server.kerberos.kdc.MonitorReply;
 import org.apache.directory.server.kerberos.kdc.MonitorRequest;
+import org.apache.directory.server.kerberos.kdc.SelectEncryptionType;
 import org.apache.mina.handler.chain.IoHandlerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class TicketGrantingServiceChain extends IoHandlerChain
         }
 
         addLast( "configureTicketGrantingChain", new ConfigureTicketGrantingChain() );
+        addLast( "selectEncryptionType", new SelectEncryptionType() );
         addLast( "getAuthHeader", new GetAuthHeader() );
         addLast( "verifyTgt", new VerifyTgt() );
         addLast( "getTicketPrincipalEntry", new GetTicketPrincipalEntry() );
