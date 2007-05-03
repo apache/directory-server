@@ -30,6 +30,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -40,14 +41,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class AesCtsSha1Encryption extends EncryptionEngine
+abstract class AesCtsSha1Encryption extends EncryptionEngine implements ChecksumEngine
 {
-    private static final byte[] usageKe =
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0xaa };
-
-    private static final byte[] usageKi =
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x55 };
-
     private static final byte[] iv = new byte[]
         { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
             ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
@@ -66,19 +61,36 @@ public abstract class AesCtsSha1Encryption extends EncryptionEngine
     }
 
 
+    public CipherType keyType()
+    {
+        return CipherType.AES;
+    }
+
+
     protected abstract int getKeyLength();
 
 
-    protected byte[] deriveKey( byte[] baseKey, byte[] usage, int n, int k )
+    public byte[] calculateChecksum( byte[] data, byte[] key )
     {
-        return deriveRandom( baseKey, usage, n, k );
+        byte[] Kc = deriveKey( key, usageKc, 128, getKeyLength() );
+        byte[] checksum = processChecksum( data, Kc );
+
+        return removeTrailingBytes( checksum, 0, checksum.length - getChecksumLength() );
+    }
+
+
+    public byte[] calculateIntegrity( byte[] data, byte[] key )
+    {
+        byte[] Ki = deriveKey( key, usageKi, 128, getKeyLength() );
+        byte[] checksum = processChecksum( data, Ki );
+
+        return removeTrailingBytes( checksum, 0, checksum.length - getChecksumLength() );
     }
 
 
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
     {
         byte[] Ke = deriveKey( key.getKeyValue(), usageKe, 128, getKeyLength() );
-        byte[] Ki = deriveKey( key.getKeyValue(), usageKi, 128, getKeyLength() );
 
         byte[] encryptedData = data.getCipherText();
 
@@ -97,8 +109,7 @@ public abstract class AesCtsSha1Encryption extends EncryptionEngine
         byte[] withoutConfounder = removeLeadingBytes( decryptedData, getConfounderLength(), 0 );
 
         // calculate a new checksum
-        byte[] newChecksum = calculateChecksum( decryptedData, Ki );
-        newChecksum = removeTrailingBytes( newChecksum, 0, newChecksum.length - getChecksumLength() );
+        byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue() );
 
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
@@ -113,14 +124,12 @@ public abstract class AesCtsSha1Encryption extends EncryptionEngine
     public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText )
     {
         byte[] Ke = deriveKey( key.getKeyValue(), usageKe, 128, getKeyLength() );
-        byte[] Ki = deriveKey( key.getKeyValue(), usageKi, 128, getKeyLength() );
 
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] dataBytes = concatenateBytes( conFounder, plainText );
 
-        byte[] checksumBytes = calculateChecksum( dataBytes, Ki );
-        checksumBytes = removeTrailingBytes( checksumBytes, 0, checksumBytes.length - getChecksumLength() );
+        byte[] checksumBytes = calculateIntegrity( dataBytes, key.getKeyValue() );
 
         byte[] encryptedData = encrypt( dataBytes, Ke );
         byte[] cipherText = concatenateBytes( encryptedData, checksumBytes );
@@ -141,7 +150,13 @@ public abstract class AesCtsSha1Encryption extends EncryptionEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    protected byte[] deriveKey( byte[] baseKey, byte[] usage, int n, int k )
+    {
+        return deriveRandom( baseKey, usage, n, k );
+    }
+
+
+    private byte[] processChecksum( byte[] data, byte[] key )
     {
         try
         {

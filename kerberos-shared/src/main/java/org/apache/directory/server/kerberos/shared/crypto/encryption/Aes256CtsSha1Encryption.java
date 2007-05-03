@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+
+
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -29,6 +32,12 @@ public class Aes256CtsSha1Encryption extends AesCtsSha1Encryption
     public EncryptionType getEncryptionType()
     {
         return EncryptionType.AES256_CTS_HMAC_SHA1_96;
+    }
+
+
+    public ChecksumType checksumType()
+    {
+        return ChecksumType.HMAC_SHA1_96_AES256;
     }
 
 

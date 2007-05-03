@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSha1Encryption;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes256CtsSha1Encryption;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1KdEncryption;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
@@ -45,9 +48,9 @@ public class ChecksumHandler
         Map<ChecksumType, Class> map = new HashMap<ChecksumType, Class>();
 
         map.put( ChecksumType.HMAC_MD5, HmacMd5Checksum.class );
-        map.put( ChecksumType.HMAC_SHA1_96_AES128, HmacSha196Aes128Checksum.class );
-        map.put( ChecksumType.HMAC_SHA1_96_AES256, HmacSha196Aes256Checksum.class );
-        map.put( ChecksumType.HMAC_SHA1_DES3_KD, HmacSha1Des3KdChecksum.class );
+        map.put( ChecksumType.HMAC_SHA1_96_AES128, Aes128CtsSha1Encryption.class );
+        map.put( ChecksumType.HMAC_SHA1_96_AES256, Aes256CtsSha1Encryption.class );
+        map.put( ChecksumType.HMAC_SHA1_DES3_KD, Des3CbcSha1KdEncryption.class );
         map.put( ChecksumType.RSA_MD5, RsaMd5Checksum.class );
 
         DEFAULT_CHECKSUMS = Collections.unmodifiableMap( map );
@@ -74,8 +77,9 @@ public class ChecksumHandler
             throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
         }
 
-        ChecksumEngine digester = getEngine( checksum.getChecksumType() );
-        Checksum newChecksum = new Checksum( digester.checksumType(), digester.calculateChecksum( bytes, key ) );
+        ChecksumType checksumType = checksum.getChecksumType();
+        ChecksumEngine digester = getEngine( checksumType );
+        Checksum newChecksum = new Checksum( checksumType, digester.calculateChecksum( bytes, key ) );
 
         if ( !newChecksum.equals( checksum ) )
         {

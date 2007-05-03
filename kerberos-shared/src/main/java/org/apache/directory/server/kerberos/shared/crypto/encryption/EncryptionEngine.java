@@ -33,6 +33,24 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  */
 public abstract class EncryptionEngine
 {
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Kc = DK(base-key, usage | 0x99);
+     *  Ke = DK(base-key, usage | 0xAA);
+     *  Ki = DK(base-key, usage | 0x55);
+     */
+    protected static final byte[] usageKc =
+        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x99 };
+
+    protected static final byte[] usageKe =
+        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0xaa };
+
+    protected static final byte[] usageKi =
+        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x55 };
+
     private static final SecureRandom random = new SecureRandom();
 
 
@@ -57,7 +75,7 @@ public abstract class EncryptionEngine
     protected abstract byte[] decrypt( byte[] cipherText, byte[] key );
 
 
-    protected abstract byte[] calculateChecksum( byte[] plainText, byte[] key );
+    protected abstract byte[] calculateIntegrity( byte[] plainText, byte[] key );
 
 
     protected byte[] deriveRandom( byte[] key, byte[] usage, int n, int k )
@@ -181,28 +199,6 @@ public abstract class EncryptionEngine
         }
 
         return lessBytes;
-    }
-
-
-    /**
-     * The "well-known constant" used for the DK function is the key
-     * usage number, expressed as four octets in big-endian order,
-     * followed by one octet indicated below.
-     * 
-     *  Kc = DK(base-key, usage | 0x99);
-     *  Ke = DK(base-key, usage | 0xAA);
-     *  Ki = DK(base-key, usage | 0x55);
-     */
-    protected byte[] getUsageBytes( int usage )
-    {
-        byte[] result = new byte[4];
-
-        result[0] = ( byte ) ( usage >> 24 );
-        result[1] = ( byte ) ( ( usage << 8 ) >> 24 );
-        result[2] = ( byte ) ( ( usage << 16 ) >> 24 );
-        result[3] = ( byte ) ( ( usage << 24 ) >> 24 );
-
-        return result;
     }
 
 

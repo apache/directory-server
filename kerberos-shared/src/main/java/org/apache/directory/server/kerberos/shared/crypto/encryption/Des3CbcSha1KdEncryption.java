@@ -30,6 +30,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -40,8 +42,13 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Des3CbcSha1KdEncryption extends EncryptionEngine
+public class Des3CbcSha1KdEncryption extends EncryptionEngine implements ChecksumEngine
 {
+    private static final byte[] iv = new byte[]
+        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
+            ( byte ) 0x00 };
+
+
     public EncryptionType getEncryptionType()
     {
         return EncryptionType.DES3_CBC_SHA1_KD;
@@ -60,34 +67,37 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
     }
 
 
+    public ChecksumType checksumType()
+    {
+        return ChecksumType.HMAC_SHA1_DES3_KD;
+    }
+
+
+    public CipherType keyType()
+    {
+        return CipherType.DES3;
+    }
+
+
     public byte[] calculateChecksum( byte[] data, byte[] key )
     {
-        try
-        {
-            SecretKey sk = new SecretKeySpec( key, "DESede" );
+        byte[] Kc = deriveKey( key, usageKc, 64, 168 );
 
-            Mac mac = Mac.getInstance( "HmacSHA1" );
-            mac.init( sk );
+        return processChecksum( data, Kc );
+    }
 
-            return mac.doFinal( data );
-        }
-        catch ( GeneralSecurityException nsae )
-        {
-            nsae.printStackTrace();
-            return null;
-        }
+
+    public byte[] calculateIntegrity( byte[] data, byte[] key )
+    {
+        byte[] Ki = deriveKey( key, usageKi, 64, 168 );
+
+        return processChecksum( data, Ki );
     }
 
 
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
     {
-        byte[] usageKe =
-            { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0xaa };
-        byte[] usageKi =
-            { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x55 };
-
         byte[] Ke = deriveKey( key.getKeyValue(), usageKe, 64, 168 );
-        byte[] Ki = deriveKey( key.getKeyValue(), usageKi, 64, 168 );
 
         byte[] encryptedData = data.getCipherText();
 
@@ -106,7 +116,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
         byte[] withoutConfounder = removeLeadingBytes( decryptedData, getConfounderLength(), 0 );
 
         // calculate a new checksum
-        byte[] newChecksum = calculateChecksum( decryptedData, Ki );
+        byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue() );
 
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
@@ -120,19 +130,13 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
 
     public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText )
     {
-        byte[] usageKe =
-            { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0xaa };
-        byte[] usageKi =
-            { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x55 };
-
         byte[] Ke = deriveKey( key.getKeyValue(), usageKe, 64, 168 );
-        byte[] Ki = deriveKey( key.getKeyValue(), usageKi, 64, 168 );
 
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] paddedPlainText = padString( plainText );
         byte[] dataBytes = concatenateBytes( conFounder, paddedPlainText );
-        byte[] checksumBytes = calculateChecksum( dataBytes, Ki );
+        byte[] checksumBytes = calculateIntegrity( dataBytes, key.getKeyValue() );
 
         //byte[] encryptedData = encrypt( paddedDataBytes, key.getKeyValue() );
         byte[] encryptedData = encrypt( dataBytes, Ke );
@@ -140,6 +144,18 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
         byte[] cipherText = concatenateBytes( encryptedData, checksumBytes );
 
         return new EncryptedData( getEncryptionType(), key.getKeyVersion(), cipherText );
+    }
+
+
+    public byte[] encrypt( byte[] plainText, byte[] keyBytes )
+    {
+        return processCipher( true, plainText, keyBytes );
+    }
+
+
+    public byte[] decrypt( byte[] cipherText, byte[] keyBytes )
+    {
+        return processCipher( false, cipherText, keyBytes );
     }
 
 
@@ -249,18 +265,6 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
     }
 
 
-    public byte[] encrypt( byte[] plainText, byte[] keyBytes )
-    {
-        return processCipher( true, plainText, keyBytes );
-    }
-
-
-    public byte[] decrypt( byte[] cipherText, byte[] keyBytes )
-    {
-        return processCipher( false, cipherText, keyBytes );
-    }
-
-
     private byte[] processCipher( boolean isEncrypt, byte[] data, byte[] keyBytes )
     {
         try
@@ -268,9 +272,6 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
             Cipher cipher = Cipher.getInstance( "DESede/CBC/NoPadding" );
             SecretKey key = new SecretKeySpec( keyBytes, "DESede" );
 
-            byte[] iv = new byte[]
-                { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
-                    ( byte ) 0x00, ( byte ) 0x00 };
             AlgorithmParameterSpec paramSpec = new IvParameterSpec( iv );
 
             if ( isEncrypt )
@@ -283,6 +284,25 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine
             }
 
             return cipher.doFinal( data );
+        }
+        catch ( GeneralSecurityException nsae )
+        {
+            nsae.printStackTrace();
+            return null;
+        }
+    }
+
+
+    private byte[] processChecksum( byte[] data, byte[] key )
+    {
+        try
+        {
+            SecretKey sk = new SecretKeySpec( key, "DESede" );
+
+            Mac mac = Mac.getInstance( "HmacSHA1" );
+            mac.init( sk );
+
+            return mac.doFinal( data );
         }
         catch ( GeneralSecurityException nsae )
         {

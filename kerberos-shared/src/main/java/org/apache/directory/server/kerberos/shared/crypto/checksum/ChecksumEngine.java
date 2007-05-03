@@ -27,14 +27,14 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ChecksumEngine
+public interface ChecksumEngine
 {
     /**
      * Returns the checksum type of this checksum engine.
      *
      * @return The checksum type.
      */
-    public abstract ChecksumType checksumType();
+    public ChecksumType checksumType();
 
 
     /**
@@ -42,7 +42,7 @@ public abstract class ChecksumEngine
      *
      * @return The key type.
      */
-    public abstract CipherType keyType();
+    public CipherType keyType();
 
 
     /**
@@ -52,5 +52,5 @@ public abstract class ChecksumEngine
      * @param key
      * @return The checksum value.
      */
-    public abstract byte[] calculateChecksum( byte[] data, byte[] key );
+    public byte[] calculateChecksum( byte[] data, byte[] key );
 }

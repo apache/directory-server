@@ -30,14 +30,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RsaMd5Checksum extends ChecksumEngine
+class RsaMd5Checksum implements ChecksumEngine
 {
-    RsaMd5Checksum()
-    {
-        // Package-scoped constructor; use ChecksumHandler. 
-    }
-
-
     public ChecksumType checksumType()
     {
         return ChecksumType.RSA_MD5;

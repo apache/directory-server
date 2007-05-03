@@ -41,8 +41,13 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DesCbcMd5Encryption extends EncryptionEngine
+class DesCbcMd5Encryption extends EncryptionEngine
 {
+    private static final byte[] iv = new byte[]
+        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
+            ( byte ) 0x00 };
+
+
     public EncryptionType getEncryptionType()
     {
         return EncryptionType.DES_CBC_MD5;
@@ -61,7 +66,7 @@ public class DesCbcMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    public byte[] calculateIntegrity( byte[] data, byte[] key )
     {
         try
         {
@@ -91,7 +96,7 @@ public class DesCbcMd5Encryption extends EncryptionEngine
         }
 
         // calculate a new checksum
-        byte[] newChecksum = calculateChecksum( decryptedData, key.getKeyValue() );
+        byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue() );
 
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
@@ -111,7 +116,7 @@ public class DesCbcMd5Encryption extends EncryptionEngine
         byte[] zeroedChecksum = new byte[getChecksumLength()];
         byte[] paddedPlainText = padString( plainText );
         byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, paddedPlainText ) );
-        byte[] checksumBytes = calculateChecksum( dataBytes, null );
+        byte[] checksumBytes = calculateIntegrity( dataBytes, null );
         byte[] paddedDataBytes = padString( dataBytes );
 
         // lay the checksum into the ciphertext
@@ -145,9 +150,6 @@ public class DesCbcMd5Encryption extends EncryptionEngine
             Cipher cipher = Cipher.getInstance( "DES/CBC/NoPadding" );
             SecretKey key = new SecretKeySpec( keyBytes, "DES" );
 
-            byte[] iv = new byte[]
-                { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
-                    ( byte ) 0x00, ( byte ) 0x00 };
             AlgorithmParameterSpec paramSpec = new IvParameterSpec( iv );
 
             if ( isEncrypt )

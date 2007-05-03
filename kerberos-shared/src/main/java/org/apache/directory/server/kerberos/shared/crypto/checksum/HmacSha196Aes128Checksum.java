@@ -33,14 +33,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class HmacSha196Aes128Checksum extends ChecksumEngine
+class HmacSha196Aes128Checksum implements ChecksumEngine
 {
-    HmacSha196Aes128Checksum()
-    {
-        // Package-scoped constructor; use ChecksumHandler. 
-    }
-
-
     public ChecksumType checksumType()
     {
         return ChecksumType.HMAC_SHA1_96_AES128;

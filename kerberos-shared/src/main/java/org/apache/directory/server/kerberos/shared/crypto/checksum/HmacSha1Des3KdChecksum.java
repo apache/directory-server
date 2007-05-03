@@ -33,23 +33,17 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class HmacSha1Des3KdChecksum extends ChecksumEngine
+class HmacSha1Des3KdChecksum implements ChecksumEngine
 {
-    HmacSha1Des3KdChecksum()
-    {
-        // Package-scoped constructor; use ChecksumHandler. 
-    }
-
-
     public ChecksumType checksumType()
     {
-        return ChecksumType.HMAC_MD5;
+        return ChecksumType.HMAC_SHA1_DES3_KD;
     }
 
 
     public CipherType keyType()
     {
-        return CipherType.ARCFOUR;
+        return CipherType.DES3;
     }
 
 
@@ -57,9 +51,9 @@ public class HmacSha1Des3KdChecksum extends ChecksumEngine
     {
         try
         {
-            SecretKey sk = new SecretKeySpec( key, "ARCFOUR" );
+            SecretKey sk = new SecretKeySpec( key, "DESede" );
 
-            Mac mac = Mac.getInstance( "HmacMD5" );
+            Mac mac = Mac.getInstance( "HmacSHA1" );
             mac.init( sk );
 
             return mac.doFinal( data );

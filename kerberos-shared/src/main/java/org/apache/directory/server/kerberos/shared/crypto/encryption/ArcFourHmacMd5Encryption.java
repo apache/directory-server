@@ -18,7 +18,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ArcFourHmacMd5Encryption extends EncryptionEngine
+class ArcFourHmacMd5Encryption extends EncryptionEngine
 {
     public EncryptionType getEncryptionType()
     {
@@ -62,7 +62,7 @@ public class ArcFourHmacMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    public byte[] calculateIntegrity( byte[] data, byte[] key )
     {
         try
         {
