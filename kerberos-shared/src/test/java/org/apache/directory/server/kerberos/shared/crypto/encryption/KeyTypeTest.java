@@ -34,9 +34,6 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.kerberos.KerberosKey;
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
 
@@ -121,71 +118,7 @@ public class KeyTypeTest extends TestCase
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance( "DES" );
         SecretKey desKey = keyFactory.generateSecret( desKeySpec );
         assertEquals( "DES key size", 8, desKey.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that random DES keys can be generated.
-     *
-     * @throws Exception
-     */
-    public void testGenerateDesKey() throws Exception
-    {
-        KeyGenerator keygen = KeyGenerator.getInstance( "DES" );
-        SecretKey desKey = keygen.generateKey();
-        assertEquals( "DES key size", 8, desKey.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that random ARCFOUR keys can be generated.
-     *
-     * @throws Exception
-     */
-    public void testGenerateArcFourKey() throws Exception
-    {
-        KeyGenerator keygen = KeyGenerator.getInstance( "ARCFOUR" );
-        SecretKey desKey = keygen.generateKey();
-        assertEquals( "ARCFOUR key size", 16, desKey.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that random RC4 keys can be generated.
-     *
-     * @throws Exception
-     */
-    public void testGenerateRc4Key() throws Exception
-    {
-        KeyGenerator keygen = KeyGenerator.getInstance( "RC4" );
-        SecretKey desKey = keygen.generateKey();
-        assertEquals( "RC4 key size", 16, desKey.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that random AES keys can be generated.
-     *
-     * @throws Exception
-     */
-    public void testGenerateAesKey() throws Exception
-    {
-        KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
-        SecretKey desKey = keygen.generateKey();
-        assertEquals( "AES key size", 16, desKey.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that random Triple-DES keys can be generated.
-     *
-     * @throws Exception
-     */
-    public void testGenerateTripleDesKey() throws Exception
-    {
-        KeyGenerator keygen = KeyGenerator.getInstance( "DESede" );
-        SecretKey desKey = keygen.generateKey();
-        assertEquals( "DESede key size", 24, desKey.getEncoded().length );
+        assertTrue( DESKeySpec.isParityAdjusted( desKey.getEncoded(), 0 ) );
     }
 
 
@@ -286,92 +219,6 @@ public class KeyTypeTest extends TestCase
         byte[] result = mac.doFinal( "Hi There".getBytes() );
 
         assertEquals( "HmacSHA1 size", 20, result.length );
-    }
-
-
-    /**
-     * Tests that key derivation can be performed for a DES key.
-     */
-    public void testDesKerberosKey()
-    {
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "DES" );
-
-        assertEquals( "DES key length", 8, key.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that key derivation can be performed for a Triple-DES key.
-     */
-    public void testTripleDesKerberosKey()
-    {
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
-
-        assertEquals( "DESede key length", 24, key.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that key derivation can be performed for an RC4-HMAC key.
-     */
-    public void testArcFourHmacKerberosKey()
-    {
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "ArcFourHmac" );
-
-        assertEquals( "ArcFourHmac key length", 16, key.getEncoded().length );
-    }
-
-
-    /**
-     * Tests that key derivation can be performed for an AES-128 key.
-     *
-     * @throws Exception
-     */
-    public void testAes128KerberosKey() throws Exception
-    {
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
-
-        assertEquals( "AES128 key length", 16, key.getEncoded().length );
-
-        SecretKey skey = new SecretKeySpec( key.getEncoded(), "AES" );
-
-        aesCipher( skey );
-    }
-
-
-    /**
-     * Tests that key derivation can be performed for an AES-256 key.  This test
-     * will fail if "unlimited strength" policy is not installed.
-     *
-     * @throws Exception
-     */
-    public void testAes256KerberosKey() throws Exception
-    {
-        // KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        // KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
-        //
-        // assertEquals( "AES256 key length", 32, key.getEncoded().length );
-        //
-        // SecretKey skey = new SecretKeySpec( key.getEncoded(), "AES" );
-        //
-        // aesCipher( skey );
-    }
-
-
-    /**
-     * Initializes an AES cipher in CTS-mode with a SecretKey.
-     *
-     * @param key The secret key.
-     * @throws Exception
-     */
-    private void aesCipher( SecretKey key ) throws Exception
-    {
-        Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
-        ecipher.init( Cipher.ENCRYPT_MODE, key );
     }
 
 
