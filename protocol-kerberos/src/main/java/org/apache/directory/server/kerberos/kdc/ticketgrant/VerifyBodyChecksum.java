@@ -20,10 +20,18 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -32,17 +40,45 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  */
 public class VerifyBodyChecksum implements IoHandlerCommand
 {
+    /** the log for this class */
+    private static final Logger log = LoggerFactory.getLogger( VerifyBodyChecksum.class );
+
     private ChecksumHandler checksumHandler = new ChecksumHandler();
     private String contextKey = "context";
+
+    /** a map of the default encryption types to the encryption engine class names */
+    private static final Map<EncryptionType, ChecksumType> DEFAULT_CHECKSUMS;
+
+    static
+    {
+        Map<EncryptionType, ChecksumType> map = new HashMap<EncryptionType, ChecksumType>();
+
+        map.put( EncryptionType.DES_CBC_MD5, ChecksumType.RSA_MD5 );
+        map.put( EncryptionType.DES3_CBC_SHA1_KD, ChecksumType.HMAC_SHA1_DES3_KD );
+        map.put( EncryptionType.RC4_HMAC, ChecksumType.HMAC_MD5 );
+        map.put( EncryptionType.AES128_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES128 );
+        map.put( EncryptionType.AES256_CTS_HMAC_SHA1_96, ChecksumType.HMAC_SHA1_96_AES256 );
+
+        DEFAULT_CHECKSUMS = Collections.unmodifiableMap( map );
+    }
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
-        Checksum checksum = tgsContext.getAuthenticator().getChecksum();
+        Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
 
-        checksumHandler.verifyChecksum( checksum, bodyBytes, null );
+        EncryptionType encryptionType = tgsContext.getEncryptionType();
+        ChecksumType allowedChecksumType = DEFAULT_CHECKSUMS.get( encryptionType );
+
+        if ( !allowedChecksumType.equals( authenticatorChecksum.getChecksumType() ) )
+        {
+            log.warn( "Allowed checksum type '" + allowedChecksumType + "' did not match authenticator checksum type '"
+                + authenticatorChecksum.getChecksumType() + "'." );
+        }
+
+        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null );
 
         next.execute( session, message );
     }
