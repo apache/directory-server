@@ -20,13 +20,16 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.security.InvalidKeyException;
-import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.DESKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
@@ -38,105 +41,64 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  */
 public class SessionKeyFactory
 {
-    /**
-     * SecureRandom.nextBytes() is synchronized, making this safe for static use.
-     */
-    private static final SecureRandom random = new SecureRandom();
+    /** a map of the default encryption types to the encryption engine class names */
+    private static final Map<EncryptionType, String> DEFAULT_CIPHERS;
 
-
-    /**
-     * Get a new random session key.
-     *
-     * @return The new random session key.
-     */
-    public static EncryptionKey getSessionKey()
+    static
     {
-        // Only need 7 bytes.  With parity will result in 8 bytes.
-        byte[] raw = new byte[7];
+        Map<EncryptionType, String> map = new HashMap<EncryptionType, String>();
 
-        // SecureRandom.nextBytes is already synchronized
-        random.nextBytes( raw );
+        map.put( EncryptionType.DES_CBC_MD5, "DES" );
+        map.put( EncryptionType.DES3_CBC_SHA1_KD, "DESede" );
+        map.put( EncryptionType.RC4_HMAC, "RC4" );
+        map.put( EncryptionType.AES128_CTS_HMAC_SHA1_96, "AES" );
+        map.put( EncryptionType.AES256_CTS_HMAC_SHA1_96, "AES" );
 
-        byte[] keyBytes = addParity( raw );
+        DEFAULT_CIPHERS = Collections.unmodifiableMap( map );
+    }
+
+
+    /**
+     * Get a new random session key for a given {@link EncryptionType}.
+     * 
+     * @param encryptionType 
+     * 
+     * @return The new random session key.
+     * @throws KerberosException 
+     */
+    public static EncryptionKey getSessionKey( EncryptionType encryptionType ) throws KerberosException
+    {
+        String algorithm = DEFAULT_CIPHERS.get( encryptionType );
+
+        if ( algorithm == null )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, encryptionType.getName()
+                + " is not a supported encryption type." );
+        }
 
         try
         {
-            // check for weakness
-            if ( DESKeySpec.isWeak( keyBytes, 0 ) )
+            KeyGenerator keyGenerator = KeyGenerator.getInstance( algorithm );
+
+            if ( encryptionType.equals( EncryptionType.AES128_CTS_HMAC_SHA1_96 ) )
             {
-                keyBytes = getStrongKey( keyBytes );
+                keyGenerator.init( 128 );
             }
+
+            if ( encryptionType.equals( EncryptionType.AES256_CTS_HMAC_SHA1_96 ) )
+            {
+                keyGenerator.init( 256 );
+            }
+
+            SecretKey key = keyGenerator.generateKey();
+
+            byte[] keyBytes = key.getEncoded();
+
+            return new EncryptionKey( encryptionType, keyBytes );
         }
-        catch ( InvalidKeyException ike )
+        catch ( NoSuchAlgorithmException nsae )
         {
-            /*
-             * Will only get here if the key is null or less
-             * than 8 bytes, which won't ever happen.
-             */
-            return null;
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, nsae.getMessage() );
         }
-
-        SecretKey key = new SecretKeySpec( keyBytes, "DES" );
-        byte[] subSessionKey = key.getEncoded();
-
-        return new EncryptionKey( EncryptionType.DES_CBC_MD5, subSessionKey );
-    }
-
-
-    /**
-     * Adds parity to 7-bytes to form an 8-byte DES key.
-     *
-     * @param sevenBytes
-     * @return The 8-byte DES key with parity.
-     */
-    static byte[] addParity( byte[] sevenBytes )
-    {
-        byte[] result = new byte[8];
-
-        // Keeps track of the bit position in the result.
-        int resultIndex = 1;
-
-        // Used to keep track of the number of 1 bits in each 7-bit chunk.
-        int bitCount = 0;
-
-        // Process each of the 56 bits.
-        for ( int i = 0; i < 56; i++ )
-        {
-            // Get the bit at bit position i
-            boolean bit = ( sevenBytes[6 - i / 8] & ( 1 << ( i % 8 ) ) ) > 0;
-
-            // If set, set the corresponding bit in the result.
-            if ( bit )
-            {
-                result[7 - resultIndex / 8] |= ( 1 << ( resultIndex % 8 ) ) & 0xFF;
-                bitCount++;
-            }
-
-            // Set the parity bit after every 7 bits.
-            if ( ( i + 1 ) % 7 == 0 )
-            {
-                if ( bitCount % 2 == 0 )
-                {
-                    // Set low-order bit (parity bit) if bit count is even.
-                    result[7 - resultIndex / 8] |= 1;
-                }
-                resultIndex++;
-                bitCount = 0;
-            }
-            resultIndex++;
-        }
-
-        return result;
-    }
-
-
-    /**
-     * Corrects the weak key by exclusive OR with 0xF0 constant.
-     */
-    private static byte[] getStrongKey( byte keyValue[] )
-    {
-        keyValue[7] ^= 0xf0;
-
-        return keyValue;
     }
 }
