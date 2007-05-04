@@ -69,7 +69,7 @@ public class EncApRepPartEncoder implements Encoder, EncoderFactory
 
         if ( message.getSubSessionKey() != null )
         {
-            sequence.add( new DERTaggedObject( 2, EncryptionKeyEncoder.encode( message.getSubSessionKey() ) ) );
+            sequence.add( new DERTaggedObject( 2, EncryptionKeyEncoder.encodeSequence( message.getSubSessionKey() ) ) );
         }
 
         if ( message.getSequenceNumber() != null )

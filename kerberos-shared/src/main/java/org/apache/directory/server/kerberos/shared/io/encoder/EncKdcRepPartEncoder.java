@@ -82,7 +82,7 @@ public abstract class EncKdcRepPartEncoder implements Encoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, EncryptionKeyEncoder.encode( reply.getKey() ) ) );
+        sequence.add( new DERTaggedObject( 0, EncryptionKeyEncoder.encodeSequence( reply.getKey() ) ) );
         sequence.add( new DERTaggedObject( 1, LastRequestEncoder.encode( reply.getLastRequest() ) ) );
         sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( reply.getNonce() ) ) );
 

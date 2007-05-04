@@ -20,10 +20,12 @@
 package org.apache.directory.server.kerberos.shared.io.decoder;
 
 
+import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
@@ -37,6 +39,16 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptionKeyDecoder
 {
+    public static EncryptionKey decode( byte[] encodedEncryptionKey ) throws IOException
+    {
+        ASN1InputStream ais = new ASN1InputStream( encodedEncryptionKey );
+
+        DERSequence sequence = ( DERSequence ) ais.readObject();
+
+        return decode( sequence );
+    }
+
+
     /**
      * EncryptionKey ::=   SEQUENCE {
      *     keytype[0]    INTEGER,
