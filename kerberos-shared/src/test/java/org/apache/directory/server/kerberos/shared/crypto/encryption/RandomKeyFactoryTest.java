@@ -20,11 +20,17 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.DESKeySpec;
 
 import junit.framework.TestCase;
+
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
 /**
@@ -114,5 +120,76 @@ public class RandomKeyFactoryTest extends TestCase
         KeyGenerator keygen = KeyGenerator.getInstance( "RC4" );
         SecretKey key = keygen.generateKey();
         assertEquals( "RC4 key size", 16, key.getEncoded().length );
+    }
+
+
+    /**
+     * Tests that random key generation can be performed by the factory for multiple cipher types.
+     * 
+     * @throws Exception
+     */
+    public void testRandomKeyFactory() throws Exception
+    {
+        Map<EncryptionType, EncryptionKey> map = RandomKeyFactory.getRandomKeys();
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+
+        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
+        assertEquals( keyLength, 8 );
+
+        kerberosKey = map.get( EncryptionType.DES3_CBC_SHA1_KD );
+        keyType = kerberosKey.getKeyType();
+        keyLength = kerberosKey.getKeyValue().length;
+
+        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
+        assertEquals( keyLength, 24 );
+
+        kerberosKey = map.get( EncryptionType.RC4_HMAC );
+        keyType = kerberosKey.getKeyType();
+        keyLength = kerberosKey.getKeyValue().length;
+
+        assertEquals( keyType, EncryptionType.RC4_HMAC );
+        assertEquals( keyLength, 16 );
+
+        kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        keyType = kerberosKey.getKeyType();
+        keyLength = kerberosKey.getKeyValue().length;
+
+        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        assertEquals( keyLength, 16 );
+
+        // kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        // keyType = kerberosKey.getKeyType();
+        // keyLength = kerberosKey.getKeyValue().length;
+
+        // assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        // assertEquals( keyLength, 32 );
+    }
+
+
+    /**
+     * Tests that random key generation can be performed by the factory for a specified cipher type.
+     * 
+     * @throws Exception
+     */
+    public void testRandomKeyFactoryOnlyDes() throws Exception
+    {
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
+
+        Map<EncryptionType, EncryptionKey> map = RandomKeyFactory.getRandomKeys( encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+
+        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
+        assertEquals( keyLength, 8 );
     }
 }

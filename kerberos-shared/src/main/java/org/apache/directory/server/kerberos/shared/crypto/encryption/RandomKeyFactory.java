@@ -23,7 +23,9 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -34,14 +36,16 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
 /**
- * Generates new random keys, suitable for use as session keys.
+ * A factory class for producing random keys, suitable for use as session keys.  For a
+ * list of desired cipher types, Kerberos random-to-key functions are used to derive
+ * keys for DES-, DES3-, AES-, and RC4-based encryption types.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class RandomKeyFactory
 {
-    /** a map of the default encryption types to the encryption engine class names */
+    /** A map of default encryption types mapped to cipher names. */
     private static final Map<EncryptionType, String> DEFAULT_CIPHERS;
 
     static
@@ -59,11 +63,45 @@ public class RandomKeyFactory
 
 
     /**
-     * Get a new random session key for a given {@link EncryptionType}.
+     * Get a map of random keys.  The default set of encryption types is used.
+     * 
+     * @return The map of random keys.
+     * @throws KerberosException 
+     */
+    public static Map<EncryptionType, EncryptionKey> getRandomKeys() throws KerberosException
+    {
+        return getRandomKeys( DEFAULT_CIPHERS.keySet() );
+    }
+
+
+    /**
+     * Get a map of random keys for a list of cipher types to derive keys for.
+     *
+     * @param ciphers The list of ciphers to derive keys for.
+     * @return The list of KerberosKey's.
+     * @throws KerberosException 
+     */
+    public static Map<EncryptionType, EncryptionKey> getRandomKeys( Set<EncryptionType> ciphers ) throws KerberosException
+    {
+        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+
+        Iterator<EncryptionType> it = ciphers.iterator();
+        while ( it.hasNext() )
+        {
+            EncryptionType type = it.next();
+            map.put( type, getRandomKey( type ) );
+        }
+
+        return map;
+    }
+
+
+    /**
+     * Get a new random key for a given {@link EncryptionType}.
      * 
      * @param encryptionType 
      * 
-     * @return The new random session key.
+     * @return The new random key.
      * @throws KerberosException 
      */
     public static EncryptionKey getRandomKey( EncryptionType encryptionType ) throws KerberosException

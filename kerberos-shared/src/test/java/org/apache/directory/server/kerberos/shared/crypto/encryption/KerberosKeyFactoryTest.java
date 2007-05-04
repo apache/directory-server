@@ -20,17 +20,17 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
+
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
 /**
@@ -112,24 +112,22 @@ public class KerberosKeyFactoryTest extends TestCase
 
 
     /**
-     * Tests that key derivation can be performed by the factory for a list of cipher types.
+     * Tests that key derivation can be performed by the factory for multiple cipher types.
      */
     public void testKerberosKeyFactory()
     {
         String principalName = "hnelson@EXAMPLE.COM";
         String passPhrase = "secret";
 
-        List<KerberosKey> kerberosKeys = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase );
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase );
 
-        Map<EncryptionType, KerberosKey> map = getMapForList( kerberosKeys );
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
 
-        KerberosKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
 
-        int keyType = kerberosKey.getKeyType();
-        int keyLength = kerberosKey.getEncoded().length;
-        byte[] keyBytes = kerberosKey.getEncoded();
-
-        assertEquals( keyType, 3 );
+        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
         assertEquals( keyLength, 8 );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
@@ -138,10 +136,10 @@ public class KerberosKeyFactoryTest extends TestCase
 
         kerberosKey = map.get( EncryptionType.DES3_CBC_SHA1_KD );
         keyType = kerberosKey.getKeyType();
-        keyLength = kerberosKey.getEncoded().length;
-        keyBytes = kerberosKey.getEncoded();
+        keyLength = kerberosKey.getKeyValue().length;
+        keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, 16 );
+        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
         assertEquals( keyLength, 24 );
         expectedBytes = new byte[]
             { ( byte ) 0x57, ( byte ) 0x07, ( byte ) 0xCE, ( byte ) 0x29, ( byte ) 0x52, ( byte ) 0x92, ( byte ) 0x2C,
@@ -152,10 +150,10 @@ public class KerberosKeyFactoryTest extends TestCase
 
         kerberosKey = map.get( EncryptionType.RC4_HMAC );
         keyType = kerberosKey.getKeyType();
-        keyLength = kerberosKey.getEncoded().length;
-        keyBytes = kerberosKey.getEncoded();
+        keyLength = kerberosKey.getKeyValue().length;
+        keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, 23 );
+        assertEquals( keyType, EncryptionType.RC4_HMAC );
         assertEquals( keyLength, 16 );
         expectedBytes = new byte[]
             { ( byte ) 0x87, ( byte ) 0x8D, ( byte ) 0x80, ( byte ) 0x14, ( byte ) 0x60, ( byte ) 0x6C, ( byte ) 0xDA,
@@ -165,10 +163,10 @@ public class KerberosKeyFactoryTest extends TestCase
 
         kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
         keyType = kerberosKey.getKeyType();
-        keyLength = kerberosKey.getEncoded().length;
-        keyBytes = kerberosKey.getEncoded();
+        keyLength = kerberosKey.getKeyValue().length;
+        keyBytes = kerberosKey.getKeyValue();
 
-        assertEquals( keyType, 17 );
+        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
         assertEquals( keyLength, 16 );
         expectedBytes = new byte[]
             { ( byte ) 0xAD, ( byte ) 0x21, ( byte ) 0x4B, ( byte ) 0x38, ( byte ) 0xB6, ( byte ) 0x9D, ( byte ) 0xFC,
@@ -178,10 +176,10 @@ public class KerberosKeyFactoryTest extends TestCase
 
         // kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
         // keyType = kerberosKey.getKeyType();
-        // keyLength = kerberosKey.getEncoded().length;
-        // keyBytes = kerberosKey.getEncoded();
+        // keyLength = kerberosKey.getKeyValue().length;
+        // keyBytes = kerberosKey.getKeyValue();
         //
-        // assertEquals( keyType, 18 );
+        // assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
         // assertEquals( keyLength, 32 );
         // expectedBytes = new byte[]
         //     { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47, ( byte ) 0xE5,
@@ -201,42 +199,25 @@ public class KerberosKeyFactoryTest extends TestCase
         String principalName = "hnelson@EXAMPLE.COM";
         String passPhrase = "secret";
 
-        List<String> ciphers = new ArrayList<String>();
-        ciphers.add( "DES" );
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
-        List<KerberosKey> kerberosKeys = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase, ciphers );
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
 
-        assertEquals( "List length", 1, kerberosKeys.size() );
+        assertEquals( "List length", 1, map.values().size() );
 
-        Map<EncryptionType, KerberosKey> map = getMapForList( kerberosKeys );
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
 
-        KerberosKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
 
-        int keyType = kerberosKey.getKeyType();
-        int keyLength = kerberosKey.getEncoded().length;
-        byte[] keyBytes = kerberosKey.getEncoded();
-
-        assertEquals( keyType, 3 );
+        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
         assertEquals( keyLength, 8 );
         byte[] expectedBytes = new byte[]
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
                 ( byte ) 0x5B };
         assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
-    }
-
-
-    private Map<EncryptionType, KerberosKey> getMapForList( List<KerberosKey> kerberosKeys )
-    {
-        Map<EncryptionType, KerberosKey> map = new HashMap<EncryptionType, KerberosKey>();
-
-        Iterator<KerberosKey> it = kerberosKeys.iterator();
-        while ( it.hasNext() )
-        {
-            KerberosKey kerberosKey = it.next();
-            EncryptionType type = EncryptionType.getTypeByOrdinal( kerberosKey.getKeyType() );
-            map.put( type, kerberosKey );
-        }
-
-        return map;
     }
 }

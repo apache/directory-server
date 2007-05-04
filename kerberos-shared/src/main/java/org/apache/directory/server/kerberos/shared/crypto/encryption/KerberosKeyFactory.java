@@ -21,13 +21,16 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
+
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
 /**
@@ -40,34 +43,34 @@ import javax.security.auth.kerberos.KerberosPrincipal;
  */
 public class KerberosKeyFactory
 {
-    /** A list of the default cipher types to derive keys for. */
-    private static final List<String> DEFAULT_CIPHERS;
+    /** A map of default encryption types mapped to cipher names. */
+    private static final Map<EncryptionType, String> DEFAULT_CIPHERS;
 
     static
     {
-        List<String> list = new ArrayList<String>();
+        Map<EncryptionType, String> map = new HashMap<EncryptionType, String>();
 
-        list.add( "DES" );
-        list.add( "DESede" );
-        list.add( "ArcFourHmac" );
-        list.add( "AES128" );
-        list.add( "AES256" );
+        map.put( EncryptionType.DES_CBC_MD5, "DES" );
+        map.put( EncryptionType.DES3_CBC_SHA1_KD, "DESede" );
+        map.put( EncryptionType.RC4_HMAC, "ArcFourHmac" );
+        map.put( EncryptionType.AES128_CTS_HMAC_SHA1_96, "AES128" );
+        map.put( EncryptionType.AES256_CTS_HMAC_SHA1_96, "AES256" );
 
-        DEFAULT_CIPHERS = Collections.unmodifiableList( list );
+        DEFAULT_CIPHERS = Collections.unmodifiableMap( map );
     }
 
 
     /**
-     * Get a list of KerberosKey's for a given principal name and passphrase.  The default set
-     * of cipher types is used.
-     *
+     * Get a map of KerberosKey's for a given principal name and passphrase.  The default set
+     * of encryption types is used.
+     * 
      * @param principalName The principal name to use for key derivation.
      * @param passPhrase The passphrase to use for key derivation.
-     * @return The list of KerberosKey's.
+     * @return The map of KerberosKey's.
      */
-    public static List<KerberosKey> getKerberosKeys( String principalName, String passPhrase )
+    public static Map<EncryptionType, EncryptionKey> getKerberosKeys( String principalName, String passPhrase )
     {
-        return getKerberosKeys( principalName, passPhrase, DEFAULT_CIPHERS );
+        return getKerberosKeys( principalName, passPhrase, DEFAULT_CIPHERS.keySet() );
     }
 
 
@@ -77,18 +80,26 @@ public class KerberosKeyFactory
      *
      * @param principalName The principal name to use for key derivation.
      * @param passPhrase The passphrase to use for key derivation.
-     * @param ciphers The list of ciphers to derive keys for.
+     * @param ciphers The set of ciphers to derive keys for.
      * @return The list of KerberosKey's.
      */
-    public static List<KerberosKey> getKerberosKeys( String principalName, String passPhrase, List<String> ciphers )
+    public static Map<EncryptionType, EncryptionKey> getKerberosKeys( String principalName, String passPhrase,
+        Set<EncryptionType> ciphers )
     {
         KerberosPrincipal principal = new KerberosPrincipal( principalName );
-        List<KerberosKey> kerberosKeys = new ArrayList<KerberosKey>();
+        Map<EncryptionType, EncryptionKey> kerberosKeys = new HashMap<EncryptionType, EncryptionKey>();
 
-        Iterator<String> it = ciphers.iterator();
+        Iterator<EncryptionType> it = ciphers.iterator();
         while ( it.hasNext() )
         {
-            kerberosKeys.add( new KerberosKey( principal, passPhrase.toCharArray(), it.next() ) );
+            EncryptionType encryptionType = it.next();
+            String algorithm = DEFAULT_CIPHERS.get( encryptionType );
+
+            KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), algorithm );
+            EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
+                .getVersionNumber() );
+
+            kerberosKeys.put( encryptionType, encryptionKey );
         }
 
         return kerberosKeys;
