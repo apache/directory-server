@@ -23,9 +23,11 @@ package org.apache.directory.server;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.crypto.spec.DESKeySpec;
@@ -107,7 +109,7 @@ public class KeyDerivationServiceTest extends AbstractServerTest
         MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
         List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
 
-        interceptorCfg.setName( "keyDerivationService" );
+        interceptorCfg.setName( KeyDerivationService.NAME );
         interceptorCfg.setInterceptor( new KeyDerivationService() );
         list.add( interceptorCfg );
         configuration.setInterceptorConfigurations( list );
@@ -195,26 +197,19 @@ public class KeyDerivationServiceTest extends AbstractServerTest
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        assertEquals( "Number of keys", 2, attributes.get( "krb5key" ).size() );
+        assertEquals( "Number of keys", 5, attributes.get( "krb5key" ).size() );
 
         byte[] testPasswordBytes =
             { ( byte ) 0x73, ( byte ) 0x65, ( byte ) 0x63, ( byte ) 0x72, ( byte ) 0x65, ( byte ) 0x74 };
         assertTrue( Arrays.equals( userPassword, testPasswordBytes ) );
 
-        byte[] krb5key = ( byte[] ) attributes.get( "krb5key" ).get();
+        Attribute krb5key = attributes.get( "krb5key" );
+        Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
+        EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
 
         byte[] testKeyBytes =
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
                 ( byte ) 0x5B };
-
-        byte[] encodedKey = new byte[]
-            { ( byte ) 0x30, ( byte ) 0x11, ( byte ) 0xA0, ( byte ) 0x03, ( byte ) 0x02, ( byte ) 0x01, ( byte ) 0x03,
-                ( byte ) 0xA1, ( byte ) 0x0A, ( byte ) 0x04, ( byte ) 0x08, ( byte ) 0xF4, ( byte ) 0xA7,
-                ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE, ( byte ) 0x5B };
-
-        assertTrue( Arrays.equals( krb5key, encodedKey ) );
-
-        EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( krb5key );
 
         assertTrue( Arrays.equals( encryptionKey.getKeyValue(), testKeyBytes ) );
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
@@ -264,19 +259,19 @@ public class KeyDerivationServiceTest extends AbstractServerTest
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        assertEquals( "Number of keys", 2, attributes.get( "krb5key" ).size() );
+        assertEquals( "Number of keys", 5, attributes.get( "krb5key" ).size() );
 
         byte[] testBytes =
             { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74 };
         assertTrue( Arrays.equals( userPassword, testBytes ) );
 
-        byte[] krb5key = ( byte[] ) attributes.get( "krb5key" ).get();
+        Attribute krb5key = attributes.get( "krb5key" );
+        Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
+        EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
 
         byte[] testKeyBytes =
             { ( byte ) 0x16, ( byte ) 0x4A, ( byte ) 0x6D, ( byte ) 0x89, ( byte ) 0x5D, ( byte ) 0x76, ( byte ) 0x0E,
                 ( byte ) 0x23 };
-
-        EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( krb5key );
 
         assertTrue( Arrays.equals( encryptionKey.getKeyValue(), testKeyBytes ) );
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
@@ -352,16 +347,17 @@ public class KeyDerivationServiceTest extends AbstractServerTest
             { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
                 ( byte ) 0x5B };
 
-        byte[] tquistKey = ( byte[] ) tquistAttrs.get( "krb5key" ).get();
-        byte[] jfryerKey = ( byte[] ) jfryerAttrs.get( "krb5key" ).get();
-
-        EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( tquistKey );
-        tquistKey = encryptionKey.getKeyValue();
+        Attribute krb5key = tquistAttrs.get( "krb5key" );
+        Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
+        EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
+        byte[] tquistKey = encryptionKey.getKeyValue();
 
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
 
-        encryptionKey = EncryptionKeyDecoder.decode( jfryerKey );
-        jfryerKey = encryptionKey.getKeyValue();
+        krb5key = jfryerAttrs.get( "krb5key" );
+        map = reconstituteKeyMap( krb5key );
+        encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
+        byte[] jfryerKey = encryptionKey.getKeyValue();
 
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
 
@@ -435,5 +431,21 @@ public class KeyDerivationServiceTest extends AbstractServerTest
         attrs.put( "ou", ou );
 
         return attrs;
+    }
+
+
+    private Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws NamingException,
+        IOException
+    {
+        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+
+        for ( int ii = 0; ii < krb5key.size(); ii++ )
+        {
+            byte[] encryptionKeyBytes = ( byte[] ) krb5key.get( ii );
+            EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
+            map.put( encryptionKey.getKeyType(), encryptionKey );
+        }
+
+        return map;
     }
 }

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,6 +88,9 @@ public class KeyDerivationService extends BaseInterceptor
     /** The log for this class. */
     private static final Logger log = LoggerFactory.getLogger( KeyDerivationService.class );
 
+    /** The service name. */
+    public static final String NAME = "keyDerivationService";
+
     /**
      * Define the interceptors to bypass upon user lookup.
      */
@@ -143,27 +147,14 @@ public class KeyDerivationService extends BaseInterceptor
 
             log.debug( "Got principal " + principalName + " with userPassword " + userPassword );
 
-            EncryptionKey key = generateKey( principalName, userPassword, EncryptionType.DES_CBC_MD5 );
+            Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
+            EncryptionKey key = keys.get( EncryptionType.DES_CBC_MD5 );
             entry.put( KerberosAttribute.PRINCIPAL, principalName );
             entry.put( KerberosAttribute.VERSION, Integer.toString( key.getKeyVersion() ) );
             entry.put( KerberosAttribute.TYPE, Integer.toString( key.getKeyType().getOrdinal() ) );
 
-            Attribute keyAttribute = new AttributeImpl( KerberosAttribute.KEY );
-
-            try
-            {
-                keyAttribute.add( EncryptionKeyEncoder.encode( key ) );
-            }
-            catch ( IOException ioe )
-            {
-                ioe.printStackTrace();
-            }
-
-            keyAttribute.add( new byte[]
-                { ( byte ) 0x00 } );
-
-            entry.put( keyAttribute );
+            entry.put( getKeyAttribute( keys ) );
 
             log.debug( "Adding modified entry " + AttributeUtils.toString( entry ) + " for DN = '"
                 + normName.getUpName() + "'" );
@@ -249,8 +240,9 @@ public class KeyDerivationService extends BaseInterceptor
 
             List<ModificationItemImpl> newModsList = new ArrayList<ModificationItemImpl>();
 
-            EncryptionKey key = generateKey( principalName, userPassword, EncryptionType.DES_CBC_MD5 );
+            Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
+            EncryptionKey key = keys.get( EncryptionType.DES_CBC_MD5 );
             newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
                 KerberosAttribute.PRINCIPAL, principalName ) ) );
             newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
@@ -258,21 +250,7 @@ public class KeyDerivationService extends BaseInterceptor
             newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
                 KerberosAttribute.TYPE, Integer.toString( key.getKeyType().getOrdinal() ) ) ) );
 
-            Attribute keyAttribute = new AttributeImpl( KerberosAttribute.KEY );
-
-            try
-            {
-                keyAttribute.add( EncryptionKeyEncoder.encode( key ) );
-            }
-            catch ( IOException ioe )
-            {
-                ioe.printStackTrace();
-            }
-
-            keyAttribute.add( new byte[]
-                { ( byte ) 0x00 } );
-
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, keyAttribute ) );
+            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
 
             for ( int ii = 0; ii < mods.length; ii++ )
             {
@@ -339,14 +317,36 @@ public class KeyDerivationService extends BaseInterceptor
     }
 
 
-    private EncryptionKey generateKey( String principalName, String userPassword, EncryptionType encryptionType )
+    private Attribute getKeyAttribute( Map<EncryptionType, EncryptionKey> keys )
+    {
+        Attribute keyAttribute = new AttributeImpl( KerberosAttribute.KEY );
+
+        Iterator<EncryptionKey> it = keys.values().iterator();
+
+        while ( it.hasNext() )
+        {
+            try
+            {
+                keyAttribute.add( EncryptionKeyEncoder.encode( it.next() ) );
+            }
+            catch ( IOException ioe )
+            {
+                log.error( "Error encoding EncryptionKey.", ioe );
+            }
+        }
+
+        return keyAttribute;
+    }
+
+
+    private Map<EncryptionType, EncryptionKey> generateKeys( String principalName, String userPassword )
     {
         if ( userPassword.equalsIgnoreCase( "randomKey" ) )
         {
             // Generate random key.
             try
             {
-                return RandomKeyFactory.getRandomKey( encryptionType );
+                return RandomKeyFactory.getRandomKeys();
             }
             catch ( KerberosException ke )
             {
@@ -357,9 +357,7 @@ public class KeyDerivationService extends BaseInterceptor
         else
         {
             // Derive key based on password and principal name.
-            Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, userPassword );
-
-            return map.get( encryptionType );
+            return KerberosKeyFactory.getKerberosKeys( principalName, userPassword );
         }
     }
 }
