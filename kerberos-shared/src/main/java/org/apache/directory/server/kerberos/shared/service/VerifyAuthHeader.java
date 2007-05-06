@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.service;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
@@ -48,6 +49,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 public abstract class VerifyAuthHeader implements IoHandlerCommand
 {
     private String contextKey = "context";
+
 
     // RFC 1510 A.10.  KRB_AP_REQ verification
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
@@ -91,11 +93,12 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOKEY );
         }
 
-        EncTicketPart encPart = ( EncTicketPart ) lockBox.unseal( EncTicketPart.class, ticketKey, ticket.getEncPart() );
+        EncTicketPart encPart = ( EncTicketPart ) lockBox.unseal( EncTicketPart.class, ticketKey, ticket.getEncPart(),
+            KeyUsage.NUMBER2 );
         ticket.setEncTicketPart( encPart );
 
         Authenticator authenticator = ( Authenticator ) lockBox.unseal( Authenticator.class, ticket.getSessionKey(),
-            authHeader.getEncPart() );
+            authHeader.getEncPart(), KeyUsage.NUMBER11 );
 
         if ( !authenticator.getClientPrincipal().getName().equals( ticket.getClientPrincipal().getName() ) )
         {
