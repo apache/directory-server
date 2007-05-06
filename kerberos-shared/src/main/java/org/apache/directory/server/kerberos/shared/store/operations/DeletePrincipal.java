@@ -54,8 +54,10 @@ public class DeletePrincipal implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
+     * 
+     * @param principal The principal to delete.
      */
-    public DeletePrincipal(KerberosPrincipal principal)
+    public DeletePrincipal( KerberosPrincipal principal )
     {
         this.principal = principal;
     }

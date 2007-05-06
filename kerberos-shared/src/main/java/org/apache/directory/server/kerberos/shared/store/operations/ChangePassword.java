@@ -57,6 +57,9 @@ public class ChangePassword implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
+     * 
+     * @param principal The principal to change the password for.
+     * @param newPassword The password to change.
      */
     public ChangePassword( KerberosPrincipal principal, String newPassword )
     {
