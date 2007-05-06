@@ -23,6 +23,7 @@ package org.apache.directory.server.changepw.service;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -40,13 +41,17 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         ApplicationRequest authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
-        EncryptionKey serverKey = changepwContext.getServerEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = ticket.getEncPart().getEncryptionType();
+        EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
+
         long clockSkew = changepwContext.getConfig().getClockSkew();
         ReplayCache replayCache = changepwContext.getReplayCache();
         boolean emptyAddressesAllowed = changepwContext.getConfig().isEmptyAddressesAllowed();

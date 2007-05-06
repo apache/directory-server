@@ -24,6 +24,7 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -49,13 +50,15 @@ public class MonitorContext implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
+                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session
+                    .getAttribute( getContextKey() );
 
                 PrincipalStore store = changepwContext.getStore();
                 ApplicationRequest authHeader = changepwContext.getAuthHeader();
@@ -91,15 +94,18 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "caddr contains sender  " + caddrContainsSender );
 
                 KerberosPrincipal ticketServerPrincipal = ticket.getServerPrincipal();
-                PrincipalStoreEntry ticketPrincipal = changepwContext.getServerEntry();
+                sb.append( "\n\t" + "Ticket principal       " + ticketServerPrincipal );
 
-                sb.append( "\n\t" + "principal              " + ticketServerPrincipal );
+                PrincipalStoreEntry ticketPrincipal = changepwContext.getServerEntry();
                 sb.append( "\n\t" + "cn                     " + ticketPrincipal.getCommonName() );
                 sb.append( "\n\t" + "realm                  " + ticketPrincipal.getRealmName() );
-                sb.append( "\n\t" + "principal              " + ticketPrincipal.getPrincipal() );
+                sb.append( "\n\t" + "Service principal      " + ticketPrincipal.getPrincipal() );
                 sb.append( "\n\t" + "SAM type               " + ticketPrincipal.getSamType() );
-                sb.append( "\n\t" + "Key type               " + ticketPrincipal.getEncryptionKey().getKeyType() );
-                sb.append( "\n\t" + "Key version            " + ticketPrincipal.getEncryptionKey().getKeyVersion() );
+
+                EncryptionType encryptionType = ticket.getEncPart().getEncryptionType();
+                int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
+                sb.append( "\n\t" + "Ticket key type        " + encryptionType );
+                sb.append( "\n\t" + "Service key version    " + keyVersion );
 
                 log.debug( sb.toString() );
             }
@@ -114,7 +120,7 @@ public class MonitorContext implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
