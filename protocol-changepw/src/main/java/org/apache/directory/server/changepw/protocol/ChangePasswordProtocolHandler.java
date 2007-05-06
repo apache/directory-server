@@ -29,6 +29,8 @@ import java.nio.ByteBuffer;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
+import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
@@ -61,7 +63,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
-    public ChangePasswordProtocolHandler(ChangePasswordConfiguration config, PrincipalStore store)
+    public ChangePasswordProtocolHandler( ChangePasswordConfiguration config, PrincipalStore store )
     {
         this.config = config;
         this.store = store;
@@ -124,11 +126,16 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
             session.write( changepwContext.getReply() );
         }
-        catch ( Exception e )
+        catch ( KerberosException ke )
         {
-            log.error( e.getMessage() );
-
-            KerberosException ke = ( KerberosException ) e;
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( ke.getMessage(), ke );
+            }
+            else
+            {
+                log.warn( ke.getMessage() );
+            }
 
             ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), ke );
 
@@ -136,6 +143,13 @@ public class ChangePasswordProtocolHandler implements IoHandler
             modifier.setErrorMessage( errorMessage );
 
             session.write( modifier.getChangePasswordError() );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Unexpected exception:  " + e.getMessage(), e );
+
+            session.write( getErrorMessage( config.getChangepwPrincipal(), new ChangePasswordException(
+                ErrorType.KRB5_KPASSWD_UNKNOWN_ERROR ) ) );
         }
     }
 
@@ -176,7 +190,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
     {
         short resultCode = ( short ) exception.getErrorCode();
 
-        byte[] resultString = { (byte) 0x00 };
+        byte[] resultString =
+            { ( byte ) 0x00 };
 
         if ( exception.getExplanatoryData() == null || exception.getExplanatoryData().length == 0 )
         {
@@ -186,7 +201,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
             }
             catch ( UnsupportedEncodingException uee )
             {
-                log.error(  uee.getMessage() );
+                log.error( uee.getMessage() );
             }
         }
         else
