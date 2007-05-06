@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSha1Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes256CtsSha1Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1KdEncryption;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
@@ -63,9 +64,10 @@ public class ChecksumHandler
      * @param checksum
      * @param bytes
      * @param key
+     * @param usage 
      * @throws KerberosException
      */
-    public void verifyChecksum( Checksum checksum, byte[] bytes, byte[] key ) throws KerberosException
+    public void verifyChecksum( Checksum checksum, byte[] bytes, byte[] key, KeyUsage usage ) throws KerberosException
     {
         if ( checksum == null )
         {
@@ -79,7 +81,7 @@ public class ChecksumHandler
 
         ChecksumType checksumType = checksum.getChecksumType();
         ChecksumEngine digester = getEngine( checksumType );
-        Checksum newChecksum = new Checksum( checksumType, digester.calculateChecksum( bytes, key ) );
+        Checksum newChecksum = new Checksum( checksumType, digester.calculateChecksum( bytes, key, usage ) );
 
         if ( !newChecksum.equals( checksum ) )
         {

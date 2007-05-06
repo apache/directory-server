@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
@@ -44,7 +45,7 @@ class RsaMd5Checksum implements ChecksumEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
         try
         {

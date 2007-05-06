@@ -27,6 +27,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
@@ -47,7 +48,7 @@ class HmacSha196Aes256Checksum implements ChecksumEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
         try
         {

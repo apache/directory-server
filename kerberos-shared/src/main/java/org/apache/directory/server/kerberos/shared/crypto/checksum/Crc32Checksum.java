@@ -24,6 +24,7 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 import java.util.zip.CRC32;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
@@ -44,7 +45,7 @@ public class Crc32Checksum implements ChecksumEngine
     }
 
 
-    public byte[] calculateChecksum( byte[] data, byte[] key )
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
         CRC32 crc32 = new CRC32();
         crc32.update( data );

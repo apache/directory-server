@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
@@ -50,7 +51,8 @@ public interface ChecksumEngine
      *
      * @param data
      * @param key
+     * @param usage 
      * @return The checksum value.
      */
-    public byte[] calculateChecksum( byte[] data, byte[] key );
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );
 }
