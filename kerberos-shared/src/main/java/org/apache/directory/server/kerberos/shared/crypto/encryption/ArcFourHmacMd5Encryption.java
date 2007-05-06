@@ -38,13 +38,13 @@ class ArcFourHmacMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
+    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         return data.getCipherText();
     }
 
 
-    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText )
+    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage )
     {
         return new EncryptedData( getEncryptionType(), key.getKeyVersion(), plainText );
     }
@@ -62,7 +62,7 @@ class ArcFourHmacMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] calculateIntegrity( byte[] data, byte[] key )
+    public byte[] calculateIntegrity( byte[] data, byte[] key, KeyUsage usage )
     {
         try
         {

@@ -117,14 +117,15 @@ public class CipherTextHandler
      *
      * @param key The key to use for encrypting.
      * @param encodable The Kerberos object to encode.
+     * @param usage The key usage.
      * @return The Kerberos EncryptedData.
      * @throws KerberosException
      */
-    public EncryptedData seal( EncryptionKey key, Encodable encodable ) throws KerberosException
+    public EncryptedData seal( EncryptionKey key, Encodable encodable, KeyUsage usage ) throws KerberosException
     {
         try
         {
-            return encrypt( key, encode( encodable ) );
+            return encrypt( key, encode( encodable ), usage );
         }
         catch ( IOException ioe )
         {
@@ -144,17 +145,20 @@ public class CipherTextHandler
      * @param hint The class the encrypted data is expected to contain.
      * @param key The key to use for decryption.
      * @param data The data to decrypt.
+     * @param usage The key usage.
      * @return The Kerberos object resulting from a successful decrypt and decode.
      * @throws KerberosException
      */
-    public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data ) throws KerberosException
+    public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data, KeyUsage usage )
+        throws KerberosException
     {
         try
         {
-            return decode( hint, decrypt( key, data ) );
+            return decode( hint, decrypt( key, data, usage ) );
         }
         catch ( IOException ioe )
         {
+            ioe.printStackTrace();
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
         catch ( ClassCastException cce )
@@ -164,19 +168,19 @@ public class CipherTextHandler
     }
 
 
-    private EncryptedData encrypt( EncryptionKey key, byte[] plainText ) throws KerberosException
+    private EncryptedData encrypt( EncryptionKey key, byte[] plainText, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 
-        return engine.getEncryptedData( key, plainText );
+        return engine.getEncryptedData( key, plainText, usage );
     }
 
 
-    private byte[] decrypt( EncryptionKey key, EncryptedData data ) throws KerberosException
+    private byte[] decrypt( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 
-        return engine.getDecryptedData( key, data );
+        return engine.getDecryptedData( key, data, usage );
     }
 
 

@@ -66,7 +66,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] calculateIntegrity( byte[] data, byte[] key )
+    public byte[] calculateIntegrity( byte[] data, byte[] key, KeyUsage usage )
     {
         try
         {
@@ -80,7 +80,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
     }
 
 
-    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
+    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         // decrypt the data
         byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
@@ -96,7 +96,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
         }
 
         // calculate a new checksum
-        byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue() );
+        byte[] newChecksum = calculateIntegrity( decryptedData, key.getKeyValue(), usage );
 
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
@@ -109,14 +109,14 @@ class DesCbcMd5Encryption extends EncryptionEngine
     }
 
 
-    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText )
+    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage )
     {
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] zeroedChecksum = new byte[getChecksumLength()];
         byte[] paddedPlainText = padString( plainText );
         byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, paddedPlainText ) );
-        byte[] checksumBytes = calculateIntegrity( dataBytes, null );
+        byte[] checksumBytes = calculateIntegrity( dataBytes, null, usage );
         byte[] paddedDataBytes = padString( dataBytes );
 
         // lay the checksum into the ciphertext
