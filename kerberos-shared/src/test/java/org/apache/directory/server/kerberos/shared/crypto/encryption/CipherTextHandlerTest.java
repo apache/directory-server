@@ -128,7 +128,7 @@ public class CipherTextHandlerTest extends TestCase
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070322233107Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 291067, object.getMicroSeconds() );
         }
@@ -154,7 +154,7 @@ public class CipherTextHandlerTest extends TestCase
 
         try
         {
-            lockBox.unseal( hint, key, data );
+            lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             fail( "Should have thrown exception." );
         }
         catch ( KerberosException ke )
@@ -180,7 +180,7 @@ public class CipherTextHandlerTest extends TestCase
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
         }
@@ -205,13 +205,14 @@ public class CipherTextHandlerTest extends TestCase
         EncryptionKey key = new EncryptionKey( EncryptionType.DES3_CBC_SHA1_KD, kerberosKey.getEncoded() );
 
         Des3CbcSha1KdEncryption enc = new Des3CbcSha1KdEncryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp );
+        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
 
         Class hint = EncryptedTimeStamp.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+                KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
         }
@@ -239,7 +240,7 @@ public class CipherTextHandlerTest extends TestCase
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410212557Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 379386, object.getMicroSeconds() );
         }
@@ -264,13 +265,14 @@ public class CipherTextHandlerTest extends TestCase
         EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
 
         Aes128CtsSha1Encryption enc = new Aes128CtsSha1Encryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp );
+        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
 
         Class hint = EncryptedTimeStamp.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+                KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
         }
@@ -298,7 +300,7 @@ public class CipherTextHandlerTest extends TestCase
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, data, KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410212809Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 298294, object.getMicroSeconds() );
         }
@@ -323,13 +325,14 @@ public class CipherTextHandlerTest extends TestCase
         EncryptionKey key = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
 
         Aes256CtsSha1Encryption enc = new Aes256CtsSha1Encryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp );
+        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
 
         Class hint = EncryptedTimeStamp.class;
 
         try
         {
-            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData );
+            EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
+                KeyUsage.NUMBER1 );
             assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
             assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
         }
