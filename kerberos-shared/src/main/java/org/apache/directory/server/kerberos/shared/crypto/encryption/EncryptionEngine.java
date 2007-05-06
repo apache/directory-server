@@ -33,31 +33,14 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  */
 public abstract class EncryptionEngine
 {
-    /**
-     * The "well-known constant" used for the DK function is the key
-     * usage number, expressed as four octets in big-endian order,
-     * followed by one octet indicated below.
-     * 
-     *  Kc = DK(base-key, usage | 0x99);
-     *  Ke = DK(base-key, usage | 0xAA);
-     *  Ki = DK(base-key, usage | 0x55);
-     */
-    protected static final byte[] usageKc =
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x99 };
-
-    protected static final byte[] usageKe =
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0xaa };
-
-    protected static final byte[] usageKi =
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x01, ( byte ) 0x55 };
-
     private static final SecureRandom random = new SecureRandom();
 
 
-    protected abstract byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException;
+    protected abstract byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage )
+        throws KerberosException;
 
 
-    protected abstract EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText );
+    protected abstract EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage );
 
 
     protected abstract EncryptionType getEncryptionType();
@@ -75,7 +58,7 @@ public abstract class EncryptionEngine
     protected abstract byte[] decrypt( byte[] cipherText, byte[] key );
 
 
-    protected abstract byte[] calculateIntegrity( byte[] plainText, byte[] key );
+    protected abstract byte[] calculateIntegrity( byte[] plainText, byte[] key, KeyUsage usage );
 
 
     protected byte[] deriveRandom( byte[] key, byte[] usage, int n, int k )
@@ -221,5 +204,57 @@ public abstract class EncryptionEngine
         oldByte = ( byte ) ( ( ( 0xFF7F >> posBit ) & oldByte ) & 0x00FF );
         byte newByte = ( byte ) ( ( val << ( 8 - ( posBit + 1 ) ) ) | oldByte );
         data[posByte] = newByte;
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Kc = DK(base-key, usage | 0x99);
+     */
+    protected byte[] getUsageKc( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0x99 );
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Ke = DK(base-key, usage | 0xAA);
+     */
+    protected byte[] getUsageKe( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0xAA );
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Ki = DK(base-key, usage | 0x55);
+     */
+    protected byte[] getUsageKi( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0x55 );
+    }
+
+
+    private byte[] getUsage( int usage, byte constant )
+    {
+        byte[] bytes = new byte[5];
+        bytes[0] = ( byte ) ( ( usage >>> 24 ) & 0x000000FF );
+        bytes[1] = ( byte ) ( ( usage >> 16 ) & 0x000000FF );
+        bytes[2] = ( byte ) ( ( usage >> 8 ) & 0x000000FF );
+        bytes[3] = ( byte ) ( usage & 0x00FF );
+        bytes[4] = constant;
+
+        return bytes;
     }
 }
