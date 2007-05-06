@@ -29,6 +29,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
@@ -50,6 +51,7 @@ public class ExtractPassword implements IoHandlerCommand
     private static final Logger log = LoggerFactory.getLogger( ExtractPassword.class );
 
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -74,7 +76,8 @@ public class ExtractPassword implements IoHandlerCommand
 
         try
         {
-            privatePart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey, encReqPrivPart );
+            privatePart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey,
+                encReqPrivPart, KeyUsage.NUMBER13 );
         }
         catch ( KerberosException ke )
         {
@@ -112,7 +115,7 @@ public class ExtractPassword implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

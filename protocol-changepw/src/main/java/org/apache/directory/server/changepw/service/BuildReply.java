@@ -26,6 +26,7 @@ import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordReplyModifier;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
@@ -55,6 +56,7 @@ public class BuildReply implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
@@ -82,7 +84,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart );
+            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.NUMBER13 );
         }
         catch ( KerberosException ke )
         {
@@ -105,7 +107,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encRepPart = cipherTextHandler.seal( ticket.getSessionKey(), repPart );
+            encRepPart = cipherTextHandler.seal( ticket.getSessionKey(), repPart, KeyUsage.NUMBER12 );
         }
         catch ( KerberosException ke )
         {
@@ -126,7 +128,7 @@ public class BuildReply implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
