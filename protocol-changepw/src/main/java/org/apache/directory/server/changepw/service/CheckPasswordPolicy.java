@@ -48,6 +48,7 @@ public class CheckPasswordPolicy implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
@@ -202,8 +203,8 @@ public class CheckPasswordPolicy implements IoHandlerCommand
         StringBuffer sb = new StringBuffer( "Password violates policy:  " );
 
         boolean isFirst = true;
-        
-        for ( String violation:violations )
+
+        for ( String violation : violations )
         {
             if ( isFirst )
             {
@@ -213,7 +214,7 @@ public class CheckPasswordPolicy implements IoHandlerCommand
             {
                 sb.append( ", " );
             }
-            
+
             sb.append( violation );
         }
 
@@ -221,7 +222,7 @@ public class CheckPasswordPolicy implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

@@ -40,13 +40,15 @@ public class MonitorReply implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
+                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session
+                    .getAttribute( getContextKey() );
 
                 ChangePasswordReply reply = ( ChangePasswordReply ) changepwContext.getReply();
                 ApplicationReply appReply = reply.getApplicationReply();
@@ -70,7 +72,7 @@ public class MonitorReply implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
