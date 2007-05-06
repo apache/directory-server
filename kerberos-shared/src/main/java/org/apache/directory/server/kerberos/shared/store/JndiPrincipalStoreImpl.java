@@ -80,9 +80,9 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, KerberosKey newKey ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return store.changePassword( principal, newKey );
+        return store.changePassword( principal, newPassword );
     }
 
 

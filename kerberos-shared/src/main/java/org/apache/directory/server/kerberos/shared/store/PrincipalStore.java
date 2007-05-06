@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 
@@ -35,7 +34,7 @@ public interface PrincipalStore
     public String addPrincipal( PrincipalStoreEntry entry ) throws Exception;
 
 
-    public String changePassword( KerberosPrincipal principal, KerberosKey newKey ) throws Exception;
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception;
 
 
     public String deletePrincipal( KerberosPrincipal principal ) throws Exception;

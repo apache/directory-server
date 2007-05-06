@@ -30,7 +30,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -52,17 +51,17 @@ public class ChangePassword implements ContextOperation
 
     /** The Kerberos principal who's password is to be changed. */
     protected KerberosPrincipal principal;
-    /** The new key for the update. */
-    protected KerberosKey newKey;
+    /** The new password for the update. */
+    protected String newPassword;
 
 
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
      */
-    public ChangePassword(KerberosPrincipal principal, KerberosKey newKey)
+    public ChangePassword( KerberosPrincipal principal, String newPassword )
     {
         this.principal = principal;
-        this.newKey = newKey;
+        this.newPassword = newPassword;
     }
 
 
@@ -73,9 +72,11 @@ public class ChangePassword implements ContextOperation
             return null;
         }
 
-        ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        Attribute newKeyAttribute = new AttributeImpl( "krb5key", newKey.getEncoded() );
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newKeyAttribute );
+        ModificationItemImpl[] mods = new ModificationItemImpl[2];
+        Attribute newPasswordAttribute = new AttributeImpl( "userPassword", newPassword );
+        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, newPasswordAttribute );
+        Attribute principalAttribute = new AttributeImpl( "krb5PrincipalName", principal.getName() );
+        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, principalAttribute );
 
         String dn = null;
 

@@ -94,9 +94,9 @@ class SingleBaseSearch implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, KerberosKey newKey ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return ( String ) execute( new ChangePassword( principal, newKey ) );
+        return ( String ) execute( new ChangePassword( principal, newPassword ) );
     }
 
 
