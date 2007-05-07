@@ -21,6 +21,7 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
+import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -28,9 +29,13 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.spi.DirStateFactory;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -82,7 +87,7 @@ public class PrincipalStateFactory implements DirStateFactory
             if ( !AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.UID_OBJECT_AT ) )
             {
                 oc.add( SchemaConstants.UID_OBJECT_AT );
-                
+
                 if ( p.getUserId() != null )
                 {
                     outAttrs.put( SchemaConstants.UID_AT, p.getUserId() );
@@ -99,8 +104,8 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( "apacheSamType", "7" );
             }
 
-            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.PERSON_OC ) ||
-                     oc.contains( SchemaConstants.PERSON_OC_OID ) ) )
+            if ( !( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.PERSON_OC ) || oc
+                .contains( SchemaConstants.PERSON_OC_OID ) ) )
             {
                 oc.add( SchemaConstants.PERSON_OC );
 
@@ -109,14 +114,14 @@ public class PrincipalStateFactory implements DirStateFactory
                 outAttrs.put( SchemaConstants.CN_AT, p.getCommonName() );
             }
 
-            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.ORGANIZATIONAL_PERSON_OC ) ||
-                oc.contains( SchemaConstants.ORGANIZATIONAL_PERSON_OC_OID ) ) )
+            if ( !( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.ORGANIZATIONAL_PERSON_OC ) || oc
+                .contains( SchemaConstants.ORGANIZATIONAL_PERSON_OC_OID ) ) )
             {
                 oc.add( SchemaConstants.ORGANIZATIONAL_PERSON_OC );
             }
 
-            if ( ! ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.INET_ORG_PERSON_OC ) ||
-                oc.contains( SchemaConstants.INET_ORG_PERSON_OC_OID ) ) )
+            if ( !( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.INET_ORG_PERSON_OC ) || oc
+                .contains( SchemaConstants.INET_ORG_PERSON_OC_OID ) ) )
             {
                 oc.add( SchemaConstants.INET_ORG_PERSON_OC );
             }
@@ -131,25 +136,31 @@ public class PrincipalStateFactory implements DirStateFactory
                 oc.add( "krb5KDCEntry" );
 
                 String principal = p.getPrincipal().getName();
-                byte[] keyBytes = p.getEncryptionKey().getKeyValue();
-                int keyType = p.getEncryptionKey().getKeyType().getOrdinal();
-                int keyVersion = p.getEncryptionKey().getKeyVersion();
+
+                EncryptionKey encryptionKey = p.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
+
+                try
+                {
+                    outAttrs.put( KerberosAttribute.KEY, EncryptionKeyEncoder.encode( encryptionKey ) );
+                }
+                catch ( IOException ioe )
+                {
+                    throw new InvalidAttributeValueException( "Unable to encode Kerberos key." );
+                }
+
+                int keyType = encryptionKey.getKeyType().getOrdinal();
+                int keyVersion = encryptionKey.getKeyVersion();
 
                 outAttrs.put( KerberosAttribute.PRINCIPAL, principal );
-                outAttrs.put( KerberosAttribute.KEY, keyBytes );
                 outAttrs.put( KerberosAttribute.TYPE, Integer.toString( keyType ) );
                 outAttrs.put( KerberosAttribute.VERSION, Integer.toString( keyVersion ) );
             }
 
             Result r = new Result( obj, outAttrs );
 
-            System.out.println( "Result from obj " + obj );
-            System.out.println( "Result attrs " + outAttrs );
-
             return r;
         }
 
-        System.out.println( "ERROR:  entry was not correct type " + obj );
         return null;
     }
 

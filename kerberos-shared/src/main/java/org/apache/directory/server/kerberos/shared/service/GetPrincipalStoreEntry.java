@@ -37,6 +37,7 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws Exception
     {
@@ -51,7 +52,7 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
             throw new KerberosException( errorType );
         }
 
-        if ( entry == null || entry.getEncryptionKey() == null )
+        if ( entry == null || entry.getKeyMap().isEmpty() )
         {
             throw new KerberosException( errorType );
         }

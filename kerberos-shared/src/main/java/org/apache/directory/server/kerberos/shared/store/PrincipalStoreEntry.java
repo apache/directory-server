@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
+import java.util.Map;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -50,16 +52,18 @@ public class PrincipalStoreEntry
     private int maxRenew;
     private int kdcFlags;
     private SamType samType;
-    private EncryptionKey key;
+
     private boolean disabled;
     private boolean lockedOut;
     private KerberosTime expiration;
 
+    private Map<EncryptionType, EncryptionKey> keyMap;
 
-    PrincipalStoreEntry(String commonName, String userId, KerberosPrincipal principal, int keyVersionNumber,
+
+    PrincipalStoreEntry( String commonName, String userId, KerberosPrincipal principal, int keyVersionNumber,
         KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife, int maxRenew,
-        int kdcFlags, int keyType, byte[] key, String realmName, SamType samType, boolean disabled, 
-        boolean lockedOut, KerberosTime expiration )
+        int kdcFlags, int keyType, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
+        boolean disabled, boolean lockedOut, KerberosTime expiration )
     {
         this.commonName = commonName;
         this.userId = userId;
@@ -75,27 +79,27 @@ public class PrincipalStoreEntry
         this.lockedOut = lockedOut;
         this.expiration = expiration;
         this.samType = samType;
-        this.key = new EncryptionKey( EncryptionType.getTypeByOrdinal( keyType ), key, keyVersionNumber );
+        this.keyMap = keyMap;
     }
 
-    
+
     public boolean isDisabled()
     {
         return disabled;
     }
-    
-    
+
+
     public boolean isLockedOut()
     {
         return lockedOut;
     }
-    
-    
+
+
     public KerberosTime getExpiration()
     {
         return expiration;
     }
-    
+
 
     public String getCommonName()
     {
@@ -109,9 +113,9 @@ public class PrincipalStoreEntry
     }
 
 
-    public EncryptionKey getEncryptionKey()
+    public Map<EncryptionType, EncryptionKey> getKeyMap()
     {
-        return key;
+        return keyMap;
     }
 
 

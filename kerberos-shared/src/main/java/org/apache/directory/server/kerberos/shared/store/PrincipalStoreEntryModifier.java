@@ -20,8 +20,17 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 
@@ -52,38 +61,40 @@ public class PrincipalStoreEntryModifier
     private int kdcFlags;
     private int encryptionType;
     private SamType samType;
-    private byte[] key;
+
     private boolean disabled = false;
     private boolean lockedOut = false;
     private KerberosTime expiration = KerberosTime.INFINITY;
+
+    private Map<EncryptionType, EncryptionKey> keyMap;
 
 
     public PrincipalStoreEntry getEntry()
     {
         return new PrincipalStoreEntry( commonName, userId, principal, keyVersionNumber, validStart, validEnd,
-            passwordEnd, maxLife, maxRenew, kdcFlags, encryptionType, key, realmName, samType, 
-            disabled, lockedOut, expiration );
+            passwordEnd, maxLife, maxRenew, kdcFlags, encryptionType, keyMap, realmName, samType, disabled, lockedOut,
+            expiration );
     }
 
-    
+
     public void setDisabled( boolean disabled )
     {
         this.disabled = disabled;
     }
-    
-    
+
+
     public void setLockedOut( boolean lockedOut )
     {
         this.lockedOut = lockedOut;
     }
-    
-    
+
+
     public void setExpiration( KerberosTime expiration )
     {
         this.expiration = expiration;
     }
 
-    
+
     public void setCommonName( String commonName )
     {
         this.commonName = commonName;
@@ -108,9 +119,9 @@ public class PrincipalStoreEntryModifier
     }
 
 
-    public void setKey( byte[] key )
+    public void setKeyMap( Map<EncryptionType, EncryptionKey> keyMap )
     {
-        this.key = key;
+        this.keyMap = keyMap;
     }
 
 
@@ -165,5 +176,29 @@ public class PrincipalStoreEntryModifier
     public void setSamType( SamType samType )
     {
         this.samType = samType;
+    }
+
+
+    public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws NamingException,
+        IOException
+    {
+        Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
+
+        for ( int ii = 0; ii < krb5key.size(); ii++ )
+        {
+            Object key = krb5key.get( ii );
+
+            if ( key instanceof String )
+            {
+                throw new NamingException(
+                    "JNDI should not return a string for the Kerberos key: JNDI property java.naming.ldap.attributes.binary must include the krb5key attribute." );
+            }
+
+            byte[] encryptionKeyBytes = ( byte[] ) key;
+            EncryptionKey encryptionKey = EncryptionKeyDecoder.decode( encryptionKeyBytes );
+            map.put( encryptionKey.getKeyType(), encryptionKey );
+        }
+
+        return map;
     }
 }

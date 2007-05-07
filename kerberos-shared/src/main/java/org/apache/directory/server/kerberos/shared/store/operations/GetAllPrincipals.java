@@ -21,18 +21,24 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -53,6 +59,7 @@ public class GetAllPrincipals implements ContextOperation
 
     private static final String filter = "(objectClass=krb5Principal)";
 
+
     public Object execute( DirContext ctx, Name searchBaseDn )
     {
         SearchControls controls = new SearchControls();
@@ -70,7 +77,6 @@ public class GetAllPrincipals implements ContextOperation
                 SearchResult result = ( SearchResult ) answer.next();
                 attrs = result.getAttributes();
                 PrincipalStoreEntry entry = getEntry( attrs );
-                System.out.println( "Result name is " + result.getName() );
                 answers.add( entry );
             }
 
@@ -113,13 +119,25 @@ public class GetAllPrincipals implements ContextOperation
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        byte[] keyBytes = ( byte[] ) attrs.get( KerberosAttribute.KEY ).get();
+        if ( attrs.get( KerberosAttribute.KEY ) != null )
+        {
+            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            try
+            {
+                Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
+                modifier.setKeyMap( keyMap );
+            }
+            catch ( IOException ioe )
+            {
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                    + "' contained an invalid value for krb5key." );
+            }
+        }
 
         modifier.setCommonName( commonName );
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
         modifier.setEncryptionType( Integer.parseInt( encryptionType ) );
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
-        modifier.setKey( keyBytes );
 
         return modifier.getEntry();
     }
