@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -37,6 +38,7 @@ public class SealReply implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
@@ -50,11 +52,11 @@ public class SealReply implements IoHandlerCommand
 
         if ( authenticator.getSubSessionKey() != null )
         {
-            encryptedData = cipherTextHandler.seal( authenticator.getSubSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubSessionKey(), reply, KeyUsage.NUMBER9 );
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( tgt.getSessionKey(), reply, KeyUsage.NUMBER8 );
         }
 
         reply.setEncPart( encryptedData );

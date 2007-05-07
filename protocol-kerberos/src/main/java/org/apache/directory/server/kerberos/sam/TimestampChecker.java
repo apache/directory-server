@@ -24,8 +24,9 @@ import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosKey;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -58,7 +59,7 @@ public class TimestampChecker implements KeyIntegrityChecker
             // Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC
             // Decode the decrypted timestamp into our timestamp object.
             EncryptedTimeStamp timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class, key,
-                sadValue );
+                sadValue, KeyUsage.NUMBER1 );
 
             // Since we got here we must have a valid timestamp structure that we can
             // validate to be within a five minute skew.

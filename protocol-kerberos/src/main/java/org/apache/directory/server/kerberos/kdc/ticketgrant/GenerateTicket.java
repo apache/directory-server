@@ -28,6 +28,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -53,6 +55,7 @@ public class GenerateTicket implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
@@ -62,7 +65,10 @@ public class GenerateTicket implements IoHandlerCommand
         Authenticator authenticator = tgsContext.getAuthenticator();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
-        EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = tgsContext.getEncryptionType();
+        EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getKeyMap().get( encryptionType );
+
         KdcConfiguration config = tgsContext.getConfig();
         EncryptionKey sessionKey = tgsContext.getSessionKey();
 
@@ -77,8 +83,8 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getEncAuthorizationData() != null )
         {
-            AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class, authenticator
-                .getSubSessionKey(), request.getEncAuthorizationData() );
+            AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class,
+                authenticator.getSubSessionKey(), request.getEncAuthorizationData(), KeyUsage.NUMBER4 );
             authData.add( tgt.getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
@@ -105,7 +111,7 @@ public class GenerateTicket implements IoHandlerCommand
             throw new KerberosException( ErrorType.KDC_ERR_SVC_UNAVAILABLE );
         }
 
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
         newTicket.setEncTicketPart( ticketPart );

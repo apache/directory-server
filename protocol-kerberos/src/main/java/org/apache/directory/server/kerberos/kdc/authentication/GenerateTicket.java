@@ -24,6 +24,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -36,6 +38,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -53,6 +56,7 @@ public class GenerateTicket implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
@@ -60,7 +64,10 @@ public class GenerateTicket implements IoHandlerCommand
         KdcRequest request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         KerberosPrincipal serverPrincipal = request.getServerPrincipal();
-        EncryptionKey serverKey = authContext.getServerEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = authContext.getEncryptionType();
+        EncryptionKey serverKey = authContext.getServerEntry().getKeyMap().get( encryptionType );
+
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
         KdcConfiguration config = authContext.getConfig();
@@ -138,9 +145,9 @@ public class GenerateTicket implements IoHandlerCommand
          endif
          */
 
-        if ( tempRtime == 0 )
+        if ( tempRtime == 0 || request.getRtime() == null )
         {
-            tempRtime = Long.MAX_VALUE;
+            tempRtime = request.getTill().getTime();
         }
         else
         {
@@ -172,7 +179,7 @@ public class GenerateTicket implements IoHandlerCommand
 
         EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
 
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
         newTicket.setEncTicketPart( ticketPart );

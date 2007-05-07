@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -78,7 +79,7 @@ public class VerifyBodyChecksum implements IoHandlerCommand
                 + authenticatorChecksum.getChecksumType() + "'." );
         }
 
-        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null );
+        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
 
         next.execute( session, message );
     }
