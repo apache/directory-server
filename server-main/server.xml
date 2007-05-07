@@ -10,10 +10,11 @@
         <prop key="java.naming.security.authentication">simple</prop>
         <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
         <prop key="java.naming.security.credentials">secret</prop>
-        <!--<prop key="kdc.entryBaseDn">ou=users,dc=example,dc=com</prop>-->
-        <!--<prop key="kdc.java.naming.security.credentials">secret</prop>-->
-        <!--<prop key="changepw.entryBaseDn">ou=users,dc=example,dc=com</prop>-->
-        <!--<prop key="changepw.java.naming.security.credentials">secret</prop>-->
+        <prop key="kdc.entryBaseDn">ou=users,dc=example,dc=com</prop>
+        <prop key="kdc.java.naming.security.credentials">secret</prop>
+        <prop key="kdc.encryption.types">aes256-cts-hmac-sha1-96 aes128-cts-hmac-sha1-96 des3-cbc-sha1-kd des-cbc-md5</prop>
+        <prop key="changepw.entryBaseDn">ou=users,dc=example,dc=com</prop>
+        <prop key="changepw.java.naming.security.credentials">secret</prop>
         <!-- Set this key to a space delimited set of attributeType descriptions
              and their OID's if you want an attributeType to be handled as 
              binary content.
@@ -38,19 +39,20 @@
     <!-- can point to an absolute path to either using the URL path         -->
     <!-- notation: i.e. file:///Users/jack/apacheds/ldifs                   -->
 
-    <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
-    <!-- order specified.  The included Krb5KdcEntryFilter will filter      -->
-    <!-- kerberos principals creating keys for them using their             -->
-    <!-- userPassword attribute if present.                                 -->
-
-    <!--<property name="ldifDirectory">
-      <value>example.ldif</value>
+    <property name="ldifDirectory">
+      <value>/root/ldif-example/kerberos-example.ldif</value>
     </property>
+
+    <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
+    <!-- order specified.  The included Krb5KdcEntryFilter will conflict    -->
+    <!-- with the KeyDerivationService interceptor, so should not be used.  -->
+    <!--
     <property name="ldifFilters">
       <list>
         <bean class="org.apache.directory.server.protocol.shared.store.Krb5KdcEntryFilter"/>
       </list>
-    </property>-->
+    </property>
+    -->
 
     <!-- the number of milliseconds before issuing a synch (flush to disk)  -->
     <!-- which writes out dirty pages back to disk.  To turn off synchs all -->
@@ -70,8 +72,8 @@
     <property name="allowAnonymousAccess" value="false" />
     <property name="accessControlEnabled" value="false" />
     <property name="enableNtp" value="false" />
-    <property name="enableKerberos" value="false" />
-    <property name="enableChangePassword" value="false" />
+    <property name="enableKerberos" value="true" />
+    <property name="enableChangePassword" value="true" />
 
     <!--
        It's more efficient to keep this feature turned off but you may not like
@@ -148,6 +150,12 @@
           <property name="name" value="operationalAttributeService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
+          </property>
+        </bean>
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name" value="keyDerivationService" />
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
