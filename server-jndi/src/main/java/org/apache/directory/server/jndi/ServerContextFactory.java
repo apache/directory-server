@@ -56,6 +56,7 @@ import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoAcceptor;
@@ -238,38 +239,38 @@ public class ServerContextFactory extends CoreContextFactory
     private final static String WINDOWSFILE_OC = "windowsFile";
     private final static String UNIXFILE_OC = "unixFile";
 
+    private String buildProtectedFileEntry( File ldif )
+    {
+        StringBuffer buf = new StringBuffer();
+
+        buf.append( File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR );
+        buf.append( "=" );
+        
+        buf.append( StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) );
+        
+        buf.append( "," );
+        buf.append( LDIF_FILES_DN );
+
+        return buf.toString();
+    }
 
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
-        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
+        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;    
         String oc = File.separatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
-        StringBuffer buf = new StringBuffer();
-        buf.append( rdnAttr );
-        buf.append( "=" );
-        buf.append( getCanonical( ldif ) );
-        buf.append( "," );
-        buf.append( LDIF_FILES_DN );
 
         Attributes entry = new LockableAttributesImpl( rdnAttr, getCanonical( ldif ), true );
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( oc );
-        root.createSubcontext( buf.toString(), entry );
+        root.createSubcontext( buildProtectedFileEntry( ldif ), entry );
     }
-
+    
 
     private Attributes getLdifFileEntry( DirContext root, File ldif )
     {
-        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
-        StringBuffer buf = new StringBuffer();
-        buf.append( rdnAttr );
-        buf.append( "=" );
-        buf.append( getCanonical( ldif ) );
-        buf.append( "," );
-        buf.append( LDIF_FILES_DN );
-
         try
         {
-            return root.getAttributes( buf.toString(), new String[]
+            return root.getAttributes( buildProtectedFileEntry( ldif ), new String[]
                 { "createTimestamp" } );
         }
         catch ( NamingException e )
@@ -327,16 +328,27 @@ public class ServerContextFactory extends CoreContextFactory
         // if ldif directory is a file try to load it
         if ( !cfg.getLdifDirectory().isDirectory() )
         {
-            log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
-                + "' is a file.  Will attempt to load as LDIF." );
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
+                    + "' is a file.  Will attempt to load as LDIF." );
+            }
+            
             Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
+
             if ( fileEntry != null )
             {
                 String time = ( String ) fileEntry.get( "createTimestamp" ).get();
-                log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
-                    + "' skipped.  It has already been loaded on " + time + "." );
+
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
+                        + "' skipped.  It has already been loaded on " + time + "." );
+                }
+                
                 return;
             }
+            
             LdifFileLoader loader = new LdifFileLoader( root, cfg.getLdifDirectory(), cfg.getLdifFilters() );
             loader.execute();
 
