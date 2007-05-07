@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -44,7 +45,10 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
 
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
-        EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = tgt.getEncPart().getEncryptionType();
+        EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
+
         long clockSkew = tgsContext.getConfig().getClockSkew();
         ReplayCache replayCache = tgsContext.getReplayCache();
         boolean emptyAddressesAllowed = tgsContext.getConfig().isEmptyAddressesAllowed();
