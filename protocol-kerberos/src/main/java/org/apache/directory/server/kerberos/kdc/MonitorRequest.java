@@ -39,6 +39,7 @@ public class MonitorRequest implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
@@ -62,7 +63,7 @@ public class MonitorRequest implements IoHandlerCommand
     }
 
 
-    public String getEncryptionTypes( KdcRequest request )
+    protected String getEncryptionTypes( KdcRequest request )
     {
         EncryptionType[] etypes = request.getEType();
 
@@ -82,7 +83,7 @@ public class MonitorRequest implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
