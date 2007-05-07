@@ -65,20 +65,20 @@ public class NtpConfiguration extends ServiceConfiguration
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public NtpConfiguration(String instanceId)
+    public NtpConfiguration( String instanceId )
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
 
-    public NtpConfiguration( Map<String, String> properties )
+    public NtpConfiguration( Map<String, Object> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
-    public NtpConfiguration( Map<String, String> properties, int strategy )
+    public NtpConfiguration( Map<String, Object> properties, int strategy )
     {
         if ( properties == null )
         {
@@ -98,9 +98,9 @@ public class NtpConfiguration extends ServiceConfiguration
     }
 
 
-    public static Map<String, String> getDefaultConfig()
+    public static Map<String, Object> getDefaultConfig()
     {
-        Map<String, String> defaults = new HashMap<String, String>();
+        Map<String, Object> defaults = new HashMap<String, Object>();
 
         defaults.put( SERVICE_PID, DEFAULT_PID );
         defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );

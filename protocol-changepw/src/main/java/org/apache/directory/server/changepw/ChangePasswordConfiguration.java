@@ -111,20 +111,20 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public ChangePasswordConfiguration(String instanceId)
+    public ChangePasswordConfiguration( String instanceId )
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
 
-    public ChangePasswordConfiguration( Map<String, String> properties )
+    public ChangePasswordConfiguration( Map<String, Object> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
-    public ChangePasswordConfiguration( Map<String, String> properties, int strategy )
+    public ChangePasswordConfiguration( Map<String, Object> properties, int strategy )
     {
         if ( properties == null )
         {
@@ -146,9 +146,9 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     }
 
 
-    public static Map<String, String> getDefaultConfig()
+    public static Map<String, Object> getDefaultConfig()
     {
-        Map<String, String> defaults = new HashMap<String, String>();
+        Map<String, Object> defaults = new HashMap<String, Object>();
 
         defaults.put( SERVICE_PID, DEFAULT_PID );
         defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );
@@ -208,7 +208,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     }
 
 
-    public Map<String, String> getProperties()
+    public Map<String, Object> getProperties()
     {
         // Request that the krb5key value be returned as binary
         configuration.put( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY, "krb5Key" );
@@ -338,9 +338,9 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 
-        for ( String enc:encryptionTypeStrings )
+        for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type:EncryptionType.VALUES )
+            for ( EncryptionType type : EncryptionType.VALUES )
             {
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {
