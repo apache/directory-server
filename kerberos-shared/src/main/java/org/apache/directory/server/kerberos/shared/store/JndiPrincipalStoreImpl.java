@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
@@ -47,7 +46,13 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
     private PrincipalStore store;
 
 
-    public JndiPrincipalStoreImpl(ServiceConfiguration config, InitialContextFactory factory)
+    /**
+     * Creates a new instance of JndiPrincipalStoreImpl.
+     *
+     * @param config
+     * @param factory
+     */
+    public JndiPrincipalStoreImpl( ServiceConfiguration config, InitialContextFactory factory )
     {
         this.config = config;
         this.factory = factory;

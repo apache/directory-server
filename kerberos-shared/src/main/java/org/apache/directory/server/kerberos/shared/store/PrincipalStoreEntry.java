@@ -83,90 +83,165 @@ public class PrincipalStoreEntry
     }
 
 
+    /**
+     * Returns whether this account is disabled.
+     *
+     * @return Whether this account is disabled.
+     */
     public boolean isDisabled()
     {
         return disabled;
     }
 
 
+    /**
+     * Returns whether this account is locked-out.
+     *
+     * @return Whether this account is locked-out.
+     */
     public boolean isLockedOut()
     {
         return lockedOut;
     }
 
 
+    /**
+     * Returns the expiration time.
+     *
+     * @return The expiration time.
+     */
     public KerberosTime getExpiration()
     {
         return expiration;
     }
 
 
+    /**
+     * Returns the common name.
+     *
+     * @return The common name.
+     */
     public String getCommonName()
     {
         return commonName;
     }
 
 
+    /**
+     * Returns the user ID.
+     *
+     * @return The user ID.
+     */
     public String getUserId()
     {
         return userId;
     }
 
 
+    /**
+     * Returns the key map.
+     *
+     * @return The key map.
+     */
     public Map<EncryptionType, EncryptionKey> getKeyMap()
     {
         return keyMap;
     }
 
 
+    /**
+     * Returns the KDC flags.
+     *
+     * @return The KDC flags.
+     */
     public int getKDCFlags()
     {
         return kdcFlags;
     }
 
 
+    /**
+     * Returns the max life.
+     *
+     * @return The max life.
+     */
     public int getMaxLife()
     {
         return maxLife;
     }
 
 
+    /**
+     * Returns the maximum renew time.
+     *
+     * @return The maximum renew time.
+     */
     public int getMaxRenew()
     {
         return maxRenew;
     }
 
 
+    /**
+     * Returns the expiration time for the password.
+     *
+     * @return The expiration time for the password.
+     */
     public KerberosTime getPasswordEnd()
     {
         return passwordEnd;
     }
 
 
+    /**
+     * Returns the principal.
+     *
+     * @return The principal.
+     */
     public KerberosPrincipal getPrincipal()
     {
         return principal;
     }
 
 
+    /**
+     * Returns the realm name.
+     *
+     * @return The realm name.
+     */
     public String getRealmName()
     {
         return realmName;
     }
 
 
+    /**
+     * Returns the end of validity.
+     *
+     * @return The end of validity.
+     */
     public KerberosTime getValidEnd()
     {
         return validEnd;
     }
 
 
+    /**
+     * Returns the start of validity.
+     *
+     * @return The start of validity.
+     */
     public KerberosTime getValidStart()
     {
         return validStart;
     }
 
 
+    /**
+     * Returns the single-use authentication (SAM) type.
+     *
+     * @return The single-use authentication (SAM) type.
+     */
     public SamType getSamType()
     {
         return samType;

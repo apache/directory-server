@@ -64,7 +64,7 @@ public class GetAllPrincipals implements ContextOperation
     {
         SearchControls controls = new SearchControls();
 
-        List answers = new ArrayList();
+        List<PrincipalStoreEntry> answers = new ArrayList<PrincipalStoreEntry>();
 
         try
         {

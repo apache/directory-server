@@ -37,7 +37,12 @@ class KerberosCatalog implements Catalog
     private Map map;
 
 
-    public KerberosCatalog(Map map)
+    /**
+     * Creates a new instance of KerberosCatalog.
+     *
+     * @param map
+     */
+    public KerberosCatalog( Map map )
     {
         this.map = map;
     }

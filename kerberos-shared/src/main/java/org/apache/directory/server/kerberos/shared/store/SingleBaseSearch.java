@@ -27,7 +27,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.configuration.ConfigurationException;
@@ -52,9 +51,9 @@ class SingleBaseSearch implements PrincipalStore
     private DirContext ctx;
 
 
-    SingleBaseSearch(ServiceConfiguration config, InitialContextFactory factory)
+    SingleBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
     {
-        Hashtable env = new Hashtable( config.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getEntryBaseDn() );
 

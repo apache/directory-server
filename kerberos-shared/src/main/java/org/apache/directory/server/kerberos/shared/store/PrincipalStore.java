@@ -31,17 +31,53 @@ import javax.security.auth.kerberos.KerberosPrincipal;
  */
 public interface PrincipalStore
 {
+    /**
+     * Add a principal.
+     *
+     * @param entry
+     * @return The name of the principal being added.
+     * @throws Exception
+     */
     public String addPrincipal( PrincipalStoreEntry entry ) throws Exception;
 
 
+    /**
+     * Change a principal's password.
+     *
+     * @param principal
+     * @param newPassword
+     * @return The name of the principal whose password is being changed.
+     * @throws Exception
+     */
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception;
 
 
+    /**
+     * Delete a principal.
+     *
+     * @param principal
+     * @return The name of the principal being deleted.
+     * @throws Exception
+     */
     public String deletePrincipal( KerberosPrincipal principal ) throws Exception;
 
 
+    /**
+     * Get all principals for a given realm.
+     *
+     * @param realm
+     * @return An array of {@link PrincipalStoreEntry}'s.
+     * @throws Exception
+     */
     public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception;
 
 
+    /**
+     * Get a {@link PrincipalStoreEntry} given a Kerberos principal.
+     *
+     * @param principal
+     * @return The {@link PrincipalStoreEntry} for the given Kerberos principal.
+     * @throws Exception
+     */
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception;
 }
