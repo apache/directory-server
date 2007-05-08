@@ -79,6 +79,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
+        refService = (( ReferralService )service.getConfiguration().getInterceptorChain().get( ReferralService.NAME ) );        
     }
 
 
