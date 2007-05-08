@@ -47,6 +47,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -80,7 +81,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            LdapDN name = new LdapDN( result.getName() );
+            LdapDN name = ((ServerSearchResult)result).getDn();
             name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
             Attributes entry = result.getAttributes();
             String[] retAttrs = controls.getReturningAttributes();
