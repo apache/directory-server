@@ -78,6 +78,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DITContentRule;
@@ -524,7 +525,7 @@ public class SchemaService extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    SearchResult result = new SearchResult( base.toString(), null, attrs );
+                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs );
                     return new SingletonEnumeration( result );
                 }
                 else
@@ -541,7 +542,7 @@ public class SchemaService extends BaseInterceptor
                 {
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
-                    SearchResult result = new SearchResult( base.toString(), null, attrs, false );
+                    SearchResult result = new ServerSearchResult( base.toString(), null, attrs, false );
                     return new SingletonEnumeration( result );
                 }
             }
