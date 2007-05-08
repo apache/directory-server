@@ -384,7 +384,7 @@ public abstract class BTreePartition implements Partition
     {
     	LdapDN dn = opContext.getDn();
     	
-        Long id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.getNormName() );
 
         // don't continue if id is null
         if ( id == null )
