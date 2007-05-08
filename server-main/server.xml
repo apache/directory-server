@@ -153,6 +153,12 @@
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name" value="passwordPolicyService" />
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.kerberos.shared.interceptors.PasswordPolicyService" />
+          </property>
+        </bean>
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="keyDerivationService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService" />

@@ -60,7 +60,6 @@ public class ChangePasswordChain extends IoHandlerChain
             addLast( "monitorContext", new MonitorContext() );
         }
 
-        addLast( "checkPasswordPolicy", new CheckPasswordPolicy() );
         addLast( "processPasswordChange", new ProcessPasswordChange() );
         addLast( "buildReply", new BuildReply() );
 

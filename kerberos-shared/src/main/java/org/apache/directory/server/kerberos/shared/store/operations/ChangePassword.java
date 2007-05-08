@@ -68,7 +68,7 @@ public class ChangePassword implements ContextOperation
     }
 
 
-    public Object execute( DirContext ctx, Name searchBaseDn )
+    public Object execute( DirContext ctx, Name searchBaseDn ) throws NamingException
     {
         if ( principal == null )
         {
@@ -83,16 +83,9 @@ public class ChangePassword implements ContextOperation
 
         String dn = null;
 
-        try
-        {
-            dn = search( ctx, principal.getName() );
-            Name rdn = getRelativeName( ctx.getNameInNamespace(), dn );
-            ctx.modifyAttributes( rdn, mods );
-        }
-        catch ( NamingException e )
-        {
-            return null;
-        }
+        dn = search( ctx, principal.getName() );
+        Name rdn = getRelativeName( ctx.getNameInNamespace(), dn );
+        ctx.modifyAttributes( rdn, mods );
 
         return dn;
     }
