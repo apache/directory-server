@@ -68,6 +68,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -776,7 +777,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // -----------------------------------------------------------
                 if ( ids == null || ids.length == 0 )
                 {
-                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
+                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
                     return new SingletonEnumeration( result );
                 }
                 
@@ -820,14 +821,14 @@ public class DefaultPartitionNexus extends PartitionNexus
                 // return nothing
                 if ( containsOneDotOne )
                 {
-                    SearchResult result = new SearchResult( "", null, new AttributesImpl(), false );
+                    SearchResult result = new ServerSearchResult( "", null, new AttributesImpl(), false );
                     return new SingletonEnumeration( result );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
-                    SearchResult result = new SearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
+                    SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
                     return new SingletonEnumeration( result );
                 }
                 
@@ -882,7 +883,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                 }
 
-                SearchResult result = new SearchResult( "", null, attrs, false );
+                SearchResult result = new ServerSearchResult( "", null, attrs, false );
                 return new SingletonEnumeration( result );
             }
 
