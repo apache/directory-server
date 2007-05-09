@@ -165,31 +165,24 @@ public class SaslBindTest extends AbstractServerTest
             Attributes attrs = ctx.getAttributes( "ldap://localhost:" + port, new String[]
                 { "supportedSASLMechanisms" } );
 
-            try
-            {
-                NamingEnumeration answer = attrs.getAll();
+            NamingEnumeration answer = attrs.getAll();
 
-                if ( answer.hasMore() )
-                {
-                    Attribute result = ( Attribute ) answer.next();
-                    assertTrue( result.size() == 3 );
-                    assertTrue( result.contains( "GSSAPI" ) );
-                    assertTrue( result.contains( "DIGEST-MD5" ) );
-                    assertTrue( result.contains( "CRAM-MD5" ) );
-                }
-                else
-                {
-                    fail();
-                }
-            }
-            catch ( NamingException e )
+            if ( answer.hasMore() )
             {
-                e.printStackTrace();
+                Attribute result = ( Attribute ) answer.next();
+                assertTrue( result.size() == 3 );
+                assertTrue( result.contains( "GSSAPI" ) );
+                assertTrue( result.contains( "DIGEST-MD5" ) );
+                assertTrue( result.contains( "CRAM-MD5" ) );
+            }
+            else
+            {
+                fail( "Should have returned 3 SASL mechanisms." );
             }
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
+            fail( "Should not have caught exception." );
         }
     }
 
@@ -224,7 +217,6 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            System.err.println( "Problem getting attribute:  " + e );
             fail( "Should not have caught exception." );
         }
     }
@@ -290,7 +282,6 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            System.err.println( "Problem getting attribute:  " + e );
             fail( "Should not have caught exception." );
         }
     }
@@ -366,8 +357,6 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
-            System.err.println( "Problem getting attribute:  " + e );
             fail( "Should not have caught exception." );
         }
     }
@@ -474,8 +463,6 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
-            System.err.println( "Problem getting attribute:  " + e );
             fail( "Should not have caught exception." );
         }
     }
@@ -507,7 +494,6 @@ public class SaslBindTest extends AbstractServerTest
         }
         catch ( NamingException e )
         {
-            e.printStackTrace();
             assertTrue( e.getMessage().contains( "Invalid response" ) );
         }
     }
