@@ -426,7 +426,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    public Object getValue( String type ) throws InvalidNameException
    {
        // First, let's normalize the type
-       String normalizedType = StringTools.lowerCase( StringTools.trim( type ) );
+       String normalizedType = StringTools.lowerCaseAscii( StringTools.trim( type ) );
 
        switch ( nbAtavs )
        {
@@ -500,7 +500,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    public AttributeTypeAndValue getAttributeTypeAndValue( String type )
    {
        // First, let's normalize the type
-       String normalizedType = StringTools.lowerCase( StringTools.trim( type ) );
+       String normalizedType = StringTools.lowerCaseAscii( StringTools.trim( type ) );
 
        switch ( nbAtavs )
        {
