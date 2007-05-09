@@ -62,7 +62,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SaslGssapiBindTest extends AbstractServerTest
+public class SaslGssapiBindITest extends AbstractServerTest
 {
     private DirContext ctx = null;
 
@@ -71,7 +71,7 @@ public class SaslGssapiBindTest extends AbstractServerTest
      * Creates a new instance of SaslGssapiBindTest and sets JAAS system properties
      * for the KDC and realm, so we don't have to rely on external configuration.
      */
-    public SaslGssapiBindTest()
+    public SaslGssapiBindITest()
     {
         System.setProperty( "java.security.krb5.realm", "EXAMPLE.COM" );
         System.setProperty( "java.security.krb5.kdc", "localhost" );
@@ -236,7 +236,7 @@ public class SaslGssapiBindTest extends AbstractServerTest
         LoginContext lc = null;
         try
         {
-            lc = new LoginContext( SaslGssapiBindTest.class.getName(), new CallbackHandlerBean( "hnelson", "secret" ) );
+            lc = new LoginContext( SaslGssapiBindITest.class.getName(), new CallbackHandlerBean( "hnelson", "secret" ) );
             lc.login();
         }
         catch ( LoginException le )

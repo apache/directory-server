@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SaslBindTest extends AbstractServerTest
+public class SaslBindITest extends AbstractServerTest
 {
     private DirContext ctx = null;
 
