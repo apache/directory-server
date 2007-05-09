@@ -118,7 +118,7 @@ public class LdapMessageContainer extends AbstractContainer implements IAsn1Cont
      */
     public boolean isBinary( String id )
     {
-        return binaries.contains( StringTools.lowerCase( StringTools.trim( id ) ) );
+        return binaries.contains( StringTools.lowerCaseAscii( StringTools.trim( id ) ) );
     }
 
     /**
