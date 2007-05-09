@@ -945,7 +945,7 @@ class DefaultDirectoryService extends DirectoryService
 
                     for ( int i = 0; i < binaryArray.length; i++ )
                     {
-                        binaries.add( StringTools.lowerCase( StringTools.trim( binaryArray[i] ) ) );
+                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binaryArray[i] ) ) );
                     }
                 }
 
@@ -974,9 +974,10 @@ class DefaultDirectoryService extends DirectoryService
 
                 // add the lowercased name for the names for the attributeType
                 String[] names = type.getNames();
+                
                 for ( int ii = 0; ii < names.length; ii++ )
                 {
-                    binaries.add( StringTools.lowerCase( StringTools.trim( names[ii] ) ) );
+                    binaries.add( StringTools.lowerCaseAscii( StringTools.trim( names[ii] ) ) );
                 }
             }
         }
