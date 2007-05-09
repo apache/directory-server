@@ -169,7 +169,7 @@ public class SearchResultEntry extends LdapMessage
      */
     public void addAttributeValues( String type )
     {
-        currentAttributeValue = new AttributeImpl( StringTools.lowerCase( type ) );
+        currentAttributeValue = new AttributeImpl( type );
 
         partialAttributeList.put( currentAttributeValue );
     }
