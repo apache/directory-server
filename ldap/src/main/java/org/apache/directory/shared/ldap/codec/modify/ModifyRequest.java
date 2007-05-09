@@ -180,7 +180,7 @@ public class ModifyRequest extends LdapMessage
      */
     public void addAttributeTypeAndValues( String type )
     {
-        currentAttribute = new AttributeImpl( StringTools.lowerCase( type ) );
+        currentAttribute = new AttributeImpl( StringTools.lowerCaseAscii( type ) );
 
         int operation = 0;
 
