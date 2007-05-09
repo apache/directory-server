@@ -149,14 +149,14 @@ public class AddRequest extends LdapMessage
     public void addAttributeType( String type )
     {
         // do not create a new attribute if we have seen this attributeType before
-        if ( attributes.get( type.toLowerCase() ) != null )
+        if ( attributes.get( type ) != null )
         {
-            currentAttribute = attributes.get( type.toLowerCase() );
+            currentAttribute = attributes.get( type );
             return;
         }
         
         // fix this to use AttributeImpl(type.getString().toLowerCase())
-        currentAttribute = new AttributeImpl( type.toLowerCase() );
+        currentAttribute = new AttributeImpl( type );
         attributes.put( currentAttribute );
     }
 
