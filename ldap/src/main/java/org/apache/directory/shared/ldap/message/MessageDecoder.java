@@ -117,7 +117,7 @@ public final class MessageDecoder implements ProviderDecoder
 
                     for ( String binary:binaryArray )
                     {
-                        binaries.add( StringTools.lowerCase( StringTools.trim( binary ) ) );
+                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binary ) ) );
                     }
                 }
             } // if already parsed and set as a collection use it
