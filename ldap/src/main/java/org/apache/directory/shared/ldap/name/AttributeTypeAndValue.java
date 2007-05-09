@@ -121,7 +121,8 @@ public class AttributeTypeAndValue implements Cloneable, Comparable, Serializabl
             throw new InvalidNameException( "Null or empty type is not allowed" );
         }
 
-        normType = type.trim().toLowerCase();
+        // normType = type.trim().toLowerCase();
+        normType = StringTools.lowerCaseAscii( type.trim() );
         this.upType = upType;
         this.upValue = upValue;
 
