@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PasswordPolicyServiceTest extends AbstractServerTest
+public class PasswordPolicyServiceITest extends AbstractServerTest
 {
     private DirContext ctx = null;
     private DirContext users = null;

@@ -62,7 +62,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KeyDerivationServiceTest extends AbstractServerTest
+public class KeyDerivationServiceITest extends AbstractServerTest
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
