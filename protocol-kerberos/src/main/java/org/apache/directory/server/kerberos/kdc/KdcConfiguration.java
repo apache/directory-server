@@ -143,6 +143,8 @@ public class KdcConfiguration extends ServiceConfiguration
     /**
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
+     * 
+     * @param instanceId 
      */
     public KdcConfiguration( String instanceId )
     {
@@ -151,12 +153,23 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Creates a new instance of KdcConfiguration.
+     *
+     * @param properties
+     */
     public KdcConfiguration( Map<String, Object> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
+    /**
+     * Creates a new instance of KdcConfiguration.
+     *
+     * @param properties
+     * @param strategy
+     */
     public KdcConfiguration( Map<String, Object> properties, int strategy )
     {
         if ( properties == null )
@@ -179,6 +192,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns a Map of the default config.
+     *
+     * @return The default config.
+     */
     public static Map<String, Object> getDefaultConfig()
     {
         Map<String, Object> defaults = new HashMap<String, Object>();
@@ -190,6 +208,12 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether the Dictionary of config is different from this config.
+     *
+     * @param config
+     * @return true if the configs are different.
+     */
     public boolean isDifferent( Dictionary config )
     {
         int port = getPort();
@@ -203,12 +227,22 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the name of this service.
+     *
+     * @return The name of this service.
+     */
     public String getName()
     {
         return DEFAULT_NAME;
     }
 
 
+    /**
+     * Returns the primary realm.
+     *
+     * @return The primary realm.
+     */
     public String getPrimaryRealm()
     {
         String key = REALM_KEY;
@@ -222,6 +256,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the KDC principal.
+     *
+     * @return The KDC principal.
+     */
     public KerberosPrincipal getKdcPrincipal()
     {
         String key = PRINCIPAL_KEY;
@@ -248,12 +287,22 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the encryption types.
+     *
+     * @return The encryption types.
+     */
     public EncryptionType[] getEncryptionTypes()
     {
         return encryptionTypes;
     }
 
 
+    /**
+     * Returns the properties.
+     *
+     * @return The properties.
+     */
     public Map<String, Object> getProperties()
     {
         // Request that the krb5key value be returned as binary
@@ -263,6 +312,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the clock skew.
+     *
+     * @return The clock skew.
+     */
     public long getClockSkew()
     {
         String key = ALLOWABLE_CLOCKSKEW_KEY;
@@ -276,6 +330,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the port.
+     *
+     * @return The port.
+     */
     public int getPort()
     {
         String key = IP_PORT_KEY;
@@ -289,6 +348,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the buffer size.
+     *
+     * @return The buffer size.
+     */
     public int getBufferSize()
     {
         String key = BUFFER_SIZE_KEY;
@@ -302,6 +366,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether pre-authentication by encrypted timestamp is required.
+     *
+     * @return true if pre-authentication by encrypted timestamp is required.
+     */
     public boolean isPaEncTimestampRequired()
     {
         String key = PA_ENC_TIMESTAMP_REQUIRED_KEY;
@@ -315,6 +384,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the maximum ticket lifetime.
+     *
+     * @return The maximum ticket lifetime.
+     */
     public long getMaximumTicketLifetime()
     {
         String key = TGS_MAXIMUM_TICKET_LIFETIME_KEY;
@@ -328,6 +402,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns the maximum renewable lifetime.
+     *
+     * @return The maximum renewable lifetime.
+     */
     public long getMaximumRenewableLifetime()
     {
         String key = TGS_MAXIMUM_RENEWABLE_LIFETIME_KEY;
@@ -341,6 +420,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether empty addresses are allowed.
+     *
+     * @return true if empty addresses are allowed.
+     */
     public boolean isEmptyAddressesAllowed()
     {
         String key = EMPTY_ADDRESSES_ALLOWED_KEY;
@@ -354,6 +438,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether forwardable tickets are allowed.
+     *
+     * @return true if forwardable tickets are allowed.
+     */
     public boolean isForwardableAllowed()
     {
         String key = TGS_FORWARDABLE_ALLOWED_KEY;
@@ -367,6 +456,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether proxiable tickets are allowed.
+     *
+     * @return true if proxiable tickets are allowed.
+     */
     public boolean isProxiableAllowed()
     {
         String key = TGS_PROXIABLE_ALLOWED_KEY;
@@ -380,6 +474,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether postdated tickets are allowed.
+     *
+     * @return true if postdated tickets are allowed.
+     */
     public boolean isPostdateAllowed()
     {
         String key = TGS_POSTDATE_ALLOWED_KEY;
@@ -393,6 +492,11 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
+    /**
+     * Returns whether renewable tickets are allowed.
+     *
+     * @return true if renewable tickets are allowed.
+     */
     public boolean isRenewableAllowed()
     {
         String key = TGS_RENEWABLE_ALLOWED_KEY;

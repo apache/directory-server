@@ -32,6 +32,9 @@ import org.apache.mina.handler.chain.IoHandlerChain;
  */
 public class AuthenticationServiceChain extends IoHandlerChain
 {
+    /**
+     * Creates a new instance of AuthenticationServiceChain.
+     */
     public AuthenticationServiceChain()
     {
         addLast( "monitorRequest", new MonitorRequest() );

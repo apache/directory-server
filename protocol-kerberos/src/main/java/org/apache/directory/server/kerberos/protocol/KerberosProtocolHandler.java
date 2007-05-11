@@ -64,6 +64,12 @@ public class KerberosProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
+    /**
+     * Creates a new instance of KerberosProtocolHandler.
+     *
+     * @param config
+     * @param store
+     */
     public KerberosProtocolHandler( KdcConfiguration config, PrincipalStore store )
     {
         this.config = config;

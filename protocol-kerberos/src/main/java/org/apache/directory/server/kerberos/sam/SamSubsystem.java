@@ -22,11 +22,13 @@ package org.apache.directory.server.kerberos.sam;
 
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 
+import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
 
@@ -42,10 +44,11 @@ public final class SamSubsystem
     /** the property key base used for SAM algorithm verifiers */
     public static final String PROPKEY_BASE = "kerberos.sam.type.";
 
+    /** the SAM subsystem instance */
     public static SamSubsystem instance;
 
     /** a map of verifiers so we do not need to create a new one every time */
-    private final HashMap verifiers = new HashMap();
+    private final Map<SamType, SamVerifier> verifiers = new HashMap<SamType, SamVerifier>();
 
     /** the key integrity checker used by the subsystem for all sam types */
     private KeyIntegrityChecker keyChecker;
@@ -115,7 +118,7 @@ public final class SamSubsystem
 
         String key = PROPKEY_BASE + entry.getSamType().getOrdinal();
 
-        Hashtable env = new Hashtable();
+        Hashtable<Object, Object> env = new Hashtable<Object, Object>();
 
         try
         {

@@ -34,6 +34,11 @@ public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
     private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
 
 
+    /**
+     * Returns the singleton {@link KerberosProtocolCodecFactory}.
+     *
+     * @return The singleton {@link KerberosProtocolCodecFactory}.
+     */
     public static KerberosProtocolCodecFactory getInstance()
     {
         return INSTANCE;

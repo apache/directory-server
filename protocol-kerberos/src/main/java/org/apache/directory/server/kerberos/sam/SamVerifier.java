@@ -48,11 +48,17 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
  */
 public interface SamVerifier
 {
-    /** Starts one of many pluggable SAM type subsystem*/
+    /**
+     * Starts one of many pluggable SAM type subsystem.
+     * 
+     * @throws SamException
+     */
     void startup() throws SamException;
 
 
-    /** Shuts down one of many pluggable SAM type subsystem*/
+    /**
+     * Shuts down one of many pluggable SAM type subsystem.
+     */
     void shutdown();
 
 
@@ -62,9 +68,9 @@ public interface SamVerifier
      * and supplies it to the verifier to check generated keys to conduct the
      * verification workflow.
      *
-     * @param keyChecker the integrity checker that validates whether or not a
+     * @param keyChecker The integrity checker that validates whether or not a
      * key can decrypt-decode preauth data (an encryped-encoded generalized
-     * timestamp)
+     * timestamp).
      */
     void setIntegrityChecker( KeyIntegrityChecker keyChecker );
 
@@ -72,8 +78,10 @@ public interface SamVerifier
     /**
      * Verifies the single use password supplied.
      *
-     * @param principal the kerberos principal to use
-     * @param sad single-use authentication data (encrypted generalized timestamp)
+     * @param principal The kerberos principal to use.
+     * @param sad Single-use authentication data (encrypted generalized timestamp).
+     * @return The {@link KerberosKey}.
+     * @throws SamException 
      */
     KerberosKey verify( KerberosPrincipal principal, byte[] sad ) throws SamException;
 
@@ -81,11 +89,15 @@ public interface SamVerifier
     /**
      * Gets the registered SAM algorithm type implemented by this SamVerifier.
      *
-     * @return the type value for the SAM algorithm used to verify the SUP.
+     * @return The type value for the SAM algorithm used to verify the SUP.
      */
     SamType getSamType();
 
 
-    /** sets the user context where users are stored for the primary realm */
+    /**
+     * Sets the user context where users are stored for the primary realm.
+     *  
+     * @param userContext
+     */
     void setUserContext( DirContext userContext );
 }

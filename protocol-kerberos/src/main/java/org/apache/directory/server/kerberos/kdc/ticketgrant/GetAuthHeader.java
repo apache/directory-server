@@ -44,6 +44,7 @@ public class GetAuthHeader implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
@@ -56,12 +57,6 @@ public class GetAuthHeader implements IoHandlerCommand
         tgsContext.setTgt( tgt );
 
         next.execute( session, message );
-    }
-
-
-    public String getContextKey()
-    {
-        return ( this.contextKey );
     }
 
 
@@ -87,5 +82,11 @@ public class GetAuthHeader implements IoHandlerCommand
         ApplicationRequest authHeader = decoder.decode( undecodedAuthHeader );
 
         return authHeader;
+    }
+
+
+    protected String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

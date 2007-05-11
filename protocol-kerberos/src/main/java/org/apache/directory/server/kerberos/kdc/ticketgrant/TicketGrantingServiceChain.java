@@ -40,6 +40,9 @@ public class TicketGrantingServiceChain extends IoHandlerChain
     private static final Logger log = LoggerFactory.getLogger( TicketGrantingServiceChain.class );
 
 
+    /**
+     * Creates a new instance of TicketGrantingServiceChain.
+     */
     public TicketGrantingServiceChain()
     {
         if ( log.isDebugEnabled() )

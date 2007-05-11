@@ -28,6 +28,9 @@ import org.apache.mina.handler.chain.IoHandlerChain;
  */
 public class PreAuthenticationChain extends IoHandlerChain
 {
+    /**
+     * Creates a new instance of PreAuthenticationChain.
+     */
     public PreAuthenticationChain()
     {
         addLast( "verifySam", new VerifySam() );

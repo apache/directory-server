@@ -41,12 +41,13 @@ public abstract class VerifierBase implements IoHandlerCommand
     private String contextKey = "context";
 
 
-    public String getContextKey()
-    {
-        return ( this.contextKey );
-    }
-
-
+    /**
+     * Prepares a pre-authentication error message containing required
+     * encryption types.
+     *
+     * @param encryptionTypes
+     * @return The error message as bytes.
+     */
     public byte[] preparePreAuthenticationError( EncryptionType[] encryptionTypes )
     {
         PreAuthenticationData[] paDataSequence = new PreAuthenticationData[2];
@@ -88,5 +89,11 @@ public abstract class VerifierBase implements IoHandlerCommand
         {
             return null;
         }
+    }
+
+
+    protected String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

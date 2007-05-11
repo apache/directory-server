@@ -122,12 +122,6 @@ public class GenerateTicket implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
-    {
-        return ( this.contextKey );
-    }
-
-
     private void processFlags( KdcConfiguration config, KdcRequest request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException
     {
@@ -280,7 +274,7 @@ public class GenerateTicket implements IoHandlerCommand
              new_tkt.starttime+client.max_life,
              new_tkt.starttime+server.max_life,
              */
-            List minimizer = new ArrayList();
+            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
             minimizer.add( till );
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEndTime() );
@@ -321,7 +315,7 @@ public class GenerateTicket implements IoHandlerCommand
              new_tkt.starttime+server.max_rlife,
              */
             // TODO - client and server configurable; requires store
-            List minimizer = new ArrayList();
+            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
 
             /*
              * 'rtime' KerberosTime is OPTIONAL
@@ -333,7 +327,7 @@ public class GenerateTicket implements IoHandlerCommand
 
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumRenewableLifetime() ) );
             minimizer.add( tgt.getRenewTill() );
-            newTicketBody.setRenewTill( ( KerberosTime ) Collections.min( minimizer ) );
+            newTicketBody.setRenewTill( Collections.min( minimizer ) );
         }
     }
 
@@ -368,5 +362,11 @@ public class GenerateTicket implements IoHandlerCommand
         newTicketBody.setRenewTill( tgt.getRenewTill() );
         newTicketBody.setSessionKey( tgt.getSessionKey() );
         newTicketBody.setTransitedEncoding( tgt.getTransitedEncoding() );
+    }
+
+
+    protected String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }
