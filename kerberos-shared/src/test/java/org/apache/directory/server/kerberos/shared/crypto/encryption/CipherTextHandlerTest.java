@@ -20,6 +20,11 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -29,6 +34,7 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
 
 /**
@@ -90,11 +96,14 @@ public class CipherTextHandlerTest extends TestCase
             ( byte ) 0x65, ( byte ) 0x92, ( byte ) 0xbd, ( byte ) 0xf5, ( byte ) 0x52, ( byte ) 0x9f, ( byte ) 0x94,
             ( byte ) 0x67, ( byte ) 0x10, ( byte ) 0xd2 };
 
-    private byte[] asn1EncodedTimeStamp =
-        { ( byte ) 0x30, ( byte ) 0x1A, ( byte ) 0xA0, ( byte ) 0x11, ( byte ) 0x18, ( byte ) 0x0F, ( byte ) 0x32,
-            ( byte ) 0x30, ( byte ) 0x30, ( byte ) 0x37, ( byte ) 0x30, ( byte ) 0x34, ( byte ) 0x31, ( byte ) 0x30,
-            ( byte ) 0x31, ( byte ) 0x39, ( byte ) 0x30, ( byte ) 0x34, ( byte ) 0x30, ( byte ) 0x30, ( byte ) 0x5A,
-            ( byte ) 0xA1, ( byte ) 0x05, ( byte ) 0x02, ( byte ) 0x03, ( byte ) 0x07, ( byte ) 0x06, ( byte ) 0xA2 };
+    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
+
+    static
+    {
+        dateFormat.setTimeZone( UTC_TIME_ZONE );
+    }
 
 
     /**
@@ -186,7 +195,6 @@ public class CipherTextHandlerTest extends TestCase
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
     }
@@ -196,16 +204,30 @@ public class CipherTextHandlerTest extends TestCase
      * Tests the encryption and subsequent unsealing of an ASN.1 encoded timestamp with a
      * good password.  After encryption, an attempt is made to unseal the encrypted bytes
      * as an EncryptedTimestamp.  The result is timestamp data.
+     * 
+     * @throws ParseException 
      */
-    public void testTripleDesGoodPasswordEncrypt()
+    public void testTripleDesGoodPasswordEncrypt() throws ParseException
     {
         CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES3_CBC_SHA1_KD, kerberosKey.getEncoded() );
 
-        Des3CbcSha1KdEncryption enc = new Des3CbcSha1KdEncryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
+        String zuluTime = "20070410190400Z";
+        int microSeconds = 460450;
+        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+
+        EncryptedData encryptedData = null;
+
+        try
+        {
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+        }
+        catch ( KerberosException ke )
+        {
+            fail( "Should not have caught exception." );
+        }
 
         Class hint = EncryptedTimeStamp.class;
 
@@ -213,12 +235,11 @@ public class CipherTextHandlerTest extends TestCase
         {
             EncryptedTimeStamp object = ( EncryptedTimeStamp ) lockBox.unseal( hint, key, encryptedData,
                 KeyUsage.NUMBER1 );
-            assertEquals( "TimeStamp", "20070410190400Z", object.getTimeStamp().toString() );
-            assertEquals( "MicroSeconds", 460450, object.getMicroSeconds() );
+            assertEquals( "TimeStamp", zuluTime, object.getTimeStamp().toString() );
+            assertEquals( "MicroSeconds", microSeconds, object.getMicroSeconds() );
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
     }
@@ -246,7 +267,6 @@ public class CipherTextHandlerTest extends TestCase
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
     }
@@ -256,16 +276,30 @@ public class CipherTextHandlerTest extends TestCase
      * Tests the encryption and subsequent unsealing of an ASN.1 encoded timestamp with a
      * good password.  After encryption, an attempt is made to unseal the encrypted bytes
      * as an EncryptedTimestamp.  The result is timestamp data.
+     * 
+     * @throws ParseException 
      */
-    public void testAes128GoodPasswordEncrypt()
+    public void testAes128GoodPasswordEncrypt() throws ParseException
     {
         CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
         EncryptionKey key = new EncryptionKey( EncryptionType.AES128_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
 
-        Aes128CtsSha1Encryption enc = new Aes128CtsSha1Encryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
+        String zuluTime = "20070410190400Z";
+        int microSeconds = 460450;
+        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+
+        EncryptedData encryptedData = null;
+
+        try
+        {
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+        }
+        catch ( KerberosException ke )
+        {
+            fail( "Should not have caught exception." );
+        }
 
         Class hint = EncryptedTimeStamp.class;
 
@@ -278,7 +312,6 @@ public class CipherTextHandlerTest extends TestCase
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
     }
@@ -306,7 +339,6 @@ public class CipherTextHandlerTest extends TestCase
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
     }
@@ -316,16 +348,30 @@ public class CipherTextHandlerTest extends TestCase
      * Tests the encryption and subsequent unsealing of an ASN.1 encoded timestamp with a
      * good password.  After encryption, an attempt is made to unseal the encrypted bytes
      * as an EncryptedTimestamp.  The result is timestamp data.
+     * 
+     * @throws ParseException 
      */
-    public void testAes256GoodPasswordEncrypt()
+    public void testAes256GoodPasswordEncrypt() throws ParseException
     {
         CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
         EncryptionKey key = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
 
-        Aes256CtsSha1Encryption enc = new Aes256CtsSha1Encryption();
-        EncryptedData encryptedData = enc.getEncryptedData( key, asn1EncodedTimeStamp, KeyUsage.NUMBER1 );
+        String zuluTime = "20070410190400Z";
+        int microSeconds = 460450;
+        EncryptedTimeStamp encryptedTimeStamp = getEncryptedTimeStamp( zuluTime, microSeconds );
+
+        EncryptedData encryptedData = null;
+
+        try
+        {
+            encryptedData = lockBox.seal( key, encryptedTimeStamp, KeyUsage.NUMBER1 );
+        }
+        catch ( KerberosException ke )
+        {
+            fail( "Should not have caught exception." );
+        }
 
         Class hint = EncryptedTimeStamp.class;
 
@@ -338,9 +384,22 @@ public class CipherTextHandlerTest extends TestCase
         }
         catch ( KerberosException ke )
         {
-            ke.printStackTrace();
             fail( "Should not have caught exception." );
         }
+    }
+
+
+    protected EncryptedTimeStamp getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException
+    {
+        Date date = null;
+        synchronized ( dateFormat )
+        {
+            date = dateFormat.parse( zuluTime );
+        }
+
+        KerberosTime timeStamp = new KerberosTime( date );
+
+        return new EncryptedTimeStamp( timeStamp, microSeconds );
     }
 
     /*
@@ -361,7 +420,6 @@ public class CipherTextHandlerTest extends TestCase
      }
      catch ( KerberosException ke )
      {
-     ke.printStackTrace();
      fail( "Should not have caught exception." );
      }
      }*/

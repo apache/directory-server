@@ -42,6 +42,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncTgsRepPartEncod
 import org.apache.directory.server.kerberos.shared.io.encoder.EncTicketPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.Encoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncoderFactory;
+import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestampEncoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
@@ -76,6 +77,7 @@ public class CipherTextHandler
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
 
+        map.put( EncryptedTimeStamp.class, EncryptedTimestampEncoder.class );
         map.put( EncTicketPart.class, EncTicketPartEncoder.class );
         map.put( AuthenticationReply.class, EncAsRepPartEncoder.class );
         map.put( TicketGrantReply.class, EncTgsRepPartEncoder.class );

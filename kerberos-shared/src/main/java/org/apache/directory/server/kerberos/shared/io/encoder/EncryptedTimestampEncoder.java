@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -34,17 +35,23 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EncryptedTimestampEncoder
+public class EncryptedTimestampEncoder implements Encoder, EncoderFactory
 {
-    public byte[] encode( EncryptedTimeStamp encryptedTimestamp ) throws IOException
+    public byte[] encode( Encodable encryptedTimestamp ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        aos.writeObject( encodeTimestamp( encryptedTimestamp ) );
+        aos.writeObject( encodeTimestamp( ( EncryptedTimeStamp ) encryptedTimestamp ) );
         aos.close();
 
         return baos.toByteArray();
+    }
+
+
+    public Encoder getEncoder()
+    {
+        return new EncryptedTimestampEncoder();
     }
 
 
