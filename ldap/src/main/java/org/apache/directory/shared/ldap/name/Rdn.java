@@ -357,7 +357,7 @@ public class Rdn implements Cloneable, Comparable, Serializable
    /* Unspecified protection */void addAttributeTypeAndValue( String upType, String type, Object upValue, Object value ) throws InvalidNameException
    {
        // First, let's normalize the type
-       String normalizedType = type.toLowerCase();
+       String normalizedType = StringTools.lowerCaseAscii(type);
        Object normalizedValue = value;
 
        switch ( nbAtavs )
