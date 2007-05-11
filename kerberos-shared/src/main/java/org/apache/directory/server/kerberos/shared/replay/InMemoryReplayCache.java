@@ -38,7 +38,7 @@ public class InMemoryReplayCache implements ReplayCache
 {
     private static final long TWO_WEEKS = 1000 * 60 * 60 * 24 * 14;
 
-    private List list = new ArrayList();
+    private List<ReplayCacheEntry> list = new ArrayList<ReplayCacheEntry>();
 
 
     public synchronized boolean isReplay( KerberosTime clientTime, KerberosPrincipal clientPrincipal )
@@ -90,19 +90,38 @@ public class InMemoryReplayCache implements ReplayCache
         private KerberosPrincipal clientPrincipal;
 
 
-        public ReplayCacheEntry(KerberosTime time, KerberosPrincipal principal)
+        /**
+         * Creates a new instance of ReplayCacheEntry.
+         *
+         * @param time
+         * @param principal
+         */
+        public ReplayCacheEntry( KerberosTime time, KerberosPrincipal principal )
         {
             clientTime = time;
             clientPrincipal = principal;
         }
 
 
+        /**
+         * Returns whether this {@link ReplayCacheEntry} is equal another {@link ReplayCacheEntry}.
+         * {@link ReplayCacheEntry}'s are equal when the client time and the client principal are equal.
+         *
+         * @param other
+         * @return true if the ReplayCacheEntry's are equal.
+         */
         public boolean equals( ReplayCacheEntry other )
         {
             return clientTime.equals( other.clientTime ) && clientPrincipal.equals( other.clientPrincipal );
         }
 
 
+        /**
+         * Return whether this {@link ReplayCacheEntry} is older than a given time.
+         *
+         * @param time
+         * @return true if the {@link ReplayCacheEntry} is older.
+         */
         public boolean olderThan( KerberosTime time )
         {
             return time.greaterThan( clientTime );

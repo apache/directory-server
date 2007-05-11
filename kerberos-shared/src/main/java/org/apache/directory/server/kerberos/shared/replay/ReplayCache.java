@@ -31,8 +31,21 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  */
 public interface ReplayCache
 {
+    /**
+     * Returns whether a request is a replay, based on the client time and client principal.
+     *
+     * @param clientTime
+     * @param clientPrincipal
+     * @return true if the request is a replay.
+     */
     boolean isReplay( KerberosTime clientTime, KerberosPrincipal clientPrincipal );
 
 
+    /**
+     * Saves the client time and client principal to the replay cache.
+     *
+     * @param clientTime
+     * @param clientPrincipal
+     */
     void save( KerberosTime clientTime, KerberosPrincipal clientPrincipal );
 }
