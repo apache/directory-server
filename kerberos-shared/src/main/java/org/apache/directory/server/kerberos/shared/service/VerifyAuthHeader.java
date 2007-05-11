@@ -51,7 +51,20 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
     private String contextKey = "context";
 
 
-    // RFC 1510 A.10.  KRB_AP_REQ verification
+    /**
+     * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."
+     *
+     * @param authHeader
+     * @param ticket
+     * @param serverKey
+     * @param clockSkew
+     * @param replayCache
+     * @param emptyAddressesAllowed
+     * @param clientAddress
+     * @param lockBox
+     * @return The authenticator.
+     * @throws KerberosException
+     */
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
         CipherTextHandler lockBox ) throws KerberosException
@@ -151,7 +164,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
