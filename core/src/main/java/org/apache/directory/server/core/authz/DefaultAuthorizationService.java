@@ -551,7 +551,11 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
         LdapDN dn = ((ServerSearchResult)result).getDn();
-        dn.normalize( normalizerMapping );
+        
+        if ( !dn.isNormalized() )
+        {
+        	dn.normalize( normalizerMapping );
+        }
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )

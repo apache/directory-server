@@ -675,7 +675,11 @@ public class AuthorizationService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
-        principalDn.normalize( attrRegistry.getNormalizerMapping() );
+        
+        if ( !principalDn.isNormalized() )
+        {
+        	principalDn.normalize( attrRegistry.getNormalizerMapping() );
+        }
         
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled )
         {
