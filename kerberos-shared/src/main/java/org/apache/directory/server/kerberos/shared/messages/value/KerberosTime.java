@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 
@@ -32,7 +33,7 @@ import java.util.TimeZone;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosTime implements Comparable
+public class KerberosTime implements Comparable<KerberosTime>
 {
     public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
 
@@ -76,7 +77,7 @@ public class KerberosTime implements Comparable
     }
 
     
-    public int compareTo( Object o )
+    public int compareTo( KerberosTime o )
     {
         final int BEFORE = -1;
         final int EQUAL = 0;
