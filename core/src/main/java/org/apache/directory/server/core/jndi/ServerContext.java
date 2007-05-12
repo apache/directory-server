@@ -594,7 +594,16 @@ public abstract class ServerContext implements EventContext
         Object obj;
         LdapDN target = buildTarget( name );
         
-        Attributes attributes = nexusProxy.lookup( new LookupOperationContext( target ) );
+        Attributes attributes = null;
+        
+        if ( name.size() == 0 )
+        {
+        	attributes = nexusProxy.getRootDSE( new LookupOperationContext( target ) );
+        }
+        else
+        {
+        	attributes = nexusProxy.lookup( new LookupOperationContext( target ) );
+        }
 
         try
         {
