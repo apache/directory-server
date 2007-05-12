@@ -1096,8 +1096,43 @@ public class LdapDN implements Name
     public Name add( Rdn newRdn )
     {
         rdns.add( 0, newRdn );
+        
         normalizeInternal();
         toUpName();
+
+        return this;
+    }
+
+    /**
+     * Adds a single normalized RDN to the end of this name.
+     *
+     * @param newRdn
+     *            the RDN to add
+     * @return the updated name (not a new one)
+     * @throws InvalidNameException
+     *             if adding <tt>RDN</tt> would violate the syntax rules of
+     *             this name
+     */
+    public Name addNormalized( Rdn newRdn )
+    {
+        rdns.add( 0, newRdn );
+        
+        // Avoid a call to the toNormName() method which
+        // will iterate through all the rdns, when we only
+        // have to build a new normName by using the current
+        // RDN normalized name. The very same for upName.
+        if (rdns.size() == 1 )
+        {
+        	normName = newRdn.toString();
+        	upName = newRdn.getUpName();
+        }
+        else
+        {
+        	normName = newRdn + "," + normName;
+        	upName = newRdn.getUpName() + "," + upName;
+        }
+        
+        bytes = StringTools.getBytesUtf8( normName );
 
         return this;
     }
