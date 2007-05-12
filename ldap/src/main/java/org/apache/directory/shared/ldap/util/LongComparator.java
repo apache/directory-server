@@ -53,7 +53,7 @@ public class LongComparator implements Comparator<Object>, Serializable
     	{
             Long long1 = (Long)obj1;
             Long long2 = (Long)obj2;
-            return long1 < long2 ? -1 : long1 == long2 ? 0 : -1 ;
+            return long1.compareTo( long2 );
     	}
     	catch ( NullPointerException npe )
     	{
