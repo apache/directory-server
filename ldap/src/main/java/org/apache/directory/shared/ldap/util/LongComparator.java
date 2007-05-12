@@ -49,18 +49,22 @@ public class LongComparator implements Comparator<Object>, Serializable
      */
     public int compare( Object obj1, Object obj2 )
     {
-        if ( obj1 == null )
-        {
-            throw new IllegalArgumentException( "Argument 'obj1' is null" );
-        }
-
-        if ( obj2 == null )
-        {
-            throw new IllegalArgumentException( "Argument 'obj2' is null" );
-        }
-
-        Long long1 = (Long)obj1;
-        Long long2 = (Long)obj2;
-        return long1.compareTo( long2 );
+    	try
+    	{
+            Long long1 = (Long)obj1;
+            Long long2 = (Long)obj2;
+            return long1 < long2 ? -1 : long1 == long2 ? 0 : -1 ;
+    	}
+    	catch ( NullPointerException npe )
+    	{
+	        if ( obj1 == null )
+	        {
+	            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+	        }
+	        else
+	        {
+	            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+	        }
+    	}
     }
 }
