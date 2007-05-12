@@ -99,7 +99,7 @@ public class ReferralLut
         
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
-            farthest.add( dn.getRdn( ii ) );
+            farthest.addNormalized( dn.getRdn( ii ) );
 
             // do not return dn if it is the farthest referral
             if ( isReferral( farthest ) && ( farthest.size() != dn.size() ) )
