@@ -1108,6 +1108,6 @@ public class ReferralService extends BaseInterceptor
      */
     public boolean isReferral( LdapDN name ) throws NamingException
     {
-        return lut.isReferral( LdapDN.normalize( name, attrRegistry.getNormalizerMapping() ) );
+  		return lut.isReferral( name.isNormalized() ? name :  LdapDN.normalize( name, attrRegistry.getNormalizerMapping() ) );
     }
 }
