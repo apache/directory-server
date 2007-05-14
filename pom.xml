@@ -10,7 +10,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>build</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -34,13 +34,13 @@
       <dependency>
         <groupId>org.apache.directory.shared</groupId>
         <artifactId>shared-asn1-codec</artifactId>
-        <version>0.9.5.5-SNAPSHOT</version>
+        <version>0.9.5.5</version>
       </dependency>
 
       <dependency>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-bootstrappers</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.2</version>
       </dependency>
 
       <dependency>
@@ -152,7 +152,7 @@
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-ldap</artifactId>
-      <version>0.9.5.5-SNAPSHOT</version>
+      <version>0.9.5.5</version>
     </dependency>
   </dependencies>
 
