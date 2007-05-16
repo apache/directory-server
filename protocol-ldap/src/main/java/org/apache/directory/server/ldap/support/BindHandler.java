@@ -28,8 +28,10 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.PropertyKeys;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -115,8 +117,7 @@ public class BindHandler implements LdapMessageHandler
             }
             else
             {
-                Control[] connCtls = ( Control[] ) req.getControls().values().toArray( EMPTY );
-                ctx = new InitialLdapContext( env, connCtls );
+                ctx = new ServerLdapContext( DirectoryService.getInstance(), env );
             }
         }
         catch ( NamingException e )
