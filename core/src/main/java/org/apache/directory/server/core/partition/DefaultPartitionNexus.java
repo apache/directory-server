@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,6 +73,7 @@ import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -120,6 +122,99 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     /** the backends keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
+    
+    private PartitionStructure partitionList = new PartitionContainer();
+    
+    private interface PartitionStructure
+    {
+        boolean isPartition();
+        public PartitionStructure addPartitionHandler( String name, PartitionStructure children );
+    }
+    
+    private class PartitionContainer implements PartitionStructure
+    {
+        private Map<String, PartitionStructure> children;
+        
+        private PartitionContainer()
+        {
+            children = new HashMap<String, PartitionStructure>();
+        }
+        
+        public boolean isPartition()
+        {
+            return false;
+        }
+        
+        public PartitionStructure addPartitionHandler( String name, PartitionStructure child )
+        {
+            children.put( name, child );
+            return this;
+        }
+        
+        public String toString()
+        {
+            StringBuilder sb = new StringBuilder();
+            
+            sb.append( "Partition container :\n" );
+            
+            for ( PartitionStructure child:children.values() )
+            {
+                sb.append( '{' ).append( child.toString() ).append( "} " );
+            }
+            
+            return sb.toString();
+        }
+    }
+    
+    private class PartitionHandler implements PartitionStructure
+    {
+        private Partition partition;
+        
+        private PartitionHandler( Partition partition )
+        {
+            this.partition = partition;
+        }
+
+        public boolean isPartition()
+        {
+            return true;
+        }
+
+        public PartitionStructure addPartitionHandler( String name, PartitionStructure partition )
+        {
+            return this;
+        }
+        
+        public Partition getpartition()
+        {
+            return partition;
+        }
+
+        public String toString()
+        {
+            try
+            {
+                return partition.getSuffix().getUpName();
+            }
+            catch ( NamingException ne )
+            {
+                return "Unkown partition";
+            }
+        }
+}
+    
+    private PartitionStructure buildPartitionStructure( PartitionStructure current, LdapDN dn, int index, Partition partition )
+    {
+        if ( index == dn.size() - 1 )
+        {
+            return current.addPartitionHandler( dn.getRdn( index ).toString(), new PartitionHandler( partition ) );
+        }
+        else
+        {
+            return current.addPartitionHandler( dn.getRdn( index ).toString(), 
+                buildPartitionStructure( new PartitionContainer(), dn, index + 1, partition ) );
+        }
+    }
 
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -378,11 +473,15 @@ public class DefaultPartitionNexus extends PartitionNexus
         system.init( factoryCfg, systemCfg );
         systemCfg.setContextPartition( system );
         String key = system.getSuffix().toString();
+        
         if ( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
         }
+        
         partitions.put( key, system );
+        
+        buildPartitionStructure( partitionList, system.getSuffix(), 0, system );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.add( system.getUpSuffix().getUpName() );
@@ -433,6 +532,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         MultiException error = null;
         Iterator list = this.partitions.values().iterator();
+        
         while ( list.hasNext() )
         {
             Partition partition = ( Partition ) list.next();
@@ -543,6 +643,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         // Turn on default indices
         String key = config.getSuffix();
+        
         if ( partitions.containsKey( key ) )
         {
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
@@ -554,6 +655,8 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
         
         partitions.put( partition.getSuffix().toString(), partition );
+        
+        buildPartitionStructure( partitionList, partition.getSuffix(), 0, partition );
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.add( partition.getUpSuffix().getUpName() );
