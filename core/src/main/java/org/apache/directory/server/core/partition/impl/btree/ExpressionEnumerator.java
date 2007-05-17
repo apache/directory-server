@@ -247,7 +247,7 @@ public class ExpressionEnumerator implements Enumerator
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = children.get( ii );
-            value = ( ( Long ) child.get( "count" ) ).intValue();
+            value = ( Long ) child.get( "count" );
             minValue = Math.min( minValue, value );
 
             if ( minValue == value )
