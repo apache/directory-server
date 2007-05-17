@@ -69,6 +69,11 @@ public class PrincipalStoreEntryModifier
     private Map<EncryptionType, EncryptionKey> keyMap;
 
 
+    /**
+     * Returns the {@link PrincipalStoreEntry}.
+     *
+     * @return The {@link PrincipalStoreEntry}.
+     */
     public PrincipalStoreEntry getEntry()
     {
         return new PrincipalStoreEntry( commonName, userId, principal, keyVersionNumber, validStart, validEnd,
@@ -77,108 +82,201 @@ public class PrincipalStoreEntryModifier
     }
 
 
+    /**
+     * Sets whether the account is disabled.
+     *
+     * @param disabled
+     */
     public void setDisabled( boolean disabled )
     {
         this.disabled = disabled;
     }
 
 
+    /**
+     * Sets whether the account is locked-out.
+     *
+     * @param lockedOut
+     */
     public void setLockedOut( boolean lockedOut )
     {
         this.lockedOut = lockedOut;
     }
 
 
+    /**
+     * Sets the expiration time.
+     *
+     * @param expiration
+     */
     public void setExpiration( KerberosTime expiration )
     {
         this.expiration = expiration;
     }
 
 
+    /**
+     * Sets the common name (cn).
+     *
+     * @param commonName
+     */
     public void setCommonName( String commonName )
     {
         this.commonName = commonName;
     }
 
 
+    /**
+     * Sets the user ID.
+     *
+     * @param userId
+     */
     public void setUserId( String userId )
     {
         this.userId = userId;
     }
 
 
+    /**
+     * Sets the encryption type.
+     *
+     * @param encryptionType
+     */
     public void setEncryptionType( int encryptionType )
     {
         this.encryptionType = encryptionType;
     }
 
 
+    /**
+     * Sets the KDC flags.
+     *
+     * @param kdcFlags
+     */
     public void setKDCFlags( int kdcFlags )
     {
         this.kdcFlags = kdcFlags;
     }
 
 
+    /**
+     * Sets the key map.
+     *
+     * @param keyMap
+     */
     public void setKeyMap( Map<EncryptionType, EncryptionKey> keyMap )
     {
         this.keyMap = keyMap;
     }
 
 
+    /**
+     * Sets the key version number.
+     *
+     * @param keyVersionNumber
+     */
     public void setKeyVersionNumber( int keyVersionNumber )
     {
         this.keyVersionNumber = keyVersionNumber;
     }
 
 
+    /**
+     * Sets the ticket maximum life time.
+     *
+     * @param maxLife
+     */
     public void setMaxLife( int maxLife )
     {
         this.maxLife = maxLife;
     }
 
 
+    /**
+     * Sets the ticket maximum renew time.
+     *
+     * @param maxRenew
+     */
     public void setMaxRenew( int maxRenew )
     {
         this.maxRenew = maxRenew;
     }
 
 
+    /**
+     * Sets the end-of-life for the password.
+     *
+     * @param passwordEnd
+     */
     public void setPasswordEnd( KerberosTime passwordEnd )
     {
         this.passwordEnd = passwordEnd;
     }
 
 
+    /**
+     * Sets the principal.
+     *
+     * @param principal
+     */
     public void setPrincipal( KerberosPrincipal principal )
     {
         this.principal = principal;
     }
 
 
+    /**
+     * Sets the realm.
+     *
+     * @param realmName
+     */
     public void setRealmName( String realmName )
     {
         this.realmName = realmName;
     }
 
 
+    /**
+     * Sets the end of validity.
+     *
+     * @param validEnd
+     */
     public void setValidEnd( KerberosTime validEnd )
     {
         this.validEnd = validEnd;
     }
 
 
+    /**
+     * Sets the start of validity.
+     *
+     * @param validStart
+     */
     public void setValidStart( KerberosTime validStart )
     {
         this.validStart = validStart;
     }
 
 
+    /**
+     * Sets the single-use authentication (SAM) type.
+     *
+     * @param samType
+     */
     public void setSamType( SamType samType )
     {
         this.samType = samType;
     }
 
 
+    /**
+     * Converts the ASN.1 encoded key set to a map of encryption types to encryption keys.
+     *
+     * @param krb5key
+     * @return The map of encryption types to encryption keys.
+     * @throws NamingException
+     * @throws IOException
+     */
     public Map<EncryptionType, EncryptionKey> reconstituteKeyMap( Attribute krb5key ) throws NamingException,
         IOException
     {

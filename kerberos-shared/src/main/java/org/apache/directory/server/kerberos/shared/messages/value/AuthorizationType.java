@@ -32,35 +32,96 @@ import java.util.List;
 public final class AuthorizationType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "null" authorization type.
      */
     public static final AuthorizationType NULL = new AuthorizationType( 0, "null" );
+
+    /**
+     * Constant for the "if relevant" authorization type.
+     */
     public static final AuthorizationType IF_RELEVANT = new AuthorizationType( 1, "if relevant" );
+
+    /**
+     * Constant for the "intended for server" authorization type.
+     */
     public static final AuthorizationType INTENDED_FOR_SERVER = new AuthorizationType( 2, "intended for server" );
+
+    /**
+     * Constant for the  "intended for application class" authorization type.
+     */
     public static final AuthorizationType INTENDED_FOR_APPLICATION_CLASS = new AuthorizationType( 3,
         "intended for application class" );
+
+    /**
+     * Constant for the "kdc issued" authorization type.
+     */
     public static final AuthorizationType KDC_ISSUED = new AuthorizationType( 4, "kdc issued" );
+
+    /**
+     * Constant for the "or" authorization type.
+     */
     public static final AuthorizationType OR = new AuthorizationType( 5, "or" );
+
+    /**
+     * Constant for the "mandatory ticket extensions" authorization type.
+     */
     public static final AuthorizationType MANDATORY_TICKET_EXTENSIONS = new AuthorizationType( 6,
         "mandatory ticket extensions" );
+
+    /**
+     * Constant for the "in ticket extensions" authorization type.
+     */
     public static final AuthorizationType IN_TICKET_EXTENSIONS = new AuthorizationType( 7, "in ticket extensions" );
+
+    /**
+     * Constant for the "OSF DCE" authorization type.
+     */
     public static final AuthorizationType OSF_DCE = new AuthorizationType( 64, "OSF DCE" );
+
+    /**
+     * Constant for the "sesame" authorization type.
+     */
     public static final AuthorizationType SESAME = new AuthorizationType( 65, "sesame" );
 
+    /**
+     * Array for building a List of VALUES.
+     */
+    private static final AuthorizationType[] values =
+        { NULL, IF_RELEVANT, INTENDED_FOR_SERVER, INTENDED_FOR_APPLICATION_CLASS, KDC_ISSUED, OR,
+            MANDATORY_TICKET_EXTENSIONS, IN_TICKET_EXTENSIONS, OSF_DCE, SESAME };
 
-    public String toString()
+    /**
+     * A List of all the authorization type constants.
+     */
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    /**
+     * The name of the authorization type.
+     */
+    private final String name;
+
+    /**
+     * The value/code for the authorization type.
+     */
+    private final int ordinal;
+
+
+    /**
+     * Private constructor prevents construction outside of this class.
+     */
+    private AuthorizationType( int ordinal, String name )
     {
-        return name + " (" + ordinal + ")";
+        this.ordinal = ordinal;
+        this.name = name;
     }
 
 
-    public int compareTo( Object that )
-    {
-        return ordinal - ( ( AuthorizationType ) that ).ordinal;
-    }
-
-
+    /**
+     * Returns the authorization type when specified by its ordinal.
+     *
+     * @param type
+     * @return The authorization type.
+     */
     public static AuthorizationType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -73,31 +134,25 @@ public final class AuthorizationType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this authorization type.
+     *
+     * @return The authorization type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
-    /// PRIVATE /////
-    private final String name;
-    private final int ordinal;
 
-
-    /**
-     * Private constructor prevents construction outside of this class.
-     */
-    private AuthorizationType(int ordinal, String name)
+    public int compareTo( Object that )
     {
-        this.ordinal = ordinal;
-        this.name = name;
+        return ordinal - ( ( AuthorizationType ) that ).ordinal;
     }
 
-    /**
-     * These two lines are all that's necessary to export a List of VALUES.
-     */
-    private static final AuthorizationType[] values =
-        { NULL, IF_RELEVANT, INTENDED_FOR_SERVER, INTENDED_FOR_APPLICATION_CLASS, KDC_ISSUED, OR,
-            MANDATORY_TICKET_EXTENSIONS, IN_TICKET_EXTENSIONS, OSF_DCE, SESAME };
-    // VALUES needs to be located here, otherwise illegal forward reference
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    public String toString()
+    {
+        return name + " (" + ordinal + ")";
+    }
 }

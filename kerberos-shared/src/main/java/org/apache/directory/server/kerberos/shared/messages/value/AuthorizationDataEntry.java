@@ -31,21 +31,34 @@ public class AuthorizationDataEntry
 
 
     /**
-     * Class constructor
+     * Creates a new instance of AuthorizationDataEntry.
+     *
+     * @param adType
+     * @param adData
      */
-    public AuthorizationDataEntry(AuthorizationType adType, byte[] adData)
+    public AuthorizationDataEntry( AuthorizationType adType, byte[] adData )
     {
         authorizationDataType = adType;
         authorizationData = adData;
     }
 
 
+    /**
+     * Returns the raw bytes of the authorization data.
+     *
+     * @return The raw bytes of the authorization data.
+     */
     public byte[] getAuthorizationData()
     {
         return authorizationData;
     }
 
 
+    /**
+     * Returns the {@link AuthorizationType}.
+     *
+     * @return The {@link AuthorizationType}.
+     */
     public AuthorizationType getAuthorizationDataType()
     {
         return authorizationDataType;

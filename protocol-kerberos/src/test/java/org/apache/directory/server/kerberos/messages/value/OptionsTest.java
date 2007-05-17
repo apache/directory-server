@@ -22,10 +22,10 @@ package org.apache.directory.server.kerberos.messages.value;
 
 import java.util.Arrays;
 
+import junit.framework.TestCase;
+
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -38,6 +38,9 @@ public class OptionsTest extends TestCase
         { ( byte ) 0x50, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x10 };
 
 
+    /**
+     * Tests converting the ticket flags to a descriptive String.
+     */
     public void testToString()
     {
         TicketFlags flags = new TicketFlags();
@@ -49,6 +52,9 @@ public class OptionsTest extends TestCase
     }
 
 
+    /**
+     * Tests that setting flags is idempotent.
+     */
     public void testDuplicateSetting()
     {
         TicketFlags flags = new TicketFlags();
@@ -61,6 +67,9 @@ public class OptionsTest extends TestCase
     }
 
 
+    /**
+     * Tests the basic construction of the {@link KdcOptions}.
+     */
     public void testConstruction()
     {
         KdcOptions options = new KdcOptions( fpriOptions );
