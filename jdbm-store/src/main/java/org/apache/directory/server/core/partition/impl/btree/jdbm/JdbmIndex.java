@@ -30,7 +30,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
-import jdbm.helper.LongSerializer;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
@@ -482,6 +481,11 @@ public class JdbmIndex implements Index
      */
     public Object getNormalized( Object attrVal ) throws NamingException
     {
+        if ( attrVal instanceof Long )
+        {
+            return attrVal;
+        }
+        
         Object normalized = keyCache.get( attrVal );
 
         if ( null == normalized )
