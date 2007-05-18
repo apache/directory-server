@@ -981,6 +981,69 @@ public class LdapDN implements Name
 
 
     /**
+     * Adds the components of a name -- in order -- at a specified position
+     * within this name. Components of this name at or after the index of the
+     * first new component are shifted up (away from 0) to accommodate the new
+     * components. Compoenents are supposed to be normalized.
+     *
+     * @param posn the index in this name at which to add the new components.
+     *            Must be in the range [0,size()].
+     * @param name the components to add
+     * @return the updated name (not a new one)
+     * @throws ArrayIndexOutOfBoundsException
+     *             if posn is outside the specified range
+     * @throws InvalidNameException
+     *             if <tt>n</tt> is not a valid name, or if the addition of
+     *             the components would violate the syntax rules of this name
+     */
+    public Name addAllNormalized( int posn, Name name ) throws InvalidNameException
+    {
+        if ( name instanceof LdapDN )
+        {
+            LdapDN dn = (LdapDN)name;
+            
+            if ( ( dn == null ) || ( dn.size() == 0 ) )
+            {
+                return this;
+            }
+
+            // Concatenate the rdns
+            rdns.addAll( size() - posn, dn.rdns );
+
+            if ( StringTools.isEmpty( normName ) )
+            {
+                normName = dn.normName;
+                bytes = dn.bytes;
+                upName = dn.upName;
+            }
+            else
+            {
+                normName = dn.normName + "," + normName;
+                bytes = StringTools.getBytesUtf8( normName );
+                upName = dn.upName + "," + upName;
+            }
+        }
+        else
+        {
+            if ( ( name == null ) || ( name.size() == 0 ) )
+            {
+                return this;
+            }
+
+            for ( int i = name.size() - 1; i >= 0; i-- )
+            {
+                Rdn rdn = new Rdn( name.get( i ) );
+                rdns.add( size() - posn, rdn );
+            }
+
+            normalizeInternal();
+            toUpName();
+        }
+
+        return this;
+    }
+
+    /**
      * Adds the components of a name -- in order -- to the end of this name.
      *
      * @param suffix
@@ -1006,11 +1069,9 @@ public class LdapDN implements Name
      * first new component are shifted up (away from 0) to accommodate the new
      * components.
      *
-     * @param name
-     *            the components to add
-     * @param posn
-     *            the index in this name at which to add the new components.
+     * @param posn the index in this name at which to add the new components.
      *            Must be in the range [0,size()].
+     * @param name the components to add
      * @return the updated name (not a new one)
      * @throws ArrayIndexOutOfBoundsException
      *             if posn is outside the specified range
@@ -1022,17 +1083,31 @@ public class LdapDN implements Name
     {
         if ( name instanceof LdapDN )
         {
-            if ( ( name == null ) || ( name.size() == 0 ) )
+            LdapDN dn = (LdapDN)name;
+            
+            if ( ( dn == null ) || ( dn.size() == 0 ) )
             {
                 return this;
             }
 
             // Concatenate the rdns
-            rdns.addAll( size() - posn, ( ( LdapDN ) name ).rdns );
+            rdns.addAll( size() - posn, dn.rdns );
 
             // Regenerate the normalized name and the original string
-            normalizeInternal();
-            toUpName();
+            if ( this.isNormalized() && dn.isNormalized() )
+            {
+                if ( this.size() != 0 )
+                {
+                    normName = dn.getNormName() + "," + normName;
+                    bytes = StringTools.getBytesUtf8( normName );
+                    upName = dn.getUpName() + "," + upName;
+                }
+            }
+            else
+            {
+                normalizeInternal();
+                toUpName();
+            }
         }
         else
         {
@@ -1377,18 +1452,29 @@ public class LdapDN implements Name
 
     }
 
+    /**
+     * This private method is used to normalize the value, when we have found a normalizer.
+     */
+    public static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer, String type ) throws NamingException
+    {
+        Object upValue = rdn.getUpValue();
+        String upType = rdn.getUpType();
+        rdn.clear();
+        Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
+
+        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
+                oidNormalizer.getNormalizer().normalize( normValue ) );
+
+    }
 
     /**
      * Transform a RDN by changing the value to its OID counterpart and
      * normalizing the value accordingly to its type.
      *
-     * @param rdn
-     *            The RDN to modify
-     * @param oidsMap
-     *            The map of all existing oids and normalizer
-     * @throws InvalidNameException
-     *             If
-     * @throws NamingException
+     * @param rdn The RDN to modify
+     * @param oidsMap The map of all existing oids and normalizer
+     * @throws InvalidNameException If the RDN is invalid
+     * @throws NamingException If something went wrong
      */
     private static void rdnOidToName( Rdn rdn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
         NamingException
@@ -1414,11 +1500,6 @@ public class LdapDN implements Name
         {
             String type = rdn.getNormType();
 
-            if ( ( type.startsWith( "oid." ) ) || ( type.startsWith( "OID." ) ) )
-            {
-                type = type.substring( 4 );
-            }
-
             if ( StringTools.isNotEmpty( type ) )
             {
                 if ( oidsMap == null )
@@ -1431,20 +1512,34 @@ public class LdapDN implements Name
 
                     if ( oidNormalizer != null )
                     {
-                        Object upValue = rdn.getUpValue();
-                        String upType = rdn.getUpType();
-                        rdn.clear();
-                        Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
-
-                        rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
-                        		oidNormalizer.getNormalizer().normalize( normValue ) );
-
+                        oidNormalize( rdn, oidNormalizer, type );
                     }
                     else
                     {
-                        // We don't have a normalizer for this OID : just do
-                        // nothing.
-                        return;
+                        // May be the oidNormalizer was null because the type starts with OID
+                        if ( ( type.startsWith( "oid." ) ) || ( type.startsWith( "OID." ) ) )
+                        {
+                            type = type.substring( 4 );
+                            oidNormalizer = oidsMap.get( type );
+                            
+                            if ( oidNormalizer != null )
+                            {
+                                // Ok, just normalize after having removed the 4 first chars
+                                oidNormalize( rdn, oidNormalizer, type );
+                            }
+                            else
+                            {
+                                // We don't have a normalizer for this OID : just do
+                                // nothing.
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            // We don't have a normalizer for this OID : just do
+                            // nothing.
+                            return;
+                        }
                     }
                 }
             }
