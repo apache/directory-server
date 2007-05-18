@@ -37,10 +37,10 @@ public class NtpConfiguration extends ServiceConfiguration
     private static final int IP_PORT_DEFAULT = 123;
 
     /** The default service pid. */
-    private static final String SERVICE_PID_DEFAULT = "org.apache.ntp";
+    private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ntp";
 
     /** The default service name. */
-    private static final String SERVICE_NAME_DEFAULT = "Apache NTP Service";
+    private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
 
     /**

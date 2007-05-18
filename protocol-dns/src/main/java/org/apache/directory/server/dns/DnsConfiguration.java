@@ -37,10 +37,10 @@ public class DnsConfiguration extends ServiceConfiguration
     private static final int IP_PORT_DEFAULT = 53;
 
     /** The default service pid. */
-    private static final String SERVICE_PID_DEFAULT = "org.apache.dns";
+    private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.dns";
 
     /** The default service name. */
-    private static final String SERVICE_NAME_DEFAULT = "Apache DNS Service";
+    private static final String SERVICE_NAME_DEFAULT = "ApacheDS DNS Service";
 
 
     /**

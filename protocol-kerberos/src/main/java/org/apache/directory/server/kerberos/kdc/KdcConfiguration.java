@@ -46,10 +46,10 @@ public class KdcConfiguration extends ServiceConfiguration
     public static final String DEFAULT_SEARCH_BASEDN = "ou=users,dc=example,dc=com";
 
     /** The default kdc service pid */
-    private static final String DEFAULT_PID = "org.apache.kerberos";
+    private static final String DEFAULT_PID = "org.apache.directory.server.kerberos";
 
     /** The default kdc service name */
-    private static final String DEFAULT_NAME = "Apache Kerberos Service";
+    private static final String DEFAULT_NAME = "ApacheDS Kerberos Service";
 
     /** The default kdc service principal */
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";

@@ -71,10 +71,10 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     public static final int DEFAULT_TOKEN_SIZE = 3;
 
     /** The default service PID. */
-    private static final String SERVICE_PID_DEFAULT = "org.apache.changepw";
+    private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.changepw";
 
     /** The default service name. */
-    private static final String SERVICE_NAME_DEFAULT = "Apache Change Password Service";
+    private static final String SERVICE_NAME_DEFAULT = "ApacheDS Change Password Service";
 
     /** The encryption types. */
     private EncryptionType[] encryptionTypes;
