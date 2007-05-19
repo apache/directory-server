@@ -32,9 +32,13 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -72,10 +76,67 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         super.tearDown();
     }
     
+    public void testAfterAddSubscribeUserToSomeGroups() throws NamingException
+    {
+        // Load the stored procedure unit which has the stored procedure to be triggered.
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, ListUtilsSP.class );
+        
+        // Create a container for backing up deleted entries.
+        Attributes staffGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "staff", true );
+        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        staffGroupEntry.put( objectClass );
+        objectClass.add( SchemaConstants.TOP_OC );
+        objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
+        staffGroupEntry.put( SchemaConstants.UNIQUE_MEMBER_AT , "cn=dummy" );
+        Rdn staffRdn = new Rdn(SchemaConstants.CN_AT + "=" + "staff" );
+        sysRoot.createSubcontext( staffRdn.getUpName(), staffGroupEntry );
+        
+        // Create a container for backing up deleted entries.
+        Attributes teachersGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "teachers", true );
+        objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        teachersGroupEntry.put( objectClass );
+        objectClass.add( SchemaConstants.TOP_OC );
+        objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
+        teachersGroupEntry.put( SchemaConstants.UNIQUE_MEMBER_AT , "cn=dummy" );
+        Rdn teachersRdn = new Rdn( SchemaConstants.CN_AT + "=" + "teachers" );
+        sysRoot.createSubcontext( teachersRdn.getUpName(), teachersGroupEntry );
+        
+        // Create the Triger Specification within a Trigger Subentry.
+        String staffDN = staffRdn.getUpName() + "," + sysRoot.getNameInNamespace();
+        String teachersDN = teachersRdn.getUpName() + "," + sysRoot.getNameInNamespace();
+        
+        createTriggerSubentry( ctx, "triggerSubentry1",
+            "AFTER Add " +
+            "CALL \"" + ListUtilsSP.class.getName() + ".subcribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
+            "CALL \"" + ListUtilsSP.class.getName() + ".subcribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
+        
+        // Create a test entry which is selected by the Trigger Subentry.
+        Attributes testEntry = new AttributesImpl( SchemaConstants.CN_AT, "The Teacher of All Times", true );
+        objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        testEntry.put( objectClass );
+        objectClass.add( SchemaConstants.TOP_OC );
+        objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
+        testEntry.put( SchemaConstants.SN_AT, "The Teacher" );
+        Rdn testEntryRdn = new Rdn( SchemaConstants.CN_AT + "=" + "The Teacher of All Times" );
+        sysRoot.createSubcontext( testEntryRdn.getUpName(), testEntry );
+                
+        // ------------------------------------------
+        // The trigger should be fired at this point.
+        // ------------------------------------------
+        
+        // Check if the Trigger really worked (backed up the deleted entry).
+        Attributes staff = sysRoot.getAttributes( "cn=staff" );
+        Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
+        System.out.println( staff );
+        String testEntryName = ( ( LdapContext )sysRoot.lookup( testEntryRdn.getUpName() ) ).getNameInNamespace();
+        assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );
+        assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );
+    }
+    
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilities.class );
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilitiesSP.class );
         
         // Create a container for backing up deleted entries.
         Attributes backupContext = new AttributesImpl( "ou", "backupContext", true );
@@ -87,7 +148,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         
         // Create the Triger Specification within a Trigger Subentry.
         createTriggerSubentry( ctx, "triggerSubentry1",
-            "AFTER Delete CALL \"" + BackupUtilities.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );
+            "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new AttributesImpl( "ou", "testou", true );
