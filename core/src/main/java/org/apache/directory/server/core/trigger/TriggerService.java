@@ -560,11 +560,11 @@ public class TriggerService extends BaseInterceptor
     {
         Object result = null;
         
-        Iterator it = triggerSpecs.iterator();
+        Iterator<TriggerSpecification> it = triggerSpecs.iterator();
         
         while( it.hasNext() )
         {
-            TriggerSpecification tsec = ( TriggerSpecification ) it.next();
+            TriggerSpecification tsec = it.next();
             
             // TODO: Replace the Authorization Code with a REAL one.
             if ( triggerExecutionAuthorizer.hasPermission() )

@@ -43,7 +43,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         super( invocation );
         this.deletedEntryName = deletedEntryName;
         this.deletedEntry = getDeletedEntry();
-        Map injectors = super.getInjectors();
+        Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
         injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }
