@@ -327,6 +327,9 @@ modifyDNStoredProcedureParameter
     | ID_newrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_NEW_RDN.instance() ); }
     | ID_deleteoldrdn { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.instance() ); }
     | ID_newSuperior { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.instance() ); }
+    | ID_oldRDN { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_OLD_RDN.instance() ); }
+    | ID_oldSuperiorDN { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.instance() ); }
+    | ID_newDN { triggerStoredProcedureParameters.add( StoredProcedureParameter.ModifyDN_NEW_DN.instance() ); }
     | genericStoredProcedureParameter
     ;
 
@@ -503,7 +506,10 @@ tokens
     // ID_entry = "$entry"; // defined before
     ID_newrdn = "$newrdn";
     ID_deleteoldrdn = "$deleteoldrdn";
-    ID_newSuperior = "$newsuperior";
+    ID_newSuperior = "$newSuperior";
+    ID_oldRDN = "$oldRDN";
+    ID_oldSuperiorDN = "$oldSuperiorDN";
+    ID_newDN = "$newDN";
     
     // generic parameters
     ID_ldapContext = "$ldapcontext";

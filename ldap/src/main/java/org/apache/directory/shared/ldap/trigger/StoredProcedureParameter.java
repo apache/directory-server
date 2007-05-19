@@ -311,4 +311,51 @@ public abstract class StoredProcedureParameter
             return instance;
         }
     }
+    
+    public static class ModifyDN_OLD_RDN extends StoredProcedureParameter
+    {
+        private static ModifyDN_OLD_RDN instance = new ModifyDN_OLD_RDN( "$oldRDN" );
+        
+        private ModifyDN_OLD_RDN( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class ModifyDN_OLD_SUPERIOR_DN extends StoredProcedureParameter
+    {
+        private static ModifyDN_OLD_SUPERIOR_DN instance = new ModifyDN_OLD_SUPERIOR_DN( "$oldRDN" );
+        
+        private ModifyDN_OLD_SUPERIOR_DN( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    public static class ModifyDN_NEW_DN extends StoredProcedureParameter
+    {
+        private static ModifyDN_NEW_DN instance = new ModifyDN_NEW_DN( "$oldRDN" );
+        
+        private ModifyDN_NEW_DN( String identifier )
+        {
+            super( identifier );
+        }
+        
+        public static StoredProcedureParameter instance()
+        {
+            return instance;
+        }
+    }
+    
+    
 }
