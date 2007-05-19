@@ -107,8 +107,8 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         
         createTriggerSubentry( ctx, "triggerSubentry1",
             "AFTER Add " +
-            "CALL \"" + ListUtilsSP.class.getName() + ".subcribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
-            "CALL \"" + ListUtilsSP.class.getName() + ".subcribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
+            "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
+            "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         Attributes testEntry = new AttributesImpl( SchemaConstants.CN_AT, "The Teacher of All Times", true );
@@ -127,7 +127,6 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // Check if the Trigger really worked (backed up the deleted entry).
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
-        System.out.println( staff );
         String testEntryName = ( ( LdapContext )sysRoot.lookup( testEntryRdn.getUpName() ) ).getNameInNamespace();
         assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );
         assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );

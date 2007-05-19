@@ -35,7 +35,7 @@ public class ListUtilsSP
     private static final Logger log = LoggerFactory.getLogger( ListUtilsSP.class );
 
 
-    public static void subcribeToGroup( Name addedEntryName, LdapContext groupCtx ) throws NamingException
+    public static void subscribeToGroup( Name addedEntryName, LdapContext groupCtx ) throws NamingException
     {
         log.info( "User \"" + addedEntryName + "\" will be subscribed to \"" + groupCtx + "\"" );
         groupCtx.modifyAttributes("", DirContext.ADD_ATTRIBUTE, new BasicAttributes( SchemaConstants.UNIQUE_MEMBER_AT, addedEntryName.toString(), true ) );
