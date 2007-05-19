@@ -38,14 +38,12 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     private LdapDN deletedEntryName;
     private Attributes deletedEntry;
     
-    private Map injectors;
-    
     public DeleteStoredProcedureParameterInjector( Invocation invocation, LdapDN deletedEntryName ) throws NamingException
     {
         super( invocation );
         this.deletedEntryName = deletedEntryName;
         this.deletedEntry = getDeletedEntry();
-        injectors = super.getInjectors();
+        Map injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
         injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }

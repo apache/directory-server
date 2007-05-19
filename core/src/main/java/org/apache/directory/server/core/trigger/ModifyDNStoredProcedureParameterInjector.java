@@ -26,35 +26,123 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
-    private LdapDN oldName;
-    private String newRn;
     private boolean deleteOldRn;
-    
-    private Map injectors;
-    
-    public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
+    private LdapDN oldRDN;
+    private LdapDN newRDN;
+    private LdapDN oldSuperiorDN;
+    private LdapDN newSuperiorDN;
+    private LdapDN oldDN;
+    private LdapDN newDN;
+
+	public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
         LdapDN oldRDN, LdapDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN) throws NamingException
     {
         super( invocation );
-        init( oldName, newRn, deleteOldRn );
-    }
-    
-    private void init( LdapDN oldName, String newRn, boolean deleteOldRn ) throws NamingException
-    {
-        this.oldName = oldName;
-        this.newRn = newRn;
         this.deleteOldRn = deleteOldRn;
-        injectors = super.getInjectors();
-        /*
-        injectors.put( ModDNStoredProcedureParameter.ENTRY, $entryInjector.inject() );
-        injectors.put( ModDNStoredProcedureParameter.NEW_RDN, $newRdnInjector.inject() );
-        injectors.put( ModDNStoredProcedureParameter.NEW_SUPERIOR, $newSuperior.inject() );
-        injectors.put( ModDNStoredProcedureParameter.DELETE_OLD_RDN, $deleteOldRdnInjector.inject() );
-        */
+		this.oldRDN = oldRDN;
+		this.newRDN = newRDN;
+		this.oldSuperiorDN = oldSuperiorDN;
+		this.newSuperiorDN = newSuperiorDN;
+		this.oldDN = oldDN;
+		this.newDN = newDN;
+		
+		Map<Class, MicroInjector> injectors = super.getInjectors();
+		injectors.put( StoredProcedureParameter.ModifyDN_ENTRY.class, $entryInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_NEW_RDN.class, $newrdnInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_DELETE_OLD_RDN.class, $deleteoldrdnInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_NEW_SUPERIOR.class, $newSuperiorInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_OLD_RDN.class, $oldRDNInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_OLD_SUPERIOR_DN.class, $oldSuperiorDNInjector );
+		injectors.put( StoredProcedureParameter.ModifyDN_NEW_DN.class, $newDNInjector );
+		
     }
+	/**
+	 * Injector for 'entry' parameter of ModifyDNRequest as in RFC4511.
+	 */
+	MicroInjector $entryInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( oldDN.getUpName() );
+        };
+    };
 
+    /**
+     * Injector for 'newrdn' parameter of ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $newrdnInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( newRDN.getUpName() );
+        };
+    };
+    
+    /**
+     * Injector for 'newrdn' parameter of ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $deleteoldrdnInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new Boolean( deleteOldRn );
+        };
+    };
+    
+    /**
+     * Injector for 'newSuperior' parameter of ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $newSuperiorInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( newSuperiorDN.getUpName() );
+        };
+    };
+    
+    /**
+     * Extra injector for 'oldRDN' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $oldRDNInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( oldRDN.getUpName() );
+        };
+    };
+    
+    /**
+     * Extra injector for 'oldRDN' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $oldSuperiorDNInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( oldSuperiorDN.getUpName() );
+        };
+    };
+    
+    /**
+     * Extra injector for 'newDN' which can be derived from parameters specified for ModifyDNRequest as in RFC4511.
+     */
+    MicroInjector $newDNInjector = new MicroInjector()
+    {
+        public Object inject( StoredProcedureParameter param ) throws NamingException
+        {
+            // Return a safe copy constructed with user provided name.
+            return new LdapDN( newDN.getUpName() );
+        };
+    };
+    
 }
