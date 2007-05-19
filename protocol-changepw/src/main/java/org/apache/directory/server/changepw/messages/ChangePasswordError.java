@@ -32,8 +32,16 @@ public class ChangePasswordError extends AbstractPasswordMessage
     private ErrorMessage errorMessage;
 
 
-    public ChangePasswordError(short messageLength, short versionNumber, short authHeaderLength,
-        ErrorMessage errorMessage)
+    /**
+     * Creates a new instance of ChangePasswordError.
+     *
+     * @param messageLength
+     * @param versionNumber
+     * @param authHeaderLength
+     * @param errorMessage
+     */
+    public ChangePasswordError( short messageLength, short versionNumber, short authHeaderLength,
+        ErrorMessage errorMessage )
     {
         super( messageLength, versionNumber, authHeaderLength );
 
@@ -41,6 +49,11 @@ public class ChangePasswordError extends AbstractPasswordMessage
     }
 
 
+    /**
+     * Returns the {@link ErrorMessage}.
+     *
+     * @return The {@link ErrorMessage}.
+     */
     public ErrorMessage getErrorMessage()
     {
         return errorMessage;

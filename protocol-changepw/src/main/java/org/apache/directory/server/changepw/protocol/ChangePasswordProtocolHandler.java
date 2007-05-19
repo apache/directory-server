@@ -63,6 +63,12 @@ public class ChangePasswordProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
+    /**
+     * Creates a new instance of ChangePasswordProtocolHandler.
+     *
+     * @param config
+     * @param store
+     */
     public ChangePasswordProtocolHandler( ChangePasswordConfiguration config, PrincipalStore store )
     {
         this.config = config;
@@ -163,7 +169,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

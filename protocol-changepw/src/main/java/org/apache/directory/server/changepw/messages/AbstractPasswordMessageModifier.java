@@ -31,18 +31,33 @@ abstract public class AbstractPasswordMessageModifier
     protected short authHeaderLength;
 
 
+    /**
+     * Sets the message length.
+     *
+     * @param messageLength
+     */
     public void setMessageLength( short messageLength )
     {
         this.messageLength = messageLength;
     }
 
 
+    /**
+     * Sets the protocol version number.
+     *
+     * @param versionNumber
+     */
     public void setProtocolVersionNumber( short versionNumber )
     {
         this.versionNumber = versionNumber;
     }
 
 
+    /**
+     * Sets the AuthHeader length.
+     *
+     * @param authHeaderLength
+     */
     public void setAuthHeaderLength( short authHeaderLength )
     {
         this.authHeaderLength = authHeaderLength;
