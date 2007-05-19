@@ -37,9 +37,19 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class ApplicationReplyEncoder
 {
+    /**
+     * Application code constant for the {@link ApplicationReply} (15).
+     */
     public static final int APPLICATION_CODE = 15;
 
 
+    /**
+     * Encodes an {@link ApplicationReply} into a byte array.
+     *
+     * @param reply
+     * @return The byte array.
+     * @throws IOException
+     */
     public byte[] encode( ApplicationReply reply ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

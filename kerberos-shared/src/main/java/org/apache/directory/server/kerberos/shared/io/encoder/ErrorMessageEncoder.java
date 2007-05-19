@@ -40,6 +40,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class ErrorMessageEncoder
 {
+    /**
+     * Encodes an {@link ErrorMessage} into a {@link ByteBuffer}.
+     *
+     * @param message
+     * @param out
+     * @throws IOException
+     */
     public void encode( ErrorMessage message, ByteBuffer out ) throws IOException
     {
         ASN1OutputStream aos = new ASN1OutputStream( out );
@@ -51,6 +58,13 @@ public class ErrorMessageEncoder
     }
 
 
+    /**
+     * Encodes an {@link ErrorMessage} into a byte array.
+     *
+     * @param message
+     * @return The byte array.
+     * @throws IOException
+     */
     public byte[] encode( ErrorMessage message ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

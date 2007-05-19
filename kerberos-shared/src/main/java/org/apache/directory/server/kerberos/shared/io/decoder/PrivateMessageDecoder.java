@@ -39,6 +39,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class PrivateMessageDecoder
 {
+    /**
+     * Decodes a byte array into a {@link PrivateMessage}.
+     *
+     * @param encodedPrivateMessage
+     * @return The {@link PrivateMessage}.
+     * @throws IOException
+     */
     public PrivateMessage decode( byte[] encodedPrivateMessage ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedPrivateMessage );

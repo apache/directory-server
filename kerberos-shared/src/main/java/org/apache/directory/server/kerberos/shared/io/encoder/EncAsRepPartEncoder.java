@@ -20,18 +20,26 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
+import org.apache.directory.server.kerberos.shared.messages.components.EncAsRepPart;
+
+
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class EncAsRepPartEncoder extends EncKdcRepPartEncoder implements EncoderFactory
 {
-    /*
+    /**
+     * The application code constant for an {@link EncAsRepPart}.
+     * 
      * EncASRepPart ::=    [APPLICATION 25[25]] EncKDCRepPart
      */
     public static final int APPLICATION_CODE = 25;
 
 
+    /**
+     * Creates a new instance of EncAsRepPartEncoder.
+     */
     public EncAsRepPartEncoder()
     {
         super( APPLICATION_CODE );

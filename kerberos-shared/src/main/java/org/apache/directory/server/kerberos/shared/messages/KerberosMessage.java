@@ -26,44 +26,77 @@ package org.apache.directory.server.kerberos.shared.messages;
  */
 public class KerberosMessage
 {
-    // Kerberos protocol version number
+    /**
+     * The Kerberos protocol version number (5).
+     */
     public static final int PVNO = 5;
 
     private int protocolVersionNumber;
     private MessageType messageType;
 
 
-    public KerberosMessage(MessageType type)
+    /**
+     * Creates a new instance of KerberosMessage.
+     *
+     * @param type
+     */
+    public KerberosMessage( MessageType type )
     {
         this( PVNO, type );
     }
 
 
-    public KerberosMessage(int versionNumber, MessageType type)
+    /**
+     * Creates a new instance of KerberosMessage.
+     *
+     * @param versionNumber
+     * @param type
+     */
+    public KerberosMessage( int versionNumber, MessageType type )
     {
         protocolVersionNumber = versionNumber;
         messageType = type;
     }
 
 
+    /**
+     * Returns the {@link MessageType}.
+     *
+     * @return The {@link MessageType}.
+     */
     public MessageType getMessageType()
     {
         return messageType;
     }
 
 
+    /**
+     * Sets the {@link MessageType}.
+     *
+     * @param type
+     */
     public void setMessageType( MessageType type )
     {
         messageType = type;
     }
 
 
+    /**
+     * Returns the protocol version number.
+     *
+     * @return The protocol version number.
+     */
     public int getProtocolVersionNumber()
     {
         return protocolVersionNumber;
     }
 
 
+    /**
+     * Sets the protocol version number.
+     *
+     * @param versionNumber
+     */
     public void setProtocolVersionNumber( int versionNumber )
     {
         protocolVersionNumber = versionNumber;

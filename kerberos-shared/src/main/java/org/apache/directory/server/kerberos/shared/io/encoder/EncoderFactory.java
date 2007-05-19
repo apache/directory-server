@@ -27,5 +27,10 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
  */
 public interface EncoderFactory
 {
+    /**
+     * Returns an {@link Encoder}.
+     *
+     * @return The {@link Encoder}.
+     */
     public Encoder getEncoder();
 }

@@ -39,6 +39,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptionKeyDecoder
 {
+    /**
+     * Decodes a byte array into an {@link EncryptionKey}.
+     *
+     * @param encodedEncryptionKey
+     * @return The {@link EncryptionKey}.
+     * @throws IOException
+     */
     public static EncryptionKey decode( byte[] encodedEncryptionKey ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedEncryptionKey );

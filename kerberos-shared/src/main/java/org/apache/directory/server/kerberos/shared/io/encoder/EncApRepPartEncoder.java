@@ -38,6 +38,9 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncApRepPartEncoder implements Encoder, EncoderFactory
 {
+    /**
+     * The application code constant for the {@link EncApRepPart} (27).
+     */
     public static final int APPLICATION_CODE = 27;
 
 

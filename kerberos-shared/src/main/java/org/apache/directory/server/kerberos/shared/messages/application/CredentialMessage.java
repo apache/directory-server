@@ -36,7 +36,13 @@ public class CredentialMessage extends KerberosMessage
     private Ticket[] tickets;
 
 
-    public CredentialMessage(EncryptedData encPart, Ticket[] tickets)
+    /**
+     * Creates a new instance of CredentialMessage.
+     *
+     * @param encPart
+     * @param tickets
+     */
+    public CredentialMessage( EncryptedData encPart, Ticket[] tickets )
     {
         super( MessageType.KRB_CRED );
         this.encPart = encPart;
@@ -44,12 +50,22 @@ public class CredentialMessage extends KerberosMessage
     }
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncPart()
     {
         return encPart;
     }
 
 
+    /**
+     * Returns an array of {@link Ticket}s.
+     *
+     * @return The array of {@link Ticket}s.
+     */
     public Ticket[] getTickets()
     {
         return tickets;

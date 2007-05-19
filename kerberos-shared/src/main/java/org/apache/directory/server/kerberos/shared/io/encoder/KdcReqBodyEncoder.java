@@ -38,6 +38,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class KdcReqBodyEncoder
 {
+    /**
+     * Encodes a {@link KdcRequest} into a byte array.
+     *
+     * @param request
+     * @return The byte array.
+     * @throws IOException
+     */
     public byte[] encode( KdcRequest request ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

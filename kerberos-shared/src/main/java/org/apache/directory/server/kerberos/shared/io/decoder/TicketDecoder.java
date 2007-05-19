@@ -39,6 +39,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class TicketDecoder
 {
+    /**
+     * Decodes a {@link DERSequence} into an array of {@link Ticket}s.
+     *
+     * @param sequence
+     * @return The array of {@link Ticket}s.
+     * @throws IOException
+     */
     public static Ticket[] decodeSequence( DERSequence sequence ) throws IOException
     {
         Ticket[] tickets = new Ticket[sequence.size()];

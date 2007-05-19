@@ -34,6 +34,9 @@ public class PrivateMessage extends KerberosMessage
     private EncryptedData encryptedPart;
 
 
+    /**
+     * Creates a new instance of PrivateMessage.
+     */
     public PrivateMessage()
     {
         super( MessageType.KRB_PRIV );
@@ -41,19 +44,34 @@ public class PrivateMessage extends KerberosMessage
     }
 
 
-    public PrivateMessage(EncryptedData encryptedPart)
+    /**
+     * Creates a new instance of PrivateMessage.
+     *
+     * @param encryptedPart
+     */
+    public PrivateMessage( EncryptedData encryptedPart )
     {
         super( MessageType.KRB_PRIV );
         this.encryptedPart = encryptedPart;
     }
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncryptedPart()
     {
         return encryptedPart;
     }
 
 
+    /**
+     * Sets the {@link EncryptedData}.
+     *
+     * @param encryptedData
+     */
     public void setEncryptedPart( EncryptedData encryptedData )
     {
         encryptedPart = encryptedData;

@@ -43,7 +43,15 @@ public class KdcRequest extends KerberosMessage
     private byte[] bodyBytes;
 
 
-    public KdcRequest(int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody)
+    /**
+     * Creates a new instance of KdcRequest.
+     *
+     * @param pvno
+     * @param messageType
+     * @param preAuthData
+     * @param requestBody
+     */
+    public KdcRequest( int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody )
     {
         super( pvno, messageType );
         this.preAuthData = preAuthData;
@@ -51,20 +59,40 @@ public class KdcRequest extends KerberosMessage
     }
 
 
-    public KdcRequest(int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody,
-        byte[] bodyBytes)
+    /**
+     * Creates a new instance of KdcRequest.
+     *
+     * @param pvno
+     * @param messageType
+     * @param preAuthData
+     * @param requestBody
+     * @param bodyBytes
+     */
+    public KdcRequest( int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody,
+        byte[] bodyBytes )
     {
         this( pvno, messageType, preAuthData, requestBody );
         this.bodyBytes = bodyBytes;
     }
 
 
+    /**
+     * Returns an array of {@link PreAuthenticationData}s.
+     *
+     * @return The array of {@link PreAuthenticationData}s.
+     */
     public PreAuthenticationData[] getPreAuthData()
     {
         return preAuthData;
     }
 
 
+    /**
+     * Returns the bytes of the body.  This is used for verifying checksums in
+     * the Ticket-Granting Service (TGS).
+     *
+     * @return The bytes of the body.
+     */
     public byte[] getBodyBytes()
     {
         return bodyBytes;
@@ -72,72 +100,133 @@ public class KdcRequest extends KerberosMessage
 
 
     // RequestBody delegate methods
+
+    /**
+     * Returns additional {@link Ticket}s.
+     *
+     * @return The {@link Ticket}s.
+     */
     public Ticket[] getAdditionalTickets()
     {
         return requestBody.getAdditionalTickets();
     }
 
 
+    /**
+     * Returns the {@link HostAddresses}.
+     *
+     * @return The {@link HostAddresses}.
+     */
     public HostAddresses getAddresses()
     {
         return requestBody.getAddresses();
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return requestBody.getClientPrincipal();
     }
 
 
+    /**
+     * Returns the realm of the server principal.
+     *
+     * @return The realm.
+     */
     public String getRealm()
     {
         return requestBody.getServerPrincipal().getRealm();
     }
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncAuthorizationData()
     {
         return requestBody.getEncAuthorizationData();
     }
 
 
+    /**
+     * Returns an array of requested {@link EncryptionType}s.
+     *
+     * @return The array of {@link EncryptionType}s.
+     */
     public EncryptionType[] getEType()
     {
         return requestBody.getEType();
     }
 
 
+    /**
+     * Returns the from {@link KerberosTime}.
+     *
+     * @return The from {@link KerberosTime}.
+     */
     public KerberosTime getFrom()
     {
         return requestBody.getFrom();
     }
 
 
+    /**
+     * Returns the {@link KdcOptions}.
+     *
+     * @return The {@link KdcOptions}.
+     */
     public KdcOptions getKdcOptions()
     {
         return requestBody.getKdcOptions();
     }
 
 
+    /**
+     * Returns the nonce.
+     *
+     * @return The nonce.
+     */
     public int getNonce()
     {
         return requestBody.getNonce();
     }
 
 
+    /**
+     * Returns the "R" {@link KerberosTime}.
+     *
+     * @return The "R" {@link KerberosTime}.
+     */
     public KerberosTime getRtime()
     {
         return requestBody.getRtime();
     }
 
 
+    /**
+     * Returns the server {@link KerberosPrincipal}.
+     *
+     * @return The server {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getServerPrincipal()
     {
         return requestBody.getServerPrincipal();
     }
 
 
+    /**
+     * Returns the till {@link KerberosTime}.
+     *
+     * @return The till {@link KerberosTime}.
+     */
     public KerberosTime getTill()
     {
         return requestBody.getTill();
@@ -145,18 +234,35 @@ public class KdcRequest extends KerberosMessage
 
 
     // RequestBody KdcOptions delegate accesors
+
+    /**
+     * Returns the option at the specified index.
+     *
+     * @param option
+     * @return The option.
+     */
     public boolean getOption( int option )
     {
         return requestBody.getKdcOptions().get( option );
     }
 
 
+    /**
+     * Sets the option at the specified index.
+     *
+     * @param option
+     */
     public void setOption( int option )
     {
         requestBody.getKdcOptions().set( option );
     }
 
 
+    /**
+     * Clears the option at the specified index.
+     *
+     * @param option
+     */
     public void clearOption( int option )
     {
         requestBody.getKdcOptions().clear( option );

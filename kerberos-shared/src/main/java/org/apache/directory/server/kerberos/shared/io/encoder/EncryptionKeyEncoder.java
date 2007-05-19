@@ -37,6 +37,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptionKeyEncoder
 {
+    /**
+     * Encodes an {@link EncryptionKey} into a byte array.
+     *
+     * @param key
+     * @return The byte array.
+     * @throws IOException
+     */
     public static byte[] encode( EncryptionKey key ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

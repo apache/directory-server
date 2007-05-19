@@ -39,10 +39,17 @@ public class SafeBody
 
 
     /**
-     * Class constructor
+     * Creates a new instance of SafeBody.
+     *
+     * @param userData
+     * @param timestamp
+     * @param usec
+     * @param seqNumber
+     * @param sAddress
+     * @param rAddress
      */
-    public SafeBody(byte[] userData, KerberosTime timestamp, Integer usec, Integer seqNumber, HostAddress sAddress,
-        HostAddress rAddress)
+    public SafeBody( byte[] userData, KerberosTime timestamp, Integer usec, Integer seqNumber, HostAddress sAddress,
+        HostAddress rAddress )
     {
         this.userData = userData;
         this.timestamp = timestamp;
@@ -53,36 +60,66 @@ public class SafeBody
     }
 
 
+    /**
+     * Returns the "R" {@link HostAddress}.
+     *
+     * @return The "R" {@link HostAddress}.
+     */
     public HostAddress getRAddress()
     {
         return rAddress;
     }
 
 
+    /**
+     * Returns the "S" {@link HostAddress}.
+     *
+     * @return The "S" {@link HostAddress}.
+     */
     public HostAddress getSAddress()
     {
         return sAddress;
     }
 
 
+    /**
+     * Returns the sequence number.
+     *
+     * @return The sequence number.
+     */
     public Integer getSeqNumber()
     {
         return seqNumber;
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} timestamp.
+     *
+     * @return The {@link KerberosTime} timestamp.
+     */
     public KerberosTime getTimestamp()
     {
         return timestamp;
     }
 
 
+    /**
+     * Returns the microsecond.
+     *
+     * @return The microsecond.
+     */
     public Integer getUsec()
     {
         return usec;
     }
 
 
+    /**
+     * Returns the user data.
+     *
+     * @return The user data.
+     */
     public byte[] getUserData()
     {
         return userData;

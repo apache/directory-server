@@ -62,6 +62,8 @@ public class EncTicketPartEncoder implements Encoder, EncoderFactory
 
 
     /**
+     * Encodes an {@link EncTicketPart} into a {@link DERSequence}.
+     * 
      * -- Encrypted part of ticket
      * EncTicketPart ::=     [APPLICATION 3] SEQUENCE {
      *                       flags[0]             TicketFlags,
@@ -76,6 +78,9 @@ public class EncTicketPartEncoder implements Encoder, EncoderFactory
      *                       caddr[9]             HostAddresses OPTIONAL,
      *                       authorization-data[10]   AuthorizationData OPTIONAL
      * }
+     * 
+     * @param ticketPart 
+     * @return The {@link DERSequence}.
      */
     public DERSequence encodeInitialSequence( EncTicketPart ticketPart )
     {

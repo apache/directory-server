@@ -37,6 +37,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class PrivateMessageEncoder
 {
+    /**
+     * Encodes a {@link PrivateMessage} into a byte array.
+     *
+     * @param message
+     * @return The byte array.
+     * @throws IOException
+     */
     public byte[] encode( PrivateMessage message ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

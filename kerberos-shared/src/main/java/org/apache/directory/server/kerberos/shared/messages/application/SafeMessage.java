@@ -37,7 +37,13 @@ public class SafeMessage extends KerberosMessage
     private Checksum cksum;
 
 
-    public SafeMessage(SafeBody safeBody, Checksum cksum)
+    /**
+     * Creates a new instance of SafeMessage.
+     *
+     * @param safeBody
+     * @param cksum
+     */
+    public SafeMessage( SafeBody safeBody, Checksum cksum )
     {
         super( MessageType.KRB_SAFE );
         this.safeBody = safeBody;
@@ -45,6 +51,11 @@ public class SafeMessage extends KerberosMessage
     }
 
 
+    /**
+     * Returns the {@link Checksum}.
+     *
+     * @return The {@link Checksum}.
+     */
     public Checksum getCksum()
     {
         return cksum;
@@ -52,36 +63,67 @@ public class SafeMessage extends KerberosMessage
 
 
     // SafeBody delegate methods
+
+    /**
+     * Returns the "R" {@link HostAddress}.
+     *
+     * @return The "R" {@link HostAddress}.
+     */
     public HostAddress getRAddress()
     {
         return safeBody.getRAddress();
     }
 
 
+    /**
+     * Returns the "S" {@link HostAddress}.
+     *
+     * @return The "S" {@link HostAddress}.
+     */
     public HostAddress getSAddress()
     {
         return safeBody.getSAddress();
     }
 
 
+    /**
+     * Returns the sequence number.
+     *
+     * @return The sequence number.
+     */
     public Integer getSeqNumber()
     {
         return safeBody.getSeqNumber();
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} timestamp.
+     *
+     * @return The {@link KerberosTime} timestamp.
+     */
     public KerberosTime getTimestamp()
     {
         return safeBody.getTimestamp();
     }
 
 
+    /**
+     * Returns the microsecond.
+     *
+     * @return The microsecond.
+     */
     public Integer getUsec()
     {
         return safeBody.getUsec();
     }
 
 
+    /**
+     * Returns the user data.
+     *
+     * @return The user data.
+     */
     public byte[] getUserData()
     {
         return safeBody.getUserData();

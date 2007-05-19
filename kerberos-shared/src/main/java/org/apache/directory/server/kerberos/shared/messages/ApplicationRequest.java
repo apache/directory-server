@@ -39,7 +39,7 @@ public class ApplicationRequest extends KerberosMessage
 
 
     /**
-     * Class constructors
+     * Creates a new instance of ApplicationRequest.
      */
     public ApplicationRequest()
     {
@@ -48,7 +48,14 @@ public class ApplicationRequest extends KerberosMessage
     }
 
 
-    public ApplicationRequest(ApOptions apOptions, Ticket ticket, EncryptedData encPart)
+    /**
+     * Creates a new instance of ApplicationRequest.
+     *
+     * @param apOptions
+     * @param ticket
+     * @param encPart
+     */
+    public ApplicationRequest( ApOptions apOptions, Ticket ticket, EncryptedData encPart )
     {
         super( MessageType.KRB_AP_REQ );
         this.apOptions = apOptions;
@@ -57,67 +64,122 @@ public class ApplicationRequest extends KerberosMessage
     }
 
 
+    /**
+     * Returns the {@link ApOptions}.
+     *
+     * @return The {@link ApOptions}.
+     */
     public ApOptions getApOptions()
     {
         return apOptions;
     }
 
 
+    /**
+     * Returns the {@link Authenticator}.
+     *
+     * @return The {@link Authenticator}.
+     */
     public Authenticator getAuthenticator()
     {
         return authenticator;
     }
 
 
+    /**
+     * Returns the {@link Ticket}.
+     *
+     * @return The {@link Ticket}.
+     */
     public Ticket getTicket()
     {
         return ticket;
     }
 
 
-    // delegate ApOptions methods
+    /**
+     * Returns the option at a specified index.
+     *
+     * @param option
+     * @return The option.
+     */
     public boolean getOption( int option )
     {
         return apOptions.get( option );
     }
 
 
+    /**
+     * Sets the option at a specified index.
+     *
+     * @param option
+     */
     public void setOption( int option )
     {
         apOptions.set( option );
     }
 
 
+    /**
+     * Clears the option at a specified index.
+     *
+     * @param option
+     */
     public void clearOption( int option )
     {
         apOptions.clear( option );
     }
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncPart()
     {
         return encPart;
     }
 
 
+    /**
+     * Sets the {@link EncryptedData}.
+     *
+     * @param data
+     */
     public void setEncPart( EncryptedData data )
     {
         encPart = data;
     }
 
 
+    /**
+     * Sets the {@link ApOptions}.
+     *
+     * @param options
+     */
     public void setApOptions( ApOptions options )
     {
         apOptions = options;
     }
 
 
+    /**
+     * Sets the {@link Authenticator}.
+     *
+     * @param authenticator
+     */
     public void setAuthenticator( Authenticator authenticator )
     {
         this.authenticator = authenticator;
     }
 
 
+    /**
+     * Sets the {@link Ticket}.
+     *
+     * @param ticket
+     */
     public void setTicket( Ticket ticket )
     {
         this.ticket = ticket;

@@ -32,5 +32,12 @@ import org.apache.directory.server.kerberos.shared.messages.Encodable;
  */
 public interface Encoder
 {
+    /**
+     * Encodes an ASN.1 {@link Encodable} object into a byte array.
+     *
+     * @param object
+     * @return The byte array.
+     * @throws IOException
+     */
     public byte[] encode( Encodable object ) throws IOException;
 }
