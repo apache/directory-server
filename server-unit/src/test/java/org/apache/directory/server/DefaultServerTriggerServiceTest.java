@@ -81,7 +81,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, ListUtilsSP.class );
         
-        // Create a container for backing up deleted entries.
+        // Create a group to be subscribed to.
         Attributes staffGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "staff", true );
         Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         staffGroupEntry.put( objectClass );
@@ -91,7 +91,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         Rdn staffRdn = new Rdn(SchemaConstants.CN_AT + "=" + "staff" );
         sysRoot.createSubcontext( staffRdn.getUpName(), staffGroupEntry );
         
-        // Create a container for backing up deleted entries.
+        // Create another group to be subscribed to.
         Attributes teachersGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "teachers", true );
         objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         teachersGroupEntry.put( objectClass );
@@ -104,7 +104,6 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // Create the Triger Specification within a Trigger Subentry.
         String staffDN = staffRdn.getUpName() + "," + sysRoot.getNameInNamespace();
         String teachersDN = teachersRdn.getUpName() + "," + sysRoot.getNameInNamespace();
-        
         createTriggerSubentry( ctx, "triggerSubentry1",
             "AFTER Add " +
             "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
@@ -124,7 +123,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // The trigger should be fired at this point.
         // ------------------------------------------
         
-        // Check if the Trigger really worked (backed up the deleted entry).
+        // Check if the Trigger really worked (subscribed the user to give grpups).
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
         String testEntryName = ( ( LdapContext )sysRoot.lookup( testEntryRdn.getUpName() ) ).getNameInNamespace();
