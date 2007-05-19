@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureOption;
+import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
 
 import org.slf4j.Logger;
@@ -79,9 +81,9 @@ options
     
     private String triggerStoredProcedureName;
     
-	private List triggerStoredProcedureParameters;
+	private List<StoredProcedureParameter> triggerStoredProcedureParameters;
 	
-	private List triggerStoredProcedureOptions;
+	private List<StoredProcedureOption> triggerStoredProcedureOptions;
     
     private List<SPSpec> spSpecs;   
     
@@ -238,8 +240,8 @@ theCompositeRuleForCallAndSPNameAndSPOptionList
     ID_CALL
     {
     	triggerStoredProcedureName = null;
-    	triggerStoredProcedureParameters = new ArrayList();
-		triggerStoredProcedureOptions = new ArrayList();
+    	triggerStoredProcedureParameters = new ArrayList<StoredProcedureParameter>();
+		triggerStoredProcedureOptions = new ArrayList<StoredProcedureOption>();
     }
     ( SP )+ triggerStoredProcedureName=fullyQualifiedStoredProcedureName ( SP )*
         ( genericStoredProcedureOptionList ( SP )* )?

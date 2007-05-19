@@ -20,7 +20,6 @@
 
 package org.apache.directory.shared.ldap.trigger;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.NullArgumentException;
@@ -39,7 +38,6 @@ public class TriggerSpecification
     private ActionTime actionTime;
     
     private List<SPSpec> spSpecs; 
-    
     
     
     public TriggerSpecification( LdapOperation ldapOperation, ActionTime actionTime, List<SPSpec> spSpecs )
@@ -78,11 +76,11 @@ public class TriggerSpecification
     {
     	private String name;
         
-        private List<String> options;
+        private List<StoredProcedureOption> options;
         
-        private List<String> parameters;
+        private List<StoredProcedureParameter> parameters;
 
-        public SPSpec(String name, List<String> options, List<String> parameters) {
+        public SPSpec(String name, List<StoredProcedureOption> options, List<StoredProcedureParameter> parameters) {
 			super();
 			this.name = name;
 			this.options = options;
@@ -93,11 +91,11 @@ public class TriggerSpecification
 			return name;
 		}
 
-		public List<String> getOptions() {
+		public List<StoredProcedureOption> getOptions() {
 			return options;
 		}
 
-		public List<String> getParameters() {
+		public List<StoredProcedureParameter> getParameters() {
 			return parameters;
 		}
 
@@ -138,15 +136,6 @@ public class TriggerSpecification
 			return true;
 		}
 
-		
-
     }
-
-
-
-
-
-	
-    
     
 }
