@@ -21,6 +21,7 @@
 package org.apache.directory.shared.ldap.util;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -30,16 +31,16 @@ public class DirectoryClassUtils
 {
     
     /**
-     * A replacement for {@link java.lang.Class.getMethod} with extended functionality.
+     * A replacement for {@link java.lang.Class.getMethod} with extended capability.
      * 
      * <p>
      * This method returns parameter-list assignment-compatible method as well as
      * exact-signature matching method.
      * 
-     * @param clazz
-     * @param candidateMethodName
-     * @param candidateParameterTypes
-     * @return
+     * @param clazz The class which will be queried for the method.
+     * @param candidateMethodName Name of the method been looked for.
+     * @param candidateParameterTypes Types of the parameters in the signature of the method being loooked for.
+     * @return The Method found.
      * @throws NoSuchMethodException
      */
     public static Method getAssignmentCompatibleMethod( Class clazz,
@@ -101,7 +102,7 @@ public class DirectoryClassUtils
             return methods[ mx ];
         }
         
-        throw new NoSuchMethodException();
+        throw new NoSuchMethodException( clazz.getName() + "." + candidateMethodName + "(" + Arrays.toString( candidateParameterTypes ) + ")" );
         
     }
 
