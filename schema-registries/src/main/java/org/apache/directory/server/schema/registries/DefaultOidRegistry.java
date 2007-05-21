@@ -45,8 +45,13 @@ public class DefaultOidRegistry implements OidRegistry
 {
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultOidRegistry.class );
+    
+    /** Speedup for DEBUG mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** Maps OID to a name or a list of names if more than one name exists */
     private Map byOid = new HashMap();
+    
     /** Maps several names to an OID */
     private Map<String,String> byName = new HashMap<String,String>();
 
@@ -73,7 +78,8 @@ public class DefaultOidRegistry implements OidRegistry
         if ( byName.containsKey( name ) )
         {
             String oid = ( String ) byName.get( name );
-            if ( log.isDebugEnabled() )
+            
+            if ( IS_DEBUG )
             {
                 log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
@@ -91,7 +97,8 @@ public class DefaultOidRegistry implements OidRegistry
         if ( !name.equals( lowerCase ) && byName.containsKey( lowerCase ) )
         {
             String oid = ( String ) byName.get( lowerCase );
-            if ( log.isDebugEnabled() )
+            
+            if ( IS_DEBUG )
             {
                 log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
@@ -137,18 +144,21 @@ public class DefaultOidRegistry implements OidRegistry
 
         if ( value instanceof String )
         {
-            if ( log.isDebugEnabled() )
+            if ( IS_DEBUG )
             {
                 log.debug( "looked up primary name '" + value + "' with OID '" + oid + "'" );
             }
+            
             return ( String ) value;
         }
 
         String name = ( String ) ( ( List ) value ).get( 0 );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "looked up primary name '" + name + "' with OID '" + oid + "'" );
         }
+        
         return name;
     }
 
@@ -169,17 +179,20 @@ public class DefaultOidRegistry implements OidRegistry
         if ( value instanceof String )
         {
             List list = Collections.singletonList( value );
-            if ( log.isDebugEnabled() )
+            
+            if ( IS_DEBUG )
             {
                 log.debug( "looked up names '" + list + "' for OID '" + oid + "'" );
             }
+            
             return list;
         }
 
-        if ( log.isDebugEnabled() )
+        if ( IS_DEBUG )
         {
             log.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
         }
+        
         return ( List ) value;
     }
 
@@ -292,7 +305,8 @@ public class DefaultOidRegistry implements OidRegistry
         }
 
         byOid.put( oid, value );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "registed name '" + name + "' with OID: " + oid );
         }

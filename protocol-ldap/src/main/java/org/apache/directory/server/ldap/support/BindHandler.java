@@ -24,16 +24,16 @@ import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.PropertyKeys;
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
 public class BindHandler implements LdapMessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( BindHandler.class );
-    private static final Control[] EMPTY = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -115,8 +114,7 @@ public class BindHandler implements LdapMessageHandler
             }
             else
             {
-                Control[] connCtls = ( Control[] ) req.getControls().values().toArray( EMPTY );
-                ctx = new InitialLdapContext( env, connCtls );
+                ctx = new ServerLdapContext( DirectoryService.getInstance(), env );
             }
         }
         catch ( NamingException e )

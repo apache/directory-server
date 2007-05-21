@@ -154,7 +154,7 @@ public class MaxImmSubFilterTest extends TestCase
         final int count;
 
 
-        public MockProxy(int count)
+        public MockProxy(int count) throws NamingException 
         {
             super( new DeadContext(), new MockDirectoryService() );
             this.count = count;

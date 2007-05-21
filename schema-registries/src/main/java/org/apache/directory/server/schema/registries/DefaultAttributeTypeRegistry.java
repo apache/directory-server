@@ -50,6 +50,9 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultAttributeTypeRegistry.class );
 
+    /** Speedup for DEBUG mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** maps an OID to an AttributeType */
     private final Map<String,AttributeType> byOid;
     /** maps OIDs to a Set of descendants for that OID */
@@ -98,7 +101,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
         registerDescendants( attributeType );
         byOid.put( attributeType.getOid(), attributeType );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "registed attributeType: " + attributeType );
         }
@@ -158,10 +162,12 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         }
 
         AttributeType attributeType = ( AttributeType ) byOid.get( id );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "lookup with id" + id + "' of attributeType: " + attributeType );
         }
+        
         return attributeType;
     }
 

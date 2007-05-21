@@ -24,7 +24,6 @@ package org.apache.directory.server.core.trigger;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,11 +41,10 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -56,7 +54,6 @@ import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -122,7 +119,7 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addPrescriptiveTriggerSpecs( List triggerSpecs, PartitionNexusProxy proxy,
+    private void addPrescriptiveTriggerSpecs( List<TriggerSpecification> triggerSpecs, PartitionNexusProxy proxy,
         LdapDN dn, Attributes entry ) throws NamingException
     {
         
@@ -163,7 +160,7 @@ public class TriggerService extends BaseInterceptor
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
      */
-    private void addEntryTriggerSpecs( Collection triggerSpecs, Attributes entry ) throws NamingException
+    private void addEntryTriggerSpecs( List<TriggerSpecification> triggerSpecs, Attributes entry ) throws NamingException
     {
         Attribute entryTrigger = entry.get( ENTRY_TRIGGER_ATTR );
         if ( entryTrigger == null )
@@ -191,15 +188,23 @@ public class TriggerService extends BaseInterceptor
         }
     }
     
-    public Map getActionTimeMappedTriggerSpecsForOperation( List triggerSpecs, LdapOperation ldapOperation )
+    /**
+     * Return a selection of trigger specifications for a certain type of trigger action time.
+     * 
+     * @NOTE: This method serves as an extion point for new Action Time types.
+     * 
+     * @param triggerSpecs
+     * @param ldapOperation
+     */
+    public Map<ActionTime, List<TriggerSpecification>> getActionTimeMappedTriggerSpecsForOperation( List<TriggerSpecification> triggerSpecs, LdapOperation ldapOperation )
     {
-        List afterTriggerSpecs = new ArrayList();
-        Map triggerSpecMap = new HashMap();
+        List<TriggerSpecification> afterTriggerSpecs = new ArrayList<TriggerSpecification>();
+        Map<ActionTime, List<TriggerSpecification>> triggerSpecMap = new HashMap<ActionTime, List<TriggerSpecification>>();
         
-        Iterator it = triggerSpecs.iterator();
+        Iterator<TriggerSpecification> it = triggerSpecs.iterator();
         while ( it.hasNext() )
         {
-            TriggerSpecification triggerSpec = ( TriggerSpecification ) it.next();
+            TriggerSpecification triggerSpec = it.next();
             if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
             {
                 if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
@@ -208,7 +213,7 @@ public class TriggerService extends BaseInterceptor
                 }
                 else
                 {
-                    // TODO
+                	
                 }    
             }
         }
@@ -259,7 +264,7 @@ public class TriggerService extends BaseInterceptor
         StoredProcedureParameterInjector injector = new AddStoredProcedureParameterInjector( invocation, name, entry );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
-        List triggerSpecs = new ArrayList();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, entry );
 
         /**
@@ -267,13 +272,13 @@ public class TriggerService extends BaseInterceptor
          */
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.ADD.
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.ADD );
+        Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.ADD );
         
         next.add( addContext );
         triggerSpecCache.subentryAdded( name, entry );
         
         // Fire AFTER Triggers.
-        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
 
@@ -296,18 +301,18 @@ public class TriggerService extends BaseInterceptor
         StoredProcedureParameterInjector injector = new DeleteStoredProcedureParameterInjector( invocation, name );
 
         // Gather Trigger Specifications which apply to the entry being deleted.
-        List triggerSpecs = new ArrayList();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, deletedEntry );
         addEntryTriggerSpecs( triggerSpecs, deletedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.DELETE.
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
+        Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.DELETE );
         
         next.delete( deleteContext );
         triggerSpecCache.subentryDeleted( name, deletedEntry );
         
         // Fire AFTER Triggers.
-        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
@@ -321,7 +326,6 @@ public class TriggerService extends BaseInterceptor
         }
         
         LdapDN normName = opContext.getDn();
-        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
         
         // Gather supplementary data.
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -331,18 +335,18 @@ public class TriggerService extends BaseInterceptor
         StoredProcedureParameterInjector injector = new ModifyStoredProcedureParameterInjector( invocation, opContext );
 
         // Gather Trigger Specifications which apply to the entry being modified.
-        List triggerSpecs = new ArrayList();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( triggerSpecs, proxy, normName, modifiedEntry );
         addEntryTriggerSpecs( triggerSpecs, modifiedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFY.
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
+        Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFY );
         
         next.modify( opContext );
         triggerSpecCache.subentryModified( opContext, modifiedEntry );
         
         // Fire AFTER Triggers.
-        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
@@ -379,18 +383,18 @@ public class TriggerService extends BaseInterceptor
             invocation, deleteOldRn, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
         
         // Gather Trigger Specifications which apply to the entry being renamed.
-        List triggerSpecs = new ArrayList();
+        List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( triggerSpecs, proxy, name, renamedEntry );
         addEntryTriggerSpecs( triggerSpecs, renamedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_RENAME.
-        Map triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFYDN_RENAME );
+        Map<ActionTime, List<TriggerSpecification>> triggerMap = getActionTimeMappedTriggerSpecsForOperation( triggerSpecs, LdapOperation.MODIFYDN_RENAME );
         
         next.rename( renameContext );
         triggerSpecCache.subentryRenamed( name, newDN );
         
         // Fire AFTER Triggers.
-        List afterTriggerSpecs = ( List ) triggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterTriggerSpecs = triggerMap.get( ActionTime.AFTER );
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
@@ -427,7 +431,7 @@ public class TriggerService extends BaseInterceptor
             invocation, deleteOldRn, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
 
         // Gather Trigger Specifications which apply to the entry being exported.
-        List exportTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( exportTriggerSpecs, proxy, oriChildName, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
         
@@ -452,21 +456,21 @@ public class TriggerService extends BaseInterceptor
         
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
-        List importTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_EXPORT.
-        Map exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
+        Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
-        Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
+        Map<ActionTime, List<TriggerSpecification>> importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
         next.moveAndRename( moveAndRenameContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.
-        List afterExportTriggerSpecs = ( List ) exportTriggerMap.get( ActionTime.AFTER );
-        List afterImportTriggerSpecs = ( List ) importTriggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterExportTriggerSpecs = exportTriggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterImportTriggerSpecs = importTriggerMap.get( ActionTime.AFTER );
         executeTriggers( afterExportTriggerSpecs, injector, callerRootCtx );
         executeTriggers( afterImportTriggerSpecs, injector, callerRootCtx );
     }
@@ -503,7 +507,7 @@ public class TriggerService extends BaseInterceptor
             invocation, false, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
 
         // Gather Trigger Specifications which apply to the entry being exported.
-        List exportTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( exportTriggerSpecs, proxy, oriChildName, movedEntry );
         addEntryTriggerSpecs( exportTriggerSpecs, movedEntry );
         
@@ -529,21 +533,21 @@ public class TriggerService extends BaseInterceptor
         
         // Gather Trigger Specifications which apply to the entry being imported.
         // Note: Entry Trigger Specifications are not valid for Import.
-        List importTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> importTriggerSpecs = new ArrayList<TriggerSpecification>();
         addPrescriptiveTriggerSpecs( importTriggerSpecs, proxy, newDN, fakeImportedEntry );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_EXPORT.
-        Map exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
+        Map<ActionTime, List<TriggerSpecification>> exportTriggerMap = getActionTimeMappedTriggerSpecsForOperation( exportTriggerSpecs, LdapOperation.MODIFYDN_EXPORT );
         
         // Gather a Map<ActionTime,TriggerSpecification> where TriggerSpecification.ldapOperation = LdapOperation.MODIFYDN_IMPORT.
-        Map importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
+        Map<ActionTime, List<TriggerSpecification>> importTriggerMap = getActionTimeMappedTriggerSpecsForOperation( importTriggerSpecs, LdapOperation.MODIFYDN_IMPORT );
         
         next.move( moveContext );
         triggerSpecCache.subentryRenamed( oldDN, newDN );
         
         // Fire AFTER Triggers.
-        List afterExportTriggerSpecs = ( List ) exportTriggerMap.get( ActionTime.AFTER );
-        List afterImportTriggerSpecs = ( List ) importTriggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterExportTriggerSpecs = exportTriggerMap.get( ActionTime.AFTER );
+        List<TriggerSpecification> afterImportTriggerSpecs = importTriggerMap.get( ActionTime.AFTER );
         executeTriggers( afterExportTriggerSpecs, injector, callerRootCtx );
         executeTriggers( afterImportTriggerSpecs, injector, callerRootCtx );
     }
@@ -552,15 +556,15 @@ public class TriggerService extends BaseInterceptor
     // Utility Methods
     ////////////////////////////////////////////////////////////////////////////
     
-    private Object executeTriggers( List triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
+    private Object executeTriggers( List<TriggerSpecification> triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
     {
         Object result = null;
         
-        Iterator it = triggerSpecs.iterator();
+        Iterator<TriggerSpecification> it = triggerSpecs.iterator();
         
         while( it.hasNext() )
         {
-            TriggerSpecification tsec = ( TriggerSpecification ) it.next();
+            TriggerSpecification tsec = it.next();
             
             // TODO: Replace the Authorization Code with a REAL one.
             if ( triggerExecutionAuthorizer.hasPermission() )
@@ -582,10 +586,11 @@ public class TriggerService extends BaseInterceptor
 
     private Object executeTrigger( TriggerSpecification tsec, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
     {
-    	List returnValues = new ArrayList();
+    	List<Object> returnValues = new ArrayList<Object>();
     	List<SPSpec> spSpecs = tsec.getSPSpecs();
-        for (SPSpec spSpec : spSpecs) {
-        	List arguments = new ArrayList();
+        for ( SPSpec spSpec : spSpecs )
+        {
+        	List<Object> arguments = new ArrayList<Object>();
         	arguments.addAll( injector.getArgumentsToInject( spSpec.getParameters() ) );
         	List<Class> typeList = new ArrayList<Class>();
             typeList.addAll( getTypesFromValues( arguments ) );

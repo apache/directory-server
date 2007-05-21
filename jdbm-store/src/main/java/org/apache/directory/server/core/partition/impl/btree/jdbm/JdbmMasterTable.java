@@ -25,14 +25,10 @@ import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
-import jdbm.helper.Serializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
-//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
-import org.apache.directory.shared.ldap.util.AttributesSerializerUtils;
-import org.apache.directory.shared.ldap.util.LongComparator;
 
 
 /**
@@ -52,7 +48,23 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
         public int compare( Object o1, Object o2 )
         {
-            return LongComparator.INSTANCE.compare( o1, o2 );
+        	try
+        	{
+	        	long thisVal = (Long)o1;
+	        	long anotherVal = (Long)o2;
+	        	return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0 : 1 ) );
+        	}
+        	catch ( NullPointerException npe )
+        	{
+    	        if ( o1 == null )
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+    	        }
+    	        else
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+    	        }
+        	}
         }
     };
     private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator(

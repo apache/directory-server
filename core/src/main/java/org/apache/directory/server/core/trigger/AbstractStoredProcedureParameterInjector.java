@@ -72,14 +72,14 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         this.invocation = invocation;
     }
     
-    public final List getArgumentsToInject( List parameterList ) throws NamingException
+    public final List<Object> getArgumentsToInject( List<StoredProcedureParameter> parameterList ) throws NamingException
     {
-        List arguments = new ArrayList();
+        List<Object> arguments = new ArrayList<Object>();
         
-        Iterator it = parameterList.iterator();
+        Iterator<StoredProcedureParameter> it = parameterList.iterator();
         while ( it.hasNext() )
         {
-            StoredProcedureParameter spParameter = ( StoredProcedureParameter ) it.next();
+            StoredProcedureParameter spParameter = it.next();
             MicroInjector injector = injectors.get( spParameter.getClass() );
             arguments.add( injector.inject( spParameter ) );
         }
@@ -101,7 +101,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         {
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             LdapDN ldapCtxName = ldapCtxParam.getCtxName();
-            return (( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext()).lookup( ldapCtxName );
+            return ( ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext()).lookup( ldapCtxName );
         };
     };
 

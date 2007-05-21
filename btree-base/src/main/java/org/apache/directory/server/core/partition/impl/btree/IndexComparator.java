@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.shared.ldap.util.LongComparator;
 
 /**
  * TupleComparator for index records.
@@ -41,7 +40,23 @@ public class IndexComparator implements TupleComparator
 
         public int compare( Object o1, Object o2 )
         {
-            return LongComparator.INSTANCE.compare( o1, o2 );
+        	try
+        	{
+	        	long thisVal = (Long)o1;
+	        	long anotherVal = (Long)o2;
+	        	return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0 : 1 ) );
+        	}
+        	catch ( NullPointerException npe )
+        	{
+    	        if ( o1 == null )
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+    	        }
+    	        else
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+    	        }
+        	}
         }
     };
     

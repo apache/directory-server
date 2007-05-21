@@ -428,22 +428,29 @@ public class ExceptionService extends BaseInterceptor
      */
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        String msg = "Attempt to search under non-existant entry: ";
         LdapDN base = opContext.getDn();
 
-        if ( base.size() == 0 )
+        try
         {
-            return nextInterceptor.search( opContext );
-        }
+	        NamingEnumeration<SearchResult> result =  nextInterceptor.search( opContext );
+	        
+	        if ( result.hasMoreElements() == false )
+	        {
+	            if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
+	            {
+	                // We just check that the entry exists only if we didn't found any entry
+	                assertHasEntry( nextInterceptor, "Attempt to search under non-existant entry:" , base );
+	            }
+	        }
 
-        if ( ( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
+	        return result;
+        }
+        catch ( NamingException ne )
         {
-            return nextInterceptor.search( opContext );
+            String msg = "Attempt to search under non-existant entry: ";
+            assertHasEntry( nextInterceptor, msg, base );
+            throw ne;
         }
-
-        assertHasEntry( nextInterceptor, msg, base );
-
-        return nextInterceptor.search( opContext );
     }
 
 

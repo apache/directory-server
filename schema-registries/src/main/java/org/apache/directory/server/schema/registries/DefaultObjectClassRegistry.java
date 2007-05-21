@@ -41,6 +41,10 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 {
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultObjectClassRegistry.class );
+    
+    /** Speedup for DEBUG mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** maps an OID to an ObjectClass */
     private final Map<String,ObjectClass> byOid;
     /** the registry used to resolve names to OIDs */
@@ -85,7 +89,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         }
         
         byOid.put( objectClass.getOid(), objectClass );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "registered objectClass: " + objectClass );
         }
@@ -103,7 +108,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         }
 
         ObjectClass objectClass = ( ObjectClass ) byOid.get( id );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "looked objectClass with OID '" + id + "' and got back " + objectClass );
         }

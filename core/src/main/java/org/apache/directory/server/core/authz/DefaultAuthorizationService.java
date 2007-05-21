@@ -50,7 +50,9 @@ import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -132,7 +134,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
         GROUP_BASE_DN = PartitionNexus.getGroupsBaseName();
         GROUP_BASE_DN.normalize( normalizerMapping );
      
-        ADMIN_GROUP_DN = new LdapDN( "cn=Administrators,ou=groups,ou=system" );
+        ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         ADMIN_GROUP_DN.normalize( normalizerMapping );
         
         attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
@@ -548,9 +550,12 @@ public class DefaultAuthorizationService extends BaseInterceptor
     private boolean isSearchable( Invocation invocation, SearchResult result ) throws NamingException
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
-        LdapDN dn;
-        dn = new LdapDN( result.getName() );
-        dn.normalize( normalizerMapping );
+        LdapDN dn = ((ServerSearchResult)result).getDn();
+        
+        if ( !dn.isNormalized() )
+        {
+        	dn.normalize( normalizerMapping );
+        }
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )

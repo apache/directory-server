@@ -1079,7 +1079,13 @@ public class ReferralService extends BaseInterceptor
         throw lre;
     }
 
-
+    /**
+     * Check if the given name is a referral or not.
+     * 
+     * @param name The DN to check
+     * @return <code>true</code> if the DN is a referral
+     * @throws NamingException I fthe DN is incorrect
+     */
     public boolean isReferral( String name ) throws NamingException
     {
         if ( lut.isReferral( name ) )
@@ -1090,11 +1096,18 @@ public class ReferralService extends BaseInterceptor
         LdapDN dn = new LdapDN( name );
         dn.normalize( attrRegistry.getNormalizerMapping() );
 
-        if ( lut.isReferral( dn ) )
-        {
-            return true;
-        }
+        return lut.isReferral( dn );
+    }
 
-        return false;
+    /**
+     * Check if the given name is a referral or not.
+     * 
+     * @param name The DN to check
+     * @return <code>true</code> if the DN is a referral
+     * @throws NamingException I fthe DN is incorrect
+     */
+    public boolean isReferral( LdapDN name ) throws NamingException
+    {
+  		return lut.isReferral( name.isNormalized() ? name :  LdapDN.normalize( name, attrRegistry.getNormalizerMapping() ) );
     }
 }

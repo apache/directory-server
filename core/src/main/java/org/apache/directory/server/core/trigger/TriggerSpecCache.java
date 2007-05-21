@@ -78,7 +78,7 @@ public class TriggerSpecCache
     /** cloned startup environment properties we use for subentry searching */
     private final Hashtable env;
     /** a map of strings to TriggerSpecification collections */
-    private final Map triggerSpecs = new HashMap();
+    private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     /** a normalizing TriggerSpecification parser */
@@ -170,7 +170,7 @@ public class TriggerSpecCache
             return;
         }
         
-        List subentryTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
         
         for ( int ii = 0; ii < triggerSpec.size(); ii++ )
         {
@@ -179,14 +179,14 @@ public class TriggerSpecCache
             try
             {
                 item = triggerSpecParser.parse( ( String ) triggerSpec.get( ii ) );
+                subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )
             {
                 String msg = "TriggerSpecification parser failure on '" + item + "'. Cannnot add Trigger Specificaitons to TriggerSpecCache.";
                 log.error( msg, e );
             }
-
-            subentryTriggerSpecs.add( item );
+            
         }
         
         triggerSpecs.put( normName.toString(), subentryTriggerSpecs );
@@ -229,12 +229,12 @@ public class TriggerSpecCache
     }
 
 
-    public List getSubentryTriggerSpecs( String subentryDn )
+    public List<TriggerSpecification> getSubentryTriggerSpecs( String subentryDn )
     {
-        List subentryTriggerSpecs = ( List ) triggerSpecs.get( subentryDn );
+        List<TriggerSpecification> subentryTriggerSpecs = triggerSpecs.get( subentryDn );
         if ( subentryTriggerSpecs == null )
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return Collections.unmodifiableList( subentryTriggerSpecs );
     }

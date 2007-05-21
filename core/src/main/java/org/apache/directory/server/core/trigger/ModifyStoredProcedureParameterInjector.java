@@ -37,12 +37,9 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN modifiedEntryName;
-    
     private ModificationItemImpl[] modifications;
-    
     private Attributes oldEntry;
     
-    private Map<Class, MicroInjector> injectors;
     
     public ModifyStoredProcedureParameterInjector( Invocation invocation, OperationContext opContext ) throws NamingException
     {
@@ -50,7 +47,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         modifiedEntryName = opContext.getDn();
         modifications = ((ModifyOperationContext)opContext).getModItems();
         this.oldEntry = getEntry();
-        injectors = super.getInjectors();
+        Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
         injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );
         injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );

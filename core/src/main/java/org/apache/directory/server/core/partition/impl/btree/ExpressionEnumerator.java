@@ -170,7 +170,7 @@ public class ExpressionEnumerator implements Enumerator
         // Recursively create NamingEnumerations for each child expression node
         for ( int ii = 0; ii < childEnumerations.length; ii++ )
         {
-            childEnumerations[ii] = enumerate( ( ExprNode ) children.get( ii ) );
+            childEnumerations[ii] = enumerate( children.get( ii ) );
         }
 
         return new DisjunctionEnumeration( childEnumerations );
@@ -234,8 +234,8 @@ public class ExpressionEnumerator implements Enumerator
     private NamingEnumeration enumConj( final BranchNode node ) throws NamingException
     {
         int minIndex = 0;
-        int minValue = Integer.MAX_VALUE;
-        int value = Integer.MAX_VALUE;
+        long minValue = Long.MAX_VALUE;
+        long value = Long.MAX_VALUE;
 
         /*
          * We scan the child nodes of a branch node searching for the child
@@ -246,8 +246,8 @@ public class ExpressionEnumerator implements Enumerator
         final List<ExprNode> children = node.getChildren();
         for ( int ii = 0; ii < children.size(); ii++ )
         {
-            ExprNode child = ( ExprNode ) children.get( ii );
-            value = ( ( Long ) child.get( "count" ) ).intValue();
+            ExprNode child = children.get( ii );
+            value = ( Long ) child.get( "count" );
             minValue = Math.min( minValue, value );
 
             if ( minValue == value )
@@ -257,14 +257,14 @@ public class ExpressionEnumerator implements Enumerator
         }
 
         // Once found we build the child enumeration & the wrapping enum
-        final ExprNode minChild = ( ExprNode ) children.get( minIndex );
+        final ExprNode minChild = children.get( minIndex );
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( IndexRecord rec ) throws NamingException
             {
                 for ( int ii = 0; ii < children.size(); ii++ )
                 {
-                    ExprNode child = ( ExprNode ) children.get( ii );
+                    ExprNode child = children.get( ii );
 
                     // Skip the child (with min scan count) chosen for enum
                     if ( child == minChild )

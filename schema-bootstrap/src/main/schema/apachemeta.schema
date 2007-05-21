@@ -70,7 +70,7 @@
 #         | 1.3.6.1.4.1.18060.0.4.0.2.31 | m-matchingRuleSyntax        |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.32 | m-fqcn                      |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.33 | m-bytecode                  |
-#         | 1.3.6.1.4.1.18060.0.4.0.2.34 | x-humanReadible             |
+#         | 1.3.6.1.4.1.18060.0.4.0.2.34 | x-humanReadable             |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.37 | m-disabled                  |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.38 | m-dependencies              |
 #         | 1.3.6.1.4.1.18060.0.4.0.2.39 | m-length                    |
@@ -542,9 +542,9 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.33 NAME 'm-bytecode'
     SINGLE-VALUE
 )
 
-# --- x-humanReadible AttributeType ------------------------------------------------
-attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.34 NAME 'x-humanReadible'
-    DESC 'whether or not a syntax is human readible'
+# --- x-humanReadable AttributeType ------------------------------------------------
+attributetype ( 1.3.6.1.4.1.18060.0.4.0.2.34 NAME 'x-humanReadable'
+    DESC 'whether or not a syntax is human readable'
     EQUALITY booleanMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
     SINGLE-VALUE

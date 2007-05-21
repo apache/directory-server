@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -48,6 +49,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -90,6 +93,18 @@ public class PartitionNexusProxy extends PartitionNexus
     
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final Collection BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
+    
+    /** A static object to store the rootDSE entry with all the attributes */
+    private static Attributes ROOT_DSE_ALL;
+
+    /** A static object to store the rootDSE entry without operationnal attributes */
+    private static Attributes ROOT_DSE_NO_OPERATIONNAL;
+
+    /** A mutex to protect the rootDSE construction */
+    private static final Object ROOT_DSE_ALL_MUTEX = new Object();
+    
+    /** A mutex to protect the rootDSE construction */
+    private static final Object ROOT_DSE_NOOP_MUTEX = new Object();
     
     private final Context caller;
     private final DirectoryService service;
@@ -140,7 +155,7 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param caller a JNDI {@link Context} object that will call this proxy
      * @param service a JNDI service
      */
-    public PartitionNexusProxy(Context caller, DirectoryService service)
+    public PartitionNexusProxy(Context caller, DirectoryService service) throws NamingException
     {
         this.caller = caller;
         this.service = service;
@@ -154,7 +169,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
+    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException
     {
     }
 
@@ -463,6 +478,37 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public Attributes lookup( OperationContext opContext ) throws NamingException
     {
+    	if ( opContext.getDn().size() == 0 )
+    	{
+    		List<String> attrs = ( (LookupOperationContext)opContext).getAttrsId();
+    		
+    		if ( ( attrs == null ) || ( attrs.size() == 0 ) )
+    		{
+    			synchronized( ROOT_DSE_NOOP_MUTEX )
+    			{
+    				if ( ROOT_DSE_NO_OPERATIONNAL == null )
+    				{
+    					ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, ( Collection ) null );
+    				}
+    			}
+    			
+        		return ROOT_DSE_NO_OPERATIONNAL;
+    		}
+    		else if ( ( attrs.size() == 1 ) && ( attrs.contains( "+" ) ) )
+    		{
+    			synchronized( ROOT_DSE_ALL_MUTEX )
+    			{
+    				if ( ROOT_DSE_ALL == null )
+    				{
+    					ROOT_DSE_ALL = lookup( opContext, ( Collection ) null );
+    				}
+    			}
+    			
+    			return ROOT_DSE_ALL;
+    		}
+    			
+    	}
+    	
         return lookup( opContext, ( Collection ) null );
     }
 
@@ -636,6 +682,19 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public Attributes getRootDSE( OperationContext opContext ) throws NamingException
     {
+    	if ( opContext.getDn().size() == 0 )
+    	{
+    		synchronized( ROOT_DSE_ALL_MUTEX )
+    		{
+    			if ( ROOT_DSE_ALL == null )
+    			{
+    				ROOT_DSE_ALL = getRootDSE( null, null );
+    			}
+    		}
+    		
+    		return ROOT_DSE_ALL;
+    	}
+    	
         return getRootDSE( null, null );
     }
 
