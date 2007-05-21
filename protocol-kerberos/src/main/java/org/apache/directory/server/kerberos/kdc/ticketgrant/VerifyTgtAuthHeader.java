@@ -24,6 +24,7 @@ import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -56,7 +57,7 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7 );
 
         tgsContext.setAuthenticator( authenticator );
 

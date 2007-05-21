@@ -24,6 +24,7 @@ import java.net.InetAddress;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -59,7 +60,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
         CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11 );
 
         changepwContext.setAuthenticator( authenticator );
 

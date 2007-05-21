@@ -62,12 +62,13 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
      * @param emptyAddressesAllowed
      * @param clientAddress
      * @param lockBox
+     * @param authenticatorKeyUsage
      * @return The authenticator.
      * @throws KerberosException
      */
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
-        CipherTextHandler lockBox ) throws KerberosException
+        CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage ) throws KerberosException
     {
         if ( authHeader.getProtocolVersionNumber() != 5 )
         {
@@ -111,7 +112,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
         ticket.setEncTicketPart( encPart );
 
         Authenticator authenticator = ( Authenticator ) lockBox.unseal( Authenticator.class, ticket.getSessionKey(),
-            authHeader.getEncPart(), KeyUsage.NUMBER11 );
+            authHeader.getEncPart(), authenticatorKeyUsage );
 
         if ( !authenticator.getClientPrincipal().getName().equals( ticket.getClientPrincipal().getName() ) )
         {
