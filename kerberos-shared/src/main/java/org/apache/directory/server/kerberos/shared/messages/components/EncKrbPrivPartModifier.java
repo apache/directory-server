@@ -38,42 +38,77 @@ public class EncKrbPrivPartModifier
     private HostAddress recipientAddress; //optional
 
 
+    /**
+     * Returns the {@link EncKrbPrivPart}.
+     *
+     * @return The {@link EncKrbPrivPart}.
+     */
     public EncKrbPrivPart getEncKrbPrivPart()
     {
         return new EncKrbPrivPart( userData, timestamp, usec, sequenceNumber, senderAddress, recipientAddress );
     }
 
 
+    /**
+     * Sets the recipient {@link HostAddress}.
+     *
+     * @param address
+     */
     public void setRecipientAddress( HostAddress address )
     {
         recipientAddress = address;
     }
 
 
+    /**
+     * Sets the sender {@link HostAddress}.
+     *
+     * @param address
+     */
     public void setSenderAddress( HostAddress address )
     {
         senderAddress = address;
     }
 
 
+    /**
+     * Sets the sequence number.
+     *
+     * @param number
+     */
     public void setSequenceNumber( Integer number )
     {
         sequenceNumber = number;
     }
 
 
+    /**
+     * Sets the {@link KerberosTime} timestamp.
+     *
+     * @param timestamp
+     */
     public void setTimestamp( KerberosTime timestamp )
     {
         this.timestamp = timestamp;
     }
 
 
+    /**
+     * Sets the microsecond.
+     *
+     * @param usec
+     */
     public void setMicroSecond( Integer usec )
     {
         this.usec = usec;
     }
 
 
+    /**
+     * Sets the user data.
+     *
+     * @param data
+     */
     public void setUserData( byte[] data )
     {
         userData = data;

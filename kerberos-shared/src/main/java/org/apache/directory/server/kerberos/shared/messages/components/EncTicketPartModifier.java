@@ -53,6 +53,11 @@ public class EncTicketPartModifier
     private AuthorizationData authorizationData; //optional
 
 
+    /**
+     * Returns the {@link EncTicketPart}.
+     *
+     * @return The {@link EncTicketPart}.
+     */
     public EncTicketPart getEncTicketPart()
     {
         if ( clientPrincipal == null )
@@ -65,84 +70,154 @@ public class EncTicketPartModifier
     }
 
 
+    /**
+     * Sets the client {@link PrincipalName}.
+     *
+     * @param name
+     */
     public void setClientName( PrincipalName name )
     {
         modifier.setPrincipalName( name );
     }
 
 
+    /**
+     * Sets the client realm.
+     *
+     * @param realm
+     */
     public void setClientRealm( String realm )
     {
         modifier.setRealm( realm );
     }
 
 
+    /**
+     * Sets the client {@link KerberosPrincipal}.
+     *
+     * @param principal
+     */
     public void setClientPrincipal( KerberosPrincipal principal )
     {
         clientPrincipal = principal;
     }
 
 
+    /**
+     * Sets the {@link AuthorizationData}.
+     *
+     * @param data
+     */
     public void setAuthorizationData( AuthorizationData data )
     {
         authorizationData = data;
     }
 
 
+    /**
+     * Sets the auth {@link KerberosTime}.
+     *
+     * @param authtime
+     */
     public void setAuthTime( KerberosTime authtime )
     {
         authTime = authtime;
     }
 
 
+    /**
+     * Sets the client {@link HostAddresses}.
+     *
+     * @param addresses
+     */
     public void setClientAddresses( HostAddresses addresses )
     {
         clientAddresses = addresses;
     }
 
 
+    /**
+     * Sets the end {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setEndTime( KerberosTime time )
     {
         endTime = time;
     }
 
 
+    /**
+     * Sets the {@link TicketFlags}.
+     *
+     * @param flags
+     */
     public void setFlags( TicketFlags flags )
     {
         this.flags = flags;
     }
 
 
+    /**
+     * Sets the flag at the given index.
+     *
+     * @param flag
+     */
     public void setFlag( int flag )
     {
         flags.set( flag );
     }
 
 
+    /**
+     * Clears the flag at the given index.
+     *
+     * @param flag
+     */
     public void clearFlag( int flag )
     {
         flags.clear( flag );
     }
 
 
+    /**
+     * Sets the renew till {@link KerberosTime}.
+     *
+     * @param till
+     */
     public void setRenewTill( KerberosTime till )
     {
         renewTill = till;
     }
 
 
+    /**
+     * Sets the sesson {@link EncryptionKey}.
+     *
+     * @param key
+     */
     public void setSessionKey( EncryptionKey key )
     {
         sessionKey = key;
     }
 
 
+    /**
+     * Sets the start {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setStartTime( KerberosTime time )
     {
         startTime = time;
     }
 
 
+    /**
+     * Sets the {@link TransitedEncoding}.
+     *
+     * @param encoding
+     */
     public void setTransitedEncoding( TransitedEncoding encoding )
     {
         transitedEncoding = encoding;

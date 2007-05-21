@@ -34,19 +34,26 @@ import org.apache.directory.server.kerberos.shared.messages.value.KrbCredInfo;
  */
 public class EncKrbCredPart
 {
-    public KrbCredInfo[] ticketInfo;
-    public Integer nonce; //optional
-    public KerberosTime timeStamp; //optional
-    public Integer usec; //optional
-    public HostAddress sAddress; //optional
-    public HostAddresses rAddress; //optional
+    private KrbCredInfo[] ticketInfo;
+    private Integer nonce; //optional
+    private KerberosTime timeStamp; //optional
+    private Integer usec; //optional
+    private HostAddress sAddress; //optional
+    private HostAddresses rAddress; //optional
 
 
     /**
-     * Class constructor
+     * Creates a new instance of EncKrbCredPart.
+     *
+     * @param ticketInfo
+     * @param timeStamp
+     * @param usec
+     * @param nonce
+     * @param sAddress
+     * @param rAddress
      */
-    public EncKrbCredPart(KrbCredInfo[] ticketInfo, KerberosTime timeStamp, Integer usec, Integer nonce,
-        HostAddress sAddress, HostAddresses rAddress)
+    public EncKrbCredPart( KrbCredInfo[] ticketInfo, KerberosTime timeStamp, Integer usec, Integer nonce,
+        HostAddress sAddress, HostAddresses rAddress )
     {
         this.ticketInfo = ticketInfo;
         this.nonce = nonce;
@@ -54,5 +61,71 @@ public class EncKrbCredPart
         this.usec = usec;
         this.sAddress = sAddress;
         this.rAddress = rAddress;
+    }
+
+
+    /**
+     * Returns the nonce.
+     * 
+     * @return The nonce.
+     */
+    public Integer getNonce()
+    {
+        return nonce;
+    }
+
+
+    /**
+     * Returns the "R" {@link HostAddresses}.
+     * 
+     * @return The "R" {@link HostAddresses}.
+     */
+    public HostAddresses getRAddress()
+    {
+        return rAddress;
+    }
+
+
+    /**
+     * Returns the "S" {@link HostAddresses}.
+     * 
+     * @return The "S" {@link HostAddresses}.
+     */
+    public HostAddress getSAddress()
+    {
+        return sAddress;
+    }
+
+
+    /**
+     * Returns the {@link KrbCredInfo}s.
+     * 
+     * @return The {@link KrbCredInfo}s.
+     */
+    public KrbCredInfo[] getTicketInfo()
+    {
+        return ticketInfo;
+    }
+
+
+    /**
+     * Returns the timestamp.
+     * 
+     * @return The timeStamp.
+     */
+    public KerberosTime getTimeStamp()
+    {
+        return timeStamp;
+    }
+
+
+    /**
+     * Returns the microseconds.
+     * 
+     * @return The microseconds.
+     */
+    public Integer getUsec()
+    {
+        return usec;
     }
 }

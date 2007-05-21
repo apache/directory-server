@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 
@@ -35,6 +34,9 @@ import java.util.TimeZone;
  */
 public class KerberosTime implements Comparable<KerberosTime>
 {
+    /**
+     * Constant for the {@link KerberosTime} "infinity."
+     */
     public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
 
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
@@ -48,24 +50,44 @@ public class KerberosTime implements Comparable<KerberosTime>
     private long kerberosTime;
 
 
+    /**
+     * Creates a new instance of KerberosTime.
+     */
     public KerberosTime()
     {
         kerberosTime = System.currentTimeMillis();
     }
 
 
-    public KerberosTime(long time)
+    /**
+     * Creates a new instance of KerberosTime.
+     *
+     * @param time
+     */
+    public KerberosTime( long time )
     {
         kerberosTime = time;
     }
 
 
-    public KerberosTime(Date time)
+    /**
+     * Creates a new instance of KerberosTime.
+     *
+     * @param time
+     */
+    public KerberosTime( Date time )
     {
         kerberosTime = time.getTime();
     }
 
-    
+
+    /**
+     * Returns the {@link KerberosTime} for a given zulu time.
+     *
+     * @param zuluTime
+     * @return The {@link KerberosTime}.
+     * @throws ParseException
+     */
     public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
         Date date = null;
@@ -76,23 +98,18 @@ public class KerberosTime implements Comparable<KerberosTime>
         return new KerberosTime( date );
     }
 
-    
-    public int compareTo( KerberosTime o )
+
+    public int compareTo( KerberosTime that )
     {
         final int BEFORE = -1;
         final int EQUAL = 0;
         final int AFTER = 1;
 
         // this optimization is usually worthwhile, and can always be added
-        if ( this == o )
+        if ( this == that )
         {
             return EQUAL;
         }
-
-        // Performing explicit checks for nullity and type are made redundant by
-        // the following cast, which will throw NullPointerException and
-        // ClassCastException in these respective cases.
-        final KerberosTime that = ( KerberosTime ) o;
 
         // primitive numbers follow this form
         if ( this.kerberosTime < that.kerberosTime )
@@ -109,42 +126,81 @@ public class KerberosTime implements Comparable<KerberosTime>
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} as a long.
+     *
+     * @return The {@link KerberosTime} as a long.
+     */
     public long getTime()
     {
         return kerberosTime;
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} as a {@link Date}.
+     *
+     * @return The {@link KerberosTime} as a {@link Date}.
+     */
     public Date toDate()
     {
         return new Date( kerberosTime );
     }
 
 
+    /**
+     * Returns whether this {@link KerberosTime} is within the given clockskew.
+     *
+     * @param clockSkew
+     * @return true if this {@link KerberosTime} is within the given clockskew.
+     */
     public boolean isInClockSkew( long clockSkew )
     {
         return Math.abs( kerberosTime - System.currentTimeMillis() ) < clockSkew;
     }
 
 
+    /**
+     * Returns whether this {@link KerberosTime} is greater than a given {@link KerberosTime}.
+     *
+     * @param time
+     * @return true if this {@link KerberosTime} is greater than a given {@link KerberosTime}. 
+     */
     public boolean greaterThan( KerberosTime time )
     {
         return kerberosTime > time.kerberosTime;
     }
 
 
+    /**
+     * Returns whether this {@link KerberosTime} is less than a given {@link KerberosTime}.
+     *
+     * @param time
+     * @return true if this {@link KerberosTime} is less than a given {@link KerberosTime}. 
+     */
     public boolean lessThan( KerberosTime time )
     {
         return kerberosTime < time.kerberosTime;
     }
 
 
+    /**
+     * Returns whether this {@link KerberosTime} is equal to another {@link KerberosTime}.
+     *
+     * @param time
+     * @return true if the two {@link KerberosTime}s are equal.
+     */
     public boolean equals( KerberosTime time )
     {
         return kerberosTime == time.kerberosTime;
     }
 
 
+    /**
+     * Returns whether this {@link KerberosTime} is zero.
+     *
+     * @return true if this {@link KerberosTime} is zero.
+     */
     public boolean isZero()
     {
         return kerberosTime == 0;

@@ -45,9 +45,24 @@ public class RequestBody
     private Ticket[] additionalTickets; //optional
 
 
-    public RequestBody(KdcOptions kdcOptions, KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
+    /**
+     * Creates a new instance of RequestBody.
+     *
+     * @param kdcOptions
+     * @param clientPrincipal
+     * @param serverPrincipal
+     * @param from
+     * @param till
+     * @param rtime
+     * @param nonce
+     * @param eType
+     * @param addresses
+     * @param encAuthorizationData
+     * @param additionalTickets
+     */
+    public RequestBody( KdcOptions kdcOptions, KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
         KerberosTime from, KerberosTime till, KerberosTime rtime, int nonce, EncryptionType[] eType,
-        HostAddresses addresses, EncryptedData encAuthorizationData, Ticket[] additionalTickets)
+        HostAddresses addresses, EncryptedData encAuthorizationData, Ticket[] additionalTickets )
     {
         this.kdcOptions = kdcOptions;
         this.clientPrincipal = clientPrincipal;
@@ -63,66 +78,121 @@ public class RequestBody
     }
 
 
+    /**
+     * Returns the additional {@link Ticket}s.
+     *
+     * @return The additional {@link Ticket}s.
+     */
     public Ticket[] getAdditionalTickets()
     {
         return additionalTickets;
     }
 
 
+    /**
+     * Returns the {@link HostAddresses}.
+     *
+     * @return The {@link HostAddresses}.
+     */
     public HostAddresses getAddresses()
     {
         return addresses;
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return clientPrincipal;
     }
 
 
+    /**
+     * Returns the server {@link KerberosPrincipal}.
+     *
+     * @return The server {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getServerPrincipal()
     {
         return serverPrincipal;
     }
 
 
+    /**
+     * Returns the encrypted {@link AuthorizationData} as {@link EncryptedData}.
+     *
+     * @return The encrypted {@link AuthorizationData} as {@link EncryptedData}.
+     */
     public EncryptedData getEncAuthorizationData()
     {
         return encAuthorizationData;
     }
 
 
+    /**
+     * Returns the requested {@link EncryptionType}s.
+     *
+     * @return The requested {@link EncryptionType}s.
+     */
     public EncryptionType[] getEType()
     {
         return eType;
     }
 
 
+    /**
+     * Returns the from {@link KerberosTime}.
+     *
+     * @return The from {@link KerberosTime}.
+     */
     public KerberosTime getFrom()
     {
         return from;
     }
 
 
+    /**
+     * Returns the {@link KdcOptions}.
+     *
+     * @return The {@link KdcOptions}.
+     */
     public KdcOptions getKdcOptions()
     {
         return kdcOptions;
     }
 
 
+    /**
+     * Returns the nonce.
+     *
+     * @return The nonce.
+     */
     public int getNonce()
     {
         return nonce;
     }
 
 
+    /**
+     * Returns the "R" {@link KerberosTime}.
+     *
+     * @return The "R" {@link KerberosTime}.
+     */
     public KerberosTime getRtime()
     {
         return rtime;
     }
 
 
+    /**
+     * Returns the till {@link KerberosTime}.
+     *
+     * @return The till {@link KerberosTime}.
+     */
     public KerberosTime getTill()
     {
         return till;

@@ -34,24 +34,44 @@ public class EncryptedDataModifier
     private byte[] cipherText;
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncryptedData()
     {
         return new EncryptedData( encryptionType, keyVersion, cipherText );
     }
 
 
+    /**
+     * Sets the raw cipher text bytes.
+     *
+     * @param cipherText
+     */
     public void setCipherText( byte[] cipherText )
     {
         this.cipherText = cipherText;
     }
 
 
+    /**
+     * Sets the {@link EncryptionType}.
+     *
+     * @param type
+     */
     public void setEncryptionType( EncryptionType type )
     {
         encryptionType = type;
     }
 
 
+    /**
+     * Sets the key version.
+     *
+     * @param version
+     */
     public void setKeyVersion( int version )
     {
         keyVersion = version;

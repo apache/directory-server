@@ -38,13 +38,24 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 public class EncTgsRepPart extends EncKdcRepPart
 {
     /**
-     * Class constructor
+     * Creates a new instance of EncTgsRepPart.
+     *
+     * @param key
+     * @param lastReq
+     * @param nonce
+     * @param keyExpiration
+     * @param flags
+     * @param authtime
+     * @param starttime
+     * @param endtime
+     * @param renewTill
+     * @param serverPrincipal
+     * @param caddr
      */
     public EncTgsRepPart(EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
         TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
         KerberosPrincipal serverPrincipal, HostAddresses caddr)
     {
-
         super( key, lastReq, nonce, keyExpiration, flags, authtime, starttime, endtime, renewTill, serverPrincipal,
             caddr, MessageComponentType.KRB_ENC_TGS_REP_PART );
     }

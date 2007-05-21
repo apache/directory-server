@@ -34,47 +34,94 @@ import java.util.List;
 public class MessageComponentType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "null" message component type.
      */
     public static final MessageComponentType NULL = new MessageComponentType( 0, "null" );
+
+    /**
+     * Constant for the "ticket" message component type.
+     */
     public static final MessageComponentType KRB_TKT = new MessageComponentType( 1, "ticket" );
+
+    /**
+     * Constant for the "authenticator" message component type.
+     */
     public static final MessageComponentType KRB_AUTHENTICATOR = new MessageComponentType( 2, "authenticator" );
+
+    /**
+     * Constant for the "encrypted ticket part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_TKT_PART = new MessageComponentType( 3, "encrypted ticket part" );
+
+    /**
+     * Constant for the "encrypted initial authentication part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_AS_REP_PART = new MessageComponentType( 25,
         "encrypted initial authentication part" );
+
+    /**
+     * Constant for the "encrypted TGS request part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_TGS_REP_PART = new MessageComponentType( 26,
         "encrypted TGS request part" );
+
+    /**
+     * Constant for the "encrypted application request part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_AP_REP_PART = new MessageComponentType( 27,
         "encrypted application request part" );
+
+    /**
+     * Constant for the "encrypted application message part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_KRB_PRIV_PART = new MessageComponentType( 28,
         "encrypted application message part" );
+
+    /**
+     * Constant for the "encrypted credentials forward part" message component type.
+     */
     public static final MessageComponentType KRB_ENC_KRB_CRED_PART = new MessageComponentType( 29,
         "encrypted credentials forward part" );
 
     /**
-     * These two lines are all that's necessary to export a List of VALUES.
+     * Array for building a List of VALUES.
      */
     private static final MessageComponentType[] values =
         { NULL, KRB_TKT, KRB_AUTHENTICATOR, KRB_ENC_TKT_PART, KRB_ENC_AS_REP_PART, KRB_ENC_TGS_REP_PART,
             KRB_ENC_AP_REP_PART, KRB_ENC_KRB_PRIV_PART, KRB_ENC_KRB_CRED_PART };
 
+    /**
+     * A List of all the message component type constants.
+     */
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
+    /**
+     * The name of the message component type.
+     */
     private final String name;
+
+    /**
+     * The value/code for the message component type.
+     */
     private final int ordinal;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private MessageComponentType(int ordinal, String name)
+    private MessageComponentType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;
     }
 
 
+    /**
+     * Returns the message component type when specified by its ordinal.
+     *
+     * @param type
+     * @return The message component type.
+     */
     public static MessageComponentType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -89,20 +136,25 @@ public class MessageComponentType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this message component type.
+     *
+     * @return The message component type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
 
-    public String toString()
-    {
-        return name + " (" + ordinal + ")";
-    }
-
-
     public int compareTo( Object that )
     {
         return ordinal - ( ( MessageComponentType ) that ).ordinal;
+    }
+
+
+    public String toString()
+    {
+        return name + " (" + ordinal + ")";
     }
 }

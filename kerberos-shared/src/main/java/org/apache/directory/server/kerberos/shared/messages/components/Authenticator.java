@@ -35,6 +35,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  */
 public class Authenticator implements Encodable
 {
+    /**
+     * Constant for the authenticator version number.
+     */
     public static final int AUTHENTICATOR_VNO = 5;
 
     private int versionNumber;
@@ -47,17 +50,40 @@ public class Authenticator implements Encodable
     private AuthorizationData authorizationData;
 
 
-    public Authenticator(KerberosPrincipal clientPrincipal, Checksum checksum, int clientMicroSecond,
-        KerberosTime clientTime, EncryptionKey subSessionKey, int sequenceNumber, AuthorizationData authorizationData)
+    /**
+     * Creates a new instance of Authenticator.
+     *
+     * @param clientPrincipal
+     * @param checksum
+     * @param clientMicroSecond
+     * @param clientTime
+     * @param subSessionKey
+     * @param sequenceNumber
+     * @param authorizationData
+     */
+    public Authenticator( KerberosPrincipal clientPrincipal, Checksum checksum, int clientMicroSecond,
+        KerberosTime clientTime, EncryptionKey subSessionKey, int sequenceNumber, AuthorizationData authorizationData )
     {
         this( AUTHENTICATOR_VNO, clientPrincipal, checksum, clientMicroSecond, clientTime, subSessionKey,
             sequenceNumber, authorizationData );
     }
 
 
-    public Authenticator(int versionNumber, KerberosPrincipal clientPrincipal, Checksum checksum,
+    /**
+     * Creates a new instance of Authenticator.
+     *
+     * @param versionNumber
+     * @param clientPrincipal
+     * @param checksum
+     * @param clientMicroSecond
+     * @param clientTime
+     * @param subSessionKey
+     * @param sequenceNumber
+     * @param authorizationData
+     */
+    public Authenticator( int versionNumber, KerberosPrincipal clientPrincipal, Checksum checksum,
         int clientMicroSecond, KerberosTime clientTime, EncryptionKey subSessionKey, int sequenceNumber,
-        AuthorizationData authorizationData)
+        AuthorizationData authorizationData )
     {
         this.versionNumber = versionNumber;
         this.clientPrincipal = clientPrincipal;
@@ -70,48 +96,88 @@ public class Authenticator implements Encodable
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return clientPrincipal;
     }
 
 
+    /**
+     * Returns the client {@link KerberosTime}.
+     *
+     * @return The client {@link KerberosTime}.
+     */
     public KerberosTime getClientTime()
     {
         return clientTime;
     }
 
 
+    /**
+     * Returns the client microsecond.
+     *
+     * @return The client microsecond.
+     */
     public int getClientMicroSecond()
     {
         return clientMicroSecond;
     }
 
 
+    /**
+     * Returns the {@link AuthorizationData}.
+     *
+     * @return The {@link AuthorizationData}.
+     */
     public AuthorizationData getAuthorizationData()
     {
         return authorizationData;
     }
 
 
+    /**
+     * Returns the {@link Checksum}.
+     *
+     * @return The {@link Checksum}.
+     */
     public Checksum getChecksum()
     {
         return checksum;
     }
 
 
+    /**
+     * Returns the sequence number.
+     *
+     * @return The sequence number.
+     */
     public int getSequenceNumber()
     {
         return sequenceNumber;
     }
 
 
+    /**
+     * Returns the sub-session key.
+     *
+     * @return The sub-session key.
+     */
     public EncryptionKey getSubSessionKey()
     {
         return subSessionKey;
     }
 
 
+    /**
+     * Returns the version number of the {@link Authenticator}.
+     *
+     * @return The version number of the {@link Authenticator}.
+     */
     public int getVersionNumber()
     {
         return versionNumber;

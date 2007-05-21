@@ -35,6 +35,11 @@ public class KerberosPrincipalModifier
     String realm;
 
 
+    /**
+     * Returns the {@link KerberosPrincipal}.
+     *
+     * @return The {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getKerberosPrincipal()
     {
         if ( nameComponent != null )
@@ -55,12 +60,22 @@ public class KerberosPrincipalModifier
     }
 
 
+    /**
+     * Sets the {@link PrincipalName}.
+     *
+     * @param principalName
+     */
     public void setPrincipalName( PrincipalName principalName )
     {
         nameComponent = principalName;
     }
 
 
+    /**
+     * Sets the realm.
+     *
+     * @param realm
+     */
     public void setRealm( String realm )
     {
         this.realm = realm;

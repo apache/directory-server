@@ -33,41 +33,66 @@ public abstract class Options
     private int maxSize;
 
 
-    protected Options(int maxSize)
+    protected Options( int maxSize )
     {
         this.maxSize = maxSize;
         options = new BitSet( maxSize );
     }
 
 
+    /**
+     * Returns whether the option at a given index matches the option in this {@link Options}.
+     *
+     * @param options
+     * @param option
+     * @return true if two options are the same.
+     */
     public boolean match( Options options, int option )
     {
         return options.get( option ) == this.get( option );
     }
 
 
+    /**
+     * Returns the value of the option at the given index.
+     *
+     * @param index
+     * @return true if the option at the given index is set.
+     */
     public boolean get( int index )
     {
         return options.get( index );
     }
 
 
+    /**
+     * Sets the option at a given index.
+     *
+     * @param index
+     */
     public void set( int index )
     {
         options.set( index );
     }
 
 
+    /**
+     * Clears (sets false) the option at a given index.
+     *
+     * @param index
+     */
     public void clear( int index )
     {
         options.clear( index );
     }
 
 
-    /*
+    /**
      * Byte-reversing methods are an anomaly of the BouncyCastle
      * DERBitString endianness.  Thes methods can be removed if the
      * Apache Directory Snickers codecs operate differently.
+     * 
+     * @return The raw {@link Options} bytes.
      */
     public byte[] getBytes()
     {

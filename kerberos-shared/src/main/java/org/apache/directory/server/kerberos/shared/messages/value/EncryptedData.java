@@ -34,7 +34,14 @@ public class EncryptedData
     private byte[] cipherText;
 
 
-    public EncryptedData(EncryptionType type, int version, byte[] cipherText)
+    /**
+     * Creates a new instance of EncryptedData.
+     *
+     * @param type
+     * @param version
+     * @param cipherText
+     */
+    public EncryptedData( EncryptionType type, int version, byte[] cipherText )
     {
         encryptionType = type;
         keyVersion = version;
@@ -42,18 +49,33 @@ public class EncryptedData
     }
 
 
+    /**
+     * Returns the {@link EncryptionType}.
+     *
+     * @return The {@link EncryptionType}.
+     */
     public EncryptionType getEncryptionType()
     {
         return encryptionType;
     }
 
 
+    /**
+     * Returns the key version.
+     *
+     * @return The key version.
+     */
     public int getKeyVersion()
     {
         return keyVersion;
     }
 
 
+    /**
+     * Returns the raw cipher text.
+     *
+     * @return The raw cipher text.
+     */
     public byte[] getCipherText()
     {
         return cipherText;
