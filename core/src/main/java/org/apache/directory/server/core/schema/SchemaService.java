@@ -380,7 +380,7 @@ public class SchemaService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, binaryAttributeFilter );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, binaryAttributeFilter, "List Schema Filter" );
     }
 
     /**
@@ -420,12 +420,21 @@ public class SchemaService extends BaseInterceptor
             
             try
             {
-                String oid = registries.getOidRegistry().getOid( attribute );
-    
-                if ( !filteredAttrs.containsKey( oid ) )
-                {
-                    filteredAttrs.put( oid, attribute );
-                }
+            	// Check that the attribute is declared
+            	if ( registries.getOidRegistry().hasOid( attribute ) )
+            	{
+	                String oid = registries.getOidRegistry().getOid( attribute );
+	                
+            		// The attribute must be an AttributeType
+	                if ( registries.getAttributeTypeRegistry().hasAttributeType( oid ) )
+	                {
+		                if ( !filteredAttrs.containsKey( oid ) )
+		                {
+		                	// Ok, we can add the attribute to the list of filtered attributes
+		                    filteredAttrs.put( oid, attribute );
+		                }
+	                }
+            	}
             }
             catch ( NamingException ne )
             {
@@ -437,6 +446,15 @@ public class SchemaService extends BaseInterceptor
         if ( filteredAttrs.size() == attributes.length )
         {
             return;
+        }
+        
+        // Deal with the special case where the attribute list is now empty
+        if (  filteredAttrs.size() == 0 )
+        {
+        	// We just have to pass the special 1.1 ayttribute,
+        	// as we don't want to return any attribute
+        	searchCtls.setReturningAttributes( new String[]{ "1.1" } );
+        	return;
         }
         
         // Some attributes have been removed. let's modify the searchControl
@@ -476,10 +494,10 @@ public class SchemaService extends BaseInterceptor
 
             if ( searchCtls.getReturningAttributes() != null )
             {
-                return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter );
+                return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter, "Search Schema Filter top" );
             }
 
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters, "Search Schema Filter" );
         }
 
         // The user was searching into the subSchemaSubEntry
