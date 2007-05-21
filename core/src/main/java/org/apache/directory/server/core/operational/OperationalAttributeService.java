@@ -300,7 +300,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
     }
 
 
@@ -314,13 +314,13 @@ public class OperationalAttributeService extends BaseInterceptor
         {
             if ( isDenormalizeOpAttrsEnabled )
             {
-                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER );
+                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
             }
                 
             return e;
         }
 
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
     }
 
 

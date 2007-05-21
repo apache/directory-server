@@ -311,7 +311,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
     }
 
 
@@ -320,7 +320,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( 
-            e, ((SearchOperationContext)opContext).getSearchControls(), invocation, SEARCH_FILTER );
+            e, ((SearchOperationContext)opContext).getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
     }
     
     // ------------------------------------------------------------------------

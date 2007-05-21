@@ -905,7 +905,7 @@ public class AuthorizationService extends BaseInterceptor
         }
         
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter );
+        return new SearchResultFilteringEnumeration( e, DEFAULT_SEARCH_CONTROLS, invocation, authzFilter, "List authorization Filter" );
     }
 
 
@@ -927,7 +927,7 @@ public class AuthorizationService extends BaseInterceptor
         }
         
         AuthorizationFilter authzFilter = new AuthorizationFilter();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter );
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, authzFilter, "Search authorization Filter" );
     }
 
     

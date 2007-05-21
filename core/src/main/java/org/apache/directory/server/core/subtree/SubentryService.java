@@ -235,7 +235,7 @@ public class SubentryService extends BaseInterceptor
         if ( !isSubentryVisible( invocation ) )
         {
             return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation,
-                new HideSubentriesFilter() );
+                new HideSubentriesFilter(), "List Subentry filter" );
         }
 
         return e;
@@ -257,11 +257,11 @@ public class SubentryService extends BaseInterceptor
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter() );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter(), "Search Subentry filter hide subentries" );
         }
         else
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter() );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter(), "Search Subentry filter hide entries");
         }
     }
 

@@ -521,7 +521,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             {
                 return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
-        } );
+        }, "Search Default Authorization filter" );
     }
 
 
@@ -543,7 +543,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             {
                 return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
-        } );
+        }, "List Default Authorization filter" );
     }
 
 
