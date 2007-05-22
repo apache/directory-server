@@ -270,12 +270,40 @@ public class UniversalTag
 
     /** String representation of the tags */
     private static final String[] UNIVERSAL_TAG_STRING =
-        { "RESERVED_0", "BOOLEAN", "INTEGER", "BIT_STRING", "OCTET_STRING", "NULL", "OBJECT_IDENTIFIER",
-            "OBJECT_DESCRIPTOR", "EXTERNAL_INSTANCE_OF", "REAL", "ENUMERATED", "EMBEDDED_PDV", "UTF8_STRING",
-            "RELATIVE_OID", "RESERVED_14", "RESERVED_15", "SEQUENCE_SEQUENCE_OF", "SET_SET_OF", "NUMERIC_STRING",
-            "PRINTABLE_STRING", "TELETEX_STRING", "VIDEOTEX_STRING", "IA5_STRING", "UTC_TIME", "GENERALIZED_TIME",
-            "GRAPHIC_STRING", "VISIBLE_STRING", "GENERAL_STRING", "UNIVERSAL_STRING", "CHARACTER_STRING", "BMP_STRING",
-            "RESERVED_31" };
+        { 
+    		"RESERVED_0", 
+    	    "BOOLEAN", 
+    	    "INTEGER", 
+    	    "BIT_STRING", 
+    	    "OCTET_STRING", 
+    	    "NULL", 
+    	    "OBJECT_IDENTIFIER",
+            "OBJECT_DESCRIPTOR", 
+            "EXTERNAL_INSTANCE_OF", 
+            "REAL", 
+            "ENUMERATED", 
+            "EMBEDDED_PDV", 
+            "UTF8_STRING",
+            "RELATIVE_OID", 
+            "RESERVED_14", 
+            "RESERVED_15", 
+            "SEQUENCE_SEQUENCE_OF", 
+            "SET_SET_OF", 
+            "NUMERIC_STRING",
+            "PRINTABLE_STRING", 
+            "TELETEX_STRING", 
+            "VIDEOTEX_STRING", 
+            "IA5_STRING", 
+            "UTC_TIME", 
+            "GENERALIZED_TIME",
+            "GRAPHIC_STRING", 
+            "VISIBLE_STRING", 
+            "GENERAL_STRING", 
+            "UNIVERSAL_STRING", 
+            "CHARACTER_STRING", 
+            "BMP_STRING",
+            "RESERVED_31" 
+        };
 
     /** ASN.1 primitive tag values */
     public static final byte BOOLEAN_TAG = 0x01;
@@ -285,6 +313,10 @@ public class UniversalTag
     public static final byte OCTET_STRING_TAG = 0x04;
 
     public static final byte ENUMERATED_TAG = 0x0A;
+    
+    public static final byte UTF8_STRING_TAG = 0x0C;
+
+    public static final byte GENERALIZED_TIME_TAG = 0x18;
 
     public static final byte SEQUENCE_TAG = 0x30;
 
