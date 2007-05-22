@@ -491,7 +491,7 @@ public class ReplicationService extends BaseInterceptor
                 new SearchControls() ) );
 
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
-            Constants.DELETED_ENTRIES_FILTER );
+            Constants.DELETED_ENTRIES_FILTER, "List replication filter" );
     }
 
 
@@ -510,7 +510,7 @@ public class ReplicationService extends BaseInterceptor
         NamingEnumeration e = nextInterceptor.search( 
             new SearchOperationContext( baseName, environment, filter, searchControls ) );
         return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
-            Constants.DELETED_ENTRIES_FILTER );
+            Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }
 
 
