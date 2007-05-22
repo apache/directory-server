@@ -34,24 +34,44 @@ public class ChangePasswordDataModifier
     private String realm;
 
 
+    /**
+     * Returns the {@link ChangePasswordData}.
+     *
+     * @return The {@link ChangePasswordData}.
+     */
     public ChangePasswordData getChangePasswdData()
     {
         return new ChangePasswordData( password, principalName, realm );
     }
 
 
+    /**
+     * Sets the bytes of the new password.
+     *
+     * @param password
+     */
     public void setNewPassword( byte[] password )
     {
         this.password = password;
     }
 
 
+    /**
+     * Sets the target principal name whose password is to be changed.
+     *
+     * @param principalName
+     */
     public void setTargetName( PrincipalName principalName )
     {
         this.principalName = principalName;
     }
 
 
+    /**
+     * Sets the target realm of the principal whose password is to be changed.
+     *
+     * @param realm
+     */
     public void setTargetRealm( String realm )
     {
         this.realm = realm;

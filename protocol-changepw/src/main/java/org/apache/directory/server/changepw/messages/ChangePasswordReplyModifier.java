@@ -34,6 +34,11 @@ public class ChangePasswordReplyModifier extends AbstractPasswordMessageModifier
     private PrivateMessage privateMessage;
 
 
+    /**
+     * Returns the {@link ChangePasswordReply}.
+     *
+     * @return The {@link ChangePasswordReply}.
+     */
     public ChangePasswordReply getChangePasswordReply()
     {
         return new ChangePasswordReply( messageLength, versionNumber, authHeaderLength, applicationReply,
@@ -41,12 +46,22 @@ public class ChangePasswordReplyModifier extends AbstractPasswordMessageModifier
     }
 
 
+    /**
+     * Sets the {@link ApplicationReply}.
+     *
+     * @param applicationReply
+     */
     public void setApplicationReply( ApplicationReply applicationReply )
     {
         this.applicationReply = applicationReply;
     }
 
 
+    /**
+     * Sets the {@link PrivateMessage}.
+     *
+     * @param privateMessage
+     */
     public void setPrivateMessage( PrivateMessage privateMessage )
     {
         this.privateMessage = privateMessage;

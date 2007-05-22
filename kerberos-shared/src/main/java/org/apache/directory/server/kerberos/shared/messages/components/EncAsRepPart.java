@@ -38,7 +38,19 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 public class EncAsRepPart extends EncKdcRepPart
 {
     /**
-     * Class constructor
+     * Creates a new instance of EncAsRepPart.
+     *
+     * @param key
+     * @param lastReq
+     * @param nonce
+     * @param keyExpiration
+     * @param flags
+     * @param authTime
+     * @param startTime
+     * @param endTime
+     * @param renewTill
+     * @param serverPrincipal
+     * @param caddr
      */
     public EncAsRepPart(EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
         TicketFlags flags, KerberosTime authTime, KerberosTime startTime, KerberosTime endTime, KerberosTime renewTill,

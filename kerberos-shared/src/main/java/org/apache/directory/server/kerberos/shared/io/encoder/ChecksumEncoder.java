@@ -34,10 +34,15 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class ChecksumEncoder
 {
     /**
+     * Encodes a {@link Checksum} into a {@link DERSequence}.
+     * 
      * Checksum ::=   SEQUENCE {
      *          cksumtype[0]   INTEGER,
      *          checksum[1]    OCTET STRING
      * }
+     * 
+     * @param checksum 
+     * @return The {@link DERSequence}.
      */
     public static DERSequence encode( Checksum checksum )
     {

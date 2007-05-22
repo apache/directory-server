@@ -21,14 +21,20 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
+import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.Name;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.spi.DirObjectFactory;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntryModifier;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -59,7 +65,21 @@ public class PrincipalObjectFactory implements DirObjectFactory
         KerberosPrincipal principal = new KerberosPrincipal( ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get() );
         modifier.setPrincipal( principal );
 
-        modifier.setKey( ( byte[] ) attrs.get( KerberosAttribute.KEY ).get() );
+        if ( attrs.get( KerberosAttribute.KEY ) != null )
+        {
+            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            try
+            {
+                Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
+                modifier.setKeyMap( keyMap );
+            }
+            catch ( IOException ioe )
+            {
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                    + "' contained an invalid value for krb5key." );
+            }
+        }
+
         modifier.setEncryptionType( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.TYPE ).get() ) );
         modifier.setKeyVersionNumber( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.VERSION ).get() ) );
 

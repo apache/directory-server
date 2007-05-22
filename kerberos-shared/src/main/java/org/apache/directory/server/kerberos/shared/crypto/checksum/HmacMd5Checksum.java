@@ -20,68 +20,49 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Sha1Checksum extends ChecksumEngine
+class HmacMd5Checksum implements ChecksumEngine
 {
-    public MessageDigest getDigest() throws NoSuchAlgorithmException
-    {
-        return MessageDigest.getInstance( "SHA1" );
-    }
-
-
     public ChecksumType checksumType()
     {
-        return ChecksumType.SHA1;
+        return ChecksumType.HMAC_MD5;
     }
 
 
     public CipherType keyType()
     {
-        return CipherType.NULL;
+        return CipherType.ARCFOUR;
     }
 
 
-    public int checksumSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 20;
-    }
+        try
+        {
+            SecretKey sk = new SecretKeySpec( key, "ARCFOUR" );
 
+            Mac mac = Mac.getInstance( "HmacMD5" );
+            mac.init( sk );
 
-    public int keySize()
-    {
-        return 0;
-    }
-
-
-    public int confounderSize()
-    {
-        return 0;
-    }
-
-
-    public boolean isSafe()
-    {
-        return false;
-    }
-
-
-    public byte[] calculateKeyedChecksum( byte[] data, byte[] key )
-    {
-        return null;
-    }
-
-
-    public boolean verifyKeyedChecksum( byte[] data, byte[] key, byte[] checksum )
-    {
-        return false;
+            return mac.doFinal( data );
+        }
+        catch ( GeneralSecurityException nsae )
+        {
+            nsae.printStackTrace();
+            return null;
+        }
     }
 }

@@ -42,9 +42,22 @@ public class KrbCredInfo
     private HostAddresses clientAddresses; //optional
 
 
-    public KrbCredInfo(EncryptionKey key, KerberosPrincipal clientPrincipal, TicketFlags flags, KerberosTime authTime,
+    /**
+     * Creates a new instance of KrbCredInfo.
+     *
+     * @param key
+     * @param clientPrincipal
+     * @param flags
+     * @param authTime
+     * @param startTime
+     * @param endTime
+     * @param renewTill
+     * @param serverPrincipal
+     * @param clientAddresses
+     */
+    public KrbCredInfo( EncryptionKey key, KerberosPrincipal clientPrincipal, TicketFlags flags, KerberosTime authTime,
         KerberosTime startTime, KerberosTime endTime, KerberosTime renewTill, KerberosPrincipal serverPrincipal,
-        HostAddresses clientAddresses)
+        HostAddresses clientAddresses )
     {
         this.key = key;
         this.clientPrincipal = clientPrincipal;
@@ -58,54 +71,99 @@ public class KrbCredInfo
     }
 
 
+    /**
+     * Returns the auth {@link KerberosTime}.
+     *
+     * @return The auth {@link KerberosTime}.
+     */
     public KerberosTime getAuthTime()
     {
         return authTime;
     }
 
 
+    /**
+     * Returns the client {@link HostAddresses}.
+     *
+     * @return The client {@link HostAddresses}.
+     */
     public HostAddresses getClientAddresses()
     {
         return clientAddresses;
     }
 
 
+    /**
+     * Returns the end {@link KerberosTime}.
+     *
+     * @return The end {@link KerberosTime}.
+     */
     public KerberosTime getEndTime()
     {
         return endTime;
     }
 
 
+    /**
+     * Returns the {@link TicketFlags}.
+     *
+     * @return The {@link TicketFlags}.
+     */
     public TicketFlags getFlags()
     {
         return flags;
     }
 
 
+    /**
+     * Returns the {@link EncryptionKey}.
+     *
+     * @return The {@link EncryptionKey}.
+     */
     public EncryptionKey getKey()
     {
         return key;
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return clientPrincipal;
     }
 
 
+    /**
+     * Returns the renew till {@link KerberosTime}.
+     *
+     * @return The renew till {@link KerberosTime}.
+     */
     public KerberosTime getRenewTill()
     {
         return renewTill;
     }
 
 
+    /**
+     * Returns the server {@link KerberosPrincipal}.
+     *
+     * @return The server {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getServerPrincipal()
     {
         return serverPrincipal;
     }
 
 
+    /**
+     * Returns the start {@link KerberosTime}.
+     *
+     * @return The start {@link KerberosTime}.
+     */
     public KerberosTime getStartTime()
     {
         return startTime;

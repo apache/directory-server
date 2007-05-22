@@ -20,7 +20,11 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
@@ -33,7 +37,26 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptionKeyEncoder
 {
-    protected static DERSequence encode( EncryptionKey key )
+    /**
+     * Encodes an {@link EncryptionKey} into a byte array.
+     *
+     * @param key
+     * @return The byte array.
+     * @throws IOException
+     */
+    public static byte[] encode( EncryptionKey key ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
+        aos.writeObject( encodeSequence( key ) );
+        aos.close();
+
+        return baos.toByteArray();
+    }
+
+
+    protected static DERSequence encodeSequence( EncryptionKey key )
     {
         DERSequence vector = new DERSequence();
 

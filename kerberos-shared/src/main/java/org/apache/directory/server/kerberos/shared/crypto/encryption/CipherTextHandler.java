@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.kerberos.shared.service;
+package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.io.IOException;
@@ -26,11 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcMd5Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.DesCbcMd5Encryption;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionEngine;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.AuthenticatorDecoder;
@@ -47,6 +42,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncTgsRepPartEncod
 import org.apache.directory.server.kerberos.shared.io.encoder.EncTicketPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.Encoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncoderFactory;
+import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestampEncoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
@@ -68,7 +64,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class LockBox
+public class CipherTextHandler
 {
     /** a map of the default encodable class names to the encoder class names */
     private static final Map DEFAULT_ENCODERS;
@@ -81,6 +77,7 @@ public class LockBox
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
 
+        map.put( EncryptedTimeStamp.class, EncryptedTimestampEncoder.class );
         map.put( EncTicketPart.class, EncTicketPartEncoder.class );
         map.put( AuthenticationReply.class, EncAsRepPartEncoder.class );
         map.put( TicketGrantReply.class, EncTgsRepPartEncoder.class );
@@ -108,8 +105,10 @@ public class LockBox
         Map<EncryptionType, Class> map = new HashMap<EncryptionType, Class>();
 
         map.put( EncryptionType.DES_CBC_MD5, DesCbcMd5Encryption.class );
-        map.put( EncryptionType.DES3_CBC_MD5, Des3CbcMd5Encryption.class );
-        map.put( EncryptionType.DES3_CBC_SHA1, Des3CbcSha1Encryption.class );
+        map.put( EncryptionType.DES3_CBC_SHA1_KD, Des3CbcSha1KdEncryption.class );
+        map.put( EncryptionType.AES128_CTS_HMAC_SHA1_96, Aes128CtsSha1Encryption.class );
+        map.put( EncryptionType.AES256_CTS_HMAC_SHA1_96, Aes256CtsSha1Encryption.class );
+        map.put( EncryptionType.RC4_HMAC, ArcFourHmacMd5Encryption.class );
 
         DEFAULT_CIPHERS = Collections.unmodifiableMap( map );
     }
@@ -120,17 +119,19 @@ public class LockBox
      *
      * @param key The key to use for encrypting.
      * @param encodable The Kerberos object to encode.
+     * @param usage The key usage.
      * @return The Kerberos EncryptedData.
      * @throws KerberosException
      */
-    public EncryptedData seal( EncryptionKey key, Encodable encodable ) throws KerberosException
+    public EncryptedData seal( EncryptionKey key, Encodable encodable, KeyUsage usage ) throws KerberosException
     {
         try
         {
-            return encrypt( key, encode( encodable ) );
+            return encrypt( key, encode( encodable ), usage );
         }
         catch ( IOException ioe )
         {
+            ioe.printStackTrace();
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
         catch ( ClassCastException cce )
@@ -146,17 +147,20 @@ public class LockBox
      * @param hint The class the encrypted data is expected to contain.
      * @param key The key to use for decryption.
      * @param data The data to decrypt.
+     * @param usage The key usage.
      * @return The Kerberos object resulting from a successful decrypt and decode.
      * @throws KerberosException
      */
-    public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data ) throws KerberosException
+    public Encodable unseal( Class hint, EncryptionKey key, EncryptedData data, KeyUsage usage )
+        throws KerberosException
     {
         try
         {
-            return decode( hint, decrypt( key, data ) );
+            return decode( hint, decrypt( key, data, usage ) );
         }
         catch ( IOException ioe )
         {
+            ioe.printStackTrace();
             throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
         catch ( ClassCastException cce )
@@ -166,19 +170,19 @@ public class LockBox
     }
 
 
-    private EncryptedData encrypt( EncryptionKey key, byte[] plainText ) throws KerberosException
+    private EncryptedData encrypt( EncryptionKey key, byte[] plainText, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 
-        return engine.getEncryptedData( key, plainText );
+        return engine.getEncryptedData( key, plainText, usage );
     }
 
 
-    private byte[] decrypt( EncryptionKey key, EncryptedData data ) throws KerberosException
+    private byte[] decrypt( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         EncryptionEngine engine = getEngine( key );
 
-        return engine.getDecryptedData( key, data );
+        return engine.getDecryptedData( key, data, usage );
     }
 
 

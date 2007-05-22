@@ -37,6 +37,9 @@ public class ChangePasswordChain extends IoHandlerChain
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordChain.class );
 
 
+    /**
+     * Creates a new instance of ChangePasswordChain.
+     */
     public ChangePasswordChain()
     {
         if ( log.isDebugEnabled() )
@@ -57,7 +60,6 @@ public class ChangePasswordChain extends IoHandlerChain
             addLast( "monitorContext", new MonitorContext() );
         }
 
-        addLast( "checkPasswordPolicy", new CheckPasswordPolicy() );
         addLast( "processPasswordChange", new ProcessPasswordChange() );
         addLast( "buildReply", new BuildReply() );
 

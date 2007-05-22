@@ -42,6 +42,11 @@ public class ErrorMessageModifier
     private byte[] explanatoryData; //optional
 
 
+    /**
+     * Returns the {@link ErrorMessage}.
+     *
+     * @return The {@link ErrorMessage}.
+     */
     public ErrorMessage getErrorMessage()
     {
         return new ErrorMessage( clientTime, clientMicroSecond, serverTime, serverMicroSecond, errorCode,
@@ -49,54 +54,99 @@ public class ErrorMessageModifier
     }
 
 
+    /**
+     * Sets the client {@link KerberosPrincipal}.
+     *
+     * @param principal
+     */
     public void setClientPrincipal( KerberosPrincipal principal )
     {
         this.clientPrincipal = principal;
     }
 
 
+    /**
+     * Sets the client {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setClientTime( KerberosTime time )
     {
         this.clientTime = time;
     }
 
 
+    /**
+     * Sets the client microsecond.
+     *
+     * @param clientMicroSecond
+     */
     public void setClientMicroSecond( Integer clientMicroSecond )
     {
         this.clientMicroSecond = clientMicroSecond;
     }
 
 
+    /**
+     * Sets the explanatory data.
+     *
+     * @param data
+     */
     public void setExplanatoryData( byte[] data )
     {
         this.explanatoryData = data;
     }
 
 
+    /**
+     * Sets the error code.
+     *
+     * @param code
+     */
     public void setErrorCode( int code )
     {
         this.errorCode = code;
     }
 
 
+    /**
+     * Sets the explanatory text.
+     *
+     * @param text
+     */
     public void setExplanatoryText( String text )
     {
         this.explanatoryText = text;
     }
 
 
+    /**
+     * Sets the server {@link KerberosPrincipal}.
+     *
+     * @param principal
+     */
     public void setServerPrincipal( KerberosPrincipal principal )
     {
         this.serverPrincipal = principal;
     }
 
 
+    /**
+     * Sets the server {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setServerTime( KerberosTime time )
     {
         this.serverTime = time;
     }
 
 
+    /**
+     * Sets the server microsecond.
+     *
+     * @param serverMicroSecond
+     */
     public void setServerMicroSecond( int serverMicroSecond )
     {
         this.serverMicroSecond = serverMicroSecond;

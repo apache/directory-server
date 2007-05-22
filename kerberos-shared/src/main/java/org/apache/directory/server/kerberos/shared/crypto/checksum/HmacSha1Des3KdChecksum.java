@@ -17,23 +17,28 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.crypto.encryption;
+package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
 import java.security.GeneralSecurityException;
 
-import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class Des3CbcEncryption extends EncryptionEngine
+class HmacSha1Des3KdChecksum implements ChecksumEngine
 {
-    public Cipher getCipher() throws GeneralSecurityException
+    public ChecksumType checksumType()
     {
-        return Cipher.getInstance( "DESede/CBC/NoPadding" );
+        return ChecksumType.HMAC_SHA1_DES3_KD;
     }
 
 
@@ -43,14 +48,21 @@ public abstract class Des3CbcEncryption extends EncryptionEngine
     }
 
 
-    public int blockSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 8;
-    }
+        try
+        {
+            SecretKey sk = new SecretKeySpec( key, "DESede" );
 
+            Mac mac = Mac.getInstance( "HmacSHA1" );
+            mac.init( sk );
 
-    public int keySize()
-    {
-        return 24;
+            return mac.doFinal( data );
+        }
+        catch ( GeneralSecurityException nsae )
+        {
+            nsae.printStackTrace();
+            return null;
+        }
     }
 }

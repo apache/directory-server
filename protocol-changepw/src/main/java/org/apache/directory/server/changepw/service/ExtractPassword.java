@@ -28,12 +28,13 @@ import org.apache.directory.server.changepw.io.ChangePasswordDataDecoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -51,13 +52,14 @@ public class ExtractPassword implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
         Authenticator authenticator = changepwContext.getAuthenticator();
-        LockBox lockBox = changepwContext.getLockBox();
+        CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         // TODO - check ticket is for service authorized to change passwords
         // ticket.getServerPrincipal().getName().equals(config.getChangepwPrincipal().getName()));
@@ -74,7 +76,8 @@ public class ExtractPassword implements IoHandlerCommand
 
         try
         {
-            privatePart = ( EncKrbPrivPart ) lockBox.unseal( EncKrbPrivPart.class, subSessionKey, encReqPrivPart );
+            privatePart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey,
+                encReqPrivPart, KeyUsage.NUMBER13 );
         }
         catch ( KerberosException ke )
         {
@@ -112,7 +115,7 @@ public class ExtractPassword implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

@@ -39,7 +39,13 @@ public class CallbackHandlerBean implements CallbackHandler
     private String password;
 
 
-    public CallbackHandlerBean(String name, String password)
+    /**
+     * Creates a new instance of CallbackHandlerBean.
+     *
+     * @param name
+     * @param password
+     */
+    public CallbackHandlerBean( String name, String password )
     {
         this.name = name;
         this.password = password;

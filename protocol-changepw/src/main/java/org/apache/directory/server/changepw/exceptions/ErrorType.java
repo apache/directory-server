@@ -34,43 +34,78 @@ import java.util.List;
  */
 public final class ErrorType implements Comparable
 {
-    /*
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+    /**
+     * Constant for the "Request failed due to being malformed" error type.
      */
     public static final ErrorType KRB5_KPASSWD_MALFORMED = new ErrorType( 1, "Request failed due to being malformed." );
+
+    /**
+     * Constant for the "Request failed due to a hard error in processing the request" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_HARDERROR = new ErrorType( 2,
         "Request failed due to a hard error in processing the request." );
+
+    /**
+     * Constant for the "Request failed due to an error in authentication processing" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_AUTHERROR = new ErrorType( 3,
         "Request failed due to an error in authentication processing." );
+
+    /**
+     * Constant for the "Request failed due to a soft error in processing the request" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_SOFTERROR = new ErrorType( 4,
         "Request failed due to a soft error in processing the request." );
+
+    /**
+     * Constant for the "Requestor not authorized" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_ACCESSDENIED = new ErrorType( 5, "Requestor not authorized." );
+
+    /**
+     * Constant for the "Protocol version unsupported" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_BAD_VERSION = new ErrorType( 6, "Protocol version unsupported." );
+
+    /**
+     * Constant for the "Initial flag required" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_INITIAL_FLAG_NEEDED = new ErrorType( 7, "Initial flag required." );
+
+    /**
+     * Constant for the "Request failed for an unknown reason" error type.
+     */
     public static final ErrorType KRB5_KPASSWD_UNKNOWN_ERROR = new ErrorType( 8,
         "Request failed for an unknown reason." );
 
-    /** Array for building a List of VALUES. */
+    /**
+     * Array for building a List of VALUES.
+     */
     private static final ErrorType[] values =
         { KRB5_KPASSWD_MALFORMED, KRB5_KPASSWD_HARDERROR, KRB5_KPASSWD_AUTHERROR, KRB5_KPASSWD_SOFTERROR,
             KRB5_KPASSWD_ACCESSDENIED, KRB5_KPASSWD_BAD_VERSION, KRB5_KPASSWD_INITIAL_FLAG_NEEDED,
             KRB5_KPASSWD_UNKNOWN_ERROR };
 
-    /** a list of all the error type constants */
+    /**
+     * A list of all the error type constants.
+     */
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
-    /** the name of the error type */
+    /**
+     * The name of the error type.
+     */
     private final String name;
 
-    /** the value/code for the error type */
+    /**
+     * The value/code for the error type.
+     */
     private final int ordinal;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ErrorType(int ordinal, String name)
+    private ErrorType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;

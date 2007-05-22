@@ -26,51 +26,108 @@ package org.apache.directory.server.kerberos.shared.messages.value;
  */
 public class KdcOptions extends Options
 {
-    // KDC option - reserved
+    /**
+     * KDC option - reserved.
+     */
     public static final int RESERVED = 0;
-    // KDC option - forwardable
+    /**
+     * KDC option - forwardable.
+     */
     public static final int FORWARDABLE = 1;
-    // KDC option - forwarded
+
+    /**
+     * KDC option - forwarded.
+     */
     public static final int FORWARDED = 2;
-    // KDC option - proxiable
+
+    /**
+     * KDC option - proxiable.
+     */
     public static final int PROXIABLE = 3;
-    // KDC option - proxy
+
+    /**
+     * KDC option - proxy.
+     */
     public static final int PROXY = 4;
-    // KDC option - allow postdate
+
+    /**
+     * KDC option - allow postdate.
+     */
     public static final int ALLOW_POSTDATE = 5;
-    // KDC option - postdated
+
+    /**
+     * KDC option - postdated.
+     */
     public static final int POSTDATED = 6;
-    // KDC option - unused7
+
+    /**
+     * KDC option - unused7.
+     */
     public static final int UNUSED7 = 7;
-    // KDC option - renewable
+
+    /**
+     * KDC option - renewable.
+     */
     public static final int RENEWABLE = 8;
-    // KDC option - unused9
+
+    /**
+     * KDC option - unused9.
+     */
     public static final int UNUSED9 = 9;
-    // KDC option - unused10
+
+    /**
+     * KDC option - unused10.
+     */
     public static final int UNUSED10 = 10;
-    // KDC option - unused11
+
+    /**
+     * KDC option - unused11.
+     */
     public static final int UNUSED11 = 11;
-    // KDC option - unused12
+
+    /**
+     * KDC option - unused12.
+     */
     public static final int UNUSED12 = 12;
-    // KDC option - unused13
+
+    /**
+     * KDC option - unused13.
+     */
     public static final int UNUSED13 = 13;
-    // KDC option - disable transisted checked
+
+    /**
+     * KDC option - disable transisted checked.
+     */
     public static final int DISABLE_TRANSISTED_CHECKED = 26;
-    // KDC option - renewable is ok
+
+    /**
+     * KDC option - renewable is ok.
+     */
     public static final int RENEWABLE_OK = 27;
-    // KDC option - encrypted key in skey
+
+    /**
+     * KDC option - encrypted key in skey.
+     */
     public static final int ENC_TKT_IN_SKEY = 28;
-    // KDC option - renew
+
+    /**
+     * KDC option - renew.
+     */
     public static final int RENEW = 30;
-    // KDC option - validate
+
+    /**
+     * KDC option - validate.
+     */
     public static final int VALIDATE = 31;
 
-    // KDC option - maximum value
+    /**
+     * KDC option - maximum value.
+     */
     public static final int MAX_VALUE = 32;
 
 
     /**
-     * Class constructors
+     * Creates a new instance of KdcOptions.
      */
     public KdcOptions()
     {
@@ -78,7 +135,12 @@ public class KdcOptions extends Options
     }
 
 
-    public KdcOptions(byte[] bytes)
+    /**
+     * Creates a new instance of KdcOptions.
+     *
+     * @param bytes
+     */
+    public KdcOptions( byte[] bytes )
     {
         super( MAX_VALUE );
         setBytes( bytes );
@@ -86,7 +148,7 @@ public class KdcOptions extends Options
 
 
     /**
-     * Converts the object to a printable string
+     * Converts the object to a printable string.
      */
     public String toString()
     {

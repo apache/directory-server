@@ -17,52 +17,52 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.crypto.encryption;
+package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
+import java.security.GeneralSecurityException;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Des3CbcMd5Encryption extends Des3CbcEncryption
+class HmacSha196Aes128Checksum implements ChecksumEngine
 {
-    public ChecksumEngine getChecksumEngine()
-    {
-        return new RsaMd5Checksum();
-    }
-
-
-    public EncryptionType encryptionType()
-    {
-        return EncryptionType.DES3_CBC_MD5;
-    }
-
-
     public ChecksumType checksumType()
     {
-        return ChecksumType.RSA_MD5;
+        return ChecksumType.HMAC_SHA1_96_AES128;
     }
 
 
-    public int confounderSize()
+    public CipherType keyType()
     {
-        return 8;
+        return CipherType.AES;
     }
 
 
-    public int checksumSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 16;
-    }
+        try
+        {
+            SecretKey sk = new SecretKeySpec( key, "AES" );
 
+            Mac mac = Mac.getInstance( "HmacSHA1" );
+            mac.init( sk );
 
-    public int minimumPadSize()
-    {
-        return 0;
+            return mac.doFinal( data );
+        }
+        catch ( GeneralSecurityException nsae )
+        {
+            nsae.printStackTrace();
+            return null;
+        }
     }
 }

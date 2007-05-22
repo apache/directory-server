@@ -64,20 +64,20 @@ public class DnsConfiguration extends ServiceConfiguration
      * Creates a new instance with default settings that operates on the
      * {@link DirectoryService} with the specified ID.
      */
-    public DnsConfiguration(String instanceId)
+    public DnsConfiguration( String instanceId )
     {
         this( getDefaultConfig(), LoadStrategy.LDAP );
         setInstanceId( instanceId );
     }
 
 
-    public DnsConfiguration( Map<String, String> properties )
+    public DnsConfiguration( Map<String, Object> properties )
     {
         this( properties, LoadStrategy.LDAP );
     }
 
 
-    public DnsConfiguration( Map<String, String> properties, int strategy )
+    public DnsConfiguration( Map<String, Object> properties, int strategy )
     {
         if ( properties == null )
         {
@@ -97,9 +97,9 @@ public class DnsConfiguration extends ServiceConfiguration
     }
 
 
-    public static Map<String, String> getDefaultConfig()
+    public static Map<String, Object> getDefaultConfig()
     {
-        Map<String, String> defaults = new HashMap<String, String>();
+        Map<String, Object> defaults = new HashMap<String, Object>();
 
         defaults.put( SERVICE_PID, DEFAULT_PID );
         defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );

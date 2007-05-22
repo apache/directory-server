@@ -20,17 +20,22 @@
 package org.apache.directory.server.kerberos.shared.store.operations;
 
 
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -57,8 +62,10 @@ public class GetPrincipal implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
+     * 
+     * @param principal 
      */
-    public GetPrincipal(KerberosPrincipal principal)
+    public GetPrincipal( KerberosPrincipal principal )
     {
         this.principal = principal;
     }
@@ -77,7 +84,7 @@ public class GetPrincipal implements ContextOperation
 
         String[] attrIDs =
             { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY,
-                KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED, 
+                KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED,
                 KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
         Attributes matchAttrs = new AttributesImpl( true );
@@ -128,28 +135,28 @@ public class GetPrincipal implements ContextOperation
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get(); 
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_DISABLED ).get();
             modifier.setDisabled( "true".equalsIgnoreCase( val ) );
         }
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get(); 
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_LOCKEDOUT ).get();
             modifier.setLockedOut( "true".equalsIgnoreCase( val ) );
         }
-        
+
         if ( attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ) != null )
         {
-            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ).get(); 
+            String val = ( String ) attrs.get( KerberosAttribute.ACCOUNT_EXPIRATION_TIME ).get();
             try
             {
                 modifier.setExpiration( KerberosTime.getTime( val ) );
             }
             catch ( ParseException e )
             {
-                throw new InvalidAttributeValueException( "Account expiration attribute " +
-                    KerberosAttribute.ACCOUNT_EXPIRATION_TIME 
-                    + " contained an invalid value for generalizedTime: " + val );
+                throw new InvalidAttributeValueException( "Account expiration attribute "
+                    + KerberosAttribute.ACCOUNT_EXPIRATION_TIME + " contained an invalid value for generalizedTime: "
+                    + val );
             }
         }
 
@@ -159,22 +166,24 @@ public class GetPrincipal implements ContextOperation
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        Object key = attrs.get( KerberosAttribute.KEY ).get();
-        byte[] keyBytes = null;
-
-        if ( key instanceof String )
+        if ( attrs.get( KerberosAttribute.KEY ) != null )
         {
-            String msg = "JNDI should not return a string for the kerberos key: JNDI property java.naming.ldap.attributes.binary must include the krb5key attribute.";
-            throw new NamingException( msg );
+            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            try
+            {
+                Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
+                modifier.setKeyMap( keyMap );
+            }
+            catch ( IOException ioe )
+            {
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                    + "' contained an invalid value for krb5key." );
+            }
         }
-
-        keyBytes = ( byte[] ) key;
-        modifier.setKey( keyBytes );
 
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
         modifier.setEncryptionType( Integer.parseInt( encryptionType ) );
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
         return modifier.getEntry();
     }
-    
 }

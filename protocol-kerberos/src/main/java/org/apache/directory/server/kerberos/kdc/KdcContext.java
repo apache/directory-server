@@ -22,9 +22,10 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -41,7 +42,8 @@ public class KdcContext
     private KdcRequest request;
     private KerberosMessage reply;
     private InetAddress clientAddress;
-    private LockBox lockBox;
+    private CipherTextHandler cipherTextHandler;
+    private EncryptionType encryptionType;
 
 
     /**
@@ -135,19 +137,41 @@ public class KdcContext
 
 
     /**
-     * @return Returns the lockBox.
+     * @return Returns the {@link CipherTextHandler}.
      */
-    public LockBox getLockBox()
+    public CipherTextHandler getCipherTextHandler()
     {
-        return lockBox;
+        return cipherTextHandler;
     }
 
 
     /**
-     * @param lockBox The lockBox to set.
+     * @param cipherTextHandler The {@link CipherTextHandler} to set.
      */
-    public void setLockBox( LockBox lockBox )
+    public void setCipherTextHandler( CipherTextHandler cipherTextHandler )
     {
-        this.lockBox = lockBox;
+        this.cipherTextHandler = cipherTextHandler;
+    }
+
+
+    /**
+     * Returns the encryption type to use for this session.
+     *
+     * @return The encryption type.
+     */
+    public EncryptionType getEncryptionType()
+    {
+        return encryptionType;
+    }
+
+
+    /**
+     * Sets the encryption type to use for this session.
+     *
+     * @param encryptionType The encryption type to set.
+     */
+    public void setEncryptionType( EncryptionType encryptionType )
+    {
+        this.encryptionType = encryptionType;
     }
 }

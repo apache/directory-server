@@ -40,6 +40,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptedDataDecoder
 {
+    /**
+     * Decodes a byte array into an {@link EncryptedData}.
+     *
+     * @param encodedEncryptedData
+     * @return The {@link EncryptedData}.
+     * @throws IOException
+     */
     public static EncryptedData decode( byte[] encodedEncryptedData ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedEncryptedData );
@@ -51,11 +58,16 @@ public class EncryptedDataDecoder
 
 
     /**
+     * Decodes a {@link DERSequence} into an {@link EncryptedData}.
+     * 
      * EncryptedData ::=   SEQUENCE {
      *             etype[0]     INTEGER, -- EncryptionEngine
      *             kvno[1]      INTEGER OPTIONAL,
      *             cipher[2]    OCTET STRING -- ciphertext
      * }
+     * 
+     * @param sequence 
+     * @return The {@link EncryptedData}.
      */
     public static EncryptedData decode( DERSequence sequence )
     {

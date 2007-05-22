@@ -33,11 +33,11 @@ import org.apache.directory.server.kerberos.shared.messages.Encodable;
  */
 public class AuthorizationData implements Encodable
 {
-    private List entries = new ArrayList();
+    private List<AuthorizationDataEntry> entries = new ArrayList<AuthorizationDataEntry>();
 
 
     /**
-     * Class constructor
+     * Creates a new instance of AuthorizationData.
      */
     public AuthorizationData()
     {
@@ -45,18 +45,33 @@ public class AuthorizationData implements Encodable
     }
 
 
+    /**
+     * Adds all {@link AuthorizationData} entries to this {@link AuthorizationData}.
+     *
+     * @param data
+     */
     public void add( AuthorizationData data )
     {
         entries.addAll( data.entries );
     }
 
 
+    /**
+     * Adds an {@link AuthorizationDataEntry} to this {@link AuthorizationData}.
+     *
+     * @param entry
+     */
     public void add( AuthorizationDataEntry entry )
     {
         entries.add( entry );
     }
 
 
+    /**
+     * Returns an {@link Iterator} over the entries in this {@link AuthorizationData}.
+     *
+     * @return An {@link Iterator} over the entries in this {@link AuthorizationData}.
+     */
     public Iterator iterator()
     {
         return entries.iterator();

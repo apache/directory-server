@@ -34,13 +34,23 @@ public class ApplicationReply extends KerberosMessage
     private EncryptedData encryptedPart;
 
 
-    public ApplicationReply(EncryptedData encPart)
+    /**
+     * Creates a new instance of ApplicationReply.
+     *
+     * @param encPart
+     */
+    public ApplicationReply( EncryptedData encPart )
     {
         super( MessageType.KRB_AP_REP );
         encryptedPart = encPart;
     }
 
 
+    /**
+     * Returns the {@link EncryptedData}.
+     *
+     * @return The {@link EncryptedData}.
+     */
     public EncryptedData getEncPart()
     {
         return encryptedPart;

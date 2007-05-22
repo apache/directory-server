@@ -32,6 +32,9 @@ public class EncTgsRepPartEncoder extends EncKdcRepPartEncoder implements Encode
     public static final int APPLICATION_CODE = 26;
 
 
+    /**
+     * Creates a new instance of EncTgsRepPartEncoder.
+     */
     public EncTgsRepPartEncoder()
     {
         super( APPLICATION_CODE );

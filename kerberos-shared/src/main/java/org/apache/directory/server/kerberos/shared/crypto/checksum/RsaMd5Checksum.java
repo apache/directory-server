@@ -24,20 +24,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class RsaMd5Checksum extends ChecksumEngine
+class RsaMd5Checksum implements ChecksumEngine
 {
-    public MessageDigest getDigest() throws NoSuchAlgorithmException
-    {
-        return MessageDigest.getInstance( "MD5" );
-    }
-
-
     public ChecksumType checksumType()
     {
         return ChecksumType.RSA_MD5;
@@ -50,38 +45,16 @@ public class RsaMd5Checksum extends ChecksumEngine
     }
 
 
-    public int checksumSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 16;
-    }
-
-
-    public int keySize()
-    {
-        return 0;
-    }
-
-
-    public int confounderSize()
-    {
-        return 0;
-    }
-
-
-    public boolean isSafe()
-    {
-        return false;
-    }
-
-
-    public byte[] calculateKeyedChecksum( byte[] data, byte[] key )
-    {
-        return null;
-    }
-
-
-    public boolean verifyKeyedChecksum( byte[] data, byte[] key, byte[] checksum )
-    {
-        return false;
+        try
+        {
+            MessageDigest digester = MessageDigest.getInstance( "MD5" );
+            return digester.digest( data );
+        }
+        catch ( NoSuchAlgorithmException nsae )
+        {
+            return null;
+        }
     }
 }

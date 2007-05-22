@@ -42,9 +42,22 @@ public class ErrorMessage extends KerberosMessage
     private byte[] explanatoryData; //optional
 
 
-    public ErrorMessage(KerberosTime clientTime, Integer clientMicroSecond, KerberosTime serverTime,
+    /**
+     * Creates a new instance of ErrorMessage.
+     *
+     * @param clientTime
+     * @param clientMicroSecond
+     * @param serverTime
+     * @param serverMicroSecond
+     * @param errorCode
+     * @param clientPrincipal
+     * @param serverPrincipal
+     * @param explanatoryText
+     * @param explanatoryData
+     */
+    public ErrorMessage( KerberosTime clientTime, Integer clientMicroSecond, KerberosTime serverTime,
         int serverMicroSecond, int errorCode, KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
-        String explanatoryText, byte[] explanatoryData)
+        String explanatoryText, byte[] explanatoryData )
     {
         super( MessageType.KRB_ERROR );
 
@@ -60,54 +73,99 @@ public class ErrorMessage extends KerberosMessage
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return clientPrincipal;
     }
 
 
+    /**
+     * Returns the client {@link KerberosTime}.
+     *
+     * @return The client {@link KerberosTime}.
+     */
     public KerberosTime getClientTime()
     {
         return clientTime;
     }
 
 
+    /**
+     * Returns the client microsecond.
+     *
+     * @return The client microsecond.
+     */
     public Integer getClientMicroSecond()
     {
         return clientMicroSecond;
     }
 
 
+    /**
+     * Returns the explanatory data.
+     *
+     * @return The explanatory data.
+     */
     public byte[] getExplanatoryData()
     {
         return explanatoryData;
     }
 
 
+    /**
+     * Returns the error code.
+     *
+     * @return The error code.
+     */
     public int getErrorCode()
     {
         return errorCode;
     }
 
 
+    /**
+     * Returns the explanatory text.
+     *
+     * @return The explanatory text.
+     */
     public String getExplanatoryText()
     {
         return explanatoryText;
     }
 
 
+    /**
+     * Returns the server {@link KerberosPrincipal}.
+     *
+     * @return The server {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getServerPrincipal()
     {
         return serverPrincipal;
     }
 
 
+    /**
+     * Returns the server {@link KerberosTime}.
+     *
+     * @return The server {@link KerberosTime}.
+     */
     public KerberosTime getServerTime()
     {
         return serverTime;
     }
 
 
+    /**
+     * Returns the server microsecond.
+     *
+     * @return The server microsecond.
+     */
     public int getServerMicroSecond()
     {
         return serverMicroSecond;

@@ -20,14 +20,9 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import java.util.Map;
-
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.RsaMd5Checksum;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.Sha1Checksum;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -39,26 +34,23 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 public class ConfigureAuthenticationChain implements IoHandlerCommand
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
-    private static final LockBox lockBox = new LockBox();
+    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         authContext.setReplayCache( replayCache );
-        authContext.setLockBox( lockBox );
-
-        Map checksumEngines = authContext.getChecksumEngines();
-        checksumEngines.put( ChecksumType.RSA_MD5, new RsaMd5Checksum() );
-        checksumEngines.put( ChecksumType.SHA1, new Sha1Checksum() );
+        authContext.setCipherTextHandler( cipherTextHandler );
 
         next.execute( session, message );
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

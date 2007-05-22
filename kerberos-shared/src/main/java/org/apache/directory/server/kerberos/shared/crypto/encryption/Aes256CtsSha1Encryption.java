@@ -17,45 +17,32 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.kdc;
+package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SelectChecksumType implements IoHandlerCommand
+public class Aes256CtsSha1Encryption extends AesCtsSha1Encryption
 {
-    public void execute( NextCommand next, IoSession session, Object message ) throws Exception
+    public EncryptionType getEncryptionType()
     {
-        boolean isAllowedChecksumType = true;
-
-        if ( !isAllowedChecksumType )
-        {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
-        }
-
-        next.execute( session, message );
+        return EncryptionType.AES256_CTS_HMAC_SHA1_96;
     }
 
 
-    protected boolean isAllowedChecksumType( ChecksumType requestedType, ChecksumType[] configuredTypes )
+    public ChecksumType checksumType()
     {
-        for ( int ii = 0; ii < configuredTypes.length; ii++ )
-        {
-            if ( requestedType == configuredTypes[ii] )
-            {
-                return true;
-            }
-        }
+        return ChecksumType.HMAC_SHA1_96_AES256;
+    }
 
-        return false;
+
+    public int getKeyLength()
+    {
+        return 256;
     }
 }

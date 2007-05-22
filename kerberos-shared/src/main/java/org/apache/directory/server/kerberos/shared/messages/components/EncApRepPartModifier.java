@@ -36,30 +36,55 @@ public class EncApRepPartModifier
     private Integer sequenceNumber; //optional
 
 
+    /**
+     * Returns the {@link EncApRepPart}.
+     *
+     * @return The {@link EncApRepPart}.
+     */
     public EncApRepPart getEncApRepPart()
     {
         return new EncApRepPart( clientTime, cusec, subSessionKey, sequenceNumber );
     }
 
 
+    /**
+     * Sets the client {@link KerberosTime}.
+     *
+     * @param clientTime
+     */
     public void setClientTime( KerberosTime clientTime )
     {
         this.clientTime = clientTime;
     }
 
 
+    /**
+     * Sets the client microsecond.
+     *
+     * @param cusec
+     */
     public void setClientMicroSecond( int cusec )
     {
         this.cusec = cusec;
     }
 
 
+    /**
+     * Sets the sub-session {@link EncryptionKey}.
+     *
+     * @param subSessionKey
+     */
     public void setSubSessionKey( EncryptionKey subSessionKey )
     {
         this.subSessionKey = subSessionKey;
     }
 
 
+    /**
+     * Sets the sequence number.
+     *
+     * @param sequenceNumber
+     */
     public void setSequenceNumber( Integer sequenceNumber )
     {
         this.sequenceNumber = sequenceNumber;

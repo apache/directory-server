@@ -20,33 +20,29 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
-import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EncryptionEngineFactory
+public class Aes128CtsSha1Encryption extends AesCtsSha1Encryption
 {
-    public static EncryptionEngine getEncryptionEngineFor( EncryptionKey key ) throws KerberosException
+    public EncryptionType getEncryptionType()
     {
-        int type = key.getKeyType().getOrdinal();
+        return EncryptionType.AES128_CTS_HMAC_SHA1_96;
+    }
 
-        switch ( type )
-        {
-            case 0:
-                return new NullEncryption();
-            case 3:
-                return new DesCbcMd5Encryption();
-            case 5:
-                return new Des3CbcMd5Encryption();
-            case 7:
-                return new Des3CbcSha1Encryption();
-        }
 
-        throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
+    public ChecksumType checksumType()
+    {
+        return ChecksumType.HMAC_SHA1_96_AES128;
+    }
+
+
+    public int getKeyLength()
+    {
+        return 128;
     }
 }

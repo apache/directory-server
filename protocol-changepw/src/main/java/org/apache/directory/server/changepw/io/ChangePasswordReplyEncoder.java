@@ -37,6 +37,13 @@ import org.apache.directory.server.kerberos.shared.messages.application.PrivateM
  */
 public class ChangePasswordReplyEncoder
 {
+    /**
+     * Encodes a {@link ChangePasswordReply} into a {@link ByteBuffer}.
+     *
+     * @param buf
+     * @param message
+     * @throws IOException
+     */
     public void encode( ByteBuffer buf, ChangePasswordReply message ) throws IOException
     {
         // Build application reply bytes

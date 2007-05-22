@@ -30,18 +30,33 @@ public class PreAuthenticationDataModifier
     private byte[] dataValue;
 
 
+    /**
+     * Returns the {@link PreAuthenticationData}.
+     *
+     * @return The {@link PreAuthenticationData}.
+     */
     public PreAuthenticationData getPreAuthenticationData()
     {
         return new PreAuthenticationData( dataType, dataValue );
     }
 
 
+    /**
+     * Sets the {@link PreAuthenticationDataType}.
+     *
+     * @param dataType
+     */
     public void setDataType( PreAuthenticationDataType dataType )
     {
         this.dataType = dataType;
     }
 
 
+    /**
+     * Sets the raw bytes of this {@link PreAuthenticationData}.
+     *
+     * @param dataValue
+     */
     public void setDataValue( byte[] dataValue )
     {
         this.dataValue = dataValue;

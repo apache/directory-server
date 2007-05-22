@@ -35,6 +35,13 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
  */
 public class ChangePasswordErrorEncoder
 {
+    /**
+     * Encodes a {@link ChangePasswordError} into a {@link ByteBuffer}.
+     *
+     * @param buf
+     * @param message
+     * @throws IOException
+     */
     public void encode( ByteBuffer buf, ChangePasswordError message ) throws IOException
     {
         // Build error message bytes

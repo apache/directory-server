@@ -37,6 +37,13 @@ import org.apache.directory.server.kerberos.shared.messages.application.PrivateM
  */
 public class ChangePasswordRequestDecoder
 {
+    /**
+     * Decodes a {@link ByteBuffer} into a {@link ChangePasswordRequest}.
+     *
+     * @param buf
+     * @return The {@link ChangePasswordRequest}.
+     * @throws IOException
+     */
     public ChangePasswordRequest decode( ByteBuffer buf ) throws IOException
     {
         ChangePasswordRequestModifier modifier = new ChangePasswordRequestModifier();

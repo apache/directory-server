@@ -46,9 +46,13 @@ public class AuthenticatorModifier
     private AuthorizationData authorizationData;
 
 
+    /**
+     * Returns the {@link Authenticator}.
+     *
+     * @return The {@link Authenticator}.
+     */
     public Authenticator getAuthenticator()
     {
-
         KerberosPrincipal clientPrincipal = clientModifier.getKerberosPrincipal();
 
         return new Authenticator( versionNumber, clientPrincipal, checksum, clientMicroSecond, clientTime,
@@ -56,54 +60,99 @@ public class AuthenticatorModifier
     }
 
 
+    /**
+     * Sets the version number.
+     *
+     * @param versionNumber
+     */
     public void setVersionNumber( int versionNumber )
     {
         this.versionNumber = versionNumber;
     }
 
 
+    /**
+     * Sets the client {@link PrincipalName}.
+     *
+     * @param name
+     */
     public void setClientName( PrincipalName name )
     {
         clientModifier.setPrincipalName( name );
     }
 
 
+    /**
+     * Sets the client realm.
+     *
+     * @param realm
+     */
     public void setClientRealm( String realm )
     {
         clientModifier.setRealm( realm );
     }
 
 
+    /**
+     * Sets the {@link AuthorizationData}.
+     *
+     * @param data
+     */
     public void setAuthorizationData( AuthorizationData data )
     {
         authorizationData = data;
     }
 
 
+    /**
+     * Sets the {@link Checksum}.
+     *
+     * @param checksum
+     */
     public void setChecksum( Checksum checksum )
     {
         this.checksum = checksum;
     }
 
 
+    /**
+     * Sets the client microsecond.
+     *
+     * @param microSecond
+     */
     public void setClientMicroSecond( int microSecond )
     {
         clientMicroSecond = microSecond;
     }
 
 
+    /**
+     * Sets the client {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setClientTime( KerberosTime time )
     {
         clientTime = time;
     }
 
 
+    /**
+     * Sets the sequence number.
+     *
+     * @param number
+     */
     public void setSequenceNumber( int number )
     {
         sequenceNumber = number;
     }
 
 
+    /**
+     * Sets the sub-session {@link EncryptionKey}.
+     *
+     * @param sessionKey
+     */
     public void setSubSessionKey( EncryptionKey sessionKey )
     {
         subSessionKey = sessionKey;

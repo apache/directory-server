@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import org.apache.directory.server.kerberos.shared.service.SessionKeyFactory;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -39,7 +39,7 @@ public class GetSessionKey implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
-        authContext.setSessionKey( SessionKeyFactory.getSessionKey() );
+        authContext.setSessionKey( RandomKeyFactory.getRandomKey( authContext.getEncryptionType() ) );
 
         next.execute( session, message );
     }

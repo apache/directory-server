@@ -34,8 +34,17 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     private PrivateMessage privateMessage;
 
 
-    public ChangePasswordRequest(short messageLength, short versionNumber, short authHeaderLength,
-        ApplicationRequest authHeader, PrivateMessage privateMessage)
+    /**
+     * Creates a new instance of ChangePasswordRequest.
+     *
+     * @param messageLength
+     * @param versionNumber
+     * @param authHeaderLength
+     * @param authHeader
+     * @param privateMessage
+     */
+    public ChangePasswordRequest( short messageLength, short versionNumber, short authHeaderLength,
+        ApplicationRequest authHeader, PrivateMessage privateMessage )
     {
         super( messageLength, versionNumber, authHeaderLength );
 
@@ -44,12 +53,22 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     }
 
 
+    /**
+     * Returns the {@link ApplicationRequest}.
+     *
+     * @return The {@link ApplicationRequest}.
+     */
     public ApplicationRequest getAuthHeader()
     {
         return authHeader;
     }
 
 
+    /**
+     * Returns the {@link PrivateMessage}.
+     *
+     * @return The {@link PrivateMessage}.
+     */
     public PrivateMessage getPrivateMessage()
     {
         return privateMessage;

@@ -17,52 +17,53 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.crypto.encryption;
+
+package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.Sha1Checksum;
+import java.util.zip.CRC32;
+
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Des3CbcSha1Encryption extends Des3CbcEncryption
+public class Crc32Checksum implements ChecksumEngine
 {
-    public ChecksumEngine getChecksumEngine()
-    {
-        return new Sha1Checksum();
-    }
-
-
-    public EncryptionType encryptionType()
-    {
-        return EncryptionType.DES3_CBC_SHA1;
-    }
-
-
     public ChecksumType checksumType()
     {
-        return ChecksumType.SHA1;
+        return ChecksumType.CRC32;
     }
 
 
-    public int confounderSize()
+    public CipherType keyType()
     {
-        return 8;
+        return CipherType.NULL;
     }
 
 
-    public int checksumSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 20;
+        CRC32 crc32 = new CRC32();
+        crc32.update( data );
+
+        return int2octet( ( int ) crc32.getValue() );
     }
 
 
-    public int minimumPadSize()
+    private byte[] int2octet( int value )
     {
-        return 0;
+        byte[] bytes = new byte[4];
+        int i, shift;
+
+        for ( i = 0, shift = 24; i < 4; i++, shift -= 8 )
+        {
+            bytes[i] = ( byte ) ( 0xFF & ( value >> shift ) );
+        }
+
+        return bytes;
     }
 }

@@ -76,7 +76,7 @@ public abstract class ServiceConfiguration extends Configuration
     public static final int MINUTE = 60000;
 
     /** the map of configuration */
-    protected Map configuration = new HashMap();
+    protected Map<String, Object> configuration = new HashMap<String, Object>();
 
 
     public String getCatalogBaseDn()
@@ -118,9 +118,9 @@ public abstract class ServiceConfiguration extends Configuration
     }
 
 
-    public Hashtable toJndiEnvironment()
+    public Hashtable<String, Object> toJndiEnvironment()
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JNDI_KEY, this );
         env.putAll( configuration );
 

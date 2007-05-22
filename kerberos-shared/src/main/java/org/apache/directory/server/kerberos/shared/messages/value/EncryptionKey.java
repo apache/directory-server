@@ -26,6 +26,9 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 
 
 /**
+ * A Kerberos symmetric encryption key, which includes metadata support for
+ * the associated key type and key version number.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -36,26 +39,83 @@ public class EncryptionKey
     private int keyVersion;
 
 
-    public EncryptionKey(EncryptionType keyType, byte[] keyValue)
+    /**
+     * Creates a new instance of EncryptionKey.
+     *
+     * @param keyType
+     * @param keyValue
+     */
+    public EncryptionKey( EncryptionType keyType, byte[] keyValue )
     {
         this.keyType = keyType;
         this.keyValue = keyValue;
     }
 
 
-    public EncryptionKey(EncryptionType keyType, byte[] keyValue, int keyVersion)
+    /**
+     * Creates a new instance of EncryptionKey.  This constructor supports 'keyVersion',
+     * which is sent over the wire as part of EncryptedData but makes more sense
+     * in the domain model to have here as part of the key itself.  Therefore, the
+     * keyVersion should only be constructor-injected when EncryptionKey's are
+     * retrieved from persisted storage.
+     *
+     * @param keyType
+     * @param keyValue
+     * @param keyVersion
+     */
+    public EncryptionKey( EncryptionType keyType, byte[] keyValue, int keyVersion )
     {
         this.keyType = keyType;
         this.keyValue = keyValue;
-        /**
-         * keyVersion is sent over the wire as part of EncryptedData but makes more sense
-         * in the domain model to have here as part of the key itself.  Therefore, the
-         * keyVersion should only be constructor-injected when EncryptionKey's are
-         * retrieved from persisted storage.
-         * 
-         * TODO - keyVersion may move into persisted user configuration
-         */
         this.keyVersion = keyVersion;
+    }
+
+
+    /**
+     * Destroys this key by overwriting the symmetric key material with zeros.
+     */
+    public synchronized void destroy()
+    {
+        if ( keyValue != null )
+        {
+            for ( int ii = 0; ii < keyValue.length; ii++ )
+            {
+                keyValue[ii] = 0;
+            }
+        }
+    }
+
+
+    /**
+     * Returns the key type.
+     *
+     * @return The key type.
+     */
+    public EncryptionType getKeyType()
+    {
+        return keyType;
+    }
+
+
+    /**
+     * Returns the key value.
+     *
+     * @return The key value.
+     */
+    public byte[] getKeyValue()
+    {
+        return keyValue;
+    }
+
+
+    /**
+     * Returns the key version.
+     *
+     * @return The key version.
+     */
+    public int getKeyVersion()
+    {
+        return keyVersion;
     }
 
 
@@ -76,38 +136,8 @@ public class EncryptionKey
     }
 
 
-    public synchronized void destroy()
-    {
-        if ( keyValue != null )
-        {
-            for ( int ii = 0; ii < keyValue.length; ii++ )
-            {
-                keyValue[ii] = 0;
-            }
-        }
-    }
-
-
     public String toString()
     {
         return keyType.toString() + " (" + keyType.getOrdinal() + ")";
-    }
-
-
-    public EncryptionType getKeyType()
-    {
-        return keyType;
-    }
-
-
-    public byte[] getKeyValue()
-    {
-        return keyValue;
-    }
-
-
-    public int getKeyVersion()
-    {
-        return keyVersion;
     }
 }

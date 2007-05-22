@@ -32,34 +32,83 @@ import java.util.List;
 public final class PrincipalNameType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "unknown name type" principal name type.
      */
     public static final PrincipalNameType KRB_NT_UNKNOWN = new PrincipalNameType( 0, "unknown name type" );
+
+    /**
+     * Constant for the "user principal name type" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_PRINCIPAL = new PrincipalNameType( 1, "user principal name type" );
+
+    /**
+     * Constant for the "service and other unique instance (krbtgt) name type" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_SRV_INST = new PrincipalNameType( 2,
         "service and other unique instance (krbtgt) name type" );
+
+    /**
+     * Constant for the "service with host name as instance (telnet, rcommands)" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_SRV_HST = new PrincipalNameType( 3,
         "service with host name as instance (telnet, rcommands)" );
+
+    /**
+     * Constant for the "service with host name as instance (telnet, rcommands) name type" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_SRV_XHST = new PrincipalNameType( 4,
         "service with host name as instance (telnet, rcommands) name type" );
+
+    /**
+     * Constant for the "unique ID name type" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_UID = new PrincipalNameType( 5, "unique ID name type" );
+
+    /**
+     * Constant for the "nt x500 principal; encoded X.509 Distinguished name [RFC 2253]" principal name type.
+     */
     public static final PrincipalNameType KRB_NT_X500_PRINCIPAL = new PrincipalNameType( 6,
         "nt x500 principal; encoded X.509 Distinguished name [RFC 2253]" );
 
+    /**
+     * Array for building a List of VALUES.
+     */
+    private static final PrincipalNameType[] values =
+        { KRB_NT_UNKNOWN, KRB_NT_PRINCIPAL, KRB_NT_SRV_INST, KRB_NT_SRV_HST, KRB_NT_SRV_XHST, KRB_NT_UID,
+            KRB_NT_X500_PRINCIPAL };
 
-    public String toString()
+    /**
+     * A List of all the principal name type constants.
+     */
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    /**
+     * The name of the principal name type.
+     */
+    private final String name;
+
+    /**
+     * The value/code for the principal name type.
+     */
+    private final int ordinal;
+
+
+    /**
+     * Private constructor prevents construction outside of this class.
+     */
+    private PrincipalNameType( int ordinal, String name )
     {
-        return name + " (" + ordinal + ")";
+        this.ordinal = ordinal;
+        this.name = name;
     }
 
 
-    public int compareTo( Object that )
-    {
-        return ordinal - ( ( PrincipalNameType ) that ).ordinal;
-    }
-
-
+    /**
+     * Returns the principal name type when specified by its ordinal.
+     *
+     * @param type
+     * @return The principal name type.
+     */
     public static PrincipalNameType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -74,31 +123,25 @@ public final class PrincipalNameType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this principal name type.
+     *
+     * @return The principal name type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
-    /// PRIVATE /////
-    private final String name;
-    private final int ordinal;
 
-
-    /**
-     * Private constructor prevents construction outside of this class.
-     */
-    private PrincipalNameType(int ordinal, String name)
+    public int compareTo( Object that )
     {
-        this.ordinal = ordinal;
-        this.name = name;
+        return ordinal - ( ( PrincipalNameType ) that ).ordinal;
     }
 
-    /**
-     * These two lines are all that's necessary to export a List of VALUES.
-     */
-    private static final PrincipalNameType[] values =
-        { KRB_NT_UNKNOWN, KRB_NT_PRINCIPAL, KRB_NT_SRV_INST, KRB_NT_SRV_HST, KRB_NT_SRV_XHST, KRB_NT_UID,
-            KRB_NT_X500_PRINCIPAL };
-    // VALUES needs to be located here, otherwise illegal forward reference
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    public String toString()
+    {
+        return name + " (" + ordinal + ")";
+    }
 }

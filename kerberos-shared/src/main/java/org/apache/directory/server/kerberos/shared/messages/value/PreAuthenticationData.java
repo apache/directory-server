@@ -30,19 +30,35 @@ public class PreAuthenticationData
     private byte[] dataValue;
 
 
-    public PreAuthenticationData(PreAuthenticationDataType dataType, byte[] dataValue)
+    /**
+     * Creates a new instance of PreAuthenticationData.
+     *
+     * @param dataType
+     * @param dataValue
+     */
+    public PreAuthenticationData( PreAuthenticationDataType dataType, byte[] dataValue )
     {
         this.dataType = dataType;
         this.dataValue = dataValue;
     }
 
 
+    /**
+     * Returns the {@link PreAuthenticationDataType}.
+     *
+     * @return The {@link PreAuthenticationDataType}.
+     */
     public PreAuthenticationDataType getDataType()
     {
         return dataType;
     }
 
 
+    /**
+     * Returns the raw bytes of the {@link PreAuthenticationData}.
+     *
+     * @return The raw bytes of the {@link PreAuthenticationData}.
+     */
     public byte[] getDataValue()
     {
         return dataValue;

@@ -32,5 +32,12 @@ import org.apache.directory.server.kerberos.shared.messages.Encodable;
  */
 public interface Decoder
 {
+    /**
+     * Decodes the byte array into an {@link Encodable} object.
+     *
+     * @param object
+     * @return The {@link Encodable} object.
+     * @throws IOException
+     */
     public Encodable decode( byte[] object ) throws IOException;
 }

@@ -34,8 +34,17 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     private PrivateMessage privateMessage;
 
 
-    public ChangePasswordReply(short messageLength, short versionNumber, short authHeaderLength,
-        ApplicationReply applicationReply, PrivateMessage privateMessage)
+    /**
+     * Creates a new instance of ChangePasswordReply.
+     *
+     * @param messageLength
+     * @param versionNumber
+     * @param authHeaderLength
+     * @param applicationReply
+     * @param privateMessage
+     */
+    public ChangePasswordReply( short messageLength, short versionNumber, short authHeaderLength,
+        ApplicationReply applicationReply, PrivateMessage privateMessage )
     {
         super( messageLength, versionNumber, authHeaderLength );
 
@@ -44,12 +53,22 @@ public class ChangePasswordReply extends AbstractPasswordMessage
     }
 
 
+    /**
+     * Returns the {@link ApplicationReply}.
+     *
+     * @return The {@link ApplicationReply}.
+     */
     public ApplicationReply getApplicationReply()
     {
         return applicationReply;
     }
 
 
+    /**
+     * Returns the {@link PrivateMessage}.
+     *
+     * @return The {@link PrivateMessage}.
+     */
     public PrivateMessage getPrivateMessage()
     {
         return privateMessage;

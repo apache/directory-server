@@ -53,7 +53,16 @@ public class KerberosServer
     private IoHandler handler;
 
 
-    public KerberosServer( KdcConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, PrincipalStore store )
+    /**
+     * Creates a new instance of KerberosServer.
+     *
+     * @param config
+     * @param acceptor
+     * @param serviceConfig
+     * @param store
+     */
+    public KerberosServer( KdcConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig,
+        PrincipalStore store )
     {
         this.config = config;
         this.acceptor = acceptor;
@@ -64,7 +73,7 @@ public class KerberosServer
 
         try
         {
-            handler = new KerberosProtocolHandler( new KdcConfiguration(), this.store );
+            handler = new KerberosProtocolHandler( config, this.store );
 
             acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
@@ -77,12 +86,21 @@ public class KerberosServer
     }
 
 
+    /**
+     * Returns whether configuration being proposed as new is really different.
+     *
+     * @param newConfig
+     * @return Whether configuration being proposed as new is really different.
+     */
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
 
 
+    /**
+     * Destroys this instance of KerberosServer.
+     */
     public void destroy()
     {
         acceptor.unbind( new InetSocketAddress( config.getPort() ) );

@@ -22,8 +22,6 @@ package org.apache.directory.server.changepw.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.changepw.service.CheckPasswordPolicy;
-
 import junit.framework.TestCase;
 
 
@@ -42,6 +40,9 @@ public class CheckPasswordPolicyTest extends TestCase
     private CheckPasswordPolicy policy = new CheckPasswordPolicy();
 
 
+    /**
+     * Tests that a good password is valid according to all policy checks.
+     */
     public void testGoodPassword()
     {
         String username = "Enrique Rodriguez";
@@ -53,6 +54,9 @@ public class CheckPasswordPolicyTest extends TestCase
     }
 
 
+    /**
+     * Tests that a bad password fails all validity checks.
+     */
     public void testBadPassword()
     {
         String username = "Erin Randall";
@@ -64,6 +68,9 @@ public class CheckPasswordPolicyTest extends TestCase
     }
 
 
+    /**
+     * Tests variations of a password where the password includes tokens of the username.
+     */
     public void testPrincipalAsUsername()
     {
         String username = new KerberosPrincipal( "erodriguez@EXAMPLE.COM" ).getName();

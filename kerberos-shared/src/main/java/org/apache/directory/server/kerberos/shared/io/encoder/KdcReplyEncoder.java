@@ -40,9 +40,15 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class KdcReplyEncoder
 {
-    /*
-     AS-REP ::=    [APPLICATION 11] KDC-REP
-     TGS-REP ::=   [APPLICATION 13] KDC-REP
+    /**
+     * Encodes a {@link KdcReply} into a {@link ByteBuffer}.
+     * 
+     * AS-REP ::=    [APPLICATION 11] KDC-REP
+     * TGS-REP ::=   [APPLICATION 13] KDC-REP
+     *
+     * @param app
+     * @param out
+     * @throws IOException
      */
     public void encode( KdcReply app, ByteBuffer out ) throws IOException
     {

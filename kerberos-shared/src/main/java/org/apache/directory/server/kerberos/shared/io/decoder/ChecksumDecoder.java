@@ -42,6 +42,8 @@ public class ChecksumDecoder
      *          cksumtype[0]   INTEGER,
      *          checksum[1]    OCTET STRING
      * }
+     * @param sequence 
+     * @return The {@link Checksum}.
      */
     public static Checksum decode( DERSequence sequence )
     {

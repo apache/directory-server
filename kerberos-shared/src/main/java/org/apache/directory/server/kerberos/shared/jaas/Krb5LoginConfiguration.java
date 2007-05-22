@@ -36,11 +36,14 @@ public class Krb5LoginConfiguration extends Configuration
     private static AppConfigurationEntry[] configList = new AppConfigurationEntry[1];
 
 
+    /**
+     * Creates a new instance of Krb5LoginConfiguration.
+     */
     public Krb5LoginConfiguration()
     {
         String loginModule = "com.sun.security.auth.module.Krb5LoginModule";
         LoginModuleControlFlag flag = LoginModuleControlFlag.REQUIRED;
-        configList[0] = new AppConfigurationEntry( loginModule, flag, new HashMap() );
+        configList[0] = new AppConfigurationEntry( loginModule, flag, new HashMap<String, Object>() );
     }
 
 

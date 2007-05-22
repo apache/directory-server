@@ -20,19 +20,8 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -47,97 +36,64 @@ public abstract class EncryptionEngine
     private static final SecureRandom random = new SecureRandom();
 
 
-    public abstract ChecksumEngine getChecksumEngine();
+    protected abstract byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage )
+        throws KerberosException;
 
 
-    public abstract Cipher getCipher() throws GeneralSecurityException;
+    protected abstract EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage );
 
 
-    public abstract EncryptionType encryptionType();
+    protected abstract EncryptionType getEncryptionType();
 
 
-    public abstract ChecksumType checksumType();
+    protected abstract int getConfounderLength();
 
 
-    public abstract CipherType keyType();
+    protected abstract int getChecksumLength();
 
 
-    public abstract int confounderSize();
+    protected abstract byte[] encrypt( byte[] plainText, byte[] key );
 
 
-    public abstract int checksumSize();
+    protected abstract byte[] decrypt( byte[] cipherText, byte[] key );
 
 
-    public abstract int blockSize();
+    protected abstract byte[] calculateIntegrity( byte[] plainText, byte[] key, KeyUsage usage );
 
 
-    public abstract int minimumPadSize();
-
-
-    public abstract int keySize();
-
-
-    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data ) throws KerberosException
+    protected byte[] deriveRandom( byte[] key, byte[] usage, int n, int k )
     {
-        byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
+        byte[] nFoldedUsage = NFold.nFold( n, usage );
 
-        // extract the old checksum
-        byte[] oldChecksum = new byte[checksumSize()];
-        System.arraycopy( decryptedData, confounderSize(), oldChecksum, 0, oldChecksum.length );
+        int kBytes = k / 8;
+        byte[] result = new byte[kBytes];
 
-        // zero out the old checksum in the cipher text
-        for ( int i = confounderSize(); i < confounderSize() + checksumSize(); i++ )
+        byte[] fillingKey = encrypt( nFoldedUsage, key );
+
+        int pos = 0;
+
+        for ( int i = 0; i < kBytes; i++ )
         {
-            decryptedData[i] = 0;
+            if ( pos < fillingKey.length )
+            {
+                result[i] = fillingKey[pos];
+                pos++;
+            }
+            else
+            {
+                fillingKey = encrypt( fillingKey, key );
+                pos = 0;
+                result[i] = fillingKey[pos];
+                pos++;
+            }
         }
 
-        // calculate a new checksum
-        byte[] newChecksum = calculateChecksum( decryptedData );
-
-        // compare checksums
-        if ( !Arrays.equals( oldChecksum, newChecksum ) )
-        {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
-        }
-
-        return removeBytes( decryptedData, confounderSize(), checksumSize() );
+        return result;
     }
 
 
-    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText )
-    {
-        byte[] conFounder = getRandomBytes( confounderSize() );
-        byte[] zeroedChecksum = new byte[checksumSize()];
-        byte[] paddedPlainText = padString( plainText );
-        byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, paddedPlainText ) );
-        byte[] checksumBytes = calculateChecksum( dataBytes );
-        byte[] paddedDataBytes = padString( dataBytes );
-
-        // lay the checksum into the ciphertext
-        for ( int i = confounderSize(); i < confounderSize() + checksumSize(); i++ )
-        {
-            paddedDataBytes[i] = checksumBytes[i - confounderSize()];
-        }
-
-        byte[] encryptedData = encrypt( paddedDataBytes, key.getKeyValue() );
-
-        return new EncryptedData( encryptionType(), key.getKeyVersion(), encryptedData );
-    }
-
-
-    private byte[] encrypt( byte[] data, byte[] key )
-    {
-        return processCipher( true, data, key );
-    }
-
-
-    private byte[] decrypt( byte[] data, byte[] key )
-    {
-        return processCipher( false, data, key );
-    }
-
-
-    private byte[] getRandomBytes( int size )
+    // Encryption
+    protected byte[] getRandomBytes( int size )
     {
         byte[] bytes = new byte[size];
 
@@ -148,7 +104,8 @@ public abstract class EncryptionEngine
     }
 
 
-    private byte[] padString( byte encodedString[] )
+    // Encryption
+    protected byte[] padString( byte encodedString[] )
     {
         int x;
         if ( encodedString.length < 8 )
@@ -178,7 +135,8 @@ public abstract class EncryptionEngine
     }
 
 
-    private byte[] concatenateBytes( byte[] array1, byte[] array2 )
+    // Encryption
+    protected byte[] concatenateBytes( byte[] array1, byte[] array2 )
     {
         byte concatenatedBytes[] = new byte[array1.length + array2.length];
 
@@ -196,15 +154,8 @@ public abstract class EncryptionEngine
     }
 
 
-    private byte[] calculateChecksum( byte[] data )
-    {
-        ChecksumEngine digester = getChecksumEngine();
-
-        return digester.calculateChecksum( data );
-    }
-
-
-    private byte[] removeBytes( byte[] array, int confounder, int checksum )
+    // Decryption
+    protected byte[] removeLeadingBytes( byte[] array, int confounder, int checksum )
     {
         byte lessBytes[] = new byte[array.length - confounder - checksum];
 
@@ -219,34 +170,91 @@ public abstract class EncryptionEngine
     }
 
 
-    private byte[] processCipher( boolean encrypt, byte[] data, byte[] keyBytes )
+    protected byte[] removeTrailingBytes( byte[] array, int confounder, int checksum )
     {
-        try
+        byte lessBytes[] = new byte[array.length - confounder - checksum];
+
+        int j = 0;
+        for ( int i = 0; i < array.length - confounder - checksum; i++ )
         {
-            Cipher cipher = getCipher();
-            SecretKey key = new SecretKeySpec( keyBytes, "DES" );
-
-            byte[] iv = new byte[]
-                { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
-                    ( byte ) 0x00, ( byte ) 0x00 };
-            AlgorithmParameterSpec paramSpec = new IvParameterSpec( iv );
-
-            if ( encrypt )
-            {
-                cipher.init( Cipher.ENCRYPT_MODE, key, paramSpec );
-            }
-            else
-            {
-                cipher.init( Cipher.DECRYPT_MODE, key, paramSpec );
-            }
-
-            byte[] finalBytes = cipher.doFinal( data );
-
-            return finalBytes;
+            lessBytes[j] = array[i];
+            j++;
         }
-        catch ( GeneralSecurityException nsae )
-        {
-            return null;
-        }
+
+        return lessBytes;
+    }
+
+
+    protected int getBit( byte[] data, int pos )
+    {
+        int posByte = pos / 8;
+        int posBit = pos % 8;
+
+        byte valByte = data[posByte];
+        int valInt = valByte >> ( 8 - ( posBit + 1 ) ) & 0x0001;
+        return valInt;
+    }
+
+
+    protected void setBit( byte[] data, int pos, int val )
+    {
+        int posByte = pos / 8;
+        int posBit = pos % 8;
+        byte oldByte = data[posByte];
+        oldByte = ( byte ) ( ( ( 0xFF7F >> posBit ) & oldByte ) & 0x00FF );
+        byte newByte = ( byte ) ( ( val << ( 8 - ( posBit + 1 ) ) ) | oldByte );
+        data[posByte] = newByte;
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Kc = DK(base-key, usage | 0x99);
+     */
+    protected byte[] getUsageKc( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0x99 );
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Ke = DK(base-key, usage | 0xAA);
+     */
+    protected byte[] getUsageKe( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0xAA );
+    }
+
+
+    /**
+     * The "well-known constant" used for the DK function is the key
+     * usage number, expressed as four octets in big-endian order,
+     * followed by one octet indicated below.
+     * 
+     *  Ki = DK(base-key, usage | 0x55);
+     */
+    protected byte[] getUsageKi( KeyUsage usage )
+    {
+        return getUsage( usage.getOrdinal(), ( byte ) 0x55 );
+    }
+
+
+    private byte[] getUsage( int usage, byte constant )
+    {
+        byte[] bytes = new byte[5];
+        bytes[0] = ( byte ) ( ( usage >>> 24 ) & 0x000000FF );
+        bytes[1] = ( byte ) ( ( usage >> 16 ) & 0x000000FF );
+        bytes[2] = ( byte ) ( ( usage >> 8 ) & 0x000000FF );
+        bytes[3] = ( byte ) ( usage & 0x00FF );
+        bytes[4] = constant;
+
+        return bytes;
     }
 }

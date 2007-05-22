@@ -20,55 +20,39 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ChecksumEngine
+public interface ChecksumEngine
 {
-    public abstract MessageDigest getDigest() throws NoSuchAlgorithmException;
+    /**
+     * Returns the checksum type of this checksum engine.
+     *
+     * @return The checksum type.
+     */
+    public ChecksumType checksumType();
 
 
-    public abstract ChecksumType checksumType();
+    /**
+     * Returns the key type of this checksum engine.
+     *
+     * @return The key type.
+     */
+    public CipherType keyType();
 
 
-    public abstract CipherType keyType();
-
-
-    public abstract int checksumSize();
-
-
-    public abstract int keySize();
-
-
-    public abstract int confounderSize();
-
-
-    public abstract boolean isSafe();
-
-
-    public abstract byte[] calculateKeyedChecksum( byte[] data, byte[] key );
-
-
-    public abstract boolean verifyKeyedChecksum( byte[] data, byte[] key, byte[] checksum );
-
-
-    public byte[] calculateChecksum( byte[] data )
-    {
-        try
-        {
-            MessageDigest digester = getDigest();
-            return digester.digest( data );
-        }
-        catch ( NoSuchAlgorithmException nsae )
-        {
-            return null;
-        }
-    }
+    /**
+     * Calculate a checksum given raw bytes and an (optional) key.
+     *
+     * @param data
+     * @param key
+     * @param usage 
+     * @return The checksum value.
+     */
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );
 }

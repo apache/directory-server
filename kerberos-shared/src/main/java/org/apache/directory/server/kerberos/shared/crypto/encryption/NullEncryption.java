@@ -20,86 +20,67 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
-import javax.crypto.Cipher;
-
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NullEncryption extends EncryptionEngine
+class NullEncryption extends EncryptionEngine
 {
-    public Cipher getCipher() 
-    {
-        return null;
-    }
-
-
-    public ChecksumEngine getChecksumEngine()
-    {
-        return null;
-    }
-
-
-    public EncryptionType encryptionType()
+    public EncryptionType getEncryptionType()
     {
         return EncryptionType.NULL;
     }
 
 
-    public CipherType keyType()
-    {
-        return CipherType.NULL;
-    }
-
-
-    public ChecksumType checksumType()
-    {
-        return ChecksumType.NULL;
-    }
-
-
-    public int blockSize()
-    {
-        return 1;
-    }
-
-
-    public int keySize()
+    public int getChecksumLength()
     {
         return 0;
     }
 
 
-    public int checksumSize()
+    public int getConfounderLength()
     {
         return 0;
     }
 
 
-    public int confounderSize()
+    public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
-        return 0;
+        return data.getCipherText();
     }
 
 
-    public int minimumPadSize()
+    public EncryptedData getEncryptedData( EncryptionKey key, byte[] plainText, KeyUsage usage )
     {
-        return 0;
+        return new EncryptedData( getEncryptionType(), key.getKeyVersion(), plainText );
     }
 
 
-    protected byte[] processCipher( boolean encrypt, byte[] data, byte[] key, byte[] ivec )
+    public byte[] encrypt( byte[] plainText, byte[] keyBytes )
     {
-        return data;
+        return processCipher( true, plainText, keyBytes );
     }
 
 
-    public byte[] calculateChecksum( byte[] plainText )
+    public byte[] decrypt( byte[] cipherText, byte[] keyBytes )
+    {
+        return processCipher( false, cipherText, keyBytes );
+    }
+
+
+    public byte[] calculateIntegrity( byte[] plainText, byte[] key, KeyUsage usage )
     {
         return null;
+    }
+
+
+    private byte[] processCipher( boolean encrypt, byte[] data, byte[] key )
+    {
+        return data;
     }
 }

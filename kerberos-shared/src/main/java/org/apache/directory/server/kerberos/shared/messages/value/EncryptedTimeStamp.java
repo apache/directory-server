@@ -35,19 +35,35 @@ public class EncryptedTimeStamp implements Encodable
     private int microSeconds; //optional
 
 
-    public EncryptedTimeStamp(KerberosTime timeStamp, int microSeconds)
+    /**
+     * Creates a new instance of EncryptedTimeStamp.
+     *
+     * @param timeStamp
+     * @param microSeconds
+     */
+    public EncryptedTimeStamp( KerberosTime timeStamp, int microSeconds )
     {
         this.timeStamp = timeStamp;
         this.microSeconds = microSeconds;
     }
 
 
+    /**
+     * Returns the {@link KerberosTime}.
+     *
+     * @return The {@link KerberosTime}.
+     */
     public KerberosTime getTimeStamp()
     {
         return timeStamp;
     }
 
 
+    /**
+     * Returns the microseconds.
+     *
+     * @return The microseconds.
+     */
     public int getMicroSeconds()
     {
         return microSeconds;
