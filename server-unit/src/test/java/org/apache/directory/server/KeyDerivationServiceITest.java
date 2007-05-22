@@ -197,7 +197,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        assertEquals( "Number of keys", 5, attributes.get( "krb5key" ).size() );
+        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
+        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
 
         byte[] testPasswordBytes =
             { ( byte ) 0x73, ( byte ) 0x65, ( byte ) 0x63, ( byte ) 0x72, ( byte ) 0x65, ( byte ) 0x74 };
@@ -259,7 +260,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
         }
 
-        assertEquals( "Number of keys", 5, attributes.get( "krb5key" ).size() );
+        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
+        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
 
         byte[] testBytes =
             { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74 };

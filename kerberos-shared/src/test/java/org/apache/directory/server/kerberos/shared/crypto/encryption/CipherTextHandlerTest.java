@@ -321,13 +321,25 @@ public class CipherTextHandlerTest extends TestCase
      * Tests the unsealing of Kerberos CipherText with a good password.  After decryption and
      * an integrity check, an attempt is made to decode the bytes as an EncryptedTimestamp.  The
      * result is timestamp data.
-     *
+     */
     public void testAes256GoodPasswordDecrypt()
     {
         CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
+
+        KerberosKey kerberosKey;
+
+        try
+        {
+            KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+            kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Algorithm AES256 not enabled
+            return;
+        }
+
         EncryptionKey key = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
         EncryptedData data = new EncryptedData( EncryptionType.AES256_CTS_HMAC_SHA1_96, 0, aes256EncryptedTimeStamp );
 
@@ -342,7 +354,6 @@ public class CipherTextHandlerTest extends TestCase
             fail( "Should not have caught exception." );
         }
     }
-    commented out until test if fixed for stock jvm */
 
 
     /**
@@ -351,12 +362,24 @@ public class CipherTextHandlerTest extends TestCase
      * as an EncryptedTimestamp.  The result is timestamp data.
      * 
      * @throws ParseException 
-     *
+     */
     public void testAes256GoodPasswordEncrypt() throws ParseException
     {
         CipherTextHandler lockBox = new CipherTextHandler();
-        KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
+
+        KerberosKey kerberosKey;
+
+        try
+        {
+            KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+            kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Algorithm AES256 not enabled
+            return;
+        }
+
         EncryptionKey key = new EncryptionKey( EncryptionType.AES256_CTS_HMAC_SHA1_96, kerberosKey.getEncoded() );
 
         String zuluTime = "20070410190400Z";
@@ -388,7 +411,6 @@ public class CipherTextHandlerTest extends TestCase
             fail( "Should not have caught exception." );
         }
     }
-    commented out until test is fixed */
 
 
     protected EncryptedTimeStamp getEncryptedTimeStamp( String zuluTime, int microSeconds ) throws ParseException

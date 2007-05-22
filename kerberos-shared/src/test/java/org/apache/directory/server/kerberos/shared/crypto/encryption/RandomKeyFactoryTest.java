@@ -90,10 +90,10 @@ public class RandomKeyFactoryTest extends TestCase
      */
     public void testGenerateAes256Key() throws Exception
     {
-        // KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
-        // keygen.init( 256 );
-        // SecretKey key = keygen.generateKey();
-        // assertEquals( "AES key size", 32, key.getEncoded().length );
+        KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
+        keygen.init( 256 );
+        SecretKey key = keygen.generateKey();
+        assertEquals( "AES key size", 32, key.getEncoded().length );
     }
 
 
@@ -161,12 +161,12 @@ public class RandomKeyFactoryTest extends TestCase
         assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
         assertEquals( keyLength, 16 );
 
-        // kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        // keyType = kerberosKey.getKeyType();
-        // keyLength = kerberosKey.getKeyValue().length;
+        kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        keyType = kerberosKey.getKeyType();
+        keyLength = kerberosKey.getKeyValue().length;
 
-        // assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        // assertEquals( keyLength, 32 );
+        assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        assertEquals( keyLength, 32 );
     }
 
 

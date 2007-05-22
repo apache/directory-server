@@ -93,27 +93,26 @@ public class KerberosKeyFactoryTest extends TestCase
 
 
     /**
-     * Tests that key derivation can be performed for an AES-256 key.  This test
-     * will fail if "unlimited strength" policy is not installed.
-     *
-     * @throws Exception
+     * Tests that key derivation can be performed for an AES-256 key.
      */
-    public void testAes256KerberosKey() throws Exception
+    public void testAes256KerberosKey()
     {
-        // KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        // KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
-        //
-        // assertEquals( "AES256 key length", 32, key.getEncoded().length );
-        //
-        // SecretKey skey = new SecretKeySpec( key.getEncoded(), "AES" );
-        //
-        // aesCipher( skey );
+        try
+        {
+            KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+            KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES256" );
+            assertEquals( "AES256 key length", 32, kerberosKey.getEncoded().length );
+        }
+        catch ( IllegalArgumentException iae )
+        {
+            // Algorithm AES256 not enabled
+        }
     }
 
 
     /**
      * Tests that key derivation can be performed by the factory for multiple cipher types.
-     *
+     */
     public void testKerberosKeyFactory()
     {
         String principalName = "hnelson@EXAMPLE.COM";
@@ -174,22 +173,27 @@ public class KerberosKeyFactoryTest extends TestCase
                 ( byte ) 0x41, ( byte ) 0x7B, ( byte ) 0x90 };
         assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
 
-        // kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        // keyType = kerberosKey.getKeyType();
-        // keyLength = kerberosKey.getKeyValue().length;
-        // keyBytes = kerberosKey.getKeyValue();
-        //
-        // assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        // assertEquals( keyLength, 32 );
-        // expectedBytes = new byte[]
-        //     { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47, ( byte ) 0xE5,
-        //         ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4, ( byte ) 0x15,
-        //         ( byte ) 0x58, ( byte ) 0xCA, ( byte ) 0xE7, ( byte ) 0x36, ( byte ) 0x50, ( byte ) 0x1F,
-        //         ( byte ) 0xA7, ( byte ) 0xA4, ( byte ) 0x85, ( byte ) 0x82, ( byte ) 0x05, ( byte ) 0xF6,
-        //         ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA, ( byte ) 0x0E, ( byte ) 0xBF };
-        // assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+        kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+
+        if ( kerberosKey != null )
+        {
+            keyType = kerberosKey.getKeyType();
+            keyLength = kerberosKey.getKeyValue().length;
+            keyBytes = kerberosKey.getKeyValue();
+
+            assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+            assertEquals( keyLength, 32 );
+            expectedBytes = new byte[]
+                { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47,
+                    ( byte ) 0xE5, ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4,
+                    ( byte ) 0x15, ( byte ) 0x58, ( byte ) 0xCA, ( byte ) 0xE7, ( byte ) 0x36, ( byte ) 0x50,
+                    ( byte ) 0x1F, ( byte ) 0xA7, ( byte ) 0xA4, ( byte ) 0x85, ( byte ) 0x82, ( byte ) 0x05,
+                    ( byte ) 0xF6, ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA,
+                    ( byte ) 0x0E, ( byte ) 0xBF };
+            assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+        }
     }
-    commented out until test case is fixed */
+
 
     /**
      * Tests that key derivation can be performed by the factory for a specified cipher type.

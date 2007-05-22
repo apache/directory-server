@@ -95,11 +95,18 @@ public class KerberosKeyFactory
             EncryptionType encryptionType = it.next();
             String algorithm = DEFAULT_CIPHERS.get( encryptionType );
 
-            KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), algorithm );
-            EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
-                .getVersionNumber() );
+            try
+            {
+                KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), algorithm );
+                EncryptionKey encryptionKey = new EncryptionKey( encryptionType, kerberosKey.getEncoded(), kerberosKey
+                    .getVersionNumber() );
 
-            kerberosKeys.put( encryptionType, encryptionKey );
+                kerberosKeys.put( encryptionType, encryptionKey );
+            }
+            catch ( IllegalArgumentException iae )
+            {
+                // Algorithm AES256 not enabled
+            }
         }
 
         return kerberosKeys;

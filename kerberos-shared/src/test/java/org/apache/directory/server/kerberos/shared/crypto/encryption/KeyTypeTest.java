@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
+import java.security.InvalidKeyException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
@@ -171,18 +172,47 @@ public class KeyTypeTest extends TestCase
 
 
     /**
-     * Tests that a CTS-mode AES cipher can be initialized.
+     * Tests that a CTS-mode AES cipher can be initialized
+     * with an AES-128 key.
      *
      * @throws Exception
      */
-    public void testAesCipher() throws Exception
+    public void testAes128Cipher() throws Exception
     {
-        KeyGenerator keygen = KeyGenerator.getInstance( "AES" );
-        SecretKey desKey = keygen.generateKey();
+        KeyGenerator keyGenerator = KeyGenerator.getInstance( "AES" );
+        keyGenerator.init( 128 );
+
+        SecretKey key = keyGenerator.generateKey();
 
         Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
-        ecipher.init( Cipher.ENCRYPT_MODE, desKey );
+        ecipher.init( Cipher.ENCRYPT_MODE, key );
         assertEquals( "Block size", 16, ecipher.getBlockSize() );
+    }
+
+
+    /**
+     * Tests that a CTS-mode AES cipher can be initialized
+     * with an AES-256 key.
+     *
+     * @throws Exception
+     */
+    public void testAes256Cipher() throws Exception
+    {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance( "AES" );
+        keyGenerator.init( 256 );
+
+        SecretKey key = keyGenerator.generateKey();
+
+        try
+        {
+            Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
+            ecipher.init( Cipher.ENCRYPT_MODE, key );
+            assertEquals( "Block size", 16, ecipher.getBlockSize() );
+        }
+        catch ( InvalidKeyException ike )
+        {
+            // Without unlimited-strength crypto this will throw an exception.
+        }
     }
 
 
