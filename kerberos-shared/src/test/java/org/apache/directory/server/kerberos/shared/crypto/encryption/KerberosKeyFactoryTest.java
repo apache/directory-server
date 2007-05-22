@@ -113,7 +113,7 @@ public class KerberosKeyFactoryTest extends TestCase
 
     /**
      * Tests that key derivation can be performed by the factory for multiple cipher types.
-     */
+     *
     public void testKerberosKeyFactory()
     {
         String principalName = "hnelson@EXAMPLE.COM";
@@ -189,7 +189,7 @@ public class KerberosKeyFactoryTest extends TestCase
         //         ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA, ( byte ) 0x0E, ( byte ) 0xBF };
         // assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
     }
-
+    commented out until test case is fixed */
 
     /**
      * Tests that key derivation can be performed by the factory for a specified cipher type.
