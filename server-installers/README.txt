@@ -4,12 +4,7 @@
 Documentation
 -------------
 
-All installer based distributions include a copy of the site documentation 
-within the docs directory.  Point your browser to:
-
-    ./docs/index.html
-
-or go online here for the most up to date documentation,
+Go online for the most up to date documentation. Point your browser to:
 
      http://directory.apache.org/apacheds/1.0/
 
@@ -53,17 +48,18 @@ available commands on all platforms like so:
 
    java -jar apacheds-tools.jar help
 
-The tool contains several commands.  Here's a breif listing with description:
+The tool contains several commands.  Here's a brief listing with description:
 
-   help             displays help message 
+   help             displays help message
    notifications    listens to the server for disconnect msgs
    dump             dumps partitions in LDIF format for recovery and backup
    graceful         starts graceful shutdown with shutdown delay & timeoffline
    diagnostic       launches diagnostic UI for inspecting server partitions
                     and client sessions
-
-Over time this tool will include clients to add, delete, compare, modify and
-rename entries as well as search the directory.
+   capacity         capacity testing tool. This command will generate bogus
+                    user entries and add them under a base DN.
+   import           command to import data from an LDIF file into the server.
+   index            adds attribute indices to a partition
 
 
 Connecting
@@ -75,7 +71,7 @@ ApacheDS with other software. The same sample data, provided as a download,
 is used through the whole guide.
 
 ApacheDS v1.0 Basic User's Guide
-See http://directory.apache.org/apacheds/1.0/
+See http://directory.apache.org/apacheds/1.0/apacheds-v10-basic-users-guide.html
 
 
 Building Bundled Sources
@@ -91,7 +87,7 @@ production release of Maven.  You can build the server like so:
 If you're interested in the latest sources you can check out ApacheDS using 
 subversion at the following base URL:
 
-   http://svn.apache.org/repos/asf/directory/apacheds/releases/1.0.1
+   http://svn.apache.org/repos/asf/directory/apacheds/releases/1.0.2
 
 
 Notes
@@ -105,7 +101,7 @@ Notes
 Issues
 ------
 
-Please direct all issues to users@directory.apache.org or file a JIRA here:
+Please direct all issues to users@directory.apache.org or file a JIRA ticket here:
 
    http://issues.apache.org/jira/DIRSERVER
 
