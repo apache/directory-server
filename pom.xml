@@ -255,6 +255,14 @@ Use JDK 1.5 to make sure these modules build.
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <configuration>
+              <tagBase>https://svn.apache.org/repos/asf/directory/apacheds/releases</tagBase>
+            </configuration>
+          </plugin>
+
         </plugins>
       </build>
     </profile>
