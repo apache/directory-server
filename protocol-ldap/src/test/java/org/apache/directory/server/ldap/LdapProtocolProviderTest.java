@@ -24,10 +24,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ldap.support.ExtendedHandler;
-import org.apache.directory.server.ldap.support.LdapMessageHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
@@ -50,8 +47,8 @@ import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
-
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
@@ -72,7 +69,7 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        LdapProtocolProvider provider = new LdapProtocolProvider( new StartupConfiguration(), new Properties() );
+        LdapProtocolProvider provider = new LdapProtocolProvider( new LdapConfiguration(), new Properties() );
         assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }
@@ -119,116 +116,80 @@ public class LdapProtocolProviderTest extends TestCase
         props.setProperty( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
         props.setProperty( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
 
-        LdapProtocolProvider provider = new LdapProtocolProvider( new StartupConfiguration(), props );
+        LdapProtocolProvider provider = new LdapProtocolProvider( new LdapConfiguration(), props );
         assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }
 
-    public static class BogusAbandonHandler implements LdapMessageHandler
+    public static class BogusAbandonHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusUnbindHandler implements LdapMessageHandler
+    public static class BogusUnbindHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusAddHandler implements LdapMessageHandler
+    public static class BogusAddHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusBindHandler implements LdapMessageHandler
+    public static class BogusBindHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusCompareHandler implements LdapMessageHandler
+    public static class BogusCompareHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusDeleteHandler implements LdapMessageHandler
+    public static class BogusDeleteHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusModifyDnHandler implements LdapMessageHandler
+    public static class BogusModifyDnHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusModifyHandler implements LdapMessageHandler
+    public static class BogusModifyHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 
-    public static class BogusSearchHandler implements LdapMessageHandler
+    public static class BogusSearchHandler implements MessageHandler
     {
         public void messageReceived( IoSession session, Object request )
         {
             throw new NotImplementedException( "handler not implemented!" );
-        }
-
-        public void init( StartupConfiguration cfg )
-        {
         }
     }
 }

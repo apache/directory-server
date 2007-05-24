@@ -251,7 +251,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
         }
         else if ( getConfiguration() != null )
         {
-            port = getConfiguration().getLdapPort();
+            port = getConfiguration().getLdapConfiguration().getIpPort();
 
             if ( isDebugEnabled() )
             {

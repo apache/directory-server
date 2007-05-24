@@ -68,8 +68,8 @@ public class KerberosServer
         this.acceptor = acceptor;
         this.store = store;
 
-        String name = config.getName();
-        int port = config.getPort();
+        String name = config.getServiceName();
+        int port = config.getIpPort();
 
         try
         {
@@ -90,7 +90,7 @@ public class KerberosServer
      * Returns whether configuration being proposed as new is really different.
      *
      * @param newConfig
-     * @return Whether configuration being proposed as new is really different.
+     * @return <code>True</true> if the configuration is different.
      */
     public boolean isDifferent( Dictionary newConfig )
     {
@@ -103,11 +103,11 @@ public class KerberosServer
      */
     public void destroy()
     {
-        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
+        acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );
 
         acceptor = null;
         handler = null;
 
-        log.debug( config.getName() + " has stopped listening on port " + config.getPort() );
+        log.debug( config.getServiceName() + " has stopped listening on port " + config.getIpPort() );
     }
 }

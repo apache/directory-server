@@ -33,9 +33,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -55,9 +55,8 @@ import org.apache.directory.shared.ldap.message.SearchResponseDone;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
 import org.apache.mina.common.IoSession;
-
+import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements LdapMessageHandler
+public class SearchHandler implements MessageHandler
 {
     //TM private static long cumul = 0L;
     //TM private static long count = 0;
@@ -76,7 +75,6 @@ public class SearchHandler implements LdapMessageHandler
 
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
     private static final String DEREFALIASES_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
-    private StartupConfiguration cfg;
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -88,7 +86,7 @@ public class SearchHandler implements LdapMessageHandler
      * @param ids the ids to return
      * @return the SearchControls to use with the ApacheDS server side JNDI provider
      */
-    private SearchControls getSearchControls( SearchRequest req, String[] ids, boolean isAdmin )
+    private SearchControls getSearchControls( SearchRequest req, String[] ids, boolean isAdmin, int maxSize, int maxTime )
     {
         // prepare all the search controls
         SearchControls controls = new SearchControls();
@@ -114,8 +112,8 @@ public class SearchHandler implements LdapMessageHandler
         }
         else
         {
-            controls.setCountLimit( Math.min( req.getSizeLimit(), cfg.getMaxSizeLimit() ) );
-            controls.setTimeLimit( ( int ) Math.min( req.getTimeLimit(), cfg.getMaxTimeLimit() ) );
+            controls.setCountLimit( Math.min( req.getSizeLimit(), maxSize ) );
+            controls.setTimeLimit( ( int ) Math.min( req.getTimeLimit(), maxTime ) );
         }
         
         controls.setSearchScope( req.getScope().getValue() );
@@ -150,7 +148,8 @@ public class SearchHandler implements LdapMessageHandler
      */
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
-        //TM long t0 = System.nanoTime();
+        LdapConfiguration cfg = ( LdapConfiguration ) session.getAttribute(  LdapConfiguration.class.toString() );
+
     	if ( IS_DEBUG )
     	{
     		log.debug( "Message received : " + request.toString() );
@@ -259,19 +258,22 @@ public class SearchHandler implements LdapMessageHandler
             // Set search limits differently based on user's identity
             // ===============================================================
 
+            int maxSize = cfg.getMaxSizeLimit();
+            int maxTime = cfg.getMaxTimeLimit();
+
             SearchControls controls = null;
             if ( isAnonymousUser )
             {
-                controls = getSearchControls( req, ids, false );
+                controls = getSearchControls( req, ids, false, maxSize, maxTime );
             }
             else if ( ( ( ServerLdapContext ) ctx ).getPrincipal().getName()
                 .trim().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
-                controls = getSearchControls( req, ids, true );
+                controls = getSearchControls( req, ids, true, maxSize, maxTime );
             }
             else
             {
-                controls = getSearchControls( req, ids, false );
+                controls = getSearchControls( req, ids, false, maxSize, maxTime );
             }
             
             
@@ -532,11 +534,5 @@ public class SearchHandler implements LdapMessageHandler
                 }
             }
         }
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
-        this.cfg = cfg;
     }
 }

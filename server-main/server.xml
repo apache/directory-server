@@ -7,13 +7,10 @@
   <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="properties">
       <props>
+        <!-- JNDI security properties used to get initial contexts.         -->
         <prop key="java.naming.security.authentication">simple</prop>
         <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
         <prop key="java.naming.security.credentials">secret</prop>
-        <!--<prop key="kdc.entryBaseDn">ou=users,dc=example,dc=com</prop>-->
-        <!--<prop key="kdc.java.naming.security.credentials">secret</prop>-->
-        <!--<prop key="changepw.entryBaseDn">ou=users,dc=example,dc=com</prop>-->
-        <!--<prop key="changepw.java.naming.security.credentials">secret</prop>-->
         <!-- Set this key to a space delimited set of attributeType descriptions
              and their OID's if you want an attributeType to be handled as 
              binary content.
@@ -30,6 +27,100 @@
     </property>
   </bean>
   
+  <bean id="changePasswordConfiguration" class="org.apache.directory.server.changepw.ChangePasswordConfiguration">
+    <!-- Whether to enable the Change Password protocol.                    -->
+    <property name="enabled" value="true" />
+    <!-- The port to run the Change Password protocol on.                   -->
+    <property name="ipPort" value="464" />
+  </bean>
+  
+  <bean id="ntpConfiguration" class="org.apache.directory.server.ntp.NtpConfiguration">
+    <!-- Whether to enable the NTP protocol.                                -->
+    <property name="enabled" value="true" />
+    <!-- The port to run the NTP protocol on.                               -->
+    <property name="ipPort" value="123" />
+  </bean>
+  
+  <bean id="dnsConfiguration" class="org.apache.directory.server.dns.DnsConfiguration">
+    <!-- Whether to enable the DNS protocol.                                -->
+    <property name="enabled" value="true" />
+    <!-- The port to run the DNS protocol on.                               -->
+    <property name="ipPort" value="53" />
+  </bean>
+  
+  <bean id="kdcConfiguration" class="org.apache.directory.server.kerberos.kdc.KdcConfiguration">
+    <!-- Whether to enable the Kerberos protocol.                           -->
+    <property name="enabled" value="true" />
+    <!-- The port to run the Kerberos protocol on.                          -->
+    <property name="ipPort" value="88" />
+  </bean>
+  
+  <bean id="ldapsConfiguration" class="org.apache.directory.server.ldap.LdapConfiguration">
+    <!-- Whether to enable the LDAPS protocol.                               -->
+    <property name="enabled" value="false" />
+    <!-- The port to run the LDAPS protocol on.                              -->
+    <property name="ipPort" value="636" />
+  </bean>
+  
+  <bean id="ldapConfiguration" class="org.apache.directory.server.ldap.LdapConfiguration">
+    <!-- The port to run the LDAP protocol on.                              -->
+    <property name="ipPort" value="389" />
+    <!-- Whether to allow anonymous access.                                 -->
+    <property name="allowAnonymousAccess" value="false" />
+    
+    <!-- The list of supported authentication mechanisms.                   -->
+    <property name="supportedMechanisms">
+      <list>
+        <value>SIMPLE</value>
+        <value>CRAM-MD5</value>
+        <value>DIGEST-MD5</value>
+        <value>GSSAPI</value>
+      </list>
+    </property>
+    
+    <!-- The FQDN of this SASL host, validated during SASL negotiation.     -->
+    <property name="saslHost" value="ldap.example.com" />
+    
+    <!-- The Kerberos principal name for this LDAP service, used by GSSAPI. -->
+    <property name="saslPrincipal" value="ldap/ldap.example.com@EXAMPLE.COM" />
+    
+    <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
+    <property name="saslQop">
+      <list>
+        <value>auth</value>
+        <value>auth-int</value>
+        <value>auth-conf</value>
+      </list>
+    </property>
+    
+    <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
+    <property name="saslRealms">
+      <list>
+        <value>example.com</value>
+        <value>apache.org</value>
+      </list>
+    </property>
+    
+    <!-- The base DN containing users that can be SASL authenticated.       -->
+    <property name="searchBaseDn" value="ou=users,dc=example,dc=com" />
+    
+    <!-- SSL CONFIG CAN GO HERE-->
+    
+    <!-- limits searches by non-admin users to a max time of 15000          -->
+    <!-- milliseconds and has a default value of 10000                      -->
+    <property name="maxTimeLimit" value="15000" />
+    <!-- limits searches to max size of 1000 entries: default value is 100  -->
+    <property name="maxSizeLimit" value="1000" />
+    <!-- the collection of extended operation handlers to install           -->
+    <property name="extendedOperationHandlers">
+      <list>
+        <bean class="org.apache.directory.server.ldap.support.starttls.StartTlsHandler"/>
+        <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
+        <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
+      </list>
+    </property>
+  </bean>
+  
   <bean id="configuration" class="org.apache.directory.server.configuration.MutableServerStartupConfiguration">
     <property name="workingDirectory" value="example.com" />
 
@@ -37,20 +128,22 @@
     <!-- ldifDirectory property can point to a relative file, directory or  -->
     <!-- can point to an absolute path to either using the URL path         -->
     <!-- notation: i.e. file:///Users/jack/apacheds/ldifs                   -->
-
-    <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
-    <!-- order specified.  The included Krb5KdcEntryFilter will filter      -->
-    <!-- kerberos principals creating keys for them using their             -->
-    <!-- userPassword attribute if present.                                 -->
-
-    <!--<property name="ldifDirectory">
+    <!--
+    <property name="ldifDirectory">
       <value>example.ldif</value>
     </property>
+    -->
+
+    <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
+    <!-- order specified.  The included Krb5KdcEntryFilter will conflict    -->
+    <!-- with the KeyDerivationService interceptor, so should not be used.  -->
+    <!--
     <property name="ldifFilters">
       <list>
         <bean class="org.apache.directory.server.protocol.shared.store.Krb5KdcEntryFilter"/>
       </list>
-    </property>-->
+    </property>
+    -->
 
     <!-- the number of milliseconds before issuing a synch (flush to disk)  -->
     <!-- which writes out dirty pages back to disk.  To turn off synchs all -->
@@ -59,20 +152,12 @@
     <!-- writes may never persist to disk.                                  -->
     <property name="synchPeriodMillis" value="15000" />
 
-    <!-- limits searches by non-admin users to a max time of 15000          -->
-    <!-- milliseconds and has a default value of 10000                      -->
-    <property name="maxTimeLimit" value="15000" />
-    <!-- limits searches to max size of 1000 entries: default value is 100  -->
-    <property name="maxSizeLimit" value="1000" />
     <!-- maximum number of threads used by mina is set to 8: default is 4   -->
     <property name="maxThreads" value="8" />
 
     <property name="allowAnonymousAccess" value="false" />
     <property name="accessControlEnabled" value="false" />
-    <property name="enableNtp" value="false" />
-    <property name="enableKerberos" value="false" />
-    <property name="enableChangePassword" value="false" />
-
+    
     <!--
        It's more efficient to keep this feature turned off but you may not like
        having the creatorsName and modifiersName contain OIDs instead of short
@@ -89,7 +174,12 @@
     -->
     <property name="denormalizeOpAttrsEnabled" value="false" />
 
-    <property name="ldapPort" value="10389" />
+    <property name="ntpConfiguration" ref="ntpConfiguration" />
+    <property name="dnsConfiguration" ref="dnsConfiguration" />
+    <property name="changePasswordConfiguration" ref="changePasswordConfiguration" />
+    <property name="kdcConfiguration" ref="kdcConfiguration" />
+    <property name="ldapConfiguration" ref="ldapConfiguration" />
+    <property name="ldapsConfiguration" ref="ldapsConfiguration" />
 
     <property name="systemPartitionConfiguration" ref="systemPartitionConfiguration" />
 
@@ -99,13 +189,6 @@
       </set>
     </property>
     
-    <property name="extendedOperationHandlers">
-      <list>
-        <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
-        <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
-      </list>
-    </property>
-
     <property name="interceptorConfigurations">
       <list>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
@@ -148,6 +231,18 @@
           <property name="name" value="operationalAttributeService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
+          </property>
+        </bean>
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name" value="passwordPolicyService" />
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.kerberos.shared.interceptors.PasswordPolicyService" />
+          </property>
+        </bean>
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+          <property name="name" value="keyDerivationService" />
+          <property name="interceptor">
+            <bean class="org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
@@ -256,7 +351,6 @@
           <property name="attributeId" value="1.3.6.1.4.1.18060.0.4.1.2.7" />
           <property name="cacheSize" value="10" />
         </bean>
-
         <bean class="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration">
           <property name="attributeId" value="ou" />
           <property name="cacheSize" value="100" />

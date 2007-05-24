@@ -29,11 +29,15 @@ import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoServiceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
+ * A wrapper encapsulating configuration, a MINA IoAcceptor, and a RecordStore
+ * to implement a complete DNS server. 
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -48,20 +52,28 @@ public class DnsServer
 
     private IoHandler handler;
 
-    public DnsServer(DnsConfiguration config, IoAcceptor acceptor, RecordStore store)
+
+    /**
+     * Creates a new instance of DnsServer.
+     *
+     * @param config
+     * @param acceptor
+     * @param store
+     */
+    public DnsServer( DnsConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, RecordStore store )
     {
         this.config = config;
         this.acceptor = acceptor;
         this.store = store;
 
-        String name = config.getName();
-        int port = config.getPort();
+        String name = config.getServiceName();
+        int port = config.getIpPort();
 
         try
         {
             handler = new DnsProtocolHandler( config, this.store );
 
-            acceptor.bind( new InetSocketAddress( port ), handler );
+            acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
             log.debug( "{} listening on port {}", name, new Integer( port ) );
         }
@@ -80,11 +92,11 @@ public class DnsServer
 
     public void destroy()
     {
-        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
+        acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );
 
-        acceptor= null;
+        acceptor = null;
         handler = null;
 
-        log.debug( "{} has stopped listening on port {}", config.getName(), new Integer( config.getPort() ) );
+        log.debug( "{} has stopped listening on port {}", config.getServiceName(), new Integer( config.getIpPort() ) );
     }
 }

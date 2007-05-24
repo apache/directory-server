@@ -53,8 +53,8 @@ public class NtpServer
         this.config = config;
         this.acceptor = acceptor;
 
-        String name = config.getName();
-        int port = config.getPort();
+        String name = config.getServiceName();
+        int port = config.getIpPort();
 
         try
         {
@@ -79,11 +79,11 @@ public class NtpServer
 
     public void destroy()
     {
-        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
+        acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );
 
         acceptor = null;
         handler = null;
 
-        log.debug( config.getName() + " has stopped listening on port " + config.getPort() );
+        log.debug( config.getServiceName() + " has stopped listening on port " + config.getIpPort() );
     }
 }

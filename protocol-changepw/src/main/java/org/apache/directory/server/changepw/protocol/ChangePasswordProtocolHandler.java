@@ -143,7 +143,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
                 log.warn( ke.getMessage() );
             }
 
-            ErrorMessage errorMessage = getErrorMessage( config.getChangepwPrincipal(), ke );
+            ErrorMessage errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
 
             ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
             modifier.setErrorMessage( errorMessage );
@@ -154,7 +154,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         {
             log.error( "Unexpected exception:  " + e.getMessage(), e );
 
-            session.write( getErrorMessage( config.getChangepwPrincipal(), new ChangePasswordException(
+            session.write( getErrorMessage( config.getServicePrincipal(), new ChangePasswordException(
                 ErrorType.KRB5_KPASSWD_UNKNOWN_ERROR ) ) );
         }
     }

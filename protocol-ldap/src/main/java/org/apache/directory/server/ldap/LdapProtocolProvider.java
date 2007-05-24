@@ -30,14 +30,12 @@ import java.util.Set;
 
 import javax.naming.Context;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
 import org.apache.directory.server.ldap.support.BindHandler;
 import org.apache.directory.server.ldap.support.CompareHandler;
 import org.apache.directory.server.ldap.support.DeleteHandler;
 import org.apache.directory.server.ldap.support.ExtendedHandler;
-import org.apache.directory.server.ldap.support.LdapMessageHandler;
 import org.apache.directory.server.ldap.support.ModifyDnHandler;
 import org.apache.directory.server.ldap.support.ModifyHandler;
 import org.apache.directory.server.ldap.support.SearchHandler;
@@ -87,6 +85,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
+import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.util.SessionLog;
 
 
@@ -109,11 +108,12 @@ public class LdapProtocolProvider
     private static final Map DEFAULT_HANDLERS;
     /** a set of supported controls */
     private static final Set SUPPORTED_CONTROLS;
-    
+    /** configuration for the LDAP protocol provider **/
+    private LdapConfiguration cfg;
 
     static
     {
-        HashMap map = new HashMap();
+        Map<Object, Object> map = new HashMap<Object, Object>();
 
         /*
          * Note:
@@ -157,7 +157,7 @@ public class LdapProtocolProvider
 
         DEFAULT_HANDLERS = Collections.unmodifiableMap( map );
 
-        HashSet set = new HashSet();
+        Set<Object> set = new HashSet<Object>();
         set.add( PersistentSearchControl.CONTROL_OID );
         set.add( EntryChangeControl.CONTROL_OID );
         set.add( ManageDsaITControl.CONTROL_OID );
@@ -181,17 +181,19 @@ public class LdapProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( StartupConfiguration cfg, Hashtable env) throws LdapNamingException
+    public LdapProtocolProvider( LdapConfiguration cfg, Hashtable env) throws LdapNamingException
     {
+        this.cfg = cfg;
+
         Hashtable copy = ( Hashtable ) env.clone();
         copy.put( Context.PROVIDER_URL, "" );
         SessionRegistry.releaseSingleton();
-        new SessionRegistry( copy );
+        new SessionRegistry( cfg, copy );
 
         Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
         while ( requestTypes.hasNext() )
         {
-            LdapMessageHandler handler = null;
+            MessageHandler handler = null;
             String type = ( String ) requestTypes.next();
             Class clazz = null;
 
@@ -219,8 +221,7 @@ public class LdapProtocolProvider
             try
             {
                 Class typeClass = Class.forName( type );
-                handler = ( LdapMessageHandler ) clazz.newInstance();
-                handler.init( cfg );
+                handler = ( MessageHandler ) clazz.newInstance();
                 this.handler.addMessageHandler( typeClass, handler );
             }
             catch ( Exception e )
@@ -362,13 +363,10 @@ public class LdapProtocolProvider
     {
         public void sessionCreated( IoSession session ) throws Exception
         {
+            session.setAttribute( LdapConfiguration.class.toString(), cfg );
+
             IoFilterChain filters = session.getFilterChain();
             filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
-            
-            // TODO : The filter is logging too much information.
-            // Right now, I have commented it, but it may be 
-            // used with some parameter to disable it
-            filters.addLast( "logger", new LoggingFilter() );
         }
 
 

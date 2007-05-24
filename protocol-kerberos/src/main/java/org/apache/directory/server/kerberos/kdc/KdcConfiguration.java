@@ -17,27 +17,22 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.kerberos.kdc;
 
 
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 
 /**
+ * Contains the configuration parameters for the Kerberos protocol provider.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -45,196 +40,285 @@ public class KdcConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 522567370475574165L;
 
-    /** the prop key const for kdc principal */
-    public static final String PRINCIPAL_KEY = "principal";
+    /** The default kdc port */
+    private static final int DEFAULT_IP_PORT = 88;
 
-    /** the prop key const for the kdc's primary realm */
-    public static final String REALM_KEY = "realm";
+    /** The default kdc search base DN */
+    public static final String DEFAULT_SEARCH_BASEDN = "ou=users,dc=example,dc=com";
 
-    /** the prop key const for encryption types */
-    public static final String ENCRYPTION_TYPES_KEY = "encryption.types";
+    /** The default kdc service pid */
+    private static final String DEFAULT_PID = "org.apache.directory.server.kerberos";
 
-    /** the prop key const for allowable clockskew */
-    public static final String ALLOWABLE_CLOCKSKEW_KEY = "allowable.clockskew";
+    /** The default kdc service name */
+    private static final String DEFAULT_NAME = "ApacheDS Kerberos Service";
 
-    /** the prop key const for empty addresses allowed */
-    public static final String EMPTY_ADDRESSES_ALLOWED_KEY = "empty.addresses.allowed";
-
-    /** the prop key const for requiring encrypted timestamps */
-    public static final String PA_ENC_TIMESTAMP_REQUIRED_KEY = "pa.enc.timestamp.required";
-
-    /** the prop key const for the maximum ticket lifetime */
-    public static final String TGS_MAXIMUM_TICKET_LIFETIME_KEY = "tgs.maximum.ticket.lifetime";
-
-    /** the prop key const for the maximum renewable lifetime */
-    public static final String TGS_MAXIMUM_RENEWABLE_LIFETIME_KEY = "tgs.maximum.renewable.lifetime";
-
-    /** the prop key const for allowing forwardable tickets */
-    public static final String TGS_FORWARDABLE_ALLOWED_KEY = "tgs.forwardable.allowed";
-
-    /** the prop key const for allowing proxiable tickets */
-    public static final String TGS_PROXIABLE_ALLOWED_KEY = "tgs.proxiable.allowed";
-
-    /** the prop key const for allowing postdated tickets */
-    public static final String TGS_POSTDATE_ALLOWED_KEY = "tgs.postdate.allowed";
-
-    /** the prop key const for allowing renewable tickets */
-    public static final String TGS_RENEWABLE_ALLOWED_KEY = "tgs.renewable.allowed";
-
-    /** the default kdc principal */
+    /** The default kdc service principal */
     private static final String DEFAULT_PRINCIPAL = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
 
-    /** the default kdc base DN */
-    public static final String KDC_ENTRY_BASEDN = "ou=users,dc=example,dc=com";
-
-    /** the default kdc realm */
+    /** The default kdc realm */
     private static final String DEFAULT_REALM = "EXAMPLE.COM";
 
-    /** the default kdc port */
-    private static final String DEFAULT_IP_PORT = "88";
-
-    /** the default allowable clockskew */
+    /** The default allowable clockskew */
     private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * MINUTE;
 
-    /** the default encryption types */
+    /** The default encryption types */
     private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
         { "des-cbc-md5" };
 
-    /** the default for allowing empty addresses */
+    /** The default for allowing empty addresses */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
 
-    /** the default for requiring encrypted timestamps */
+    /** The default for requiring encrypted timestamps */
     private static final boolean DEFAULT_PA_ENC_TIMESTAMP_REQUIRED = true;
 
-    /** the default for the maximum ticket lifetime */
+    /** The default for the maximum ticket lifetime */
     private static final int DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME = MINUTE * 1440;
 
-    /** the default for the maximum renewable lifetime */
+    /** The default for the maximum renewable lifetime */
     private static final int DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME = MINUTE * 10080;
 
-    /** the default for allowing forwardable tickets */
+    /** The default for allowing forwardable tickets */
     private static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
 
-    /** the default for allowing proxiable tickets */
+    /** The default for allowing proxiable tickets */
     private static final boolean DEFAULT_TGS_PROXIABLE_ALLOWED = true;
 
-    /** the default for allowing postdatable tickets */
+    /** The default for allowing postdatable tickets */
     private static final boolean DEFAULT_TGS_POSTDATE_ALLOWED = true;
 
-    /** the default for allowing renewable tickets */
+    /** The default for allowing renewable tickets */
     private static final boolean DEFAULT_TGS_RENEWABLE_ALLOWED = true;
 
-    private static final String DEFAULT_PID = "org.apache.kerberos";
-    private static final String DEFAULT_NAME = "Apache Kerberos Service";
-    private static final String DEFAULT_PREFIX = "kdc.";
-
+    /** The encryption types. */
     private EncryptionType[] encryptionTypes;
+
+    /** The primary realm */
+    private String primaryRealm = DEFAULT_REALM;
+
+    /** The service principal name. */
+    private String servicePrincipal = DEFAULT_PRINCIPAL;
+
+    /** The allowable clock skew. */
+    private long allowableClockSkew = DEFAULT_ALLOWABLE_CLOCKSKEW;
+
+    /** Whether pre-authentication by encrypted timestamp is required. */
+    private boolean isPaEncTimestampRequired = DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
+
+    /** The maximum ticket lifetime. */
+    private long maximumTicketLifetime = DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
+
+    /** The maximum renewable lifetime. */
+    private long maximumRenewableLifetime = DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
+
+    /** Whether empty addresses are allowed. */
+    private boolean isEmptyAddressesAllowed = DEFAULT_EMPTY_ADDRESSES_ALLOWED;
+
+    /** Whether forwardable addresses are allowed. */
+    private boolean isForwardableAllowed = DEFAULT_TGS_FORWARDABLE_ALLOWED;
+
+    /** Whether proxiable addresses are allowed. */
+    private boolean isProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
+
+    /** Whether postdating is allowed. */
+    private boolean isPostdateAllowed = DEFAULT_TGS_POSTDATE_ALLOWED;
+
+    /** Whether renewable tickets are allowed. */
+    private boolean isRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
 
 
     /**
-     * Creates a new instance with default settings.
+     * Creates a new instance of KdcConfiguration.
      */
     public KdcConfiguration()
     {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-    }
-
-
-    /**
-     * Creates a new instance with default settings that operates on the
-     * {@link DirectoryService} with the specified ID.
-     * 
-     * @param instanceId 
-     */
-    public KdcConfiguration( String instanceId )
-    {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-        setInstanceId( instanceId );
-    }
-
-
-    /**
-     * Creates a new instance of KdcConfiguration.
-     *
-     * @param properties
-     */
-    public KdcConfiguration( Map<String, Object> properties )
-    {
-        this( properties, LoadStrategy.LDAP );
-    }
-
-
-    /**
-     * Creates a new instance of KdcConfiguration.
-     *
-     * @param properties
-     * @param strategy
-     */
-    public KdcConfiguration( Map<String, Object> properties, int strategy )
-    {
-        if ( properties == null )
-        {
-            configuration = getDefaultConfig();
-        }
-        else
-        {
-            loadProperties( DEFAULT_PREFIX, properties, strategy );
-        }
-
-        int port = getPort();
-
-        if ( port < 1 || port > 0xFFFF )
-        {
-            throw new ConfigurationException( "Invalid value:  " + IP_PORT_KEY + "=" + port );
-        }
+        super.setServiceName( DEFAULT_NAME );
+        super.setIpPort( DEFAULT_IP_PORT );
+        super.setServicePid( DEFAULT_PID );
+        super.setSearchBaseDn( DEFAULT_SEARCH_BASEDN );
 
         prepareEncryptionTypes();
     }
 
 
     /**
-     * Returns a Map of the default config.
+     * Returns the allowable clock skew.
      *
-     * @return The default config.
+     * @return The allowable clock skew.
      */
-    public static Map<String, Object> getDefaultConfig()
+    public long getAllowableClockSkew()
     {
-        Map<String, Object> defaults = new HashMap<String, Object>();
-
-        defaults.put( SERVICE_PID, DEFAULT_PID );
-        defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );
-
-        return defaults;
+        return allowableClockSkew;
     }
 
 
     /**
-     * Returns whether the Dictionary of config is different from this config.
-     *
-     * @param config
-     * @return true if the configs are different.
+     * @return the isEmptyAddressesAllowed
      */
-    public boolean isDifferent( Dictionary config )
+    public boolean isEmptyAddressesAllowed()
     {
-        int port = getPort();
-
-        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
-        {
-            return false;
-        }
-
-        return true;
+        return isEmptyAddressesAllowed;
     }
 
 
     /**
-     * Returns the name of this service.
-     *
-     * @return The name of this service.
+     * @return the isForwardableAllowed
      */
-    public String getName()
+    public boolean isForwardableAllowed()
     {
-        return DEFAULT_NAME;
+        return isForwardableAllowed;
+    }
+
+
+    /**
+     * @return the isPostdateAllowed
+     */
+    public boolean isPostdateAllowed()
+    {
+        return isPostdateAllowed;
+    }
+
+
+    /**
+     * @return the isProxiableAllowed
+     */
+    public boolean isProxiableAllowed()
+    {
+        return isProxiableAllowed;
+    }
+
+
+    /**
+     * @return the isRenewableAllowed
+     */
+    public boolean isRenewableAllowed()
+    {
+        return isRenewableAllowed;
+    }
+
+
+    /**
+     * @return the maximumRenewableLifetime
+     */
+    public long getMaximumRenewableLifetime()
+    {
+        return maximumRenewableLifetime;
+    }
+
+
+    /**
+     * @return the maximumTicketLifetime
+     */
+    public long getMaximumTicketLifetime()
+    {
+        return maximumTicketLifetime;
+    }
+
+
+    /**
+     * @param allowableClockSkew the allowableClockSkew to set
+     */
+    public void setAllowableClockSkew( long allowableClockSkew )
+    {
+        this.allowableClockSkew = allowableClockSkew;
+    }
+
+
+    /**
+     * @param encryptionTypes the encryptionTypes to set
+     */
+    public void setEncryptionTypes( EncryptionType[] encryptionTypes )
+    {
+        this.encryptionTypes = encryptionTypes;
+    }
+
+
+    /**
+     * @param isEmptyAddressesAllowed the isEmptyAddressesAllowed to set
+     */
+    public void setEmptyAddressesAllowed( boolean isEmptyAddressesAllowed )
+    {
+        this.isEmptyAddressesAllowed = isEmptyAddressesAllowed;
+    }
+
+
+    /**
+     * @param isForwardableAllowed the isForwardableAllowed to set
+     */
+    public void setForwardableAllowed( boolean isForwardableAllowed )
+    {
+        this.isForwardableAllowed = isForwardableAllowed;
+    }
+
+
+    /**
+     * @param isPaEncTimestampRequired the isPaEncTimestampRequired to set
+     */
+    public void setPaEncTimestampRequired( boolean isPaEncTimestampRequired )
+    {
+        this.isPaEncTimestampRequired = isPaEncTimestampRequired;
+    }
+
+
+    /**
+     * @param isPostdateAllowed the isPostdateAllowed to set
+     */
+    public void setPostdateAllowed( boolean isPostdateAllowed )
+    {
+        this.isPostdateAllowed = isPostdateAllowed;
+    }
+
+
+    /**
+     * @param isProxiableAllowed the isProxiableAllowed to set
+     */
+    public void setProxiableAllowed( boolean isProxiableAllowed )
+    {
+        this.isProxiableAllowed = isProxiableAllowed;
+    }
+
+
+    /**
+     * @param isRenewableAllowed the isRenewableAllowed to set
+     */
+    public void setRenewableAllowed( boolean isRenewableAllowed )
+    {
+        this.isRenewableAllowed = isRenewableAllowed;
+    }
+
+
+    /**
+     * @param kdcPrincipal the kdcPrincipal to set
+     */
+    public void setKdcPrincipal( String kdcPrincipal )
+    {
+        this.servicePrincipal = kdcPrincipal;
+    }
+
+
+    /**
+     * @param maximumRenewableLifetime the maximumRenewableLifetime to set
+     */
+    public void setMaximumRenewableLifetime( long maximumRenewableLifetime )
+    {
+        this.maximumRenewableLifetime = maximumRenewableLifetime;
+    }
+
+
+    /**
+     * @param maximumTicketLifetime the maximumTicketLifetime to set
+     */
+    public void setMaximumTicketLifetime( long maximumTicketLifetime )
+    {
+        this.maximumTicketLifetime = maximumTicketLifetime;
+    }
+
+
+    /**
+     * @param primaryRealm the primaryRealm to set
+     */
+    public void setPrimaryRealm( String primaryRealm )
+    {
+        this.primaryRealm = primaryRealm;
     }
 
 
@@ -245,45 +329,18 @@ public class KdcConfiguration extends ServiceConfiguration
      */
     public String getPrimaryRealm()
     {
-        String key = REALM_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return DEFAULT_REALM;
+        return primaryRealm;
     }
 
 
     /**
-     * Returns the KDC principal.
+     * Returns the service principal for this KDC service.
      *
-     * @return The KDC principal.
+     * @return The service principal for this KDC service.
      */
-    public KerberosPrincipal getKdcPrincipal()
+    public KerberosPrincipal getServicePrincipal()
     {
-        String key = PRINCIPAL_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return new KerberosPrincipal( get( key ) );
-        }
-
-        return new KerberosPrincipal( DEFAULT_PRINCIPAL );
-    }
-
-
-    public String getEntryBaseDn()
-    {
-        String key = ENTRY_BASEDN_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return KDC_ENTRY_BASEDN;
+        return new KerberosPrincipal( servicePrincipal );
     }
 
 
@@ -299,231 +356,19 @@ public class KdcConfiguration extends ServiceConfiguration
 
 
     /**
-     * Returns the properties.
-     *
-     * @return The properties.
-     */
-    public Map<String, Object> getProperties()
-    {
-        // Request that the krb5key value be returned as binary
-        configuration.put( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY, "krb5Key" );
-
-        return configuration;
-    }
-
-
-    /**
-     * Returns the clock skew.
-     *
-     * @return The clock skew.
-     */
-    public long getClockSkew()
-    {
-        String key = ALLOWABLE_CLOCKSKEW_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return MINUTE * Long.parseLong( get( key ) );
-        }
-
-        return DEFAULT_ALLOWABLE_CLOCKSKEW;
-    }
-
-
-    /**
-     * Returns the port.
-     *
-     * @return The port.
-     */
-    public int getPort()
-    {
-        String key = IP_PORT_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return Integer.parseInt( DEFAULT_IP_PORT );
-    }
-
-
-    /**
-     * Returns the buffer size.
-     *
-     * @return The buffer size.
-     */
-    public int getBufferSize()
-    {
-        String key = BUFFER_SIZE_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return DEFAULT_BUFFER_SIZE;
-    }
-
-
-    /**
      * Returns whether pre-authentication by encrypted timestamp is required.
      *
-     * @return true if pre-authentication by encrypted timestamp is required.
+     * @return Whether pre-authentication by encrypted timestamp is required.
      */
     public boolean isPaEncTimestampRequired()
     {
-        String key = PA_ENC_TIMESTAMP_REQUIRED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_PA_ENC_TIMESTAMP_REQUIRED;
-    }
-
-
-    /**
-     * Returns the maximum ticket lifetime.
-     *
-     * @return The maximum ticket lifetime.
-     */
-    public long getMaximumTicketLifetime()
-    {
-        String key = TGS_MAXIMUM_TICKET_LIFETIME_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return MINUTE * Long.parseLong( get( key ) );
-        }
-
-        return DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME;
-    }
-
-
-    /**
-     * Returns the maximum renewable lifetime.
-     *
-     * @return The maximum renewable lifetime.
-     */
-    public long getMaximumRenewableLifetime()
-    {
-        String key = TGS_MAXIMUM_RENEWABLE_LIFETIME_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return MINUTE * Long.parseLong( get( key ) );
-        }
-
-        return DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME;
-    }
-
-
-    /**
-     * Returns whether empty addresses are allowed.
-     *
-     * @return true if empty addresses are allowed.
-     */
-    public boolean isEmptyAddressesAllowed()
-    {
-        String key = EMPTY_ADDRESSES_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_EMPTY_ADDRESSES_ALLOWED;
-    }
-
-
-    /**
-     * Returns whether forwardable tickets are allowed.
-     *
-     * @return true if forwardable tickets are allowed.
-     */
-    public boolean isForwardableAllowed()
-    {
-        String key = TGS_FORWARDABLE_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_TGS_FORWARDABLE_ALLOWED;
-    }
-
-
-    /**
-     * Returns whether proxiable tickets are allowed.
-     *
-     * @return true if proxiable tickets are allowed.
-     */
-    public boolean isProxiableAllowed()
-    {
-        String key = TGS_PROXIABLE_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_TGS_PROXIABLE_ALLOWED;
-    }
-
-
-    /**
-     * Returns whether postdated tickets are allowed.
-     *
-     * @return true if postdated tickets are allowed.
-     */
-    public boolean isPostdateAllowed()
-    {
-        String key = TGS_POSTDATE_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_TGS_POSTDATE_ALLOWED;
-    }
-
-
-    /**
-     * Returns whether renewable tickets are allowed.
-     *
-     * @return true if renewable tickets are allowed.
-     */
-    public boolean isRenewableAllowed()
-    {
-        String key = TGS_RENEWABLE_ALLOWED_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return "true".equalsIgnoreCase( get( key ) );
-        }
-
-        return DEFAULT_TGS_RENEWABLE_ALLOWED;
+        return isPaEncTimestampRequired;
     }
 
 
     private void prepareEncryptionTypes()
     {
-        String[] encryptionTypeStrings = null;
-
-        String key = ENCRYPTION_TYPES_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            encryptionTypeStrings = ( get( key ) ).split( "\\s" );
-        }
-        else
-        {
-            encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
-        }
+        String[] encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
 
         List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 

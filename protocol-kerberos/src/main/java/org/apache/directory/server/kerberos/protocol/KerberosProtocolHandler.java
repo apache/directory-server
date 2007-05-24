@@ -187,13 +187,13 @@ public class KerberosProtocolHandler implements IoHandler
                 log.warn( ke.getMessage() );
             }
 
-            session.write( getErrorMessage( config.getKdcPrincipal(), ke ) );
+            session.write( getErrorMessage( config.getServicePrincipal(), ke ) );
         }
         catch ( Exception e )
         {
             log.error( "Unexpected exception:  " + e.getMessage(), e );
 
-            session.write( getErrorMessage( config.getKdcPrincipal(), new KerberosException(
+            session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
                 ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
         }
     }

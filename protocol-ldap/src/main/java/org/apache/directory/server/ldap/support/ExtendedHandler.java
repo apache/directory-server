@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -32,8 +31,8 @@ import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
@@ -42,7 +41,7 @@ import org.apache.mina.common.IoSession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler implements LdapMessageHandler
+public class ExtendedHandler implements MessageHandler
 {
     private Map handlers = new HashMap();
 
@@ -109,10 +108,5 @@ public class ExtendedHandler implements LdapMessageHandler
                 session.write( req.getResultResponse() );
             } 
         }
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
     }
 }

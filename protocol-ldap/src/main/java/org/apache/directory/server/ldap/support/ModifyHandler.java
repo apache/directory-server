@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.Control;
@@ -37,9 +36,8 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
 import org.apache.mina.common.IoSession;
-
+import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyHandler implements LdapMessageHandler
+public class ModifyHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ModifyHandler.class );
     private static final ModificationItemImpl[] EMPTY = new ModificationItemImpl[0];
@@ -131,10 +129,5 @@ public class ModifyHandler implements LdapMessageHandler
         result.setResultCode( ResultCodeEnum.SUCCESS );
         session.write( req.getResultResponse() );
         return;
-    }
-
-
-    public void init( StartupConfiguration cfg )
-    {
     }
 }

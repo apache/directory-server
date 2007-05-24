@@ -20,145 +20,36 @@
 package org.apache.directory.server.ldap.support;
 
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-import javax.naming.spi.InitialContextFactory;
-
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.jndi.PropertyKeys;
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.SessionRegistry;
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-
+import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
 import org.apache.mina.common.IoSession;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
  * A single reply handler for {@link org.apache.directory.shared.ldap.message.BindRequest}s.
- *
+ * 
+ * Implements server-side of RFC 2222, sections 4.2 and 4.3.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$, $Date$
  */
-public class BindHandler implements LdapMessageHandler
+public class BindHandler implements MessageHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( BindHandler.class );
+    private IoHandlerCommand bindHandler;
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
-    public void messageReceived( IoSession session, Object request ) throws Exception
+    /**
+     * Creates a new instance of BindHandler.
+     */
+    public BindHandler()
     {
-        LdapContext ctx;
-        BindRequest req = ( BindRequest ) request;
-        LdapResult result = req.getResultResponse().getLdapResult();
-        
-        if ( !req.getVersion3() )
-        {
-            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( "Only LDAP v3 is supported" );
-            session.write( req.getResultResponse() );
-            return;
-        }
-        
-        // if the bind request is not simple then we freak: no strong auth yet
-        if ( !req.isSimple() )
-        {
-            result.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-            result.setErrorMessage( "Only simple binds currently supported" );
-            session.write( req.getResultResponse() );
-            return;
-        }
-
-        // clone the environment first then add the required security settings
-        Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
-        byte[] creds = req.getCredentials();
-        env.put( Context.SECURITY_PRINCIPAL, req.getName() );
-        env.put( Context.SECURITY_CREDENTIALS, creds );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( PropertyKeys.PARSED_BIND_DN, req.getName() );
-
-        if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-        {
-            env.put( Context.REFERRAL, "ignore" );
-        }
-        else
-        {
-            env.put( Context.REFERRAL, "throw" );
-        }
-
-        try
-        {
-            if ( env.containsKey( "server.use.factory.instance" ) )
-            {
-                InitialContextFactory factory = ( InitialContextFactory ) env.get( "server.use.factory.instance" );
-
-                if ( factory == null )
-                {
-                    throw new NullPointerException( "server.use.factory.instance was set in env but was null" );
-                }
-
-                // Bind is a special case where we have to use the referral property to deal
-                ctx = ( LdapContext ) factory.getInitialContext( env );
-            }
-            else
-            {
-                ctx = new ServerLdapContext( DirectoryService.getInstance(), env );
-            }
-        }
-        catch ( NamingException e )
-        {
-            ResultCodeEnum code;
-
-            if ( e instanceof LdapException )
-            {
-                code = ( ( LdapException ) e ).getResultCode();
-                result.setResultCode( code );
-            }
-            else
-            {
-                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
-                result.setResultCode( code );
-            }
-
-            String msg = "Bind failed: " + e.getMessage();
-            
-            if ( IS_DEBUG )
-            {
-                msg += ":\n" + ExceptionUtils.getStackTrace( e );
-                msg += "\n\nBindRequest = \n" + req.toString();
-            }
-
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-            {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
-            }
-
-            result.setErrorMessage( msg );
-            session.write( req.getResultResponse() );
-            return;
-        }
-
-        SessionRegistry.getSingleton().setLdapContext( session, ctx );
-        result.setResultCode( ResultCodeEnum.SUCCESS );
-        session.write( req.getResultResponse() );
+        bindHandler = new BindHandlerChain();
     }
 
 
-    public void init( StartupConfiguration cfg )
+    public void messageReceived( IoSession session, Object message ) throws Exception
     {
+        bindHandler.execute( null, session, message );
     }
 }

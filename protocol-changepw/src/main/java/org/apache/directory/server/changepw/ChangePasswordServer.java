@@ -68,8 +68,8 @@ public class ChangePasswordServer
         this.acceptor = acceptor;
         this.store = store;
 
-        String name = config.getName();
-        int port = config.getPort();
+        String name = config.getServiceName();
+        int port = config.getIpPort();
 
         try
         {
@@ -103,11 +103,11 @@ public class ChangePasswordServer
      */
     public void destroy()
     {
-        acceptor.unbind( new InetSocketAddress( config.getPort() ) );
+        acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );
 
         acceptor = null;
         handler = null;
 
-        log.debug( "{} has stopped listening on port {}", config.getName(), new Integer( config.getPort() ) );
+        log.debug( "{} has stopped listening on port {}", config.getServiceName(), new Integer( config.getIpPort() ) );
     }
 }

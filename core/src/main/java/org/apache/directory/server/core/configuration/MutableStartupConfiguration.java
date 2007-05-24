@@ -45,12 +45,12 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
     }
 
-    
+
     /**
      * Creates a new instance that operates on the {@link DirectoryService} with
      * the specified ID.
      */
-    public MutableStartupConfiguration(String instanceId)
+    public MutableStartupConfiguration( String instanceId )
     {
         super( instanceId );
     }
@@ -60,25 +60,13 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
         super.setSystemPartitionConfiguration( systemPartitionConfiguration );
     }
-    
-    
+
+
     public void setMaxThreads( int maxThreads )
     {
         super.setMaxThreads( maxThreads );
     }
-    
-    
-    public void setMaxTimeLimit( int maxTimeLimit )
-    {
-        super.setMaxTimeLimit( maxTimeLimit );
-    }
-    
-    
-    public void setMaxSizeLimit( int maxSizeLimit )
-    {
-        super.setMaxSizeLimit( maxSizeLimit );
-    }
-    
+
 
     public void setInstanceId( String instanceId )
     {
@@ -138,8 +126,8 @@ public class MutableStartupConfiguration extends StartupConfiguration
     {
         super.setExitVmOnShutdown( exitVmOnShutdown );
     }
-    
-    
+
+
     public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
     {
         super.setDenormalizeOpAttrsEnabled( denormalizeOpAttrsEnabled );

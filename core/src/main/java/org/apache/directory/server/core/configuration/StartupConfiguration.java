@@ -33,6 +33,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
@@ -75,8 +76,6 @@ public class StartupConfiguration extends Configuration
     private boolean accessControlEnabled = false; // turn off by default
     private boolean denormalizeOpAttrsEnabled = false;
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
-    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
-    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
     private PartitionConfiguration systemPartitionConfiguration; 
@@ -115,6 +114,9 @@ public class StartupConfiguration extends Configuration
 
         // Simple
         set.add( new MutableAuthenticatorConfiguration( "Simple", new SimpleAuthenticator() ) );
+
+        // Strong
+        set.add( new MutableAuthenticatorConfiguration( "Strong", new StrongAuthenticator() ) );
 
         setAuthenticatorConfigurations( set );
     }
@@ -434,30 +436,6 @@ public class StartupConfiguration extends Configuration
     public int getMaxThreads()
     {
         return maxThreads;
-    }
-
-
-    protected void setMaxSizeLimit( int maxSizeLimit )
-    {
-        this.maxSizeLimit = maxSizeLimit;
-    }
-
-
-    public int getMaxSizeLimit()
-    {
-        return maxSizeLimit;
-    }
-
-
-    protected void setMaxTimeLimit( int maxTimeLimit )
-    {
-        this.maxTimeLimit = maxTimeLimit;
-    }
-
-
-    public int getMaxTimeLimit()
-    {
-        return maxTimeLimit;
     }
 
 

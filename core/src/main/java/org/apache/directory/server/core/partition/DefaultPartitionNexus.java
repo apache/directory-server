@@ -54,6 +54,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.MultiException;
@@ -159,6 +160,13 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr = new AttributeImpl( "supportedExtension" );
         rootDSE.put( attr );
         attr.add( NoticeOfDisconnect.EXTENSION_OID );
+
+        // Add the supportedSASLMechanisms attribute to rootDSE
+        attr = new AttributeImpl( SupportedSASLMechanisms.ATTRIBUTE );
+        rootDSE.put( attr );
+        attr.add( SupportedSASLMechanisms.GSSAPI );
+        attr.add( SupportedSASLMechanisms.DIGEST_MD5 );
+        attr.add( SupportedSASLMechanisms.CRAM_MD5 );
 
         attr = new AttributeImpl( "supportedControl" );
         rootDSE.put( attr );

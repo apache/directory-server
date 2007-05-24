@@ -17,21 +17,15 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.ntp;
 
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.ConfigurationException;
-import org.apache.directory.server.protocol.shared.LoadStrategy;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 
 /**
+ * Contains the configuration parameters for the NTP protocol provider.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -39,104 +33,23 @@ public class NtpConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 2961795205765175775L;
 
-    /** the default port */
-    private static final String DEFAULT_IP_PORT = "123";
+    /** The default IP port. */
+    private static final int IP_PORT_DEFAULT = 123;
 
-    /** the default pid */
-    private static final String DEFAULT_PID = "org.apache.ntp";
+    /** The default service pid. */
+    private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ntp";
 
-    /** the default name */
-    private static final String DEFAULT_NAME = "Apache NTP Service";
-
-    /** the default prefix */
-    private static final String DEFAULT_PREFIX = "ntp.";
+    /** The default service name. */
+    private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
 
     /**
-     * Creates a new instance with default settings.
+     * Creates a new instance of NtpConfiguration.
      */
     public NtpConfiguration()
     {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-    }
-
-
-    /**
-     * Creates a new instance with default settings that operates on the
-     * {@link DirectoryService} with the specified ID.
-     */
-    public NtpConfiguration( String instanceId )
-    {
-        this( getDefaultConfig(), LoadStrategy.LDAP );
-        setInstanceId( instanceId );
-    }
-
-
-    public NtpConfiguration( Map<String, Object> properties )
-    {
-        this( properties, LoadStrategy.LDAP );
-    }
-
-
-    public NtpConfiguration( Map<String, Object> properties, int strategy )
-    {
-        if ( properties == null )
-        {
-            configuration = getDefaultConfig();
-        }
-        else
-        {
-            loadProperties( DEFAULT_PREFIX, properties, strategy );
-        }
-
-        int port = getPort();
-
-        if ( port < 1 || port > 0xFFFF )
-        {
-            throw new ConfigurationException( "Invalid value:  " + IP_PORT_KEY + "=" + port );
-        }
-    }
-
-
-    public static Map<String, Object> getDefaultConfig()
-    {
-        Map<String, Object> defaults = new HashMap<String, Object>();
-
-        defaults.put( SERVICE_PID, DEFAULT_PID );
-        defaults.put( IP_PORT_KEY, DEFAULT_IP_PORT );
-
-        return defaults;
-    }
-
-
-    public boolean isDifferent( Dictionary config )
-    {
-        int port = getPort();
-
-        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public String getName()
-    {
-        return DEFAULT_NAME;
-    }
-
-
-    public int getPort()
-    {
-        String key = IP_PORT_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return Integer.parseInt( get( key ) );
-        }
-
-        return Integer.parseInt( DEFAULT_IP_PORT );
+        super.setIpPort( IP_PORT_DEFAULT );
+        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 }

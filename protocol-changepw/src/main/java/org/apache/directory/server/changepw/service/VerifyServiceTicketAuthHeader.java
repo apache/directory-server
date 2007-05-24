@@ -53,7 +53,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
         EncryptionType encryptionType = ticket.getEncPart().getEncryptionType();
         EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
 
-        long clockSkew = changepwContext.getConfig().getClockSkew();
+        long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
         ReplayCache replayCache = changepwContext.getReplayCache();
         boolean emptyAddressesAllowed = changepwContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = changepwContext.getClientAddress();

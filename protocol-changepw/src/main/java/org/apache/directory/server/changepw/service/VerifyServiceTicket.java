@@ -42,7 +42,7 @@ public class VerifyServiceTicket extends VerifyTicket
         ChangePasswordConfiguration config = changepwContext.getConfig();
         Ticket ticket = changepwContext.getTicket();
         String primaryRealm = config.getPrimaryRealm();
-        KerberosPrincipal changepwPrincipal = config.getChangepwPrincipal();
+        KerberosPrincipal changepwPrincipal = config.getServicePrincipal();
 
         verifyTicket( ticket, primaryRealm, changepwPrincipal );
 

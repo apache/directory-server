@@ -116,7 +116,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.setLdapPort( port );
+        configuration.getLdapConfiguration().setIpPort( port );
         configuration.setShutdownHookEnabled( false );
         setContexts( "uid=admin,ou=system", "secret" );
 

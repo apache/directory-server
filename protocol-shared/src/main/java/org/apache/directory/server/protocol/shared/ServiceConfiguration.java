@@ -17,15 +17,16 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.protocol.shared;
 
 
-import java.util.HashMap;
+import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
+
+import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.configuration.ConfigurationUtil;
 
 
 /**
@@ -36,85 +37,326 @@ import org.apache.directory.server.core.configuration.Configuration;
  */
 public abstract class ServiceConfiguration extends Configuration
 {
-    /** the prop key const for the port */
+    /** The prop key const for the port. */
     public static final String IP_PORT_KEY = "ipPort";
 
-    /** the prop key const for the port */
-    public static final String IP_ADDRESS_KEY = "ipAddress";
-
-    /** the prop key const for the catalog's base DN */
-    public static final String CATALOG_BASEDN_KEY = "catalogBaseDn";
-
-    /**
-     * The key of the property specifying the single location where entries
-     * are stored.  If this property is not set the store will search the system
-     * partition configuration for catalog entries.
-     */
-    public static final String ENTRY_BASEDN_KEY = "entryBaseDn";
-
-    public static final String INITIAL_CONTEXT_FACTORY_KEY = "initialContextFactory";
-
-    public static final String APACHE_SERVICE_PID_KEY = "apacheServicePid";
-    public static final String APACHE_FACTORY_PID_KEY = "apacheServiceFactoryPid";
-
-    /** the prop key const for buffer.size */
-    public static final String BUFFER_SIZE_KEY = "buffer.size";
-
-    public static final String DEFAULT_ENTRY_BASEDN = "dc=example,dc=com";
-
-    public static final String DEFAULT_INITIAL_CONTEXT_FACTORY = "org.apache.directory.server.core.jndi.CoreContextFactory";
-
-    public static final String APACHE_SERVICE_CONFIGURATION = "apacheServiceConfiguration";
-
-    public static final String SERVICE_PID = "service.pid";
-    public static final String SERVICE_FACTORYPID = "service.factoryPid";
-
-    /** the default buffer size */
-    public static final int DEFAULT_BUFFER_SIZE = 1024;
-
-    /** the number of milliseconds in a minute */
+    /** The number of milliseconds in a minute. */
     public static final int MINUTE = 60000;
 
-    /** the map of configuration */
-    protected Map<String, Object> configuration = new HashMap<String, Object>();
+    /** The default MINA buffer size. */
+    public static final int DEFAULT_BUFFER_SIZE = 1024;
+
+    protected static final String APACHE_SERVICE_CONFIGURATION = "apacheServiceConfiguration";
+    protected static final String SERVICE_PID = "service.pid";
+    protected static final String SERVICE_FACTORYPID = "service.factoryPid";
+
+    /** The MINA buffer size for this service. */
+    private int bufferSize;
+
+    /** The IP port for this service. */
+    private int ipPort;
+
+    /** The IP address for this service. */
+    private String ipAddress;
+
+    /**
+     * The single location where catalog entries are stored.  If this
+     * property is not set the store will expect a single search base
+     * DN to be set.
+     */
+    private String catalogBaseDn;
+
+    /**
+     * The single location where entries are stored.  If this
+     * property is not set the store will search the system
+     * partition configuration for catalog entries.
+     */
+    private String searchBaseDn = "ou=users,dc=example,dc=com";
+
+    /** The JNDI initial context factory to use. */
+    private String initialContextFactory = "org.apache.directory.server.core.jndi.CoreContextFactory";
+
+    /** The authentication mechanism to use for establishing a JNDI context. */
+    private String securityAuthentication = "simple";
+
+    /** The principal to use for establishing a JNDI context. */
+    private String securityPrincipal = "uid=admin,ou=system";
+
+    /** The credentials to use for establishing a JNDI context. */
+    private String securityCredentials = "secret";
+
+    /** The friendly name of this service. */
+    private String serviceName;
+
+    /** The PID for this service. */
+    private String servicePid;
+
+    /** Whether this service is enabled. */
+    private boolean isEnabled = false;
 
 
+    /**
+     * Returns the buffer size.
+     * 
+     * @return The bufferSize.
+     */
+    public int getBufferSize()
+    {
+        return bufferSize;
+    }
+
+
+    /**
+     * Sets the buffer size.
+     * 
+     * @param bufferSize The bufferSize to set.
+     */
+    public void setBufferSize( int bufferSize )
+    {
+        this.bufferSize = bufferSize;
+    }
+
+
+    /**
+     * Returns whether this service is enabled or not.
+     * 
+     * @return True if this service is enabled.
+     */
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+
+    /**
+     * Sets whether this service is enabled or not.
+     * 
+     * @param isEnabled True if this service is to be enabled.
+     */
+    public void setEnabled( boolean isEnabled )
+    {
+        this.isEnabled = isEnabled;
+    }
+
+
+    /**
+     * Returns the service PID.
+     * 
+     * @return The servicePid.
+     */
+    public String getServicePid()
+    {
+        return servicePid;
+    }
+
+
+    /**
+     * Sets the service PID.
+     * 
+     * @param servicePid The servicePid to set.
+     */
+    public void setServicePid( String servicePid )
+    {
+        this.servicePid = servicePid;
+    }
+
+
+    /**
+     * Compares whether a Dictionary of configuration is 
+     * different from the current instance of configuration.
+     *
+     * @param config
+     * @return Whether the configuration is different.
+     */
+    public boolean isDifferent( Dictionary config )
+    {
+        int port = getIpPort();
+
+        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Returns the service name.
+     * 
+     * @return The serviceName.
+     */
+    public String getServiceName()
+    {
+        return serviceName;
+    }
+
+
+    /**
+     * Sets the service name.
+     * 
+     * @param serviceName The service name to set.
+     */
+    public void setServiceName( String serviceName )
+    {
+        this.serviceName = serviceName;
+    }
+
+
+    /**
+     * Returns the IP address.
+     * 
+     * @return The IP address.
+     */
+    public String getIpAddress()
+    {
+        return ipAddress;
+    }
+
+
+    /**
+     * Returns the IP port.
+     * 
+     * @return The IP port.
+     */
+    public int getIpPort()
+    {
+        return ipPort;
+    }
+
+
+    /**
+     * Returns the catalog base DN.
+     *
+     * @return The catalog base DN.
+     */
     public String getCatalogBaseDn()
     {
-        String key = CATALOG_BASEDN_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return null;
+        return catalogBaseDn;
     }
 
 
-    public String getEntryBaseDn()
+    /**
+     * Returns the search base DN.
+     *
+     * @return The search base DN.
+     */
+    public String getSearchBaseDn()
     {
-        String key = ENTRY_BASEDN_KEY;
-
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
-
-        return DEFAULT_ENTRY_BASEDN;
+        return searchBaseDn;
     }
 
 
+    /**
+     * Returns the {@link InitialContextFactory}.
+     *
+     * @return The {@link InitialContextFactory}.
+     */
     public String getInitialContextFactory()
     {
-        String key = INITIAL_CONTEXT_FACTORY_KEY;
+        return initialContextFactory;
+    }
 
-        if ( configuration.containsKey( key ) )
-        {
-            return get( key );
-        }
 
-        return DEFAULT_INITIAL_CONTEXT_FACTORY;
+    /**
+     * Returns The authentication mechanism.
+     * 
+     * @return The securityAuthentication.
+     */
+    public String getSecurityAuthentication()
+    {
+        return securityAuthentication;
+    }
+
+
+    /**
+     * @return The securityCredentials.
+     */
+    public String getSecurityCredentials()
+    {
+        return securityCredentials;
+    }
+
+
+    /**
+     * @return The securityPrincipal.
+     */
+    public String getSecurityPrincipal()
+    {
+        return securityPrincipal;
+    }
+
+
+    /**
+     * @param catalogBaseDn The catalogBaseDn to set.
+     */
+    public void setCatalogBaseDn( String catalogBaseDn )
+    {
+        this.catalogBaseDn = catalogBaseDn;
+    }
+
+
+    /**
+     * @param initialContextFactory The initialContextFactory to set.
+     */
+    public void setInitialContextFactory( String initialContextFactory )
+    {
+        this.initialContextFactory = initialContextFactory;
+    }
+
+
+    /**
+     * @param ipAddress The ipAddress to set.
+     */
+    public void setIpAddress( String ipAddress )
+    {
+        this.ipAddress = ipAddress;
+    }
+
+
+    /**
+     * @param ipPort The ipPort to set.
+     */
+    public void setIpPort( int ipPort )
+    {
+        ConfigurationUtil.validatePortNumber( ipPort );
+        this.ipPort = ipPort;
+    }
+
+
+    /**
+     * @param searchBaseDn The searchBaseDn to set.
+     */
+    public void setSearchBaseDn( String searchBaseDn )
+    {
+        this.searchBaseDn = searchBaseDn;
+    }
+
+
+    /**
+     * @param securityAuthentication The securityAuthentication to set.
+     */
+    public void setSecurityAuthentication( String securityAuthentication )
+    {
+        this.securityAuthentication = securityAuthentication;
+    }
+
+
+    /**
+     * @param securityCredentials The securityCredentials to set.
+     */
+    public void setSecurityCredentials( String securityCredentials )
+    {
+        this.securityCredentials = securityCredentials;
+    }
+
+
+    /**
+     * @param securityPrincipal The securityPrincipal to set.
+     */
+    public void setSecurityPrincipal( String securityPrincipal )
+    {
+        this.securityPrincipal = securityPrincipal;
     }
 
 
@@ -122,33 +364,7 @@ public abstract class ServiceConfiguration extends Configuration
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JNDI_KEY, this );
-        env.putAll( configuration );
 
         return env;
-    }
-
-
-    protected void loadProperties( String prefix, Map properties, int strategy )
-    {
-        LoadStrategy loader;
-
-        switch ( strategy )
-        {
-            case LoadStrategy.LDAP:
-                loader = new LdapLoader();
-                break;
-            case LoadStrategy.PROPS:
-            default:
-                loader = new PropsLoader();
-                break;
-        }
-
-        configuration.putAll( loader.load( prefix, properties ) );
-    }
-
-
-    protected String get( String key )
-    {
-        return ( String ) configuration.get( key );
     }
 }
