@@ -34,18 +34,33 @@ public class ChangePasswordRequestModifier extends AbstractPasswordMessageModifi
     private PrivateMessage privateMessage;
 
 
+    /**
+     * Returns the {@link ChangePasswordRequest}.
+     *
+     * @return The {@link ChangePasswordRequest}.
+     */
     public ChangePasswordRequest getChangePasswordMessage()
     {
         return new ChangePasswordRequest( messageLength, versionNumber, authHeaderLength, authHeader, privateMessage );
     }
 
 
+    /**
+     * Sets the AuthHeader.
+     *
+     * @param authHeader
+     */
     public void setAuthHeader( ApplicationRequest authHeader )
     {
         this.authHeader = authHeader;
     }
 
 
+    /**
+     * Sets the {@link PrivateMessage}.
+     *
+     * @param privateMessage
+     */
     public void setPrivateMessage( PrivateMessage privateMessage )
     {
         this.privateMessage = privateMessage;

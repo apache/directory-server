@@ -35,6 +35,7 @@ import javax.naming.NamingException;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
+import jdbm.helper.Serializer;
 import jdbm.helper.TupleBrowser;
 
 import org.apache.commons.collections.iterators.ArrayIterator;
@@ -101,9 +102,14 @@ public class JdbmTable implements Table
      * @throws NamingException if the table's file cannot be created
      */
     public JdbmTable( String name, boolean allowsDuplicates, int numDupLimit, 
-        RecordManager manager, TupleComparator comparator )
+        RecordManager manager, TupleComparator comparator, Serializer keySerializer, 
+        Serializer valueSerializer )
         throws NamingException
     {
+        /*System.out.println( "Creating BTree for " + name + ", key serializer = " + 
+            (keySerializer == null ? "null" : keySerializer.getClass().getName()) +
+            ", valueSerializer = " + 
+            (valueSerializer == null ? "null" : valueSerializer.getClass().getName()) );*/
         this.numDupLimit = numDupLimit;
         this.name = name;
         this.recMan = manager;
@@ -138,7 +144,7 @@ public class JdbmTable implements Table
             }
             else
             {
-                bt = BTree.createInstance( recMan, comparator.getKeyComparator() );
+                bt = BTree.createInstance( recMan, comparator.getKeyComparator(), keySerializer, valueSerializer );
                 recId = bt.getRecid();
                 recMan.setNamedObject( name, recId );
                 recId = recMan.insert( new Integer( 0 ) );
@@ -163,9 +169,10 @@ public class JdbmTable implements Table
      * @param keyComparator a tuple comparator
      * @throws NamingException if the table's file cannot be created
      */
-    public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator ) throws NamingException
+    public JdbmTable( String name, RecordManager manager, SerializableComparator keyComparator, Serializer keySerializer, Serializer valueSerializer ) 
+        throws NamingException
     {
-        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator( keyComparator ) );
+        this( name, false, Integer.MAX_VALUE, manager, new KeyOnlyComparator( keyComparator ), keySerializer, valueSerializer );
     }
 
 

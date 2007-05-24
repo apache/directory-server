@@ -41,7 +41,15 @@ public class EncApRepPart extends KerberosMessage implements Encodable
     private Integer sequenceNumber; //optional
 
 
-    public EncApRepPart(KerberosTime clientTime, int cusec, EncryptionKey subSessionKey, Integer sequenceNumber)
+    /**
+     * Creates a new instance of EncApRepPart.
+     *
+     * @param clientTime
+     * @param cusec
+     * @param subSessionKey
+     * @param sequenceNumber
+     */
+    public EncApRepPart( KerberosTime clientTime, int cusec, EncryptionKey subSessionKey, Integer sequenceNumber )
     {
         super( MessageType.ENC_AP_REP_PART );
 
@@ -52,24 +60,44 @@ public class EncApRepPart extends KerberosMessage implements Encodable
     }
 
 
+    /**
+     * Returns the client {@link KerberosTime}.
+     *
+     * @return The client {@link KerberosTime}.
+     */
     public KerberosTime getClientTime()
     {
         return clientTime;
     }
 
 
+    /**
+     * Returns the client microsecond.
+     *
+     * @return The client microsecond.
+     */
     public int getClientMicroSecond()
     {
         return cusec;
     }
 
 
+    /**
+     * Returns the sequence number.
+     *
+     * @return The sequence number.
+     */
     public Integer getSequenceNumber()
     {
         return sequenceNumber;
     }
 
 
+    /**
+     * Returns the sub-session {@link EncryptionKey}.
+     *
+     * @return The sub-session {@link EncryptionKey}.
+     */
     public EncryptionKey getSubSessionKey()
     {
         return subSessionKey;

@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
-
 import javax.naming.directory.Attributes;
 
 
@@ -75,9 +73,9 @@ public class IndexRecord
      *
      * @return the id of the entry indexed
      */
-    public BigInteger getEntryId()
+    public Object getEntryId()
     {
-        return ( BigInteger ) tuple.getValue();
+        return ( Object ) tuple.getValue();
     }
 
 
@@ -97,7 +95,7 @@ public class IndexRecord
      *
      * @param id the id of the entry
      */
-    public void setEntryId( BigInteger id )
+    public void setEntryId( Object id )
     {
         tuple.setValue( id );
     }

@@ -137,7 +137,7 @@ public class SubstringEvaluator implements Evaluator
         // resusitate the entry if it has not been and set entry in IndexRecord
         if ( null == record.getAttributes() )
         {
-            Attributes attrs = db.lookup( record.getEntryId() );
+            Attributes attrs = db.lookup( (Long)record.getEntryId() );
             record.setAttributes( attrs );
         }
 

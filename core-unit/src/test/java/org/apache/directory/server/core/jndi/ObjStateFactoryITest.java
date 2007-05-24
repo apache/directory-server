@@ -64,14 +64,14 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
     public void testStateFactory() throws NamingException
     {
         super.sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
-        Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "erodriguez", "committer" );
+        Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "sn=erodriguez", "committer" );
         super.sysRoot.bind( "uid=erodriguez, ou=users", p );
         Attributes attrs = super.sysRoot.getAttributes( "uid=erodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "noices".getBytes() ) );
         assertEquals( "555-1212", attrs.get( "telephonenumber" ).get() );
-        assertEquals( "erodriguez", attrs.get( "seealso" ).get() );
+        assertEquals( "sn=erodriguez", attrs.get( "seealso" ).get() );
         assertEquals( "committer", attrs.get( "description" ).get() );
     }
 

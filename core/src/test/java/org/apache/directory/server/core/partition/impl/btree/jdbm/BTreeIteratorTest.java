@@ -22,15 +22,16 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 
 import javax.naming.NamingException;
+
+import org.apache.directory.shared.ldap.util.LongComparator;
 
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.recman.BaseRecordManager;
 
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 import junit.framework.TestCase;
 
@@ -53,7 +54,7 @@ public class BTreeIteratorTest extends TestCase
     {
         tempFile = File.createTempFile( "jdbm", "test" );
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
-        tree = BTree.createInstance( rm, new BigIntegerComparator() );
+        tree = BTree.createInstance( rm, new LongComparator() );
     }
     
     protected void tearDown() throws Exception
@@ -73,7 +74,7 @@ public class BTreeIteratorTest extends TestCase
     
     public void testOneElement() throws IOException, NamingException
     {
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         BTreeIterator bte = new BTreeIterator( tree, true );
         assertTrue( bte.hasNext() );
@@ -91,32 +92,32 @@ public class BTreeIteratorTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
         BTreeIterator bte = new BTreeIterator( tree, true );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "1" ), bte.next() );
+        assertEquals( 1L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "2" ), bte.next() );
+        assertEquals( 2L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "4" ), bte.next() );
+        assertEquals( 4L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "5" ), bte.next() );
+        assertEquals( 5L, bte.next() );
 
         assertFalse( "iterator consumed should not have elements", bte.hasNext() );
     }
@@ -131,32 +132,32 @@ public class BTreeIteratorTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
         BTreeIterator bte = new BTreeIterator( tree, false );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "5" ), bte.next() );
+        assertEquals( 5L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "4" ), bte.next() );
+        assertEquals( 4L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "2" ), bte.next() );
+        assertEquals( 2L, bte.next() );
 
         assertTrue( bte.hasNext() );
-        assertEquals( new BigInteger( "1" ), bte.next() );
+        assertEquals( 1L, bte.next() );
 
         assertFalse( "iterator consumed should not have elements", bte.hasNext() );
     }

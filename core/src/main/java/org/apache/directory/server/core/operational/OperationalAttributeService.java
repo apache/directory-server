@@ -22,10 +22,9 @@ package org.apache.directory.server.core.operational;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
-import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -35,7 +34,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -43,21 +41,29 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.UsageEnum;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 
 /**
@@ -71,6 +77,9 @@ import org.apache.directory.shared.ldap.name.Rdn;
  */
 public class OperationalAttributeService extends BaseInterceptor
 {
+    /** The service name */
+    public static final String NAME = "operationalAttributeService";
+
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
@@ -131,7 +140,7 @@ public class OperationalAttributeService extends BaseInterceptor
         isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) nexus.getRootDSE().get( "subschemaSubentry" ).get();
+        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( "subschemaSubentry" ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
@@ -145,179 +154,173 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add(NextInterceptor nextInterceptor, LdapDN normName, Attributes entry)
+    public void add(NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         String principal = getPrincipal().getName();
+        Attributes entry = ((AddOperationContext)opContext).getEntry();
 
-        Attribute attribute = new AttributeImpl( "creatorsName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
         attribute.add( principal );
         entry.put( attribute );
 
-        attribute = new AttributeImpl( "createTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         entry.put( attribute );
 
-        nextInterceptor.add(normName, entry );
+        nextInterceptor.add( opContext );
     }
-
-
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    
+    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.modify( name, modOp, attrs );
+        nextInterceptor.modify( opContext );
 
-        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
         {
             return;
         }
         
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
-
-        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
-    }
-
-
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        nextInterceptor.modify( name, items );
-
-        if ( name.getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
-        {
-            return;
-        }
         
-        // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
-        attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-
-        nexus.modify( name, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), items );
+        nexus.modify( newModify );
     }
 
 
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
+        nextInterceptor.rename( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        LdapDN newDn = ( LdapDN ) name.clone();
-        newDn.remove( name.size() - 1 );
-        newDn.add( newRn );
+        LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
+        newDn.remove( opContext.getDn().size() - 1 );
+        newDn.add( ((RenameOperationContext)opContext).getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
-        nexus.modify( newDn, DirContext.REPLACE_ATTRIBUTE, attributes );
+        
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+        ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
+        
+        nexus.modify( newModify );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        nextInterceptor.move( name, newParentName );
+        nextInterceptor.move( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+
+        ModifyOperationContext newModify = 
+            new ModifyOperationContext( ((MoveOperationContext)opContext).getParent(), items );
+        
+        nexus.modify( newModify );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.move( name, newParentName, newRn, deleteOldRn );
+        nextInterceptor.moveAndRename( opContext );
 
         // add operational attributes after call in case the operation fails
         Attributes attributes = new AttributesImpl( true );
-        Attribute attribute = new AttributeImpl( "modifiersName" );
+        Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
         attributes.put( attribute );
 
-        attribute = new AttributeImpl( "modifyTimestamp" );
+        attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        nexus.modify( newParentName, DirContext.REPLACE_ATTRIBUTE, attributes );
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+
+        ModifyOperationContext newModify = 
+            new ModifyOperationContext( 
+        		((MoveAndRenameOperationContext)opContext).getParent(), items );
+        nexus.modify( newModify );
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
-        if ( result == null )
-        {
-            return null;
-        }
-        filter( result );
-        return result;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes result = nextInterceptor.lookup( name, attrIds );
+        Attributes result = nextInterceptor.lookup( opContext );
+        
         if ( result == null )
         {
             return null;
         }
 
-        filter( name, result, attrIds );
+        if ( ((LookupOperationContext)opContext).getAttrsId() == null )
+        {
+            filter( result );
+        }
+        else
+        {
+            filter( opContext, result );
+        }
+        
         return result;
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration e = nextInterceptor.search( opContext );
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        
         if ( searchCtls.getReturningAttributes() != null )
         {
             if ( isDenormalizeOpAttrsEnabled )
             {
-                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER );
+                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
             }
                 
             return e;
         }
 
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
     }
 
 
@@ -352,18 +355,21 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    private void filter( Name dn, Attributes entry, String[] ids ) throws NamingException
+    private void filter( OperationContext lookupContext, Attributes entry ) throws NamingException
     {
+        LdapDN dn = ((LookupOperationContext)lookupContext).getDn();
+        List<String> ids = ((LookupOperationContext)lookupContext).getAttrsId();
+        
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )
         {
-            OperationalAttributeService.this.filter( entry );
+            filter( entry );
             return;
         }
 
         if ( dn.size() == 0 )
         {
-            Set<String> idsSet = new HashSet<String>( ids.length );
+            Set<String> idsSet = new HashSet<String>( ids.size() );
 
             for ( String id:ids  )
             {
@@ -395,7 +401,7 @@ public class OperationalAttributeService extends BaseInterceptor
     {
         if ( isDenormalizeOpAttrsEnabled )
         {
-            AttributeType type = registry.lookup( SystemSchemaConstants.CREATORS_NAME_AT );
+            AttributeType type = registry.lookup( SchemaConstants.CREATORS_NAME_AT );
             Attribute attr = AttributeUtils.getAttribute( entry, type );
 
             if ( attr != null )
@@ -407,7 +413,7 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             
             type = null;
-            type = registry.lookup( SystemSchemaConstants.MODIFIERS_NAME_AT );
+            type = registry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
             attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
             
@@ -453,7 +459,9 @@ public class OperationalAttributeService extends BaseInterceptor
             }
             else if ( rdn.size() == 1 )
             {
-                newDn.add( new Rdn( registry.lookup( rdn.getNormType() ).getName(), (String)rdn.getAtav().getValue() ) );
+            	String name = registry.lookup( rdn.getNormType() ).getName();
+            	String value = (String)rdn.getAtav().getValue(); 
+                newDn.add( new Rdn( name, name, value, value ) );
                 continue;
             }
 

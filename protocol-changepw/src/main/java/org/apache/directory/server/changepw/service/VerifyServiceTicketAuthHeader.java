@@ -22,12 +22,14 @@ package org.apache.directory.server.changepw.service;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
 
@@ -40,21 +42,25 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         ApplicationRequest authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
-        EncryptionKey serverKey = changepwContext.getServerEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = ticket.getEncPart().getEncryptionType();
+        EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
+
         long clockSkew = changepwContext.getConfig().getAllowableClockSkew();
         ReplayCache replayCache = changepwContext.getReplayCache();
         boolean emptyAddressesAllowed = changepwContext.getConfig().isEmptyAddressesAllowed();
         InetAddress clientAddress = changepwContext.getClientAddress();
-        LockBox lockBox = changepwContext.getLockBox();
+        CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, lockBox );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11 );
 
         changepwContext.setAuthenticator( authenticator );
 

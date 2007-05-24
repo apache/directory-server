@@ -389,4 +389,264 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
     }
+
+    public void testSHA() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        
+        // Check that we can get the attributes
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+    public void testSSHA() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        
+        // Check that we can get the attributes
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+    public void testMD5() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        
+        // Check that we can get the attributes
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        
+        // now modify the password for akarasulu : 'secret', encrypted using MD5
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+    public void testSMD5() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        
+        // Check that we can get the attributes
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+    public void testCRYPT() throws NamingException
+    {
+        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env.put( Context.PROVIDER_URL, "ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext ic = new InitialDirContext( env );
+        
+        // Check that we can get the attributes
+        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+        
+        // now modify the password for akarasulu : 'secret', encrypted using CRYPT
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{crypt}qFkH8Z1woBlXw" );
+        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        
+        // close and try with old password (should fail)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        
+        try
+        {
+            ic = new InitialDirContext( env );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail 
+        }
+
+        // close and try again now with new password (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ic.close();
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ic = new InitialDirContext( env );
+        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
 }

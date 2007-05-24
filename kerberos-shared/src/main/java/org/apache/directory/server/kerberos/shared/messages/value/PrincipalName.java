@@ -30,19 +30,35 @@ public class PrincipalName
     private int nameType;
 
 
-    public PrincipalName(String nameComponent, int nameType)
+    /**
+     * Creates a new instance of PrincipalName.
+     *
+     * @param nameComponent
+     * @param nameType
+     */
+    public PrincipalName( String nameComponent, int nameType )
     {
         this.nameComponent = nameComponent;
         this.nameType = nameType;
     }
 
 
+    /**
+     * Returns the type of the {@link PrincipalName}.
+     *
+     * @return The type of the {@link PrincipalName}.
+     */
     public int getNameType()
     {
         return nameType;
     }
 
 
+    /**
+     * Returns the name component.
+     *
+     * @return The name component.
+     */
     public String getNameComponent()
     {
         return nameComponent;

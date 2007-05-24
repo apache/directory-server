@@ -33,7 +33,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -153,39 +159,15 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( LdapDN normalizedName, int modOp, Attributes attributes )
+    public Operation newModify( OperationContext opContext )
     {
+        ModificationItemImpl[] items = ((ModifyOperationContext)opContext).getModItems();
+        LdapDN normalizedName = opContext.getDn();
+
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        NamingEnumeration e = attributes.getAll();
-        // Transform into multiple {@link AttributeOperation}s.
-        while ( e.hasMoreElements() )
-        {
-            Attribute attr = ( Attribute ) e.nextElement();
-            result.add( newModify( csn, normalizedName, modOp, attr ) );
-        }
-
-        // Resurrect the entry in case it is deleted.
-        result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
-            "false" ) ) );
-
-        return addDefaultOperations( result, null, normalizedName );
-    }
-
-
-    /**
-     * Returns a new {@link Operation} that performs "modify" operation.
-     * 
-     * @return a {@link CompositeOperation} that consists of one or more
-     * {@link AttributeOperation}s and one additional operation that
-     * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
-     * entry the modified attributes belong to.
-     */
-    public Operation newModify( LdapDN normalizedName, ModificationItemImpl[] items )
-    {
-        CSN csn = newCSN();
-        CompositeOperation result = new CompositeOperation( csn );
-        final int length = items.length;
+        int length = items.length;
+        
         // Transform into multiple {@link AttributeOperation}s.
         for ( int i = 0; i < length; i++ )
         {
@@ -273,7 +255,8 @@ public class OperationFactory
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = nexus.search( oldName, environment, new PresenceNode( Constants.OBJECT_CLASS_OID ), ctrl );
+        NamingEnumeration e = nexus.search( 
+            new SearchOperationContext( oldName, environment, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
         {
@@ -322,9 +305,9 @@ public class OperationFactory
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {
-        if ( nexus.hasEntry( newEntryName ) )
+        if ( nexus.hasEntry( new EntryOperationContext( newEntryName ) ) )
         {
-            Attributes entry = nexus.lookup( newEntryName );
+            Attributes entry = nexus.lookup( new LookupOperationContext( newEntryName ) );
             Attribute deleted = entry.get( Constants.ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
 

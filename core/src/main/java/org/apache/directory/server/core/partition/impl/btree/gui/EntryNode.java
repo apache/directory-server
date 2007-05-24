@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree.gui;
 
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -51,16 +50,16 @@ public class EntryNode implements TreeNode
     private final EntryNode parent;
     private final Attributes entry;
     private final ArrayList children;
-    private final BigInteger id;
+    private final Long id;
 
 
-    public EntryNode(BigInteger id, EntryNode parent, BTreePartition partition, Attributes entry, HashMap map)
+    public EntryNode(Long id, EntryNode parent, BTreePartition partition, Attributes entry, HashMap map)
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode(BigInteger id, EntryNode parent, BTreePartition db, Attributes entry, HashMap map,
+    public EntryNode(Long id, EntryNode parent, BTreePartition db, Attributes entry, HashMap map,
         ExprNode exprNode, SearchEngine engine)
     {
         this.partition = db;
@@ -98,12 +97,12 @@ public class EntryNode implements TreeNode
 
                 if ( engine != null && exprNode != null )
                 {
-                    if ( db.getChildCount( rec.getEntryId() ) == 0 )
+                    if ( db.getChildCount( (Long)rec.getEntryId() ) == 0 )
                     {
-                        if ( engine.evaluate( exprNode, rec.getEntryId() ) )
+                        if ( engine.evaluate( exprNode, (Long)rec.getEntryId() ) )
                         {
-                            Attributes newEntry = db.lookup( rec.getEntryId() );
-                            EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode,
+                            Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
+                            EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode,
                                 engine );
                             children.add( child );
                         }
@@ -114,15 +113,15 @@ public class EntryNode implements TreeNode
                     }
                     else
                     {
-                        Attributes newEntry = db.lookup( rec.getEntryId() );
-                        EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
+                        Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
+                        EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map, exprNode, engine );
                         children.add( child );
                     }
                 }
                 else
                 {
-                    Attributes newEntry = db.lookup( rec.getEntryId() );
-                    EntryNode child = new EntryNode( rec.getEntryId(), this, db, newEntry, map );
+                    Attributes newEntry = db.lookup( (Long)rec.getEntryId() );
+                    EntryNode child = new EntryNode( (Long)rec.getEntryId(), this, db, newEntry, map );
                     children.add( child );
                 }
             }
@@ -215,7 +214,7 @@ public class EntryNode implements TreeNode
     }
 
 
-    public BigInteger getEntryId()
+    public Long getEntryId()
     {
         return id;
     }

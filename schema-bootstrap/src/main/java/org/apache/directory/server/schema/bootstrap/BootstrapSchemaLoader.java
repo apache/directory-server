@@ -74,6 +74,8 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
 {
     private static final Logger log = LoggerFactory.getLogger( BootstrapSchemaLoader.class );
 
+    private ClassLoader cl = getClass().getClassLoader();
+
     /** stores schemas of producers for callback access */
     private ThreadLocal<BootstrapSchema> schemas;
     /** stores registries associated with producers for callback access */
@@ -98,7 +100,13 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         registries = new ThreadLocal<Registries>();
     }
 
-    
+
+    public BootstrapSchemaLoader( ClassLoader cl )
+    {
+        this();
+        this.cl = cl;
+    }
+
     public final void loadWithDependencies( Schema schema, Registries registries ) throws NamingException
     {
         if ( ! ( schema instanceof BootstrapSchema ) )
@@ -202,7 +210,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
      */
     private void register( ProducerTypeEnum type, String id, Object schemaObject ) throws NamingException
     {
-        BootstrapSchema schema = ( BootstrapSchema ) this.schemas.get();
+        BootstrapSchema schema = this.schemas.get();
         DefaultRegistries registries = ( DefaultRegistries ) this.registries.get();
         List<String> values = new ArrayList<String>(1);
         values.add( schema.getSchemaName() );
@@ -322,7 +330,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
 
         try
         {
-            clazz = Class.forName( targetClassName );
+            clazz = Class.forName( targetClassName, true, cl );
         }
         catch ( ClassNotFoundException e )
         {
@@ -336,7 +344,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
 
             try
             {
-                clazz = Class.forName( defaultClassName );
+                clazz = Class.forName( defaultClassName, true, cl );
             }
             catch ( ClassNotFoundException e )
             {
@@ -407,7 +415,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
         Schema schema = null;
         try
         {
-            schema = ( Schema ) Class.forName( schemaName ).newInstance();
+            schema = ( Schema ) Class.forName( schemaName, true, cl ).newInstance();
         }
         catch ( InstantiationException e )
         {

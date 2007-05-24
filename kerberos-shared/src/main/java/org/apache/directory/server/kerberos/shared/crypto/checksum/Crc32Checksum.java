@@ -17,27 +17,22 @@
  *  under the License. 
  *  
  */
+
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
 import java.util.zip.CRC32;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
-import org.bouncycastle.crypto.Digest;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Crc32Checksum extends ChecksumEngine
+public class Crc32Checksum implements ChecksumEngine
 {
-    public Digest getDigest()
-    {
-        return new CRC32Digest();
-    }
-
-
     public ChecksumType checksumType()
     {
         return ChecksumType.CRC32;
@@ -50,95 +45,25 @@ public class Crc32Checksum extends ChecksumEngine
     }
 
 
-    public int checksumSize()
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
-        return 4;
+        CRC32 crc32 = new CRC32();
+        crc32.update( data );
+
+        return int2octet( ( int ) crc32.getValue() );
     }
 
 
-    public int keySize()
+    private byte[] int2octet( int value )
     {
-        return 0;
-    }
+        byte[] bytes = new byte[4];
+        int i, shift;
 
-
-    public int confounderSize()
-    {
-        return 0;
-    }
-
-
-    public boolean isSafe()
-    {
-        return false;
-    }
-
-
-    public byte[] calculateKeyedChecksum( byte[] data, byte[] key )
-    {
-        return null;
-    }
-
-
-    public boolean verifyKeyedChecksum( byte[] data, byte[] key, byte[] checksum )
-    {
-        return false;
-    }
-
-    private class CRC32Digest implements Digest
-    {
-        private CRC32 crc32 = new CRC32();
-
-
-        public String getAlgorithmName()
+        for ( i = 0, shift = 24; i < 4; i++, shift -= 8 )
         {
-            return "CRC-32";
+            bytes[i] = ( byte ) ( 0xFF & ( value >> shift ) );
         }
 
-
-        public int getDigestSize()
-        {
-            return 4;
-        }
-
-
-        public void reset()
-        {
-            crc32.reset();
-        }
-
-
-        public void update( byte in )
-        {
-            crc32.update( in );
-        }
-
-
-        public void update( byte[] in, int inOff, int len )
-        {
-            crc32.update( in, inOff, len );
-        }
-
-
-        public int doFinal( byte[] out, int outOff )
-        {
-            out = int2octet( ( int ) crc32.getValue() );
-
-            return 0;
-        }
-
-
-        private byte[] int2octet( int value )
-        {
-            byte[] bytes = new byte[4];
-            int i, shift;
-
-            for ( i = 0, shift = 24; i < 4; i++, shift -= 8 )
-            {
-                bytes[i] = ( byte ) ( 0xFF & ( value >> shift ) );
-            }
-
-            return bytes;
-        }
+        return bytes;
     }
 }

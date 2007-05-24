@@ -27,7 +27,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.configuration.ConfigurationException;
@@ -91,9 +90,9 @@ class SingleBaseSearch implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, KerberosKey newKey ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return ( String ) execute( new ChangePassword( principal, newKey ) );
+        return ( String ) execute( new ChangePassword( principal, newPassword ) );
     }
 
 

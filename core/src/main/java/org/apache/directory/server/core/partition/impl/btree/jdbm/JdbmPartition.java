@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,15 +30,19 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
 import org.apache.directory.server.schema.registries.Registries;
-
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -265,31 +268,31 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final BigInteger getEntryId( String dn ) throws NamingException
+    public final Long getEntryId( String dn ) throws NamingException
     {
         return store.getEntryId( dn );
     }
 
 
-    public final String getEntryDn( BigInteger id ) throws NamingException
+    public final String getEntryDn( Long id ) throws NamingException
     {
         return store.getEntryDn( id );
     }
 
 
-    public final BigInteger getParentId( String dn ) throws NamingException
+    public final Long getParentId( String dn ) throws NamingException
     {
         return store.getParentId( dn );
     }
 
 
-    public final BigInteger getParentId( BigInteger childId ) throws NamingException
+    public final Long getParentId( Long childId ) throws NamingException
     {
         return store.getParentId( childId );
     }
 
 
-    public final String getEntryUpdn( BigInteger id ) throws NamingException
+    public final String getEntryUpdn( Long id ) throws NamingException
     {
         return store.getEntryUpdn( id );
     }
@@ -307,31 +310,31 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void add( LdapDN normName, Attributes entry ) throws NamingException
+    public final void add( OperationContext addContext ) throws NamingException
     {
-        store.add( normName, entry );
+        store.add( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
     }
 
 
-    public final Attributes lookup( BigInteger id ) throws NamingException
+    public final Attributes lookup( Long id ) throws NamingException
     {
         return store.lookup( id );
     }
 
 
-    public final void delete( BigInteger id ) throws NamingException
+    public final void delete( Long id ) throws NamingException
     {
         store.delete( id );
     }
 
 
-    public final NamingEnumeration list( BigInteger id ) throws NamingException
+    public final NamingEnumeration list( Long id ) throws NamingException
     {
         return store.list( id );
     }
 
 
-    public final int getChildCount( BigInteger id ) throws NamingException
+    public final int getChildCount( Long id ) throws NamingException
     {
         return store.getChildCount( id );
     }
@@ -366,39 +369,36 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final Attributes getIndices( BigInteger id ) throws NamingException
+    public final Attributes getIndices( Long id ) throws NamingException
     {
         return store.getIndices( id );
     }
 
     
-    public final void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
+    public final void modify( OperationContext modifyContext ) throws NamingException
     {
-        store.modify( dn, modOp, mods );
+    	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
+        store.modify( ctx.getDn(), ctx.getModItems() );
+    }
+
+    public final void rename( OperationContext renameContext ) throws NamingException
+    {
+        RenameOperationContext ctx = (RenameOperationContext)renameContext;
+        store.rename( ctx.getDn(), ctx.getNewRdn(), ctx.getDelOldDn() );
     }
 
 
-    public final void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
+    public final void moveAndRename( OperationContext moveAndRenameContext ) throws NamingException
     {
-        store.modify( dn, mods );
+        MoveAndRenameOperationContext ctx = (MoveAndRenameOperationContext)moveAndRenameContext;
+        store.move( ctx.getDn(), ctx.getParent(), ctx.getNewRdn(), ctx.getDelOldDn() );
     }
 
 
-    public final void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public final void move( OperationContext moveContext ) throws NamingException
     {
-        store.modifyRn( dn, newRdn, deleteOldRdn );
-    }
-
-
-    public final void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
-    {
-        store.move( oldChildDn, newParentDn, newRdn, deleteOldRdn );
-    }
-
-
-    public final void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException
-    {
-        store.move( oldChildDn, newParentDn );
+        MoveOperationContext ctx = (MoveOperationContext)moveContext;
+        store.move( ctx.getDn(), ctx.getParent() );
     }
 
 
@@ -411,8 +411,17 @@ public class JdbmPartition extends BTreePartition
             ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 
+    public final void bind( OperationContext bindContext ) throws NamingException
+    {
+        // does nothing
+        throw new LdapAuthenticationNotSupportedException(
+            "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
+                + "Check to see if you have correctly configured authenticators for the server.",
+            ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+    }
 
-    public final void unbind( LdapDN bindDn ) throws NamingException
+
+    public final void unbind( OperationContext unbindContext ) throws NamingException
     {
     }
 }

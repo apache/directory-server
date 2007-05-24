@@ -41,15 +41,24 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -63,23 +72,26 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
  */
 public class DefaultAuthorizationService extends BaseInterceptor
 {
+    /** the logger for this class */
+    private static final Logger log = LoggerFactory.getLogger( DefaultAuthorizationService.class );
+    
+    /** The service name */
+    public static final String NAME = "defaultAuthorizationService";
+
     /**
      * the base distinguished {@link Name} for all users
      */
     private static LdapDN USER_BASE_DN;
-    private static LdapDN USER_BASE_DN_NORMALIZED;
 
     /**
      * the base distinguished {@link Name} for all groups
      */
     private static LdapDN GROUP_BASE_DN;
-    private static LdapDN GROUP_BASE_DN_NORMALIZED;
 
     /**
      * the distinguished {@link Name} for the administrator group
      */
     private static LdapDN ADMIN_GROUP_DN;
-    private static LdapDN ADMIN_GROUP_DN_NORMALIZED;
 
     /**
      * the name parser used by this service
@@ -92,6 +104,13 @@ public class DefaultAuthorizationService extends BaseInterceptor
     private Map<String, OidNormalizer> normalizerMapping;
     
     private PartitionNexus nexus;
+    
+    /** attribute type registry */
+    private AttributeTypeRegistry attrRegistry;
+
+    /** A starage for the uniqueMember attributeType */
+    private AttributeType uniqueMemberAT;
+
 
     /**
      * Creates a new instance.
@@ -110,14 +129,18 @@ public class DefaultAuthorizationService extends BaseInterceptor
         enabled = !factoryCfg.getStartupConfiguration().isAccessControlEnabled();
         
         USER_BASE_DN = PartitionNexus.getUsersBaseName();
-        USER_BASE_DN_NORMALIZED = LdapDN.normalize( USER_BASE_DN, normalizerMapping );
+        USER_BASE_DN.normalize( normalizerMapping );
         
         GROUP_BASE_DN = PartitionNexus.getGroupsBaseName();
-        GROUP_BASE_DN_NORMALIZED = LdapDN.normalize( GROUP_BASE_DN, normalizerMapping );
+        GROUP_BASE_DN.normalize( normalizerMapping );
      
-        ADMIN_GROUP_DN = new LdapDN( "cn=Administrators,ou=groups,ou=system" );
-        ADMIN_GROUP_DN_NORMALIZED = ( LdapDN ) ADMIN_GROUP_DN.clone();
-        ADMIN_GROUP_DN_NORMALIZED.normalize( normalizerMapping );
+        ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
+        ADMIN_GROUP_DN.normalize( normalizerMapping );
+        
+        attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        
+        uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
+        
         loadAdministrators();
     }
     
@@ -126,20 +149,22 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         // read in the administrators and cache their normalized names
         Set<String> newAdministrators = new HashSet<String>( 2 );
-        Attributes adminGroup = nexus.lookup( ADMIN_GROUP_DN_NORMALIZED );
+        Attributes adminGroup = nexus.lookup( new LookupOperationContext( ADMIN_GROUP_DN ) );
         
         if ( adminGroup == null )
         {
             return;
         }
         
-        Attribute uniqueMember = adminGroup.get( "uniqueMember" );
+        Attribute uniqueMember = AttributeUtils.getAttribute( adminGroup, uniqueMemberAT );
+        
         for ( int ii = 0; ii < uniqueMember.size(); ii++ )
         {
             LdapDN memberDn = new LdapDN( ( String ) uniqueMember.get( ii ) );
             memberDn.normalize( normalizerMapping );
-            newAdministrators.add( memberDn.toNormName() );
+            newAdministrators.add( memberDn.getNormName() );
         }
+        
         administrators = newAdministrators;
     }
 
@@ -148,85 +173,85 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //    Lookup, search and list operations need to be handled using a filter
     // and so we need access to the filter service.
 
-    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
+    	LdapDN name = opContext.getDn();
+    	
         if ( !enabled )
         {
-            nextInterceptor.delete( name );
+            nextInterceptor.delete( opContext );
             return;
         }
 
         LdapDN principalDn = getPrincipal().getJndiName();
 
-        if ( name.toString().equals( "" ) )
+        if ( name.isEmpty() )
         {
             String msg = "The rootDSE cannot be deleted!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+        if ( name.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
         {
             String msg = "The Administrators group cannot be deleted!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( isTheAdministrator( name ) )
         {
-            String msg = "User " + principalDn;
+            String msg = "User " + principalDn.getUpName();
             msg += " does not have permission to delete the admin account.";
             msg += " No one not even the admin can delete this account!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( name.size() > 2 && name.startsWith( USER_BASE_DN ) && !isAnAdministrator( principalDn ) )
+        if ( name.size() > 2 )
         {
-            String msg = "User " + principalDn;
-            msg += " does not have permission to delete the user account: ";
-            msg += name + ". Only the admin can delete user accounts.";
-            throw new LdapNoPermissionException( msg );
+            if ( !isAnAdministrator( principalDn ) )
+            {
+                if ( name.startsWith( USER_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn.getUpName();
+                    msg += " does not have permission to delete the user account: ";
+                    msg += name.getUpName() + ". Only the admin can delete user accounts.";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
+                }
+        
+                if ( name.startsWith( GROUP_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn.getUpName();
+                    msg += " does not have permission to delete the group entry: ";
+                    msg += name.getUpName() + ". Only the admin can delete groups.";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
+                }
+            }
         }
 
-        if ( name.size() > 2 && name.startsWith( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
-        {
-            String msg = "User " + principalDn;
-            msg += " does not have permission to delete the group entry: ";
-            msg += name + ". Only the admin can delete groups.";
-            throw new LdapNoPermissionException( msg );
-        }
-
-        nextInterceptor.delete( name );
+        nextInterceptor.delete( opContext );
     }
 
     
     private final boolean isTheAdministrator( LdapDN normalizedDn )
     {
-        return normalizedDn.toNormName() == PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED || 
-             normalizedDn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+        return normalizedDn.getNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
     }
     
     
-    private final boolean isAnAdministrator( LdapDN normalizedDn ) throws NamingException
+    private final boolean isAnAdministrator( LdapDN normalizedDn )
     {
         if ( isTheAdministrator( normalizedDn ) )
         {
             return true;
         }
         
-        return administrators.contains( normalizedDn.toNormName() );
+        return administrators.contains( normalizedDn.getNormName() );
     }
     
-
-    /**
-     * Note that we do nothing here. First because this is not an externally
-     * exposed function via the JNDI interfaces.  It is used internally by
-     * the provider for optimization purposes so there is no reason for us to
-     * start to constrain it.
-     */
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
-    {
-        return super.hasEntry( nextInterceptor, name );
-    }
-
 
     // ------------------------------------------------------------------------
     // Entry Modification Operations
@@ -238,48 +263,26 @@ public class DefaultAuthorizationService extends BaseInterceptor
      * users to self access these resources.  As far as we're concerned no one but
      * the admin needs access.
      */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectModifyAlterations( name );
-            nextInterceptor.modify( name, modOp, attrs );
+            LdapDN dn = opContext.getDn();
+            
+            protectModifyAlterations( dn );
+            nextInterceptor.modify( opContext );
 
             // update administrators if we change administrators group
-            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+            if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
             {
                 loadAdministrators();
             }
-            return;
         }
-
-        nextInterceptor.modify( name, modOp, attrs );
-    }
-
-
-    /**
-     * This policy needs to be really tight too because some attributes may take part
-     * in giving the user permissions to protected resources.  We do not want users to
-     * self access these resources.  As far as we're concerned no one but the admin
-     * needs access.
-     */
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        if ( enabled )
+        else
         {
-            protectModifyAlterations( name );
-            nextInterceptor.modify( name, items );
-
-            // update administrators if we change administrators group
-            if ( name.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
-            {
-                loadAdministrators();
-            }
-            return;
+            nextInterceptor.modify( opContext );
         }
-        
-        nextInterceptor.modify( name, items );
     }
 
 
@@ -287,44 +290,51 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
-        if ( dn.size() == 0 )
+        if ( dn.isEmpty() )
         {
             String msg = "The rootDSE cannot be modified!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( ! isAnAdministrator( principalDn ) )
         {
             // allow self modifications 
-            if ( dn.toNormName().equals( getPrincipal().getJndiName().toNormName() ) )
+            if ( dn.getNormName().equals( getPrincipal().getJndiName().getNormName() ) )
             {
                 return;
             }
             
-            if ( dn.toNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+            if ( dn.getNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
-                String msg = "User " + principalDn;
+                String msg = "User " + principalDn.getUpName();
                 msg += " does not have permission to modify the account of the";
                 msg += " admin user.";
+                log.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
-            if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN_NORMALIZED ) )
-            {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to modify the account of the";
-                msg += " user " + dn + ".\nEven the owner of an account cannot";
-                msg += " modify it.\nUser accounts can only be modified by the";
-                msg += " administrator.";
-                throw new LdapNoPermissionException( msg );
-            }
-
-            if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN_NORMALIZED ) )
-            {
-                String msg = "User " + principalDn;
-                msg += " does not have permission to modify the group entry ";
-                msg += dn.getUpName() + ".\nGroups can only be modified by the admin.";
-                throw new LdapNoPermissionException( msg );
+            if ( dn.size() > 2 ) 
+                {
+                if ( dn.startsWith( USER_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn.getUpName();
+                    msg += " does not have permission to modify the account of the";
+                    msg += " user " + dn.getUpName() + ".\nEven the owner of an account cannot";
+                    msg += " modify it.\nUser accounts can only be modified by the";
+                    msg += " administrator.";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
+                }
+    
+                if ( dn.startsWith( GROUP_BASE_DN ) )
+                {
+                    String msg = "User " + principalDn.getUpName();
+                    msg += " does not have permission to modify the group entry ";
+                    msg += dn.getUpName() + ".\nGroups can only be modified by the admin.";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
+                }
             }
         }
     }
@@ -339,35 +349,37 @@ public class DefaultAuthorizationService extends BaseInterceptor
     //  o The administrator entry cannot be moved or renamed by anyone
     // ------------------------------------------------------------------------
 
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( name );
+            protectDnAlterations( opContext.getDn() );
         }
-        nextInterceptor.modifyRn( name, newRn, deleteOldRn );
+        
+        nextInterceptor.rename( opContext );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( oriChildName );
+            protectDnAlterations( opContext.getDn() );
         }
-        nextInterceptor.move( oriChildName, newParentName );
+        
+        nextInterceptor.move( opContext );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN oriChildName, LdapDN newParentName, String newRn,
-                      boolean deleteOldRn ) throws NamingException
+    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
         if ( enabled )
         {
-            protectDnAlterations( oriChildName );
+            protectDnAlterations( opContext.getDn() );
         }
-        nextInterceptor.move( oriChildName, newParentName, newRn, deleteOldRn );
+        
+        nextInterceptor.moveAndRename( opContext );
     }
 
 
@@ -375,15 +387,18 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         LdapDN principalDn = getPrincipal().getJndiName();
 
-        if ( dn.toString().equals( "" ) )
+        if ( dn.isEmpty() )
         {
             String msg = "The rootDSE cannot be moved or renamed!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.toNormName().equals( ADMIN_GROUP_DN_NORMALIZED.toNormName() ) )
+        if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
         {
-            throw new LdapNoPermissionException( "The Administrators group cannot be moved or renamed!" );
+            String msg = "The Administrators group cannot be moved or renamed!";
+            log.error( msg );
+            throw new LdapNoPermissionException( msg );
         }
         
         if ( isTheAdministrator( dn ) )
@@ -391,51 +406,41 @@ public class DefaultAuthorizationService extends BaseInterceptor
             String msg = "User '" + principalDn.getUpName();
             msg += "' does not have permission to move or rename the admin";
             msg += " account.  No one not even the admin can move or";
-            msg += " rename " + dn + "!";
+            msg += " rename " + dn.getUpName() + "!";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN_NORMALIZED ) && !isAnAdministrator( principalDn ) )
+        if ( dn.size() > 2 && dn.startsWith( USER_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
-            String msg = "User '" + principalDn;
+            String msg = "User '" + principalDn.getUpName();
             msg += "' does not have permission to move or rename the user";
-            msg += " account: " + dn + ". Only the admin can move or";
+            msg += " account: " + dn.getUpName() + ". Only the admin can move or";
             msg += " rename user accounts.";
+            log.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
-        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN_NORMALIZED ) && !isAnAdministrator( principalDn ) )
+        if ( dn.size() > 2 && dn.startsWith( GROUP_BASE_DN ) && !isAnAdministrator( principalDn ) )
         {
-            String msg = "User " + principalDn;
+            String msg = "User " + principalDn.getUpName();
             msg += " does not have permission to move or rename the group entry ";
-            msg += dn + ".\nGroups can only be moved or renamed by the admin.";
+            msg += dn.getUpName() + ".\nGroups can only be moved or renamed by the admin.";
             throw new LdapNoPermissionException( msg );
         }
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes attributes = nextInterceptor.lookup( name );
-        if ( !enabled || attributes == null )
+        Attributes attributes = nextInterceptor.lookup( opContext );
+        
+        if ( !enabled || ( attributes == null ) )
         {
             return attributes;
         }
 
-        protectLookUp( name );
-        return attributes;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes attributes = nextInterceptor.lookup( name, attrIds );
-        if ( !enabled || attributes == null )
-        {
-            return attributes;
-        }
-
-        protectLookUp( name );
+        protectLookUp( ((LookupOperationContext)opContext).getDn() );
         return attributes;
     }
 
@@ -444,34 +449,40 @@ public class DefaultAuthorizationService extends BaseInterceptor
     {
         LdapContext ctx = ( LdapContext ) InvocationStack.getInstance().peek().getCaller();
         LdapDN principalDn = ( ( ServerContext ) ctx ).getPrincipal().getJndiName();
+        
         if ( !isAnAdministrator( principalDn ) )
         {
-            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( USER_BASE_DN_NORMALIZED ) )
+            if ( normalizedDn.size() > 2 )
             {
-                // allow for self reads
-                if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                if( normalizedDn.startsWith( USER_BASE_DN ) )
                 {
-                    return;
+                    // allow for self reads
+                    if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                    {
+                        return;
+                    }
+    
+                    String msg = "Access to user account '" + normalizedDn.getUpName() + "' not permitted";
+                    msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
+                    msg += " access user account information";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
                 }
 
-                String msg = "Access to user account '" + normalizedDn + "' not permitted";
-                msg += " for user '" + principalDn + "'.  Only the admin can";
-                msg += " access user account information";
-                throw new LdapNoPermissionException( msg );
-            }
-
-            if ( normalizedDn.size() > 2 && normalizedDn.startsWith( GROUP_BASE_DN_NORMALIZED ) )
-            {
-                // allow for self reads
-                if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                if ( normalizedDn.startsWith( GROUP_BASE_DN ) )
                 {
-                    return;
+                    // allow for self reads
+                    if ( normalizedDn.getNormName().equals( principalDn.getNormName() ) )
+                    {
+                        return;
+                    }
+    
+                    String msg = "Access to group '" + normalizedDn.getUpName() + "' not permitted";
+                    msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
+                    msg += " access group information";
+                    log.error( msg );
+                    throw new LdapNoPermissionException( msg );
                 }
-
-                String msg = "Access to group '" + normalizedDn + "' not permitted";
-                msg += " for user '" + principalDn + "'.  Only the admin can";
-                msg += " access group information";
-                throw new LdapNoPermissionException( msg );
             }
 
             if ( isTheAdministrator( normalizedDn ) )
@@ -483,48 +494,48 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 }
 
                 String msg = "Access to admin account not permitted for user '";
-                msg += principalDn + "'.  Only the admin can";
+                msg += principalDn.getUpName() + "'.  Only the admin can";
                 msg += " access admin account information";
+                log.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
         }
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+
         if ( !enabled )
         {
             return e;
         }
-        //if ( searchCtls.getReturningAttributes() != null )
-        //{
-        //    return null;
-        //}
 
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new SearchResultFilter()
+        return new SearchResultFilteringEnumeration( e, ((SearchOperationContext)opContext).getSearchControls(), invocation, 
+            new SearchResultFilter()
         {
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
             {
                 return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
-        } );
+        }, "Search Default Authorization filter" );
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
+        
         if ( !enabled )
         {
             return e;
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
+        
         return new SearchResultFilteringEnumeration( e, null, invocation, new SearchResultFilter()
         {
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
@@ -532,16 +543,19 @@ public class DefaultAuthorizationService extends BaseInterceptor
             {
                 return DefaultAuthorizationService.this.isSearchable( invocation, result );
             }
-        } );
+        }, "List Default Authorization filter" );
     }
 
 
     private boolean isSearchable( Invocation invocation, SearchResult result ) throws NamingException
     {
         LdapDN principalDn = ( ( ServerContext ) invocation.getCaller() ).getPrincipal().getJndiName();
-        LdapDN dn;
-        dn = new LdapDN( result.getName() );
-        dn.normalize( normalizerMapping );
+        LdapDN dn = ((ServerSearchResult)result).getDn();
+        
+        if ( !dn.isNormalized() )
+        {
+        	dn.normalize( normalizerMapping );
+        }
 
         // Admin users gets full access to all entries
         if ( isAnAdministrator( principalDn ) )
@@ -550,7 +564,8 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
         
         // Users reading their own entries should be allowed to see all
-        boolean isSelfRead = dn.toNormName().equals( principalDn.toNormName() );
+        boolean isSelfRead = dn.getNormName().equals( principalDn.getNormName() );
+        
         if ( isSelfRead )
         {
             return true;
@@ -562,8 +577,8 @@ public class DefaultAuthorizationService extends BaseInterceptor
             // stuff this if in here instead of up in outer if to prevent 
             // constant needless reexecution for all entries in other depths
             
-            if ( dn.toNormName().endsWith( USER_BASE_DN_NORMALIZED.toNormName() ) 
-                || dn.toNormName().endsWith( GROUP_BASE_DN_NORMALIZED.toNormName() ) )
+            if ( dn.getNormName().endsWith( USER_BASE_DN.getNormName() ) 
+                || dn.getNormName().endsWith( GROUP_BASE_DN.getNormName() ) )
             {
                 return false;
             }

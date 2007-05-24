@@ -51,11 +51,24 @@ public class EncTicketPart implements Encodable
     private AuthorizationData authorizationData; //optional
 
 
-    public EncTicketPart(TicketFlags flags, EncryptionKey key, KerberosPrincipal clientPrincipal,
+    /**
+     * Creates a new instance of EncTicketPart.
+     *
+     * @param flags
+     * @param key
+     * @param clientPrincipal
+     * @param transited
+     * @param authtime
+     * @param starttime
+     * @param endtime
+     * @param renewTill
+     * @param caddr
+     * @param authorizationData
+     */
+    public EncTicketPart( TicketFlags flags, EncryptionKey key, KerberosPrincipal clientPrincipal,
         TransitedEncoding transited, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime,
-        KerberosTime renewTill, HostAddresses caddr, AuthorizationData authorizationData)
+        KerberosTime renewTill, HostAddresses caddr, AuthorizationData authorizationData )
     {
-
         this.flags = flags;
         this.sessionKey = key;
         this.clientPrincipal = clientPrincipal;
@@ -69,66 +82,121 @@ public class EncTicketPart implements Encodable
     }
 
 
+    /**
+     * Returns the {@link AuthorizationData}.
+     *
+     * @return The {@link AuthorizationData}.
+     */
     public AuthorizationData getAuthorizationData()
     {
         return authorizationData;
     }
 
 
+    /**
+     * Returns the auth {@link KerberosTime}
+     *
+     * @return The auth {@link KerberosTime}
+     */
     public KerberosTime getAuthTime()
     {
         return authtime;
     }
 
 
+    /**
+     * Returns the client {@link HostAddresses}.
+     *
+     * @return The client {@link HostAddresses}.
+     */
     public HostAddresses getClientAddresses()
     {
         return clientAddresses;
     }
 
 
+    /**
+     * Returns the client {@link KerberosPrincipal}.
+     *
+     * @return The client {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getClientPrincipal()
     {
         return clientPrincipal;
     }
 
 
+    /**
+     * Returns the client realm.
+     *
+     * @return The client realm.
+     */
     public String getClientRealm()
     {
         return clientPrincipal.getRealm();
     }
 
 
+    /**
+     * Returns the end {@link KerberosTime}
+     *
+     * @return The end {@link KerberosTime}
+     */
     public KerberosTime getEndTime()
     {
         return endTime;
     }
 
 
+    /**
+     * Returns the {@link TicketFlags}.
+     *
+     * @return The {@link TicketFlags}.
+     */
     public TicketFlags getFlags()
     {
         return flags;
     }
 
 
+    /**
+     * Returns the session {@link EncryptionKey}.
+     *
+     * @return The session {@link EncryptionKey}.
+     */
     public EncryptionKey getSessionKey()
     {
         return sessionKey;
     }
 
 
+    /**
+     * Returns the renew till {@link KerberosTime}
+     *
+     * @return The renew till {@link KerberosTime}
+     */
     public KerberosTime getRenewTill()
     {
         return renewTill;
     }
 
 
+    /**
+     * Returns the start {@link KerberosTime}
+     *
+     * @return The start {@link KerberosTime}
+     */
     public KerberosTime getStartTime()
     {
         return startTime;
     }
 
 
+    /**
+     * Returns the {@link TransitedEncoding}.
+     *
+     * @return The {@link TransitedEncoding}.
+     */
     public TransitedEncoding getTransitedEncoding()
     {
         return transitedEncoding;

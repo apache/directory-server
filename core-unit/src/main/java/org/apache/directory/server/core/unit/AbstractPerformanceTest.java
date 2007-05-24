@@ -38,6 +38,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -141,11 +142,11 @@ public class AbstractPerformanceTest extends AbstractTestCase
             HashSet<Object> indexedAttributes = new HashSet<Object>();
             indexedAttributes.add( "ou" );
             indexedAttributes.add( "uid" );
-            indexedAttributes.add( "objectClass" );
+            indexedAttributes.add( SchemaConstants.OBJECT_CLASS_AT );
             
             // Build the root entry for the new partition
-            Attributes attributes = new AttributesImpl( "objectClass", "top", true );
-            attributes.get( "objectClass" ).add( "organizationalUnit" );
+            Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
+            attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "organizationalUnit" );
             attributes.put( "ou", "test" );
             
             // Add apache.org paritition since all work will be done here

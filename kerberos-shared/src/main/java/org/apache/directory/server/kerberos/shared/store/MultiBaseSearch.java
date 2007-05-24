@@ -28,7 +28,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.core.configuration.ConfigurationException;
@@ -54,16 +53,16 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 class MultiBaseSearch implements PrincipalStore
 {
     private InitialContextFactory factory;
-    private Hashtable env;
+    private Hashtable<String, Object> env;
 
     private Catalog catalog;
 
 
-    MultiBaseSearch(ServiceConfiguration config, InitialContextFactory factory)
+    MultiBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
     {
         this.factory = factory;
 
-        env = new Hashtable( config.toJndiEnvironment() );
+        env = new Hashtable<String, Object>( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getCatalogBaseDn() );
 
@@ -148,14 +147,14 @@ class MultiBaseSearch implements PrincipalStore
     }
 
 
-    public String changePassword( KerberosPrincipal principal, KerberosKey newKey ) throws Exception
+    public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
         env.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
 
         try
         {
             DirContext ctx = ( DirContext ) factory.getInitialContext( env );
-            return ( String ) execute( ctx, new ChangePassword( principal, newKey ) );
+            return ( String ) execute( ctx, new ChangePassword( principal, newPassword ) );
         }
         catch ( NamingException ne )
         {

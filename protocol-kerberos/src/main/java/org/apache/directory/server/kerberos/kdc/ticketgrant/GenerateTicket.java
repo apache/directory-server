@@ -27,6 +27,9 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -40,7 +43,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -53,6 +55,7 @@ public class GenerateTicket implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
@@ -60,9 +63,12 @@ public class GenerateTicket implements IoHandlerCommand
         KdcRequest request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
         Authenticator authenticator = tgsContext.getAuthenticator();
-        LockBox lockBox = tgsContext.getLockBox();
+        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
-        EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getEncryptionKey();
+
+        EncryptionType encryptionType = tgsContext.getEncryptionType();
+        EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getKeyMap().get( encryptionType );
+
         KdcConfiguration config = tgsContext.getConfig();
         EncryptionKey sessionKey = tgsContext.getSessionKey();
 
@@ -77,8 +83,8 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getEncAuthorizationData() != null )
         {
-            AuthorizationData authData = ( AuthorizationData ) lockBox.unseal( AuthorizationData.class, authenticator
-                .getSubSessionKey(), request.getEncAuthorizationData() );
+            AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class,
+                authenticator.getSubSessionKey(), request.getEncAuthorizationData(), KeyUsage.NUMBER4 );
             authData.add( tgt.getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
@@ -105,7 +111,7 @@ public class GenerateTicket implements IoHandlerCommand
             throw new KerberosException( ErrorType.KDC_ERR_SVC_UNAVAILABLE );
         }
 
-        EncryptedData encryptedData = lockBox.seal( serverKey, ticketPart );
+        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
 
         Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
         newTicket.setEncTicketPart( ticketPart );
@@ -113,12 +119,6 @@ public class GenerateTicket implements IoHandlerCommand
         tgsContext.setNewTicket( newTicket );
 
         next.execute( session, message );
-    }
-
-
-    public String getContextKey()
-    {
-        return ( this.contextKey );
     }
 
 
@@ -274,7 +274,7 @@ public class GenerateTicket implements IoHandlerCommand
              new_tkt.starttime+client.max_life,
              new_tkt.starttime+server.max_life,
              */
-            List minimizer = new ArrayList();
+            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
             minimizer.add( till );
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEndTime() );
@@ -315,7 +315,7 @@ public class GenerateTicket implements IoHandlerCommand
              new_tkt.starttime+server.max_rlife,
              */
             // TODO - client and server configurable; requires store
-            List minimizer = new ArrayList();
+            List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
 
             /*
              * 'rtime' KerberosTime is OPTIONAL
@@ -327,7 +327,7 @@ public class GenerateTicket implements IoHandlerCommand
 
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumRenewableLifetime() ) );
             minimizer.add( tgt.getRenewTill() );
-            newTicketBody.setRenewTill( ( KerberosTime ) Collections.min( minimizer ) );
+            newTicketBody.setRenewTill( Collections.min( minimizer ) );
         }
     }
 
@@ -362,5 +362,11 @@ public class GenerateTicket implements IoHandlerCommand
         newTicketBody.setRenewTill( tgt.getRenewTill() );
         newTicketBody.setSessionKey( tgt.getSessionKey() );
         newTicketBody.setTransitedEncoding( tgt.getTransitedEncoding() );
+    }
+
+
+    protected String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

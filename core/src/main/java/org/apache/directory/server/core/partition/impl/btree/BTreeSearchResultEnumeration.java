@@ -104,11 +104,11 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     {
         IndexRecord rec = ( IndexRecord ) underlying.next();
         Attributes entry;
-        String name = partition.getEntryUpdn( rec.getEntryId() );
+        String name = partition.getEntryUpdn( (Long)rec.getEntryId() );
 
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( partition.lookup( rec.getEntryId() ) );
+            rec.setAttributes( partition.lookup( (Long)rec.getEntryId() ) );
         }
 
         if ( attrIds == null )
@@ -234,7 +234,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             }
         }
 
-        BTreeSearchResult result = new BTreeSearchResult( rec.getEntryId(), name, null, entry );
+        BTreeSearchResult result = new BTreeSearchResult( (Long)rec.getEntryId(), name, null, entry );
         result.setRelative( false );
         return result;
     }

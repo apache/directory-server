@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,9 +30,10 @@ import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.util.ArrayEnumeration;
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+import org.apache.directory.shared.ldap.util.LongComparator;
 
 import jdbm.RecordManager;
+import jdbm.helper.LongSerializer;
 import jdbm.recman.BaseRecordManager;
 
 import junit.framework.TestCase;
@@ -50,7 +50,7 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
     private static final long serialVersionUID = 1L;
     private transient File tempFile = null;
     private transient RecordManager rm = null;
-    private final BigIntegerComparator biComparator = new BigIntegerComparator();
+    private final LongComparator biComparator = new LongComparator();
     private final SerializableComparator serializableComparator = new SerializableComparator( "integerMatchingRule" )
     {
         private static final long serialVersionUID = 1L;
@@ -108,16 +108,17 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
 
         // make sure the table never uses a btree for duplicates
-        table = new JdbmTable( "test", true, Integer.MAX_VALUE, rm, comparator );
+        table = new JdbmTable( "test", true, Integer.MAX_VALUE, rm, 
+            comparator, null, null );
 
-        for ( BigInteger ii = BigInteger.ZERO; ii.intValue() < 3; ii = ii.add( BigInteger.ONE ) )
+        for ( Long ii = 0L; ii.intValue() < 3; ii++ )
         {
-            table.put( BigInteger.ONE, ii );
+            table.put( 1L, ii );
         }
 
-        table.put( new BigInteger( "2" ), BigInteger.ONE );
-        table.put( new BigInteger( "4" ), BigInteger.ONE );
-        table.put( new BigInteger( "5" ), BigInteger.ONE );
+        table.put( 2L, 1L );
+        table.put( 4L, 1L );
+        table.put( 5L, 1L );
     }
 
     protected void tearDown() throws Exception
@@ -143,40 +144,40 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
     public void testHas() throws Exception
     {
         // test the has( Object ) method
-        assertTrue( table.has( BigInteger.ONE ) );
-        assertTrue( table.has( new BigInteger("2") ) );
-        assertTrue( table.has( new BigInteger("4") ) );
-        assertTrue( table.has( new BigInteger("5") ) );
-        assertFalse( table.has( new BigInteger("3") ) );
-        assertFalse( table.has( BigInteger.ZERO ) );
-        assertFalse( table.has( new BigInteger( "999" ) ) );
+        assertTrue( table.has( 1L ) );
+        assertTrue( table.has( 2L ) );
+        assertTrue( table.has( 4L ) );
+        assertTrue( table.has( 5L ) );
+        assertFalse( table.has( 3L ) );
+        assertFalse( table.has( 0L ) );
+        assertFalse( table.has( 999L ) );
 
         // test the has( Object, Object ) method
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ONE ) );
-        assertTrue( table.has( new BigInteger("2"), BigInteger.ONE ) );
-        assertTrue( table.has( new BigInteger("4"), BigInteger.ONE ) );
-        assertTrue( table.has( new BigInteger("5"), BigInteger.ONE ) );
-        assertFalse( table.has( new BigInteger("5"), BigInteger.ZERO ) );
-        assertFalse( table.has( new BigInteger("3"), BigInteger.ONE ) );
-        assertFalse( table.has( BigInteger.ONE, new BigInteger("999") ) );
-        assertFalse( table.has( new BigInteger( "999" ), BigInteger.ONE ) );
+        assertTrue( table.has( 1L, 1L ) );
+        assertTrue( table.has( 2L, 1L ) );
+        assertTrue( table.has( 4L, 1L ) );
+        assertTrue( table.has( 5L, 1L ) );
+        assertFalse( table.has( 5L, 0L ) );
+        assertFalse( table.has( 3L, 1L ) );
+        assertFalse( table.has( 1L, 999L ) );
+        assertFalse( table.has( 999L, 1L ) );
 
         // test the has( Object, boolean ) method
-        assertFalse( table.has( BigInteger.ZERO, false ) ); // we do not have a key less than or equal to 0
-        assertTrue( table.has( BigInteger.ONE, false ) ); // we do have a key less than or equal to 1
-        assertTrue( table.has( BigInteger.ZERO, true ) ); // we do have a key greater than or equal to 0
-        assertTrue( table.has( BigInteger.ONE, true ) ); // we do have a key greater than or equal to 1
-        assertTrue( table.has( new BigInteger( "5" ), true ) ); // we do have a key greater than or equal to 5
-        assertFalse( table.has( new BigInteger( "6" ), true ) ); // we do NOT have a key greater than or equal to 11
-        assertFalse( table.has( new BigInteger( "999" ), true ) ); // we do NOT have a key greater than or equal to 12
+        assertFalse( table.has( Long.valueOf( 0 ), false ) ); // we do not have a key less than or equal to 0
+        assertTrue( table.has( Long.valueOf( 1 ), false ) ); // we do have a key less than or equal to 1
+        assertTrue( table.has( Long.valueOf( 0 ), true ) ); // we do have a key greater than or equal to 0
+        assertTrue( table.has( Long.valueOf( 1 ), true ) ); // we do have a key greater than or equal to 1
+        assertTrue( table.has( Long.valueOf( 5 ), true ) ); // we do have a key greater than or equal to 5
+        assertFalse( table.has( Long.valueOf( 6 ), true ) ); // we do NOT have a key greater than or equal to 11
+        assertFalse( table.has( Long.valueOf( 999 ), true ) ); // we do NOT have a key greater than or equal to 12
 
         // test the has( Object, Object, boolean ) method
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ZERO, true ) );
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ONE, true ) );
-        assertTrue( table.has( BigInteger.ONE, new BigInteger("2"), true ) );
-        assertFalse( table.has( BigInteger.ONE, new BigInteger("3"), true ) );
-        assertTrue( table.has( BigInteger.ONE, BigInteger.ZERO, false ) );
-        assertFalse( table.has( BigInteger.ONE, new BigInteger("-1"), false ) );
+        assertTrue( table.has( 1L, 0L, true ) );
+        assertTrue( table.has( 1L, 1L, true ) );
+        assertTrue( table.has( 1L, 2L, true ) );
+        assertFalse( table.has( 1L, 3L, true ) );
+        assertTrue( table.has( 1L, 0L, false ) );
+        assertFalse( table.has( 1L, -1L, false ) );
     }
     
     
@@ -196,13 +197,13 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         assertEquals( 6, table.count() );
         
         // test the count(Object) method
-        assertEquals( 3, table.count( BigInteger.ONE ) );
-        assertEquals( 0, table.count( BigInteger.ZERO ) );
-        assertEquals( 1, table.count( new BigInteger( "2" ) ) );
+        assertEquals( 3, table.count( 1L ) );
+        assertEquals( 0, table.count( 0L ) );
+        assertEquals( 1, table.count( 2L ) );
         
         // test the count( Object, boolean ) method 
         // note for speed this count method returns the same as count()
-        assertEquals( table.count(), table.count( BigInteger.ONE, true ) );
+        assertEquals( table.count(), table.count( 1L, true ) );
     }
     
     
@@ -213,11 +214,11 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
      */
     public void testGet() throws Exception
     {
-        assertEquals( BigInteger.ZERO, table.get( BigInteger.ONE ) );
-        assertEquals( BigInteger.ONE, table.get( new BigInteger( "2" ) ) );
-        assertEquals( null, table.get( new BigInteger( "3" ) ) );
-        assertEquals( BigInteger.ONE, table.get( new BigInteger( "4" ) ) );
-        assertEquals( BigInteger.ONE, table.get( new BigInteger( "5" ) ) );
+        assertEquals( 0L, table.get( 1L ) );
+        assertEquals( 1L, table.get( 2L ) );
+        assertEquals( null, table.get( 3L ) );
+        assertEquals( 1L, table.get( 4L ) );
+        assertEquals( 1L, table.get( 5L ) );
     }
     
     
@@ -244,33 +245,33 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 0L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 2L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "4" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 4L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "5" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 5L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertFalse( tuples.hasMore() );
 
@@ -278,31 +279,31 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // test the listTuples(Object) method
         // -------------------------------------------------------------------
 
-        tuples = table.listTuples( BigInteger.ZERO );
+        tuples = table.listTuples( 0L );
         assertFalse( tuples.hasMore() );
 
-        tuples = table.listTuples( new BigInteger( "2" ) );
+        tuples = table.listTuples( 2L );
         assertTrue( tuples.hasMore() );
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 2L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
         
-        tuples = table.listTuples( BigInteger.ONE );
+        tuples = table.listTuples( 1L );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 0L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
         
         assertFalse( tuples.hasMore() );
         
@@ -310,141 +311,141 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // test the listTuples(Object, boolean) method
         // -------------------------------------------------------------------
 
-        tuples = table.listTuples( BigInteger.ZERO, false );
+        tuples = table.listTuples( 0L, false );
         assertFalse( tuples.hasMore() );
 
 
-        tuples = table.listTuples( BigInteger.ONE, false );
+        tuples = table.listTuples( 1L, false );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 0L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
 
-        tuples = table.listTuples( new BigInteger( "2" ), false );
+        tuples = table.listTuples( 2L, false );
 
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 2L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 0L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
         
-        tuples = table.listTuples( new BigInteger( "6" ), true );
+        tuples = table.listTuples( 6L, true );
         assertFalse( tuples.hasMore() );
 
         
-        tuples = table.listTuples( new BigInteger( "5" ), true );
+        tuples = table.listTuples( 5L, true );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "5" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 5L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
         
-        tuples = table.listTuples( new BigInteger( "4" ), true );
+        tuples = table.listTuples( 4L, true );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "4" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 4L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "5" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 5L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
         // -------------------------------------------------------------------
         // test the listTuples(Object,Object,boolean) method
         // -------------------------------------------------------------------
         
-        tuples = table.listTuples( BigInteger.ZERO, BigInteger.ZERO, true );
+        tuples = table.listTuples( 0L, 0L, true );
         assertFalse( tuples.hasMore() );
 
-        tuples = table.listTuples( BigInteger.ZERO, BigInteger.ZERO, false );
-        assertFalse( tuples.hasMore() );
-        
-        tuples = table.listTuples( new BigInteger( "2" ), BigInteger.ZERO, false );
+        tuples = table.listTuples( 0L, 0L, false );
         assertFalse( tuples.hasMore() );
         
-        tuples = table.listTuples( new BigInteger( "2" ), new BigInteger( "99" ), true );
+        tuples = table.listTuples( 2L, 0L, false );
         assertFalse( tuples.hasMore() );
         
-        tuples = table.listTuples( new BigInteger( "2" ), BigInteger.ONE, false );
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        tuples = table.listTuples( 2L, 99L, true );
         assertFalse( tuples.hasMore() );
-
-        tuples = table.listTuples( new BigInteger( "2" ), new BigInteger( "99" ), false );
-        assertTrue( tuples.hasMore() ) ;
-        tuple = ( Tuple ) tuples.next();
-        assertEquals( new BigInteger( "2" ), tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
-        assertFalse( tuples.hasMore() );
-
         
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "3" ), true );
-        assertFalse( tuples.hasMore() );
-
-
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "-1" ), false );
-        assertFalse( tuples.hasMore() );
-
-
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "1" ), true );
-
+        tuples = table.listTuples( 2L, 1L, false );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 2L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
+        assertFalse( tuples.hasMore() );
 
+        tuples = table.listTuples( 2L, 99L, false );
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
-
+        assertEquals( 2L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
         assertFalse( tuples.hasMore() );
 
         
-        tuples = table.listTuples( BigInteger.ONE, new BigInteger( "1" ), false );
+        tuples = table.listTuples( 1L, 3L, true );
+        assertFalse( tuples.hasMore() );
+
+
+        tuples = table.listTuples( 1L, -1L, false );
+        assertFalse( tuples.hasMore() );
+
+
+        tuples = table.listTuples( 1L, 1L, true );
 
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ONE, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( BigInteger.ZERO, tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
+
+        assertFalse( tuples.hasMore() );
+
+        
+        tuples = table.listTuples( 1L, 1L, false );
+
+        assertTrue( tuples.hasMore() ) ;
+        tuple = ( Tuple ) tuples.next();
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
+
+        assertTrue( tuples.hasMore() ) ;
+        tuple = ( Tuple ) tuples.next();
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 0L, tuple.getValue() );
 
         assertFalse( tuples.hasMore() );
 
@@ -460,27 +461,27 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // test the listValues(Object) method
         // -------------------------------------------------------------------
 
-        NamingEnumeration values = table.listValues( BigInteger.ZERO );
+        NamingEnumeration values = table.listValues( 0L );
         assertFalse( values.hasMore() );
 
-        values = table.listValues( new BigInteger( "2" ) );
+        values = table.listValues( 2L );
         assertTrue( values.hasMore() );
         Object value = values.next();
-        assertEquals( BigInteger.ONE, value );
+        assertEquals( 1L, value );
         assertFalse( values.hasMore() );
         
-        values = table.listValues( BigInteger.ONE );
+        values = table.listValues( 1L );
         assertTrue( values.hasMore() ) ;
         value = values.next();
-        assertEquals( BigInteger.ZERO, value );
+        assertEquals( 0L, value );
         
         assertTrue( values.hasMore() ) ;
         value = values.next();
-        assertEquals( BigInteger.ONE, value );
+        assertEquals( 1L, value );
         
         assertTrue( values.hasMore() ) ;
         value = values.next();
-        assertEquals( new BigInteger( "2" ), value );
+        assertEquals( 2L, value );
         
         assertFalse( values.hasMore() );
     }
@@ -499,63 +500,63 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // this instead tests the NamingEnumeration overload
         
         NamingEnumeration values = new ArrayNE( new Object[] {
-            new BigInteger( "3" ),
-            new BigInteger( "4" ),
-            new BigInteger( "5" ),
-            new BigInteger( "6" ),
+            3L,
+            4L,
+            5L,
+            6L,
         } );
         
-        table.put( BigInteger.ONE, values );
+        table.put( 1L, values );
         assertFalse( values.hasMore() );
         
-        values = table.listValues( BigInteger.ONE );
+        values = table.listValues( 1L );
         
         assertTrue( values.hasMore() );
-        assertEquals( BigInteger.ZERO, values.next() );
+        assertEquals( 0L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( BigInteger.ONE, values.next() );
+        assertEquals( 1L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "2" ), values.next() );
+        assertEquals( 2L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "3" ), values.next() );
+        assertEquals( 3L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "4" ), values.next() );
+        assertEquals( 4L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "5" ), values.next() );
+        assertEquals( 5L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "6" ), values.next() );
+        assertEquals( 6L, values.next() );
         assertFalse( values.hasMore() );
 
     
         values = new ArrayNE( new Object[] {
-            new BigInteger( "3" ),
-            new BigInteger( "4" ),
-            new BigInteger( "5" ),
-            new BigInteger( "6" ),
+            3L,
+            4L,
+            5L,
+            6L,
         } );
         
-        table.put( BigInteger.ZERO, values );
+        table.put( 0L, values );
         assertFalse( values.hasMore() );
         
-        values = table.listValues( BigInteger.ZERO );
+        values = table.listValues( 0L );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "3" ), values.next() );
+        assertEquals( 3L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "4" ), values.next() );
+        assertEquals( 4L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "5" ), values.next() );
+        assertEquals( 5L, values.next() );
         
         assertTrue( values.hasMore() );
-        assertEquals( new BigInteger( "6" ), values.next() );
+        assertEquals( 6L, values.next() );
         assertFalse( values.hasMore() );
     }
     
@@ -571,19 +572,19 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
 
         try
         {
-            table.remove( BigInteger.ZERO );
+            table.remove( 0L );
             fail( "should not get here trying to remove non-existent key" );
         }
         catch ( IllegalArgumentException e )
         {
         }
         
-        Object value = table.remove( new BigInteger( "2" ) );
-        assertEquals( BigInteger.ONE, value );
+        Object value = table.remove( 2L );
+        assertEquals( 1L, value );
         assertEquals( 5, table.count() );
         
-        value = table.remove( BigInteger.ONE );
-        assertEquals( BigInteger.ZERO, value ); // return first value of dups
+        value = table.remove( 1L );
+        assertEquals( 0L, value ); // return first value of dups
         assertEquals( 2, table.count() );
     }
     
@@ -597,15 +598,15 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
         // tests the remove(Object) method
         // -------------------------------------------------------------------
 
-        Object value = table.remove( BigInteger.ZERO, BigInteger.ZERO );
+        Object value = table.remove( 0L, 0L );
         assertNull( value );
         
-        value = table.remove( new BigInteger( "2" ), BigInteger.ONE );
-        assertEquals( BigInteger.ONE, value );
+        value = table.remove( 2L, 1L );
+        assertEquals( 1L, value );
         assertEquals( 5, table.count() );
         
-        value = table.remove( BigInteger.ONE, new BigInteger( "2" ) );
-        assertEquals( new BigInteger( "2" ), value ); 
+        value = table.remove( 1L, 2L );
+        assertEquals( 2L, value ); 
         assertEquals( 4, table.count() );
     }
     
@@ -616,12 +617,12 @@ public class JdbmTableDupsTreeSetTest extends TestCase implements Serializable
     public void testRemoveObjectNamingEnumeration() throws Exception
     {
         NamingEnumeration values = new ArrayNE( new Object[] {
-            new BigInteger( "1" ),
-            new BigInteger( "2" )
+            1L,
+            2L
         } );
         
-        Object value = table.remove( BigInteger.ONE, values );
-        assertEquals( BigInteger.ONE, value );
+        Object value = table.remove( 1L, values );
+        assertEquals( 1L, value );
         assertEquals( 4, table.count() );
     }
     

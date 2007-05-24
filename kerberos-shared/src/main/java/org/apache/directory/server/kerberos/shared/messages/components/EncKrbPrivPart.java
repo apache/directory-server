@@ -43,8 +43,18 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
     private HostAddress recipientAddress; //optional
 
 
-    public EncKrbPrivPart(byte[] userData, KerberosTime timestamp, Integer usec, Integer sequenceNumber,
-        HostAddress senderAddress, HostAddress recipientAddress)
+    /**
+     * Creates a new instance of EncKrbPrivPart.
+     *
+     * @param userData
+     * @param timestamp
+     * @param usec
+     * @param sequenceNumber
+     * @param senderAddress
+     * @param recipientAddress
+     */
+    public EncKrbPrivPart( byte[] userData, KerberosTime timestamp, Integer usec, Integer sequenceNumber,
+        HostAddress senderAddress, HostAddress recipientAddress )
     {
         super( MessageType.ENC_PRIV_PART );
 
@@ -57,36 +67,66 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
     }
 
 
+    /**
+     * Returns the recipient {@link HostAddress}.
+     *
+     * @return The recipient {@link HostAddress}.
+     */
     public HostAddress getRecipientAddress()
     {
         return recipientAddress;
     }
 
 
+    /**
+     * Returns the sender {@link HostAddress}.
+     *
+     * @return The sender {@link HostAddress}.
+     */
     public HostAddress getSenderAddress()
     {
         return senderAddress;
     }
 
 
+    /**
+     * Returns the sequence number.
+     *
+     * @return The sequence number.
+     */
     public Integer getSequenceNumber()
     {
         return sequenceNumber;
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} timestamp.
+     *
+     * @return The {@link KerberosTime} timestamp.
+     */
     public KerberosTime getTimestamp()
     {
         return timestamp;
     }
 
 
+    /**
+     * Returns the microsecond.
+     *
+     * @return The microsecond.
+     */
     public Integer getMicroSecond()
     {
         return usec;
     }
 
 
+    /**
+     * Returns the user data.
+     *
+     * @return The user data.
+     */
     public byte[] getUserData()
     {
         return userData;

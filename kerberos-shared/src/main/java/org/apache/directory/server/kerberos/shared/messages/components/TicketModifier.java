@@ -38,6 +38,11 @@ public class TicketModifier
     private EncryptedData encPart;
 
 
+    /**
+     * Returns the {@link Ticket}.
+     *
+     * @return The {@link Ticket}.
+     */
     public Ticket getTicket()
     {
         KerberosPrincipal serverPrincipal = serverModifier.getKerberosPrincipal();
@@ -45,24 +50,44 @@ public class TicketModifier
     }
 
 
+    /**
+     * Sets the {@link Ticket} version number.
+     *
+     * @param versionNumber
+     */
     public void setTicketVersionNumber( int versionNumber )
     {
         ticketVersionNumber = versionNumber;
     }
 
 
+    /**
+     * Sets the {@link EncryptedData}.
+     *
+     * @param part
+     */
     public void setEncPart( EncryptedData part )
     {
         encPart = part;
     }
 
 
+    /**
+     * Sets the server {@link PrincipalName}.
+     *
+     * @param name
+     */
     public void setServerName( PrincipalName name )
     {
         serverModifier.setPrincipalName( name );
     }
 
 
+    /**
+     * Sets the server realm.
+     *
+     * @param realm
+     */
     public void setServerRealm( String realm )
     {
         serverModifier.setRealm( realm );

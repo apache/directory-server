@@ -46,6 +46,8 @@ import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.ldif.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,6 +58,11 @@ import org.apache.directory.shared.ldap.ldif.Entry;
  */
 public class StartupConfiguration extends Configuration
 {
+    private static final Logger log = LoggerFactory.getLogger( StartupConfiguration.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     private static final long serialVersionUID = 4826762196566871677L;
 
     public static final int MAX_THREADS_DEFAULT = 4;
@@ -102,25 +109,14 @@ public class StartupConfiguration extends Configuration
     {
         Set<AuthenticatorConfiguration> set = new HashSet<AuthenticatorConfiguration>();
 
-        MutableAuthenticatorConfiguration authCfg;
-
         // Anonymous
-        authCfg = new MutableAuthenticatorConfiguration();
-        authCfg.setName( "Anonymous" );
-        authCfg.setAuthenticator( new AnonymousAuthenticator() );
-        set.add( authCfg );
+        set.add( new MutableAuthenticatorConfiguration( "Anonymous", new AnonymousAuthenticator() ) );
 
         // Simple
-        authCfg = new MutableAuthenticatorConfiguration();
-        authCfg.setName( "Simple" );
-        authCfg.setAuthenticator( new SimpleAuthenticator() );
-        set.add( authCfg );
+        set.add( new MutableAuthenticatorConfiguration( "Simple", new SimpleAuthenticator() ) );
 
         // Strong
-        authCfg = new MutableAuthenticatorConfiguration();
-        authCfg.setName( "Strong" );
-        authCfg.setAuthenticator( new StrongAuthenticator() );
-        set.add( authCfg );
+        set.add( new MutableAuthenticatorConfiguration( "Strong", new StrongAuthenticator() ) );
 
         setAuthenticatorConfigurations( set );
     }
@@ -133,12 +129,12 @@ public class StartupConfiguration extends Configuration
         List<InterceptorConfiguration> list = new ArrayList<InterceptorConfiguration>();
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "normalizationService" );
+        interceptorCfg.setName( NormalizationService.NAME );
         interceptorCfg.setInterceptor( new NormalizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "authenticationService" );
+        interceptorCfg.setName( AuthenticationService.NAME );
         interceptorCfg.setInterceptor( new AuthenticationService() );
         list.add( interceptorCfg );
 
@@ -148,47 +144,47 @@ public class StartupConfiguration extends Configuration
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "authorizationService" );
+        interceptorCfg.setName( AuthorizationService.NAME );
         interceptorCfg.setInterceptor( new AuthorizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "defaultAuthorizationService" );
+        interceptorCfg.setName( DefaultAuthorizationService.NAME );
         interceptorCfg.setInterceptor( new DefaultAuthorizationService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "exceptionService" );
+        interceptorCfg.setName( ExceptionService.NAME );
         interceptorCfg.setInterceptor( new ExceptionService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "operationalAttributeService" );
+        interceptorCfg.setName( OperationalAttributeService.NAME );
         interceptorCfg.setInterceptor( new OperationalAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "schemaService" );
+        interceptorCfg.setName( SchemaService.NAME );
         interceptorCfg.setInterceptor( new SchemaService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "subentryService" );
+        interceptorCfg.setName( SubentryService.NAME );
         interceptorCfg.setInterceptor( new SubentryService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "collectiveAttributeService" );
+        interceptorCfg.setName( CollectiveAttributeService.NAME );
         interceptorCfg.setInterceptor( new CollectiveAttributeService() );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "eventService" );
+        interceptorCfg.setName( EventService.NAME );
         interceptorCfg.setInterceptor( new EventService() );
         list.add( interceptorCfg );
         
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( "triggerService" );
+        interceptorCfg.setName( TriggerService.NAME );
         interceptorCfg.setInterceptor( new TriggerService() );
         list.add( interceptorCfg );
 
@@ -208,26 +204,30 @@ public class StartupConfiguration extends Configuration
     /**
      * Sets {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
-    protected void setAuthenticatorConfigurations( Set authenticatorConfigurations )
+    protected void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticatorConfigurations )
     {
-        Set newSet = ConfigurationUtil.getTypeSafeSet( authenticatorConfigurations, AuthenticatorConfiguration.class );
+        Set<String> names = new HashSet<String>();
 
-        Set names = new HashSet();
-        Iterator i = newSet.iterator();
-        while ( i.hasNext() )
+        // Loop through all the configurations to check if we do not have duplicated authenticators.
+        for ( AuthenticatorConfiguration cfg:authenticatorConfigurations )
         {
-            AuthenticatorConfiguration cfg = ( AuthenticatorConfiguration ) i.next();
             cfg.validate();
 
             String name = cfg.getName();
+
             if ( names.contains( name ) )
             {
+                // TODO Not sure that it worth to throw an excpetion here. We could simply ditch the
+                // duplicated authenticator, trace a warning and that's it. 
+                log.error( "The authenticator nammed '{}' has already been registred.", name );
                 throw new ConfigurationException( "Duplicate authenticator name: " + name );
             }
+            
             names.add( name );
         }
 
-        this.authenticatorConfigurations = newSet;
+        // The set has been checked, so we can now register it
+        this.authenticatorConfigurations = authenticatorConfigurations;
     }
 
 

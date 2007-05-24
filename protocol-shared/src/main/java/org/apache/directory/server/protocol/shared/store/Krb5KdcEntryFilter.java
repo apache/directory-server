@@ -28,6 +28,7 @@ import javax.naming.directory.DirContext;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +44,8 @@ public class Krb5KdcEntryFilter implements LdifLoadFilter
 {
     private static final Logger log = LoggerFactory.getLogger( Krb5KdcEntryFilter.class );
     private static final String KEY_TYPE = "DES";
-    private static final String OBJECTCLASS_ATTR = "objectClass";
     private static final String KRB5KDCENTRY_OC = "krb5KDCEntry";
-    private static final String PASSWORD_ATTR = "userPassword";
+    private static final String PASSWORD_ATTR = SchemaConstants.USER_PASSWORD_AT;
 
 
     /**
@@ -55,7 +55,7 @@ public class Krb5KdcEntryFilter implements LdifLoadFilter
      */
     public boolean filter( File file, String dn, Attributes entry, DirContext ctx ) throws NamingException
     {
-        if ( entry.get( OBJECTCLASS_ATTR ).contains( KRB5KDCENTRY_OC ) )
+        if ( entry.get( SchemaConstants.OBJECT_CLASS_AT ).contains( KRB5KDCENTRY_OC ) )
         {
             String krbPrincipal = null;
             try

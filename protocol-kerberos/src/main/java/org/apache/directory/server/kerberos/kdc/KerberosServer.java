@@ -73,7 +73,7 @@ public class KerberosServer
 
         try
         {
-            handler = new KerberosProtocolHandler( new KdcConfiguration(), this.store );
+            handler = new KerberosProtocolHandler( config, this.store );
 
             acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
@@ -87,8 +87,7 @@ public class KerberosServer
 
 
     /**
-     * Compares whether a {@link Dictionary} of configuration is different
-     * from the currently used configuration.
+     * Returns whether configuration being proposed as new is really different.
      *
      * @param newConfig
      * @return <code>True</true> if the configuration is different.
@@ -100,7 +99,7 @@ public class KerberosServer
 
 
     /**
-     * Destroys this instance of the service.
+     * Destroys this instance of KerberosServer.
      */
     public void destroy()
     {

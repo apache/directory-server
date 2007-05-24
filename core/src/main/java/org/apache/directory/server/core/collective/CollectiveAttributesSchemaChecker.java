@@ -26,8 +26,10 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -56,7 +58,7 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkAdd( LdapDN normName, Attributes entry ) throws LdapSchemaViolationException, NamingException
     {
-        Attribute objectClass = entry.get( "objectClass" );
+        Attribute objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( AttributeUtils.containsValueCaseIgnore( objectClass, "collectiveAttributeSubentry" ) )
         {
@@ -93,9 +95,9 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkModify( LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
     {
-        Attributes originalEntry = nexus.lookup( normName );
+        Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
-        Attribute targetObjectClasses = targetEntry.get( "objectClass" );
+        Attribute targetObjectClasses = targetEntry.get( SchemaConstants.OBJECT_CLASS_AT );
         
         if ( AttributeUtils.containsValueCaseIgnore( targetObjectClasses, "collectiveAttributeSubentry" ) )
         {

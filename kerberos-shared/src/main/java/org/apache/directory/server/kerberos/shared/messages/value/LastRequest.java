@@ -29,18 +29,31 @@ public class LastRequest
     private LastRequestEntry[] entries = new LastRequestEntry[1];
 
 
+    /**
+     * Creates a new instance of LastRequest.
+     */
     public LastRequest()
     {
         entries[0] = new LastRequestEntry( LastRequestType.NONE, new KerberosTime() );
     }
 
 
-    public LastRequest(LastRequestEntry[] entries)
+    /**
+     * Creates a new instance of LastRequest.
+     *
+     * @param entries
+     */
+    public LastRequest( LastRequestEntry[] entries )
     {
         this.entries = entries;
     }
 
 
+    /**
+     * Returns an array of {@link LastRequestEntry}s.
+     *
+     * @return The array of {@link LastRequestEntry}s.
+     */
     public LastRequestEntry[] getEntries()
     {
         return entries;

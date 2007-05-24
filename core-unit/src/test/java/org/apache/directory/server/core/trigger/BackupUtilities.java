@@ -22,4 +22,11 @@ public class BackupUtilities
         backupCtx.createSubcontext( deletedEntryRdn, deletedEntry );
         log.info( "Backed up deleted entry to \"" + ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
     }
+    
+    public static void duplicateDeletedEntry( LdapContext ctx, Name deletedEntryName, Name operationPrincipal, Attributes deletedEntry ) throws NamingException
+    {
+        LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
+        String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );
+        backupCtx.createSubcontext( deletedEntryRdn + "," + deletedEntryRdn, deletedEntry );
+    }
 }

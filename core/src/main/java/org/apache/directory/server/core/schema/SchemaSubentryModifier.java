@@ -28,11 +28,18 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -65,12 +72,12 @@ public class SchemaSubentryModifier
     static
     {
         Set<String> bypass = new HashSet<String>();
-        bypass.add( "authenticationService" );
-        bypass.add( "referralService" );
-        bypass.add( "authorizationService" );
-        bypass.add( "defaultAuthorizationService" );
-        bypass.add( "exceptionService" );
-        bypass.add( "schemaService" );
+        bypass.add( AuthenticationService.NAME );
+        bypass.add( ReferralService.NAME );
+        bypass.add( AuthorizationService.NAME );
+        bypass.add( DefaultAuthorizationService.NAME );
+        bypass.add( ExceptionService.NAME );
+        bypass.add( SchemaService.NAME );
         BYPASS = Collections.unmodifiableCollection( bypass );
     }
     
@@ -95,31 +102,31 @@ public class SchemaSubentryModifier
         }
         else if ( obj instanceof MatchingRule )
         {
-            buf.append( "matchingRules" );
+            buf.append( SchemaConstants.MATCHING_RULES_AT );
         }
         else if ( obj instanceof AttributeType )
         {
-            buf.append( "attributeTypes" );
+            buf.append( SchemaConstants.ATTRIBUTE_TYPES_AT );
         }
         else if ( obj instanceof ObjectClass )
         {
-            buf.append( "objectClasses" );
+            buf.append( SchemaConstants.OBJECT_CLASSES_AT );
         }
         else if ( obj instanceof MatchingRuleUse )
         {
-            buf.append( "matchingRuleUses" );
+            buf.append( SchemaConstants.MATCHING_RULE_USE_AT );
         }
         else if ( obj instanceof DITStructureRule )
         {
-            buf.append( "ditStructureRules" );
+            buf.append( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         }
         else if ( obj instanceof DITContentRule )
         {
-            buf.append( "ditContentRules" );
+            buf.append( SchemaConstants.DIT_CONTENT_RULES_AT );
         }
         else if ( obj instanceof NameForm )
         {
-            buf.append( "nameForms" );
+            buf.append( SchemaConstants.NAME_FORMS_AT );
         }
 
         buf.append( ",cn=" ).append( obj.getSchema() ).append( ",ou=schema" );
@@ -133,7 +140,7 @@ public class SchemaSubentryModifier
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
     }
 
 
@@ -141,7 +148,7 @@ public class SchemaSubentryModifier
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
     }
 
     
@@ -151,7 +158,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
     }
 
 
@@ -161,7 +168,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
     }
 
 
@@ -171,7 +178,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( dn, BYPASS );
+        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
     }
 
 
@@ -182,15 +189,15 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
     }
     
     
     private Attributes getAttributes( ComparatorDescription comparatorDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaComparator" );
         attributes.put( MetaSchemaConstants.M_OID_AT, comparatorDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, comparatorDescription.getFqcn() );
 
@@ -216,15 +223,15 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( normalizerDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
     }
     
     
     private Attributes getAttributes( NormalizerDescription normalizerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaNormalizer" );
         attributes.put( MetaSchemaConstants.M_OID_AT, normalizerDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, normalizerDescription.getFqcn() );
 
@@ -250,7 +257,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( syntaxCheckerDescription );
-        proxy.add( dn, attrs, BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
     }
     
     
@@ -267,9 +274,9 @@ public class SchemaSubentryModifier
     
     private Attributes getAttributes( SyntaxCheckerDescription syntaxCheckerDescription )
     {
-        AttributesImpl attributes = new AttributesImpl( SystemSchemaConstants.OBJECT_CLASS_AT, "top", true );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
-        attributes.get( SystemSchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
+        AttributesImpl attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC, true );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaTop" );
+        attributes.get( SchemaConstants.OBJECT_CLASS_AT ).add( "metaSyntaxChecker" );
         attributes.put( MetaSchemaConstants.M_OID_AT, syntaxCheckerDescription.getNumericOid() );
         attributes.put( MetaSchemaConstants.M_FQCN_AT, syntaxCheckerDescription.getFqcn() );
 

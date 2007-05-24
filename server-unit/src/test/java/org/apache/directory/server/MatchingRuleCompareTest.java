@@ -51,7 +51,7 @@ public class MatchingRuleCompareTest extends AbstractServerTest
     public static final String PERSON_CN = "Tori Amos";
     public static final String PERSON_SN = "Amos";
     public static final String PERSON_RDN = "cn=" + PERSON_CN;
-    public static final String PERSON_TELEPHONE = "1234567890abc";
+    public static final String PERSON_TELEPHONE = "1234567890";
     public static final String PERSON_PWD = "Secret1!";
 
     public static final String GROUP_CN = "Artists";

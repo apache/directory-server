@@ -30,6 +30,9 @@ public class TransitedEncoding
     private byte[] contents;
 
 
+    /**
+     * Creates a new instance of TransitedEncoding.
+     */
     public TransitedEncoding()
     {
         type = TransitedEncodingType.NULL;
@@ -37,19 +40,35 @@ public class TransitedEncoding
     }
 
 
-    public TransitedEncoding(TransitedEncodingType type, byte[] contents)
+    /**
+     * Creates a new instance of TransitedEncoding.
+     *
+     * @param type
+     * @param contents
+     */
+    public TransitedEncoding( TransitedEncodingType type, byte[] contents )
     {
         this.type = type;
         this.contents = contents;
     }
 
 
+    /**
+     * Returns the contents.
+     *
+     * @return The contents.
+     */
     public byte[] getContents()
     {
         return contents;
     }
 
 
+    /**
+     * Returns the {@link TransitedEncodingType}.
+     *
+     * @return The {@link TransitedEncodingType}.
+     */
     public TransitedEncodingType getType()
     {
         return type;

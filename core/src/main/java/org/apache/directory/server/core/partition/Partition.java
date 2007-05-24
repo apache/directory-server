@@ -20,20 +20,15 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.util.List;
-import java.util.Map;
-
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -106,52 +101,37 @@ public interface Partition
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 
      * deleted until this operation has been applied to their children.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
+     * @param opContext the context of the entry to
      * delete from this ContextPartition.
      * @throws NamingException if there are any problems
      */
-    void delete( LdapDN name ) throws NamingException;
+    void delete( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Adds an entry to this ContextPartition.
      *
-     * @param name
-     * @param entry the entry to add to this ContextPartition
+     * @param opContext the context used  to add and entry to this ContextPartition
      * @throws NamingException if there are any problems
      */
-    void add( LdapDN name, Attributes entry ) throws NamingException;
+    void add( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Modifies an entry by adding, removing or replacing a set of attributes.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
-     * modify
-     * @param modOp the modification operation to perform on the entry which
-     * is one of constants specified by the DirContext interface:
+     * @param opContext The contetx containin the modification operation 
+     * to perform on the entry which is one of constants specified by the 
+     * DirContext interface:
      * <code>ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, REPLACE_ATTRIBUTE</code>.
-     * @param attributes the attributes and their values used to affect the
-     * modification with.
+     * 
      * @throws NamingException if there are any problems
      * @see javax.naming.directory.DirContext
      * @see javax.naming.directory.DirContext#ADD_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REMOVE_ATTRIBUTE
      * @see javax.naming.directory.DirContext#REPLACE_ATTRIBUTE
      */
-    void modify( LdapDN name, int modOp, Attributes attributes ) throws NamingException;
-
-
-    /**
-     * Modifies an entry by using a combination of adds, removes or replace 
-     * operations using a set of ModificationItems.
-     *
-     * @param name the normalized distinguished/absolute name of the entry to modify
-     * @param items the ModificationItems used to affect the modification with
-     * @throws NamingException if there are any problems
-     * @see javax.naming.directory.ModificationItem
-     */
-    void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
+    void modify( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -160,11 +140,11 @@ public interface Partition
      * used to optimize operations rather than conducting a full search with 
      * retrieval.
      *
-     * @param baseName the base distinguished/absolute name for the search/listing
+     * @param opContext the context containing the distinguished/absolute name for the search/listing
      * @return a NamingEnumeration containing objects of type {@link SearchResult}
      * @throws NamingException if there are any problems
      */
-    NamingEnumeration list( LdapDN baseName ) throws NamingException;
+    NamingEnumeration list( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -175,16 +155,13 @@ public interface Partition
      * namespace specific or implementation specific key for the set of LDAP
      * Controls.
      *
-     * @param baseName the normalized distinguished/absolute name of the search base
-     * @param environment the environment under which operation occurs
-     * @param filter the root node of the filter expression tree
-     * @param searchControls the search controls
+     * @param opContext The context containing the information used by the operation
      * @throws NamingException if there are any problems
      * @return a NamingEnumeration containing objects of type 
      * <a href="http://java.sun.com/j2se/1.4.2/docs/api/
      * javax/naming/directory/SearchResult.html">SearchResult</a>.
      */
-    NamingEnumeration<SearchResult> search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
+    NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException;
 
 
@@ -192,48 +169,24 @@ public interface Partition
      * Looks up an entry by distinguished/absolute name.  This is a simplified
      * version of the search operation used to point read an entry used for
      * convenience.
+     * 
+     * Depending on the context parameters, we my look for a simple entry,
+     * or for a restricted set of attributes for this entry
      *
-     * @param name the normalized distinguished name of the object to lookup
+     * @param lookupContext The context containing the parameters
      * @return an Attributes object representing the entry
      * @throws NamingException if there are any problems
      */
-    Attributes lookup( LdapDN name ) throws NamingException;
-
-
-    /**
-     * Looks up an entry by distinguished/absolute name.  This is a simplified
-     * version of the search operation used to point read an entry used for
-     * convenience with a set of attributes to return.  If the attributes is
-     * null or empty, the returned entry will contain all attributes.
-     *
-     * @param name the normalized distinguished name of the object to lookup
-     * @param attrIds the set of attributes to return
-     * @return an Attributes object representing the entry
-     * @throws NamingException if there are any problems
-     */
-    Attributes lookup( LdapDN name, String[] attrIds ) throws NamingException;
-
+    Attributes lookup( OperationContext lookupContext ) throws NamingException;
 
     /**
      * Fast operation to check and see if a particular entry exists.
      *
-     * @param name the normalized distinguished/absolute name of the object to
-     * check for existance
+     * @param opContext The context used to pass informations
      * @return true if the entry exists, false if it does not
      * @throws NamingException if there are any problems
      */
-    boolean hasEntry( LdapDN name ) throws NamingException;
-
-
-    /**
-     * Checks to see if name is a context suffix.
-     *
-     * @param name the normalized distinguished/absolute name of the context
-     * @return true if the name is a context suffix, false if it is not.
-     * @throws NamingException if there are any problems
-     */
-    boolean isSuffix( LdapDN name ) throws NamingException;
-
+    boolean hasEntry( OperationContext opContext ) throws NamingException;
 
     /**
      * Modifies an entry by changing its relative name. Optionally attributes
@@ -241,27 +194,20 @@ public interface Partition
      * This makes sense only in certain namespaces like LDAP and will be ignored
      * if it is irrelavent.
      *
-     * @param name the normalized distinguished/absolute name of the entry to
-     * modify the RN of.
-     * @param newRn the new RN of the entry specified by name
-     * @param deleteOldRn boolean flag which removes the old RN attribute
-     * from the entry if set to true, and has no affect if set to false
+     * @param opContext the modify DN context
      * @throws NamingException if there are any problems
      */
-    void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void rename( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Transplants a child entry, to a position in the namespace under a new
      * parent entry.
      *
-     * @param oldName the normalized distinguished/absolute name of the
-     * original child name representing the child entry to move
-     * @param newParentName the normalized distinguished/absolute name of the
-     * new parent to move the target entry to
+     * @param opContext The context containing the DNs to move
      * @throws NamingException if there are any problems
      */
-    void move( LdapDN oldName, LdapDN newParentName ) throws NamingException;
+    void move( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -272,16 +218,11 @@ public interface Partition
      * namespace this parameters is ignored.  An example of a namespace where
      * this parameter is significant is the LDAP namespace.
      *
-     * @param oldName the normalized distinguished/absolute name of the
-     * original child name representing the child entry to move
-     * @param newParentName the normalized distinguished/absolute name of the
-     * new parent to move the targeted entry to
-     * @param newRn the new RN of the entry
-     * @param deleteOldRn boolean flag which removes the old RN attribute
-     * from the entry if set to true, and has no affect if set to false
+     * @param opContext The context contain all the information about
+     * the modifyDN operation
      * @throws NamingException if there are any problems
      */
-    void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
+    void moveAndRename( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -289,23 +230,18 @@ public interface Partition
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindDn the normalized dn of the principal
-     * @param credentials the credentials of the principal
-     * @param mechanisms the mechanisms requested by the JNDI caller or a single
-     * mechanism representing the SASL bind mechanism used by a networked client (Strings)
-     * @param saslAuthId the SASL authentication (may be null)
+     * @param opContext the bind context, containing all the needed informations to bind
      * @throws NamingException if something goes wrong
      */
-    void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
-
+    void bind( OperationContext opContext ) throws NamingException;
 
     /**
      * Represents an unbind operation issued by an authenticated client.  Partitions
      * need not support this operation.  This operation is here to enable those
      * interested in implementing virtual directories with ApacheDS.
      * 
-     * @param bindDn the normalized dn of the principal attempting to unbind
+     * @param opContext the context used to unbind
      * @throws NamingException if something goes wrong
      */
-    void unbind( LdapDN bindDn ) throws NamingException;
+    void unbind( OperationContext opContext ) throws NamingException;
 }

@@ -82,15 +82,19 @@ public class RestrictedByFilter implements ACITupleFilter
         for ( Iterator i = tuple.getProtectedItems().iterator(); i.hasNext(); )
         {
             ProtectedItem item = ( ProtectedItem ) i.next();
+            
             if ( item instanceof ProtectedItem.RestrictedBy )
             {
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
+            
                 for ( Iterator k = rb.iterator(); k.hasNext(); )
                 {
                     RestrictedByItem rbItem = ( RestrictedByItem ) k.next();
+                
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
                     {
                         Attribute attr = entry.get( rbItem.getValuesIn() );
+                        
                         if ( attr == null || !attr.contains( attrValue ) )
                         {
                             return true;

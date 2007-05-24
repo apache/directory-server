@@ -20,17 +20,15 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.math.BigInteger;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import jdbm.RecordManager;
+import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
 
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 
 /**
@@ -42,7 +40,7 @@ import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 public class JdbmMasterTable extends JdbmTable implements MasterTable
 {
     private static final StringComparator STRCOMP = new StringComparator();
-    private static final SerializableComparator BIG_INTEGER_COMPARATOR = new SerializableComparator(
+    private static final SerializableComparator LONG_COMPARATOR = new SerializableComparator(
         "1.3.6.1.4.1.18060.0.4.1.1.2" )
     {
         private static final long serialVersionUID = 4048791282048841016L;
@@ -50,7 +48,23 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
         public int compare( Object o1, Object o2 )
         {
-            return BigIntegerComparator.INSTANCE.compare( o1, o2 );
+        	try
+        	{
+	        	long thisVal = (Long)o1;
+	        	long anotherVal = (Long)o2;
+	        	return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0 : 1 ) );
+        	}
+        	catch ( NullPointerException npe )
+        	{
+    	        if ( o1 == null )
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj1' is null" );
+    	        }
+    	        else
+    	        {
+    	            throw new IllegalArgumentException( "Argument 'obj2' is null" );
+    	        }
+        	}
         }
     };
     private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator(
@@ -76,13 +90,13 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      */
     public JdbmMasterTable(RecordManager recMan) throws NamingException
     {
-        super( DBF, recMan, BIG_INTEGER_COMPARATOR );
-        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR );
+        super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
+        adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
         String seqValue = ( String ) adminTbl.get( SEQPROP_KEY );
 
         if ( null == seqValue )
         {
-            adminTbl.put( SEQPROP_KEY, BigInteger.ZERO.toString() );
+            adminTbl.put( SEQPROP_KEY, "0" );
         }
     }
 
@@ -94,7 +108,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry with operational attributes and all.
      * @throws NamingException if there is a read error on the underlying Db.
      */
-    public Attributes get( BigInteger id ) throws NamingException
+    public Attributes get( Object id ) throws NamingException
     {
         return ( Attributes ) super.get( id );
     }
@@ -110,7 +124,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the entry put
      * @throws NamingException if there is a write error on the underlying Db.
      */
-    public Attributes put( Attributes entry, BigInteger id ) throws NamingException
+    public Attributes put( Attributes entry, Object id ) throws NamingException
     {
         return ( Attributes ) super.put( id, entry );
     }
@@ -123,7 +137,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @return the Attributes of the deleted entry
      * @throws NamingException if there is a write error on the underlying Db
      */
-    public Attributes delete( BigInteger id ) throws NamingException
+    public Attributes delete( Object id ) throws NamingException
     {
         return ( Attributes ) super.remove( id );
     }
@@ -137,18 +151,18 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @throws NamingException if the admin table storing sequences cannot be
      * read.
      */
-    public BigInteger getCurrentId() throws NamingException
+    public Long getCurrentId() throws NamingException
     {
-        BigInteger id = null;
+        Long id = null;
 
         synchronized ( adminTbl )
         {
-            id = new BigInteger( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
             if ( null == id )
             {
-                adminTbl.put( SEQPROP_KEY, BigInteger.ZERO.toString() );
-                id = BigInteger.ZERO;
+                adminTbl.put( SEQPROP_KEY, "0" );
+                id = 0L;
             }
         }
 
@@ -166,23 +180,23 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @throws NamingException if the admin table storing sequences cannot be
      * read and writen to.
      */
-    public BigInteger getNextId() throws NamingException
+    public Long getNextId() throws NamingException
     {
-        BigInteger lastVal = null;
-        BigInteger nextVal = null;
+        Long lastVal = null;
+        Long nextVal = null;
 
         synchronized ( adminTbl )
         {
-            lastVal = new BigInteger( ( String ) adminTbl.get( SEQPROP_KEY ) );
+            lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
             if ( null == lastVal )
             {
-                adminTbl.put( SEQPROP_KEY, BigInteger.ONE.toString() );
-                return BigInteger.ONE;
+                adminTbl.put( SEQPROP_KEY, "1" );
+                return 1L;
             }
             else
             {
-                nextVal = lastVal.add( BigInteger.ONE );
+                nextVal = lastVal + 1L;
                 adminTbl.put( SEQPROP_KEY, nextVal.toString() );
             }
         }

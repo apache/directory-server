@@ -22,7 +22,6 @@ package org.apache.directory.server.core.collective;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -38,15 +37,20 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
 /**
@@ -61,6 +65,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
+    /** The service name */
+    public static final String NAME = "collectiveAttributeService";
+
     public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
     
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
@@ -74,7 +81,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            LdapDN name = new LdapDN( result.getName() );
+            LdapDN name = ((ServerSearchResult)result).getDn();
             name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
             Attributes entry = result.getAttributes();
             String[] retAttrs = controls.getReturningAttributes();
@@ -111,7 +118,7 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attributes entryWithCAS = nexus.lookup( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } );
+        Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } ) );
         Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
 
         /*
@@ -134,7 +141,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         
         if ( collectiveExclusions != null )
         {
-            if ( collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
+            if ( AttributeUtils.containsValueCaseIgnore( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
                 || collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES ) )
             {
                 /*
@@ -182,7 +189,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
-            Attributes subentry = nexus.lookup( subentryDn );
+            Attributes subentry = nexus.lookup( new LookupOperationContext( subentryDn ) );
             NamingEnumeration attrIds = subentry.getIDs();
             
             while ( attrIds.hasMore() )
@@ -276,72 +283,60 @@ public class CollectiveAttributeService extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
+        Attributes result = nextInterceptor.lookup( opContext );
         
         if ( result == null )
         {
             return null;
         }
         
-        addCollectiveAttributes( name, result, new String[] { "*" } );
-        return result;
-    }
-    
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        Attributes result = nextInterceptor.lookup( name, attrIds );
+        LookupOperationContext ctx = (LookupOperationContext)opContext;
         
-        if ( result == null )
+        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) ) 
         {
-            return null;
+            addCollectiveAttributes( ctx.getDn(), result, new String[] { "*" } );
         }
-        
-        addCollectiveAttributes( name, result, attrIds );
+        else
+        {
+            addCollectiveAttributes( ctx.getDn(), result, ctx.getAttrsIdArray() );
+        }
+
         return result;
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER );
+        return new SearchResultFilteringEnumeration( 
+            e, ((SearchOperationContext)opContext).getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
     }
     
     // ------------------------------------------------------------------------
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkAdd( normName, entry );
-        super.add( next, normName, entry );
+        collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), ((AddOperationContext)opContext).getEntry() );
+        super.add( next, opContext );
     }
 
 
-    public void modify( NextInterceptor next, LdapDN normName, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkModify( normName, modOp, mods );
-        super.modify( next, normName, modOp, mods );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
-    {
-        collectiveAttributesSchemaChecker.checkModify( normName, mods );
-        super.modify( next, normName, mods );
+        collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems() );
+        super.modify( next, opContext );
     }
 }

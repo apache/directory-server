@@ -24,11 +24,11 @@ import java.net.InetAddress;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.messages.AbstractPasswordMessage;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
@@ -52,7 +52,7 @@ public class ChangePasswordContext
     private Authenticator authenticator;
     private PrincipalStoreEntry serverEntry;
     private ReplayCache replayCache;
-    private LockBox lockBox;
+    private CipherTextHandler cipherTextHandler;
     private String password;
 
 
@@ -165,20 +165,20 @@ public class ChangePasswordContext
 
 
     /**
-     * @return Returns the lockBox.
+     * @return Returns the {@link CipherTextHandler}.
      */
-    public LockBox getLockBox()
+    public CipherTextHandler getCipherTextHandler()
     {
-        return lockBox;
+        return cipherTextHandler;
     }
 
 
     /**
-     * @param lockBox The lockBox to set.
+     * @param cipherTextHandler The {@link CipherTextHandler} to set.
      */
-    public void setLockBox( LockBox lockBox )
+    public void setCipherTextHandler( CipherTextHandler cipherTextHandler )
     {
-        this.lockBox = lockBox;
+        this.cipherTextHandler = cipherTextHandler;
     }
 
 

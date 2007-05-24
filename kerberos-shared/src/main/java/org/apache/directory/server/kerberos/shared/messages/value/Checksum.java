@@ -35,7 +35,13 @@ public class Checksum
     private byte[] checksum;
 
 
-    public Checksum(ChecksumType checksumType, byte[] checksum)
+    /**
+     * Creates a new instance of Checksum.
+     *
+     * @param checksumType
+     * @param checksum
+     */
+    public Checksum( ChecksumType checksumType, byte[] checksum )
     {
         this.checksumType = checksumType;
         this.checksum = checksum;
@@ -60,12 +66,22 @@ public class Checksum
     }
 
 
+    /**
+     * Returns the checksum value.
+     *
+     * @return The checksum value.
+     */
     public byte[] getChecksumValue()
     {
         return checksum;
     }
 
 
+    /**
+     * Returns the {@link ChecksumType}.
+     *
+     * @return The {@link ChecksumType}.
+     */
     public ChecksumType getChecksumType()
     {
         return checksumType;

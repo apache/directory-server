@@ -38,10 +38,15 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class PrincipalNameDecoder
 {
     /**
+     * Decodes a {@link DERSequence} into a {@link PrincipalName}.
+     * 
      * PrincipalName ::=   SEQUENCE {
      *               name-type[0]     INTEGER,
      *               name-string[1]   SEQUENCE OF GeneralString
      * }
+     * 
+     * @param sequence 
+     * @return The {@link PrincipalName}.
      */
     public static PrincipalName decode( DERSequence sequence )
     {

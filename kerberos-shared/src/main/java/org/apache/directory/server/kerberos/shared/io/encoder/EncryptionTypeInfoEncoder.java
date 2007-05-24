@@ -37,6 +37,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptionTypeInfoEncoder
 {
+    /**
+     * Encodes an array of {@link EncryptionTypeInfoEntry}s into a byte array.
+     *
+     * @param entries
+     * @return The byte array.
+     * @throws IOException
+     */
     public static byte[] encode( EncryptionTypeInfoEntry[] entries ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

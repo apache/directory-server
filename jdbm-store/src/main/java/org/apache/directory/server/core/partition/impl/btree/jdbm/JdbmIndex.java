@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingEnumeration;
@@ -138,7 +137,14 @@ public class JdbmIndex implements Index
          * primary keys.  A value for an attribute can occur several times in
          * different entries so the forward map can have more than one value.
          */
-        forward = new JdbmTable( attribute.getName() + FORWARD_BTREE, true, numDupLimit, recMan, new IndexComparator( comp, true ) );
+        forward = new JdbmTable( 
+            attribute.getName() + FORWARD_BTREE, 
+            true, 
+            numDupLimit, 
+            recMan, 
+            new IndexComparator( comp, true ),
+            null, null );
+            //LongSerializer.INSTANCE );
 
         /*
          * Now the reverse map stores the primary key into the master table as
@@ -146,8 +152,14 @@ public class JdbmIndex implements Index
          * is single valued according to its specification based on a schema 
          * then duplicate keys should not be allowed within the reverse table.
          */
-        reverse = new JdbmTable( attribute.getName() + REVERSE_BTREE, !attribute.isSingleValue(), numDupLimit, recMan,
-            new IndexComparator( comp, false ) );
+        reverse = new JdbmTable( 
+            attribute.getName() + REVERSE_BTREE, 
+            !attribute.isSingleValue(), 
+            numDupLimit, 
+            recMan,
+            new IndexComparator( comp, false ),
+            null, //LongSerializer.INSTANCE,
+            null);
     }
 
 
@@ -198,16 +210,16 @@ public class JdbmIndex implements Index
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
-    public BigInteger forwardLookup( Object attrVal ) throws NamingException
+    public Long forwardLookup( Object attrVal ) throws NamingException
     {
-        return ( BigInteger ) forward.get( getNormalized( attrVal ) );
+        return ( Long ) forward.get( getNormalized( attrVal ) );
     }
 
 
     /**
      * @see Index#reverseLookup(java.math.BigInteger)
      */
-    public Object reverseLookup( BigInteger id ) throws NamingException
+    public Object reverseLookup( Object id ) throws NamingException
     {
         return reverse.get( id );
     }
@@ -221,7 +233,7 @@ public class JdbmIndex implements Index
      * @see org.apache.directory.server.core.partition.impl.btree.Index#add(java.lang.Object,
      * java.math.BigInteger)
      */
-    public synchronized void add( Object attrVal, BigInteger id ) throws NamingException
+    public synchronized void add( Object attrVal, Object id ) throws NamingException
     {
         forward.put( getNormalized( attrVal ), id );
         reverse.put( id, getNormalized( attrVal ) );
@@ -232,7 +244,7 @@ public class JdbmIndex implements Index
      * @see org.apache.directory.server.core.partition.impl.btree.Index#add(
      * javax.naming.directory.Attribute, java.math.BigInteger)
      */
-    public synchronized void add( Attribute attr, BigInteger id ) throws NamingException
+    public synchronized void add( Attribute attr, Object id ) throws NamingException
     {
         // Can efficiently batch add to the reverse table 
         NamingEnumeration values = attr.getAll();
@@ -251,7 +263,7 @@ public class JdbmIndex implements Index
      * @see Index#add(
      * javax.naming.directory.Attributes, java.math.BigInteger)
      */
-    public synchronized void add( Attributes attrs, BigInteger id ) throws NamingException
+    public synchronized void add( Attributes attrs, Object id ) throws NamingException
     {
         add( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
@@ -261,7 +273,7 @@ public class JdbmIndex implements Index
      * @see org.apache.directory.server.core.partition.impl.btree.Index#drop(java.lang.Object,
      * java.math.BigInteger)
      */
-    public synchronized void drop( Object attrVal, BigInteger id ) throws NamingException
+    public synchronized void drop( Object attrVal, Object id ) throws NamingException
     {
         forward.remove( getNormalized( attrVal ), id );
         reverse.remove( id, getNormalized( attrVal ) );
@@ -271,7 +283,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#drop(java.math.BigInteger)
      */
-    public void drop( BigInteger entryId ) throws NamingException
+    public void drop( Object entryId ) throws NamingException
     {
         NamingEnumeration values = reverse.listValues( entryId );
 
@@ -288,7 +300,7 @@ public class JdbmIndex implements Index
      * @see Index#drop(
      * javax.naming.directory.Attribute, java.math.BigInteger)
      */
-    public void drop( Attribute attr, BigInteger id ) throws NamingException
+    public void drop( Attribute attr, Object id ) throws NamingException
     {
         // Can efficiently batch remove from the reverse table 
         NamingEnumeration values = attr.getAll();
@@ -315,7 +327,7 @@ public class JdbmIndex implements Index
      * @see org.apache.directory.server.core.partition.impl.btree.Index#drop(
      * javax.naming.directory.Attributes, java.math.BigInteger)
      */
-    public void drop( Attributes attrs, BigInteger id ) throws NamingException
+    public void drop( Attributes attrs, Object id ) throws NamingException
     {
         drop( AttributeUtils.getAttribute( attrs, attribute ), id );
     }
@@ -328,7 +340,7 @@ public class JdbmIndex implements Index
     /**
      * @see Index#listReverseIndices(BigInteger)
      */
-    public IndexEnumeration listReverseIndices( BigInteger id ) throws NamingException
+    public IndexEnumeration listReverseIndices( Object id ) throws NamingException
     {
         return new IndexEnumeration( reverse.listTuples( id ), true );
     }
@@ -389,7 +401,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(java.lang.Object,
      * java.math.BigInteger)
      */
-    public boolean hasValue( Object attrVal, BigInteger id ) throws NamingException
+    public boolean hasValue( Object attrVal, Object id ) throws NamingException
     {
         return forward.has( getNormalized( attrVal ), id );
     }
@@ -399,7 +411,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(java.lang.Object,
      * java.math.BigInteger, boolean)
      */
-    public boolean hasValue( Object attrVal, BigInteger id, boolean isGreaterThan ) throws NamingException
+    public boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws NamingException
     {
         return forward.has( getNormalized( attrVal ), id, isGreaterThan );
     }
@@ -409,7 +421,7 @@ public class JdbmIndex implements Index
      * @see Index#hasValue(org.apache.regexp.RE,
      * java.math.BigInteger)
      */
-    public boolean hasValue( Pattern regex, BigInteger id ) throws NamingException
+    public boolean hasValue( Pattern regex, Object id ) throws NamingException
     {
         IndexEnumeration list = new IndexEnumeration( reverse.listTuples( id ), true, regex );
         boolean hasValue = list.hasMore();
@@ -469,6 +481,11 @@ public class JdbmIndex implements Index
      */
     public Object getNormalized( Object attrVal ) throws NamingException
     {
+        if ( attrVal instanceof Long )
+        {
+            return attrVal;
+        }
+        
         Object normalized = keyCache.get( attrVal );
 
         if ( null == normalized )

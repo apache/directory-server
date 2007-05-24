@@ -20,17 +20,22 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -194,17 +199,20 @@ public class GetPrincipal implements ContextOperation
             modifier.setSamType( SamType.getTypeByOrdinal( Integer.parseInt( samType ) ) );
         }
 
-        Object key = attrs.get( KerberosAttribute.KEY ).get();
-        byte[] keyBytes = null;
-
-        if ( key instanceof String )
+        if ( attrs.get( KerberosAttribute.KEY ) != null )
         {
-            String msg = "JNDI should not return a string for the kerberos key: JNDI property java.naming.ldap.attributes.binary must include the krb5key attribute.";
-            throw new NamingException( msg );
+            Attribute krb5key = attrs.get( KerberosAttribute.KEY );
+            try
+            {
+                Map<EncryptionType, EncryptionKey> keyMap = modifier.reconstituteKeyMap( krb5key );
+                modifier.setKeyMap( keyMap );
+            }
+            catch ( IOException ioe )
+            {
+                throw new InvalidAttributeValueException( "Account Kerberos key attribute '" + KerberosAttribute.KEY
+                    + "' contained an invalid value for krb5key." );
+            }
         }
-
-        keyBytes = ( byte[] ) key;
-        modifier.setKey( keyBytes );
 
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
         modifier.setEncryptionType( Integer.parseInt( encryptionType ) );

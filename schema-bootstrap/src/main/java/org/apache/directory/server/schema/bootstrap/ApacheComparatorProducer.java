@@ -29,7 +29,8 @@ import jdbm.helper.StringComparator;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.ComparableComparator;
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+import org.apache.directory.shared.ldap.util.LongComparator;
 
 
 /**
@@ -63,7 +64,7 @@ public class ApacheComparatorProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.1", comparator );
 
         // For bigIntegerMatch -> 1.3.6.1.4.1.18060.0.4.1.1.2
-        comparator = new BigIntegerComparator();
+        comparator = new LongComparator();
         cb.schemaObjectProduced( this, "1.3.6.1.4.1.18060.0.4.1.1.2", comparator );
 
         // For jdbmStringMatch -> 1.3.6.1.4.1.18060.0.4.1.1.3

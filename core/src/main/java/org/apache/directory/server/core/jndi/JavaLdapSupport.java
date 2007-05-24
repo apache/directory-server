@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 
 import java.io.ByteArrayInputStream;
@@ -48,12 +49,8 @@ class JavaLdapSupport
     // Attribute Id Constants Used By The Java LDAP BootstrapSchema
     // ------------------------------------------------------------------------
 
-    /** objectClass attribute for top */
-    public static final String TOP_ATTR = "top";
     /** the javaObject attribute */
     public static final String JOBJECT_ATTR = "javaObject";
-    /** the objectClass attribute */
-    public static final String OBJECTCLASS_ATTR = "objectClass";
     /** the javaContainer attribute */
     public static final String JCONTAINER_ATTR = "javaContainer";
     /** the javaSerializedObject attribute */
@@ -173,8 +170,8 @@ class JavaLdapSupport
          * objectClass: javaContainer
          * objectClass: javaSerializedObject
          */
-        Attribute objectClass = new AttributeImpl( "objectClass" );
-        objectClass.add( TOP_ATTR );
+        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        objectClass.add( SchemaConstants.TOP_OC );
         objectClass.add( JOBJECT_ATTR );
         objectClass.add( JCONTAINER_ATTR );
         objectClass.add( JSERIALIZEDOBJ_ATTR );

@@ -30,19 +30,35 @@ public class LastRequestEntry
     private KerberosTime lastRequestValue;
 
 
-    public LastRequestEntry(LastRequestType type, KerberosTime value)
+    /**
+     * Creates a new instance of LastRequestEntry.
+     *
+     * @param type
+     * @param value
+     */
+    public LastRequestEntry( LastRequestType type, KerberosTime value )
     {
         lastRequestType = type;
         lastRequestValue = value;
     }
 
 
+    /**
+     * Returns the {@link LastRequestType}.
+     *
+     * @return The {@link LastRequestType}.
+     */
     public LastRequestType getLastRequestType()
     {
         return lastRequestType;
     }
 
 
+    /**
+     * Returns the {@link KerberosTime} of the last request.
+     *
+     * @return The {@link KerberosTime} of the last request.
+     */
     public KerberosTime getLastRequestValue()
     {
         return lastRequestValue;

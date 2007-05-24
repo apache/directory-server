@@ -44,6 +44,7 @@ import org.apache.directory.shared.ldap.message.SearchResponseEntry;
 import org.apache.directory.shared.ldap.message.SearchResponseEntryImpl;
 import org.apache.directory.shared.ldap.message.SearchResponseReference;
 import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
@@ -94,28 +95,22 @@ class SearchResponseIterator implements Iterator
         {
             if ( underlying.hasMore() )
             {
-                SearchResult result = ( SearchResult ) underlying.next();
+                ServerSearchResult result = ( ServerSearchResult ) underlying.next();
 
                 /*
                  * Now we have to build the prefetched object from the 'result'
                  * local variable for the following call to next()
                  */
                 Attribute ref = result.getAttributes().get( "ref" );
-                if ( !ctx.isReferral( result.getName() )
+                
+                if ( !ctx.isReferral( result.getDn() )
                     || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                     respEntry.setAttributes( result.getAttributes() );
-                    try
-                    {
-                        respEntry.setObjectName( new LdapDN( result.getName() ) );
-                    }
-                    catch ( InvalidNameException ine )
-                    {
-                        log.error( "Invalid object name : " + result.getName(), ine);
-                        throw new RuntimeException( ine );
-                    }
+                    
+                    respEntry.setObjectName( result.getDn() );
                     
                     prefetched = respEntry;
                 }

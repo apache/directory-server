@@ -38,6 +38,15 @@ public abstract class VerifyTicket implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
+    /**
+     * Verifies a Ticket given a realm and the server principal.
+     *
+     * @param ticket
+     * @param primaryRealm
+     * @param serverPrincipal
+     * @throws Exception
+     */
     public void verifyTicket( Ticket ticket, String primaryRealm, KerberosPrincipal serverPrincipal ) throws Exception
     {
         if ( !ticket.getRealm().equals( primaryRealm ) && !ticket.getServerPrincipal().equals( serverPrincipal ) )
@@ -47,7 +56,7 @@ public abstract class VerifyTicket implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

@@ -26,6 +26,7 @@ import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -55,6 +56,22 @@ public class ModifyDnHandler implements MessageHandler
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
+    /**
+     * Deal with a ModifyDN request received from a client.
+     * 
+     * A ModifyDN operation has more than one semantic, depending on its parameters.
+     * 
+     * In any case, the first argument is the DN entry to be changed. We then
+     * have the new relative DN for this entry.
+     * 
+     * Two other arguments can be provided :
+     * - deleteOldRdn : if the old RDN attributes should be removed from the
+     * new entry or not (for instance, if the old RDN was cn=acme, and the new 
+     * one is sn=acme, then we may have to remove the cn: acme from the attributes
+     * list)
+     * - newSuperior : this is a move operation. The entry is removed from its
+     * current location, and created in the new one.
+     */
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
         ModifyDnRequest req = ( ModifyDnRequest ) request;
@@ -88,32 +105,18 @@ public class ModifyDnHandler implements MessageHandler
                     ctx.addToEnvironment( Context.REFERRAL, "throw" );
                 }
                 
-                ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+                ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
-                ctx.addToEnvironment( "java.naming.ldap.deleteRDN", deleteRDN );
+                ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DELETE_RDN, deleteRDN );
 
-                if ( req.isMove() )
+                LdapDN newSuperior = req.getNewSuperior();
+
+                if ( ( newSuperior != null ) && ( !newSuperior.isEmpty() ) )
                 {
                     LdapDN oldDn = req.getName();
                     LdapDN newDn = null;
 
-                    LdapDN newSuperior = req.getNewSuperior();
-                    
-                    if ( newSuperior.isEmpty() )
-                    {
-                        if ( oldDn.isEmpty() )
-                        {
-                            newDn = oldDn;
-                        }
-                        else
-                        {
-                            newDn = (LdapDN)oldDn.getPrefix( oldDn.size() - 1 );
-                        }
-                    }
-                    else
-                    {
-                        newDn = newSuperior;
-                    }
+                    newDn = newSuperior;
 
                     if ( req.getNewRdn() != null )
                     {

@@ -32,12 +32,22 @@ public class ChangePasswordErrorModifier extends AbstractPasswordMessageModifier
     private ErrorMessage errorMessage;
 
 
+    /**
+     * Returns the {@link ChangePasswordError}.
+     *
+     * @return The {@link ChangePasswordError}.
+     */
     public ChangePasswordError getChangePasswordError()
     {
         return new ChangePasswordError( messageLength, versionNumber, authHeaderLength, errorMessage );
     }
 
 
+    /**
+     * Sets the {@link ErrorMessage}.
+     *
+     * @param errorMessage
+     */
     public void setErrorMessage( ErrorMessage errorMessage )
     {
         this.errorMessage = errorMessage;

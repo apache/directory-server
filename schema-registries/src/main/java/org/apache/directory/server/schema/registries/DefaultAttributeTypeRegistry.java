@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.naming.NamingException;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -49,6 +50,9 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultAttributeTypeRegistry.class );
 
+    /** Speedup for DEBUG mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** maps an OID to an AttributeType */
     private final Map<String,AttributeType> byOid;
     /** maps OIDs to a Set of descendants for that OID */
@@ -97,7 +101,8 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
         registerDescendants( attributeType );
         byOid.put( attributeType.getOid(), attributeType );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "registed attributeType: " + attributeType );
         }
@@ -130,7 +135,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             return;
         }
         
-        if ( ancestor.getName() != null && ancestor.getName().equals( "top" ) )
+        if ( ancestor.getName() != null && ancestor.getName().equals( SchemaConstants.TOP_OC ) )
         {
             return;
         }
@@ -157,10 +162,12 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
         }
 
         AttributeType attributeType = ( AttributeType ) byOid.get( id );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "lookup with id" + id + "' of attributeType: " + attributeType );
         }
+        
         return attributeType;
     }
 
@@ -216,7 +223,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
                 
                 if ( matchingRule == null )
                 {
-                    log.warn( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
+                    log.debug( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
                     oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
                 }
                 else

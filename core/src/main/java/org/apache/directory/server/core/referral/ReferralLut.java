@@ -40,8 +40,9 @@ public class ReferralLut
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( ReferralLut.class );
+    
     /** the set of names in the LUT */
-    private Set names = new HashSet();
+    private Set<String> names = new HashSet<String>();
 
 
     // -----------------------------------------------------------------------
@@ -56,8 +57,11 @@ public class ReferralLut
     public boolean isReferral( LdapDN dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
-        return names.contains( dn.toString() );
+        }
+        
+        return names.contains( dn.getNormName() );
     }
 
 
@@ -69,7 +73,10 @@ public class ReferralLut
     public boolean isReferral( String dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         return names.contains( dn );
     }
 
@@ -84,24 +91,23 @@ public class ReferralLut
     public LdapDN getFarthestReferralAncestor( LdapDN dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         LdapDN farthest = new LdapDN();
+        
         for ( int ii = 0; ii < dn.size(); ii++ )
         {
-            try
-            {
-                farthest.add( dn.get( ii ) );
-            }
-            catch ( InvalidNameException e )
-            {
-                log.error( "Should never get this when moving names from a proper normalized name!", e );
-            }
+            farthest.addNormalized( dn.getRdn( ii ) );
+
             // do not return dn if it is the farthest referral
-            if ( isReferral( farthest ) && farthest.size() != dn.size() )
+            if ( isReferral( farthest ) && ( farthest.size() != dn.size() ) )
             {
                 return farthest;
             }
         }
+        
         return null;
     }
 
@@ -116,7 +122,10 @@ public class ReferralLut
     public LdapDN getNearestReferralAncestor( LdapDN dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         LdapDN cloned = ( LdapDN ) dn.clone();
 
         // do not return the argument dn if it is a referral (skip it)
@@ -136,7 +145,7 @@ public class ReferralLut
             return null;
         }
 
-        while ( !isReferral( cloned ) && cloned.size() > 0 )
+        while ( !isReferral( cloned ) && ( cloned.size() > 0 ) )
         {
             try
             {
@@ -147,6 +156,7 @@ public class ReferralLut
                 log.error( "Should never get this when removing from a cloned normalized name!", e );
             }
         }
+        
         return cloned.isEmpty() ? null : cloned;
     }
 
@@ -163,10 +173,13 @@ public class ReferralLut
     public void referralAdded( LdapDN dn )
     {
         if ( dn == null )
-            throw new IllegalArgumentException( "dn cannot be null" );
-        if ( !names.add( dn.toString() ) && log.isWarnEnabled() )
         {
-            log.warn( "found " + dn + " in refname lut while adding it" );
+            throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
+        if ( !names.add( dn.getNormName() ) && log.isWarnEnabled() )
+        {
+            log.warn( "found " + dn.getUpName() + " in refname lut while adding it" );
         }
     }
 
@@ -179,7 +192,10 @@ public class ReferralLut
     public void referralAdded( String dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         if ( !names.add( dn ) && log.isWarnEnabled() )
         {
             log.warn( "found " + dn + " in refname lut while adding it" );
@@ -195,10 +211,13 @@ public class ReferralLut
     public void referralDeleted( LdapDN dn )
     {
         if ( dn == null )
-            throw new IllegalArgumentException( "dn cannot be null" );
-        if ( !names.remove( dn.toString() ) && log.isWarnEnabled() )
         {
-            log.warn( "cound not find " + dn + " in refname lut while deleting it" );
+            throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
+        if ( !names.remove( dn.getNormName() ) && log.isWarnEnabled() )
+        {
+            log.warn( "cound not find " + dn.getUpName() + " in refname lut while deleting it" );
         }
     }
 
@@ -211,7 +230,10 @@ public class ReferralLut
     public void referralDeleted( String dn )
     {
         if ( dn == null )
+        {
             throw new IllegalArgumentException( "dn cannot be null" );
+        }
+        
         if ( !names.remove( dn ) && log.isWarnEnabled() )
         {
             log.warn( "cound not find " + dn + " in refname lut while deleting it" );
@@ -228,15 +250,19 @@ public class ReferralLut
      */
     public void referralChanged( LdapDN oldDn, LdapDN newDn )
     {
-        if ( oldDn == null || newDn == null )
+        if ( ( oldDn == null ) || ( newDn == null ) )
+        {
             throw new IllegalArgumentException( "old or new dn cannot be null" );
-        if ( !names.remove( oldDn.toString() ) && log.isWarnEnabled() )
-        {
-            log.warn( "cound not find old name (" + oldDn + ") in refname lut while moving or renaming it" );
         }
-        if ( !names.add( newDn.toString() ) && log.isWarnEnabled() )
+        
+        if ( !names.remove( oldDn.getNormName() ) && log.isWarnEnabled() )
         {
-            log.warn( "found new name (" + newDn + ") in refname lut while moving or renaming " + oldDn );
+            log.warn( "cound not find old name (" + oldDn.getUpName() + ") in refname lut while moving or renaming it" );
+        }
+
+        if ( !names.add( newDn.getNormName() ) && log.isWarnEnabled() )
+        {
+            log.warn( "found new name (" + newDn.getUpName() + ") in refname lut while moving or renaming " + oldDn );
         }
     }
 
@@ -250,12 +276,16 @@ public class ReferralLut
      */
     public void referralChanged( String oldDn, String newDn )
     {
-        if ( oldDn == null || newDn == null )
+        if ( ( oldDn == null ) || ( newDn == null ) )
+        {
             throw new IllegalArgumentException( "old or new dn cannot be null" );
+        }
+
         if ( !names.remove( oldDn ) && log.isWarnEnabled() )
         {
             log.warn( "cound not find old name (" + oldDn + ") in refname lut while moving or renaming it" );
         }
+
         if ( !names.add( newDn ) && log.isWarnEnabled() )
         {
             log.warn( "found new name (" + newDn + ") in refname lut while moving or renaming " + oldDn );
@@ -272,12 +302,16 @@ public class ReferralLut
      */
     public void referralChanged( LdapDN oldDn, String newDn )
     {
-        if ( oldDn == null || newDn == null )
-            throw new IllegalArgumentException( "old or new dn cannot be null" );
-        if ( !names.remove( oldDn.toString() ) && log.isWarnEnabled() )
+        if ( ( oldDn == null ) || ( newDn == null ) )
         {
-            log.warn( "cound not find old name (" + oldDn + ") in refname lut while moving or renaming it" );
+            throw new IllegalArgumentException( "old or new dn cannot be null" );
         }
+
+        if ( !names.remove( oldDn.getNormName() ) && log.isWarnEnabled() )
+        {
+            log.warn( "cound not find old name (" + oldDn.getUpName() + ") in refname lut while moving or renaming it" );
+        }
+        
         if ( !names.add( newDn ) && log.isWarnEnabled() )
         {
             log.warn( "found new name (" + newDn + ") in refname lut while moving or renaming " + oldDn );
@@ -294,15 +328,19 @@ public class ReferralLut
      */
     public void referralChanged( String oldDn, LdapDN newDn )
     {
-        if ( oldDn == null || newDn == null )
+        if ( ( oldDn == null ) || ( newDn == null ) )
+        {
             throw new IllegalArgumentException( "old or new dn cannot be null" );
+        }
+        
         if ( !names.remove( oldDn ) && log.isWarnEnabled() )
         {
             log.warn( "cound not find old name (" + oldDn + ") in refname lut while moving or renaming it" );
         }
-        if ( !names.add( newDn ) && log.isWarnEnabled() )
+        
+        if ( !names.add( newDn.getNormName() ) && log.isWarnEnabled() )
         {
-            log.warn( "found new name (" + newDn + ") in refname lut while moving or renaming " + oldDn );
+            log.warn( "found new name (" + newDn.getUpName() + ") in refname lut while moving or renaming " + oldDn );
         }
     }
 }

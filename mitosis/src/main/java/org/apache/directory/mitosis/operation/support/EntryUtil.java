@@ -25,7 +25,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -40,7 +44,7 @@ public class EntryUtil
     @SuppressWarnings("unchecked")
     public static boolean isEntryUpdatable( PartitionNexus nexus, LdapDN name, CSN newCSN ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
 
         if ( entry == null )
         {
@@ -92,7 +96,7 @@ public class EntryUtil
     {
         try
         {
-            if ( nexus.hasEntry( name ) )
+            if ( nexus.hasEntry( new EntryOperationContext( name ) ) )
             {
                 return;
             }
@@ -113,13 +117,13 @@ public class EntryUtil
         entry.put( rdnAttribute, rdnValue );
         
         //// Add objectClass attribute. 
-        Attribute objectClassAttr = new AttributeImpl( "objectClass" );
-        objectClassAttr.add( "top" );
-        objectClassAttr.add( "extensibleObject" );
+        Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        objectClassAttr.add( SchemaConstants.TOP_OC );
+        objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         entry.put( objectClassAttr );
 
         // And add it to the nexus.
-        nexus.add( name, entry );
+        nexus.add( new AddOperationContext( name, entry ) );
     }
 
 

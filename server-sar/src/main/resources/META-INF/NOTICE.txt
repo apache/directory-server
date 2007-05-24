@@ -1,0 +1,26 @@
+Apache Directory Daemon
+Copyright 2007 The Apache Software Foundation
+
+This product includes software developed at 
+The Apache Software Foundation (http://www.apache.org/).
+
+This product uses JUnit (http://junit.org/).
+
+This product includes a distribution of NLOG4J 
+(http://www.slf4j.org/nlog4j/).
+
+This product includes a distribution of Antlr 2
+(http://antlr.org).
+
+This product includes a distribution of JDBM
+(http://jdbm.sourceforge.net).
+
+This product includes forked classes from the Legion of the Bouncy Castle
+(http://www.bouncycastle.org).
+
+This product includes a distribution of Spring Framework 
+(http://www.springframework.org).
+
+This product includes derivatives of forked schema files from OpenLDAP
+(http://openldap.org)
+

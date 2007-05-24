@@ -45,6 +45,11 @@ public class RequestBodyModifier
     private Ticket[] additionalTickets; //optional
 
 
+    /**
+     * Returns the {@link RequestBody}.
+     *
+     * @return The {@link RequestBody}.
+     */
     public RequestBody getRequestBody()
     {
         KerberosPrincipal clientPrincipal = clientModifier.getKerberosPrincipal();
@@ -55,18 +60,33 @@ public class RequestBodyModifier
     }
 
 
+    /**
+     * Sets the client {@link PrincipalName}.
+     *
+     * @param clientName
+     */
     public void setClientName( PrincipalName clientName )
     {
         clientModifier.setPrincipalName( clientName );
     }
 
 
+    /**
+     * Sets the server {@link PrincipalName}.
+     *
+     * @param serverName
+     */
     public void setServerName( PrincipalName serverName )
     {
         serverModifier.setPrincipalName( serverName );
     }
 
 
+    /**
+     * Sets the realm.
+     *
+     * @param realm
+     */
     public void setRealm( String realm )
     {
         clientModifier.setRealm( realm );
@@ -74,54 +94,99 @@ public class RequestBodyModifier
     }
 
 
+    /**
+     * Sets additional {@link Ticket}s.
+     *
+     * @param tickets
+     */
     public void setAdditionalTickets( Ticket[] tickets )
     {
         additionalTickets = tickets;
     }
 
 
+    /**
+     * Sets the {@link HostAddresses}.
+     *
+     * @param addresses
+     */
     public void setAddresses( HostAddresses addresses )
     {
         this.addresses = addresses;
     }
 
 
+    /**
+     * Sets the encrypted authorization data.
+     *
+     * @param authorizationData
+     */
     public void setEncAuthorizationData( EncryptedData authorizationData )
     {
         encAuthorizationData = authorizationData;
     }
 
 
+    /**
+     * Sets the requested {@link EncryptionType}s.
+     *
+     * @param type
+     */
     public void setEType( EncryptionType[] type )
     {
         eType = type;
     }
 
 
+    /**
+     * Sets the from {@link KerberosTime}.
+     *
+     * @param from
+     */
     public void setFrom( KerberosTime from )
     {
         this.from = from;
     }
 
 
+    /**
+     * Sets the {@link KdcOptions}.
+     *
+     * @param options
+     */
     public void setKdcOptions( KdcOptions options )
     {
         kdcOptions = options;
     }
 
 
+    /**
+     * Sets the nonce.
+     *
+     * @param nonce
+     */
     public void setNonce( int nonce )
     {
         this.nonce = nonce;
     }
 
 
+    /**
+     * Sets the "R" {@link KerberosTime}.
+     *
+     * @param rtime
+     */
     public void setRtime( KerberosTime rtime )
     {
         this.rtime = rtime;
     }
 
 
+    /**
+     * Sets the till {@link KerberosTime}.
+     *
+     * @param till
+     */
     public void setTill( KerberosTime till )
     {
         this.till = till;

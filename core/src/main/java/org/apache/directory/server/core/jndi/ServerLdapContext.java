@@ -31,6 +31,8 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -49,6 +51,9 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     private Control[] responseControls = EMPTY_CONTROLS;
     private Control[] connectControls = EMPTY_CONTROLS;
 
+    /** A reference to the RTeferralService interceptor */
+    private transient ReferralService refService = null; 
+    
 
     /**
      * Creates an instance of an ServerLdapContext.
@@ -60,6 +65,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         super( service, env );
+        refService = (( ReferralService )service.getConfiguration().getInterceptorChain().get( ReferralService.NAME ) );        
     }
 
 
@@ -73,6 +79,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
+        refService = (( ReferralService )service.getConfiguration().getInterceptorChain().get( ReferralService.NAME ) );        
     }
 
 
@@ -163,7 +170,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
-        return super.getNexusProxy().compare( name, oid, value );
+        return super.getNexusProxy().compare( new CompareOperationContext( name, oid, value ) );
     }
 
 
@@ -178,22 +185,32 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public void ldapUnbind() throws NamingException
     {
         String bindDn = ( String ) getEnvironment().get( Context.SECURITY_PRINCIPAL );
-        super.getNexusProxy().unbind( new LdapDN( bindDn ) );
+        
+        super.getNexusProxy().unbind( new UnbindOperationContext( new LdapDN( bindDn ) ) );
     }
 
 
-    private transient ReferralService refService;
+    /**
+     * Check if a Name is a referral
+     * @param name The Name to check
+     * @return <code>true</code> if the Name is a referral.
+     * @throws NamingException If the Name is incorrect
+     */
     public boolean isReferral( String name ) throws NamingException
     {
-        if ( refService == null )
-        {
-            refService = ( ReferralService ) getService().getConfiguration().getInterceptorChain().get(
-                ReferralService.NAME );
-        }
-
         return refService.isReferral( name );
     }
 
+    /**
+     * Check if a Name is a referral
+     * @param name The Name to check
+     * @return <code>true</code> if the Name is a referral.
+     * @throws NamingException If the Name is incorrect
+     */
+    public boolean isReferral( LdapDN name ) throws NamingException
+    {
+        return refService.isReferral( name );
+    }
 
     public ServerContext getRootContext() throws NamingException
     {

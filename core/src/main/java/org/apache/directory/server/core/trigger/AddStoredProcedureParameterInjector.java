@@ -34,14 +34,12 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     private LdapDN addedEntryName;
     private Attributes addedEntry;
     
-    private Map injectors;
-    
     public AddStoredProcedureParameterInjector( Invocation invocation, LdapDN addedEntryName, Attributes addedEntry ) throws NamingException
     {
         super( invocation );
         this.addedEntryName = addedEntryName;
         this.addedEntry = addedEntry;
-        injectors = super.getInjectors();
+        Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Add_ENTRY.class, $entryInjector );
         injectors.put( StoredProcedureParameter.Add_ATTRIBUTES.class, $attributesInjector );
     }

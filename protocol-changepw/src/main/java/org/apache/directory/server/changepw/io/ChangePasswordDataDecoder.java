@@ -41,6 +41,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class ChangePasswordDataDecoder
 {
+    /**
+     * Decodes bytes into a ChangePasswordData.
+     *
+     * @param encodedChangePasswdData
+     * @return The {@link ChangePasswordData}.
+     * @throws IOException
+     */
     public ChangePasswordData decodeChangePasswordData( byte[] encodedChangePasswdData ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedChangePasswdData );

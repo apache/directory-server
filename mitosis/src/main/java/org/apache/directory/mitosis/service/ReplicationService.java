@@ -56,15 +56,21 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.filter.LoggingFilter;
@@ -134,6 +140,10 @@ import org.slf4j.LoggerFactory;
 public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
+    
+    /** The service name */
+    public static final String NAME = "replicationService";
+    
 
     private static final String ENTRY_CSN_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
     private static final String ENTRY_DELETED_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";
@@ -269,7 +279,7 @@ public class ReplicationService extends BaseInterceptor
      */
     public void purgeAgedData() throws NamingException
     {
-        Attributes rootDSE = nexus.getRootDSE();
+        Attributes rootDSE = nexus.getRootDSE( null );
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
@@ -327,7 +337,8 @@ public class ReplicationService extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration e = nexus.search( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl );
+        NamingEnumeration e = nexus.search( 
+            new SearchOperationContext( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
         try
@@ -353,9 +364,9 @@ public class ReplicationService extends BaseInterceptor
             LdapDN name = it.next();
             try
             {
-                Attributes entry = nexus.lookup( name );
+                Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
                 log.info( "Purge: " + name + " (" + entry + ')' );
-                nexus.delete( name );
+                nexus.delete( new DeleteOperationContext( name ) );
             }
             catch ( NamingException ex )
             {
@@ -365,9 +376,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor nextInterceptor, LdapDN normalizedName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, OperationContext addContext ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( normalizedName, entry );
+        Operation op = operationFactory.newAdd( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
         op.execute( nexus, store, attrRegistry );
     }
 
@@ -379,16 +390,9 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes attrs ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
     {
-        Operation op = operationFactory.newModify( name, modOp, attrs );
-        op.execute( nexus, store, attrRegistry );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        Operation op = operationFactory.newModify( name, items );
+        Operation op = operationFactory.newModify( modifyContext );
         op.execute( nexus, store, attrRegistry );
     }
 
@@ -416,10 +420,10 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, OperationContext entryContext ) throws NamingException
     {
         // Ask others first.
-        boolean hasEntry = nextInterceptor.hasEntry( name );
+        boolean hasEntry = nextInterceptor.hasEntry( entryContext );
 
         // If the entry exists,
         if ( hasEntry )
@@ -427,7 +431,7 @@ public class ReplicationService extends BaseInterceptor
             // Check DELETED attribute.
             try
             {
-                Attributes entry = nextInterceptor.lookup( name );
+                Attributes entry = nextInterceptor.lookup( new LookupOperationContext( entryContext.getDn() ) );
                 hasEntry = !isDeleted( entry );
             }
             catch ( NameNotFoundException e )
@@ -441,39 +445,38 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext lookupContext ) throws NamingException
     {
-        Attributes result = nextInterceptor.lookup( name );
-        ensureNotDeleted( name, result );
-        return result;
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        boolean found = false;
+        LookupOperationContext ctx = ((LookupOperationContext)lookupContext);
         
-        // Look for 'entryDeleted' attribute is in attrIds.
-        for ( int i = 0; i < attrIds.length; i++ )
+        if ( ctx.getAttrsId() != null )
         {
-            if ( Constants.ENTRY_DELETED.equals( attrIds[i] ) )
+            boolean found = false;
+            
+            String[] attrIds = ctx.getAttrsIdArray();
+            
+            // Look for 'entryDeleted' attribute is in attrIds.
+            for ( String attrId:attrIds )
             {
-                found = true;
-                break;
+                if ( Constants.ENTRY_DELETED.equals( attrId ) )
+                {
+                    found = true;
+                    break;
+                }
+            }
+    
+            // If not exists, add one.
+            if ( !found )
+            {
+                String[] newAttrIds = new String[attrIds.length + 1];
+                System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
+                newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
+                ctx.setAttrsId( newAttrIds );
             }
         }
-
-        // If not exists, add one.
-        if ( !found )
-        {
-            String[] newAttrIds = new String[attrIds.length + 1];
-            System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
-            newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
-            attrIds = newAttrIds;
-        }
-
-        Attributes result = nextInterceptor.lookup( name, attrIds );
-        ensureNotDeleted( name, result );
+        
+        Attributes result = nextInterceptor.lookup( lookupContext );
+        ensureNotDeleted( ctx.getDn(), result );
         return result;
     }
 
@@ -482,12 +485,13 @@ public class ReplicationService extends BaseInterceptor
     {
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
         NamingEnumeration e = nextInterceptor.search(
+            new SearchOperationContext( 
                 baseName, ctx.getEnvironment(),
-                new PresenceNode( Constants.OBJECT_CLASS_OID ),
-                new SearchControls() );
+                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
+                new SearchControls() ) );
 
         return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
-            Constants.DELETED_ENTRIES_FILTER );
+            Constants.DELETED_ENTRIES_FILTER, "List replication filter" );
     }
 
 
@@ -503,9 +507,10 @@ public class ReplicationService extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
         
-        NamingEnumeration e = nextInterceptor.search( baseName, environment, filter, searchControls );
+        NamingEnumeration e = nextInterceptor.search( 
+            new SearchOperationContext( baseName, environment, filter, searchControls ) );
         return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
-            Constants.DELETED_ENTRIES_FILTER );
+            Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }
 
 
@@ -513,8 +518,8 @@ public class ReplicationService extends BaseInterceptor
     {
         if ( isDeleted( entry ) )
         {
-            LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name );
-            e.setResolvedName( nexus.getMatchedName( name ) );
+            LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );
+            e.setResolvedName( nexus.getMatchedName( new GetMatchedNameOperationContext( name ) ) );
             throw e;
         }
     }

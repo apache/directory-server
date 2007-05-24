@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 
 public interface StoredProcedureParameterInjector
 {
-    List getArgumentsToInject( List parameterList ) throws NamingException;
+    List<Object> getArgumentsToInject( List<StoredProcedureParameter> parameterList ) throws NamingException;
     
     public interface MicroInjector
     {

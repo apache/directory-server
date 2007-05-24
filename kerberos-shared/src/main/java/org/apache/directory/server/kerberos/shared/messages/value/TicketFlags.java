@@ -26,36 +26,78 @@ package org.apache.directory.server.kerberos.shared.messages.value;
  */
 public class TicketFlags extends Options
 {
-    // Ticket flag - reserved
+    /**
+     * Ticket flag - reserved
+     */
     public static final int RESERVED = 0;
-    // Ticket flag - forwardable
+
+    /**
+     * Ticket flag - forwardable
+     */
     public static final int FORWARDABLE = 1;
-    // Ticket flag - forwarded
+
+    /**
+     * Ticket flag - forwarded
+     */
     public static final int FORWARDED = 2;
-    // Ticket flag - proxiable
+
+    /**
+     * Ticket flag - proxiable
+     */
     public static final int PROXIABLE = 3;
-    // Ticket flag - proxy
+
+    /**
+     * Ticket flag - proxy
+     */
     public static final int PROXY = 4;
-    // Ticket flag - may be postdated
+
+    /**
+     * Ticket flag - may be postdated
+     */
     public static final int MAY_POSTDATE = 5;
-    // Ticket flag - postdated
+
+    /**
+     * Ticket flag - postdated
+     */
     public static final int POSTDATED = 6;
-    // Ticket flag - invalid
+    /**
+     * Ticket flag - invalid
+     */
     public static final int INVALID = 7;
-    // Ticket flag - renewable
+
+    /**
+     * Ticket flag - renewable
+     */
     public static final int RENEWABLE = 8;
-    // Ticket flag - initial
+
+    /**
+     * Ticket flag - initial
+     */
     public static final int INITIAL = 9;
-    // Ticket flag - pre-authentication
+
+    /**
+     * Ticket flag - pre-authentication
+     */
     public static final int PRE_AUTHENT = 10;
-    // Ticket flag - hardware authentication
+
+    /**
+     * Ticket flag - hardware authentication
+     */
     public static final int HW_AUTHENT = 11;
-    // Ticket flag - transitedEncoding policy checked
+
+    /**
+     * Ticket flag - transitedEncoding policy checked
+     */
     public static final int TRANSITED_POLICY_CHECKED = 12;
-    // Ticket flag - OK as delegate
+
+    /**
+     * Ticket flag - OK as delegate
+     */
     public static final int OK_AS_DELEGATE = 13;
 
-    // Ticket flag - maximum value
+    /**
+     * Ticket flag - maximum value
+     */
     public static final int MAX_VALUE = 32;
 
 
@@ -68,7 +110,12 @@ public class TicketFlags extends Options
     }
 
 
-    public TicketFlags(byte[] options)
+    /**
+     * Creates a new instance of TicketFlags.
+     *
+     * @param options
+     */
+    public TicketFlags( byte[] options )
     {
         super( MAX_VALUE );
         setBytes( options );
@@ -76,7 +123,7 @@ public class TicketFlags extends Options
 
 
     /**
-     * Converts the object to a printable string
+     * Converts the object to a printable string.
      */
     public String toString()
     {

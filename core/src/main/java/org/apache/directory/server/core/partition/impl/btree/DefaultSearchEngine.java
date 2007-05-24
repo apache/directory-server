@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import javax.naming.Name;
@@ -91,7 +90,7 @@ public class DefaultSearchEngine implements SearchEngine
         throws NamingException
     {
         Name effectiveBase = null;
-        BigInteger baseId = db.getEntryId( base.toString() );
+        Long baseId = db.getEntryId( base.toString() );
         String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
         DerefAliasesEnum mode = DerefAliasesEnum.getEnum( env );
 
@@ -140,7 +139,7 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * @see SearchEngine#evaluate(ExprNode, BigInteger)
      */
-    public boolean evaluate( ExprNode ilter, BigInteger id ) throws NamingException
+    public boolean evaluate( ExprNode ilter, Long id ) throws NamingException
     {
         IndexRecord rec = new IndexRecord();
         rec.setEntryId( id );

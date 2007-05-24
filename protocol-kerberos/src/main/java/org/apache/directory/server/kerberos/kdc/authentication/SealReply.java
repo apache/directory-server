@@ -20,10 +20,11 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -36,22 +37,23 @@ public class SealReply implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
         AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
-        LockBox lockBox = authContext.getLockBox();
+        CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
 
-        EncryptedData encryptedData = lockBox.seal( clientKey, reply );
+        EncryptedData encryptedData = cipherTextHandler.seal( clientKey, reply, KeyUsage.NUMBER3 );
         reply.setEncPart( encryptedData );
 
         next.execute( session, message );
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

@@ -37,6 +37,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncryptedDataEncoder
 {
+    /**
+     * Encodes an {@link EncryptedData} into a byte array.
+     *
+     * @param encryptedData
+     * @return The byte array.
+     * @throws IOException
+     */
     public static byte[] encode( EncryptedData encryptedData ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -50,11 +57,16 @@ public class EncryptedDataEncoder
 
 
     /**
+     * Encodes an {@link EncryptedData} into a {@link DERSequence}.
+     * 
      * EncryptedData ::=   SEQUENCE {
      *             etype[0]     INTEGER, -- EncryptionEngine
      *             kvno[1]      INTEGER OPTIONAL,
      *             cipher[2]    OCTET STRING -- ciphertext
      * }
+     * 
+     * @param encryptedData 
+     * @return The {@link DERSequence}.
      */
     public static DERSequence encodeSequence( EncryptedData encryptedData )
     {

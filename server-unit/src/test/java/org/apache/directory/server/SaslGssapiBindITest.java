@@ -23,6 +23,7 @@ package org.apache.directory.server;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -32,15 +33,16 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosKey;
-import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService;
 import org.apache.directory.server.kerberos.shared.jaas.CallbackHandlerBean;
 import org.apache.directory.server.kerberos.shared.jaas.Krb5LoginConfiguration;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -126,6 +128,14 @@ public class SaslGssapiBindITest extends AbstractServerTest
         pcfgs.add( pcfg );
         configuration.setPartitionConfigurations( pcfgs );
 
+        MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
+        List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
+
+        interceptorCfg.setName( KeyDerivationService.NAME );
+        interceptorCfg.setInterceptor( new KeyDerivationService() );
+        list.add( interceptorCfg );
+        configuration.setInterceptorConfigurations( list );
+
         doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapConfig.setIpPort( port );
@@ -194,15 +204,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
         attrs.put( "sn", sn );
         attrs.put( "uid", uid );
         attrs.put( "userPassword", userPassword );
-
-        KerberosPrincipal servicePrincipal = new KerberosPrincipal( principal );
-        char[] password = new String( userPassword ).toCharArray();
-        KerberosKey serviceKey = new KerberosKey( servicePrincipal, password, "DES" );
-
-        attrs.put( KerberosAttribute.PRINCIPAL, servicePrincipal.getName() );
-        attrs.put( KerberosAttribute.VERSION, Integer.toString( serviceKey.getVersionNumber() ) );
-        attrs.put( KerberosAttribute.KEY, serviceKey.getEncoded() );
-        attrs.put( KerberosAttribute.TYPE, Integer.toString( serviceKey.getKeyType() ) );
+        attrs.put( KerberosAttribute.PRINCIPAL, principal );
+        attrs.put( KerberosAttribute.VERSION, "0" );
 
         return attrs;
     }

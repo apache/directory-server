@@ -25,10 +25,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-// this is a jdk 1.5 dep which would make us 1.4 incompatible 
-// reverted to using LdapName for now until a better alt is found
-// import javax.naming.ldap.LdapName;
 import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirStateFactory.Result;
 
@@ -53,8 +49,10 @@ public class AddPrincipal implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
+     * 
+     * @param entry The {@link PrincipalStoreEntry} to add.
      */
-    public AddPrincipal(PrincipalStoreEntry entry)
+    public AddPrincipal( PrincipalStoreEntry entry )
     {
         this.entry = entry;
     }
@@ -84,22 +82,3 @@ public class AddPrincipal implements ContextOperation
         return null;
     }
 }
-
-/*
- dn: uid=akarasulu, ou=Users, dc=example,dc=com
- cn: Alex Karasulu
- sn: Karasulu
- givenname: Alex
- objectclass: top
- objectclass: person
- objectclass: organizationalPerson
- objectclass: inetOrgPerson
- objectclass: krb5Principal
- objectclass: krb5KDCEntry
- ou: Directory
- ou: Users
- uid: akarasulu
- krb5PrincipalName: akarasulu@EXAMPLE.COM
- krb5KeyVersionNumber: 0
- */
-

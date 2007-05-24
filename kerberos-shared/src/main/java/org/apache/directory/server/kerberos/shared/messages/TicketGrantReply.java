@@ -34,7 +34,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticat
 public class TicketGrantReply extends KdcReply
 {
     /**
-     * Class constructors
+     * Creates a new instance of TicketGrantReply.
      */
     public TicketGrantReply()
     {
@@ -42,8 +42,16 @@ public class TicketGrantReply extends KdcReply
     }
 
 
-    public TicketGrantReply(PreAuthenticationData[] pAData, KerberosPrincipal clientPrincipal, Ticket ticket,
-        EncryptedData encPart)
+    /**
+     * Creates a new instance of TicketGrantReply.
+     *
+     * @param pAData
+     * @param clientPrincipal
+     * @param ticket
+     * @param encPart
+     */
+    public TicketGrantReply( PreAuthenticationData[] pAData, KerberosPrincipal clientPrincipal, Ticket ticket,
+        EncryptedData encPart )
     {
         super( pAData, clientPrincipal, ticket, encPart, MessageType.KRB_TGS_REP );
     }

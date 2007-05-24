@@ -60,22 +60,30 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
 
     /** the list of filters to be applied */
     private final List filters;
+    
     /** the underlying decorated enumeration */
     private final NamingEnumeration decorated;
 
     /** the first accepted search result that is prefetched */
     private SearchResult prefetched;
+    
     /** flag storing closed state of this naming enumeration */
     private boolean isClosed = false;
+    
     /** the controls associated with the search operation */
     private final SearchControls searchControls;
+    
     /** the Invocation that representing the search creating this enumeration */
     private final Invocation invocation;
+    
     /** whether or not the caller context has object factories which need to be applied to the results */
     private final boolean applyObjectFactories;
+    
     /** whether or not this search has been abandoned */
     private boolean abandoned = false;
 
+    /** A name used to distinguish enumeration while debugging */
+    private String name;
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
@@ -91,7 +99,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * @param invocation the invocation representing the seach that created this enumeration
      */
     public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
-        Invocation invocation, SearchResultFilter filter ) throws NamingException
+        Invocation invocation, SearchResultFilter filter, String name ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;
@@ -99,6 +107,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
         this.filters.add( filter );
         this.decorated = decorated;
         this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
+        this.name = name;
 
         if ( !decorated.hasMore() )
         {
@@ -120,7 +129,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * @param invocation the invocation representing the seach that created this enumeration
      */
     public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
-        Invocation invocation, List filters ) throws NamingException
+        Invocation invocation, List filters, String name ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;
@@ -128,6 +137,8 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
         this.filters.addAll( filters );
         this.decorated = decorated;
         this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
+        this.name = name;
+        
 
         if ( !decorated.hasMore() )
         {
@@ -343,5 +354,10 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
     public void requestAbandoned( AbandonableRequest req )
     {
         this.abandoned = true;
+    }
+    
+    public String toString()
+    {
+    	return name;
     }
 }

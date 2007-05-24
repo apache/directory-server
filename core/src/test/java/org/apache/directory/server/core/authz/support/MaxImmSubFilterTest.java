@@ -34,6 +34,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -41,6 +42,7 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -152,22 +154,21 @@ public class MaxImmSubFilterTest extends TestCase
         final int count;
 
 
-        public MockProxy(int count)
+        public MockProxy(int count) throws NamingException 
         {
             super( new DeadContext(), new MockDirectoryService() );
             this.count = count;
         }
 
 
-        public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+        public NamingEnumeration<SearchResult> search( OperationContext opContext )
             throws NamingException
         {
             return new BogusEnumeration( count );
         }
 
 
-        public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls,
-                                         Collection bypass ) throws NamingException
+        public NamingEnumeration<SearchResult> search( OperationContext opContext, Collection bypass ) throws NamingException
         {
             return new BogusEnumeration( count );
         }

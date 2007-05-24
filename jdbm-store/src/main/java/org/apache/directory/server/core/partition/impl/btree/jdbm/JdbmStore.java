@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +50,7 @@ import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -183,7 +183,7 @@ public class JdbmStore
             if ( nextObject instanceof String ) 
             {
                 name = ( String ) nextObject;
-                log.warn( "Using default cache size of {} for index on attribute {}", 
+                log.debug( "Using default cache size of {} for index on attribute {}", 
                     new Integer( cacheSize ), name );
             }
             // custom cache size is used
@@ -285,7 +285,7 @@ public class JdbmStore
             if ( ! customAddedSystemIndices.contains( systemIndexName ) )
             {
                 AttributeType type = attributeTypeRegistry.lookup( systemIndexName );
-                log.warn( "Using default cache size of {} for index on attribute {}", 
+                log.debug( "Using default cache size of {} for index on attribute {}", 
                     new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
                 if ( systemIndexName.equals( Oid.EXISTANCE ) )
                 {
@@ -359,7 +359,7 @@ public class JdbmStore
         oidRegistry = config.getOidRegistry();
         attributeTypeRegistry = config.getAttributeTypeRegistry();
 
-        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( "objectClass" );
+        OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
         ALIAS_AT = attributeTypeRegistry.lookup( ALIAS_ATTRIBUTE );
         
         this.upSuffix = new LdapDN( config.getSuffixDn() );
@@ -378,12 +378,12 @@ public class JdbmStore
             if ( cacheSize < 0 )
             {
                 cacheSize = DEFAULT_CACHE_SIZE;
-                log.warn( "Using the default entry cache size of {} for {} partition", 
+                log.debug( "Using the default entry cache size of {} for {} partition", 
                     new Integer( cacheSize ), config.getName() );
             }
             else
             {
-                log.info( "Using the custom configured cache size of {} for {} partition", 
+                log.debug( "Using the custom configured cache size of {} for {} partition", 
                     new Integer( cacheSize ), config.getName() );
             }
             recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
@@ -783,32 +783,32 @@ public class JdbmStore
     }
 
 
-    public BigInteger getEntryId( String dn ) throws NamingException
+    public Long getEntryId( String dn ) throws NamingException
     {
-        return ndnIdx.forwardLookup( dn );
+        return (Long)ndnIdx.forwardLookup( dn );
     }
 
 
-    public String getEntryDn( BigInteger id ) throws NamingException
+    public String getEntryDn( Long id ) throws NamingException
     {
         return ( String ) ndnIdx.reverseLookup( id );
     }
 
 
-    public BigInteger getParentId( String dn ) throws NamingException
+    public Long getParentId( String dn ) throws NamingException
     {
-        BigInteger childId = ndnIdx.forwardLookup( dn );
-        return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
+        Long childId = (Long)ndnIdx.forwardLookup( dn );
+        return ( Long ) hierarchyIdx.reverseLookup( childId );
     }
 
 
-    public BigInteger getParentId( BigInteger childId ) throws NamingException
+    public Long getParentId( Long childId ) throws NamingException
     {
-        return ( BigInteger ) hierarchyIdx.reverseLookup( childId );
+        return ( Long ) hierarchyIdx.reverseLookup( childId );
     }
 
 
-    public String getEntryUpdn( BigInteger id ) throws NamingException
+    public String getEntryUpdn( Long id ) throws NamingException
     {
         return ( String ) updnIdx.reverseLookup( id );
     }
@@ -816,7 +816,7 @@ public class JdbmStore
 
     public String getEntryUpdn( String dn ) throws NamingException
     {
-        BigInteger id = ndnIdx.forwardLookup( dn );
+        Long id = (Long)ndnIdx.forwardLookup( dn );
         return ( String ) updnIdx.reverseLookup( id );
     }
 
@@ -835,13 +835,13 @@ public class JdbmStore
      * @param aliasId the id of the alias entry in the master table
      * @throws NamingException if we cannot delete the indices
      */
-    private void dropAliasIndices( BigInteger aliasId ) throws NamingException
+    private void dropAliasIndices( Long aliasId ) throws NamingException
     {
         String targetDn = ( String ) aliasIdx.reverseLookup( aliasId );
-        BigInteger targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
         LdapDN ancestorDn = ( LdapDN ) new LdapDN( aliasDn ).getPrefix( 1 );
-        BigInteger ancestorId = getEntryId( ancestorDn.toString() );
+        Long ancestorId = getEntryId( ancestorDn.toString() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree indices
@@ -880,12 +880,12 @@ public class JdbmStore
      * @throws NamingException if index addition fails, of the alias is not 
      * allowed due to chaining or cycle formation.
      */
-    private void addAliasIndices( BigInteger aliasId, LdapDN aliasDn, String aliasTarget ) throws NamingException
+    private void addAliasIndices( Long aliasId, LdapDN aliasDn, String aliasTarget ) throws NamingException
     {
         LdapDN normalizedAliasTargetDn = null; // Name value of aliasedObjectName
-        BigInteger targetId = null; // Id of the aliasedObjectName
+        Long targetId = null; // Id of the aliasedObjectName
         LdapDN ancestorDn = null; // Name of an alias entry relative
-        BigInteger ancestorId = null; // Id of an alias entry relative
+        Long ancestorId = null; // Id of an alias entry relative
 
         // Access aliasedObjectName, normalize it and generate the Name 
         normalizedAliasTargetDn = new LdapDN( aliasTarget );
@@ -930,7 +930,7 @@ public class JdbmStore
         }
 
         // L O O K U P   T A R G E T   I D
-        targetId = ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
+        targetId = (Long)ndnIdx.forwardLookup( normalizedAliasTargetDn.toNormName() );
 
         /*
          * Check For Target Existance
@@ -1007,8 +1007,8 @@ public class JdbmStore
     
     public void add( LdapDN normName, Attributes entry ) throws NamingException
     {
-        BigInteger id;
-        BigInteger parentId = null;
+        Long id;
+        Long parentId = null;
 
         id = master.getNextId();
 
@@ -1021,7 +1021,7 @@ public class JdbmStore
         LdapDN parentDn = null;
         if ( normName.equals( normSuffix ) )
         {
-            parentId = BigInteger.ZERO;
+            parentId = 0L;
         }
         else
         {
@@ -1091,16 +1091,16 @@ public class JdbmStore
     }
 
 
-    public Attributes lookup( BigInteger id ) throws NamingException
+    public Attributes lookup( Long id ) throws NamingException
     {
         return master.get( id );
     }
 
 
-    public void delete( BigInteger id ) throws NamingException
+    public void delete( Long id ) throws NamingException
     {
         Attributes entry = lookup( id );
-        BigInteger parentId = getParentId( id );
+        Long parentId = getParentId( id );
         NamingEnumeration attrs = entry.getIDs();
 
         Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
@@ -1114,7 +1114,7 @@ public class JdbmStore
         hierarchyIdx.drop( id );
 
         // Remove parent's reference to entry only if entry is not the upSuffix
-        if ( !parentId.equals( BigInteger.ZERO ) )
+        if ( !parentId.equals( 0L ) )
         {
             hierarchyIdx.drop( parentId, id );
         }
@@ -1150,13 +1150,13 @@ public class JdbmStore
     }
 
 
-    public NamingEnumeration list( BigInteger id ) throws NamingException
+    public NamingEnumeration list( Long id ) throws NamingException
     {
         return hierarchyIdx.listIndices( id );
     }
 
 
-    public int getChildCount( BigInteger id ) throws NamingException
+    public int getChildCount( Long id ) throws NamingException
     {
         return hierarchyIdx.count( id );
     }
@@ -1175,7 +1175,7 @@ public class JdbmStore
 
     public Attributes getSuffixEntry() throws NamingException
     {
-        BigInteger id = getEntryId( normSuffix.toNormName() );
+        Long id = getEntryId( normSuffix.toNormName() );
 
         if ( null == id )
         {
@@ -1198,7 +1198,7 @@ public class JdbmStore
     }
 
 
-    public Attributes getIndices( BigInteger id ) throws NamingException
+    public Attributes getIndices( Long id ) throws NamingException
     {
         Attributes attributes = new AttributesImpl();
 
@@ -1276,7 +1276,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute addition
      * fails.
      */
-    private void add( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
+    private void add( Long id, Attributes entry, Attribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1329,7 +1329,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void remove( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
+    private void remove( Long id, Attributes entry, Attribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1395,7 +1395,7 @@ public class JdbmStore
      * @throws NamingException if index alteration or attribute modification 
      * fails.
      */
-    private void replace( BigInteger id, Attributes entry, Attribute mods ) throws NamingException
+    private void replace( Long id, Attributes entry, Attribute mods ) throws NamingException
     {
         String modsOid = oidRegistry.getOid( mods.getID() );
         
@@ -1444,7 +1444,7 @@ public class JdbmStore
     public void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
     {
         NamingEnumeration attrs = null;
-        BigInteger id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
         switch ( modOp )
@@ -1497,7 +1497,7 @@ public class JdbmStore
 
     public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
     {
-        BigInteger id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
         for ( int ii = 0; ii < mods.length; ii++ )
@@ -1546,11 +1546,11 @@ public class JdbmStore
      * @throws NamingException if there are any errors propagating the name
      *        changes.
      */
-    public void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void rename( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
         String newRdnAttr = NamespaceTools.getRdnAttribute( newRdn );
         String newRdnValue = NamespaceTools.getRdnValue( newRdn );
-        BigInteger id = getEntryId( dn.toString() );
+        Long id = getEntryId( dn.toString() );
         Attributes entry = lookup( id );
         LdapDN updn = new LdapDN( getEntryUpdn( id ) );
 
@@ -1671,7 +1671,7 @@ public class JdbmStore
      * which affects alias indices.
      * @throws NamingException if something goes wrong
      */
-    private void modifyDn( BigInteger id, LdapDN updn, boolean isMove ) throws NamingException
+    private void modifyDn( Long id, LdapDN updn, boolean isMove ) throws NamingException
     {
         String aliasTarget = null;
 
@@ -1710,7 +1710,7 @@ public class JdbmStore
         {
             // Get the child and its id
             IndexRecord rec = ( IndexRecord ) children.next();
-            BigInteger childId = rec.getEntryId();
+            Long childId = (Long)rec.getEntryId();
 
             /* 
              * Calculate the Dn for the child's new name by copying the parents
@@ -1729,8 +1729,8 @@ public class JdbmStore
 
     public void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
     {
-        BigInteger childId = getEntryId( oldChildDn.toString() );
-        modifyRn( oldChildDn, newRdn, deleteOldRdn );
+        Long childId = getEntryId( oldChildDn.toString() );
+        rename( oldChildDn, newRdn, deleteOldRdn );
         move( oldChildDn, childId, newParentDn );
         
         if ( isSyncOnWrite )
@@ -1742,7 +1742,7 @@ public class JdbmStore
 
     public void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException
     {
-        BigInteger childId = getEntryId( oldChildDn.toString() );
+        Long childId = getEntryId( oldChildDn.toString() );
         move( oldChildDn, childId, newParentDn );
         
         if ( isSyncOnWrite )
@@ -1765,11 +1765,11 @@ public class JdbmStore
      * @param newParentDn the normalized dn of the new parent for the child
      * @throws NamingException if something goes wrong
      */
-    private void move( LdapDN oldChildDn, BigInteger childId, LdapDN newParentDn ) throws NamingException
+    private void move( LdapDN oldChildDn, Long childId, LdapDN newParentDn ) throws NamingException
     {
         // Get the child and the new parent to be entries and Ids
-        BigInteger newParentId = getEntryId( newParentDn.toString() );
-        BigInteger oldParentId = getParentId( childId );
+        Long newParentId = getEntryId( newParentDn.toString() );
+        Long oldParentId = getParentId( childId );
 
         /*
          * All aliases including and below oldChildDn, will be affected by
@@ -1818,7 +1818,7 @@ public class JdbmStore
         {
             public boolean assertCandidate( IndexRecord rec ) throws NamingException
             {
-                String dn = getEntryDn( rec.getEntryId() );
+                String dn = getEntryDn( (Long)rec.getEntryId() );
                 if ( dn.endsWith( movedBase.toString() ) )
                 {
                     return true;
@@ -1828,7 +1828,7 @@ public class JdbmStore
             }
         };
 
-        BigInteger movedBaseId = getEntryId( movedBase.toString() );
+        Long movedBaseId = getEntryId( movedBase.toString() );
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
             dropAliasIndices( movedBaseId, movedBase );
@@ -1839,7 +1839,7 @@ public class JdbmStore
         while ( aliases.hasMore() )
         {
             IndexRecord entry = ( IndexRecord ) aliases.next();
-            dropAliasIndices( entry.getEntryId(), movedBase );
+            dropAliasIndices( (Long)entry.getEntryId(), movedBase );
         }
     }
 
@@ -1852,10 +1852,10 @@ public class JdbmStore
      * @param movedBase the base where the move occured
      * @throws NamingException if indices fail
      */
-    private void dropAliasIndices( BigInteger aliasId, LdapDN movedBase ) throws NamingException
+    private void dropAliasIndices( Long aliasId, LdapDN movedBase ) throws NamingException
     {
         String targetDn = ( String ) aliasIdx.reverseLookup( aliasId );
-        BigInteger targetId = getEntryId( targetDn );
+        Long targetId = getEntryId( targetDn );
         String aliasDn = getEntryDn( aliasId );
 
         /*
@@ -1863,7 +1863,7 @@ public class JdbmStore
          * moved base.  This is the first ancestor effected by the move.
          */
         LdapDN ancestorDn = ( LdapDN ) movedBase.getPrefix( 1 );
-        BigInteger ancestorId = getEntryId( ancestorDn.toString() );
+        Long ancestorId = getEntryId( ancestorDn.toString() );
 
         /*
          * We cannot just drop all tuples in the one level and subtree indices

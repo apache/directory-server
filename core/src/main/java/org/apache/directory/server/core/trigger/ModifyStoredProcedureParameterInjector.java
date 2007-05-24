@@ -22,11 +22,12 @@ package org.apache.directory.server.core.trigger;
 
 import java.util.Map;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -37,38 +38,16 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
 {
     private LdapDN modifiedEntryName;
     private ModificationItemImpl[] modifications;
-    
     private Attributes oldEntry;
     
-    private Map injectors;
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, ModificationItemImpl[] modifications ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, OperationContext opContext ) throws NamingException
     {
         super( invocation );
-        init( modifiedEntryName, modifications );
-    }
-    
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, LdapDN modifiedEntryName, int modOp, Attributes modifications ) throws NamingException
-    {
-        super( invocation );
-        ModificationItemImpl[] mods = new ModificationItemImpl[ modifications.size() ];
-        NamingEnumeration modEnum = modifications.getAll();
-        int i = 0;
-        while ( modEnum.hasMoreElements() )
-        {
-            Attribute attribute = ( Attribute ) modEnum.nextElement();
-            mods[ i++ ] = new ModificationItemImpl( modOp, attribute ); 
-        }
-        
-        init( modifiedEntryName, mods );
-    }
-    
-    private void init( LdapDN modifiedEntryName, ModificationItemImpl[] modifications ) throws NamingException
-    {
-        this.modifiedEntryName = modifiedEntryName;
-        this.modifications = modifications;
+        modifiedEntryName = opContext.getDn();
+        modifications = ((ModifyOperationContext)opContext).getModItems();
         this.oldEntry = getEntry();
-        injectors = super.getInjectors();
+        Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );
         injectors.put( StoredProcedureParameter.Modify_MODIFICATION.class, $modificationInjector );
         injectors.put( StoredProcedureParameter.Modify_OLD_ENTRY.class, $oldEntryInjector );
@@ -115,7 +94,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        return proxy.lookup( modifiedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        return proxy.lookup( new LookupOperationContext( modifiedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
     }
 
 }

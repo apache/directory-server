@@ -25,18 +25,37 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
@@ -55,20 +74,8 @@ import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationParser;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
-import javax.naming.ldap.LdapContext;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.Name;
 
 
 /**
@@ -80,12 +87,11 @@ import javax.naming.Name;
  */
 public class SubentryService extends BaseInterceptor
 {
+    /** The service name */
+    public static final String NAME = "subentryService";
+
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
-    /** the objectClass value for a subentry */
-    private static final String SUBENTRY_OBJECTCLASS = "subentry";
-    /** the objectClass OID for a subentry */
-    private static final String SUBENTRY_OBJECTCLASS_OID = "2.5.17.0";
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
@@ -129,7 +135,7 @@ public class SubentryService extends BaseInterceptor
         this.oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         
         // setup various attribute type values
-        objectClassType = attrRegistry.lookup( oidRegistry.getOid( "objectClass" ) );
+        objectClassType = attrRegistry.lookup( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
         
         ssParser = new SubtreeSpecificationParser( new NormalizerMappingResolver()
         {
@@ -141,11 +147,11 @@ public class SubentryService extends BaseInterceptor
         evaluator = new SubtreeEvaluator( factoryCfg.getRegistries().getOidRegistry(), factoryCfg.getRegistries().getAttributeTypeRegistry() );
 
         // prepare to find all subentries in all namingContexts
-        Iterator suffixes = this.nexus.listSuffixes();
-        ExprNode filter = new SimpleNode( "objectclass", "subentry", AssertionEnum.EQUALITY );
+        Iterator suffixes = this.nexus.listSuffixes( null );
+        ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.SUBENTRY_OC, AssertionEnum.EQUALITY );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        controls.setReturningAttributes( new String[] { "subtreeSpecification", "objectClass" } );
+        controls.setReturningAttributes( new String[] { SchemaConstants.SUBTREE_SPECIFICATION_AT, SchemaConstants.OBJECT_CLASS_AT } );
 
         // search each namingContext for subentries
         while ( suffixes.hasNext() )
@@ -153,13 +159,14 @@ public class SubentryService extends BaseInterceptor
             LdapDN suffix = new LdapDN( ( String ) suffixes.next() );
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( attrRegistry.getNormalizerMapping() );
-            NamingEnumeration subentries = nexus.search( suffix, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = nexus.search( 
+                new SearchOperationContext( suffix, factoryCfg.getEnvironment(), filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
                 Attributes subentry = result.getAttributes();
                 String dn = result.getName();
-                String subtree = ( String ) subentry.get( "subtreeSpecification" ).get();
+                String subtree = ( String ) subentry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).get();
                 SubtreeSpecification ss;
 
                 try
@@ -185,7 +192,7 @@ public class SubentryService extends BaseInterceptor
     {
         int types = 0;
         
-        Attribute oc = subentry.get( "objectClass" );
+        Attribute oc = subentry.get( SchemaConstants.OBJECT_CLASS_AT );
         if ( oc == null )
         {
             throw new LdapSchemaViolationException( "A subentry must have an objectClass attribute", 
@@ -220,26 +227,26 @@ public class SubentryService extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( base );
+        NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
 
         if ( !isSubentryVisible( invocation ) )
         {
             return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation,
-                new HideSubentriesFilter() );
+                new HideSubentriesFilter(), "List Subentry filter" );
         }
 
         return e;
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( base, env, filter, searchCtls );
+        NamingEnumeration e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
@@ -250,11 +257,11 @@ public class SubentryService extends BaseInterceptor
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter() );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter(), "Search Subentry filter hide subentries" );
         }
         else
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter() );
+            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter(), "Search Subentry filter hide entries");
         }
     }
 
@@ -369,16 +376,19 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attribute objectClasses = entry.get( "objectClass" );
+    	LdapDN name = opContext.getDn();
+    	Attributes entry = ((AddOperationContext)opContext).getEntry();
+    	
+        Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             // get the name of the administrative point and its administrativeRole attributes
-            LdapDN apName = ( LdapDN ) normName.clone();
-            apName.remove( normName.size() - 1 );
-            Attributes ap = nexus.lookup( apName );
+            LdapDN apName = ( LdapDN ) name.clone();
+            apName.remove( name.size() - 1 );
+            Attributes ap = nexus.lookup( new LookupOperationContext( apName ) );
             Attribute administrativeRole = ap.get( "administrativeRole" );
 
             // check that administrativeRole has something valid in it for us
@@ -400,7 +410,7 @@ public class SubentryService extends BaseInterceptor
              */
             Subentry subentry = new Subentry();
             subentry.setTypes( getSubentryTypes( entry ) );
-            Attributes operational = getSubentryOperatationalAttributes( normName, subentry );
+            Attributes operational = getSubentryOperatationalAttributes( name, subentry );
 
             /* ----------------------------------------------------------------
              * Parse the subtreeSpecification of the subentry and add it to the
@@ -409,20 +419,22 @@ public class SubentryService extends BaseInterceptor
              * to modify the subentry operational attributes of.
              * ----------------------------------------------------------------
              */
-            String subtree = ( String ) entry.get( "subtreeSpecification" ).get();
+            String subtree = ( String ) entry.get( SchemaConstants.SUBTREE_SPECIFICATION_AT ).get();
             SubtreeSpecification ss;
+            
             try
             {
                 ss = ssParser.parse( subtree );
             }
             catch ( Exception e )
             {
-                String msg = "Failed while parsing subtreeSpecification for " + normName.getUpName();
+                String msg = "Failed while parsing subtreeSpecification for " + name.getUpName();
                 log.warn( msg );
                 throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
             }
-            subentryCache.setSubentry( normName.toString(), ss, getSubentryTypes( entry ) );
-            next.add(normName, entry );
+            
+            subentryCache.setSubentry( name.getNormName(), ss, getSubentryTypes( entry ) );
+            next.add( opContext );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -435,13 +447,16 @@ public class SubentryService extends BaseInterceptor
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( "2.5.4.0" ); // (objectClass=*)
+            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ); // (objectClass=*)
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
 
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
+
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -451,13 +466,14 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForAdd( candidate, operational )  ));
                 }
             }
         }
         else
         {
             Iterator list = subentryCache.nameIterator();
+            
             while ( list.hasNext() )
             {
                 String subentryDnStr = ( String ) list.next();
@@ -467,54 +483,65 @@ public class SubentryService extends BaseInterceptor
                 Subentry subentry = subentryCache.getSubentry( subentryDnStr );
                 SubtreeSpecification ss = subentry.getSubtreeSpecification();
 
-                if ( evaluator.evaluate( ss, apDn, normName, entry ) )
+                if ( evaluator.evaluate( ss, apDn, name, entry ) )
                 {
                     Attribute operational;
                     
                     if ( subentry.isAccessControlSubentry() )
                     {
                         operational = entry.get( AC_SUBENTRIES );
+                        
                         if ( operational == null )
                         {
                             operational = new AttributeImpl( AC_SUBENTRIES );
                             entry.put( operational );
                         }
+                        
                         operational.add( subentryDn.toString() );
                     }
+                    
                     if ( subentry.isSchemaSubentry() )
                     {
                         operational = entry.get( SCHEMA_SUBENTRY );
+                        
                         if ( operational == null )
                         {
                             operational = new AttributeImpl( SCHEMA_SUBENTRY );
                             entry.put( operational );
                         }
+                        
                         operational.add( subentryDn.toString() );
                     }
+                    
                     if ( subentry.isCollectiveSubentry() )
                     {
                         operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                        
                         if ( operational == null )
                         {
                             operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
                             entry.put( operational );
                         }
+                        
                         operational.add( subentryDn.toString() );
                     }
+                    
                     if ( subentry.isTriggerSubentry() )
                     {
                         operational = entry.get( TRIGGER_SUBENTRIES );
+                        
                         if ( operational == null )
                         {
                             operational = new AttributeImpl( TRIGGER_SUBENTRIES );
                             entry.put( operational );
                         }
+                        
                         operational.add( subentryDn.toString() );
                     }
                 }
             }
 
-            next.add(normName, entry );
+            next.add( opContext );
         }
     }
 
@@ -523,15 +550,16 @@ public class SubentryService extends BaseInterceptor
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+    	LdapDN name = opContext.getDn();
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             SubtreeSpecification ss = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
-            next.delete( name );
+            next.delete( opContext );
 
             /* ----------------------------------------------------------------
              * Find the baseDn for the subentry and use that to search the tree
@@ -546,13 +574,16 @@ public class SubentryService extends BaseInterceptor
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
 
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
 
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -562,13 +593,13 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
         }
         else
         {
-            next.delete( name );
+            next.delete( opContext );
         }
     }
 
@@ -591,7 +622,9 @@ public class SubentryService extends BaseInterceptor
         ExprNode filter = new PresenceNode( "administrativeRole" );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration aps = nexus.search( name, factoryCfg.getEnvironment(), filter, controls );
+        NamingEnumeration aps = 
+            nexus.search( 
+                new SearchOperationContext( name, factoryCfg.getEnvironment(), filter, controls ) );
         if ( aps.hasMore() )
         {
             aps.close();
@@ -675,12 +708,15 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        LdapDN name = opContext.getDn();
+        String newRdn = ((RenameOperationContext)opContext).getNewRdn();
+        
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( name.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -691,21 +727,24 @@ public class SubentryService extends BaseInterceptor
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
 
-            LdapDN rdn = new LdapDN( newRn );
+            LdapDN rdn = new LdapDN( newRdn );
             newName.addAll( rdn );
             rdn.normalize( attrRegistry.getNormalizerMapping() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.modifyRn( name, newRn, deleteOldRn );
+            next.rename( opContext );
 
             subentry = subentryCache.getSubentry( newNormName );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -715,7 +754,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForReplace( name, newName, subentry, candidate ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( name, newName, subentry, candidate ) ) );
                 }
             }
         }
@@ -727,31 +766,37 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.modifyRn( name, newRn, deleteOldRn );
+            
+            next.rename( opContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
-            newName.add( newRn );
+            newName.add( newRdn );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             ModificationItemImpl[] mods = getModsOnEntryRdnChange( name, newName, entry );
 
             if ( mods.length > 0 )
             {
-                nexus.modify( newName, mods );
+                nexus.modify( new ModifyOperationContext( newName, mods ) );
             }
         }
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
-        Attributes entry = nexus.lookup( oriChildName );
+        LdapDN oriChildName = opContext.getDn();
+        LdapDN parent = ((MoveAndRenameOperationContext)opContext).getParent();
+        String newRn = ((RenameOperationContext)opContext).getNewRdn();
+        
+        
+        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toNormName() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -759,7 +804,7 @@ public class SubentryService extends BaseInterceptor
             apName.remove( apName.size() - 1 );
             LdapDN baseDn = ( LdapDN ) apName.clone();
             baseDn.addAll( ss.getBase() );
-            LdapDN newName = ( LdapDN ) newParentName.clone();
+            LdapDN newName = ( LdapDN ) parent.clone();
             newName.remove( newName.size() - 1 );
 
             LdapDN rdn = new LdapDN( newRn );
@@ -769,15 +814,18 @@ public class SubentryService extends BaseInterceptor
             
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            next.moveAndRename( opContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectclass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -787,8 +835,8 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
-                        candidate ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
+                        candidate ) ) );
                 }
             }
         }
@@ -800,29 +848,33 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.move( oriChildName, newParentName, newRn, deleteOldRn );
+            
+            next.moveAndRename( opContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
-            LdapDN newName = ( LdapDN ) newParentName.clone();
+            LdapDN newName = ( LdapDN ) parent.clone();
             newName.add( newRn );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             ModificationItemImpl[] mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 
             if ( mods.length > 0 )
             {
-                nexus.modify( newName, mods );
+                nexus.modify( new ModifyOperationContext( newName, mods ) );
             }
         }
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( oriChildName );
-        Attribute objectClasses = entry.get( "objectClass" );
+        LdapDN oriChildName = opContext.getDn();
+        LdapDN newParentName = ((MoveOperationContext)opContext).getParent();
+        
+        Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
+        Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
         {
             Subentry subentry = subentryCache.getSubentry( oriChildName.toString() );
             SubtreeSpecification ss = subentry.getSubtreeSpecification();
@@ -836,16 +888,19 @@ public class SubentryService extends BaseInterceptor
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
-            next.move( oriChildName, newParentName );
+            next.move( opContext );
 
             subentry = subentryCache.getSubentry( newNormName );
 
-            ExprNode filter = new PresenceNode( "objectclass" );
+            ExprNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( baseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -855,8 +910,8 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ss, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
-                        candidate ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForReplace( oriChildName, newName, subentry,
+                        candidate ) ) );
                 }
             }
         }
@@ -868,7 +923,8 @@ public class SubentryService extends BaseInterceptor
                 log.warn( msg );
                 throw new LdapSchemaViolationException( msg, ResultCodeEnum.NOT_ALLOWED_ON_RDN );
             }
-            next.move( oriChildName, newParentName );
+            
+            next.move( opContext );
 
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
@@ -878,7 +934,7 @@ public class SubentryService extends BaseInterceptor
 
             if ( mods.length > 0 )
             {
-                nexus.modify( newName, mods );
+                nexus.modify( new ModifyOperationContext( newName, mods ) );
             }
         }
     }
@@ -891,7 +947,7 @@ public class SubentryService extends BaseInterceptor
     
     private int getSubentryTypes( Attributes subentry, int modOp, Attributes mods ) throws NamingException
     {
-        if ( mods.get( "objectClass" ) == null )
+        if ( mods.get( SchemaConstants.OBJECT_CLASS_AT ) == null )
         {
             return getSubentryTypes( subentry );
         }
@@ -903,8 +959,8 @@ public class SubentryService extends BaseInterceptor
             return getSubentryTypes( mods );
         }
         
-        Attribute ocChanges = mods.get( "objectClass" );
-        Attribute ocFinalState = ( Attribute ) subentry.get( "objectClass" ).clone();
+        Attribute ocChanges = mods.get( SchemaConstants.OBJECT_CLASS_AT );
+        Attribute ocFinalState = ( Attribute ) subentry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
         if ( modOp == DirContext.ADD_ATTRIBUTE )
         {
             for ( int ii = 0; ii < ocChanges.size(); ii++ )
@@ -928,10 +984,10 @@ public class SubentryService extends BaseInterceptor
 
     private int getSubentryTypes( Attributes entry, ModificationItemImpl[] mods ) throws NamingException
     {
-        Attribute ocFinalState = ( Attribute ) entry.get( "objectClass" ).clone();
+        Attribute ocFinalState = ( Attribute ) entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( "objectClass" ) )
+            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
                 switch ( mods[ii].getModificationOp() )
                 {
@@ -959,96 +1015,12 @@ public class SubentryService extends BaseInterceptor
         return getSubentryTypes( attrs );
     }
 
-
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
-        Attributes oldEntry = (Attributes) entry.clone();
-        Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
-
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" )  && mods.get( "subtreeSpecification" ) != null )
-        {
-            SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toNormName() ).getSubtreeSpecification();
-            SubtreeSpecification ssNew;
-
-            try
-            {
-                ssNew = ssParser.parse( ( String ) mods.get( "subtreeSpecification" ).get() );
-            }
-            catch ( Exception e )
-            {
-                String msg = "failed to parse the new subtreeSpecification";
-                log.error( msg, e );
-                throw new LdapInvalidAttributeValueException( msg, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
-            }
-
-            subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, modOp, mods ) );
-            next.modify( name, modOp, mods );
-
-            // search for all entries selected by the old SS and remove references to subentry
-            LdapDN apName = ( LdapDN ) name.clone();
-            apName.remove( apName.size() - 1 );
-            LdapDN oldBaseDn = ( LdapDN ) apName.clone();
-            oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectClass" ) );
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[]
-                { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
-            while ( subentries.hasMore() )
-            {
-                SearchResult result = ( SearchResult ) subentries.next();
-                Attributes candidate = result.getAttributes();
-                LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
-                {
-                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
-                }
-            }
-
-            // search for all selected entries by the new SS and add references to subentry
-            Subentry subentry = subentryCache.getSubentry( name.toNormName() );
-            Attributes operational = getSubentryOperatationalAttributes( name, subentry );
-            LdapDN newBaseDn = ( LdapDN ) apName.clone();
-            newBaseDn.addAll( ssNew.getBase() );
-            subentries = nexus.search( newBaseDn, factoryCfg.getEnvironment(), filter, controls );
-            while ( subentries.hasMore() )
-            {
-                SearchResult result = ( SearchResult ) subentries.next();
-                Attributes candidate = result.getAttributes();
-                LdapDN dn = new LdapDN( result.getName() );
-                dn.normalize( attrRegistry.getNormalizerMapping() );
-
-                if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
-                {
-                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
-                }
-            }
-        }
-        else
-        {
-            next.modify( name, modOp, mods );
-            
-            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
-            {
-	            Attributes newEntry = nexus.lookup( name );
-	            
-	            ModificationItemImpl[] subentriesOpAttrMods =  getModsOnEntryModification(name, oldEntry, newEntry);
-	            if ( subentriesOpAttrMods.length > 0)
-	            {
-	            	nexus.modify(name, subentriesOpAttrMods);
-	            }
-            }
-        }
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Attributes entry = nexus.lookup( name );
+        LdapDN name = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+        
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attributes oldEntry = (Attributes) entry.clone();
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
         boolean isSubtreeSpecificationModification = false;
@@ -1056,14 +1028,14 @@ public class SubentryService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            if ( "subtreeSpecification".equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
+            if ( SchemaConstants.SUBTREE_SPECIFICATION_AT.equalsIgnoreCase( mods[ii].getAttribute().getID() ) )
             {
                 isSubtreeSpecificationModification = true;
                 subtreeMod = mods[ii];
             }
         }
 
-        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) && isSubtreeSpecificationModification )
+        if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) && isSubtreeSpecificationModification )
         {
             SubtreeSpecification ssOld = subentryCache.removeSubentry( name.toString() ).getSubtreeSpecification();
             SubtreeSpecification ssNew;
@@ -1080,19 +1052,22 @@ public class SubentryService extends BaseInterceptor
             }
 
             subentryCache.setSubentry( name.toNormName(), ssNew, getSubentryTypes( entry, mods ) );
-            next.modify( name, mods );
+            next.modify( opContext );
 
             // search for all entries selected by the old SS and remove references to subentry
             LdapDN apName = ( LdapDN ) name.clone();
             apName.remove( apName.size() - 1 );
             LdapDN oldBaseDn = ( LdapDN ) apName.clone();
             oldBaseDn.addAll( ssOld.getBase() );
-            ExprNode filter = new PresenceNode( oidRegistry.getOid( "objectClass" ) );
+            ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
                 { "+", "*" } );
-            NamingEnumeration subentries = nexus.search( oldBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            NamingEnumeration subentries = 
+                nexus.search( 
+                    new SearchOperationContext( oldBaseDn, factoryCfg.getEnvironment(), filter, controls ) );
+            
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -1102,7 +1077,7 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssOld, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForRemove( name, candidate ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForRemove( name, candidate ) ) );
                 }
             }
 
@@ -1111,7 +1086,8 @@ public class SubentryService extends BaseInterceptor
             Attributes operational = getSubentryOperatationalAttributes( name, subentry );
             LdapDN newBaseDn = ( LdapDN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
-            subentries = nexus.search( newBaseDn, factoryCfg.getEnvironment(), filter, controls );
+            subentries = nexus.search( 
+                new SearchOperationContext( newBaseDn, factoryCfg.getEnvironment(), filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = ( SearchResult ) subentries.next();
@@ -1121,22 +1097,23 @@ public class SubentryService extends BaseInterceptor
 
                 if ( evaluator.evaluate( ssNew, apName, dn, candidate ) )
                 {
-                    nexus.modify( dn, getOperationalModsForAdd( candidate, operational ) );
+                    nexus.modify( new ModifyOperationContext( dn, getOperationalModsForAdd( candidate, operational ) )) ;
                 }
             }
         }
         else
         {
-            next.modify( name, mods );
+            next.modify( opContext );
             
-            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, "subentry" ) )
+            if ( !AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
             {
-	            Attributes newEntry = nexus.lookup( name );
+	            Attributes newEntry = nexus.lookup( new LookupOperationContext( name ) );
 	            
-	            ModificationItemImpl[] subentriesOpAttrMods =  getModsOnEntryModification(name, oldEntry, newEntry);
+	            ModificationItemImpl[] subentriesOpAttrMods =  getModsOnEntryModification( name, oldEntry, newEntry );
+                
 	            if ( subentriesOpAttrMods.length > 0)
 	            {
-	            	nexus.modify(name, subentriesOpAttrMods);
+	            	nexus.modify( new ModifyOperationContext( name, subentriesOpAttrMods ) );
 	            }
             }
         }
@@ -1389,15 +1366,15 @@ public class SubentryService extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            Attribute objectClasses = result.getAttributes().get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClasses != null )
             {
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
                 {
                     return false;
                 }
 
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC_OID ) )
                 {
                     return false;
                 }
@@ -1405,7 +1382,7 @@ public class SubentryService extends BaseInterceptor
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
-                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    if ( oc.equalsIgnoreCase( SchemaConstants.SUBENTRY_OC ) )
                     {
                         return false;
                     }
@@ -1450,15 +1427,15 @@ public class SubentryService extends BaseInterceptor
             }
 
             // see if we can use objectclass if present
-            Attribute objectClasses = result.getAttributes().get( "objectClass" );
+            Attribute objectClasses = result.getAttributes().get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClasses != null )
             {
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC ) )
                 {
                     return true;
                 }
 
-                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SUBENTRY_OBJECTCLASS_OID ) )
+                if ( AttributeUtils.containsValueCaseIgnore( objectClasses, SchemaConstants.SUBENTRY_OC_OID ) )
                 {
                     return true;
                 }
@@ -1466,7 +1443,7 @@ public class SubentryService extends BaseInterceptor
                 for ( int ii = 0; ii < objectClasses.size(); ii++ )
                 {
                     String oc = ( String ) objectClasses.get( ii );
-                    if ( oc.equalsIgnoreCase( SUBENTRY_OBJECTCLASS ) )
+                    if ( oc.equalsIgnoreCase( SchemaConstants.SUBENTRY_OC ) )
                     {
                         return true;
                     }

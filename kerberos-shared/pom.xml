@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-kerberos-shared</artifactId>
   <name>ApacheDS Protocol Kerberos Shared</name>
@@ -13,10 +13,6 @@
   </description>
   <packaging>jar</packaging>  
   <dependencies>
-    <dependency>
-      <groupId>bouncycastle</groupId>
-      <artifactId>lcrypto-jdk14</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>

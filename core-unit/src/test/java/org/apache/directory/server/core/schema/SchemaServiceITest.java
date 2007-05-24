@@ -507,4 +507,137 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( seeAlso.contains( "cn=Bad E\u00e9k\u00e0,ou=people,o=sevenSeas" ) );
     }
 
+    /**
+     * Doing a search with filtering attributes should work even if the attribute
+     * is not valid 
+     * 
+     */
+    public void testSearchForUnknownAttributes() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
+        controls.setReturningAttributes( new String[] { "9.9.9" } );
+
+        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            persons.put( result.getName(), result.getAttributes() );
+        }
+
+        // admin is extra
+        assertEquals( 4, persons.size() );
+
+        Attributes person = null;
+        Attribute ocs = null;
+
+        person = persons.get( "cn=person0,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+        
+        ocs = person.get( "9.9.9" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person1,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person2,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+    }
+
+    /**
+     * Check that if we request a Attribute which is not an AttributeType,
+     * we still get a result
+     */
+    public void testSearchAttributesOIDObjectClass() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
+        controls.setReturningAttributes( new String[] { "2.5.6.6" } );
+
+        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            persons.put( result.getName(), result.getAttributes() );
+        }
+
+        // admin is extra
+        assertEquals( 4, persons.size() );
+
+        Attributes person = null;
+        Attribute ocs = null;
+
+        person = persons.get( "cn=person0,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+        
+        // We should not get this attribute (it's an ObjectClass)
+        ocs = person.get( "2.5.6.6" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person1,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person2,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+    }
+
+    /**
+     * Check that if we request a Attribute which is an ObjectClass.
+     */
+    public void testSearchAttributesOIDObjectClassName() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        Map<String, Attributes> persons = new HashMap<String, Attributes>();
+        controls.setReturningAttributes( new String[] { "person" } );
+
+        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) results.next();
+            persons.put( result.getName(), result.getAttributes() );
+        }
+
+        // admin is extra
+        assertEquals( 4, persons.size() );
+
+        Attributes person = null;
+        Attribute ocs = null;
+
+        person = persons.get( "cn=person0,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+        
+        // We should not get this attrinute (it's an ObjectClass)
+        ocs = person.get( "2.5.4.46" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person1,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+
+        person = persons.get( "cn=person2,ou=system" );
+        assertNotNull( person );
+        ocs = person.get( "objectClass" );
+        assertNull( ocs );
+    }
 }

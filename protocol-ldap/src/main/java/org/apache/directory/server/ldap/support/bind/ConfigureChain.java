@@ -39,6 +39,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 
 import org.apache.directory.server.core.configuration.ConfigurationException;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.ldap.LdapConfiguration;
@@ -196,7 +197,7 @@ public class ConfigureChain implements IoHandlerCommand
             throw new ConfigurationException( message );
         }
 
-        EncryptionKey key = entry.getEncryptionKey();
+        EncryptionKey key = entry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
         byte[] keyBytes = key.getKeyValue();
         int type = key.getKeyType().getOrdinal();
         int kvno = key.getKeyVersion();

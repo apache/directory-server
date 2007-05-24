@@ -269,7 +269,13 @@
             <bean class="org.apache.directory.mitosis.service.ReplicationService">
               <property name="configuration">
                 <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
-                  <property name="replicaId" value="instance_a" />
+                  <property name="replicaId">
+                    <bean class="org.apache.directory.mitosis.common.ReplicaId">
+                      <constructor-arg>
+                        <value>instance_a</value>
+                      </constructor-arg>
+                    </bean>
+                  </property>
                   <property name="serverPort" value="10390" />
                   <property name="peerReplicas" value="instance_b@localhost:10392" />
                 </bean>

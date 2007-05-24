@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 
 import javax.naming.NamingException;
 
@@ -31,7 +30,8 @@ import jdbm.btree.BTree;
 import jdbm.recman.BaseRecordManager;
 
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.shared.ldap.util.BigIntegerComparator;
+import org.apache.directory.shared.ldap.util.LongComparator;
+//import org.apache.directory.shared.ldap.util.BigIntegerComparator;
 
 import junit.framework.TestCase;
 
@@ -54,7 +54,7 @@ public class BTreeTupleEnumerationTest extends TestCase
     {
         tempFile = File.createTempFile( "jdbm", "test" );
         rm = new BaseRecordManager( tempFile.getAbsolutePath() );
-        tree = BTree.createInstance( rm, new BigIntegerComparator() );
+        tree = BTree.createInstance( rm, new LongComparator() );
     }
     
     protected void tearDown() throws Exception
@@ -67,19 +67,19 @@ public class BTreeTupleEnumerationTest extends TestCase
 
     public void testEmptyBTree() throws NamingException
     {
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, BigInteger.ONE );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, 1L );
         assertFalse( "enumeration on empty btree should not have elements", bte.hasMore() );
     }
     
     
     public void testOneElement() throws IOException, NamingException
     {
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, BigInteger.ONE );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, 1L );
         assertTrue( bte.hasMore() );
         Tuple tuple = ( Tuple ) bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
+        assertEquals( 1L, tuple.getKey() );
         assertEquals( value, tuple.getValue() );
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -94,39 +94,39 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, BigInteger.ONE );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, 1L );
         
         Tuple tuple = ( Tuple ) bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "1" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
 
         bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "4" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 4L, tuple.getValue() );
 
         bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "5" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 5L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -141,30 +141,30 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "3" ), false );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 3L, false );
         
         Tuple tuple = ( Tuple ) bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
 
         bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "1" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -179,21 +179,21 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, BigInteger.ZERO, false );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 0L, false );
         
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -208,25 +208,25 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, BigInteger.ONE, false );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 1L, false );
         
         Tuple tuple = ( Tuple ) bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "1" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -241,30 +241,30 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "3" ), true );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 3L, true );
         
         Tuple tuple = ( Tuple ) bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "4" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 4L, tuple.getValue() );
 
         bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "5" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 5L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -279,21 +279,21 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "6" ), true );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 6L, true );
         
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -308,25 +308,25 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "5" ), true );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 5L, true );
         
         Tuple tuple = ( Tuple ) bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "5" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 5L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -341,35 +341,35 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "4" ), false );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 4L, false );
         
         Tuple tuple = ( Tuple ) bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "4" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 4L, tuple.getValue() );
 
         bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "2" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 2L, tuple.getValue() );
 
         bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "1" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 1L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }
@@ -384,30 +384,30 @@ public class BTreeTupleEnumerationTest extends TestCase
          * 4, -
          * 5, -
          */
-        BigInteger value = new BigInteger( "1" );
+        Long value = 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
-        value = value.add( BigInteger.ONE );
+        value += 1L;
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
 
-        value = value.add( BigInteger.ONE );
+        value += 1L;
         tree.insert( value, EMPTY_BYTES, true );
         
-        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new BigIntegerComparator(), 
-            BigInteger.ONE, new BigInteger( "4" ), true );
+        BTreeTupleEnumeration bte = new BTreeTupleEnumeration( tree, new LongComparator(), 
+            1L, 4L, true );
         
         Tuple tuple = ( Tuple ) bte.next();
         assertTrue( bte.hasMore() );
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "4" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 4L, tuple.getValue() );
 
         bte.next();
-        assertEquals( BigInteger.ONE, tuple.getKey() );
-        assertEquals( new BigInteger( "5" ), tuple.getValue() );
+        assertEquals( 1L, tuple.getKey() );
+        assertEquals( 5L, tuple.getValue() );
 
         assertFalse( "enumeration consumed should not have elements", bte.hasMore() );
     }

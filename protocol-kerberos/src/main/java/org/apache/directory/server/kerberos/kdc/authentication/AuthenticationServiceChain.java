@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 
 import org.apache.directory.server.kerberos.kdc.MonitorRequest;
+import org.apache.directory.server.kerberos.kdc.SelectEncryptionType;
 import org.apache.directory.server.kerberos.kdc.preauthentication.PreAuthenticationChain;
 import org.apache.mina.handler.chain.IoHandlerChain;
 
@@ -31,10 +32,14 @@ import org.apache.mina.handler.chain.IoHandlerChain;
  */
 public class AuthenticationServiceChain extends IoHandlerChain
 {
+    /**
+     * Creates a new instance of AuthenticationServiceChain.
+     */
     public AuthenticationServiceChain()
     {
         addLast( "monitorRequest", new MonitorRequest() );
         addLast( "configureAuthenticationChain", new ConfigureAuthenticationChain() );
+        addLast( "selectEncryptionType", new SelectEncryptionType() );
         addLast( "getClientEntry", new GetClientEntry() );
         addLast( "verifyPolicy", new VerifyPolicy() );
         addLast( "preAuthenticationChain", new PreAuthenticationChain() );

@@ -33,18 +33,23 @@ public class PrincipalNameModifier
 {
     private static final String COMPONENT_SEPARATOR = "/";
 
-    List components = new ArrayList();
+    List<String> components = new ArrayList<String>();
     int nameType;
 
 
+    /**
+     * Returns the {@link PrincipalName}.
+     *
+     * @return The {@link PrincipalName}.
+     */
     public PrincipalName getPrincipalName()
     {
         StringBuffer sb = new StringBuffer();
-        Iterator it = components.iterator();
+        Iterator<String> it = components.iterator();
 
         while ( it.hasNext() )
         {
-            String component = ( String ) it.next();
+            String component = it.next();
             sb.append( component );
 
             if ( it.hasNext() )
@@ -57,12 +62,22 @@ public class PrincipalNameModifier
     }
 
 
+    /**
+     * Sets the type.
+     *
+     * @param type
+     */
     public void setType( int type )
     {
         nameType = type;
     }
 
 
+    /**
+     * Adds a name component.
+     *
+     * @param name
+     */
     public void addName( String name )
     {
         components.add( name );

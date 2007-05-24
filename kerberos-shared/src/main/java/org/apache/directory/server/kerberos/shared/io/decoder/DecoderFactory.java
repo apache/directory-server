@@ -27,5 +27,10 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
  */
 public interface DecoderFactory
 {
+    /**
+     * Returns the {@link Decoder}.
+     *
+     * @return The {@link Decoder}.
+     */
     public Decoder getDecoder();
 }

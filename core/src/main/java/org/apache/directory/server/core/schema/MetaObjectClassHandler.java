@@ -30,6 +30,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -192,7 +193,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
         throws NamingException
     {
         checkNewParent( newParentName );
@@ -233,13 +234,13 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a objectClass should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "objectClasses" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.OBJECT_CLASSES_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a attributeType should have a relative name of ou=objectClasses.", 

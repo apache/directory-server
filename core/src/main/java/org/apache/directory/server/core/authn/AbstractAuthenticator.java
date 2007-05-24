@@ -98,7 +98,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     /**
      * Implement your initialization code here.
      */
-    protected void doInit() throws NamingException
+    protected void doInit()
     {
     }
 
@@ -150,7 +150,6 @@ public abstract class AbstractAuthenticator implements Authenticator
      * @return the principal for the <tt>name</tt>
      * @throws NamingException if there is a problem parsing <tt>name</tt>
      */
-    // does not seem to be used
     protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve )
         throws NamingException
     {

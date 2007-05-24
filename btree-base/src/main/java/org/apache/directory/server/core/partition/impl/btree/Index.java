@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
@@ -79,42 +78,42 @@ public interface Index
     int count( Object attrVal, boolean isGreaterThan ) throws NamingException;
 
 
-    BigInteger forwardLookup( Object attrVal ) throws NamingException;
+    Object forwardLookup( Object attrVal ) throws NamingException;
 
 
-    Object reverseLookup( BigInteger id ) throws NamingException;
+    Object reverseLookup( Object id ) throws NamingException;
 
 
-    void add( Object attrVal, BigInteger id ) throws NamingException;
+    void add( Object attrVal, Object id ) throws NamingException;
 
 
-    void add( Attribute attr, BigInteger id ) throws NamingException;
+    void add( Attribute attr, Object id ) throws NamingException;
 
 
-    void add( Attributes attrs, BigInteger id ) throws NamingException;
+    void add( Attributes attrs, Object id ) throws NamingException;
 
 
-    void drop( BigInteger entryId ) throws NamingException;
+    void drop( Object entryId ) throws NamingException;
 
 
-    void drop( Object attrVal, BigInteger id ) throws NamingException;
+    void drop( Object attrVal, Object id ) throws NamingException;
 
 
     /**
      * If the Attribute does not have any values then this reduces to a 
      * drop(BigInteger) call.
      */
-    void drop( Attribute attr, BigInteger id ) throws NamingException;
+    void drop( Attribute attr, Object id ) throws NamingException;
 
 
     /**
      * If the Attribute for this index within the Attributes does not have any 
      * values then this reduces to a drop(BigInteger) call.
      */
-    void drop( Attributes attrs, BigInteger id ) throws NamingException;
+    void drop( Attributes attrs, Object id ) throws NamingException;
 
 
-    IndexEnumeration listReverseIndices( BigInteger id ) throws NamingException;
+    IndexEnumeration listReverseIndices( Object id ) throws NamingException;
 
 
     IndexEnumeration listIndices() throws NamingException;
@@ -132,13 +131,13 @@ public interface Index
     IndexEnumeration listIndices( Pattern regex, String prefix ) throws NamingException;
 
 
-    boolean hasValue( Object attrVal, BigInteger id ) throws NamingException;
+    boolean hasValue( Object attrVal, Object id ) throws NamingException;
 
 
-    boolean hasValue( Object attrVal, BigInteger id, boolean isGreaterThan ) throws NamingException;
+    boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws NamingException;
 
 
-    boolean hasValue( Pattern regex, BigInteger id ) throws NamingException;
+    boolean hasValue( Pattern regex, Object id ) throws NamingException;
 
 
     void close() throws NamingException;

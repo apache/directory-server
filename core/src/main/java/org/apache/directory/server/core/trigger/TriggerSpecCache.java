@@ -38,8 +38,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -65,8 +69,6 @@ public class TriggerSpecCache
 {
     /** the attribute id for prescriptive trigger: prescriptiveTrigger */
     private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
-    /** the attribute id for an object class: objectClass */
-    private static final String OC_ATTR = "objectClass";
     /** the object class for trigger subentries: triggerExecutionSubentry */
     private static final String TRIGGER_SUBENTRY_OC = "triggerExecutionSubentry";
 
@@ -76,7 +78,7 @@ public class TriggerSpecCache
     /** cloned startup environment properties we use for subentry searching */
     private final Hashtable env;
     /** a map of strings to TriggerSpecification collections */
-    private final Map triggerSpecs = new HashMap();
+    private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     /** a normalizing TriggerSpecification parser */
@@ -111,20 +113,25 @@ public class TriggerSpecCache
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes();
+        Iterator suffixes = nexus.listSuffixes( null );
+        
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            NamingEnumeration results = 
+                nexus.search( 
+                    new SearchOperationContext( baseDn, env, filter, ctls ) );
+            
             while ( results.hasMore() )
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String subentryDn = result.getName();
                 Attribute triggerSpec = result.getAttributes().get( PRESCRIPTIVE_TRIGGER_ATTR );
+                
                 if ( triggerSpec == null )
                 {
                     log.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
@@ -135,6 +142,7 @@ public class TriggerSpecCache
                 normSubentryName.normalize( attrRegistry.getNormalizerMapping() );
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
+            
             results.close();
         }
     }
@@ -156,12 +164,14 @@ public class TriggerSpecCache
     {
         // only do something if the entry contains prescriptiveTrigger
         Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
-        if ( !hasPrescriptiveTrigger( entry ) )
+        
+        if ( triggerSpec == null )
         {
             return;
         }
         
-        List subentryTriggerSpecs = new ArrayList();
+        List<TriggerSpecification> subentryTriggerSpecs = new ArrayList<TriggerSpecification>();
+        
         for ( int ii = 0; ii < triggerSpec.size(); ii++ )
         {
             TriggerSpecification item = null;
@@ -169,15 +179,16 @@ public class TriggerSpecCache
             try
             {
                 item = triggerSpecParser.parse( ( String ) triggerSpec.get( ii ) );
+                subentryTriggerSpecs.add( item );
             }
             catch ( ParseException e )
             {
                 String msg = "TriggerSpecification parser failure on '" + item + "'. Cannnot add Trigger Specificaitons to TriggerSpecCache.";
                 log.error( msg, e );
             }
-
-            subentryTriggerSpecs.add( item );
+            
         }
+        
         triggerSpecs.put( normName.toString(), subentryTriggerSpecs );
     }
 
@@ -193,18 +204,23 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( LdapDN normName, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( OperationContext opContext, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
             return;
         }
 
+        LdapDN normName = opContext.getDn();
+        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+
         boolean isTriggerSpecModified = false;
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             isTriggerSpecModified |= mods[ii].getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }
+        
         if ( isTriggerSpecModified )
         {
             subentryDeleted( normName, entry );
@@ -213,27 +229,12 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( LdapDN normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public List<TriggerSpecification> getSubentryTriggerSpecs( String subentryDn )
     {
-        if ( !hasPrescriptiveTrigger( entry ) )
-        {
-            return;
-        }
-
-        if ( mods.get( PRESCRIPTIVE_TRIGGER_ATTR ) != null )
-        {
-            subentryDeleted( normName, entry );
-            subentryAdded( normName, entry );
-        }
-    }
-
-
-    public List getSubentryTriggerSpecs( String subentryDn )
-    {
-        List subentryTriggerSpecs = ( List ) triggerSpecs.get( subentryDn );
+        List<TriggerSpecification> subentryTriggerSpecs = triggerSpecs.get( subentryDn );
         if ( subentryTriggerSpecs == null )
         {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return Collections.unmodifiableList( subentryTriggerSpecs );
     }

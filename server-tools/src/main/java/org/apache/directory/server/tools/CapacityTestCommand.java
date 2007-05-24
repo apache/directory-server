@@ -34,6 +34,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 
@@ -89,11 +90,11 @@ public class CapacityTestCommand extends BaseToolCommand
         }
 
         Hashtable env = new Hashtable();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
+        env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", password );
-        env.put( "java.naming.security.authentication", "simple" );
+        env.put( JndiPropertyConstants.JNDI_SECURITY_CREDENTIALS, password );
+        env.put( JndiPropertyConstants.JNDI_SECURITY_AUTHENTICATION, "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
 

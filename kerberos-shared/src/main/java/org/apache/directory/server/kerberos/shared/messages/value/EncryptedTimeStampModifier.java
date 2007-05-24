@@ -30,18 +30,33 @@ public class EncryptedTimeStampModifier
     private int microSecond; //optional
 
 
+    /**
+     * Returns the {@link EncryptedTimeStamp}.
+     *
+     * @return The {@link EncryptedTimeStamp}.
+     */
     public EncryptedTimeStamp getEncryptedTimestamp()
     {
         return new EncryptedTimeStamp( timeStamp, microSecond );
     }
 
 
+    /**
+     * Sets the {@link KerberosTime}.
+     *
+     * @param timeStamp
+     */
     public void setKerberosTime( KerberosTime timeStamp )
     {
         this.timeStamp = timeStamp;
     }
 
 
+    /**
+     * Sets the microseconds.
+     *
+     * @param microSecond
+     */
     public void setMicroSecond( int microSecond )
     {
         this.microSecond = microSecond;

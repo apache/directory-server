@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -37,14 +38,12 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
     private LdapDN deletedEntryName;
     private Attributes deletedEntry;
     
-    private Map injectors;
-    
     public DeleteStoredProcedureParameterInjector( Invocation invocation, LdapDN deletedEntryName ) throws NamingException
     {
         super( invocation );
         this.deletedEntryName = deletedEntryName;
         this.deletedEntry = getDeletedEntry();
-        injectors = super.getInjectors();
+        Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Delete_NAME.class, $nameInjector );
         injectors.put( StoredProcedureParameter.Delete_DELETED_ENTRY.class, $deletedEntryInjector );
     }
@@ -73,7 +72,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
          * Using LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS here to exclude operational attributes
          * especially subentry related ones like "triggerExecutionSubentries".
          */
-        Attributes deletedEntry = proxy.lookup( deletedEntryName, PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
+        Attributes deletedEntry = proxy.lookup( new LookupOperationContext( deletedEntryName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         return deletedEntry;
     }
 }

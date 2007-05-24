@@ -21,20 +21,15 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
 
 /**
  * Represents the next {@link Interceptor} in the interceptor chain.
@@ -47,134 +42,114 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface NextInterceptor
 {
     /**
-     * Calls the next interceptor's {@link Interceptor#compare(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String,Object)}.
+     * Calls the next interceptor's {@link Interceptor#compare( NextInterceptor, OperationContext )}.
      */
-    boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
+    boolean compare( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#getRootDSE(NextInterceptor)}.
+     * Calls the next interceptor's {@link Interceptor#getRootDSE( NextInterceptor, OperationContext )}.
      */
-    Attributes getRootDSE() throws NamingException;
+    Attributes getRootDSE( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#getMatchedName(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#getMatchedName( NextInterceptor, OperationContext )}.
      */
-    LdapDN getMatchedName ( LdapDN name ) throws NamingException;
+    LdapDN getMatchedName( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#getSuffix(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#getSuffix( NextInterceptor, OperationContext )}.
      */
-    LdapDN getSuffix ( LdapDN name ) throws NamingException;
+    LdapDN getSuffix( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#listSuffixes(NextInterceptor)}.
+     * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, OperationContext )}.
      */
-    Iterator listSuffixes () throws NamingException;
+    Iterator listSuffixes( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#addContextPartition(PartitionConfiguration)}.
+     * Calls the next interceptor's {@link PartitionNexus#addContextPartition( nextInterceptor, OperationContext )}.
      */
-    void addContextPartition( PartitionConfiguration cfg ) throws NamingException;
+    void addContextPartition( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition(org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link PartitionNexus#removeContextPartition( NextInterceptor, OperationContext )}.
      */
-    void removeContextPartition( LdapDN suffix ) throws NamingException;
+    void removeContextPartition( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#delete(NextInterceptor, OperationContext )}.
      */
-    void delete( LdapDN name ) throws NamingException;
+    void delete( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#add(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.Attributes)}.
+     * Calls the next interceptor's {@link Interceptor#add( NextInterceptor, OperationContext )}.
      */
-    void add(LdapDN normName, Attributes entry) throws NamingException;
+    void add( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)}.
+     * Calls the next interceptor's {@link Interceptor#modify( NextInterceptor, OperationContext )}.
      */
-    void modify( LdapDN name, int modOp, Attributes attributes ) throws NamingException;
+    void modify( OperationContext opContext ) throws NamingException;
+
+    /**
+     * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, OperationContext )}.
+     */
+    NamingEnumeration list( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modify(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])}.
+     * Calls the next interceptor's {@link Interceptor#search( NextInterceptor, OperationContext opContext )}.
      */
-    void modify( LdapDN name, ModificationItemImpl[] items ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#list(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
-     */
-    NamingEnumeration list( LdapDN baseName ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#search(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)}.
-     */
-    NamingEnumeration search( LdapDN baseName, Map environment, ExprNode filter, SearchControls searchControls )
+    NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#lookup( NextInterceptor, OperationContext )}.
      */
-    Attributes lookup( LdapDN name ) throws NamingException;
+    Attributes lookup( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#lookup(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String[])}.
+     * Calls the next interceptor's {@link Interceptor#hasEntry( NextInterceptor, OperationContext )}.
      */
-    Attributes lookup( LdapDN name, String[] attrIds ) throws NamingException;
+    boolean hasEntry( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#hasEntry(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#rename( NextInterceptor, OperationContext )}.
      */
-    boolean hasEntry( LdapDN name ) throws NamingException;
+    void rename( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#isSuffix(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#move( NextInterceptor, OperationContext )}.
      */
-    boolean isSuffix( LdapDN name ) throws NamingException;
+    void move( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#modifyRn(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)}.
+     * Calls the next interceptor's {@link Interceptor#moveAndRename( NextInterceptor, OperationContext )}.
      */
-    void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException;
+    void moveAndRename( OperationContext opContext ) throws NamingException;
 
 
     /**
-     * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN)}.
+     * Calls the next interceptor's {@link Interceptor#bind( NextInterceptor, OperationContext )}
      */
-    void move( LdapDN oldName, LdapDN newParentName ) throws NamingException;
-
+    void bind( OperationContext opContext ) throws NamingException;
 
     /**
-     * Calls the next interceptor's {@link Interceptor#move(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,org.apache.directory.shared.ldap.name.LdapDN,String,boolean)}.
+     * Calls the next interceptor's {@link Interceptor#unbind( NextInterceptor, OperationContext )}
      */
-    void move( LdapDN oldName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#bind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN,byte[],java.util.List,String)}
-     */
-    void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException;
-
-
-    /**
-     * Calls the next interceptor's {@link Interceptor#unbind(NextInterceptor,org.apache.directory.shared.ldap.name.LdapDN)}
-     */
-    void unbind( LdapDN bindDn ) throws NamingException;
+    void unbind( OperationContext opContext ) throws NamingException;
 }

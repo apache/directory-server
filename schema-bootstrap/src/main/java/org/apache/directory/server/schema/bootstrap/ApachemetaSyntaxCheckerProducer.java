@@ -23,6 +23,7 @@ package org.apache.directory.server.schema.bootstrap;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.schema.syntax.NumberSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
@@ -61,6 +62,9 @@ public class ApachemetaSyntaxCheckerProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, checker.getSyntaxOid(), checker );
         
         checker = new ObjectClassTypeSyntaxChecker();
+        cb.schemaObjectProduced( this, checker.getSyntaxOid(), checker );
+
+        checker = new NumberSyntaxChecker();
         cb.schemaObjectProduced( this, checker.getSyntaxOid(), checker );
     }
 }

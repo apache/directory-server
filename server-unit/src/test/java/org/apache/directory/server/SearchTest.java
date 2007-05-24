@@ -39,6 +39,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
@@ -523,7 +524,7 @@ public class SearchTest extends AbstractServerTest
         Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "accessControlSubentry" );
         subentry.put( "subtreeSpecification", subtree );
         subentry.put( "prescriptiveACI", aciItem );
@@ -888,7 +889,7 @@ public class SearchTest extends AbstractServerTest
         Attributes subentry = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "collectiveAttributeSubentry" );
         subentry.put( objectClass );
         subentry.put( "c-l", "Munich" );

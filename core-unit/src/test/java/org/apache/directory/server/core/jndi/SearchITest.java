@@ -31,6 +31,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
@@ -175,7 +176,7 @@ public class SearchITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "+" } );
-        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
@@ -201,7 +202,7 @@ public class SearchITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
@@ -228,7 +229,7 @@ public class SearchITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "+", "*" } );
-        sysRoot.addToEnvironment( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );

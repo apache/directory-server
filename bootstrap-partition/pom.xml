@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-bootstrap-partition</artifactId>
   <name>ApacheDS Bootstrap Partition</name>
@@ -12,8 +12,9 @@
   <description>
     A special jar file that contains a pre-loaded partition with schema 
     information.  This schema partition will mount off of the ou=schema 
-    namingContext.  This artifact contains the db files for this partition
-    as well as classes needed to extract them into the proper position.
+    namingContext.  This artifact contains the db files for this partition.
+    It must be used with the apacheds-bootstrap-extract jar which contains
+    the classes to install these files.
   </description>
   <dependencies>
     <dependency>
@@ -29,6 +30,16 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-store</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-bootstrap-extract</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-schema-extras</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>

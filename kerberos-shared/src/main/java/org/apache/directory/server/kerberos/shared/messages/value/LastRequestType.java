@@ -32,30 +32,79 @@ import java.util.List;
 public final class LastRequestType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "none" last request type.
      */
     public static final LastRequestType NONE = new LastRequestType( 0, "none" );
+
+    /**
+     * Constant for the "time of initial ticket" last request type.
+     */
     public static final LastRequestType TIME_OF_INITIAL_TGT = new LastRequestType( 1, "time of initial ticket" );
+
+    /**
+     * Constant for the "time of initial request" last request type.
+     */
     public static final LastRequestType TIME_OF_INITIAL_REQ = new LastRequestType( 2, "time of initial request" );
+
+    /**
+     * Constant for the "time of newest ticket" last request type.
+     */
     public static final LastRequestType TIME_OF_NEWEST_TGT = new LastRequestType( 3, "time of newest ticket" );
+
+    /**
+     * Constant for the "time of last renewal" last request type.
+     */
     public static final LastRequestType TIME_OF_LAST_RENEWAL = new LastRequestType( 4, "time of last renewal" );
+
+    /**
+     * Constant for the "time of last request" last request type.
+     */
     public static final LastRequestType TIME_OF_LAST_REQ = new LastRequestType( 5, "time of last request" );
+
+    /**
+     * Constant for the "time of password expiration" last request type.
+     */
     public static final LastRequestType TIME_OF_PASSWORD_EXP = new LastRequestType( 6, "time of password expiration" );
 
+    /**
+     * Array for building a List of VALUES.
+     */
+    private static final LastRequestType[] values =
+        { NONE, TIME_OF_INITIAL_TGT, TIME_OF_INITIAL_REQ, TIME_OF_NEWEST_TGT, TIME_OF_LAST_RENEWAL, TIME_OF_LAST_REQ,
+            TIME_OF_PASSWORD_EXP };
 
-    public String toString()
+    /**
+     * A List of all the last request type constants.
+     */
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    /**
+     * The name of the checksum type.
+     */
+    private final String name;
+
+    /**
+     * The value/code for the checksum type.
+     */
+    private final int ordinal;
+
+
+    /**
+     * Private constructor prevents construction outside of this class.
+     */
+    private LastRequestType( int ordinal, String name )
     {
-        return name + " (" + ordinal + ")";
+        this.ordinal = ordinal;
+        this.name = name;
     }
 
 
-    public int compareTo( Object that )
-    {
-        return ordinal - ( ( LastRequestType ) that ).ordinal;
-    }
-
-
+    /**
+     * Returns the last request type when specified by its ordinal.
+     *
+     * @param type
+     * @return The last request type.
+     */
     public static LastRequestType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -70,31 +119,25 @@ public final class LastRequestType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this last request type.
+     *
+     * @return The last request type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
-    /// PRIVATE /////
-    private final String name;
-    private final int ordinal;
 
-
-    /**
-     * Private constructor prevents construction outside of this class.
-     */
-    private LastRequestType(int ordinal, String name)
+    public int compareTo( Object that )
     {
-        this.ordinal = ordinal;
-        this.name = name;
+        return ordinal - ( ( LastRequestType ) that ).ordinal;
     }
 
-    /**
-     * These two lines are all that's necessary to export a List of VALUES.
-     */
-    private static final LastRequestType[] values =
-        { NONE, TIME_OF_INITIAL_TGT, TIME_OF_INITIAL_REQ, TIME_OF_NEWEST_TGT, TIME_OF_LAST_RENEWAL, TIME_OF_LAST_REQ,
-            TIME_OF_PASSWORD_EXP };
-    // VALUES needs to be located here, otherwise illegal forward reference
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    public String toString()
+    {
+        return name + " (" + ordinal + ")";
+    }
 }

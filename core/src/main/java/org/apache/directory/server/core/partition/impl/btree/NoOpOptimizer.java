@@ -19,8 +19,6 @@
  */
 package org.apache.directory.server.core.partition.impl.btree;
 
-import java.math.BigInteger;
-
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -37,7 +35,7 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 public class NoOpOptimizer implements Optimizer
 {
     /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
-    private static final BigInteger MAX = BigInteger.valueOf( Integer.MAX_VALUE );
+    private static final Long MAX = Long.MAX_VALUE;
     
     public void annotate( ExprNode node ) throws NamingException
     {

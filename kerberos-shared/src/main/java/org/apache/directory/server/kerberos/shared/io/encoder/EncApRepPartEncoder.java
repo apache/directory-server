@@ -38,6 +38,9 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncApRepPartEncoder implements Encoder, EncoderFactory
 {
+    /**
+     * The application code constant for the {@link EncApRepPart} (27).
+     */
     public static final int APPLICATION_CODE = 27;
 
 
@@ -69,7 +72,7 @@ public class EncApRepPartEncoder implements Encoder, EncoderFactory
 
         if ( message.getSubSessionKey() != null )
         {
-            sequence.add( new DERTaggedObject( 2, EncryptionKeyEncoder.encode( message.getSubSessionKey() ) ) );
+            sequence.add( new DERTaggedObject( 2, EncryptionKeyEncoder.encodeSequence( message.getSubSessionKey() ) ) );
         }
 
         if ( message.getSequenceNumber() != null )

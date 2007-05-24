@@ -34,17 +34,24 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.constants.CoreSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.constants.SystemSchemaConstants;
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.collective.CollectiveAttributeService;
+import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -98,17 +105,17 @@ public class SchemaManager
 
     private static final Set<String> VALID_OU_VALUES = new HashSet<String>();
     private static final String[] opAttrs = new String[] {
-        "comparators",
-        "normalizers",
-        "syntaxCheckers",
-        "ldapSyntaxes",
-        "matchingRules",
-        "attributeTypes",
-        "objectClasses",
-        "matchingRuleUse",
-        "dITStructureRules",
-        "dITContentRules",
-        "nameForms"
+        SchemaConstants.COMPARATORS_AT,
+        SchemaConstants.NORMALIZERS_AT,
+        SchemaConstants.SYNTAX_CHECKERS_AT,
+        SchemaConstants.LDAP_SYNTAXES_AT,
+        SchemaConstants.MATCHING_RULES_AT,
+        SchemaConstants.ATTRIBUTE_TYPES_AT,
+        SchemaConstants.OBJECT_CLASSES_AT,
+        SchemaConstants.MATCHING_RULE_USE_AT,
+        SchemaConstants.DIT_STRUCTURE_RULES_AT,
+        SchemaConstants.DIT_CONTENT_RULES_AT,
+        SchemaConstants.NAME_FORMS_AT
     };
     private static final String[] metaObjectClasses = new String[] {
         "metaComparator",
@@ -158,27 +165,27 @@ public class SchemaManager
     
     static 
     {
-        VALID_OU_VALUES.add( "normalizers" );
-        VALID_OU_VALUES.add( "comparators" );
-        VALID_OU_VALUES.add( "syntaxcheckers" );
-        VALID_OU_VALUES.add( "syntaxes" );
-        VALID_OU_VALUES.add( "matchingrules" );
-        VALID_OU_VALUES.add( "matchingruleuse" );
-        VALID_OU_VALUES.add( "attributetypes" );
-        VALID_OU_VALUES.add( "objectclasses" );
-        VALID_OU_VALUES.add( "nameforms" );
-        VALID_OU_VALUES.add( "ditcontentrules" );
-        VALID_OU_VALUES.add( "ditstructurerules" );
+        VALID_OU_VALUES.add( SchemaConstants.NORMALIZERS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.COMPARATORS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.SYNTAX_CHECKERS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( "syntaxes".toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.MATCHING_RULE_USE_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.ATTRIBUTE_TYPES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.OBJECT_CLASSES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.NAME_FORMS_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_CONTENT_RULES_AT.toLowerCase() );
+        VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT.toLowerCase() );
         
         HashSet<String> set = new HashSet<String>();
-        set.add( "normalizationService" );
-        set.add( "authenticationService" );
-        set.add( "referralService" );
-        set.add( "authorizationService" );
-        set.add( "defaultAuthorizationService" );
-        set.add( "exceptionService" );
-        set.add( "schemaService" );
-        set.add( "collectiveAttributeService" );
+        set.add( NormalizationService.NAME );
+        set.add( AuthenticationService.NAME );
+        set.add( ReferralService.NAME );
+        set.add( AuthorizationService.NAME );
+        set.add( DefaultAuthorizationService.NAME );
+        set.add( ExceptionService.NAME );
+        set.add( SchemaService.NAME );
+        set.add( CollectiveAttributeService.NAME );
         SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS = Collections.unmodifiableCollection( set );
     }
 
@@ -189,7 +196,7 @@ public class SchemaManager
         this.loader = loader;
         this.globalRegistries = globalRegistries;
         this.objectClassAT = this.globalRegistries.getAttributeTypeRegistry()
-            .lookup( SystemSchemaConstants.OBJECT_CLASS_AT );
+            .lookup( SchemaConstants.OBJECT_CLASS_AT );
         
         this.metaSchemaHandler = new MetaSchemaHandler( this.globalRegistries, this.loader );
         
@@ -210,37 +217,37 @@ public class SchemaManager
         
         OidRegistry oidRegistry = globalRegistries.getOidRegistry();
         
-        comparatorsOid = oidRegistry.getOid( ApacheSchemaConstants.COMPARATORS_AT );
+        comparatorsOid = oidRegistry.getOid( SchemaConstants.COMPARATORS_AT );
         opAttr2handlerIndex.put( comparatorsOid, new Integer( COMPARATOR_INDEX ) );
         
-        normalizersOid = oidRegistry.getOid( ApacheSchemaConstants.NORMALIZERS_AT );
+        normalizersOid = oidRegistry.getOid( SchemaConstants.NORMALIZERS_AT );
         opAttr2handlerIndex.put( normalizersOid, new Integer( NORMALIZER_INDEX ) );
         
-        syntaxCheckersOid = oidRegistry.getOid( ApacheSchemaConstants.SYNTAX_CHECKERS_AT );
+        syntaxCheckersOid = oidRegistry.getOid( SchemaConstants.SYNTAX_CHECKERS_AT );
         opAttr2handlerIndex.put( syntaxCheckersOid, new Integer( SYNTAX_CHECKER_INDEX ) );
         
-        ldapSyntaxesOid = oidRegistry.getOid( SystemSchemaConstants.LDAP_SYNTAXES_AT );
+        ldapSyntaxesOid = oidRegistry.getOid( SchemaConstants.LDAP_SYNTAXES_AT );
         opAttr2handlerIndex.put( ldapSyntaxesOid, new Integer( SYNTAX_INDEX ) );
         
-        matchingRulesOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULES_AT );
+        matchingRulesOid = oidRegistry.getOid( SchemaConstants.MATCHING_RULES_AT );
         opAttr2handlerIndex.put( matchingRulesOid, new Integer( MATCHING_RULE_INDEX ) );
 
-        attributeTypesOid = oidRegistry.getOid( SystemSchemaConstants.ATTRIBUTE_TYPES_AT );
+        attributeTypesOid = oidRegistry.getOid( SchemaConstants.ATTRIBUTE_TYPES_AT );
         opAttr2handlerIndex.put( attributeTypesOid, new Integer( ATTRIBUTE_TYPE_INDEX ) );
 
-        objectClassesOid = oidRegistry.getOid( SystemSchemaConstants.OBJECT_CLASSES_AT );
+        objectClassesOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASSES_AT );
         opAttr2handlerIndex.put( objectClassesOid, new Integer( OBJECT_CLASS_INDEX ) );
         
-        matchingRuleUseOid = oidRegistry.getOid( SystemSchemaConstants.MATCHING_RULE_USE_AT );
+        matchingRuleUseOid = oidRegistry.getOid( SchemaConstants.MATCHING_RULE_USE_AT );
         opAttr2handlerIndex.put( matchingRuleUseOid, new Integer( MATCHING_RULE_USE_INDEX ) );
 
-        ditStructureRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_STRUCTURE_RULES_AT );
+        ditStructureRulesOid = oidRegistry.getOid( SchemaConstants.DIT_STRUCTURE_RULES_AT );
         opAttr2handlerIndex.put( ditStructureRulesOid, new Integer( DIT_STRUCTURE_RULE_INDEX ) );
 
-        ditContentRulesOid = oidRegistry.getOid( SystemSchemaConstants.DIT_CONTENT_RULES_AT );
+        ditContentRulesOid = oidRegistry.getOid( SchemaConstants.DIT_CONTENT_RULES_AT );
         opAttr2handlerIndex.put( ditContentRulesOid, new Integer( DIT_CONTENT_RULE_INDEX ) );
 
-        nameFormsOid = oidRegistry.getOid( SystemSchemaConstants.NAME_FORMS_AT );
+        nameFormsOid = oidRegistry.getOid( SchemaConstants.NAME_FORMS_AT );
         opAttr2handlerIndex.put( nameFormsOid, new Integer( NAME_FORM_INDEX ) );
         
         initHandlerMaps();
@@ -300,7 +307,7 @@ public class SchemaManager
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
         {
             if ( name.size() != 3 )
             {
@@ -347,7 +354,7 @@ public class SchemaManager
             return;
         }
         
-        if ( AttributeUtils.containsValue( oc, CoreSchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
+        if ( AttributeUtils.containsValue( oc, SchemaConstants.ORGANIZATIONAL_UNIT_OC, objectClassAT ) )
         {
             if ( name.size() != 3 )
             {
@@ -454,17 +461,18 @@ public class SchemaManager
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
             String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.move( oriChildName, newParentName, entry );
+                handler.replace( oriChildName, newParentName, entry );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -472,7 +480,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.move( oriChildName, newParentName, entry );
+            metaSchemaHandler.replace( oriChildName, newParentName, entry );
             updateSchemaModificationAttributes();
             return;
         }
@@ -895,6 +903,7 @@ public class SchemaManager
             new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) );
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
         name.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
-        invocation.getProxy().modify( name, mods, SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
+        
+        invocation.getProxy().modify( new ModifyOperationContext( name, mods ), SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS );
     }
 }

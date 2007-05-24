@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.AttributesSerializerUtils;
 
 import junit.framework.TestCase;
 
@@ -58,7 +59,7 @@ public class AttributesSerializerTest extends TestCase
         
         attrs.put( attr0 );
         attrs.put( attr1 );
-        AttributesSerializer serializer = new AttributesSerializer();
+        AttributesSerializerUtils serializer = new AttributesSerializerUtils();
         byte[] buf = serializer.serialize( attrs );
         AttributesImpl deserialized = ( AttributesImpl ) serializer.deserialize( buf );
 

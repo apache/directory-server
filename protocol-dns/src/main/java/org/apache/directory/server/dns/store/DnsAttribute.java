@@ -32,9 +32,6 @@ public class DnsAttribute
      * Apache DNS Schema Attributes
      */
 
-    /** the apachedns schema common name for an Apache DNS entry */
-    public static final String CN = "cn";
-
     /**
      * An abstract DNS record objectClass used to build other specific structural
      * objectclasses for different record types

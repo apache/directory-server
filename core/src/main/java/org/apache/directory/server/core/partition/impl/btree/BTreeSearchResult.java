@@ -20,10 +20,11 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
-
+import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+
+import org.apache.directory.shared.ldap.message.ServerSearchResult;
 
 
 /**
@@ -34,12 +35,12 @@ import javax.naming.directory.SearchResult;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BTreeSearchResult extends SearchResult
+public class BTreeSearchResult extends ServerSearchResult
 {
     private static final long serialVersionUID = 3976739172700860977L;
 
     /** the primary key used for the resultant entry */
-    private final BigInteger id;
+    private final Long id;
 
 
     // ------------------------------------------------------------------------
@@ -54,7 +55,7 @@ public class BTreeSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public BTreeSearchResult(BigInteger id, String name, Object obj, Attributes attrs)
+    public BTreeSearchResult(Long id, String name, Object obj, Attributes attrs) throws InvalidNameException
     {
         super( name, obj, attrs );
         this.id = id;
@@ -70,7 +71,7 @@ public class BTreeSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult(BigInteger id, String name, Object obj, Attributes attrs, boolean isRelative)
+    public BTreeSearchResult(Long id, String name, Object obj, Attributes attrs, boolean isRelative) throws InvalidNameException
     {
         super( name, obj, attrs, isRelative );
         this.id = id;
@@ -86,7 +87,7 @@ public class BTreeSearchResult extends SearchResult
      * @param obj the object if any
      * @param attrs the attributes of the entry
      */
-    public BTreeSearchResult(BigInteger id, String name, String className, Object obj, Attributes attrs)
+    public BTreeSearchResult(Long id, String name, String className, Object obj, Attributes attrs) throws InvalidNameException
     {
         super( name, className, obj, attrs );
         this.id = id;
@@ -103,8 +104,8 @@ public class BTreeSearchResult extends SearchResult
      * @param attrs the attributes of the entry
      * @param isRelative whether or not the name is relative to the base
      */
-    public BTreeSearchResult(BigInteger id, String name, String className, Object obj, Attributes attrs,
-        boolean isRelative)
+    public BTreeSearchResult(Long id, String name, String className, Object obj, Attributes attrs,
+        boolean isRelative) throws InvalidNameException
     {
         super( name, className, obj, attrs, isRelative );
         this.id = id;
@@ -116,7 +117,7 @@ public class BTreeSearchResult extends SearchResult
      * 
      * @return Returns the id.
      */
-    public BigInteger getId()
+    public Long getId()
     {
         return id;
     }

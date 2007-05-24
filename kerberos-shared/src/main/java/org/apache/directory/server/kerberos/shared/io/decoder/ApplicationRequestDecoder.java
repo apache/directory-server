@@ -41,6 +41,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class ApplicationRequestDecoder
 {
+    /**
+     * Decodes a byte array into an {@link ApplicationRequest}.
+     *
+     * @param encodedAuthHeader
+     * @return The {@link ApplicationRequest}.
+     * @throws IOException
+     */
     public ApplicationRequest decode( byte[] encodedAuthHeader ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedAuthHeader );

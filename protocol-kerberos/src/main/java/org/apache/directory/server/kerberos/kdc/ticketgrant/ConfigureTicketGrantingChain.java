@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -34,7 +34,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 public class ConfigureTicketGrantingChain implements IoHandlerCommand
 {
     private static final ReplayCache replayCache = new InMemoryReplayCache();
-    private static final LockBox lockBox = new LockBox();
+    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private String contextKey = "context";
 
@@ -43,13 +43,13 @@ public class ConfigureTicketGrantingChain implements IoHandlerCommand
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         tgsContext.setReplayCache( replayCache );
-        tgsContext.setLockBox( lockBox );
+        tgsContext.setCipherTextHandler( cipherTextHandler );
 
         next.execute( session, message );
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

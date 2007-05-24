@@ -34,7 +34,14 @@ public class ChangePasswordData
     private String realm;
 
 
-    public ChangePasswordData(byte[] password, PrincipalName principalName, String realm)
+    /**
+     * Creates a new instance of ChangePasswordData.
+     *
+     * @param password
+     * @param principalName
+     * @param realm
+     */
+    public ChangePasswordData( byte[] password, PrincipalName principalName, String realm )
     {
         this.password = password;
         this.principalName = principalName;
@@ -42,18 +49,33 @@ public class ChangePasswordData
     }
 
 
+    /**
+     * Returns the password as bytes.
+     *
+     * @return The password as bytes.
+     */
     public byte[] getPassword()
     {
         return password;
     }
 
 
+    /**
+     * Returns the principal name.
+     *
+     * @return The principal name.
+     */
     public PrincipalName getPrincipalName()
     {
         return principalName;
     }
 
 
+    /**
+     * Returns the realm.
+     *
+     * @return The realm.
+     */
     public String getRealm()
     {
         return realm;

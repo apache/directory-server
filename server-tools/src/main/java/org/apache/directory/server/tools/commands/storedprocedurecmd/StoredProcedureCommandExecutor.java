@@ -33,6 +33,7 @@ import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
 import org.apache.directory.server.tools.util.Parameter;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -103,11 +104,11 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         }
 
         Hashtable env = new Hashtable();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://" + host + ":" + port );
+        env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", password );
-        env.put( "java.naming.security.authentication", "simple" );
+        env.put( JndiPropertyConstants.JNDI_SECURITY_CREDENTIALS, password );
+        env.put( JndiPropertyConstants.JNDI_SECURITY_AUTHENTICATION, "simple" );
 
         LdapContext ctx = new InitialLdapContext( env, null );
         if ( !isQuietEnabled() )

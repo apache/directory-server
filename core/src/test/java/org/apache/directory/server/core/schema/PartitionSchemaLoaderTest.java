@@ -74,7 +74,7 @@ public class PartitionSchemaLoaderTest extends TestCase
         super.setUp();
 
         // setup working directory
-        File workingDirectory = new File( System.getProperty( "workingDirectory" ) );
+        File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();

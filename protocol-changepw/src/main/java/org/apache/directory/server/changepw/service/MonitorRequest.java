@@ -38,13 +38,15 @@ public class MonitorRequest implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         if ( log.isDebugEnabled() )
         {
             try
             {
-                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
+                ChangePasswordContext changepwContext = ( ChangePasswordContext ) session
+                    .getAttribute( getContextKey() );
 
                 ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
                 short authHeaderLength = request.getAuthHeaderLength();
@@ -70,7 +72,7 @@ public class MonitorRequest implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

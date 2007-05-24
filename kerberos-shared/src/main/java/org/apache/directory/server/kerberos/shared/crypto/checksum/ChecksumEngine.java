@@ -21,50 +21,38 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
-import org.bouncycastle.crypto.Digest;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ChecksumEngine
+public interface ChecksumEngine
 {
-    public abstract Digest getDigest();
+    /**
+     * Returns the checksum type of this checksum engine.
+     *
+     * @return The checksum type.
+     */
+    public ChecksumType checksumType();
 
 
-    public abstract ChecksumType checksumType();
+    /**
+     * Returns the key type of this checksum engine.
+     *
+     * @return The key type.
+     */
+    public CipherType keyType();
 
 
-    public abstract CipherType keyType();
-
-
-    public abstract int checksumSize();
-
-
-    public abstract int keySize();
-
-
-    public abstract int confounderSize();
-
-
-    public abstract boolean isSafe();
-
-
-    public abstract byte[] calculateKeyedChecksum( byte[] data, byte[] key );
-
-
-    public abstract boolean verifyKeyedChecksum( byte[] data, byte[] key, byte[] checksum );
-
-
-    public byte[] calculateChecksum( byte[] data )
-    {
-        Digest digester = getDigest();
-
-        digester.reset();
-        digester.update( data, 0, data.length );
-        byte[] returnValue = new byte[digester.getDigestSize()];
-        digester.doFinal( returnValue, 0 );
-        return returnValue;
-    }
+    /**
+     * Calculate a checksum given raw bytes and an (optional) key.
+     *
+     * @param data
+     * @param key
+     * @param usage 
+     * @return The checksum value.
+     */
+    public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage );
 }

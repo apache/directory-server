@@ -33,19 +33,35 @@ public class EncryptionTypeInfoEntry
     private byte[] salt;
 
 
-    public EncryptionTypeInfoEntry(EncryptionType encryptionType, byte[] salt)
+    /**
+     * Creates a new instance of EncryptionTypeInfoEntry.
+     *
+     * @param encryptionType
+     * @param salt
+     */
+    public EncryptionTypeInfoEntry( EncryptionType encryptionType, byte[] salt )
     {
         this.encryptionType = encryptionType;
         this.salt = salt;
     }
 
 
+    /**
+     * Returns the salt.
+     *
+     * @return The salt.
+     */
     public byte[] getSalt()
     {
         return salt;
     }
 
 
+    /**
+     * Returns the {@link EncryptionType}.
+     *
+     * @return The {@link EncryptionType}.
+     */
     public EncryptionType getEncryptionType()
     {
         return encryptionType;

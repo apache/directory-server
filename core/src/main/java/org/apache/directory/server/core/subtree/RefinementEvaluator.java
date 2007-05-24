@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.subtree;
 
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -61,7 +62,7 @@ public class RefinementEvaluator
         {
             throw new IllegalArgumentException( "objectClasses cannot be null" );
         }
-        if ( !objectClasses.getID().equalsIgnoreCase( "objectClass" ) )
+        if ( !objectClasses.getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {
             throw new IllegalArgumentException( "Attribute objectClasses should be of id 'objectClass'" );
         }

@@ -27,6 +27,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 
 /**
@@ -375,7 +376,7 @@ public class KdcConfiguration extends ServiceConfiguration
         {
             for ( EncryptionType type : EncryptionType.VALUES )
             {
-                if ( type.toString().equalsIgnoreCase( enc ) )
+                if ( type.getName().equalsIgnoreCase( enc ) )
                 {
                     encTypes.add( type );
                 }

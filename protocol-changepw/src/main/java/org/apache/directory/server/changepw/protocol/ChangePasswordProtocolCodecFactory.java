@@ -35,6 +35,11 @@ public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
     private static final ChangePasswordProtocolCodecFactory INSTANCE = new ChangePasswordProtocolCodecFactory();
 
 
+    /**
+     * Returns the singleton instance of {@link ChangePasswordProtocolCodecFactory}.
+     *
+     * @return The singleton instance of {@link ChangePasswordProtocolCodecFactory}.
+     */
     public static ChangePasswordProtocolCodecFactory getInstance()
     {
         return INSTANCE;

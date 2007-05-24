@@ -47,6 +47,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class KdcRequestDecoder
 {
+    /**
+     * Decodes a {@link ByteBuffer} into a {@link KdcRequest}.
+     *
+     * @param in
+     * @return The {@link KdcRequest}.
+     * @throws IOException
+     */
     public KdcRequest decode( ByteBuffer in ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( in );

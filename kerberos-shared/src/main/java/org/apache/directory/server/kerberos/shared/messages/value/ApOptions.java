@@ -26,19 +26,29 @@ package org.apache.directory.server.kerberos.shared.messages.value;
  */
 public class ApOptions extends Options
 {
-    // AP Request option - reserved
+    /**
+     * AP Request option - reserved
+     */
     public static final int RESERVED = 0;
-    // AP Request option - use session key
+
+    /**
+     * AP Request option - use session key
+     */
     public static final int USE_SESSION_KEY = 1;
-    // AP Request option - mutual authentication required
+
+    /**
+     * AP Request option - mutual authentication required
+     */
     public static final int MUTUAL_REQUIRED = 2;
 
-    // AP Request option - maximum value
+    /**
+     * AP Request option - maximum value
+     */
     public static final int MAX_VALUE = 32;
 
 
     /**
-     * Class constructors
+     * Creates a new instance of ApOptions.
      */
     public ApOptions()
     {
@@ -46,7 +56,12 @@ public class ApOptions extends Options
     }
 
 
-    public ApOptions(byte[] options)
+    /**
+     * Creates a new instance of ApOptions.
+     *
+     * @param options
+     */
+    public ApOptions( byte[] options )
     {
         super( MAX_VALUE );
         setBytes( options );
@@ -54,7 +69,7 @@ public class ApOptions extends Options
 
 
     /**
-     * Converts the object to a printable string
+     * Converts the object to a printable string.
      */
     public String toString()
     {

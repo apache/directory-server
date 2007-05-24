@@ -20,11 +20,12 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -37,24 +38,25 @@ public class SealReply implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         TicketGrantReply reply = ( TicketGrantReply ) tgsContext.getReply();
         Ticket tgt = tgsContext.getTgt();
-        LockBox lockBox = tgsContext.getLockBox();
+        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
         Authenticator authenticator = tgsContext.getAuthenticator();
 
         EncryptedData encryptedData;
 
         if ( authenticator.getSubSessionKey() != null )
         {
-            encryptedData = lockBox.seal( authenticator.getSubSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( authenticator.getSubSessionKey(), reply, KeyUsage.NUMBER9 );
         }
         else
         {
-            encryptedData = lockBox.seal( tgt.getSessionKey(), reply );
+            encryptedData = cipherTextHandler.seal( tgt.getSessionKey(), reply, KeyUsage.NUMBER8 );
         }
 
         reply.setEncPart( encryptedData );
@@ -63,7 +65,7 @@ public class SealReply implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

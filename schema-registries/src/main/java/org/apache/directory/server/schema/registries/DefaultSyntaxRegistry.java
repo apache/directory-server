@@ -42,6 +42,10 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 {
     /** static class logger */
     private final static Logger log = LoggerFactory.getLogger( DefaultSyntaxRegistry.class );
+    
+    /** Speedup for DEBUG mode */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map<String,Syntax> byOid;
     /** the OID oidRegistry this oidRegistry uses to register new syntax OIDs */
@@ -74,10 +78,12 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         if ( byOid.containsKey( id ) )
         {
             Syntax syntax = ( Syntax ) byOid.get( id );
-            if ( log.isDebugEnabled() )
+            
+            if ( IS_DEBUG )
             {
                 log.debug( "looked up using id '" + id + "': " + syntax );
             }
+            
             return syntax;
         }
 
@@ -105,7 +111,8 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         byOid.put( syntax.getOid(), syntax );
-        if ( log.isDebugEnabled() )
+        
+        if ( IS_DEBUG )
         {
             log.debug( "registered syntax: " + syntax );
         }

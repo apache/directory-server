@@ -29,10 +29,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Binding;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamespaceChangeListener;
+import javax.naming.event.NamingEvent;
+import javax.naming.event.NamingListener;
+import javax.naming.event.ObjectChangeListener;
+
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -50,22 +68,8 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.Binding;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.Attribute;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingListener;
-import javax.naming.event.ObjectChangeListener;
 
 
 /**
@@ -78,6 +82,10 @@ import javax.naming.event.ObjectChangeListener;
 public class EventService extends BaseInterceptor
 {
     private static Logger log = LoggerFactory.getLogger( EventService.class );
+    
+    /** The service name */
+    public static final String NAME = "eventService";
+    
     private PartitionNexus nexus;
     private Map sources = new HashMap();
     private Evaluator evaluator = null;
@@ -229,16 +237,21 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        super.add( next, normName, entry );
-        Set selecting = getSelectingSources( normName, entry );
+        super.add( next, opContext );
+        LdapDN name = opContext.getDn();
+        Attributes entry = ((AddOperationContext)opContext).getEntry();
+        
+        Set selecting = getSelectingSources( name, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
         Iterator list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
@@ -247,7 +260,7 @@ public class EventService extends BaseInterceptor
             if ( listener instanceof NamespaceChangeListener )
             {
                 NamespaceChangeListener nclistener = ( NamespaceChangeListener ) listener;
-                Binding binding = new Binding( normName.getUpName(), entry, false );
+                Binding binding = new Binding( name.getUpName(), entry, false );
                 nclistener.objectAdded( new NamingEvent( rec.getEventContext(), NamingEvent.OBJECT_ADDED, binding,
                     null, entry ) );
             }
@@ -255,17 +268,20 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
-        super.delete( next, name );
+    	LdapDN name = opContext.getDn();
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
+        super.delete( next, opContext );
         Set selecting = getSelectingSources( name, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
         Iterator list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
@@ -284,7 +300,7 @@ public class EventService extends BaseInterceptor
 
     private void notifyOnModify( LdapDN name, ModificationItemImpl[] mods, Attributes oriEntry ) throws NamingException
     {
-        Attributes entry = nexus.lookup( name );
+        Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Set selecting = getSelectingSources( name, entry );
         if ( selecting.isEmpty() )
         {
@@ -309,37 +325,19 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
-        super.modify( next, name, modOp, mods );
-
-        // package modifications in ModItem format for event delivery
-        ModificationItemImpl[] modItems = new ModificationItemImpl[mods.size()];
-        NamingEnumeration list = mods.getAll();
-        for ( int ii = 0; ii < modItems.length; ii++ )
-        {
-            modItems[ii] = new ModificationItemImpl( modOp, ( Attribute ) list.next() );
-        }
-        notifyOnModify( name, modItems, oriEntry );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes oriEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
-        super.modify( next, name, mods );
-        notifyOnModify( name, mods, oriEntry );
+        Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
+        super.modify( next, opContext );
+        notifyOnModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems(), oriEntry );
     }
 
 
     private void notifyOnNameChange( LdapDN oldName, LdapDN newName ) throws NamingException
     {
-        Attributes entry = nexus.lookup( newName );
+        Attributes entry = nexus.lookup( new LookupOperationContext( newName ) );
         Set selecting = getSelectingSources( oldName, entry );
         if ( selecting.isEmpty() )
         {
@@ -364,31 +362,33 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        super.modifyRn( next, name, newRn, deleteOldRn );
-        LdapDN newName = ( LdapDN ) name.clone();
+        super.rename( next, opContext );
+        LdapDN newName = ( LdapDN ) opContext.getDn().clone();
         newName.remove( newName.size() - 1 );
-        newName.add( newRn );
+        newName.add( ((RenameOperationContext)opContext).getNewRdn() );
         newName.normalize( attributeRegistry.getNormalizerMapping() );
-        notifyOnNameChange( name, newName );
+        notifyOnNameChange( opContext.getDn(), newName );
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
-        super.move( next, oriChildName, newParentName, newRn, deleteOldRn );
-        LdapDN newName = ( LdapDN ) newParentName.clone();
-        newName.add( newRn );
-        notifyOnNameChange( oriChildName, newName );
+        super.moveAndRename( next, opContext );
+        LdapDN newName = ( LdapDN ) ((MoveAndRenameOperationContext)opContext).getParent().clone();
+        newName.add( ((MoveAndRenameOperationContext)opContext).getNewRdn() );
+        notifyOnNameChange( opContext.getDn(), newName );
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        super.move( next, oriChildName, newParentName );
-        LdapDN newName = ( LdapDN ) newParentName.clone();
+        super.move( next, opContext );
+        LdapDN oriChildName = opContext.getDn();
+        
+        LdapDN newName = ( LdapDN ) ((MoveOperationContext)opContext).getParent().clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         notifyOnNameChange( oriChildName, newName );
     }

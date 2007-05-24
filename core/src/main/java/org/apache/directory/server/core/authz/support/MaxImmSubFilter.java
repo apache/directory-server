@@ -30,11 +30,22 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -55,7 +66,7 @@ public class MaxImmSubFilter implements ACITupleFilter
 
     public MaxImmSubFilter()
     {
-        childrenFilter = new PresenceNode( "objectClass" );
+        childrenFilter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         childrenSearchControls = new SearchControls();
         childrenSearchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
     }
@@ -117,15 +128,15 @@ public class MaxImmSubFilter implements ACITupleFilter
     public static final Collection SEARCH_BYPASS;
     static
     {
-        Collection c = new HashSet();
-        c.add( "normalizationService" );
-        c.add( "authenticationService" );
-        c.add( "authorizationService" );
-        c.add( "defaultAuthorizationService" );
-        c.add( "schemaService" );
-        c.add( "subentryService" );
-        c.add( "operationalAttributeService" );
-        c.add( "eventService" );
+        Collection<String> c = new HashSet<String>();
+        c.add( NormalizationService.NAME );
+        c.add( AuthenticationService.NAME );
+        c.add( AuthorizationService.NAME );
+        c.add( DefaultAuthorizationService.NAME );
+        c.add( SchemaService.NAME );
+        c.add( SubentryService.NAME );
+        c.add( OperationalAttributeService.NAME );
+        c.add( EventService.NAME );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -133,10 +144,12 @@ public class MaxImmSubFilter implements ACITupleFilter
     private int getImmSubCount( PartitionNexusProxy proxy, LdapDN entryName ) throws NamingException
     {
         int cnt = 0;
-        NamingEnumeration e = null;
+        NamingEnumeration<SearchResult> e = null;
+        
         try
         {
-            e = proxy.search( ( LdapDN ) entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls,
+            e = proxy.search( 
+                new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls ),
                 SEARCH_BYPASS );
 
             while ( e.hasMore() )

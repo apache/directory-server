@@ -24,14 +24,15 @@ import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosKey;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.service.LockBox;
 
 
 /**
@@ -41,7 +42,7 @@ import org.apache.directory.server.kerberos.shared.service.LockBox;
 public class TimestampChecker implements KeyIntegrityChecker
 {
     private static final long FIVE_MINUTES = 300000;
-    private static final LockBox lockBox = new LockBox();
+    private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
 
     public boolean checkKeyIntegrity( byte[] encryptedData, KerberosKey kerberosKey )
@@ -57,8 +58,8 @@ public class TimestampChecker implements KeyIntegrityChecker
 
             // Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC
             // Decode the decrypted timestamp into our timestamp object.
-            EncryptedTimeStamp timestamp = ( EncryptedTimeStamp ) lockBox.unseal( EncryptedTimeStamp.class, key,
-                sadValue );
+            EncryptedTimeStamp timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class, key,
+                sadValue, KeyUsage.NUMBER1 );
 
             // Since we got here we must have a valid timestamp structure that we can
             // validate to be within a five minute skew.

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -114,6 +115,36 @@ public class AddITest extends AbstractAdminTestCase
             fail( "Should not reach this state" );
         }
         catch ( LdapSchemaViolationException e )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Test that we can't add an entry with an attribute with a bad syntax
+     */
+    public void testAddAttributesBadSyntax() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "person" );
+        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
+        Attribute sn = new AttributeImpl( "sn", "ke" );
+        Attribute telephone = new AttributeImpl( "telephoneNumber", "0123456abc" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( sn );
+        attrs.put( telephone );
+
+        String base = "sn=kevin";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( LdapInvalidAttributeValueException e )
         {
             assertTrue( true );
         }

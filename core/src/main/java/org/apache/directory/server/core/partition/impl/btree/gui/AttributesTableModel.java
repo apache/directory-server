@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree.gui;
 
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 
 import javax.naming.NamingEnumeration;
@@ -52,7 +51,7 @@ public class AttributesTableModel extends AbstractTableModel
     /** the attributes for the entry */
     private final Attributes entry;
     /** the unique id of the entry  */
-    private final BigInteger id;
+    private final Long id;
     /** the distinguished name of the entry */
     private final String dn;
     /** whether or not the model is mutable */
@@ -67,7 +66,7 @@ public class AttributesTableModel extends AbstractTableModel
      * @param dn the distinguished name of the entry
      * @param isMutable whether or not the model can be changed
      */
-    public AttributesTableModel(Attributes entry, BigInteger id, String dn, boolean isMutable)
+    public AttributesTableModel(Attributes entry, Long id, String dn, boolean isMutable)
     {
         this.dn = dn;
         this.id = id;
@@ -235,7 +234,7 @@ public class AttributesTableModel extends AbstractTableModel
      *
      * @return the unique id for the entry
      */
-    public BigInteger getEntryId()
+    public Long getEntryId()
     {
         return id;
     }

@@ -33,7 +33,7 @@ import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
@@ -41,16 +41,21 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +69,9 @@ import org.slf4j.LoggerFactory;
 public class AuthenticationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
+    
+    /** The service name */
+    public static final String NAME = "authenticationService";
     
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -79,7 +87,6 @@ public class AuthenticationService extends BaseInterceptor
     public AuthenticationService()
     {
     }
-
 
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
@@ -107,7 +114,6 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
-    @SuppressWarnings("unchecked")
     public void destroy()
     {
         Set<Collection<Authenticator>> clonedAuthenticatorCollections = new HashSet<Collection<Authenticator>>();
@@ -194,45 +200,46 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, LdapDN normName, Attributes entry ) throws NamingException
+    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '"
-                    + normName.getUpName() + "'" );
+            log.debug( "Adding the entry " + 
+            		AttributeUtils.toString( ((AddOperationContext)opContext).getEntry() ) + 
+            		" for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
-        next.add(normName, entry );
+        next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Deleting name = '" + name.toString() + "'" );
+            log.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
-        next.delete( name );
-        invalidateAuthenticatorCaches( name );
+        next.delete( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Matching name = '" + dn.toString() + "'" );
+            log.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getMatchedName( dn );
+        return next.getMatchedName( opContext );
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -240,59 +247,47 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.getRootDSE();
+        return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Getting suffix for name = '" + dn.toString() + "'" );
+            log.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.getSuffix( dn );
+        return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing if entry name = '" + name.toString() + "' exists" );
+            log.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
         }
 
         checkAuthenticated();
-        return next.hasEntry( name );
+        return next.hasEntry( opContext );
     }
 
 
-    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing suffix for name = '" + name.toString() + "'" );
+            log.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
-        return next.isSuffix( name );
+        return next.list( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Listing base = '" + base.toString() + "'" );
-        }
-
-        checkAuthenticated();
-        return next.list( base );
-    }
-
-
-    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -300,33 +295,32 @@ public class AuthenticationService extends BaseInterceptor
         }
 
         checkAuthenticated();
-        return next.listSuffixes();
+        return next.listSuffixes( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
+    public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Lookup name = '" + dn.toString() + "', attributes = " + attrIds );
+            LookupOperationContext ctx = (LookupOperationContext)opContext;
+            
+            List<String> attrIds = ctx.getAttrsId();
+            
+            if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
+            {
+                String attrs = StringTools.listToString( attrIds );
+                log.debug( "Lookup name = '" + ctx.getDn().getUpName() + "', attributes = " + attrs );
+            }
+            else
+            {
+                log.debug( "Lookup name = '" + ctx.getDn().getUpName() + "', no attributes " );
+            }
         }
 
         checkAuthenticated();
-        return next.lookup( dn, attrIds );
+        return next.lookup( opContext );
     }
-
-
-    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Lookup name = '" + name.toString() + "'" );
-        }
-
-        checkAuthenticated();
-        return next.lookup( name );
-    }
-
 
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {
@@ -343,84 +337,74 @@ public class AuthenticationService extends BaseInterceptor
     }
     
     
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + name.toString() + "', modifs = " + AttributeUtils.toString( mods ) );
+            log.debug( opContext.toString() );
         }
 
         checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
-        next.modify( name, modOp, mods );
-        invalidateAuthenticatorCaches( name );
+        next.modify( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
     
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + name.toString() + "'" );
-        }
-
-        checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
-        next.modify( name, mods );
-        invalidateAuthenticatorCaches( name );
-    }
-
-
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
-    {
-        if ( IS_DEBUG )
-        {
-            log.debug( "Modifying name = '" + name.toString() + "', new RDN = '" + newRn + "', oldRDN = '"
-                + deleteOldRn + "'" );
+            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" + 
+                ((RenameOperationContext)opContext).getNewRdn() + "', " +
+                "oldRDN = '" + ((RenameOperationContext)opContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.modifyRn( name, newRn, deleteOldRn );
-        invalidateAuthenticatorCaches( name );
+        next.rename( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + oriChildName.toString() + "' to name = '" + newParentName + "', new RDN = '"
-                + newRn + "', oldRDN = '" + deleteOldRn + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" + 
+                ((MoveAndRenameOperationContext)opContext).getParent() + "', new RDN = '" + 
+                ((MoveAndRenameOperationContext)opContext).getNewRdn() + "', oldRDN = '" + 
+                ((MoveAndRenameOperationContext)opContext).getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
-        invalidateAuthenticatorCaches( oriChildName );
+        next.moveAndRename( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + oriChildName.toString() + " to name = '" + newParentName + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" + 
+                ((MoveOperationContext)opContext).getParent().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
-        next.move( oriChildName, newParentName );
-        invalidateAuthenticatorCaches( oriChildName );
+        next.move( opContext );
+        invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Search for base = '" + base.toString() + "'" );
+            log.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
-        return next.search( base, env, filter, searchCtls );
+        return next.search( opContext );
     }
 
 
@@ -456,19 +440,22 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws NamingException
-    {
+    public void bind( NextInterceptor next, OperationContext opContext )
+    throws NamingException
+    {   
+        // The DN is always normalized here
+        LdapDN normBindDn = opContext.getDn();
+        String bindUpDn = normBindDn.getUpName();
         
         if ( IS_DEBUG )
         {
-            log.debug( "Bind operation. bindDn: " + bindDn );
+            log.debug( "Bind operation. bindDn: " + bindUpDn );
         }
         
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-
+    
         if ( IS_DEBUG )
         {
             log.debug( "bind: principal: " + ctx.getPrincipal() );
@@ -483,34 +470,38 @@ public class AuthenticationService extends BaseInterceptor
             
             return;
         }
-
+    
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
         
-        for ( String mechanism:mechanisms )
+        for ( String mechanism:((BindOperationContext)opContext).getMechanisms() )
         {
             authenticators = getAuthenticators( mechanism );
-
+    
             if ( authenticators != null )
             {
                 break;
             }
         }
-
+    
         if ( authenticators == null )
         {
             log.debug( "No authenticators found, delegating bind to the nexus." );
+            
             // as a last resort try binding via the nexus
-            next.bind( bindDn, credentials, mechanisms, saslAuthId );
+            next.bind( opContext );
+            
             log.debug( "Nexus succeeded on bind operation." );
+            
             // bind succeeded if we got this far 
-            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( bindDn, LdapJndiProperties
+            ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
                 .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+            
             // remove creds so there is no security risk
             ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             return;
         }
-
+    
         // TODO : we should refactor that.
         // try each authenticators
         for ( Authenticator authenticator:authenticators )
@@ -518,11 +509,14 @@ public class AuthenticationService extends BaseInterceptor
             try
             {
                 // perform the authentication
-                LdapPrincipal authorizationId = authenticator.authenticate( bindDn, ctx );
+                LdapPrincipal authorizationId = authenticator.authenticate( normBindDn, ctx );
+                
                 // authentication was successful
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
+                
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
+                
                 return;
             }
             catch ( LdapAuthenticationException e )
@@ -530,7 +524,7 @@ public class AuthenticationService extends BaseInterceptor
                 // authentication failed, try the next authenticator
                 if ( log.isInfoEnabled() )
                 {
-                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindDn );
+                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
                 }
             }
             catch ( Exception e )
@@ -538,11 +532,11 @@ public class AuthenticationService extends BaseInterceptor
                 // Log other exceptions than LdapAuthenticationException
                 if ( log.isWarnEnabled() )
                 {
-                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindDn, e );
+                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
                 }
             }
         }
-
+    
         if ( log.isInfoEnabled() )
         {
             log.info( "Cannot bind to the server " );

@@ -31,18 +31,16 @@ import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,140 +76,120 @@ public class InterceptorChain
         }
 
 
-        public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+        public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.compare( name, oid, value );
+            return nexus.compare( opContext );
         }
 
 
-        public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+        public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.getRootDSE();
+            return nexus.getRootDSE( opContext );
         }
 
 
-        public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
+        public LdapDN getMatchedName( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return ( LdapDN ) nexus.getMatchedName( dn ).clone();
+            return ( LdapDN ) nexus.getMatchedName( opContext ).clone();
         }
 
 
-        public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+        public LdapDN getSuffix( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return ( LdapDN ) nexus.getSuffix( dn ).clone();
+            return ( LdapDN ) nexus.getSuffix( opContext ).clone();
         }
 
 
-        public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+        public Iterator listSuffixes( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.listSuffixes();
+            return nexus.listSuffixes( opContext );
         }
 
 
-        public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+        public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.delete( name );
+            nexus.delete( opContext );
         }
 
 
-        public void add(NextInterceptor next, LdapDN normName, Attributes entry) throws NamingException
+        public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.add( normName, entry );
+            nexus.add( opContext );
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
+        public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.modify( name, modOp, mods );
+            nexus.modify( opContext );
         }
 
 
-        public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+        public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.modify( name, mods );
+            return nexus.list( opContext );
         }
 
 
-        public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
+        public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.list( base );
+            return nexus.search( opContext );
         }
 
 
-        public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
-            SearchControls searchCtls ) throws NamingException
+        public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return nexus.search( base, env, filter, searchCtls );
+            return ( Attributes ) nexus.lookup( opContext ).clone();
         }
 
 
-        public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
+        public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            return ( Attributes ) nexus.lookup( name ).clone();
+            return nexus.hasEntry( opContext );
         }
 
 
-        public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
-        {
-            return ( Attributes ) nexus.lookup( dn, attrIds ).clone();
-        }
-
-
-        public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
-        {
-            return nexus.hasEntry( name );
-        }
-
-
-        public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
-        {
-            return nexus.isSuffix( name );
-        }
-
-
-        public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn )
+        public void rename( NextInterceptor next, OperationContext opContext )
             throws NamingException
         {
-            nexus.modifyRn( name, newRn, deleteOldRn );
+            nexus.rename( opContext );
         }
 
 
-        public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+        public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.move( oriChildName, newParentName );
+            nexus.move( opContext );
         }
 
 
-        public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+        public void moveAndRename( NextInterceptor next, OperationContext opContext )
             throws NamingException
         {
-            nexus.move( oriChildName, newParentName, newRn, deleteOldRn );
+            nexus.moveAndRename( opContext );
         }
 
 
-        public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg )
+        public void addContextPartition( NextInterceptor next, OperationContext opContext )
             throws NamingException
         {
-            nexus.addContextPartition( cfg );
+            nexus.addContextPartition( opContext );
         }
 
 
-        public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+        public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.removeContextPartition( suffix );
+            nexus.removeContextPartition( opContext );
         }
 
 
-        public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-            throws NamingException
+        public void bind( NextInterceptor next, OperationContext opContext )  throws NamingException
         {
-            nexus.bind( bindDn, credentials, mechanisms, saslAuthId );
+            nexus.bind( opContext );
         }
 
 
-        public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
+        public void unbind( NextInterceptor next, OperationContext opContext ) throws NamingException
         {
-            nexus.unbind( bindDn );
+            nexus.unbind( opContext );
         }
     };
 
@@ -534,14 +512,15 @@ public class InterceptorChain
     }
 
 
-    public Attributes getRootDSE() throws NamingException
+    public Attributes getRootDSE( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.getRootDSE( next );
+            return head.getRootDSE( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -555,14 +534,15 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getMatchedName( LdapDN name ) throws NamingException
+    public LdapDN getMatchedName( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+
         try
         {
-            return head.getMatchedName( next, name );
+            return head.getMatchedName( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -576,14 +556,15 @@ public class InterceptorChain
     }
 
 
-    public LdapDN getSuffix ( LdapDN name ) throws NamingException
+    public LdapDN getSuffix( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.getSuffix( next, name );
+            return head.getSuffix( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -597,14 +578,15 @@ public class InterceptorChain
     }
 
 
-    public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.compare( next, name, oid, value );
+            return head.compare( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -618,14 +600,15 @@ public class InterceptorChain
     }
 
 
-    public Iterator listSuffixes() throws NamingException
+    public Iterator listSuffixes( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.listSuffixes( next );
+            return head.listSuffixes( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -639,14 +622,15 @@ public class InterceptorChain
     }
 
 
-    public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.addContextPartition( next, cfg );
+            head.addContextPartition( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -660,14 +644,15 @@ public class InterceptorChain
     }
 
 
-    public void removeContextPartition( LdapDN suffix ) throws NamingException
+    public void removeContextPartition( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.removeContextPartition( next, suffix );
+            head.removeContextPartition( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -681,14 +666,15 @@ public class InterceptorChain
     }
 
 
-    public void delete( LdapDN name ) throws NamingException
+    public void delete( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.delete( next, name );
+            head.delete( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -701,14 +687,15 @@ public class InterceptorChain
     }
 
 
-    public void add( LdapDN normName, Attributes entry ) throws NamingException
+    public void add( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
+        
         try
         {
-            head.add( next, normName, entry );
+            head.add( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -721,14 +708,15 @@ public class InterceptorChain
     }
 
 
-    public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) throws NamingException
+    public void bind( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
+        
         try
         {
-            head.bind( next, bindDn, credentials, mechanisms, saslAuthId );
+            head.bind( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -741,14 +729,15 @@ public class InterceptorChain
     }
 
 
-    public void unbind( LdapDN bindDn ) throws NamingException
+    public void unbind( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
         Interceptor head = node.configuration.getInterceptor();
         NextInterceptor next = node.nextInterceptor;
+        
         try
         {
-            head.unbind( next, bindDn );
+            head.unbind( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -761,14 +750,15 @@ public class InterceptorChain
     }
 
 
-    public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+    public void modify( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.modify( next, name, modOp, mods );
+            head.modify( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -781,11 +771,12 @@ public class InterceptorChain
     }
 
 
-    public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    /*public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
             head.modify( next, name, mods );
@@ -798,17 +789,18 @@ public class InterceptorChain
         {
             throwInterceptorException( head, e );
         }
-    }
+    }*/
 
 
-    public NamingEnumeration list( LdapDN base ) throws NamingException
+    public NamingEnumeration list( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.list( next, base );
+            return head.list( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -822,15 +814,16 @@ public class InterceptorChain
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.search( next, base, env, filter, searchCtls );
+            return head.search( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -844,14 +837,15 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LdapDN name ) throws NamingException
+    public Attributes lookup( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.lookup( next, name );
+            return head.lookup( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -865,14 +859,15 @@ public class InterceptorChain
     }
 
 
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
+    public boolean hasEntry( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.lookup( next, dn, attrIds );
+            return head.hasEntry( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -886,56 +881,15 @@ public class InterceptorChain
     }
 
 
-    public boolean hasEntry( LdapDN name ) throws NamingException
+    public void rename( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            return head.hasEntry( next, name );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public boolean isSuffix( LdapDN name ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-        try
-        {
-            return head.isSuffix( next, name );
-        }
-        catch ( NamingException ne )
-        {
-            throw ne;
-        }
-        catch ( Throwable e )
-        {
-            throwInterceptorException( head, e );
-            throw new InternalError(); // Should be unreachable
-        }
-    }
-
-
-    public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
-    {
-        Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
-        NextInterceptor next = entry.nextInterceptor;
-        try
-        {
-            head.modifyRn( next, name, newRn, deleteOldRn );
+            head.rename( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -948,14 +902,15 @@ public class InterceptorChain
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.move( next, oriChildName, newParentName );
+            head.move( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -968,14 +923,15 @@ public class InterceptorChain
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn ) throws NamingException
+    public void moveAndRename( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
+        
         try
         {
-            head.move( next, oriChildName, newParentName, newRn, deleteOldRn );
+            head.moveAndRename( next, opContext );
         }
         catch ( NamingException ne )
         {
@@ -1051,14 +1007,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
+                public boolean compare( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.compare( next.nextInterceptor, name, oid, value );
+                        return interceptor.compare( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1072,14 +1028,14 @@ public class InterceptorChain
                 }
 
 
-                public Attributes getRootDSE() throws NamingException
+                public Attributes getRootDSE( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getRootDSE( next.nextInterceptor );
+                        return interceptor.getRootDSE( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1093,14 +1049,14 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getMatchedName ( LdapDN dn ) throws NamingException
+                public LdapDN getMatchedName( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getMatchedName( next.nextInterceptor, dn );
+                        return interceptor.getMatchedName( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1114,14 +1070,14 @@ public class InterceptorChain
                 }
 
 
-                public LdapDN getSuffix ( LdapDN dn ) throws NamingException
+                public LdapDN getSuffix( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.getSuffix( next.nextInterceptor, dn );
+                        return interceptor.getSuffix( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1135,14 +1091,14 @@ public class InterceptorChain
                 }
 
 
-                public Iterator listSuffixes () throws NamingException
+                public Iterator listSuffixes( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.listSuffixes( next.nextInterceptor );
+                        return interceptor.listSuffixes( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1156,14 +1112,14 @@ public class InterceptorChain
                 }
 
 
-                public void delete( LdapDN name ) throws NamingException
+                public void delete( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.delete( next.nextInterceptor, name );
+                        interceptor.delete( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1176,14 +1132,14 @@ public class InterceptorChain
                 }
 
 
-                public void add( LdapDN normName, Attributes entry ) throws NamingException
+                public void add( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.add( next.nextInterceptor, normName, entry );
+                        interceptor.add( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1196,14 +1152,14 @@ public class InterceptorChain
                 }
 
 
-                public void modify( LdapDN name, int modOp, Attributes mods ) throws NamingException
+                public void modify( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modify( next.nextInterceptor, name, modOp, mods );
+                        interceptor.modify( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1215,35 +1171,15 @@ public class InterceptorChain
                     }
                 }
 
-
-                public void modify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+                
+                public NamingEnumeration list( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.modify( next.nextInterceptor, name, mods );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                    }
-                }
-
-
-                public NamingEnumeration list( LdapDN base ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        return interceptor.list( next.nextInterceptor, base );
+                        return interceptor.list( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1257,7 +1193,7 @@ public class InterceptorChain
                 }
 
 
-                public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+                public NamingEnumeration<SearchResult> search( OperationContext opContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1265,7 +1201,7 @@ public class InterceptorChain
 
                     try
                     {
-                        return interceptor.search( next.nextInterceptor, base, env, filter, searchCtls );
+                        return interceptor.search( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1279,14 +1215,14 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LdapDN name ) throws NamingException
+                public Attributes lookup( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.lookup( next.nextInterceptor, name );
+                        return interceptor.lookup( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1300,14 +1236,14 @@ public class InterceptorChain
                 }
 
 
-                public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
+                public boolean hasEntry( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.lookup( next.nextInterceptor, dn, attrIds );
+                        return interceptor.hasEntry( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1321,56 +1257,14 @@ public class InterceptorChain
                 }
 
 
-                public boolean hasEntry( LdapDN name ) throws NamingException
+                public void rename( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        return interceptor.hasEntry( next.nextInterceptor, name );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public boolean isSuffix( LdapDN name ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        return interceptor.isSuffix( next.nextInterceptor, name );
-                    }
-                    catch ( NamingException ne )
-                    {
-                        throw ne;
-                    }
-                    catch ( Throwable e )
-                    {
-                        throwInterceptorException( interceptor, e );
-                        throw new InternalError(); // Should be unreachable
-                    }
-                }
-
-
-                public void modifyRn( LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
-                {
-                    Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
-
-                    try
-                    {
-                        interceptor.modifyRn( next.nextInterceptor, name, newRn, deleteOldRn );
+                        interceptor.rename( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1383,14 +1277,14 @@ public class InterceptorChain
                 }
 
 
-                public void move( LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+                public void move( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.move( next.nextInterceptor, oriChildName, newParentName );
+                        interceptor.move( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1403,7 +1297,7 @@ public class InterceptorChain
                 }
 
 
-                public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+                public void moveAndRename( OperationContext opContext )
                     throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1411,7 +1305,7 @@ public class InterceptorChain
 
                     try
                     {
-                        interceptor.move( next.nextInterceptor, oriChildName, newParentName, newRn, deleteOldRn );
+                        interceptor.moveAndRename( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1424,15 +1318,14 @@ public class InterceptorChain
                 }
 
 
-                public void bind( LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-                    throws NamingException
+                public void bind( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
-
+    
                     try
                     {
-                        interceptor.bind( next.nextInterceptor, bindDn, credentials, mechanisms, saslAuthId );
+                        interceptor.bind( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1445,14 +1338,14 @@ public class InterceptorChain
                 }
 
 
-                public void unbind( LdapDN bindDn ) throws NamingException
+                public void unbind( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.unbind( next.nextInterceptor, bindDn );
+                        interceptor.unbind( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1465,14 +1358,14 @@ public class InterceptorChain
                 }
 
 
-                public void addContextPartition( PartitionConfiguration cfg ) throws NamingException
+                public void addContextPartition( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.addContextPartition( next.nextInterceptor, cfg );
+                        interceptor.addContextPartition( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {
@@ -1486,14 +1379,14 @@ public class InterceptorChain
                 }
 
 
-                public void removeContextPartition( LdapDN suffix ) throws NamingException
+                public void removeContextPartition( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.configuration.getInterceptor();
 
                     try
                     {
-                        interceptor.removeContextPartition( next.nextInterceptor, suffix );
+                        interceptor.removeContextPartition( next.nextInterceptor, opContext );
                     }
                     catch ( NamingException ne )
                     {

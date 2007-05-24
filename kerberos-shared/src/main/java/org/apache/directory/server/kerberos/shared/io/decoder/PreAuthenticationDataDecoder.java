@@ -40,6 +40,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class PreAuthenticationDataDecoder
 {
+    /**
+     * Decodes a byte array into {@link PreAuthenticationData}.
+     *
+     * @param encodedPreAuthData
+     * @return The {@link PreAuthenticationData}.
+     * @throws IOException
+     */
     public PreAuthenticationData decode( byte[] encodedPreAuthData ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedPreAuthData );

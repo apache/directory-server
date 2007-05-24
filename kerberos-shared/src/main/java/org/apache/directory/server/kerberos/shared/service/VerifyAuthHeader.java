@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.shared.service;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
@@ -48,10 +50,25 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
 {
     private String contextKey = "context";
 
-    // RFC 1510 A.10.  KRB_AP_REQ verification
+
+    /**
+     * Verifies an AuthHeader using guidelines from RFC 1510 section A.10., "KRB_AP_REQ verification."
+     *
+     * @param authHeader
+     * @param ticket
+     * @param serverKey
+     * @param clockSkew
+     * @param replayCache
+     * @param emptyAddressesAllowed
+     * @param clientAddress
+     * @param lockBox
+     * @param authenticatorKeyUsage
+     * @return The authenticator.
+     * @throws KerberosException
+     */
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
-        LockBox lockBox ) throws KerberosException
+        CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage ) throws KerberosException
     {
         if ( authHeader.getProtocolVersionNumber() != 5 )
         {
@@ -90,11 +107,12 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOKEY );
         }
 
-        EncTicketPart encPart = ( EncTicketPart ) lockBox.unseal( EncTicketPart.class, ticketKey, ticket.getEncPart() );
+        EncTicketPart encPart = ( EncTicketPart ) lockBox.unseal( EncTicketPart.class, ticketKey, ticket.getEncPart(),
+            KeyUsage.NUMBER2 );
         ticket.setEncTicketPart( encPart );
 
         Authenticator authenticator = ( Authenticator ) lockBox.unseal( Authenticator.class, ticket.getSessionKey(),
-            authHeader.getEncPart() );
+            authHeader.getEncPart(), authenticatorKeyUsage );
 
         if ( !authenticator.getClientPrincipal().getName().equals( ticket.getClientPrincipal().getName() ) )
         {
@@ -147,7 +165,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

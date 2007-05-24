@@ -20,7 +20,7 @@
 package org.apache.directory.server.changepw.service;
 
 
-import javax.security.auth.kerberos.KerberosKey;
+import javax.naming.NamingException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * An {@link IoHandlerCommand} for storing the new password.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -44,31 +46,33 @@ public class ProcessPasswordChange implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
         PrincipalStore store = changepwContext.getStore();
         Authenticator authenticator = changepwContext.getAuthenticator();
-        String password = changepwContext.getPassword();
+        String newPassword = changepwContext.getPassword();
+        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
 
         // usec and seq-number must be present per MS but aren't in legacy kpasswd
         // seq-number must have same value as authenticator
         // ignore r-address
 
-        // generate key from password
-        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
-        KerberosKey newKey = new KerberosKey( clientPrincipal, password.toCharArray(), "DES" );
-
-        // store password in database
         try
         {
-            String principalName = store.changePassword( clientPrincipal, newKey );
+            String principalName = store.changePassword( clientPrincipal, newPassword );
             log.debug( "Successfully modified principal {}", principalName );
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( ne.getMessage(), ne );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ne.getExplanation().getBytes() );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
+            log.error( "Unexpected exception.", e );
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_HARDERROR );
         }
 
@@ -76,7 +80,7 @@ public class ProcessPasswordChange implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

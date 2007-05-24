@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.Comparator;
 
 import javax.naming.NamingEnumeration;
@@ -156,7 +155,7 @@ public class LeafEvaluator implements Evaluator
     private boolean evalGreater( SimpleNode node, IndexRecord record, boolean isGreater ) throws NamingException
     {
         String attrId = node.getAttribute();
-        BigInteger id = record.getEntryId();
+        Long id = (Long)record.getEntryId();
 
         if ( db.hasUserIndexOn( attrId ) )
         {
@@ -251,7 +250,7 @@ public class LeafEvaluator implements Evaluator
         // resusitate entry if need be
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( db.lookup( rec.getEntryId() ) );
+            rec.setAttributes( db.lookup( (Long)rec.getEntryId() ) );
         }
 
         // get the attribute associated with the node 
@@ -298,7 +297,7 @@ public class LeafEvaluator implements Evaluator
         // resusitate entry if need be
         if ( null == rec.getAttributes() )
         {
-            rec.setAttributes( db.lookup( rec.getEntryId() ) );
+            rec.setAttributes( db.lookup( (Long)rec.getEntryId() ) );
         }
 
         // get the attribute associated with the node 

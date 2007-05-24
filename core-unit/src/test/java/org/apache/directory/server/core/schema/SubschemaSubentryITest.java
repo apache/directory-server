@@ -24,18 +24,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.TimeZone;
 
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import jdbm.helper.IntegerComparator;
 
+import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -63,6 +70,7 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescripti
 import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.DateUtils;
 
 
 /**
@@ -1723,6 +1731,141 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         checkObjectClassPresent( "1.3.6.1.4.1.18060.0.4.1.3.10001", "other", true );
     }
 
+    
+    // -----------------------------------------------------------------------
+    // Test Modifier and Timestamp Updates 
+    // -----------------------------------------------------------------------
+    
+    
+    /**
+     * This method checks the modifiersName, and the modifyTimestamp on the schema
+     * subentry then modifies a schema.  It then checks it again to make sure these
+     * values have been updated properly to reflect the modification time and the
+     * modifier. 
+     */
+    public void testTimestampAndModifierUpdates() throws NamingException, InterruptedException
+    {
+        TimeZone tz = TimeZone.getTimeZone( "GMT" );
+        
+        Attributes subentry = this.getSubschemaSubentryAttributes();
+        
+        // check first that everything that is required is present
+        
+        Attribute creatorsNameAttr = subentry.get( "creatorsName" );
+        Attribute createTimestampAttr = subentry.get( "createTimestamp" );
+        assertNotNull( creatorsNameAttr );
+        assertNotNull( createTimestampAttr );
+
+        Attribute modifiersNameAttr = subentry.get( "modifiersName" );
+        Attribute modifiersTimestampAttr = subentry.get( "modifyTimestamp" );
+        assertNotNull( modifiersNameAttr );
+        LdapDN expectedDN = new LdapDN( "uid=admin,ou=system" );
+        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        assertEquals( expectedDN.getNormName(), modifiersNameAttr.get() );
+        assertNotNull( modifiersTimestampAttr );
+
+        Calendar cal = Calendar.getInstance( tz );
+        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) .before( cal.getTime() ) );
+        
+        // now update the schema information: add a new attribute type
+        
+        enableSchema( "nis" );
+        LdapDN dn = new LdapDN( getSubschemaSubentryDN() );
+        String substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10000 NAME ( 'bogus' 'bogusName' ) " +
+            "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        ModificationItemImpl[] mods = new ModificationItemImpl[1];
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( "attributeTypes", substrate ) );
+        
+        rootDSE.modifyAttributes( dn, mods );
+
+        // now check the modification timestamp and the modifiers name
+
+        subentry = this.getSubschemaSubentryAttributes();
+        
+        // check first that everything that is required is present
+        
+        Attribute creatorsNameAttrAfter = subentry.get( "creatorsName" );
+        Attribute createTimestampAttrAfter = subentry.get( "createTimestamp" );
+        assertNotNull( creatorsNameAttrAfter );
+        assertNotNull( createTimestampAttrAfter );
+
+        Attribute modifiersNameAttrAfter = subentry.get( "modifiersName" );
+        Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
+        assertNotNull( modifiersNameAttrAfter );
+        expectedDN = new LdapDN( "uid=admin,ou=system" );
+        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
+        assertNotNull( modifiersTimestampAttrAfter );
+        
+        // generalized time is correct up to the last second so we should 
+        // wait a second just to avoid rounding errors that may show sys
+        // time to be around same time as generalized time for after modify
+        Thread.sleep( 1000 );
+        
+        cal = Calendar.getInstance( tz );
+        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() ).before( cal.getTime() ) );
+        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() )
+            .after( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) ) );
+
+        // now let's test the modifiersName update with another user besides
+        // the administrator - we'll create a dummy user for that ...
+        
+        AttributesImpl user = new AttributesImpl( "objectClass", "person", true );
+        user.put( "sn", "bogus" );
+        user.put( "cn", "bogus user" );
+        user.put( "userPassword", "secret" );
+        sysRoot.createSubcontext( "cn=bogus user", user );
+        
+        // now let's get a context for this user
+        
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        env.put( Context.PROVIDER_URL, "" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_PRINCIPAL, "cn=bogus user,ou=system" );
+        env.put( Configuration.JNDI_KEY, new StartupConfiguration() );
+        InitialDirContext ctx = new InitialDirContext( env );
+        
+        // now let's add another attribute type definition to the schema but 
+        // with this newly created user and check that the modifiers name is his
+
+        substrate = "( 1.3.6.1.4.1.18060.0.4.0.2.10001 NAME ( 'bogus2' 'bogusName2' ) " +
+            "DESC 'bogus description' SUP name SINGLE-VALUE X-SCHEMA 'nis' )";
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( "attributeTypes", substrate ) );
+        ctx.modifyAttributes( dn, mods );
+        
+        // now let's verify the new values for the modification attributes
+
+        subentry = this.getSubschemaSubentryAttributes();
+
+        creatorsNameAttrAfter = subentry.get( "creatorsName" );
+        createTimestampAttrAfter = subentry.get( "createTimestamp" );
+        assertNotNull( creatorsNameAttrAfter );
+        assertNotNull( createTimestampAttrAfter );
+
+        modifiersNameAttrAfter = subentry.get( "modifiersName" );
+        modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
+        assertNotNull( modifiersNameAttrAfter );
+        expectedDN = new LdapDN( "cn=bogus user,ou=system" );
+        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
+        assertNotNull( modifiersTimestampAttrAfter );
+        
+        // generalized time is correct up to the last second so we should 
+        // wait a second just to avoid rounding errors that may show sys
+        // time to be around same time as generalized time for after modify
+        Thread.sleep( 1000 );
+        
+        cal = Calendar.getInstance( tz );
+        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() ).before( cal.getTime() ) );
+        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() )
+            .after( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) ) );
+
+    }
+    
     
     // -----------------------------------------------------------------------
     // Private Utility Methods 

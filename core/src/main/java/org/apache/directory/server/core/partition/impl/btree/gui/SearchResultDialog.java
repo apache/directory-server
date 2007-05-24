@@ -24,7 +24,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.math.BigInteger;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -158,7 +157,7 @@ public class SearchResultDialog extends JDialog implements ListSelectionListener
         {
             if ( selectionModel.isSelectedIndex( ii ) && !an_event.getValueIsAdjusting() )
             {
-                BigInteger id = ( BigInteger ) m_resultsTbl.getModel().getValueAt( ii, 0 );
+                Long id = ( Long ) m_resultsTbl.getModel().getValueAt( ii, 0 );
                 ( ( PartitionFrame ) getParent() ).selectTreeNode( id );
             }
         }

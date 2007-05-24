@@ -32,6 +32,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -55,8 +56,6 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  */
 public class MetaNormalizerHandler implements SchemaChangeHandler
 {
-    private static final String OU_OID = "2.5.4.11";
-
     private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
     private final Registries targetRegistries;
@@ -276,7 +275,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
         throws NamingException
     {
         checkNewParent( newParentName );
@@ -318,13 +317,13 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a normalizer should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "normalizers" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.NORMALIZERS_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a normalizer should have a relative name of ou=normalizers.", 

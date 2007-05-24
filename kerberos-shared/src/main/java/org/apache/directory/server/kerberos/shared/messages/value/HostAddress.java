@@ -37,16 +37,24 @@ public class HostAddress
 
 
     /**
-     * Class constructors
+     * Creates a new instance of HostAddress.
+     *
+     * @param addressType
+     * @param address
      */
-    public HostAddress(HostAddressType addressType, byte[] address)
+    public HostAddress( HostAddressType addressType, byte[] address )
     {
         this.addressType = addressType;
         this.address = address;
     }
 
 
-    public HostAddress(InetAddress internetAddress)
+    /**
+     * Creates a new instance of HostAddress.
+     *
+     * @param internetAddress
+     */
+    public HostAddress( InetAddress internetAddress )
     {
         addressType = HostAddressType.ADDRTYPE_INET;
         byte[] newAddress = internetAddress.getAddress();
@@ -55,6 +63,12 @@ public class HostAddress
     }
 
 
+    /**
+     * Returns whether one {@link HostAddress} is equal to another.
+     *
+     * @param that
+     * @return true if the {@link HostAddress}'s are equal.
+     */
     public boolean equals( HostAddress that )
     {
         if ( this.addressType != that.addressType || ( this.address != null && that.address == null )
@@ -83,12 +97,22 @@ public class HostAddress
     }
 
 
+    /**
+     * Get the bytes for this address.
+     *
+     * @return The bytes of this address.
+     */
     public byte[] getAddress()
     {
         return address;
     }
 
 
+    /**
+     * Returns the {@link HostAddressType} of this {@link HostAddress}.
+     *
+     * @return The {@link HostAddressType}.
+     */
     public HostAddressType getAddressType()
     {
         return addressType;

@@ -33,6 +33,7 @@ import javax.naming.directory.InitialDirContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractTestCase;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -171,7 +172,7 @@ public abstract class AbstractTriggerServiceTest extends AbstractTestCase
         Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
-        objectClass.add( "subentry" );
+        objectClass.add( SchemaConstants.SUBENTRY_OC );
         objectClass.add( "triggerExecutionSubentry" );
         subentry.put( "subtreeSpecification", subtree );
         subentry.put( "prescriptiveTriggerSpecification", triggerSpec );

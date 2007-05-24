@@ -28,6 +28,7 @@ import javax.naming.directory.Attribute;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -391,7 +392,8 @@ public class DescriptionParsers
             {
                 for ( String superior : desc.getSuperiorObjectClasses() )
                 {
-                    if ( superior.equals( "2.5.6.0" ) || superior.equalsIgnoreCase( "top" ) )
+                    if ( superior.equals( SchemaConstants.TOP_OC_OID ) || 
+                        superior.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
                     {
                         continue;
                     }

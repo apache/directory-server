@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-bootstrap-plugin</artifactId>
   <name>ApacheDS Bootstrap Plugin</name>
@@ -42,14 +42,19 @@
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-utils</artifactId>
+      <artifactId>apacheds-schema-bootstrap</artifactId>
       <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-schema-extras</artifactId>
+      <artifactId>apacheds-utils</artifactId>
       <version>${pom.version}</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.apache.directory.server</groupId>-->
+      <!--<artifactId>apacheds-schema-extras</artifactId>-->
+      <!--<version>${pom.version}</version>-->
+    <!--</dependency>-->
   </dependencies>
 
   <build>

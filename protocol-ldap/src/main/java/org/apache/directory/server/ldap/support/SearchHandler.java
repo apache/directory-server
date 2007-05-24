@@ -37,6 +37,8 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -67,8 +69,12 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchHandler implements MessageHandler
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0;
+    //TM private static Object lock = new Object();
+
     private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
-    private static final String DEREFALIASES_KEY = "java.naming.ldap.derefAliases";
+    private static final String DEREFALIASES_KEY = JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES;
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -131,7 +137,7 @@ public class SearchHandler implements MessageHandler
         boolean isRootDSEFilter = false;
         if ( req.getFilter() instanceof PresenceNode )
         {
-            isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( "objectClass" );
+            isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT );
         }
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }
@@ -231,6 +237,19 @@ public class SearchHandler implements MessageHandler
                 String msg = "Bind failure: Anonymous binds have been disabled!";
                 result.setErrorMessage( msg );
                 session.write( req.getResultResponse() );
+                //TM long t1 = System.nanoTime();
+                //TM
+                //TM synchronized (lock)
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM    
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
                 return;
             }
 
@@ -292,6 +311,20 @@ public class SearchHandler implements MessageHandler
                                 if ( rcode != ResultCodeEnum.SUCCESS )
                                 {
                                     session.write( resp );
+                                    //TM long t1 = System.nanoTime();
+                                    //TM  
+                                    //TM synchronized( lock )
+                                    //TM {
+                                    //TM     cumul += (t1 - t0);
+                                    //TM     count++;
+                                    //TM     
+                                    //TM     if ( count % 1000L == 0)
+                                    //TM     {
+                                    //TM         System.out.println( "Search cost : " + (cumul/count) );
+                                    //TM         cumul = 0L;
+                                    //TM     }
+                                    //TM }
+                                    
                                     return;
                                 }
                                 // if search was fine then we returned all entries so now
@@ -314,6 +347,18 @@ public class SearchHandler implements MessageHandler
                 StringBuffer buf = new StringBuffer();
                 req.getFilter().printToBuffer( buf );
                 ctx.addNamingListener( req.getBase(), buf.toString(), controls, handler );
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
                 return;
             }
 
@@ -338,6 +383,18 @@ public class SearchHandler implements MessageHandler
                 {
                     session.write( it.next() );
                 }
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
 
                 return;
             }
@@ -350,6 +407,19 @@ public class SearchHandler implements MessageHandler
                 {
                     session.write( it.next() );
                 }
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
+
                 return;
             }
         }
@@ -369,6 +439,19 @@ public class SearchHandler implements MessageHandler
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
             SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+            //TM long t1 = System.nanoTime();
+            //TM synchronized( lock )
+            //TM {
+            //TM    cumul += (t1 - t0);
+            //TM    count++;
+            //TM     
+            //TM     if ( count % 1000L == 0)
+            //TM     {
+            //TM         System.out.println( "Search cost : " + (cumul/count) );
+            //TM         cumul = 0L;
+            //TM     }
+            //TM }
+
             return;
         }
         catch ( NamingException e )
@@ -387,6 +470,19 @@ public class SearchHandler implements MessageHandler
              */
             if ( e instanceof OperationAbandonedException )
             {
+                //TM long t1 = System.nanoTime();
+                //TM synchronized( lock )
+                //TM {
+                //TM     cumul += (t1 - t0);
+                //TM     count++;
+                //TM     
+                //TM     if ( count % 1000L == 0)
+                //TM     {
+                //TM         System.out.println( "Search cost : " + (cumul/count) );
+                //TM         cumul = 0L;
+                //TM     }
+                //TM }
+
                 return;
             }
 

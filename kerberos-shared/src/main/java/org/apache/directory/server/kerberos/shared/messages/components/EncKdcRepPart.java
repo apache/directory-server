@@ -52,7 +52,7 @@ public class EncKdcRepPart
 
 
     /**
-     * Class constructors
+     * Creates a new instance of EncKdcRepPart.
      */
     public EncKdcRepPart()
     {
@@ -60,9 +60,25 @@ public class EncKdcRepPart
     }
 
 
-    public EncKdcRepPart(EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
+    /**
+     * Creates a new instance of EncKdcRepPart.
+     *
+     * @param key
+     * @param lastReq
+     * @param nonce
+     * @param keyExpiration
+     * @param flags
+     * @param authtime
+     * @param starttime
+     * @param endtime
+     * @param renewTill
+     * @param serverPrincipal
+     * @param caddr
+     * @param componentType
+     */
+    public EncKdcRepPart( EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
         TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
-        KerberosPrincipal serverPrincipal, HostAddresses caddr, MessageComponentType componentType)
+        KerberosPrincipal serverPrincipal, HostAddresses caddr, MessageComponentType componentType )
     {
         this.key = key;
         this.lastRequest = lastReq;
@@ -79,146 +95,264 @@ public class EncKdcRepPart
     }
 
 
-    // getters
+    /**
+     * Returns the auth {@link KerberosTime}.
+     *
+     * @return The auth {@link KerberosTime}.
+     */
     public KerberosTime getAuthTime()
     {
         return authTime;
     }
 
 
+    /**
+     * Returns the client {@link HostAddresses}.
+     *
+     * @return The client {@link HostAddresses}.
+     */
     public HostAddresses getClientAddresses()
     {
         return clientAddresses;
     }
 
 
+    /**
+     * Returns the end {@link KerberosTime}.
+     *
+     * @return The end {@link KerberosTime}.
+     */
     public KerberosTime getEndTime()
     {
         return endTime;
     }
 
 
+    /**
+     * Returns the {@link TicketFlags}.
+     *
+     * @return The {@link TicketFlags}.
+     */
     public TicketFlags getFlags()
     {
         return flags;
     }
 
 
+    /**
+     * Returns the {@link EncryptionKey}.
+     *
+     * @return The {@link EncryptionKey}.
+     */
     public EncryptionKey getKey()
     {
         return key;
     }
 
 
+    /**
+     * Returns the key expiration {@link KerberosTime}.
+     *
+     * @return The key expiration {@link KerberosTime}.
+     */
     public KerberosTime getKeyExpiration()
     {
         return keyExpiration;
     }
 
 
+    /**
+     * Returns the {@link LastRequest}.
+     *
+     * @return The {@link LastRequest}.
+     */
     public LastRequest getLastRequest()
     {
         return lastRequest;
     }
 
 
+    /**
+     * Returns the nonce.
+     *
+     * @return The nonce.
+     */
     public int getNonce()
     {
         return nonce;
     }
 
 
+    /**
+     * Returns the renew till {@link KerberosTime}.
+     *
+     * @return The renew till {@link KerberosTime}.
+     */
     public KerberosTime getRenewTill()
     {
         return renewTill;
     }
 
 
+    /**
+     * Returns the server {@link KerberosPrincipal}.
+     *
+     * @return The server {@link KerberosPrincipal}.
+     */
     public KerberosPrincipal getServerPrincipal()
     {
         return serverPrincipal;
     }
 
 
+    /**
+     * Returns the server realm.
+     *
+     * @return The server realm.
+     */
     public String getServerRealm()
     {
         return serverPrincipal.getRealm();
     }
 
 
+    /**
+     * Returns the start {@link KerberosTime}.
+     *
+     * @return The start {@link KerberosTime}.
+     */
     public KerberosTime getStartTime()
     {
         return startTime;
     }
 
 
+    /**
+     * Returns the {@link MessageComponentType}.
+     *
+     * @return The {@link MessageComponentType}.
+     */
     public MessageComponentType getComponentType()
     {
         return componentType;
     }
 
 
-    // setters
+    /**
+     * Sets the auth {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setAuthTime( KerberosTime time )
     {
         authTime = time;
     }
 
 
+    /**
+     * Sets the client {@link HostAddresses}.
+     *
+     * @param addresses
+     */
     public void setClientAddresses( HostAddresses addresses )
     {
         clientAddresses = addresses;
     }
 
 
+    /**
+     * Sets the end {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setEndTime( KerberosTime time )
     {
         endTime = time;
     }
 
 
+    /**
+     * Sets the {@link TicketFlags}.
+     *
+     * @param flags
+     */
     public void setFlags( TicketFlags flags )
     {
         this.flags = flags;
     }
 
 
+    /**
+     * Sets the {@link EncryptionKey}.
+     *
+     * @param key
+     */
     public void setKey( EncryptionKey key )
     {
         this.key = key;
     }
 
 
+    /**
+     * Sets the key expiration {@link KerberosTime}.
+     *
+     * @param expiration
+     */
     public void setKeyExpiration( KerberosTime expiration )
     {
         keyExpiration = expiration;
     }
 
 
+    /**
+     * Sets the {@link LastRequest}.
+     *
+     * @param request
+     */
     public void setLastRequest( LastRequest request )
     {
         lastRequest = request;
     }
 
 
+    /**
+     * Sets the nonce.
+     *
+     * @param nonce
+     */
     public void setNonce( int nonce )
     {
         this.nonce = nonce;
     }
 
 
+    /**
+     * Sets the renew till {@link KerberosTime}.
+     *
+     * @param till
+     */
     public void setRenewTill( KerberosTime till )
     {
         renewTill = till;
     }
 
 
+    /**
+     * Sets the server {@link KerberosPrincipal}.
+     *
+     * @param principal
+     */
     public void setServerPrincipal( KerberosPrincipal principal )
     {
         serverPrincipal = principal;
     }
 
 
+    /**
+     * Sets the start {@link KerberosTime}.
+     *
+     * @param time
+     */
     public void setStartTime( KerberosTime time )
     {
         startTime = time;

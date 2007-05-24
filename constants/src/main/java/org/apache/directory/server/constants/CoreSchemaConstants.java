@@ -29,7 +29,4 @@ package org.apache.directory.server.constants;
 public interface CoreSchemaConstants
 {
     String SCHEMA_NAME = "core";
-
-    String OU_AT = "ou";
-    String ORGANIZATIONAL_UNIT_OC = "organizationalUnit";
 }

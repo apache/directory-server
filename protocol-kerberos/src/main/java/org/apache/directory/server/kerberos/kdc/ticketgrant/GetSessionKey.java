@@ -20,41 +20,33 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import java.security.SecureRandom;
-
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.service.DesStringToKey;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
+ * Get a session key for this session.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetSessionKey extends DesStringToKey
+public class GetSessionKey implements IoHandlerCommand
 {
-    private static final SecureRandom random = new SecureRandom();
+    private String contextKey = "context";
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
-        tgsContext.setSessionKey( getNewSessionKey() );
+        tgsContext.setSessionKey( RandomKeyFactory.getRandomKey( tgsContext.getEncryptionType() ) );
 
         next.execute( session, message );
     }
 
 
-    private EncryptionKey getNewSessionKey()
+    protected String getContextKey()
     {
-        byte[] confounder = new byte[8];
-
-        // SecureRandom.nextBytes is already synchronized
-        random.nextBytes( confounder );
-
-        byte[] subSessionKey = getKey( new String( confounder ) );
-
-        return new EncryptionKey( EncryptionType.DES_CBC_MD5, subSessionKey );
+        return ( this.contextKey );
     }
 }

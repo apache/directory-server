@@ -38,6 +38,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -45,6 +46,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACIItem;
 import org.apache.directory.shared.ldap.aci.ACIItemParser;
 import org.apache.directory.shared.ldap.aci.ACITuple;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -53,6 +55,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
@@ -69,25 +72,27 @@ import org.slf4j.LoggerFactory;
  */
 public class TupleCache
 {
-    /** the attribute id for prescriptive aci: prescriptiveACI */
-    private static final String ACI_ATTR = "prescriptiveACI";
-    /** the attribute id for an object class: objectClass */
-    private static final String OC_ATTR = "objectClass";
-    /** the object class for access control subentries: accessControlSubentry */
-    private static final String ACSUBENTRY_OC = "accessControlSubentry";
-
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
 
     /** cloned startup environment properties we use for subentry searching */
     private final Hashtable env;
+    
     /** a map of strings to ACITuple collections */
     private final Map<String,List> tuples = new HashMap<String,List>();
+    
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
+    
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
+    /** Stores a reference to the AttributeType registry */ 
+    private AttributeTypeRegistry attributeTypeRegistry;
+    
+    /** A starage for the PrescriptiveACI attributeType */
+    private AttributeType prescriptiveAciAT;
+    
     /**
      * The OIDs normalizer map
      */
@@ -98,16 +103,17 @@ public class TupleCache
      *
      * @param factoryCfg the context factory configuration for the server
      */
-    public TupleCache(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
     	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         this.nexus = factoryCfg.getPartitionNexus();
-        AttributeTypeRegistry attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
-        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
+        NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
         initialize();
+        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
     }
 
     
@@ -124,29 +130,34 @@ public class TupleCache
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes();
+        Iterator suffixes = nexus.listSuffixes( null );
+        
         while ( suffixes.hasNext() )
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new SimpleNode( OC_ATTR, ACSUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration results = nexus.search( baseDn, env, filter, ctls );
+            NamingEnumeration<SearchResult> results = 
+                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
+            
             while ( results.hasMore() )
             {
                 SearchResult result = ( SearchResult ) results.next();
                 String subentryDn = result.getName();
-                Attribute aci = result.getAttributes().get( ACI_ATTR );
+                Attribute aci = AttributeUtils.getAttribute( result.getAttributes(), prescriptiveAciAT );
+                
                 if ( aci == null )
                 {
-                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + ACI_ATTR );
+                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
                     continue;
                 }
 
                 LdapDN normName = parseNormalized( subentryDn );
                 subentryAdded( subentryDn, normName, result.getAttributes() );
             }
+            
             results.close();
         }
     }
@@ -155,11 +166,12 @@ public class TupleCache
     private boolean hasPrescriptiveACI( Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( ACI_ATTR );
+        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
 
         if ( aci == null )
         {
-            if ( AttributeUtils.containsValueCaseIgnore( entry.get( OC_ATTR ), ACSUBENTRY_OC ) )
+            if ( AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) ||
+                 AttributeUtils.containsValueCaseIgnore( entry.get( SchemaConstants.OBJECT_CLASS_AT ), SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC_OID ))
             {
                 // should not be necessary because of schema interceptor but schema checking
                 // can be turned off and in this case we must protect against being able to
@@ -179,7 +191,8 @@ public class TupleCache
     public void subentryAdded( String upName, LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
-        Attribute aci = entry.get( ACI_ATTR );
+        Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
+        
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
@@ -199,8 +212,15 @@ public class TupleCache
             }
             catch ( ParseException e )
             {
-                String msg = "ACIItem parser failure on " + aciStr + ". Cannnot add ACITuples to TupleCache.";
-                log.warn( msg, e );
+                String msg = "ACIItem parser failure on \n'" + item + "'\ndue to syntax error. " +
+                        "Cannnot add ACITuples to TupleCache.\n" +
+                        "Check that the syntax of the ACI item is correct. \nUntil this error " +
+                        "is fixed your security settings will not be as expected.";
+                log.error( msg, e );
+                
+                // do not process this ACI Item because it will be null
+                // continue on to process the next ACI item in the entry
+                continue;
             }
         }
         
@@ -227,10 +247,14 @@ public class TupleCache
         }
 
         boolean isAciModified = false;
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            isAciModified |= mods[ii].getAttribute().contains( ACI_ATTR );
+            // Check for the name and for the OID
+            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT );
+            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT_OID );
         }
+        
         if ( isAciModified )
         {
             subentryDeleted( normName, entry );
@@ -246,7 +270,7 @@ public class TupleCache
             return;
         }
 
-        if ( mods.get( ACI_ATTR ) != null )
+        if ( AttributeUtils.getAttribute( mods, prescriptiveAciAT ) != null )
         {
             subentryDeleted( normName, entry );
             subentryAdded( normName.getUpName(), normName, entry );

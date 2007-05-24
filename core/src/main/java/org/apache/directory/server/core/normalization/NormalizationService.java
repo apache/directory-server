@@ -21,24 +21,26 @@ package org.apache.directory.server.core.normalization;
 
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -47,14 +49,13 @@ import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -69,15 +70,25 @@ public class NormalizationService extends BaseInterceptor
 {
     /** logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
+    
+    /** The service name */
+    public static final String NAME = "normalizationService";
 
     /** a filter node value normalizer and undefined node remover */
     private NormalizingVisitor normVisitor;
+    
     /** an expanding filter that makes expressions more specific */
     private ExpandingVisitor expVisitor;
+    
     /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
     private AttributeTypeRegistry attributeRegistry;
+    
+    /** The association between attributeTypes and their normalizers */
+    private Map<String, OidNormalizer> attrNormalizers; 
 
-
+    /**
+     * Initialize the registries, normalizers. 
+     */
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
@@ -85,77 +96,74 @@ public class NormalizationService extends BaseInterceptor
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         normVisitor = new NormalizingVisitor( ncn, oidRegistry );
         expVisitor = new ExpandingVisitor( attributeRegistry );
+        attrNormalizers = attributeRegistry.getNormalizerMapping();
     }
 
-
+    /**
+     * The destroy method does nothing
+     */
     public void destroy()
     {
     }
-
 
     // ------------------------------------------------------------------------
     // Normalize all Name based arguments for ContextPartition interface operations
     // ------------------------------------------------------------------------
 
-    public void add(NextInterceptor nextInterceptor, LdapDN name, Attributes attrs)
+    public void add(NextInterceptor nextInterceptor, OperationContext opContext)
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        nextInterceptor.add( normalized, attrs );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        nextInterceptor.add( opContext );
     }
 
 
-    public void delete( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        nextInterceptor.delete( normalized );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        nextInterceptor.delete( opContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, int modOp, Attributes attrs )
+    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        nextInterceptor.modify( normalized, modOp, attrs );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        nextInterceptor.modify( opContext );
     }
 
 
-    public void modify( NextInterceptor nextInterceptor, LdapDN name, ModificationItemImpl[] items ) throws NamingException
-    {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        nextInterceptor.modify( normalized, items );
-    }
-
-
-    public void modifyRn( NextInterceptor nextInterceptor, LdapDN name, String newRn, boolean deleteOldRn )
+    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        nextInterceptor.modifyRn( normalized, newRn, deleteOldRn );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        nextInterceptor.rename( opContext );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        newParentName.normalize( attributeRegistry.getNormalizerMapping());
-        nextInterceptor.move( normalized, newParentName );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        ((MoveOperationContext)opContext).getParent().normalize( attrNormalizers);
+        nextInterceptor.move( opContext );
     }
 
 
-    public void move( NextInterceptor nextInterceptor, LdapDN name, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        LdapDN normalized = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        newParentName.normalize( attributeRegistry.getNormalizerMapping());
-        nextInterceptor.move( normalized, newParentName, newRn, deleteOldRn );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        LdapDN.normalize( ((MoveAndRenameOperationContext)opContext).getParent(), attrNormalizers);
+        nextInterceptor.moveAndRename( opContext );
     }
 
 
-    public NamingEnumeration search( NextInterceptor nextInterceptor, LdapDN base, Map env, ExprNode filter,
-        SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        base.normalize( attributeRegistry.getNormalizerMapping());
+        LdapDN base = opContext.getDn();
+        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        
+        base.normalize( attrNormalizers);
 
         if ( filter.isLeaf() )
         {
@@ -328,42 +336,29 @@ public class NormalizationService extends BaseInterceptor
             }
         }
         
-        return nextInterceptor.search( base, env, filter, searchCtls );
+        ((SearchOperationContext)opContext).setFilter( filter );
+        return nextInterceptor.search( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.hasEntry( name );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        return nextInterceptor.hasEntry( opContext );
     }
 
 
-    public boolean isSuffix( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.isSuffix( name );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        return nextInterceptor.list( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, LdapDN base ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        base = LdapDN.normalize( base, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.list( base );
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
-    {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.lookup( name );
-    }
-
-
-    public Attributes lookup( NextInterceptor nextInterceptor, LdapDN name, String[] attrIds ) throws NamingException
-    {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.lookup( name, attrIds );
+        LdapDN.normalize( ((LookupOperationContext)opContext).getDn(), attrNormalizers );
+        return nextInterceptor.lookup( opContext );
     }
 
 
@@ -371,44 +366,43 @@ public class NormalizationService extends BaseInterceptor
     // Normalize all Name based arguments for other interface operations
     // ------------------------------------------------------------------------
 
-    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.getMatchedName( name );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        return nextInterceptor.getMatchedName( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor nextInterceptor, LdapDN name ) throws NamingException
+    public LdapDN getSuffix ( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return nextInterceptor.getSuffix( name );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        return nextInterceptor.getSuffix( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        name = LdapDN.normalize( name, attributeRegistry.getNormalizerMapping() );
-        return next.compare( name, oid, value );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        return next.compare( opContext );
     }
     
     
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId ) 
-        throws NamingException
+    public void bind( NextInterceptor next, OperationContext opContext )  throws NamingException
     {
-        bindDn = LdapDN.normalize( bindDn, attributeRegistry.getNormalizerMapping() );
-        next.bind( bindDn, credentials, mechanisms, saslAuthId );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        next.bind( opContext );
     }
 
 
-    public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.addContextPartition( cfg );
+        next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        suffix = LdapDN.normalize( suffix, attributeRegistry.getNormalizerMapping() );
-        next.removeContextPartition( suffix );
+        LdapDN.normalize( opContext.getDn(), attrNormalizers );
+        next.removeContextPartition( opContext );
     }
 }

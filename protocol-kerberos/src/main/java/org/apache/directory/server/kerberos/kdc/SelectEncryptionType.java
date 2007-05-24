@@ -25,6 +25,8 @@ import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,7 +35,11 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  */
 public class SelectEncryptionType implements IoHandlerCommand
 {
+    /** The log for this class. */
+    private static final Logger log = LoggerFactory.getLogger( SelectEncryptionType.class );
+
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -44,10 +50,14 @@ public class SelectEncryptionType implements IoHandlerCommand
 
         EncryptionType bestType = getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
+        log.debug( "Session will use encryption type " + bestType );
+
         if ( bestType == null )
         {
             throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
         }
+
+        kdcContext.setEncryptionType( bestType );
 
         next.execute( session, message );
     }
@@ -70,7 +80,7 @@ public class SelectEncryptionType implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

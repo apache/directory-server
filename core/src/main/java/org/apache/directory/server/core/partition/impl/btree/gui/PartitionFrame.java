@@ -29,7 +29,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -62,11 +61,13 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
 import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
@@ -453,7 +454,7 @@ public class PartitionFrame extends JFrame
 
                 if ( null == partition.getEntryId( ndn.toString() ) )
                 {
-                    partition.add(ndn, attrs );
+                    partition.add( new AddOperationContext( ndn, attrs ) );
                     load();
                 }
             }
@@ -647,7 +648,7 @@ public class PartitionFrame extends JFrame
 
         Hashtable env = new Hashtable();
 
-        env.put( DerefAliasesEnum.JNDI_DEREF_ALIAS_PROP, DerefAliasesEnum.DEREF_ALWAYS );
+        env.put( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.DEREF_ALWAYS );
 
         NamingEnumeration cursor = eng.search( new LdapDN( base ), env, root, ctls );
         String[] cols = new String[2];
@@ -660,7 +661,7 @@ public class PartitionFrame extends JFrame
         {
             IndexRecord rec = ( IndexRecord ) cursor.next();
             row[0] = rec.getEntryId();
-            row[1] = partition.getEntryDn( ( BigInteger ) row[0] );
+            row[1] = partition.getEntryDn( ( Long ) row[0] );
             tableModel.addRow( row );
             count++;
         }
@@ -704,7 +705,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    public void selectTreeNode( BigInteger id )
+    public void selectTreeNode( Long id )
     {
         Stack stack = new Stack();
         Object[] comps = null;
@@ -851,7 +852,7 @@ public class PartitionFrame extends JFrame
     }
 
 
-    void displayEntry( BigInteger id, Attributes entry ) throws Exception
+    void displayEntry( Long id, Attributes entry ) throws Exception
     {
         String dn = partition.getEntryUpdn( id );
         AttributesTableModel model = new AttributesTableModel( entry, id, dn, false );
@@ -870,7 +871,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap();
 
         Attributes suffix = partition.getSuffixEntry();
-        BigInteger id = partition.getEntryId( partition.getSuffix().toString() );
+        Long id = partition.getEntryId( partition.getSuffix().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*

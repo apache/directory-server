@@ -32,26 +32,54 @@ import java.util.List;
 public final class TransitedEncodingType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "null" transited encoding type.
      */
     public static final TransitedEncodingType NULL = new TransitedEncodingType( 0, "null" );
+
+    /**
+     * Constant for the "Domain X500 compress" transited encoding type.
+     */
     public static final TransitedEncodingType DOMAIN_X500_COMPRESS = new TransitedEncodingType( 1,
         "Domain X500 compress" );
 
+    /**
+     * Array for building a List of VALUES.
+     */
+    private static final TransitedEncodingType[] values =
+        { NULL, DOMAIN_X500_COMPRESS };
 
-    public String toString()
+    /**
+     * A List of all the transited encoding type constants.
+     */
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    /**
+     * The name of the transited encoding type.
+     */
+    private final String name;
+
+    /**
+     * The value/code for the transited encoding type.
+     */
+    private final int ordinal;
+
+
+    /**
+     * Private constructor prevents construction outside of this class.
+     */
+    private TransitedEncodingType( int ordinal, String name )
     {
-        return name + " (" + ordinal + ")";
+        this.ordinal = ordinal;
+        this.name = name;
     }
 
 
-    public int compareTo( Object that )
-    {
-        return ordinal - ( ( TransitedEncodingType ) that ).ordinal;
-    }
-
-
+    /**
+     * Returns the transited encoding type when specified by its ordinal.
+     *
+     * @param type
+     * @return The transited encoding type.
+     */
     public static TransitedEncodingType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -66,30 +94,25 @@ public final class TransitedEncodingType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this transited encoding type.
+     *
+     * @return The transited encoding type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
-    /// PRIVATE /////
-    private final String name;
-    private final int ordinal;
 
-
-    /**
-     * Private constructor prevents construction outside of this class.
-     */
-    private TransitedEncodingType(int ordinal, String name)
+    public int compareTo( Object that )
     {
-        this.ordinal = ordinal;
-        this.name = name;
+        return ordinal - ( ( TransitedEncodingType ) that ).ordinal;
     }
 
-    /**
-     * These two lines are all that's necessary to export a List of VALUES.
-     */
-    private static final TransitedEncodingType[] values =
-        { NULL, DOMAIN_X500_COMPRESS };
-    // VALUES needs to be located here, otherwise illegal forward reference
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    public String toString()
+    {
+        return name + " (" + ordinal + ")";
+    }
 }

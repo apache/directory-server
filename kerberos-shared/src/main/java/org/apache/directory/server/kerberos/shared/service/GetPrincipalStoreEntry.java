@@ -37,6 +37,17 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
+    /**
+     * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
+     * whether any resulting error pertains to a server or client.
+     *
+     * @param principal
+     * @param store
+     * @param errorType
+     * @return The PrincipalStoreEntry
+     * @throws Exception
+     */
     public PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
         throws Exception
     {
@@ -51,7 +62,7 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
             throw new KerberosException( errorType );
         }
 
-        if ( entry == null || entry.getEncryptionKey() == null )
+        if ( entry == null || entry.getKeyMap().isEmpty() )
         {
             throw new KerberosException( errorType );
         }
@@ -60,7 +71,7 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

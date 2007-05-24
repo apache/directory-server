@@ -30,14 +30,22 @@ public class HostAddresses
 
 
     /**
-     * Class constructors
+     * Creates a new instance of HostAddresses.
+     *
+     * @param addresses
      */
-    public HostAddresses(HostAddress[] addresses)
+    public HostAddresses( HostAddress[] addresses )
     {
         this.addresses = addresses;
     }
 
 
+    /**
+     * Returns true if this {@link HostAddresses} contains a specified {@link HostAddress}.
+     *
+     * @param address
+     * @return true if this {@link HostAddresses} contains a specified {@link HostAddress}.
+     */
     public boolean contains( HostAddress address )
     {
         if ( addresses != null )
@@ -55,6 +63,12 @@ public class HostAddresses
     }
 
 
+    /**
+     * Returns true if two {@link HostAddresses} are equal.
+     *
+     * @param that
+     * @return true if two {@link HostAddresses} are equal.
+     */
     public boolean equals( HostAddresses that )
     {
         if ( ( this.addresses == null && that.addresses != null )
@@ -83,6 +97,11 @@ public class HostAddresses
     }
 
 
+    /**
+     * Returns the contained {@link HostAddress}s as an array.
+     *
+     * @return An array of {@link HostAddress}s.
+     */
     public HostAddress[] getAddresses()
     {
         return addresses;

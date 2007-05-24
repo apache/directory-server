@@ -25,6 +25,7 @@ import java.net.InetAddress;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
@@ -48,6 +49,7 @@ public class MonitorContext implements IoHandlerCommand
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
 
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -92,8 +94,6 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "realm                  " + requestPrincipal.getRealmName() );
                 sb.append( "\n\t" + "principal              " + requestPrincipal.getPrincipal() );
                 sb.append( "\n\t" + "SAM type               " + requestPrincipal.getSamType() );
-                sb.append( "\n\t" + "Key type               " + requestPrincipal.getEncryptionKey().getKeyType() );
-                sb.append( "\n\t" + "Key version            " + requestPrincipal.getEncryptionKey().getKeyVersion() );
 
                 KerberosPrincipal ticketServerPrincipal = tgsContext.getTgt().getServerPrincipal();
                 PrincipalStoreEntry ticketPrincipal = tgsContext.getTicketPrincipalEntry();
@@ -103,8 +103,11 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "realm                  " + ticketPrincipal.getRealmName() );
                 sb.append( "\n\t" + "principal              " + ticketPrincipal.getPrincipal() );
                 sb.append( "\n\t" + "SAM type               " + ticketPrincipal.getSamType() );
-                sb.append( "\n\t" + "Key type               " + ticketPrincipal.getEncryptionKey().getKeyType() );
-                sb.append( "\n\t" + "Key version            " + ticketPrincipal.getEncryptionKey().getKeyVersion() );
+
+                EncryptionType encryptionType = tgsContext.getTgt().getEncPart().getEncryptionType();
+                int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
+                sb.append( "\n\t" + "Ticket key type        " + encryptionType );
+                sb.append( "\n\t" + "Service key version    " + keyVersion );
 
                 log.debug( sb.toString() );
             }
@@ -119,7 +122,7 @@ public class MonitorContext implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

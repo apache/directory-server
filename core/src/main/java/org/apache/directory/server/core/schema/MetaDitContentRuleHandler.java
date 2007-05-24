@@ -89,7 +89,7 @@ public class MetaDitContentRuleHandler extends AbstractSchemaChangeHandler
     /* (non-Javadoc)
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
     {
         // TODO Auto-generated method stub
 

@@ -56,10 +56,12 @@ import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
 import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoAcceptor;
@@ -89,6 +91,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
+	/** Logger for this class */
     private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
@@ -108,7 +111,12 @@ public class ServerContextFactory extends CoreContextFactory
     private static DnsServer udpDnsServer;
     private DirectoryService directoryService;
 
-
+    /**
+     * Initialize the SocketAcceptor so that the server can accept
+     * incomming requests.
+     * 
+     * We will start N threads, spreaded on the available CPUs.
+     */
     public void beforeStartup( DirectoryService service )
     {
         int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
@@ -117,7 +125,8 @@ public class ServerContextFactory extends CoreContextFactory
         threadModel.setExecutor( threadPoolExecutor );
 
         udpAcceptor = new DatagramAcceptor();
-        tcpAcceptor = new SocketAcceptor();
+        tcpAcceptor = new SocketAcceptor(
+            Runtime.getRuntime().availableProcessors(), threadPoolExecutor );
 
         this.directoryService = service;
     }
@@ -146,60 +155,72 @@ public class ServerContextFactory extends CoreContextFactory
         if ( tcpKdcServer != null )
         {
             tcpKdcServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of KRB5 Service (TCP) complete: " + tcpKdcServer );
             }
+            
             tcpKdcServer = null;
         }
 
         if ( udpKdcServer != null )
         {
             udpKdcServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of KRB5 Service (UDP) complete: " + udpKdcServer );
             }
+            
             udpKdcServer = null;
         }
 
         if ( tcpChangePasswordServer != null )
         {
             tcpChangePasswordServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of Change Password Service (TCP) complete: " + tcpChangePasswordServer );
             }
+            
             tcpChangePasswordServer = null;
         }
 
         if ( udpChangePasswordServer != null )
         {
             udpChangePasswordServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of Change Password Service (UDP) complete: " + udpChangePasswordServer );
             }
+            
             udpChangePasswordServer = null;
         }
 
         if ( tcpNtpServer != null )
         {
             tcpNtpServer.destroy();
+    
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of NTP Service (TCP) complete: " + tcpNtpServer );
             }
+            
             tcpNtpServer = null;
         }
 
         if ( udpNtpServer != null )
         {
             udpNtpServer.destroy();
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of NTP Service complete: " + udpNtpServer );
             }
+            
             udpNtpServer = null;
         }
 
@@ -245,9 +266,10 @@ public class ServerContextFactory extends CoreContextFactory
 
     private void ensureLdifFileBase( DirContext root )
     {
-        Attributes entry = new AttributesImpl( "ou", "loadedLdifFiles", true );
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( "organizationalUnit" );
+        Attributes entry = new AttributesImpl( SchemaConstants.OU_AT, "loadedLdifFiles", true );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        
         try
         {
             root.createSubcontext( LDIF_FILES_DN, entry );
@@ -264,39 +286,39 @@ public class ServerContextFactory extends CoreContextFactory
     private final static String WINDOWSFILE_OC = "windowsFile";
     private final static String UNIXFILE_OC = "unixFile";
 
-
-    private void addFileEntry( DirContext root, File ldif ) throws NamingException
+    private String buildProtectedFileEntry( File ldif )
     {
-        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
-        String oc = File.separatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
         StringBuffer buf = new StringBuffer();
-        buf.append( rdnAttr );
+
+        buf.append( File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR );
         buf.append( "=" );
-        buf.append( getCanonical( ldif ) );
+        
+        buf.append( StringTools.dumpHexPairs( StringTools.getBytesUtf8( getCanonical( ldif ) ) ) );
+        
         buf.append( "," );
         buf.append( LDIF_FILES_DN );
 
+        return buf.toString();
+    }
+
+    private void addFileEntry( DirContext root, File ldif ) throws NamingException
+    {
+		String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;    
+        String oc = File.separatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
+
         Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
-        entry.put( "objectClass", "top" );
-        entry.get( "objectClass" ).add( oc );
-        root.createSubcontext( buf.toString(), entry );
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( oc );
+        root.createSubcontext( buildProtectedFileEntry( ldif ), entry );
     }
 
 
     private Attributes getLdifFileEntry( DirContext root, File ldif )
     {
-        String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
-        StringBuffer buf = new StringBuffer();
-        buf.append( rdnAttr );
-        buf.append( "=" );
-        buf.append( getCanonical( ldif ) );
-        buf.append( "," );
-        buf.append( LDIF_FILES_DN );
-
         try
         {
-            return root.getAttributes( buf.toString(), new String[]
-                { "createTimestamp" } );
+            return root.getAttributes( buildProtectedFileEntry( ldif ), new String[]
+                { SchemaConstants.CREATE_TIMESTAMP_AT } );
         }
         catch ( NamingException e )
         {
@@ -308,6 +330,7 @@ public class ServerContextFactory extends CoreContextFactory
     private String getCanonical( File file )
     {
         String canonical = null;
+        
         try
         {
             canonical = file.getCanonicalPath();
@@ -353,16 +376,27 @@ public class ServerContextFactory extends CoreContextFactory
         // if ldif directory is a file try to load it
         if ( !cfg.getLdifDirectory().isDirectory() )
         {
-            log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
-                + "' is a file.  Will attempt to load as LDIF." );
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "LDIF load directory '" + getCanonical( cfg.getLdifDirectory() )
+                    + "' is a file.  Will attempt to load as LDIF." );
+            }
+            
             Attributes fileEntry = getLdifFileEntry( root, cfg.getLdifDirectory() );
+            
             if ( fileEntry != null )
             {
-                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
-                log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
-                    + "' skipped.  It has already been loaded on " + time + "." );
+                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
+                
+                if ( log.isInfoEnabled() )
+                {
+                    log.info( "Load of LDIF file '" + getCanonical( cfg.getLdifDirectory() )
+                        + "' skipped.  It has already been loaded on " + time + "." );
+                }
+                
                 return;
             }
+            
             LdifFileLoader loader = new LdifFileLoader( root, cfg.getLdifDirectory(), cfg.getLdifFilters() );
             loader.execute();
 
@@ -394,7 +428,7 @@ public class ServerContextFactory extends CoreContextFactory
             Attributes fileEntry = getLdifFileEntry( root, ldifFiles[ii] );
             if ( fileEntry != null )
             {
-                String time = ( String ) fileEntry.get( "createTimestamp" ).get();
+                String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
                 log.info( "Load of LDIF file '" + getCanonical( ldifFiles[ii] )
                     + "' skipped.  It has already been loaded on " + time + "." );
                 continue;
@@ -626,6 +660,7 @@ public class ServerContextFactory extends CoreContextFactory
             // is not bound - this is ok because the GracefulShutdown has already
             // sent notices to to the existing active sessions
             List sessions = null;
+        
             try
             {
                 sessions = new ArrayList( tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
@@ -637,6 +672,7 @@ public class ServerContextFactory extends CoreContextFactory
             }
 
             tcpAcceptor.unbind( new InetSocketAddress( port ) );
+            
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of an LDAP service (" + port + ") is complete." );
@@ -655,6 +691,7 @@ public class ServerContextFactory extends CoreContextFactory
 
             // And close the connections when the NoDs are sent.
             Iterator sessionIt = sessions.iterator();
+            
             for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
             {
                 WriteFuture future = ( WriteFuture ) i.next();

@@ -20,10 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
@@ -31,24 +29,26 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Oid;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,7 +328,7 @@ public abstract class BTreePartition implements Partition
         {
             LdapDN dn = new LdapDN( suffix );
             LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( normalizedSuffix, entry );
+            add( new AddOperationContext( normalizedSuffix, entry ) );
         }
     }
 
@@ -380,9 +380,11 @@ public abstract class BTreePartition implements Partition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void delete( LdapDN dn ) throws NamingException
+    public void delete( OperationContext opContext ) throws NamingException
     {
-        BigInteger id = getEntryId( dn.toString() );
+    	LdapDN dn = opContext.getDn();
+    	
+        Long id = getEntryId( dn.getNormName() );
 
         // don't continue if id is null
         if ( id == null )
@@ -402,56 +404,56 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void add(LdapDN dn, Attributes entry) throws NamingException;
+    public abstract void add( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException;
-
-
-    public abstract void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException;
+    public abstract void modify( OperationContext opContext ) throws NamingException;
 
 
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
-    public NamingEnumeration list( LdapDN base ) throws NamingException
+    
+    public NamingEnumeration list( OperationContext opContext ) throws NamingException
     {
         SearchResultEnumeration list;
-        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( base.toString() ) ),
+        list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
             this, attributeTypeRegistry );
         return list;
     }
 
 
-    public NamingEnumeration search( LdapDN base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration<SearchResult> search( OperationContext opContext )
         throws NamingException
     {
+        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
         NamingEnumeration underlying = null;
 
-        underlying = searchEngine.search( base, env, filter, searchCtls );
+        underlying = searchEngine.search( 
+            opContext.getDn(), 
+            ((SearchOperationContext)opContext).getEnv(), 
+            ((SearchOperationContext)opContext).getFilter(), 
+            searchCtls );
 
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 
 
-    public Attributes lookup( LdapDN dn ) throws NamingException
+    public Attributes lookup( OperationContext opContext ) throws NamingException
     {
-        return lookup( getEntryId( dn.getNormName() ) );
-    }
+        LookupOperationContext ctx = (LookupOperationContext)opContext;
+        
+        Attributes entry = lookup( getEntryId( ctx.getDn().getNormName() ) );
 
-
-    public Attributes lookup( LdapDN dn, String[] attrIds ) throws NamingException
-    {
-        if ( attrIds == null || attrIds.length == 0 )
+        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) )
         {
-            return lookup( dn );
+            return entry;
         }
 
-        Attributes entry = lookup( dn );
         Attributes retval = new AttributesImpl();
 
-        for ( int ii = 0; ii < attrIds.length; ii++ )
+        for ( String attrId:ctx.getAttrsId() )
         {
-            Attribute attr = entry.get( attrIds[ii] );
+            Attribute attr = entry.get( attrId );
 
             if ( attr != null )
             {
@@ -463,19 +465,19 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public boolean hasEntry( LdapDN dn ) throws NamingException
+    public boolean hasEntry( OperationContext opContext ) throws NamingException
     {
-        return null != getEntryId( dn.toString() );
+        return null != getEntryId( opContext.getDn().getNormName() );
     }
 
 
-    public abstract void modifyRn( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException;
+    public abstract void rename( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void move( LdapDN oldChildDn, LdapDN newParentDn ) throws NamingException;
+    public abstract void move( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn )
+    public abstract void moveAndRename( OperationContext opContext )
         throws NamingException;
 
 
@@ -486,12 +488,6 @@ public abstract class BTreePartition implements Partition
 
 
     public abstract boolean isInitialized();
-
-
-    public boolean isSuffix( LdapDN dn ) throws NamingException
-    {
-        return getSuffix().equals( dn );
-    }
 
 
     public void inspect() throws Exception
@@ -643,16 +639,16 @@ public abstract class BTreePartition implements Partition
     public abstract Index getSystemIndex( String attribute ) throws IndexNotFoundException;
 
 
-    public abstract BigInteger getEntryId( String dn ) throws NamingException;
+    public abstract Long getEntryId( String dn ) throws NamingException;
 
 
-    public abstract String getEntryDn( BigInteger id ) throws NamingException;
+    public abstract String getEntryDn( Long id ) throws NamingException;
 
 
-    public abstract BigInteger getParentId( String dn ) throws NamingException;
+    public abstract Long getParentId( String dn ) throws NamingException;
 
 
-    public abstract BigInteger getParentId( BigInteger childId ) throws NamingException;
+    public abstract Long getParentId( Long childId ) throws NamingException;
 
 
     /**
@@ -662,7 +658,7 @@ public abstract class BTreePartition implements Partition
      * @return the user provided distinguished name
      * @throws NamingException if the updn index cannot be accessed
      */
-    public abstract String getEntryUpdn( BigInteger id ) throws NamingException;
+    public abstract String getEntryUpdn( Long id ) throws NamingException;
 
 
     /**
@@ -675,16 +671,16 @@ public abstract class BTreePartition implements Partition
     public abstract String getEntryUpdn( String dn ) throws NamingException;
 
 
-    public abstract Attributes lookup( BigInteger id ) throws NamingException;
+    public abstract Attributes lookup( Long id ) throws NamingException;
 
 
-    public abstract void delete( BigInteger id ) throws NamingException;
+    public abstract void delete( Long id ) throws NamingException;
 
 
-    public abstract NamingEnumeration list( BigInteger id ) throws NamingException;
+    public abstract NamingEnumeration list( Long id ) throws NamingException;
 
 
-    public abstract int getChildCount( BigInteger id ) throws NamingException;
+    public abstract int getChildCount( Long id ) throws NamingException;
 
 
     public abstract Attributes getSuffixEntry() throws NamingException;
@@ -702,7 +698,7 @@ public abstract class BTreePartition implements Partition
     public abstract Iterator getSystemIndices();
 
 
-    public abstract Attributes getIndices( BigInteger id ) throws NamingException;
+    public abstract Attributes getIndices( Long id ) throws NamingException;
 
 
     /**

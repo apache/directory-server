@@ -37,6 +37,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class PreAuthenticationDataEncoder
 {
+    /**
+     * Encodes an array of {@link PreAuthenticationData}s into a byte array.
+     *
+     * @param preAuth
+     * @return The byte array.
+     * @throws IOException
+     */
     public static byte[] encode( PreAuthenticationData[] preAuth ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

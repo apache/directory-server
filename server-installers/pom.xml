@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>build</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
@@ -85,7 +85,7 @@
             <exclude>ant:ant</exclude>
             <exclude>aopalliance:aopalliance</exclude>
             <exclude>xerces:xerces</exclude>
-            <exclude>commons-pool:commons-pool</exclude>
+            <!--exclude>commons-pool:commons-pool</exclude-->
             <exclude>xml-apis:xml-apis</exclude>
             <exclude>aspectwerkz:aspectwerkz-core</exclude>
             <exclude>velocity:velocity</exclude>
@@ -105,19 +105,23 @@
           <application>
             <name>apacheds</name>
             <version>${pom.version}</version>
-            <copyrightYear>2006</copyrightYear>
-            <minimumJavaVersion>1.4</minimumJavaVersion>
-            <url>http://directory.apache.org/subprojects/apacheds</url>
+            <copyrightYear>2007</copyrightYear>
+            <minimumJavaVersion>1.5</minimumJavaVersion>
+            <url>http://directory.apache.org</url>
             <email>users@directory.apache.org</email>
             <description>Apache Directory Server</description>
             <authors>
               <author>Apache Directory Team</author>
               <author>akarasulu@apache.org</author>
+              <author>ckoppelt@apache.org</author>
               <author>elecharny@apache.org</author>
-              <author>ersiner@apache.org</author>
-              <author>trustin@apache.org</author>
               <author>erodriguez@apache.org</author>
+              <author>ersiner@apache.org</author>
+              <author>oersoy@apache.org</author>
+              <author>pamarcelot@apache.org</author>
               <author>szoerner@apache.org</author>
+              <author>seelmann@apache.org</author>
+              <author>trustin@apache.org</author>
             </authors>
           </application>
           <packagedFiles>
@@ -193,6 +197,26 @@
               <osName>Linux</osName>
               <osFamily>unix</osFamily>
               <osArch>i386</osArch>
+              <daemonFramework>jsvc</daemonFramework>
+            </izPackTarget>
+            <izPackTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>izpack-apacheds-tools.sh</source>
+                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                  <installationBundleId>Binaries</installationBundleId>
+                  <executable>true</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+              </packagedFiles>
+              <id>linux-jsvc-x86_64</id>
+              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
+              <finalName>
+                apacheds-${pom.version}-linux-x86_64-setup.jar
+              </finalName>
+              <osName>Linux</osName>
+              <osFamily>unix</osFamily>
+              <osArch>x86_64</osArch>
               <daemonFramework>jsvc</daemonFramework>
             </izPackTarget>
 <!--

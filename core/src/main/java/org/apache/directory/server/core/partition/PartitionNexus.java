@@ -30,7 +30,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -68,16 +69,6 @@ public abstract class PartitionNexus implements Partition
     /** the base dn under which all groups reside */
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
 
-    /** UID attribute name and OID */
-    private static final String UID_ATTRIBUTE = "uid";
-    private static final String UID_ATTRIBUTE_ALIAS = "userid";
-    private static final String UID_ATTRIBUTE_OID = "0.9.2342.19200300.100.1.1";
-    
-    /** OU attribute names and OID **/
-    private static final String OU_ATTRIBUTE = "ou";
-    private static final String OU_ATTRIBUTE_ALIAS = "organizationalUnitName";
-    private static final String OU_ATTRIBUTE_OID = "2.5.4.11";
-
     /**
      * System partition suffix constant.  Should be kept down to a single Dn name 
      * component or the default constructor will have to parse it instead of 
@@ -109,13 +100,13 @@ public abstract class PartitionNexus implements Partition
         {
         	Map<String, OidNormalizer> oidsMap = new HashMap<String, OidNormalizer>();
         	
-        	oidsMap.put( UID_ATTRIBUTE, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( UID_ATTRIBUTE_ALIAS, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
-        	oidsMap.put( UID_ATTRIBUTE_OID, new OidNormalizer( UID_ATTRIBUTE_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.UID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.USER_ID_AT, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
+        	oidsMap.put( SchemaConstants.UID_AT_OID, new OidNormalizer( SchemaConstants.UID_AT_OID, new NoOpNormalizer() ) );
         	
-        	oidsMap.put( OU_ATTRIBUTE, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( OU_ATTRIBUTE_ALIAS, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
-        	oidsMap.put( OU_ATTRIBUTE_OID, new OidNormalizer( OU_ATTRIBUTE_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.OU_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.ORGANIZATIONAL_UNIT_NAME_AT, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
+        	oidsMap.put( SchemaConstants.OU_AT_OID, new OidNormalizer( SchemaConstants.OU_AT_OID, new NoOpNormalizer()  ) );
 
             adminDn.normalize( oidsMap );
         }
@@ -190,26 +181,24 @@ public abstract class PartitionNexus implements Partition
      *
      * @return the attributes of the RootDSE
      */
-    public abstract Attributes getRootDSE() throws NamingException;
+    public abstract Attributes getRootDSE( OperationContext opContext ) throws NamingException;
 
 
     /**
      * Performs a comparison check to see if an attribute of an entry has
      * a specified value.
      *
-     * @param name the normalized name of the entry
-     * @param oid the attribute being compared
-     * @param value the value the attribute is compared to
+     * @param compareContext the context used to compare
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( LdapDN name, String oid, Object value ) throws NamingException;
+    public abstract boolean compare( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void addContextPartition( PartitionConfiguration config ) throws NamingException;
+    public abstract void addContextPartition( OperationContext opContext ) throws NamingException;
 
 
-    public abstract void removeContextPartition( LdapDN suffix ) throws NamingException;
+    public abstract void removeContextPartition( OperationContext opContext ) throws NamingException;
 
 
     public abstract Partition getSystemPartition();
@@ -231,13 +220,14 @@ public abstract class PartitionNexus implements Partition
     /**
      * Gets the most significant Dn that exists within the server for any Dn.
      *
-     * @param name the normalized distinguished name to use for matching.
+     * @param getMatchedNameContext the context containing the  distinguished name 
+     * to use for matching.
      * @return a distinguished name representing the matching portion of dn,
      * as originally provided by the user on creation of the matched entry or 
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getMatchedName ( LdapDN name ) throws NamingException;
+    public abstract LdapDN getMatchedName ( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -245,12 +235,13 @@ public abstract class PartitionNexus implements Partition
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param name the normalized distinguished name to use for finding a suffix.
+     * @param getSuffixContext the Context containing normalized distinguished 
+     * name to use for finding a suffix.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getSuffix ( LdapDN name ) throws NamingException;
+    public abstract LdapDN getSuffix ( OperationContext opContext ) throws NamingException;
 
 
     /**
@@ -260,7 +251,7 @@ public abstract class PartitionNexus implements Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    public abstract Iterator listSuffixes () throws NamingException;
+    public abstract Iterator listSuffixes( OperationContext opContext ) throws NamingException;
 
 
     /**

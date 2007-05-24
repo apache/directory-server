@@ -21,24 +21,20 @@ package org.apache.directory.server.core.interceptor;
 
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -99,137 +95,117 @@ public abstract class BaseInterceptor implements Interceptor
     // Interceptor's Invoke Method
     // ------------------------------------------------------------------------
 
-    public void add(NextInterceptor next, LdapDN normName, Attributes entry) throws NamingException
+    public void add(NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.add(normName, entry );
+        next.add( opContext );
     }
 
 
-    public void delete( NextInterceptor next, LdapDN name ) throws NamingException
+    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.delete( name );
+        next.delete( opContext );
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getMatchedName( dn );
+        return next.getMatchedName( opContext );
     }
 
 
-    public Attributes getRootDSE( NextInterceptor next ) throws NamingException
+    public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getRootDSE();
+        return next.getRootDSE( opContext );
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, LdapDN dn ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.getSuffix( dn );
+        return next.getSuffix( opContext );
     }
 
 
-    public boolean hasEntry( NextInterceptor next, LdapDN name ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.hasEntry( name );
+        return next.hasEntry( opContext );
     }
 
 
-    public boolean isSuffix( NextInterceptor next, LdapDN name ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.isSuffix( name );
+        return next.list( opContext );
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, LdapDN base ) throws NamingException
+    public Iterator listSuffixes ( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.list( base );
+        return next.listSuffixes( opContext );
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next ) throws NamingException
+    public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.listSuffixes();
+        return next.lookup( opContext );
+    }
+
+    
+    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    {
+        next.modify( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, LdapDN dn, String[] attrIds ) throws NamingException
+    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.lookup( dn, attrIds );
+        next.rename( opContext );
     }
 
 
-    public Attributes lookup( NextInterceptor next, LdapDN name ) throws NamingException
-    {
-        return next.lookup( name );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, int modOp, Attributes mods ) throws NamingException
-    {
-        next.modify( name, modOp, mods );
-    }
-
-
-    public void modify( NextInterceptor next, LdapDN name, ModificationItemImpl[] mods ) throws NamingException
-    {
-        next.modify( name, mods );
-    }
-
-
-    public void modifyRn( NextInterceptor next, LdapDN name, String newRn, boolean deleteOldRn ) throws NamingException
-    {
-        next.modifyRn( name, newRn, deleteOldRn );
-    }
-
-
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn )
+    public void moveAndRename( NextInterceptor next, OperationContext opContext )
         throws NamingException
     {
-        next.move( oriChildName, newParentName, newRn, deleteOldRn );
+        next.moveAndRename( opContext );
     }
 
 
-    public void move( NextInterceptor next, LdapDN oriChildName, LdapDN newParentName ) throws NamingException
+    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.move( oriChildName, newParentName );
+        next.move( opContext );
     }
 
 
-    public NamingEnumeration search( NextInterceptor next, LdapDN base, Map env, ExprNode filter,
-                                     SearchControls searchCtls ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.search( base, env, filter, searchCtls );
+        return next.search( opContext );
     }
 
 
-    public void addContextPartition( NextInterceptor next, PartitionConfiguration cfg ) throws NamingException
+    public void addContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.addContextPartition( cfg );
+        next.addContextPartition( opContext );
     }
 
 
-    public void removeContextPartition( NextInterceptor next, LdapDN suffix ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.removeContextPartition( suffix );
+        next.removeContextPartition( opContext );
     }
 
 
-    public boolean compare( NextInterceptor next, LdapDN name, String oid, Object value ) throws NamingException
+    public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        return next.compare( name, oid, value );
+        return next.compare( opContext );
     }
 
 
-    public void bind( NextInterceptor next, LdapDN bindDn, byte[] credentials, List<String> mechanisms, String saslAuthId )
-        throws NamingException
+    public void bind( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.bind( bindDn, credentials, mechanisms, saslAuthId );
+        next.bind( opContext );
     }
 
 
-    public void unbind( NextInterceptor next, LdapDN bindDn ) throws NamingException
+    public void unbind( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        next.unbind( bindDn );
+        next.unbind( opContext );
     }
 }

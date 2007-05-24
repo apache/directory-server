@@ -30,6 +30,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -190,7 +191,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
         throws NamingException
     {
         checkNewParent( newParentName );
@@ -231,13 +232,13 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         }
         
         Rdn rdn = newParent.getRdn();
-        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( OU_OID ) )
+        if ( ! targetRegistries.getOidRegistry().getOid( rdn.getNormType() ).equals( SchemaConstants.OU_AT_OID ) )
         {
             throw new LdapInvalidNameException( "The parent entry of a matchingRule should be an organizationalUnit.", 
                 ResultCodeEnum.NAMING_VIOLATION );
         }
         
-        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( "matchingRules" ) )
+        if ( ! ( ( String ) rdn.getValue() ).equalsIgnoreCase( SchemaConstants.MATCHING_RULES_AT ) )
         {
             throw new LdapInvalidNameException( 
                 "The parent entry of a syntax should have a relative name of ou=matchingRules.", 

@@ -36,6 +36,8 @@ import org.apache.directory.server.core.configuration.RemovePartitionConfigurati
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.configuration.SyncConfiguration;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -71,6 +73,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public abstract class AbstractContextFactory implements InitialContextFactory, DirectoryServiceListener
 {
+    //TM private static long cumul = 0L;
+    //TM private static long count = 0;
     // ------------------------------------------------------------------------
     // Members
     // ------------------------------------------------------------------------
@@ -85,6 +89,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
 
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
+        //TM long t0 = System.nanoTime();
         Configuration cfg = Configuration.toConfiguration( env );
         env = ( Hashtable ) env.clone();
         
@@ -119,23 +124,36 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         }
         else if ( cfg instanceof AddPartitionConfiguration )
         {
-            new PartitionNexusProxy( 
-                service.getJndiContext( principalDn, principal, credential, authentication, "" ),
-                service ).addContextPartition( ( ( AddPartitionConfiguration ) cfg )
-                .getDirectoryPartitionConfiguration() );
+            AddContextPartitionOperationContext ctxPartition = 
+                new AddContextPartitionOperationContext( ( ( AddPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
+            
+            Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" ); 
+            
+            new PartitionNexusProxy( ctx, service ).addContextPartition( ctxPartition );
         }
         else if ( cfg instanceof RemovePartitionConfiguration )
         {
             Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" );
             PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, service );
-            proxy.removeContextPartition( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() );
+            proxy.removeContextPartition( 
+                new RemoveContextPartitionOperationContext( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() ) );
         }
         else if ( service == null )
         {
             throw new NamingException( "Unknown configuration: " + cfg );
         }
 
-        return service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
+        Context context = service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
+        //TM long t1 = System.nanoTime();
+        //TM cumul += (t1 - t0)/1000;
+        //TM count++;
+        
+        //TM if ( count % 1000 == 0)
+        //TM {
+        //TM     System.out.println( "getInitialContext cost : " + (cumul/count) );
+        //TM }
+        
+        return context;
     }
 
 
