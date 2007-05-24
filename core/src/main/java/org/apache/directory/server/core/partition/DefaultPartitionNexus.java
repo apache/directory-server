@@ -74,7 +74,6 @@ import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -124,99 +123,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     /** the backends keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
+    /** A structure to hold all the partitions */
     private PartitionStructure partitionList = new PartitionContainer();
     
-    private interface PartitionStructure
-    {
-        boolean isPartition();
-        public PartitionStructure addPartitionHandler( String name, PartitionStructure children );
-    }
-    
-    private class PartitionContainer implements PartitionStructure
-    {
-        private Map<String, PartitionStructure> children;
-        
-        private PartitionContainer()
-        {
-            children = new HashMap<String, PartitionStructure>();
-        }
-        
-        public boolean isPartition()
-        {
-            return false;
-        }
-        
-        public PartitionStructure addPartitionHandler( String name, PartitionStructure child )
-        {
-            children.put( name, child );
-            return this;
-        }
-        
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            
-            sb.append( "Partition container :\n" );
-            
-            for ( PartitionStructure child:children.values() )
-            {
-                sb.append( '{' ).append( child.toString() ).append( "} " );
-            }
-            
-            return sb.toString();
-        }
-    }
-    
-    private class PartitionHandler implements PartitionStructure
-    {
-        private Partition partition;
-        
-        private PartitionHandler( Partition partition )
-        {
-            this.partition = partition;
-        }
-
-        public boolean isPartition()
-        {
-            return true;
-        }
-
-        public PartitionStructure addPartitionHandler( String name, PartitionStructure partition )
-        {
-            return this;
-        }
-        
-        public Partition getpartition()
-        {
-            return partition;
-        }
-
-        public String toString()
-        {
-            try
-            {
-                return partition.getSuffix().getUpName();
-            }
-            catch ( NamingException ne )
-            {
-                return "Unkown partition";
-            }
-        }
-}
-    
-    private PartitionStructure buildPartitionStructure( PartitionStructure current, LdapDN dn, int index, Partition partition )
-    {
-        if ( index == dn.size() - 1 )
-        {
-            return current.addPartitionHandler( dn.getRdn( index ).toString(), new PartitionHandler( partition ) );
-        }
-        else
-        {
-            return current.addPartitionHandler( dn.getRdn( index ).toString(), 
-                buildPartitionStructure( new PartitionContainer(), dn, index + 1, partition ) );
-        }
-    }
-
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
 
@@ -487,12 +396,15 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
         }
         
-        partitions.put( key, system );
+        synchronized ( partitionList )
+        {
+            partitions.put( key, system );
         
-        buildPartitionStructure( partitionList, system.getSuffix(), 0, system );
+            partitionList.buildPartitionStructure( partitionList, system.getSuffix(), 0, system );
 
-        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( system.getUpSuffix().getUpName() );
+            Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+            namingContexts.add( system.getUpSuffix().getUpName() );
+        }
 
         return systemCfg;
     }
@@ -662,12 +574,15 @@ public class DefaultPartitionNexus extends PartitionNexus
             partition.init( factoryCfg, config );
         }
         
-        partitions.put( partition.getSuffix().toString(), partition );
-        
-        buildPartitionStructure( partitionList, partition.getSuffix(), 0, partition );
+        synchronized ( partitionList )
+        {
+            partitions.put( partition.getSuffix().toString(), partition );
+            
+            partitionList.buildPartitionStructure( partitionList, partition.getSuffix(), 0, partition );
 
-        Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.add( partition.getUpSuffix().getUpName() );
+            Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
+            namingContexts.add( partition.getUpSuffix().getUpName() );
+        }
     }
 
 
@@ -683,10 +598,25 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
         namingContexts.remove( partition.getUpSuffix().getUpName() );
-        partitions.remove( key );
 
-        partition.sync();
-        partition.destroy();
+        // Create a new partition list. 
+        // This is easier to create a new structure from scratch than to reorganize
+        // the current structure. As this strcuture is not modified often
+        // this is an acceptable solution.
+        synchronized (partitionList)
+        {
+            partitions.remove( key );
+        
+            partitionList = new PartitionContainer();
+            
+            for ( Partition part:partitions.values() )
+            {
+                partitionList.buildPartitionStructure( partitionList, part.getSuffix(), 0, partition );
+            }
+    
+            partition.sync();
+            partition.destroy();
+        }
     }
 
 
@@ -835,19 +765,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-<<<<<<< .mine
-=======
-     * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,javax.naming.directory.ModificationItem[])
-     */
-    /*public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
-    {
-        Partition backend = getBackend( dn );
-        backend.modify( dn, mods );
-    }*/
-
-
-    /**
->>>>>>> .r530934
      * @see Partition#list(org.apache.directory.shared.ldap.name.LdapDN)
      */
     public NamingEnumeration list( OperationContext opContext ) throws NamingException
@@ -1116,16 +1033,32 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     private Partition getBackend( LdapDN dn ) throws NamingException
     {
-        LdapDN clonedDn = ( LdapDN ) dn.clone();
+        Enumeration<String> rdns = dn.getAll();
+        PartitionStructure currentPartition = partitionList;
         
-        while ( clonedDn.size() > 0 )
+        // This is synchronized so that we can't read the
+        // partitionList when it is modified.
+        synchronized ( partitionList )
         {
-            if ( partitions.containsKey( clonedDn.toString() ) )
+            // Iterate through all the RDN until we find the associated partition
+            while ( rdns.hasMoreElements() )
             {
-                return partitions.get( clonedDn.toString() );
+                String rdn = rdns.nextElement();
+                
+                if ( currentPartition.contains( rdn ) )
+                {
+                    currentPartition = currentPartition.getPartition( rdn );
+    
+                    if ( currentPartition.isPartition() )
+                    {
+                        return currentPartition.getPartition();
+                    }
+                }
+                else
+                {
+                    break;
+                }
             }
-
-            clonedDn.remove( clonedDn.size() - 1 );
         }
         
         throw new LdapNameNotFoundException( dn.getUpName() );
