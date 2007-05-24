@@ -29,28 +29,28 @@
   
   <bean id="changePasswordConfiguration" class="org.apache.directory.server.changepw.ChangePasswordConfiguration">
     <!-- Whether to enable the Change Password protocol.                    -->
-    <property name="enabled" value="true" />
+    <property name="enabled" value="false" />
     <!-- The port to run the Change Password protocol on.                   -->
     <property name="ipPort" value="464" />
   </bean>
   
   <bean id="ntpConfiguration" class="org.apache.directory.server.ntp.NtpConfiguration">
     <!-- Whether to enable the NTP protocol.                                -->
-    <property name="enabled" value="true" />
+    <property name="enabled" value="false" />
     <!-- The port to run the NTP protocol on.                               -->
     <property name="ipPort" value="123" />
   </bean>
   
   <bean id="dnsConfiguration" class="org.apache.directory.server.dns.DnsConfiguration">
     <!-- Whether to enable the DNS protocol.                                -->
-    <property name="enabled" value="true" />
+    <property name="enabled" value="false" />
     <!-- The port to run the DNS protocol on.                               -->
     <property name="ipPort" value="53" />
   </bean>
   
   <bean id="kdcConfiguration" class="org.apache.directory.server.kerberos.kdc.KdcConfiguration">
     <!-- Whether to enable the Kerberos protocol.                           -->
-    <property name="enabled" value="true" />
+    <property name="enabled" value="false" />
     <!-- The port to run the Kerberos protocol on.                          -->
     <property name="ipPort" value="88" />
   </bean>
