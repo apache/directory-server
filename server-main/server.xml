@@ -114,7 +114,7 @@
     <!-- the collection of extended operation handlers to install           -->
     <property name="extendedOperationHandlers">
       <list>
-        <bean class="org.apache.directory.server.ldap.support.starttls.StartTlsHandler"/>
+        <!--<bean class="org.apache.directory.server.ldap.support.starttls.StartTlsHandler"/>-->
         <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
         <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
       </list>
