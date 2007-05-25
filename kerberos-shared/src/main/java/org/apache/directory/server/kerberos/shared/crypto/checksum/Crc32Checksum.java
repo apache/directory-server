@@ -30,7 +30,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class Crc32Checksum implements ChecksumEngine
+class Crc32Checksum implements ChecksumEngine
 {
     public ChecksumType checksumType()
     {
