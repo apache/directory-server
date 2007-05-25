@@ -279,23 +279,27 @@ public class KerberosKeyFactoryTest extends TestCase
         Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
             encryptionTypes );
 
-        assertEquals( "List length", 1, map.values().size() );
-
         EncryptionKey kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
 
-        EncryptionType keyType = kerberosKey.getKeyType();
-        int keyLength = kerberosKey.getKeyValue().length;
-        byte[] keyBytes = kerberosKey.getKeyValue();
+        if ( kerberosKey != null )
+        {
+            assertEquals( "List length", 1, map.values().size() );
 
-        assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
-        assertEquals( keyLength, 32 );
-        byte[] expectedBytes = new byte[]
-            { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47, ( byte ) 0xE5,
-                ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4, ( byte ) 0x15,
-                ( byte ) 0x58, ( byte ) 0xCA, ( byte ) 0xE7, ( byte ) 0x36, ( byte ) 0x50, ( byte ) 0x1F,
-                ( byte ) 0xA7, ( byte ) 0xA4, ( byte ) 0x85, ( byte ) 0x82, ( byte ) 0x05, ( byte ) 0xF6,
-                ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA, ( byte ) 0x0E, ( byte ) 0xBF };
-        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+            EncryptionType keyType = kerberosKey.getKeyType();
+            int keyLength = kerberosKey.getKeyValue().length;
+            byte[] keyBytes = kerberosKey.getKeyValue();
+
+            assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+            assertEquals( keyLength, 32 );
+            byte[] expectedBytes = new byte[]
+                { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47,
+                    ( byte ) 0xE5, ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4,
+                    ( byte ) 0x15, ( byte ) 0x58, ( byte ) 0xCA, ( byte ) 0xE7, ( byte ) 0x36, ( byte ) 0x50,
+                    ( byte ) 0x1F, ( byte ) 0xA7, ( byte ) 0xA4, ( byte ) 0x85, ( byte ) 0x82, ( byte ) 0x05,
+                    ( byte ) 0xF6, ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA,
+                    ( byte ) 0x0E, ( byte ) 0xBF };
+            assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+        }
     }
 
 

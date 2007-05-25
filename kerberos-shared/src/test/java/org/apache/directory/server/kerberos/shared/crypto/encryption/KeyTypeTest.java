@@ -296,6 +296,6 @@ public class KeyTypeTest extends TestCase
             }
         }
 
-        return ( String[] ) result.toArray( new String[result.size()] );
+        return result.toArray( new String[result.size()] );
     }
 }
