@@ -73,12 +73,6 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
     }
 
 
-    public CipherType keyType()
-    {
-        return CipherType.DES3;
-    }
-
-
     public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
         byte[] Kc = deriveKey( key, getUsageKc( usage ), 64, 168 );

@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
@@ -36,12 +35,6 @@ class RsaMd5Checksum implements ChecksumEngine
     public ChecksumType checksumType()
     {
         return ChecksumType.RSA_MD5;
-    }
-
-
-    public CipherType keyType()
-    {
-        return CipherType.NULL;
     }
 
 

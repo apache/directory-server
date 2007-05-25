@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
@@ -36,14 +35,6 @@ public interface ChecksumEngine
      * @return The checksum type.
      */
     public ChecksumType checksumType();
-
-
-    /**
-     * Returns the key type of this checksum engine.
-     *
-     * @return The key type.
-     */
-    public CipherType keyType();
 
 
     /**

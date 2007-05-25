@@ -26,7 +26,6 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
@@ -39,12 +38,6 @@ class HmacSha1Des3KdChecksum implements ChecksumEngine
     public ChecksumType checksumType()
     {
         return ChecksumType.HMAC_SHA1_DES3_KD;
-    }
-
-
-    public CipherType keyType()
-    {
-        return CipherType.DES3;
     }
 
 

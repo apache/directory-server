@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.crypto.checksum;
 
 import java.util.zip.CRC32;
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
@@ -36,12 +35,6 @@ public class Crc32Checksum implements ChecksumEngine
     public ChecksumType checksumType()
     {
         return ChecksumType.CRC32;
-    }
-
-
-    public CipherType keyType()
-    {
-        return CipherType.NULL;
     }
 
 

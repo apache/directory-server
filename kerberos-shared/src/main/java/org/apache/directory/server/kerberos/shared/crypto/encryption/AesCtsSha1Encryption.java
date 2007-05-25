@@ -61,12 +61,6 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
     }
 
 
-    public CipherType keyType()
-    {
-        return CipherType.AES;
-    }
-
-
     protected abstract int getKeyLength();
 
 
