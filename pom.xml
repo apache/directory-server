@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,7 +10,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>build</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -325,9 +325,9 @@ Use JDK 1.5 to make sure these modules build.
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/1.0</connection>
-    <url>http://svn.apache.org/viewcvs.cgi/directory/branches/apacheds/1.0</url>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/branches/1.0</developerConnection>
+    <connection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/releases/build-1.0.2</connection>
+    <url>https://svn.apache.org/repos/asf/directory/apacheds/releases/build-1.0.2</url>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/releases/build-1.0.2</developerConnection>
   </scm>
 
   <organization>
