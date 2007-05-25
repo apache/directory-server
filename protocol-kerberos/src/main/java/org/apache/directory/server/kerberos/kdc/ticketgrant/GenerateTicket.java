@@ -278,7 +278,7 @@ public class GenerateTicket implements IoHandlerCommand
             minimizer.add( till );
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEndTime() );
-            KerberosTime minTime = ( KerberosTime ) Collections.min( minimizer );
+            KerberosTime minTime = Collections.min( minimizer );
             newTicketBody.setEndTime( minTime );
 
             if ( request.getOption( KdcOptions.RENEWABLE_OK ) && minTime.lessThan( request.getTill() )

@@ -111,7 +111,7 @@ public final class SamSubsystem
 
         if ( verifiers.containsKey( entry.getSamType() ) )
         {
-            verifier = ( SamVerifier ) verifiers.get( entry.getSamType() );
+            verifier = verifiers.get( entry.getSamType() );
 
             return verifier.verify( entry.getPrincipal(), sad );
         }

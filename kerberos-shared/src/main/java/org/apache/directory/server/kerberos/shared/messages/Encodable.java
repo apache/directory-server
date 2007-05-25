@@ -29,4 +29,5 @@ package org.apache.directory.server.kerberos.shared.messages;
  */
 public interface Encodable
 {
+    // Marker interface; no methods to implement.
 }

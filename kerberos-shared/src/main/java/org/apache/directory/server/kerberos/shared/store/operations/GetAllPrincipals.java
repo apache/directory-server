@@ -84,7 +84,7 @@ public class GetAllPrincipals implements ContextOperation
 
             PrincipalStoreEntry[] entries = new PrincipalStoreEntry[answers.size()];
 
-            return ( PrincipalStoreEntry[] ) answers.toArray( entries );
+            return answers.toArray( entries );
         }
         catch ( NamingException e )
         {

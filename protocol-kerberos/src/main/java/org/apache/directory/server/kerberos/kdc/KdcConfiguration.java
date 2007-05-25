@@ -27,7 +27,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 
 /**
@@ -383,6 +382,6 @@ public class KdcConfiguration extends ServiceConfiguration
             }
         }
 
-        encryptionTypes = ( EncryptionType[] ) encTypes.toArray( new EncryptionType[encTypes.size()] );
+        encryptionTypes = encTypes.toArray( new EncryptionType[encTypes.size()] );
     }
 }

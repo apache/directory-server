@@ -63,24 +63,18 @@ class NullEncryption extends EncryptionEngine
 
     public byte[] encrypt( byte[] plainText, byte[] keyBytes )
     {
-        return processCipher( true, plainText, keyBytes );
+        return plainText;
     }
 
 
     public byte[] decrypt( byte[] cipherText, byte[] keyBytes )
     {
-        return processCipher( false, cipherText, keyBytes );
+        return cipherText;
     }
 
 
     public byte[] calculateIntegrity( byte[] plainText, byte[] key, KeyUsage usage )
     {
         return null;
-    }
-
-
-    private byte[] processCipher( boolean encrypt, byte[] data, byte[] key )
-    {
-        return data;
     }
 }
