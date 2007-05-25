@@ -62,6 +62,11 @@ public class AesEncryptionTest extends TestCase
      */
     public void testFirstAesVector()
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         byte[] input =
             { ( byte ) 0x49, ( byte ) 0x20, ( byte ) 0x77, ( byte ) 0x6f, ( byte ) 0x75, ( byte ) 0x6c, ( byte ) 0x64,
                 ( byte ) 0x20, ( byte ) 0x6c, ( byte ) 0x69, ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x20,
@@ -85,6 +90,11 @@ public class AesEncryptionTest extends TestCase
      */
     public void testLastAesVector()
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         byte[] input =
             { ( byte ) 0x49, ( byte ) 0x20, ( byte ) 0x77, ( byte ) 0x6f, ( byte ) 0x75, ( byte ) 0x6c, ( byte ) 0x64,
                 ( byte ) 0x20, ( byte ) 0x6c, ( byte ) 0x69, ( byte ) 0x6b, ( byte ) 0x65, ( byte ) 0x20,

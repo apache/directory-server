@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
 
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
@@ -184,9 +185,16 @@ public class KeyTypeTest extends TestCase
 
         SecretKey key = keyGenerator.generateKey();
 
-        Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
-        ecipher.init( Cipher.ENCRYPT_MODE, key );
-        assertEquals( "Block size", 16, ecipher.getBlockSize() );
+        try
+        {
+            Cipher ecipher = Cipher.getInstance( "AES/CTS/NoPadding" );
+            ecipher.init( Cipher.ENCRYPT_MODE, key );
+            assertEquals( "Block size", 16, ecipher.getBlockSize() );
+        }
+        catch ( NoSuchAlgorithmException nsae )
+        {
+            // Without CTS mode this will throw an Exception.
+        }
     }
 
 
@@ -212,6 +220,10 @@ public class KeyTypeTest extends TestCase
         catch ( InvalidKeyException ike )
         {
             // Without unlimited-strength crypto this will throw an exception.
+        }
+        catch ( NoSuchAlgorithmException nsae )
+        {
+            // Without CTS mode this will throw an Exception.
         }
     }
 
@@ -283,6 +295,7 @@ public class KeyTypeTest extends TestCase
                 }
             }
         }
+
         return ( String[] ) result.toArray( new String[result.size()] );
     }
 }

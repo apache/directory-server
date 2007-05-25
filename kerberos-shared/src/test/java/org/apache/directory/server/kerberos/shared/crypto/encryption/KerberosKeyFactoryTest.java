@@ -60,7 +60,8 @@ public class KerberosKeyFactoryTest extends TestCase
     public void testTripleDesKerberosKey()
     {
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
+        String algorithm = VendorHelper.getTripleDesAlgorithm();
+        KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), algorithm );
 
         assertEquals( "DESede key length", 24, key.getEncoded().length );
     }
@@ -71,6 +72,11 @@ public class KerberosKeyFactoryTest extends TestCase
      */
     public void testArcFourHmacKerberosKey()
     {
+        if ( !VendorHelper.isArcFourHmacSupported() )
+        {
+            return;
+        }
+
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey key = new KerberosKey( principal, "secret".toCharArray(), "ArcFourHmac" );
 
@@ -111,10 +117,198 @@ public class KerberosKeyFactoryTest extends TestCase
 
 
     /**
-     * Tests that key derivation can be performed by the factory for multiple cipher types.
+     * Tests that key derivation can be performed by the factory for the des-cbc-md5 encryption type.
+     */
+    public void testKerberosKeyFactoryOnlyDes()
+    {
+        String principalName = "hnelson@EXAMPLE.COM";
+        String passPhrase = "secret";
+
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
+
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
+
+        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
+        assertEquals( keyLength, 8 );
+        byte[] expectedBytes = new byte[]
+            { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
+                ( byte ) 0x5B };
+        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+    }
+
+
+    /**
+     * Tests that key derivation can be performed by the factory for the des3-cbc-sha1-kd encryption type.
+     */
+    public void testKerberosKeyFactoryOnlyTripleDes()
+    {
+        if ( !VendorHelper.isTripleDesSupported() )
+        {
+            return;
+        }
+
+        String principalName = "hnelson@EXAMPLE.COM";
+        String passPhrase = "secret";
+
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES3_CBC_SHA1_KD );
+
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.DES3_CBC_SHA1_KD );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
+
+        assertEquals( keyType, EncryptionType.DES3_CBC_SHA1_KD );
+        assertEquals( keyLength, 24 );
+        byte[] expectedBytes = new byte[]
+            { ( byte ) 0x57, ( byte ) 0x07, ( byte ) 0xCE, ( byte ) 0x29, ( byte ) 0x52, ( byte ) 0x92, ( byte ) 0x2C,
+                ( byte ) 0x1C, ( byte ) 0x8C, ( byte ) 0xBF, ( byte ) 0x43, ( byte ) 0xC2, ( byte ) 0x3D,
+                ( byte ) 0x8F, ( byte ) 0x8C, ( byte ) 0x5E, ( byte ) 0x9E, ( byte ) 0x8C, ( byte ) 0xF7,
+                ( byte ) 0x5D, ( byte ) 0x3E, ( byte ) 0x4A, ( byte ) 0x5E, ( byte ) 0x25 };
+        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+    }
+
+
+    /**
+     * Tests that key derivation can be performed by the factory for the rc4-hmac encryption type.
+     */
+    public void testKerberosKeyFactoryOnlyArcFourHmac()
+    {
+        if ( !VendorHelper.isArcFourHmacSupported() )
+        {
+            return;
+        }
+
+        String principalName = "hnelson@EXAMPLE.COM";
+        String passPhrase = "secret";
+
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.RC4_HMAC );
+
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.RC4_HMAC );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
+
+        assertEquals( keyType, EncryptionType.RC4_HMAC );
+        assertEquals( keyLength, 16 );
+        byte[] expectedBytes = new byte[]
+            { ( byte ) 0x87, ( byte ) 0x8D, ( byte ) 0x80, ( byte ) 0x14, ( byte ) 0x60, ( byte ) 0x6C, ( byte ) 0xDA,
+                ( byte ) 0x29, ( byte ) 0x67, ( byte ) 0x7A, ( byte ) 0x44, ( byte ) 0xEF, ( byte ) 0xA1,
+                ( byte ) 0x35, ( byte ) 0x3F, ( byte ) 0xC7 };
+        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+    }
+
+
+    /**
+     * Tests that key derivation can be performed by the factory for the aes128-cts-hmac-sha1-96 encryption type.
+     */
+    public void testKerberosKeyFactoryOnlyAes128()
+    {
+        if ( VendorHelper.isIbm() )
+        {
+            return;
+        }
+
+        String principalName = "hnelson@EXAMPLE.COM";
+        String passPhrase = "secret";
+
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
+
+        assertEquals( keyType, EncryptionType.AES128_CTS_HMAC_SHA1_96 );
+        assertEquals( keyLength, 16 );
+        byte[] expectedBytes = new byte[]
+            { ( byte ) 0xAD, ( byte ) 0x21, ( byte ) 0x4B, ( byte ) 0x38, ( byte ) 0xB6, ( byte ) 0x9D, ( byte ) 0xFC,
+                ( byte ) 0xCA, ( byte ) 0xAC, ( byte ) 0xF1, ( byte ) 0x5F, ( byte ) 0x34, ( byte ) 0x6D,
+                ( byte ) 0x41, ( byte ) 0x7B, ( byte ) 0x90 };
+
+        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+    }
+
+
+    /**
+     * Tests that key derivation can be performed by the factory for the aes256-cts-hmac-sha1-96 encryption type.
+     */
+    public void testKerberosKeyFactoryOnlyAes256()
+    {
+        if ( VendorHelper.isIbm() )
+        {
+            return;
+        }
+
+        String principalName = "hnelson@EXAMPLE.COM";
+        String passPhrase = "secret";
+
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+
+        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
+            encryptionTypes );
+
+        assertEquals( "List length", 1, map.values().size() );
+
+        EncryptionKey kerberosKey = map.get( EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+
+        EncryptionType keyType = kerberosKey.getKeyType();
+        int keyLength = kerberosKey.getKeyValue().length;
+        byte[] keyBytes = kerberosKey.getKeyValue();
+
+        assertEquals( keyType, EncryptionType.AES256_CTS_HMAC_SHA1_96 );
+        assertEquals( keyLength, 32 );
+        byte[] expectedBytes = new byte[]
+            { ( byte ) 0x3D, ( byte ) 0x33, ( byte ) 0x31, ( byte ) 0x8F, ( byte ) 0xBE, ( byte ) 0x47, ( byte ) 0xE5,
+                ( byte ) 0x2A, ( byte ) 0x21, ( byte ) 0x50, ( byte ) 0x77, ( byte ) 0xA4, ( byte ) 0x15,
+                ( byte ) 0x58, ( byte ) 0xCA, ( byte ) 0xE7, ( byte ) 0x36, ( byte ) 0x50, ( byte ) 0x1F,
+                ( byte ) 0xA7, ( byte ) 0xA4, ( byte ) 0x85, ( byte ) 0x82, ( byte ) 0x05, ( byte ) 0xF6,
+                ( byte ) 0x8F, ( byte ) 0x67, ( byte ) 0xA2, ( byte ) 0xB5, ( byte ) 0xEA, ( byte ) 0x0E, ( byte ) 0xBF };
+        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
+    }
+
+
+    /**
+     * Tests that key derivation can be performed by the factory for multiple encryption types.
      */
     public void testKerberosKeyFactory()
     {
+        if ( VendorHelper.isIbm() )
+        {
+            return;
+        }
+
         String principalName = "hnelson@EXAMPLE.COM";
         String passPhrase = "secret";
 
@@ -192,36 +386,5 @@ public class KerberosKeyFactoryTest extends TestCase
                     ( byte ) 0x0E, ( byte ) 0xBF };
             assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
         }
-    }
-
-
-    /**
-     * Tests that key derivation can be performed by the factory for a specified cipher type.
-     */
-    public void testKerberosKeyFactoryOnlyDes()
-    {
-        String principalName = "hnelson@EXAMPLE.COM";
-        String passPhrase = "secret";
-
-        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
-        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
-
-        Map<EncryptionType, EncryptionKey> map = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-            encryptionTypes );
-
-        assertEquals( "List length", 1, map.values().size() );
-
-        EncryptionKey kerberosKey = map.get( EncryptionType.DES_CBC_MD5 );
-
-        EncryptionType keyType = kerberosKey.getKeyType();
-        int keyLength = kerberosKey.getKeyValue().length;
-        byte[] keyBytes = kerberosKey.getKeyValue();
-
-        assertEquals( keyType, EncryptionType.DES_CBC_MD5 );
-        assertEquals( keyLength, 8 );
-        byte[] expectedBytes = new byte[]
-            { ( byte ) 0xF4, ( byte ) 0xA7, ( byte ) 0x13, ( byte ) 0x64, ( byte ) 0x8A, ( byte ) 0x61, ( byte ) 0xCE,
-                ( byte ) 0x5B };
-        assertTrue( Arrays.equals( expectedBytes, keyBytes ) );
     }
 }

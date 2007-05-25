@@ -105,7 +105,9 @@ public class KerberosKeyFactory
             }
             catch ( IllegalArgumentException iae )
             {
-                // Algorithm AES256 not enabled
+                // Algorithm AES256 not enabled by policy.
+                // Algorithm ArcFourHmac not supported by IBM JREs.
+                // Algorithm DESede not supported by IBM JREs.
             }
         }
 

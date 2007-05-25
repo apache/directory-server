@@ -183,7 +183,8 @@ public class CipherTextHandlerTest extends TestCase
         CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
+        String algorithm = VendorHelper.getTripleDesAlgorithm();
+        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), algorithm );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES3_CBC_SHA1_KD, kerberosKey.getEncoded() );
         EncryptedData data = new EncryptedData( EncryptionType.DES3_CBC_SHA1_KD, 0, tripleDesEncryptedTimeStamp );
 
@@ -211,7 +212,8 @@ public class CipherTextHandlerTest extends TestCase
     {
         CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
-        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "DESede" );
+        String algorithm = VendorHelper.getTripleDesAlgorithm();
+        KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), algorithm );
         EncryptionKey key = new EncryptionKey( EncryptionType.DES3_CBC_SHA1_KD, kerberosKey.getEncoded() );
 
         String zuluTime = "20070410190400Z";
@@ -252,6 +254,11 @@ public class CipherTextHandlerTest extends TestCase
      */
     public void testAes128GoodPasswordDecrypt()
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -281,6 +288,11 @@ public class CipherTextHandlerTest extends TestCase
      */
     public void testAes128GoodPasswordEncrypt() throws ParseException
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         CipherTextHandler lockBox = new CipherTextHandler();
         KerberosPrincipal principal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         KerberosKey kerberosKey = new KerberosKey( principal, "secret".toCharArray(), "AES128" );
@@ -324,6 +336,11 @@ public class CipherTextHandlerTest extends TestCase
      */
     public void testAes256GoodPasswordDecrypt()
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         CipherTextHandler lockBox = new CipherTextHandler();
         Class hint = EncryptedTimeStamp.class;
 
@@ -365,6 +382,11 @@ public class CipherTextHandlerTest extends TestCase
      */
     public void testAes256GoodPasswordEncrypt() throws ParseException
     {
+        if ( !VendorHelper.isCtsSupported() )
+        {
+            return;
+        }
+
         CipherTextHandler lockBox = new CipherTextHandler();
 
         KerberosKey kerberosKey;

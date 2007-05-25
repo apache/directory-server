@@ -104,6 +104,11 @@ public class RandomKeyFactoryTest extends TestCase
      */
     public void testGenerateArcFourKey() throws Exception
     {
+        if ( !VendorHelper.isArcFourHmacSupported() )
+        {
+            return;
+        }
+
         KeyGenerator keygen = KeyGenerator.getInstance( "ARCFOUR" );
         SecretKey key = keygen.generateKey();
         assertEquals( "ARCFOUR key size", 16, key.getEncoded().length );
@@ -117,6 +122,11 @@ public class RandomKeyFactoryTest extends TestCase
      */
     public void testGenerateRc4Key() throws Exception
     {
+        if ( !VendorHelper.isArcFourHmacSupported() )
+        {
+            return;
+        }
+
         KeyGenerator keygen = KeyGenerator.getInstance( "RC4" );
         SecretKey key = keygen.generateKey();
         assertEquals( "RC4 key size", 16, key.getEncoded().length );
@@ -151,8 +161,11 @@ public class RandomKeyFactoryTest extends TestCase
         keyType = kerberosKey.getKeyType();
         keyLength = kerberosKey.getKeyValue().length;
 
-        assertEquals( keyType, EncryptionType.RC4_HMAC );
-        assertEquals( keyLength, 16 );
+        if ( VendorHelper.isArcFourHmacSupported() )
+        {
+            assertEquals( keyType, EncryptionType.RC4_HMAC );
+            assertEquals( keyLength, 16 );
+        }
 
         kerberosKey = map.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
         keyType = kerberosKey.getKeyType();
