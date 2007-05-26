@@ -184,7 +184,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public void ldapUnbind() throws NamingException
     {
-        Object dn = getEnvironment().get( Context.SECURITY_PRINCIPAL );;
+        Object dn = getEnvironment().get( Context.SECURITY_PRINCIPAL );
         
         if ( dn instanceof LdapDN )
         {

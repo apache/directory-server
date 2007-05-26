@@ -54,7 +54,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( deletedEntryName.getUpName() );
-        };
+        }
     };
     
     MicroInjector $deletedEntryInjector = new MicroInjector()
@@ -62,7 +62,7 @@ public class DeleteStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return deletedEntry;
-        };
+        }
     };
     
     private Attributes getDeletedEntry() throws NamingException

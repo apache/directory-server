@@ -70,7 +70,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldDN.getUpName() );
-        };
+        }
     };
 
     /**
@@ -82,7 +82,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newRDN.getUpName() );
-        };
+        }
     };
     
     /**
@@ -94,7 +94,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new Boolean( deleteOldRn );
-        };
+        }
     };
     
     /**
@@ -106,7 +106,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newSuperiorDN.getUpName() );
-        };
+        }
     };
     
     /**
@@ -118,7 +118,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldRDN.getUpName() );
-        };
+        }
     };
     
     /**
@@ -130,7 +130,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( oldSuperiorDN.getUpName() );
-        };
+        }
     };
     
     /**
@@ -142,7 +142,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( newDN.getUpName() );
-        };
+        }
     };
     
 }

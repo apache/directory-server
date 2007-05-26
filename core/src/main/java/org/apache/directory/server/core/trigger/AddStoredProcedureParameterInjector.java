@@ -50,7 +50,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( addedEntryName.getUpName() );
-        };
+        }
     };
     
     MicroInjector $attributesInjector = new MicroInjector()
@@ -58,7 +58,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return addedEntry.clone();
-        };
+        }
     };
 
 }

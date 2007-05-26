@@ -60,7 +60,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         {
             // Return a safe copy constructed with user provided name.
             return new LdapDN( modifiedEntryName.getUpName() );
-        };
+        }
     };
     
     MicroInjector $modificationInjector = new MicroInjector()
@@ -68,7 +68,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return modifications.clone();
-        };
+        }
     };
     
     MicroInjector $oldEntryInjector = new MicroInjector()
@@ -76,7 +76,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return oldEntry;
-        };
+        }
     };
     
     MicroInjector $newEntryInjector = new MicroInjector()
@@ -84,7 +84,7 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return getEntry();
-        };
+        }
     };
     
     private Attributes getEntry() throws NamingException

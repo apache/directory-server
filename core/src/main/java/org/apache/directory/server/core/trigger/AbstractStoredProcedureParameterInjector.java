@@ -92,7 +92,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             return getOperationPrincipal();
-        };
+        }
     };
     
     MicroInjector $ldapContextInjector = new MicroInjector()
@@ -102,7 +102,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
             Generic_LDAP_CONTEXT ldapCtxParam = ( Generic_LDAP_CONTEXT ) param;
             LdapDN ldapCtxName = ldapCtxParam.getCtxName();
             return ( ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext()).lookup( ldapCtxName );
-        };
+        }
     };
 
 }

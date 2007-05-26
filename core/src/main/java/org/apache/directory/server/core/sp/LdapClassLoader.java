@@ -167,8 +167,8 @@ public class LdapClassLoader extends ClassLoader
         }
         finally
         {
-            if ( defaultSearchContexts != null ) { try { defaultSearchContexts.close(); } catch( Exception e ) {} };
-            if ( namingContexts != null ) { try { namingContexts.close(); } catch( Exception e ) {} };
+            if ( defaultSearchContexts != null ) { try { defaultSearchContexts.close(); } catch( Exception e ) {} }
+            if ( namingContexts != null ) { try { namingContexts.close(); } catch( Exception e ) {} }
         }
         
         return defineClass( name, classBytes, 0, classBytes.length );

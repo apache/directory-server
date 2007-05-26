@@ -166,7 +166,7 @@ public abstract class ServerContext implements EventContext
         this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.nexusProxy = new PartitionNexusProxy( this, service );
-        ;
+
         this.principal = principal;
     }
 
