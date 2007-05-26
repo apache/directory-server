@@ -22,20 +22,6 @@
     </site>
   </distributionManagement>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/ldap-constants</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/trunks/shared/ldap-constants</developerConnection>
-  </scm>
-
-  <ciManagement>
-    <notifiers>
-      <notifier>
-        <type>mail</type>
-        <address>dev@directory.apache.org</address>
-      </notifier>
-    </notifiers>
-  </ciManagement>
-
   <description>
     Common LDAP constants used by clients and servers.
   </description>
@@ -79,34 +65,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>surefire-report-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>
 

@@ -9,12 +9,14 @@
   <artifactId>shared-asn1</artifactId>
   <name>Apache Directory ASN.1 Shared</name>
   <packaging>jar</packaging>  
+  
   <distributionManagement>
     <site>
       <id>apacheds.websites</id>
       <url>scp://minotaur.apache.org/www/directory.apache.org/newsite/subprojects/asn1/</url>
     </site>
   </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -23,6 +25,7 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -33,29 +36,7 @@
           <target>1.5</target>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
-
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/directory/trunks/shared/asn1</developerConnection>
-  </scm>
-  
-  <ciManagement>
-    <system>continuum</system>
-    <url>http://localhost:8080/continuum</url>
-    <notifiers>
-      <notifier>
-        <type>mail</type>
-        <configuration>
-          <address>elecharny@apache.org</address>
-        </configuration>
-      </notifier>
-    </notifiers>
-  </ciManagement>
-
 </project>
 
