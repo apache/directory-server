@@ -79,7 +79,7 @@ public class GetLdapContext implements IoHandlerCommand
             }
             else
             {
-                Control[] connCtls = ( Control[] ) request.getControls().values().toArray( EMPTY );
+                Control[] connCtls = request.getControls().values().toArray( EMPTY );
                 ctx = new InitialLdapContext( env, connCtls );
             }
 

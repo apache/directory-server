@@ -208,7 +208,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             }
             else
             {
-                Control[] connCtls = ( Control[] ) request.getControls().values().toArray( EMPTY );
+                Control[] connCtls = request.getControls().values().toArray( EMPTY );
                 ctx = new InitialLdapContext( env, connCtls );
             }
         }
@@ -256,13 +256,12 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * an {@link LdapContext} for the client.
      * 
      * @param session The current session.
-     * @param message The current message.
      * @return An environment suitable for acquiring an {@link LdapContext} for the client.
      */
-    protected Hashtable<String, Object> getEnvironment( IoSession session, Object message )
+    protected Hashtable<String, Object> getEnvironment( IoSession session )
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( Context.PROVIDER_URL, ( String ) session.getAttribute( "baseDn" ) );
+        env.put( Context.PROVIDER_URL, session.getAttribute( "baseDn" ) );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );

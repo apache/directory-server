@@ -76,7 +76,7 @@ public class AddHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
             ctx.createSubcontext( req.getEntry(), req.getAttributes() );
         }
         catch ( ReferralException e )

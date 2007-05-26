@@ -74,7 +74,7 @@ public class CompareHandler implements MessageHandler
             {
                 newCtx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            newCtx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            newCtx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
 
             if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
             {

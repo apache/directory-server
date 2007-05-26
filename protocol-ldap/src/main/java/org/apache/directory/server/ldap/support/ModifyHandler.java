@@ -73,7 +73,7 @@ public class ModifyHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
             Object[] mods = req.getModificationItems().toArray( EMPTY );
             ctx.modifyAttributes( req.getName(), ( ModificationItemImpl[] ) mods );
         }

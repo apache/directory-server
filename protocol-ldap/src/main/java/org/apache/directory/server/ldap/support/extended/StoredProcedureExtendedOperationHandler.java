@@ -54,8 +54,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 {
     public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
     {
-        Control[] connCtls = ( Control[] ) req.getControls().values().toArray( new Control[ req.getControls().size() ] );
-        LdapContext ldapContext = ( LdapContext ) registry.getLdapContext( session, connCtls, false);
+        Control[] connCtls = req.getControls().values().toArray( new Control[ req.getControls().size() ] );
+        LdapContext ldapContext = registry.getLdapContext( session, connCtls, false);
         ServerLdapContext serverLdapContext;
         
         if ( ldapContext instanceof ServerLdapContext )

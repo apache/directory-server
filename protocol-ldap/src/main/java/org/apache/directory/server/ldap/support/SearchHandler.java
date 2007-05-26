@@ -113,7 +113,7 @@ public class SearchHandler implements MessageHandler
         else
         {
             controls.setCountLimit( Math.min( req.getSizeLimit(), maxSize ) );
-            controls.setTimeLimit( ( int ) Math.min( req.getTimeLimit(), maxTime ) );
+            controls.setTimeLimit( Math.min( req.getTimeLimit(), maxTime ) );
         }
         
         controls.setSearchScope( req.getScope().getValue() );
@@ -208,7 +208,7 @@ public class SearchHandler implements MessageHandler
                 {
                     ctx = ( ServerLdapContext ) unknown;
                 }
-                Control[] controls = ( Control[] ) req.getControls().values().toArray( new Control[0] );
+                Control[] controls = req.getControls().values().toArray( new Control[0] );
                 ctx.setRequestControls( controls );
             }
             
@@ -228,7 +228,7 @@ public class SearchHandler implements MessageHandler
             // ===============================================================
 
             boolean allowAnonymousBinds = cfg.isAllowAnonymousAccess();
-            boolean isAnonymousUser = ( ( ServerLdapContext ) ctx ).getPrincipal().getName().trim().equals( "" );
+            boolean isAnonymousUser = ctx.getPrincipal().getName().trim().equals( "" );
 
             if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
             {
@@ -266,7 +266,7 @@ public class SearchHandler implements MessageHandler
             {
                 controls = getSearchControls( req, ids, false, maxSize, maxTime );
             }
-            else if ( ( ( ServerLdapContext ) ctx ).getPrincipal().getName()
+            else if ( ctx.getPrincipal().getName()
                 .trim().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
             {
                 controls = getSearchControls( req, ids, true, maxSize, maxTime );
@@ -291,7 +291,7 @@ public class SearchHandler implements MessageHandler
 
                 if ( !psearchControl.isChangesOnly() )
                 {
-                    list = ( ( ServerLdapContext ) ctx ).search( req.getBase(), req.getFilter(),
+                    list = ctx.search( req.getBase(), req.getFilter(),
                         controls );
                     if ( list instanceof AbandonListener )
                     {
@@ -370,7 +370,7 @@ public class SearchHandler implements MessageHandler
              * Iterate through all search results building and sending back responses 
              * for each search result returned.  
              */
-            list = ( ( ServerLdapContext ) ctx ).search( req.getBase(), req.getFilter(), controls );
+            list = ctx.search( req.getBase(), req.getFilter(), controls );
             if ( list instanceof AbandonListener )
             {
                 req.addAbandonListener( ( AbandonListener ) list );

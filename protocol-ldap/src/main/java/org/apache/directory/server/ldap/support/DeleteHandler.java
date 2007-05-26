@@ -71,7 +71,7 @@ public class DeleteHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( ( Control[] ) req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
             ctx.destroySubcontext( req.getName() );
         }
         catch ( ReferralException e )

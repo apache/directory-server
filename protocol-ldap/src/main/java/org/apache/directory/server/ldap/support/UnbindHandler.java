@@ -49,7 +49,7 @@ public class UnbindHandler implements MessageHandler
 
         try
         {
-            LdapContext ctx = ( LdapContext ) SessionRegistry.getSingleton().getLdapContext( session, null, false );
+            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, false );
 
             if ( ctx != null )
             {
