@@ -77,7 +77,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
 
         if ( byOid.containsKey( id ) )
         {
-            Syntax syntax = ( Syntax ) byOid.get( id );
+            Syntax syntax = byOid.get( id );
             
             if ( IS_DEBUG )
             {

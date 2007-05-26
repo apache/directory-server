@@ -274,21 +274,21 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
 
         // OutputListener param
-        ToolCommandListener outputListener = ( ToolCommandListener ) parameters.get( OUTPUTLISTENER_PARAMETER );
+        ToolCommandListener outputListener = parameters.get( OUTPUTLISTENER_PARAMETER );
         if ( outputListener != null )
         {
             this.outputListener = outputListener;
         }
 
         // ErrorListener param
-        ToolCommandListener errorListener = ( ToolCommandListener ) parameters.get( ERRORLISTENER_PARAMETER );
+        ToolCommandListener errorListener = parameters.get( ERRORLISTENER_PARAMETER );
         if ( errorListener != null )
         {
             this.errorListener = errorListener;
         }
 
         // ExceptionListener param
-        ToolCommandListener exceptionListener = ( ToolCommandListener ) parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        ToolCommandListener exceptionListener = parameters.get( EXCEPTIONLISTENER_PARAMETER );
         if ( exceptionListener != null )
         {
             this.exceptionListener = exceptionListener;
@@ -379,7 +379,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
         for ( int ii = 0; ii < toRemove.size(); ii++ )
         {
-            String id = ( String ) toRemove.get( ii );
+            String id = toRemove.get( ii );
             entry.remove( id );
             if ( isDebugEnabled() )
             {

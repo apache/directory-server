@@ -95,7 +95,7 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
             throw e;
         }
 
-        SyntaxChecker syntaxChecker = ( SyntaxChecker ) byOid.get( oid );
+        SyntaxChecker syntaxChecker = byOid.get( oid );
         if ( log.isDebugEnabled() )
         {
             log.debug( "looked up syntaxChecher with OID " + oid );

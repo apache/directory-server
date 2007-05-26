@@ -257,7 +257,7 @@ public class KeyDerivationService extends BaseInterceptor
                 newModsList.add( mods[ii] );
             }
 
-            mods = ( ModificationItemImpl[] ) newModsList.toArray( mods );
+            mods = newModsList.toArray( mods );
 
             modContext.setModItems( mods );
         }
