@@ -20,14 +20,17 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
+import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
+import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
@@ -36,24 +39,51 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KdcReqBodyEncoder
+public class KdcRequestEncoder
 {
     /**
-     * Encodes a {@link KdcRequest} into a byte array.
+     * Encodes a {@link KdcRequest} into a {@link ByteBuffer}.
+     * 
+     * AS-REQ ::=         [APPLICATION 10] KDC-REQ
+     * TGS-REQ ::=        [APPLICATION 12] KDC-REQ
      *
      * @param request
-     * @return The byte array.
+     * @param out
      * @throws IOException
      */
-    public byte[] encode( KdcRequest request ) throws IOException
+    public void encode( KdcRequest request, ByteBuffer out ) throws IOException
     {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ASN1OutputStream aos = new ASN1OutputStream( baos );
+        ASN1OutputStream aos = new ASN1OutputStream( out );
 
-        aos.writeObject( encodeInitialSequence( request ) );
+        DERSequence kdcRequest = encodeInitialSequence( request );
+        aos.writeObject( DERApplicationSpecific.valueOf( request.getMessageType().getOrdinal(), kdcRequest ) );
         aos.close();
+    }
 
-        return baos.toByteArray();
+
+    /*
+     KDC-REQ ::=        SEQUENCE {
+     pvno[1]               INTEGER,
+     msg-type[2]           INTEGER,
+     padata[3]             SEQUENCE OF PA-DATA OPTIONAL,
+     req-body[4]           KDC-REQ-BODY
+     }*/
+    private DERSequence encodeInitialSequence( KdcRequest app )
+    {
+        DERSequence sequence = new DERSequence();
+
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( app.getProtocolVersionNumber() ) ) );
+
+        sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( app.getMessageType().getOrdinal() ) ) );
+
+        if ( app.getPreAuthData() != null )
+        {
+            sequence.add( new DERTaggedObject( 3, encodePreAuthData( app.getPreAuthData() ) ) );
+        }
+
+        sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app ) ) );
+
+        return sequence;
     }
 
 
@@ -78,7 +108,7 @@ public class KdcReqBodyEncoder
      *     additional-tickets[11]       SEQUENCE OF Ticket OPTIONAL
      * }
      */
-    private DERSequence encodeInitialSequence( KdcRequest request )
+    private DERSequence encodeKdcRequestBody( KdcRequest request )
     {
         DERSequence sequence = new DERSequence();
 
@@ -136,5 +166,28 @@ public class KdcReqBodyEncoder
         }
 
         return sequence;
+    }
+
+
+    /*
+     PA-DATA ::=        SEQUENCE {
+     padata-type[1]        INTEGER,
+     padata-value[2]       OCTET STRING,
+     -- might be encoded AP-REQ
+     }*/
+    private DERSequence encodePreAuthData( PreAuthenticationData[] preAuthData )
+    {
+        DERSequence preAuth = new DERSequence();
+
+        for ( int ii = 0; ii < preAuthData.length; ii++ )
+        {
+            DERSequence sequence = new DERSequence();
+
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getDataType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getDataValue() ) ) );
+            preAuth.add( sequence );
+        }
+
+        return preAuth;
     }
 }
