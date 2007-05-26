@@ -719,7 +719,7 @@ public class PersistentSearchTest extends AbstractServerTest
                     catch ( Exception e )
                     {
                         e.printStackTrace();
-                    };
+                    }
                 }
             }
         }

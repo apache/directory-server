@@ -134,7 +134,7 @@ public class ChangeListener
                 catch ( Exception e )
                 {
                     e.printStackTrace();
-                };
+                }
             }
         }
     }
