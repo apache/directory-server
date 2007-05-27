@@ -46,9 +46,6 @@
     </license>
   </licenses>
 
-  <dependencies>
-  </dependencies>
-
   <build>
     <plugins>
       <plugin>
