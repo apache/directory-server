@@ -8,15 +8,19 @@
   </parent>
   <artifactId>apacheds-kerberos-shared</artifactId>
   <name>ApacheDS Protocol Kerberos Shared</name>
+
   <description>
     The Kerberos protocol provider for ApacheDS
   </description>
+
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>

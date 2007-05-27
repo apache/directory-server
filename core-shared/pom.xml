@@ -8,10 +8,12 @@
   </parent>
   <artifactId>apacheds-core-shared</artifactId>
   <name>ApacheDS Core Shared</name>
+
   <description>
     Shared classes between the core plugin and the core to prevent cyclic
     dependencies since the core uses the core plugin.
   </description>
+
   <packaging>jar</packaging>
 </project>
 

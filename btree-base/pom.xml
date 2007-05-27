@@ -9,16 +9,19 @@
   <artifactId>apacheds-btree-base</artifactId>
   <name>ApacheDS BTree Base</name>
   <packaging>jar</packaging>
+
   <description>
     Base BTree interfaces used by the BTreePartition and JdbmPartitions as well
     as by the JdbmStore.  Used to break cyclic dependencies.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>

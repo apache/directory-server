@@ -8,20 +8,25 @@
   </parent>
   <artifactId>apacheds-protocol-dns</artifactId>
   <name>ApacheDS Protocol Dns</name>
+
   <description>
     The DNS protocol provider for ApacheDS
   </description>
+
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>

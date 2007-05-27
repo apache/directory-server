@@ -8,42 +8,51 @@
   </parent>
   <artifactId>apacheds-schema-bootstrap</artifactId>
   <name>ApacheDS Bootstrap Schemas</name>
+
   <description>
     The minimal set of schemas needed to bootstrap the server's special schema
     partition which is used to store all the schemas for the server.
   </description>
+
   <packaging>jar</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-shared</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.directory.server</groupId>
         <artifactId>apacheds-core-plugin</artifactId>
+        <version>${pom.version}</version>
         <configuration>
           <schemaSourcesDir>src/main/schema</schemaSourcesDir>
           <schemas>

@@ -8,16 +8,20 @@
   </parent>
   <artifactId>apacheds-protocol-kerberos</artifactId>
   <name>ApacheDS Protocol Kerberos</name>
+
   <description>
     The Kerberos Protocol Provider for ApacheDS
   </description>
+
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>

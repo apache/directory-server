@@ -8,16 +8,20 @@
   </parent>
   <artifactId>apacheds-protocol-changepw</artifactId>
   <name>ApacheDS Protocol Change Password</name>
+
   <description>
     The Change Password protocol provider for ApacheDS
   </description>
+
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-kerberos-shared</artifactId>

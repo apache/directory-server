@@ -9,31 +9,37 @@
   <artifactId>apacheds-schema-extras</artifactId>
   <name>ApacheDS Extra Schemas</name>
   <packaging>jar</packaging>
+
   <description>
-  </description>
     A set of additional bootstrap schemas beyond the essential set.
+  </description>
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-bootstrap</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.directory.server</groupId>
         <artifactId>apacheds-core-plugin</artifactId>
+        <version>${pom.version}</version>
         <configuration>
           <schemaSourcesDir>src/main/schema</schemaSourcesDir>
           <schemas>

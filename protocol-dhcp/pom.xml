@@ -8,25 +8,31 @@
   </parent>
   <artifactId>apacheds-protocol-dhcp</artifactId>
   <name>ApacheDS Protocol Dhcp</name>
+
   <description>
     The DHCP protocol provider for ApacheDS
   </description>
+
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-shared</artifactId>

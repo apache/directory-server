@@ -8,11 +8,14 @@
   </parent>
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-protocol-shared</artifactId>
+
   <description>
     Shared library that is used by all protocol providers in ApacheDS
   </description>
+
   <name>ApacheDS Protocol Shared</name>
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>

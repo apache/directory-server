@@ -8,16 +8,20 @@
   </parent>
   <artifactId>apacheds-schema-registries</artifactId>
   <name>ApacheDS Schema Registries</name>
+
   <description>
     Interfaces for schema entity registries are contained here.
   </description>
+
   <packaging>jar</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core-shared</artifactId>

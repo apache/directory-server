@@ -9,6 +9,7 @@
   <artifactId>apacheds-jdbm-store</artifactId>
   <name>ApacheDS JDBM Store</name>
   <packaging>jar</packaging>
+
   <description>
     A JDBM entry store which does not have any dependency on core interfaces.
     The JDBM partition will use this store and build on it to adapt this to 
@@ -18,31 +19,37 @@
     important for use within the bootstrap plugin which needs to build the
     schema partition used for bootstrapping the server.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
     </dependency>
+
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-btree-base</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>

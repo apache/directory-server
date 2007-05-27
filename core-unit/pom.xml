@@ -9,6 +9,7 @@
   <artifactId>apacheds-core-unit</artifactId>
   <name>ApacheDS Core Unit</name>
   <packaging>jar</packaging>  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -59,6 +60,7 @@
             <argLine>-Xmx1024m</argLine>
           </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -84,29 +86,31 @@ enable performance tests run maven with the -Dperformance switch.
               </execution>
             </executions>
           </plugin>
-   	    </plugins>
+        </plugins>
       </build>
     </profile>
+    
     <profile>
       <id>integration</id>
       <activation>
         <property><name>integration</name></property>
       </activation>
-    <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <forkMode>pertest</forkMode>
-            <!-- <argLine>-agentlib:yjpagent</argLine> -->
-            <excludes>
-              <exclude>**/*PTest.java</exclude>
-            </excludes>
-            <argLine>-Xmx1024m</argLine>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>pertest</forkMode>
+              <!-- <argLine>-agentlib:yjpagent</argLine> -->
+              <excludes>
+                <exclude>**/*PTest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -129,33 +133,35 @@ performance tests run maven with the -Dperformance switch.
               </execution>
             </executions>
           </plugin>
-   	    </plugins>
+        </plugins>
       </build>
     </profile>
+
     <profile>
       <id>performance</id>
       <activation>
         <property><name>performance</name></property>
       </activation>
-    <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <systemProperties>
-              <property>
-                <name>outputDirectory</name>
-                <value>${basedir}/target</value>
-              </property>
-            </systemProperties>
-            <excludes>
-              <exclude>**/*ITest.java</exclude>
-            </excludes>
-            <argLine>-Xmx1024m</argLine>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemProperties>
+                <property>
+                  <name>outputDirectory</name>
+                  <value>${basedir}/target</value>
+                </property>
+              </systemProperties>
+              <excludes>
+                <exclude>**/*ITest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -178,7 +184,7 @@ tests run maven with the -Dintegration switch.
               </execution>
             </executions>
           </plugin>
-   	    </plugins>
+        </plugins>
       </build>
     </profile>
   </profiles>

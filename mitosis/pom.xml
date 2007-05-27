@@ -9,6 +9,7 @@
   <artifactId>mitosis</artifactId>
   <name>ApacheDS replication</name>
   <packaging>jar</packaging>
+
   <description>
      Mitosis is the multi-master replications service included into Apache
      Directory Server
@@ -64,17 +65,18 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-shared</artifactId>
+      <version>${pom.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
-      <!--scope>test</scope-->
     </dependency>
 
     <dependency>
@@ -106,6 +108,7 @@
             <argLine>-Xmx1024m</argLine>
           </configuration>
         </plugin>
+
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -131,28 +134,30 @@ enable performance tests run maven with the -Dperformance switch.
               </execution>
             </executions>
           </plugin>
-            </plugins>
+        </plugins>
       </build>
     </profile>
+
     <profile>
       <id>integration</id>
       <activation>
         <property><name>integration</name></property>
       </activation>
-    <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <forkMode>pertest</forkMode>
-            <excludes>
-              <exclude>**/*PTest.java</exclude>
-            </excludes>
-            <argLine>-Xmx1024m</argLine>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>pertest</forkMode>
+              <excludes>
+                <exclude>**/*PTest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -175,33 +180,35 @@ performance tests run maven with the -Dperformance switch.
               </execution>
             </executions>
           </plugin>
-            </plugins>
+        </plugins>
       </build>
     </profile>
+ 
     <profile>
       <id>performance</id>
       <activation>
         <property><name>performance</name></property>
       </activation>
-    <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <systemProperties>
-              <property>
-                <name>outputDirectory</name>
-                <value>${basedir}/target</value>
-              </property>
-            </systemProperties>
-            <excludes>
-              <exclude>**/*ITest.java</exclude>
-            </excludes>
-            <argLine>-Xmx1024m</argLine>
-          </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemProperties>
+                <property>
+                  <name>outputDirectory</name>
+                  <value>${basedir}/target</value>
+                </property>
+              </systemProperties>
+              <excludes>
+                <exclude>**/*ITest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -224,7 +231,7 @@ tests run maven with the -Dintegration switch.
               </execution>
             </executions>
           </plugin>
-            </plugins>
+        </plugins>
       </build>
     </profile>
   </profiles>

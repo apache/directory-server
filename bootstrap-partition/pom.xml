@@ -9,6 +9,7 @@
   <artifactId>apacheds-bootstrap-partition</artifactId>
   <name>ApacheDS Bootstrap Partition</name>
   <packaging>jar</packaging>
+
   <description>
     A special jar file that contains a pre-loaded partition with schema 
     information.  This schema partition will mount off of the ou=schema 
@@ -16,33 +17,39 @@
     It must be used with the apacheds-bootstrap-extract jar which contains
     the classes to install these files.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-jdbm-store</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-bootstrap-extract</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-extras</artifactId>
       <version>${pom.version}</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -61,40 +68,41 @@
           </systemProperties>
         </configuration>
       </plugin>
-  	  <plugin>
-	    <groupId>org.apache.directory.server</groupId>
-  	    <artifactId>apacheds-bootstrap-plugin</artifactId>
-            <configuration>
-              <disabledSchemas>
-                <disabledSchema>nis</disabledSchema>
-                <disabledSchema>krb5kdc</disabledSchema>
-                <disabledSchema>samba</disabledSchema>
-                <disabledSchema>autofs</disabledSchema>
-                <disabledSchema>apachedns</disabledSchema>
-                <disabledSchema>corba</disabledSchema>
-                <disabledSchema>dhcp</disabledSchema>
-                <disabledSchema>mozilla</disabledSchema>
-              </disabledSchemas>
-              <indexedAttributes>
-                <indexedAttribute>objectClass</indexedAttribute>
-                <indexedAttribute>ou</indexedAttribute>
-                <indexedAttribute>cn</indexedAttribute>
-                <indexedAttribute>m-oid</indexedAttribute>
-                <indexedAttribute>m-disabled</indexedAttribute>
-              </indexedAttributes>
-              <bootstrapSchemaClasses>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.ApachednsSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.AutofsSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CollectiveSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CorbaSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CosineSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.DhcpSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.InetorgpersonSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.JavaSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.Krb5kdcSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.MozillaSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.NisSchema</bootstrapSchemaClass>
-          	<bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.SambaSchema</bootstrapSchemaClass>
+
+      <plugin>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-bootstrap-plugin</artifactId>
+        <configuration>
+          <disabledSchemas>
+            <disabledSchema>nis</disabledSchema>
+            <disabledSchema>krb5kdc</disabledSchema>
+            <disabledSchema>samba</disabledSchema>
+            <disabledSchema>autofs</disabledSchema>
+            <disabledSchema>apachedns</disabledSchema>
+            <disabledSchema>corba</disabledSchema>
+            <disabledSchema>dhcp</disabledSchema>
+            <disabledSchema>mozilla</disabledSchema>
+          </disabledSchemas>
+          <indexedAttributes>
+            <indexedAttribute>objectClass</indexedAttribute>
+            <indexedAttribute>ou</indexedAttribute>
+            <indexedAttribute>cn</indexedAttribute>
+            <indexedAttribute>m-oid</indexedAttribute>
+            <indexedAttribute>m-disabled</indexedAttribute>
+          </indexedAttributes>
+          <bootstrapSchemaClasses>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.ApachednsSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.AutofsSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CollectiveSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CorbaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CosineSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.DhcpSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.InetorgpersonSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.JavaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.Krb5kdcSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.MozillaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.NisSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.SambaSchema</bootstrapSchemaClass>
           </bootstrapSchemaClasses>
         </configuration>
         <executions>

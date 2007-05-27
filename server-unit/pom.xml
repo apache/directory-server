@@ -9,31 +9,36 @@
   <artifactId>apacheds-server-unit</artifactId>
   <name>ApacheDS Server Unit</name>
   <packaging>jar</packaging>  
+
   <description>
     Unit testing framework for ApacheDS Server JNDI Provider
   </description>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>provided</scope>
     </dependency>  
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>  
+
     <dependency>
       <groupId>ldapsdk</groupId>
       <artifactId>ldapsdk</artifactId>
-      <version>4.1</version>
       <scope>test</scope>
     </dependency>  
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
       <version>${pom.version}</version>
     </dependency>  
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-unit</artifactId>
@@ -79,6 +84,7 @@
                 <argLine>-Xmx1024m</argLine>
               </configuration>
             </plugin>
+
             <plugin>
               <artifactId>maven-antrun-plugin</artifactId>
               <executions>
@@ -106,6 +112,7 @@ tests run maven with the -Dintegration switch.
          </plugins>
        </build>
     </profile>
+
     <profile>
       <id>integration</id>
       <activation>

@@ -9,36 +9,40 @@
   <artifactId>apacheds-core-plugin</artifactId>
   <name>ApacheDS Core Plugin (Maven 2)</name>
   <packaging>maven-plugin</packaging>
+
   <description>
     A collection of tools as plugins to manage various tasks associated with 
     the directory server.
   </description>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>2.0</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
-      <version>2.0</version>
     </dependency>
+
     <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-shared</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>velocity</groupId>
       <artifactId>velocity-dep</artifactId>
-      <version>1.4</version>
     </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>

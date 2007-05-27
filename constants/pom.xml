@@ -9,6 +9,7 @@
   <artifactId>apacheds-constants</artifactId>
   <name>ApacheDS Constants</name>
   <packaging>jar</packaging>
+
   <description>
     Contains classes that store interfaces with various constants in ApacheDS.
   </description>
