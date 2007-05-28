@@ -75,7 +75,7 @@ public class IndexRecord
      */
     public Object getEntryId()
     {
-        return ( Object ) tuple.getValue();
+        return tuple.getValue();
     }
 
 
