@@ -418,12 +418,12 @@ public class AttributeSerializerUtils
 
     static final int writeValueBytes( byte[] buf, String value )
     {
-        if ( ( ( String ) value ).length() == 0 )
+        if ( value.length() == 0 )
         {
             return 0;
         }
         
-        char[] strchars = ( ( String ) value ).toCharArray();
+        char[] strchars = value.toCharArray();
         int jj = 0;
         for ( int ii = 0; ii < strchars.length; ii++, jj = ii << 1 )
         {
@@ -436,12 +436,12 @@ public class AttributeSerializerUtils
     
     static final int writeValueBytes( byte[] buf, String value, int offset )
     {
-        if ( ( ( String ) value ).length() == 0 )
+        if ( value.length() == 0 )
         {
             return offset;
         }
         
-        char[] strchars = ( ( String ) value ).toCharArray();
+        char[] strchars = value.toCharArray();
         int jj = 0;
         for ( int ii = 0; ii < strchars.length; ii++, jj = ii << 1 )
         {

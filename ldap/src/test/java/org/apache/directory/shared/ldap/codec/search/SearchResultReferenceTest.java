@@ -401,7 +401,7 @@ public class SearchResultReferenceTest extends TestCase
 
         assertEquals( 1, message.getMessageId() );
 
-        LdapURL ldapUrl = ( LdapURL ) searchResultReference.getSearchResultReferences().get( 0 );
+        LdapURL ldapUrl = searchResultReference.getSearchResultReferences().get( 0 );
 
         assertEquals( "ldap:///", ldapUrl.toString() );
 

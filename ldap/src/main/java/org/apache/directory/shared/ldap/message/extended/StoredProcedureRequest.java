@@ -101,7 +101,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     	StoredProcedureResponse resp = ( StoredProcedureResponse ) getResultResponse();
     	resp.setResponse( berValue );
     	resp.setOid( id );
-        return ( ExtendedResponse ) resp;
+        return resp;
     }
 
 
@@ -182,7 +182,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     {
         if ( ! this.procedure.getLanguage().equals( "java" ) )
         {
-            return ( ( StoredProcedureParameter ) procedure.getParameters().get( index ) ).getType();
+            return procedure.getParameters().get( index ).getType();
         }
 
         return getJavaParameterType( index );
@@ -199,7 +199,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     {
         if ( ! this.procedure.getLanguage().equals( "java" ) )
         {
-            return ( ( StoredProcedureParameter ) procedure.getParameters().get( index ) ).getValue();
+            return procedure.getParameters().get( index ).getValue();
         }
 
         return getJavaParameterValue( index );

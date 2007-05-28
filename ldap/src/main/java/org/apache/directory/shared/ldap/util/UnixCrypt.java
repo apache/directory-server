@@ -232,10 +232,10 @@ package org.apache.directory.shared.ldap.util;
          for (int i=0; i<64; i++) perm[i] = (byte)0;
          for (int i=0; i<64; i++) {
              int k;
-             if ((k = (int)PC2[i]) == 0) continue;
+             if ((k = PC2[i]) == 0) continue;
              k += Rotates[0]-1;
              if ((k%28) < Rotates[0]) k -= 28;
-             k = (int)PC1[k];
+             k = PC1[k];
              if (k > 0) {
                  k--;
                  k = (k|0x07) - (k&0x07);
@@ -250,11 +250,11 @@ package org.apache.directory.shared.ldap.util;
              int k;
              for (int i=0; i<64; i++) perm[i] = temp[i] = 0;
              for (int i=0; i<64; i++) {
-                 if ((k = (int)PC2[i]) == 0) continue;
+                 if ((k = PC2[i]) == 0) continue;
                  temp[k-1] = (byte)(i+1);
              }
              for (int i=0; i<64; i++) {
-                 if ((k = (int)PC2[i]) == 0) continue;
+                 if ((k = PC2[i]) == 0) continue;
                  k += j;
                  if ((k%28) <= j) k -= 28;
                  perm[i] = temp[k];
@@ -309,7 +309,7 @@ package org.apache.directory.shared.ldap.util;
                  long kk = 0;
                  for (int i=24; --i>=0; ) kk = ((kk<<1) |
                                                 ((long)temp[perm[i]-1])<<32 |
-                                                ((long)temp[perm[i+24]-1]));
+                                                (temp[perm[i+24]-1]));
  
                  SPE[t][j] = to_six_bit(kk);
              }

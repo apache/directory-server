@@ -91,17 +91,17 @@ public class StoredProcedureTest extends TestCase
 
         Assert.assertEquals( 3, storedProcedure.getParameters().size() );
 
-        StoredProcedureParameter param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 0 );
+        StoredProcedureParameter param = storedProcedure.getParameters().get( 0 );
 
         Assert.assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
         Assert.assertEquals( 1, param.getValue()[0] );
 
-        param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 1 );
+        param = storedProcedure.getParameters().get( 1 );
 
         Assert.assertEquals( "boolean", StringTools.utf8ToString( param.getType() ) );
         Assert.assertEquals( "true", StringTools.utf8ToString( param.getValue() ) );
 
-        param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 2 );
+        param = storedProcedure.getParameters().get( 2 );
 
         Assert.assertEquals( "String", StringTools.utf8ToString( param.getType() ) );
         Assert.assertEquals( "parameter3", StringTools.utf8ToString( param.getValue() ) );
@@ -219,7 +219,7 @@ public class StoredProcedureTest extends TestCase
 
         Assert.assertEquals( 1, storedProcedure.getParameters().size() );
 
-        StoredProcedureParameter param = ( StoredProcedureParameter ) storedProcedure.getParameters().get( 0 );
+        StoredProcedureParameter param = storedProcedure.getParameters().get( 0 );
 
         Assert.assertEquals( "int", StringTools.utf8ToString( param.getType() ) );
         Assert.assertEquals( 1, param.getValue()[0] );

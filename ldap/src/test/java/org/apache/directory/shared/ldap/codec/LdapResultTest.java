@@ -383,7 +383,7 @@ public class LdapResultTest extends TestCase
 
         assertEquals( 1, addResponse.getLdapResult().getReferrals().size() );
 
-        LdapURL referral = ( LdapURL ) addResponse.getLdapResult().getReferrals().get( 0 );
+        LdapURL referral = addResponse.getLdapResult().getReferrals().get( 0 );
 
         assertEquals( "ldap:///", referral.toString() );
 
@@ -458,11 +458,11 @@ public class LdapResultTest extends TestCase
 
         assertEquals( 2, addResponse.getLdapResult().getReferrals().size() );
 
-        LdapURL referral = ( LdapURL ) addResponse.getLdapResult().getReferrals().get( 0 );
+        LdapURL referral = addResponse.getLdapResult().getReferrals().get( 0 );
 
         assertEquals( "ldap:///", referral.toString() );
 
-        referral = ( LdapURL ) addResponse.getLdapResult().getReferrals().get( 1 );
+        referral = addResponse.getLdapResult().getReferrals().get( 1 );
 
         assertEquals( "ldap:///", referral.toString() );
 
@@ -537,11 +537,11 @@ public class LdapResultTest extends TestCase
 
         assertEquals( 2, addResponse.getLdapResult().getReferrals().size() );
 
-        LdapURL referral = ( LdapURL ) addResponse.getLdapResult().getReferrals().get( 0 );
+        LdapURL referral = addResponse.getLdapResult().getReferrals().get( 0 );
 
         assertEquals( "ldap:///", referral.toString() );
 
-        referral = ( LdapURL ) addResponse.getLdapResult().getReferrals().get( 1 );
+        referral = addResponse.getLdapResult().getReferrals().get( 1 );
 
         assertEquals( "ldap:///", referral.toString() );
 

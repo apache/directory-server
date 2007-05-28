@@ -403,7 +403,7 @@ public class AttributesImpl implements Attributes
         {
             String key = StringTools.lowerCaseAscii( attrId );
             
-            return (AttributeImpl)keyMap.get( key );
+            return keyMap.get( key );
         }
         else
         {
