@@ -187,7 +187,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
 
         try
         {
-            while ( ( line = ( (BufferedReader) in ).readLine() ) != null )
+            while ( ( line = in.readLine() ) != null )
             {
                 if ( line.length() == 0 )
                 {

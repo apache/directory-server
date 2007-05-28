@@ -191,7 +191,7 @@ public class DefaultOptimizer implements Optimizer
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
-            ExprNode child = ( ExprNode ) children.get( ii );
+            ExprNode child = children.get( ii );
             annotate( child );
             count = Math.min( ( ( Long ) child.get( "count" ) ), count );
         }
@@ -216,7 +216,7 @@ public class DefaultOptimizer implements Optimizer
      */
     private Long getNegationScan( BranchNode node ) throws NamingException
     {
-        ExprNode onlyChild = ( ExprNode ) node.getChildren().get( 0 );
+        ExprNode onlyChild = node.getChildren().get( 0 );
 
         annotate( onlyChild );
 
@@ -254,7 +254,7 @@ public class DefaultOptimizer implements Optimizer
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
-            ExprNode child = ( ExprNode ) children.get( ii );
+            ExprNode child = children.get( ii );
             annotate( child );
             total += ( Long ) child.get( "count" );
         }

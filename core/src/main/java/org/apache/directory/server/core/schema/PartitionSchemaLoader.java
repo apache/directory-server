@@ -319,7 +319,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         list = notLoaded.values().iterator();
         while ( list.hasNext() )
         {
-            Schema schema = ( Schema ) list.next();
+            Schema schema = list.next();
             loadDepsFirst( schema, new Stack<String>(), notLoaded, schema, targetRegistries, null );
             list = notLoaded.values().iterator();
         }

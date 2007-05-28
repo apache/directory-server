@@ -638,7 +638,7 @@ public abstract class ServerContext implements EventContext
 
         if ( null != controls )
         {
-            ctx.setRequestControls( ( Control[] ) controls.clone() );
+            ctx.setRequestControls( controls.clone() );
         }
 
         return ctx;

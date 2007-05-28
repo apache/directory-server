@@ -178,7 +178,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         
         if ( normalizerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
         {
-            schemaName = ( String ) normalizerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            schemaName = normalizerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
         Schema schema = loader.getSchema( schemaName );

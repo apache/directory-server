@@ -179,7 +179,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         
         if ( comparatorDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
         {
-            schemaName = ( String ) comparatorDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
+            schemaName = comparatorDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
         Schema schema = loader.getSchema( schemaName );

@@ -148,7 +148,7 @@ public class GroupCache
 
             while ( results.hasMore() )
             {
-                SearchResult result = ( SearchResult ) results.next();
+                SearchResult result = results.next();
                 LdapDN groupDn = parseNormalized( result.getName() );
                 Attribute members = getMemberAttribute( result.getAttributes() );
 
@@ -470,7 +470,7 @@ public class GroupCache
             return true;
         }
         
-        Set members = ( Set ) groups.get( administratorsGroupDn.getNormName() );
+        Set members = groups.get( administratorsGroupDn.getNormName() );
         
         if ( members == null )
         {

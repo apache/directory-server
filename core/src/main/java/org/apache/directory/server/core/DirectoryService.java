@@ -63,7 +63,7 @@ public abstract class DirectoryService
     public synchronized static DirectoryService getInstance( String instanceId )
     {
         instanceId = instanceId.trim();
-        DirectoryService service = ( DirectoryService ) instances.get( instanceId );
+        DirectoryService service = instances.get( instanceId );
         if ( service == null )
         {
             service = new DefaultDirectoryService( instanceId );

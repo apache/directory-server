@@ -181,7 +181,7 @@ public class NormalizingVisitor implements FilterVisitor
             {
                 // before visiting each node let's check to make sure non-branch children use
                 // attributes that are defined in the system, if undefined nodes are removed
-                ExprNode child = ( ExprNode ) bnode.getChildren().get( ii );
+                ExprNode child = bnode.getChildren().get( ii );
                 if ( child.isLeaf() )
                 {
                     LeafNode ln = ( LeafNode ) child;
@@ -249,7 +249,7 @@ public class NormalizingVisitor implements FilterVisitor
             // their single child if other branch nodes do not remain.
             for ( int ii = 0; ii < bnode.getChildren().size(); ii++ )
             {
-                ExprNode unknown = ( ExprNode ) bnode.getChildren().get( ii );
+                ExprNode unknown = bnode.getChildren().get( ii );
                 if ( !unknown.isLeaf() )
                 {
                     BranchNode child = ( BranchNode ) unknown;

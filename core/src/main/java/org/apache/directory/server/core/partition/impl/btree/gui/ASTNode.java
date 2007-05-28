@@ -73,7 +73,7 @@ public class ASTNode implements TreeNode
             List<ExprNode> exprNodes = branch.getChildren();
             for ( int ii = 0; ii < exprNodes.size(); ii++ )
             {
-                ExprNode child = ( ExprNode ) exprNodes.get( ii );
+                ExprNode child = exprNodes.get( ii );
                 children.add( new ASTNode( this, child ) );
             }
         }

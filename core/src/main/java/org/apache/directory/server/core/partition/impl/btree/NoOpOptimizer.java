@@ -53,14 +53,14 @@ public class NoOpOptimizer implements Optimizer
         
         if ( bnode.getChildren().size() == 1 )
         {
-            ( ( ExprNode ) bnode.getChildren().get( 0 ) ).set( "count", MAX );
+            bnode.getChildren().get( 0 ).set( "count", MAX );
             return;
         }
         
         final int limit = bnode.getChildren().size();
         for ( int ii = 0; ii < limit; ii++ )
         {
-            ExprNode child = ( ExprNode ) bnode.getChildren().get( ii );
+            ExprNode child = bnode.getChildren().get( ii );
             if ( child.isLeaf() )
             {
                 child.set( "count", MAX );

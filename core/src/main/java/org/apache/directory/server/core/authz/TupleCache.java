@@ -144,7 +144,7 @@ public class TupleCache
             
             while ( results.hasMore() )
             {
-                SearchResult result = ( SearchResult ) results.next();
+                SearchResult result = results.next();
                 String subentryDn = result.getName();
                 Attribute aci = AttributeUtils.getAttribute( result.getAttributes(), prescriptiveAciAT );
                 
@@ -281,7 +281,7 @@ public class TupleCache
     @SuppressWarnings("unchecked")
     public List<ACITuple> getACITuples( String subentryDn )
     {
-        List aciTuples = ( List ) tuples.get( subentryDn );
+        List aciTuples = tuples.get( subentryDn );
         if ( aciTuples == null )
         {
             return Collections.EMPTY_LIST;

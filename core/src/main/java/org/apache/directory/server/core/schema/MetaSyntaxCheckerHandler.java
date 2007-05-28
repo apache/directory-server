@@ -181,7 +181,7 @@ public class MetaSyntaxCheckerHandler implements SchemaChangeHandler
         
         if ( syntaxCheckerDescription.getExtensions().get( MetaSchemaConstants.X_SCHEMA ) != null )
         {
-            schemaName = ( String ) syntaxCheckerDescription.getExtensions()
+            schemaName = syntaxCheckerDescription.getExtensions()
                 .get( MetaSchemaConstants.X_SCHEMA ).get( 0 );
         }
         
