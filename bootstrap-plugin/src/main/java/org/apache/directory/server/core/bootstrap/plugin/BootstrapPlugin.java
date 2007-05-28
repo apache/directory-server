@@ -412,7 +412,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             AttributeType at = ( AttributeType ) ii.next();
             String schemaName = attributeTypeRegistry.getSchemaName( at.getOid() );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( at ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=attributeTypes" );
@@ -440,7 +440,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             ObjectClass oc = ( ObjectClass ) ii.next();
             String schemaName = objectClassRegistry.getSchemaName( oc.getOid() );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( oc ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=objectClasses" );
@@ -468,7 +468,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             MatchingRule mr = ( MatchingRule ) ii.next();
             String schemaName = matchingRuleRegistry.getSchemaName( mr.getOid() );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + getNameOrNumericoid( mr ) );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=matchingRules" );
@@ -496,7 +496,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             String oid = ( String ) ii.next();
             String schemaName = comparatorRegistry.getSchemaName( oid );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=comparators" );
@@ -524,7 +524,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             String oid = ( String ) ii.next();
             String schemaName = normalizerRegistry.getSchemaName( oid );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + oid );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=normalizers" );
@@ -553,7 +553,7 @@ public class BootstrapPlugin extends AbstractMojo
             Syntax syntax = ( Syntax ) ii.next();
             getLog().info( "\t\t o [" + syntax.getSchema() + "] - " + getNameOrNumericoid( syntax ) );
             LdapDN dn = checkCreateSchema( syntax.getSchema() );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( syntax.getSchema() );
+            Schema schema = registries.getLoadedSchemas().get( syntax.getSchema() );
             dn.add( SchemaConstants.OU_AT + "=syntaxes" );
             dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
             checkCreateContainer( dn );
@@ -579,7 +579,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             SyntaxChecker syntaxChecker = ( SyntaxChecker ) ii.next();
             String schemaName = syntaxCheckerRegistry.getSchemaName( syntaxChecker.getSyntaxOid() );
-            Schema schema = ( Schema ) registries.getLoadedSchemas().get( schemaName );
+            Schema schema = registries.getLoadedSchemas().get( schemaName );
             getLog().info( "\t\t o [" + schemaName + "] - " + syntaxChecker.getSyntaxOid() );
             LdapDN dn = checkCreateSchema( schemaName );
             dn.add( SchemaConstants.OU_AT + "=syntaxCheckers" );
