@@ -152,7 +152,7 @@ public class DirectorySchemaToolMojo extends AbstractMojo
         ProducerTypeEnum type = null;
         for ( int ii = 0; ii < types.size(); ii++ )
         {
-            type = ( ProducerTypeEnum ) types.get( ii );
+            type = types.get( ii );
 
             if ( exists( schema.getFullDefaultBaseClassName( type ), type ) )
             {
