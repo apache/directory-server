@@ -47,6 +47,7 @@ public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
 
     private KerberosProtocolCodecFactory()
     {
+        // Private constructor prevents instantiation outside this class.
     }
 
 

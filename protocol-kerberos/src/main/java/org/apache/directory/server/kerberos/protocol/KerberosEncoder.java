@@ -66,5 +66,6 @@ public class KerberosEncoder implements ProtocolEncoder
 
     public void dispose( IoSession arg0 ) throws Exception
     {
+        // Unused interface method.
     }
 }

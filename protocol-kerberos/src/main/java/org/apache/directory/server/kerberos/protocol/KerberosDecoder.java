@@ -46,11 +46,12 @@ public class KerberosDecoder implements ProtocolDecoder
 
     public void dispose( IoSession session ) throws Exception
     {
+        // Unused interface method.
     }
 
 
     public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
     {
-        // TODO Auto-generated method stub
+        // Unused interface method.
     }
 }
