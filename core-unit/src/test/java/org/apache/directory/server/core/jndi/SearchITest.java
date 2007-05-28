@@ -162,7 +162,7 @@ public class SearchITest extends AbstractAdminTestCase
         heather.put( ocls );
         heather.put( "cn", "Heather Nova" );
         heather.put( "sn", "Nova" );
-        ctx = ( DirContext ) sysRoot.createSubcontext( rdn, heather );
+        ctx = sysRoot.createSubcontext( rdn, heather );
         assertNotNull( ctx );
 
         ctx = ( DirContext ) sysRoot.lookup( rdn );

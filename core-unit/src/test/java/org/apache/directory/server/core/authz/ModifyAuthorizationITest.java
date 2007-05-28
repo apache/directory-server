@@ -233,7 +233,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             mods.add( new ModificationItemImpl( modOp, attr ) );
         }
         ModificationItemImpl[] modArray = new ModificationItemImpl[mods.size()];
-        return ( ModificationItemImpl[] ) mods.toArray( modArray );
+        return mods.toArray( modArray );
     }
 
 

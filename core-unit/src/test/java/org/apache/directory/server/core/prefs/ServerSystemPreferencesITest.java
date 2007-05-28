@@ -127,7 +127,7 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
         testNode.putFloat( "cn", ( float ) 9.20 );
         testNode.sync();
         testNode = prefs.node( "testNode" );
-        assertTrue( ( float ) 9.20 == ( float ) testNode.getFloat( "cn", ( float ) 9.20 ) );
+        assertTrue( ( float ) 9.20 == testNode.getFloat( "cn", ( float ) 9.20 ) );
     }
 
 
