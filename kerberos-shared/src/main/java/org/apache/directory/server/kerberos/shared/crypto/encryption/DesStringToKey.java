@@ -327,6 +327,7 @@ public class DesStringToKey
         }
         catch ( UnsupportedEncodingException ue )
         {
+            // Shouldn't ever happen for UTF-8.
         }
 
         return encodedByteArray;

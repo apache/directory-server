@@ -129,6 +129,7 @@ public class HostAddress
         }
         catch ( UnknownHostException uhe )
         {
+            // Allow default to return.
         }
 
         return result;
