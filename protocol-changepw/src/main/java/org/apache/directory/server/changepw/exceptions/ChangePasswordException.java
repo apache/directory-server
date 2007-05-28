@@ -35,56 +35,53 @@ public class ChangePasswordException extends KerberosException
     private static final long serialVersionUID = 4880242751298831543L;
 
 
-    // ------------------------------------------------------------------------
-    // C O N S T R U C T O R S
-    // ------------------------------------------------------------------------
-
     /**
-     * Creates a ChangePasswordException with an error code and a message.
+     * Creates a ChangePasswordException with an {@link ErrorType}.
      *
-     * @param errorCode the error code associated with this ChangePasswordException
-     * @param msg the standard Change Password error message for this ChangePasswordException
+     * @param errorType The {@link ErrorType} associated with this ChangePasswordException.
      */
-    public ChangePasswordException(int errorCode, String msg)
-    {
-        super( errorCode, msg );
-    }
-
-
-    /**
-     * Creates a ChangePasswordException with an error code, a message and an
-     * underlying throwable that caused this fault.
-     *
-     * @param errorCode the error code associated with this ChangePasswordException
-     * @param msg the standard Change Password error message for this ChangePasswordException
-     * @param cause the underlying failure, if any
-     */
-    public ChangePasswordException(int errorCode, String msg, Throwable cause)
-    {
-        super( errorCode, msg, cause );
-    }
-
-
-    /**
-     * Creates a ChangePasswordException with an error code and a message.
-     *
-     * @param errorType the error type associated with this ChangePasswordException
-     */
-    public ChangePasswordException(ErrorType errorType)
+    public ChangePasswordException( ErrorType errorType )
     {
         super( errorType.getOrdinal(), errorType.getMessage() );
     }
 
 
     /**
-     * Creates a ChangePasswordException with an error code, a message, and
+     * Creates a ChangePasswordException with an {@link ErrorType} and an
+     * underlying throwable that caused this fault.
+     *
+     * @param errorType The {@link ErrorType} associated with this ChangePasswordException.
+     * @param cause The underlying failure, if any.
+     */
+    public ChangePasswordException( ErrorType errorType, Throwable cause )
+    {
+        super( errorType.getOrdinal(), errorType.getMessage(), cause );
+    }
+
+
+    /**
+     * Creates a ChangePasswordException with an {@link ErrorType} and
      * data helping to explain what caused this fault.
      *
-     * @param errorType the error type associated with this ChangePasswordException
-     * @param explanatoryData data helping to explain this fault, if any
+     * @param errorType The {@link ErrorType} associated with this ChangePasswordException.
+     * @param explanatoryData Data helping to explain this fault, if any.
      */
-    public ChangePasswordException(ErrorType errorType, byte[] explanatoryData)
+    public ChangePasswordException( ErrorType errorType, byte[] explanatoryData )
     {
         super( errorType.getOrdinal(), errorType.getMessage(), explanatoryData );
+    }
+
+
+    /**
+     * Creates a ChangePasswordException with an {@link ErrorType}, data helping to explain
+     * what caused this fault, and an underlying throwable that caused this fault.
+     *
+     * @param errorType The error type associated with this ChangePasswordException.
+     * @param explanatoryData Data helping to explain this fault, if any.
+     * @param cause The underlying failure, if any.
+     */
+    public ChangePasswordException( ErrorType errorType, byte[] explanatoryData, Throwable cause )
+    {
+        super( errorType.getOrdinal(), errorType.getMessage(), explanatoryData, cause );
     }
 }
