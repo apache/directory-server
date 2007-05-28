@@ -229,7 +229,7 @@ package org.apache.directory.shared.ldap.util;
          for (int i=0; i<64; i++) A64TOI[ITOA64[i]] = (byte)i;
  
          // PC1ROT - bit reverse, then PC1, then Rotate, then PC2
-         for (int i=0; i<64; i++) perm[i] = (byte)0;;
+         for (int i=0; i<64; i++) perm[i] = (byte)0;
          for (int i=0; i<64; i++) {
              int k;
              if ((k = (int)PC2[i]) == 0) continue;

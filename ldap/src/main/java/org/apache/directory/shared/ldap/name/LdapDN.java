@@ -118,6 +118,7 @@ public class LdapDN implements Name
      * Transduces, or copies a Name to an LdapDN.
      *
      * @param name composed of String name components.
+     * @throws InvalidNameException If the Name is invalid.
      */
     public LdapDN( Name name ) throws InvalidNameException
     {
@@ -186,10 +187,8 @@ public class LdapDN implements Name
      * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
      * </p>
      *
-     * @param upName
-     *            The String that contains the DN
-     * @exception InvalidNameException is thrown if the buffer does not
-     *                contains a valid DN.
+     * @param upName The String that contains the DN.
+     * @throws InvalidNameException if the String does not contain a valid DN.
      */
     public LdapDN( String upName ) throws InvalidNameException
     {
@@ -213,7 +212,8 @@ public class LdapDN implements Name
      * @param name The DN as a String
      * @param oidsMap The OID mapping
      * @return A valid DN
-     * @throws InvalidNameException If the DN is invalid
+     * @throws InvalidNameException If the DN is invalid.
+     * @throws NamingException If something went wrong.
      */
     public static Name normalize( String name, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
         NamingException
@@ -260,11 +260,8 @@ public class LdapDN implements Name
      * &lt;spaces&gt; &lt;name-component&gt; &lt;name-components&gt; | e <br>
      * </p>
      *
-     * @param bytes
-     *            The byte buffer that contains the DN
-     * @exception A
-     *                InvalidNameException is thrown if the buffer does not
-     *                contains a valid DN.
+     * @param bytes The byte buffer that contains the DN.
+     * @throws InvalidNameException if the buffer does not contains a valid DN.
      */
     public LdapDN( byte[] bytes ) throws InvalidNameException
     {
@@ -286,8 +283,6 @@ public class LdapDN implements Name
 
     /**
      * Normalize the DN by triming useless spaces and lowercasing names.
-     *
-     * @return a normalized form of the DN
      */
     private void normalizeInternal()
     {
@@ -545,7 +540,8 @@ public class LdapDN implements Name
 
     /**
      * Get the number of bytes necessary to store this DN
-     *
+
+     * @param dn The DN.
      * @return A integer, which is the size of the UTF-8 byte array
      */
     public static int getNbBytes( Name dn )
@@ -557,7 +553,8 @@ public class LdapDN implements Name
 
     /**
      * Get an UTF-8 representation of the normalized form of the DN
-     *
+     * 
+     * @param dn The DN.
      * @return A byte[] representation of the DN
      */
     public static byte[] getBytes( LdapDN dn )
@@ -1161,12 +1158,8 @@ public class LdapDN implements Name
     /**
      * Adds a single RDN to the end of this name.
      *
-     * @param newRdn
-     *            the RDN to add
+     * @param newRdn the RDN to add
      * @return the updated name (not a new one)
-     * @throws InvalidNameException
-     *             if adding <tt>RDN</tt> would violate the syntax rules of
-     *             this name
      */
     public Name add( Rdn newRdn )
     {
@@ -1181,12 +1174,8 @@ public class LdapDN implements Name
     /**
      * Adds a single normalized RDN to the end of this name.
      *
-     * @param newRdn
-     *            the RDN to add
+     * @param newRdn the RDN to add
      * @return the updated name (not a new one)
-     * @throws InvalidNameException
-     *             if adding <tt>RDN</tt> would violate the syntax rules of
-     *             this name
      */
     public Name addNormalized( Rdn newRdn )
     {
@@ -1454,6 +1443,11 @@ public class LdapDN implements Name
 
     /**
      * This private method is used to normalize the value, when we have found a normalizer.
+     * 
+     * @param rdn 
+     * @param oidNormalizer 
+     * @param type 
+     * @throws NamingException If something went wrong.
      */
     public static void oidNormalize( Rdn rdn, OidNormalizer oidNormalizer, String type ) throws NamingException
     {
@@ -1471,10 +1465,10 @@ public class LdapDN implements Name
      * Transform a RDN by changing the value to its OID counterpart and
      * normalizing the value accordingly to its type.
      *
-     * @param rdn The RDN to modify
-     * @param oidsMap The map of all existing oids and normalizer
-     * @throws InvalidNameException If the RDN is invalid
-     * @throws NamingException If something went wrong
+     * @param rdn The RDN to modify.
+     * @param oidsMap The map of all existing oids and normalizer.
+     * @throws InvalidNameException If the RDN is invalid.
+     * @throws NamingException If something went wrong.
      */
     private static void rdnOidToName( Rdn rdn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
         NamingException
@@ -1564,14 +1558,12 @@ public class LdapDN implements Name
      * 0.9.2342.19200300.100.1.25. 
      * This is really important do have such a representation, as 'cn' and 
      * 'commonname' share the same OID.
-     *
-     * @param dn
-     *            The DN to transform
-     * @param oidsMap
-     *            The mapping between names and oids.
-     * @return A normalized form of the DN
-     * @throws InvalidNameException
-     *             If the DN is invalid
+     * 
+     * @param dn The DN to transform.
+     * @param oidsMap The mapping between names and oids.
+     * @return A normalized form of the DN.
+     * @throws InvalidNameException If the DN is invalid.
+     * @throws NamingException If something went wrong.
      */
     public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
         NamingException
@@ -1612,10 +1604,9 @@ public class LdapDN implements Name
      * This is really important do have such a representation, as 'cn' and 
      * 'commonname' share the same OID.
      *
-     * @param oidsMap
-     *            The mapping between names and oids.
-     * @throws InvalidNameException
-     *             If the DN is invalid
+     * @param oidsMap The mapping between names and oids.
+     * @throws InvalidNameException If the DN is invalid.
+     * @throws NamingException If something went wrong.
      */
     public void normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
     {
@@ -1647,7 +1638,7 @@ public class LdapDN implements Name
 
 
     /**
-     * Check if a DistinguishedName is syntaxically valid
+     * Check if a DistinguishedName is syntactically valid.
      *
      * @param dn The DN to validate
      * @return <code>true></code> if the DN is valid, <code>false</code>

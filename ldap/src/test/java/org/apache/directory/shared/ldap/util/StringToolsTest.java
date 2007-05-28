@@ -53,10 +53,10 @@ public class StringToolsTest extends TestCase
     public void testDecodeHexString() throws Exception
     {
         // weird stuff - corner cases
-        try{assertEquals( "", StringTools.decodeHexString( "" ) ); fail("should not get here");} catch( NamingException e ){};
+        try{assertEquals( "", StringTools.decodeHexString( "" ) ); fail("should not get here");} catch( NamingException e ){}
         assertEquals( "", StringTools.decodeHexString( "#" ) );
         assertEquals( "F", StringTools.decodeHexString( "#46" ) );
-        try{assertEquals( "F", StringTools.decodeHexString( "46" ) ); fail("should not get here");} catch( NamingException e ){};
+        try{assertEquals( "F", StringTools.decodeHexString( "46" ) ); fail("should not get here");} catch( NamingException e ){}
 
         assertEquals( "Ferry", StringTools.decodeHexString( "#4665727279" ) );
     }

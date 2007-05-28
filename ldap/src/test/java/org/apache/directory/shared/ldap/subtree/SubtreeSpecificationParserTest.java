@@ -407,7 +407,7 @@ public class SubtreeSpecificationParserTest extends TestCase
 
             for ( int ii = 0; ii < threads.size(); ii++ )
             {
-                Thread t = ( Thread ) threads.get( ii );
+                Thread t = threads.get( ii );
                 hasLiveThreads = hasLiveThreads || t.isAlive();
             }
         }
