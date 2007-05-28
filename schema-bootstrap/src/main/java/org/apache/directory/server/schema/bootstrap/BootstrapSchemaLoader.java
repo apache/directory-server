@@ -133,7 +133,7 @@ public class BootstrapSchemaLoader extends AbstractSchemaLoader
     public final void loadWithDependencies( Collection<Schema> bootstrapSchemas, Registries registries ) throws NamingException
     {
         BootstrapSchema[] schemas = new BootstrapSchema[bootstrapSchemas.size()];
-        schemas = ( BootstrapSchema[] ) bootstrapSchemas.toArray( schemas );
+        schemas = bootstrapSchemas.toArray( schemas );
         HashMap<String,Schema> loaded = new HashMap<String,Schema>();
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
 
