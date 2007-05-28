@@ -161,7 +161,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             throw e;
         }
 
-        AttributeType attributeType = ( AttributeType ) byOid.get( id );
+        AttributeType attributeType = byOid.get( id );
         
         if ( IS_DEBUG )
         {
@@ -248,7 +248,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public Iterator descendants( String ancestorId ) throws NamingException
     {
         String oid = oidRegistry.getOid( ancestorId );
-        Set descendants = ( Set ) oidToDescendantSet.get( oid );
+        Set descendants = oidToDescendantSet.get( oid );
         if ( descendants == null )
         {
             return Collections.EMPTY_SET.iterator();
@@ -260,7 +260,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     public boolean hasDescendants( String ancestorId ) throws NamingException
     {
         String oid = oidRegistry.getOid( ancestorId );
-        Set descendants = ( Set ) oidToDescendantSet.get( oid );
+        Set descendants = oidToDescendantSet.get( oid );
         if ( descendants == null )
         {
             return false;

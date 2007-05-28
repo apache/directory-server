@@ -93,7 +93,7 @@ public class DefaultNameFormRegistry implements NameFormRegistry
             throw e;
         }
 
-        NameForm nameForm = ( NameForm ) byOid.get( id );
+        NameForm nameForm = byOid.get( id );
         if ( log.isDebugEnabled() )
         {
             log.debug( "lookup with id '"+ id + "' of nameForm: " + nameForm );

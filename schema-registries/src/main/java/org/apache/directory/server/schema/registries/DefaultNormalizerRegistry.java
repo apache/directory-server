@@ -96,7 +96,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
             throw e;
         }
 
-        Normalizer normalizer = ( Normalizer ) byOid.get( oid );
+        Normalizer normalizer = byOid.get( oid );
         if ( log.isDebugEnabled() )
         {
             log.debug( "registered normalizer with oid: " + oid );
@@ -136,7 +136,7 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
             return "other";
         }
         
-        return ( String ) desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
+        return desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
     }
     
 

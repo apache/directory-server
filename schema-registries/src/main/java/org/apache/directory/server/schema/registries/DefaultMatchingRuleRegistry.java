@@ -78,7 +78,7 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 
         if ( byOid.containsKey( id ) )
         {
-            MatchingRule matchingRule = ( MatchingRule ) byOid.get( id );
+            MatchingRule matchingRule = byOid.get( id );
             if ( log.isDebugEnabled() )
             {
                 log.debug( "lookup with id '"+id+"' of matchingRule: " + matchingRule );

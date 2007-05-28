@@ -107,7 +107,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
             throw e;
         }
 
-        ObjectClass objectClass = ( ObjectClass ) byOid.get( id );
+        ObjectClass objectClass = byOid.get( id );
         
         if ( IS_DEBUG )
         {

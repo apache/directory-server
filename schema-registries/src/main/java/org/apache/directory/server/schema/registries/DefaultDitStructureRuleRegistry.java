@@ -100,7 +100,7 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
             throw e;
         }
 
-        DITStructureRule dITStructureRule = ( DITStructureRule ) byOid.get( id );
+        DITStructureRule dITStructureRule = byOid.get( id );
         if ( log.isDebugEnabled() )
         {
             log.debug( "lookup with id '" + id + "' for dITStructureRule: " + dITStructureRule );

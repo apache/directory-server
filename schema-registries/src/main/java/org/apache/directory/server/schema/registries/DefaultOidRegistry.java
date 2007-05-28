@@ -77,7 +77,7 @@ public class DefaultOidRegistry implements OidRegistry
         // If name is mapped to a OID already return OID
         if ( byName.containsKey( name ) )
         {
-            String oid = ( String ) byName.get( name );
+            String oid = byName.get( name );
             
             if ( IS_DEBUG )
             {
@@ -96,7 +96,7 @@ public class DefaultOidRegistry implements OidRegistry
         String lowerCase = name.trim().toLowerCase();
         if ( !name.equals( lowerCase ) && byName.containsKey( lowerCase ) )
         {
-            String oid = ( String ) byName.get( lowerCase );
+            String oid = byName.get( lowerCase );
             
             if ( IS_DEBUG )
             {

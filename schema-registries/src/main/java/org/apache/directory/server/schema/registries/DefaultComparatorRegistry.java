@@ -97,7 +97,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
             return "other";
         }
         
-        return ( String ) desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
+        return desc.getExtensions().get( "X-SCHEMA" ).get( 0 );
     }
     
 
@@ -105,7 +105,7 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     {
         if ( byOid.containsKey( oid ) )
         {
-            Comparator c = ( Comparator ) byOid.get( oid );
+            Comparator c = byOid.get( oid );
             if ( log.isDebugEnabled() )
             {
                 log.debug( "looked up comparator with OID: " + oid );
