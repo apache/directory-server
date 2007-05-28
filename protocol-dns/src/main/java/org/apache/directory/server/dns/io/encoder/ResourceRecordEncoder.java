@@ -120,7 +120,7 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
     protected void putRecordClass( ByteBuffer byteBuffer, RecordClass recordClass )
     {
-        byteBuffer.putShort( ( short ) recordClass.convert() );
+        byteBuffer.putShort( recordClass.convert() );
     }
 
 

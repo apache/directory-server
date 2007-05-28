@@ -207,7 +207,7 @@ public class DnsMessageEncoder
     {
         if ( recursionDesired )
         {
-            return ( byte ) ( ( byte ) 0x01 );
+            return ( byte ) 0x01;
         }
         return 0;
     }

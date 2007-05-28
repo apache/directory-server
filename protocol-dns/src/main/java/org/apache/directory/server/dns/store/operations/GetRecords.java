@@ -130,7 +130,7 @@ public class GetRecords implements ContextOperation
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        String filter = "(objectClass=" + ( String ) TYPE_TO_OBJECTCLASS.get( type ) + ")";
+        String filter = "(objectClass=" + TYPE_TO_OBJECTCLASS.get( type ) + ")";
 
         NamingEnumeration list = ctx.search( transformDomainName( name ), filter, controls );
 
@@ -266,7 +266,7 @@ public class GetRecords implements ContextOperation
 
             if ( !value.equals( "apacheDnsAbstractRecord" ) )
             {
-                RecordType type = ( RecordType ) OBJECTCLASS_TO_TYPE.get( value );
+                RecordType type = OBJECTCLASS_TO_TYPE.get( value );
 
                 if ( type == null )
                 {
