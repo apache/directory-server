@@ -29,5 +29,11 @@ package org.apache.directory.server.protocol.shared.catalog;
  */
 public interface Catalog
 {
+    /**
+     * Returns the base DN for searches, given a zone or realm name.
+     *
+     * @param name
+     * @return The base DN for searches.
+     */
     public String getBaseDn( String name );
 }

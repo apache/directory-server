@@ -61,7 +61,7 @@ public class GetCatalog implements ContextOperation
 
         NamingEnumeration list = ctx.search( "", filter, controls );
 
-        Map catalog = new HashMap();
+        Map<String, String> catalog = new HashMap<String, String>();
 
         while ( list.hasMore() )
         {

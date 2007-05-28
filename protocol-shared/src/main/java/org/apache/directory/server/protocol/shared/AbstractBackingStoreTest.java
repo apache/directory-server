@@ -88,12 +88,12 @@ public abstract class AbstractBackingStoreTest extends TestCase
     protected MutableStartupConfiguration config;
 
     protected CoreContextFactory factory;
-    protected Hashtable env;
+    protected Hashtable<String, Object> env;
 
 
     protected void setUp() throws Exception
     {
-        env = new Hashtable( setUpPartition() );
+        env = new Hashtable<String, Object>( setUpPartition() );
 
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -145,7 +145,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     }
 
 
-    protected Hashtable setUpPartition() throws NamingException
+    protected Hashtable<String, Object> setUpPartition() throws NamingException
     {
         config = new MutableStartupConfiguration();
 
@@ -238,7 +238,7 @@ public abstract class AbstractBackingStoreTest extends TestCase
     {
         super.tearDown();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );

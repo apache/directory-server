@@ -42,10 +42,15 @@ import java.util.Set;
  */
 public class MapAdapter implements Map
 {
-    private Dictionary dictionary;
+    private Dictionary<Object, Object> dictionary;
 
 
-    public MapAdapter(Dictionary dictionary)
+    /**
+     * Creates a new instance of MapAdapter.
+     *
+     * @param dictionary
+     */
+    public MapAdapter( Dictionary<Object, Object> dictionary )
     {
         this.dictionary = dictionary;
     }
@@ -56,7 +61,7 @@ public class MapAdapter implements Map
      */
     public void clear()
     {
-        dictionary = new Hashtable();
+        dictionary = new Hashtable<Object, Object>();
     }
 
 
@@ -83,7 +88,7 @@ public class MapAdapter implements Map
      */
     public Set entrySet()
     {
-        Map map = new HashMap();
+        Map<Object, Object> map = new HashMap<Object, Object>();
 
         Enumeration e = dictionary.keys();
 
@@ -121,7 +126,7 @@ public class MapAdapter implements Map
      */
     public Set keySet()
     {
-        return new HashSet( Collections.list( dictionary.keys() ) );
+        return new HashSet<Object>( Collections.list( dictionary.keys() ) );
     }
 
 

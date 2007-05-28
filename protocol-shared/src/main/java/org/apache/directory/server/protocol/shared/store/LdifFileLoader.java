@@ -38,7 +38,6 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public class LdifFileLoader
     /** the LDIF file or directory containing LDIFs to load */
     protected File ldif;
     /** the filters to use while loading entries into the server */
-    protected final List filters;
+    protected final List<LdifLoadFilter> filters;
     /** the class loader to use if we cannot file the file as a path */
     protected final ClassLoader loader;
     /** the total count of entries loaded */
@@ -67,24 +66,39 @@ public class LdifFileLoader
 
 
     /**
-     * Creates the LDIF file loader command.
+     * Creates a new instance of LdifFileLoader.
      *
      * @param ctx the context to load the entries into.
      * @param ldif the file of LDIF entries to load.
      */
-    public LdifFileLoader(DirContext ctx, String ldif)
+    public LdifFileLoader( DirContext ctx, String ldif )
     {
         this( ctx, new File( ldif ), null );
     }
 
 
-    public LdifFileLoader(DirContext ctx, File ldif, List filters)
+    /**
+     * Creates a new instance of LdifFileLoader.
+     *
+     * @param ctx
+     * @param ldif
+     * @param filters
+     */
+    public LdifFileLoader( DirContext ctx, File ldif, List<LdifLoadFilter> filters )
     {
         this( ctx, ldif, filters, null );
     }
 
 
-    public LdifFileLoader(DirContext ctx, File ldif, List filters, ClassLoader loader)
+    /**
+     * Creates a new instance of LdifFileLoader.
+     *
+     * @param ctx
+     * @param ldif
+     * @param filters
+     * @param loader
+     */
+    public LdifFileLoader( DirContext ctx, File ldif, List<LdifLoadFilter> filters, ClassLoader loader )
     {
         this.ctx = ctx;
         this.ldif = ldif;
@@ -92,7 +106,7 @@ public class LdifFileLoader
 
         if ( filters == null )
         {
-            this.filters = Collections.EMPTY_LIST;
+            this.filters = Collections.emptyList();
         }
         else
         {
@@ -122,7 +136,7 @@ public class LdifFileLoader
         {
             try
             {
-                accept &= ( ( LdifLoadFilter ) filters.get( ii ) ).filter( ldif, dn, entry, ctx );
+                accept &= ( filters.get( ii ) ).filter( ldif, dn, entry, ctx );
             }
             catch ( NamingException e )
             {
@@ -141,6 +155,8 @@ public class LdifFileLoader
 
     /**
      * Opens the LDIF file and loads the entries into the context.
+     * 
+     * @return The count of entries created.
      */
     public int execute()
     {
@@ -155,13 +171,13 @@ public class LdifFileLoader
             while ( ldifIterator.hasNext() )
             {
                 Entry entry = ( Entry ) ldifIterator.next();
-                
+
                 String dn = entry.getDn();
-                
-                if ( entry.isEntry() == false)
+
+                if ( entry.isEntry() == false )
                 {
-                	// If the entry is a modification, just skip it
-                	continue;
+                    // If the entry is a modification, just skip it
+                    continue;
                 }
 
                 Attributes attributes = entry.getAttributes();
