@@ -88,7 +88,7 @@ public class $classname extends AbstractBootstrapProducer
 names.clear();
        #foreach ( $name in $attrType.getNames() ) names.add( "$name" );
        #end
- attributeType.setNames( ( String[] ) names.toArray( EMPTY ) );
+ attributeType.setNames( names.toArray( EMPTY ) );
         #else
  attributeType.setNames( EMPTY );
         #end

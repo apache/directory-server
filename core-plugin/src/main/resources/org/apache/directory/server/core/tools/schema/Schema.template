@@ -45,7 +45,7 @@ public class $classname extends AbstractBootstrapSchema
 list.clear();
        #foreach ( $name in $deps ) list.add( "$name" );
        #end
- setDependencies( ( String[] ) list.toArray( DEFAULT_DEPS ) );#else
+ setDependencies( list.toArray( DEFAULT_DEPS ) );#else
  setDependencies( DEFAULT_DEPS );#end
 
     }

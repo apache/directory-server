@@ -87,7 +87,7 @@ objectClass.setType( ObjectClassTypeEnum.STRUCTURAL );
 array.clear();
        #foreach ( $id in $objectClass.getSuperiors() ) array.add( "$id" );
        #end
- objectClass.setSuperClassIds( ( String[] ) array.toArray( EMPTY ) );
+ objectClass.setSuperClassIds( array.toArray( EMPTY ) );
         #else
  objectClass.setSuperClassIds( EMPTY );
         #end
@@ -97,7 +97,7 @@ array.clear();
 array.clear();
        #foreach ( $id in $objectClass.getMust() ) array.add( "$id" );
        #end
- objectClass.setMustListIds( ( String[] ) array.toArray( EMPTY ) );
+ objectClass.setMustListIds( array.toArray( EMPTY ) );
         #else
  objectClass.setMustListIds( EMPTY );
         #end
@@ -107,7 +107,7 @@ array.clear();
 array.clear();
        #foreach ( $id in $objectClass.getMay() ) array.add( "$id" );
        #end
- objectClass.setMayListIds( ( String[] ) array.toArray( EMPTY ) );
+ objectClass.setMayListIds( array.toArray( EMPTY ) );
         #else
  objectClass.setMayListIds( EMPTY );
         #end
@@ -117,7 +117,7 @@ array.clear();
 array.clear();
        #foreach ( $id in $objectClass.getNames() ) array.add( "$id" );
        #end
- objectClass.setNames( ( String[] ) array.toArray( EMPTY ) );
+ objectClass.setNames( array.toArray( EMPTY ) );
         #else
  objectClass.setNames( EMPTY );
         #end
