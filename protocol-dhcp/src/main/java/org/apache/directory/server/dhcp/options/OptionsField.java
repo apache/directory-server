@@ -54,6 +54,6 @@ public class OptionsField
 
     public DhcpOption[] toArray()
     {
-        return ( DhcpOption[] ) options.toArray( new DhcpOption[options.size()] );
+        return options.toArray( new DhcpOption[options.size()] );
     }
 }
