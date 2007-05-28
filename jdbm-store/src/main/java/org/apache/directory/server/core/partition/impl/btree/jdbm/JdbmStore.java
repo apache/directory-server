@@ -721,7 +721,7 @@ public class JdbmStore
 
         if ( indices.containsKey( id ) )
         {
-            return ( Index ) indices.get( id );
+            return indices.get( id );
         }
         else
         {
@@ -761,7 +761,7 @@ public class JdbmStore
 
         if ( sysIndices.containsKey( id ) )
         {
-            return ( Index ) sysIndices.get( id );
+            return sysIndices.get( id );
         }
         else
         {

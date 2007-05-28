@@ -1443,7 +1443,7 @@ public class JdbmTable implements Table
     {
         if ( duplicateBtrees.containsKey( redirect.getRecId() ) )
         {
-            return ( BTree ) duplicateBtrees.get( redirect.getRecId() );
+            return duplicateBtrees.get( redirect.getRecId() );
         }
         
         try
