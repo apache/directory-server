@@ -135,12 +135,11 @@
     -->
 
     <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
-    <!-- order specified.  The included Krb5KdcEntryFilter will conflict    -->
-    <!-- with the KeyDerivationService interceptor, so should not be used.  -->
+    <!-- order specified.                                                   -->
     <!--
     <property name="ldifFilters">
       <list>
-        <bean class="org.apache.directory.server.protocol.shared.store.Krb5KdcEntryFilter"/>
+        <bean class="com.example.MyEntryFilter"/>
       </list>
     </property>
     -->
@@ -236,13 +235,13 @@
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="passwordPolicyService" />
           <property name="interceptor">
-            <bean class="org.apache.directory.server.kerberos.shared.interceptors.PasswordPolicyService" />
+            <bean class="org.apache.directory.server.core.kerberos.PasswordPolicyService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="keyDerivationService" />
           <property name="interceptor">
-            <bean class="org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService" />
+            <bean class="org.apache.directory.server.core.kerberos.KeyDerivationService" />
           </property>
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
