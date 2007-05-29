@@ -29,10 +29,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.store.operations.GetRecords;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +51,12 @@ public class SingleBaseSearch implements SearchStrategy
     private static final Logger log = LoggerFactory.getLogger( SingleBaseSearch.class );
 
     private DirContext ctx;
-    private Hashtable<String, Object> env;
+    private Hashtable<String, Object> env = new Hashtable<String, Object>();
     private InitialContextFactory factory;
 
 
     SingleBaseSearch( DnsConfiguration config, InitialContextFactory factory )
     {
-        env = new Hashtable<String, Object>( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
         env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
@@ -86,7 +85,7 @@ public class SingleBaseSearch implements SearchStrategy
             {
                 log.error( ne.getMessage(), ne );
                 String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-                throw new ConfigurationException( message, ne );
+                throw new ServiceConfigurationException( message, ne );
             }
         }
 

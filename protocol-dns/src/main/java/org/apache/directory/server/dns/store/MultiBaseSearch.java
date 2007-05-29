@@ -30,10 +30,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.store.operations.GetRecords;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
@@ -55,16 +55,15 @@ public class MultiBaseSearch implements SearchStrategy
     private static final Logger log = LoggerFactory.getLogger( MultiBaseSearch.class );
 
     private InitialContextFactory factory;
-    private Hashtable env;
+    private Hashtable<String, Object> env = new Hashtable<String, Object>();
 
     private Catalog catalog;
 
 
-    MultiBaseSearch(DnsConfiguration config, InitialContextFactory factory)
+    MultiBaseSearch( DnsConfiguration config, InitialContextFactory factory )
     {
         this.factory = factory;
 
-        env = new Hashtable( config.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getCatalogBaseDn() );
 
@@ -77,7 +76,7 @@ public class MultiBaseSearch implements SearchStrategy
         {
             log.error( e.getMessage(), e );
             String message = "Failed to get catalog context " + ( String ) env.get( Context.PROVIDER_URL );
-            throw new ConfigurationException( message, e );
+            throw new ServiceConfigurationException( message, e );
         }
     }
 
@@ -95,7 +94,7 @@ public class MultiBaseSearch implements SearchStrategy
         {
             log.error( ne.getMessage(), ne );
             String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-            throw new ConfigurationException( message, ne );
+            throw new ServiceConfigurationException( message, ne );
         }
     }
 
