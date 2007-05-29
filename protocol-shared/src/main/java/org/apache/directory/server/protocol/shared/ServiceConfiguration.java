@@ -21,12 +21,8 @@ package org.apache.directory.server.protocol.shared;
 
 
 import java.util.Dictionary;
-import java.util.Hashtable;
 
 import javax.naming.spi.InitialContextFactory;
-
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.ConfigurationUtil;
 
 
 /**
@@ -35,7 +31,7 @@ import org.apache.directory.server.core.configuration.ConfigurationUtil;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ServiceConfiguration extends Configuration
+public abstract class ServiceConfiguration
 {
     /** The prop key const for the port. */
     public static final String IP_PORT_KEY = "ipPort";
@@ -319,7 +315,7 @@ public abstract class ServiceConfiguration extends Configuration
      */
     public void setIpPort( int ipPort )
     {
-        ConfigurationUtil.validatePortNumber( ipPort );
+        validatePortNumber( ipPort );
         this.ipPort = ipPort;
     }
 
@@ -360,11 +356,15 @@ public abstract class ServiceConfiguration extends Configuration
     }
 
 
-    public Hashtable<String, Object> toJndiEnvironment()
+    /**
+     * Throws a {@link ServiceConfigurationException} if the specified port number
+     * is out of range.
+     */
+    protected void validatePortNumber( int port )
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( JNDI_KEY, this );
-
-        return env;
+        if ( port < 0 || port > 65535 )
+        {
+            throw new ServiceConfigurationException( "Invalid port number: " + port );
+        }
     }
 }

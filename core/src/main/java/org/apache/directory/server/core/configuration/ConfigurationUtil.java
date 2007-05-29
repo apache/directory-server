@@ -121,19 +121,6 @@ public class ConfigurationUtil
     }
 
 
-    /**
-     * Throws a {@link ConfigurationException} if the specified port number
-     * is out of range.
-     */
-    public static void validatePortNumber( int port )
-    {
-        if ( port < 0 || port > 65535 )
-        {
-            throw new ConfigurationException( "Invalid port number: " + port );
-        }
-    }
-
-
     private ConfigurationUtil()
     {
     }
