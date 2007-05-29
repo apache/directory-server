@@ -112,6 +112,12 @@ public class KeyDerivationService extends BaseInterceptor
     }
 
 
+    /**
+     * Intercept the addition of the 'userPassword' and 'krb5PrincipalName' attributes.  Use the 'userPassword'
+     * and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.  If the 'userPassword' is
+     * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
+     * to '0'.
+     */
     public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
     {
         LdapDN normName = addContext.getDn();
@@ -163,12 +169,10 @@ public class KeyDerivationService extends BaseInterceptor
 
 
     /**
-     * Detect case.
-     * Log detection.
-     * Retrieve old value.
-     * Log retrieved values.
-     * Make now attr/mods.
-     * Log new values.
+     * Intercept the modification of the 'userPassword' attribute.  Use the 'userPassword' and 'krb5PrincipalName'
+     * attributes to derive Kerberos keys for the principal.  If the 'userPassword' is the special keyword
+     * 'randomKey', set random keys for the principal.  Perform a lookup to check for an existing key version
+     * number (kvno).  If a kvno exists, increment the kvno; otherwise, set the kvno to '0'.
      */
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
@@ -319,7 +323,7 @@ public class KeyDerivationService extends BaseInterceptor
             log.debug( "Found kvno '" + oldKeyVersionNumber + "', setting to '" + newKeyVersionNumber + "'." );
         }
 
-        // TODO - just checking ...
+        // TODO - We may wish to lookup the principal name if one is not present in the modification items.
         Attribute principalName = userEntry.get( KerberosAttribute.PRINCIPAL );
         log.debug( "Found principal = " + ( String ) principalName.get() );
 
