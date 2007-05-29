@@ -1496,7 +1496,7 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If the parsing fails
      */
-    public List parseLdifFile( String fileName ) throws NamingException
+    public List<Entry> parseLdifFile( String fileName ) throws NamingException
     {
         return parseLdifFile( fileName, Charset.forName( StringTools.getDefaultCharsetName() ).toString() );
     }
@@ -1512,7 +1512,7 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If the parsing fails
      */
-    public List parseLdifFile( String fileName, String encoding ) throws NamingException
+    public List<Entry> parseLdifFile( String fileName, String encoding ) throws NamingException
     {
         if ( StringTools.isEmpty( fileName ) )
         {
@@ -1553,13 +1553,13 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If something went wrong
      */
-    public List parseLdif( String ldif ) throws NamingException
+    public List<Entry> parseLdif( String ldif ) throws NamingException
     {
         log.debug( "Starts parsing ldif buffer" );
 
         if ( StringTools.isEmpty( ldif ) )
         {
-            return new ArrayList();
+            return new ArrayList<Entry>();
         }
 
         StringReader strIn = new StringReader( ldif );
@@ -1567,7 +1567,7 @@ public class LdifReader implements Iterator
 
         try
         {
-            List entries = parseLdif( inf );
+            List<Entry> entries = parseLdif( inf );
 
             if ( log.isDebugEnabled() )
             {
