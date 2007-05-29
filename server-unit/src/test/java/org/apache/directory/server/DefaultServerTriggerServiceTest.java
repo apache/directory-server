@@ -21,28 +21,15 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
+import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 
@@ -56,17 +43,11 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
 {
     private LdapContext ctx;
     
-    // 
     public void setUp() throws Exception
     {
-        LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
-        Set handlers = new HashSet( ldapCfg.getExtendedOperationHandlers() );
-        handlers.add( new StoredProcedureExtendedOperationHandler() );
-        ldapCfg.setExtendedOperationHandlers( handlers );
-        
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -111,10 +92,15 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         String staffDN = "cn=staff, ou=system";
         String teachersDN = "cn=teachers, ou=system";
 
-        createTriggerSubentry( ctx, "triggerSubentry1",
-            "AFTER Add " +
-            "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
-            "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
+        
+        // Create the Triger Specification within a Trigger Subentry.
+        TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
+        TriggerUtils.createTriggerExecutionSubentry( ctx,
+                                                     "triggerSubentry1",
+                                                     "{}",
+                                                     "AFTER Add " +
+                                                         "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
+                                                         "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
         
         // Create a test entry which is selected by the Trigger Subentry.
         String testEntry  = 
@@ -133,7 +119,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // The trigger should be fired at this point.
         // ------------------------------------------
         
-        // Check if the Trigger really worked (subscribed the user to give grpups).
+        // Check if the Trigger really worked (subscribed the user to the groups).
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
         String testEntryName = ( ( LdapContext )sysRoot.lookup( "cn=The Teacher of All Times" ) ).getNameInNamespace();
@@ -159,9 +145,14 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         injectEntries( ldif );
         
         // Create the Triger Specification within a Trigger Subentry.
-        createTriggerSubentry( ctx, "triggerSubentry1",
-            "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );
-        
+        TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
+        TriggerUtils.createTriggerExecutionSubentry( ctx,
+                                                     "triggerSubentry1",
+                                                     "{}",
+                                                     "AFTER Delete " +
+                                                         "CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" " +
+                                                             " ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );        
+
         // Create a test entry which is selected by the Trigger Subentry.
         String ldif2  = 
             "version: 1\n" +
