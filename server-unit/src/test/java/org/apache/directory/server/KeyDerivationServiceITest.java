@@ -42,8 +42,8 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.kerberos.KeyDerivationService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.interceptors.KeyDerivationService;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
@@ -177,7 +177,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         DirContext ctx = new InitialDirContext( env );
 
         String[] attrIDs =
-            { "uid", "userPassword", "krb5Key" };
+            { "uid", "userPassword", KerberosAttribute.KEY, KerberosAttribute.VERSION };
 
         Attributes attributes = ctx.getAttributes( RDN, attrIDs );
 
@@ -204,7 +204,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             { ( byte ) 0x73, ( byte ) 0x65, ( byte ) 0x63, ( byte ) 0x72, ( byte ) 0x65, ( byte ) 0x74 };
         assertTrue( Arrays.equals( userPassword, testPasswordBytes ) );
 
-        Attribute krb5key = attributes.get( "krb5key" );
+        Attribute krb5key = attributes.get( KerberosAttribute.KEY );
         Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
         EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
 
@@ -214,6 +214,15 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertTrue( Arrays.equals( encryptionKey.getKeyValue(), testKeyBytes ) );
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
+
+        int keyVersionNumber = -1;
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 0, keyVersionNumber );
     }
 
 
@@ -251,6 +260,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         // Read again from directory.
         person = ( DirContext ) ctx.lookup( RDN );
+
         attributes = person.getAttributes( "" );
 
         byte[] userPassword = null;
@@ -277,6 +287,77 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         assertTrue( Arrays.equals( encryptionKey.getKeyValue(), testKeyBytes ) );
         assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
+
+        int keyVersionNumber = -1;
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 1, keyVersionNumber );
+
+        newUserPassword = "secretsecretsecret";
+
+        // Modify password.
+        attributes = new AttributesImpl( true );
+        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes.put( attr );
+        attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attributes.put( attr );
+
+        person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
+
+        // Read again from directory.
+        person = ( DirContext ) ctx.lookup( RDN );
+
+        attributes = person.getAttributes( "" );
+
+        if ( attributes.get( "userPassword" ) != null )
+        {
+            userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
+        }
+
+        assertEquals( "password length", 18, userPassword.length );
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 2, keyVersionNumber );
+
+        newUserPassword = "secretsecretsecretsecret";
+
+        // Modify password.
+        attributes = new AttributesImpl( true );
+        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes.put( attr );
+        attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attributes.put( attr );
+
+        person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
+
+        // Read again from directory.
+        person = ( DirContext ) ctx.lookup( RDN );
+
+        attributes = person.getAttributes( "" );
+
+        if ( attributes.get( "userPassword" ) != null )
+        {
+            userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
+        }
+
+        assertEquals( "password length", 24, userPassword.length );
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 3, keyVersionNumber );
     }
 
 
