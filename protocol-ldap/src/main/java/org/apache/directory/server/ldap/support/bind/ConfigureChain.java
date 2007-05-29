@@ -38,12 +38,12 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -83,10 +83,10 @@ public class ConfigureChain implements IoHandlerCommand
                 Subject saslSubject = getSubject( config );
                 session.setAttribute( "saslSubject", saslSubject );
             }
-            catch ( ConfigurationException ce )
+            catch ( ServiceConfigurationException sce )
             {
                 activeMechanisms.remove( "GSSAPI" );
-                log.warn( ce.getMessage(), ce );
+                log.warn( sce.getMessage(), sce );
             }
         }
 
@@ -170,7 +170,7 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private Subject getSubject( LdapConfiguration config ) throws ConfigurationException
+    private Subject getSubject( LdapConfiguration config ) throws ServiceConfigurationException
     {
         String servicePrincipalName = config.getSaslPrincipal();
 
@@ -187,14 +187,14 @@ public class ConfigureChain implements IoHandlerCommand
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
                 + config.getSearchBaseDn() + ".";
-            throw new ConfigurationException( message, e );
+            throw new ServiceConfigurationException( message, e );
         }
 
         if ( entry == null )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
                 + config.getSearchBaseDn() + ".";
-            throw new ConfigurationException( message );
+            throw new ServiceConfigurationException( message );
         }
 
         EncryptionKey key = entry.getKeyMap().get( EncryptionType.DES_CBC_MD5 );
@@ -223,7 +223,7 @@ public class ConfigureChain implements IoHandlerCommand
             catch ( NamingException ne )
             {
                 String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-                throw new ConfigurationException( message, ne );
+                throw new ServiceConfigurationException( message, ne );
             }
         }
 
@@ -233,7 +233,7 @@ public class ConfigureChain implements IoHandlerCommand
 
     private Hashtable<String, Object> getEnvironment( LdapConfiguration config )
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>( config.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
         env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );

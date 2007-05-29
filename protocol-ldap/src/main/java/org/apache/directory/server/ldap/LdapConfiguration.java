@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.directory.server.core.configuration.ConfigurationException;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 
 
 /**
@@ -155,7 +155,7 @@ public class LdapConfiguration extends ServiceConfiguration
     {
         if ( ldapsCertificateFile == null )
         {
-            throw new ConfigurationException( "LdapsCertificateFile cannot be null." );
+            throw new ServiceConfigurationException( "LdapsCertificateFile cannot be null." );
         }
         this.ldapsCertificateFile = ldapsCertificateFile;
     }
@@ -185,7 +185,7 @@ public class LdapConfiguration extends ServiceConfiguration
     {
         if ( ldapsCertificatePassword == null )
         {
-            throw new ConfigurationException( "LdapsCertificatePassword cannot be null." );
+            throw new ServiceConfigurationException( "LdapsCertificatePassword cannot be null." );
         }
         this.ldapsCertificatePassword = ldapsCertificatePassword;
     }
