@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.directory</groupId>
-    <artifactId>build</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <groupId>org.apache.directory.project</groupId>
+    <artifactId>project</artifactId>
+    <version>7</version>
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
@@ -14,28 +14,7 @@
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
-  <url>http://directory.apache.org/subprojects/apacheds/</url>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>apache.snapshots</id>
-      <name>Apache Snapshot Plugins</name>
-      <url>http://minotaur.apache.org/maven-snapshot-repository</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true></enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <distributionManagement>
-    <site>
-      <id>apache.websites</id>
-      <url>scp://people.apache.org/www/directory.apache.org/subprojects/apacheds/</url>
-    </site>
-  </distributionManagement>
+  <url>http://directory.apache.org/apacheds/1.5</url>
 
   <dependencyManagement>
     <dependencies>
@@ -268,49 +247,52 @@
       <artifactId>shared-ldap</artifactId>
       <version>0.9.7-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+    </dependency>
   </dependencies>
 
-      <modules>
-        <!-- module>maven-osgi-plugin</module-->
+  <modules>
+    <module>bootstrap-extract</module>
+    <module>bootstrap-partition</module>
+    <module>bootstrap-plugin</module>
+    <module>schema-extras</module>
+    <module>schema-bootstrap</module>
+    <module>utils</module>
+    <module>schema-registries</module>
+    <module>jdbm-store</module>
+    <module>constants</module>
+    <module>btree-base</module>
+    <module>core</module>
+    <module>core-shared</module>
+    <module>core-plugin</module>
+    <module>core-unit</module>
+    <module>protocol-shared</module>
+    <module>protocol-ntp</module>
+    <module>protocol-ldap</module>
+    <module>protocol-kerberos</module>
+    <module>protocol-dhcp</module>
+    <module>protocol-dns</module>
+    <module>protocol-changepw</module>
+    <module>server-tools</module>
 
-        <module>bootstrap-extract</module>
-        <module>bootstrap-partition</module>
-        <module>bootstrap-plugin</module>
-        <module>schema-extras</module>
-        <module>schema-bootstrap</module>
+    <!-- breaks the build on first try
+      <module>sar-plugin</module>
+      <module>server-sar</module>
+    -->
 
-        <module>utils</module>
-        <module>schema-registries</module>
-        <module>jdbm-store</module>
-        <module>constants</module>
-        <module>btree-base</module>
-        <module>core</module>
-        <module>core-shared</module>
-        <module>core-plugin</module>
-        <module>core-unit</module>
-        <module>protocol-shared</module>
-        <module>protocol-ntp</module>
-        <module>protocol-ldap</module>
-        <module>protocol-kerberos</module>
-        <module>protocol-dhcp</module>
-        <module>protocol-dns</module>
-        <module>protocol-changepw</module>
-        <module>server-tools</module>
+    <module>server-unit</module>
+    <module>server-main</module>
+    <module>server-jndi</module>
+    <module>kerberos-shared</module>
 
-        <!-- breaks the build on first try
-        <module>sar-plugin</module>
-        <module>server-sar</module>
-        -->
+    <module>mitosis</module>
+    <module>server-replication</module>
 
-        <module>server-unit</module>
-        <module>server-main</module>
-        <module>server-jndi</module>
-        <module>kerberos-shared</module>
-
-        <module>mitosis</module>
-        <module>server-replication</module>
-
-      </modules>
+  </modules>
 
   <developers>
     <developer>
@@ -398,11 +380,6 @@
     <url>http://svn.apache.org/repos/asf/directory/apacheds/trunk</url>
     <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
   </scm>
-
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://www.apache.org</url>
-  </organization>
 
   <build>
     <pluginManagement>
