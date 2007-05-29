@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>org.apache.directory.project</groupId>
-    <artifactId>project</artifactId>
-    <version>7</version>
-  </parent>
-
   <groupId>org.apache.directory.server</groupId>
   <version>1.5</version>
   <artifactId>1.5-with-dependencies</artifactId>
@@ -15,6 +8,7 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>pom</packaging>
   <modules>
+    <module>project</module>
     <module>apacheds</module>
     <module>shared</module>
     <module>daemon</module>
