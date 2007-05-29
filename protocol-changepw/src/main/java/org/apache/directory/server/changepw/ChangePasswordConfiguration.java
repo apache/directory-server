@@ -220,6 +220,6 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
             }
         }
 
-        encryptionTypes = ( EncryptionType[] ) encTypes.toArray( new EncryptionType[encTypes.size()] );
+        encryptionTypes = encTypes.toArray( new EncryptionType[encTypes.size()] );
     }
 }
