@@ -17,16 +17,14 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.interceptors;
+package org.apache.directory.server.core.kerberos;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -149,10 +147,8 @@ public class KeyDerivationService extends BaseInterceptor
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-            EncryptionKey key = keys.get( EncryptionType.DES_CBC_MD5 );
             entry.put( KerberosAttribute.PRINCIPAL, principalName );
-            entry.put( KerberosAttribute.VERSION, Integer.toString( key.getKeyVersion() ) );
-            entry.put( KerberosAttribute.TYPE, Integer.toString( key.getKeyType().getOrdinal() ) );
+            entry.put( KerberosAttribute.VERSION, Integer.toString( 0 ) );
 
             entry.put( getKeyAttribute( keys ) );
 
@@ -166,6 +162,14 @@ public class KeyDerivationService extends BaseInterceptor
     }
 
 
+    /**
+     * Detect case.
+     * Log detection.
+     * Retrieve old value.
+     * Log retrieved values.
+     * Make now attr/mods.
+     * Log new values.
+     */
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
         LdapDN name = opContext.getDn();
@@ -176,6 +180,7 @@ public class KeyDerivationService extends BaseInterceptor
         String userPassword = null;
         String principalName = null;
 
+        // Loop over attributes being modified to pick out 'userPassword' and 'krb5PrincipalName'.
         for ( int ii = 0; ii < mods.length; ii++ )
         {
             Attribute attr = mods[ii].getAttribute();
@@ -197,9 +202,7 @@ public class KeyDerivationService extends BaseInterceptor
                         break;
                 }
 
-                log
-                    .debug( operation + " for entry '" + name.getUpName() + "' the attribute "
-                        + mods[ii].getAttribute() );
+                log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + attr );
             }
 
             String attrId = attr.getID();
@@ -238,24 +241,24 @@ public class KeyDerivationService extends BaseInterceptor
         {
             log.debug( "Got principal " + principalName + " with userPassword " + userPassword );
 
-            List<ModificationItemImpl> newModsList = new ArrayList<ModificationItemImpl>();
+            int kvno = lookupKeyVersionNumber( name );
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-            EncryptionKey key = keys.get( EncryptionType.DES_CBC_MD5 );
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-                KerberosAttribute.PRINCIPAL, principalName ) ) );
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-                KerberosAttribute.VERSION, Integer.toString( key.getKeyVersion() ) ) ) );
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-                KerberosAttribute.TYPE, Integer.toString( key.getKeyType().getOrdinal() ) ) ) );
+            Set<ModificationItemImpl> newModsList = new HashSet<ModificationItemImpl>();
 
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
-
+            // Make sure we preserve any other modification items.
             for ( int ii = 0; ii < mods.length; ii++ )
             {
                 newModsList.add( mods[ii] );
             }
+
+            // Add our modification items.
+            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+                KerberosAttribute.PRINCIPAL, principalName ) ) );
+            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+                KerberosAttribute.VERSION, Integer.toString( kvno ) ) ) );
+            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
 
             mods = newModsList.toArray( mods );
 
@@ -282,7 +285,7 @@ public class KeyDerivationService extends BaseInterceptor
         try
         {
             LookupOperationContext lookupContext = new LookupOperationContext( new String[]
-                { KerberosAttribute.VERSION } );
+                { KerberosAttribute.VERSION, KerberosAttribute.PRINCIPAL } );
             lookupContext.setDn( principalDn );
 
             userEntry = proxy.lookup( lookupContext, USERLOOKUP_BYPASS );
@@ -300,20 +303,27 @@ public class KeyDerivationService extends BaseInterceptor
             throw e;
         }
 
-        Integer keyVersionNumber;
+        int newKeyVersionNumber;
 
         Attribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.VERSION );
 
         if ( keyVersionNumberAttr == null )
         {
-            keyVersionNumber = new Integer( 0 );
+            log.debug( "kvno was null, setting to 0." );
+            newKeyVersionNumber = 0;
         }
         else
         {
-            keyVersionNumber = new Integer( ( String ) keyVersionNumberAttr.get() );
+            int oldKeyVersionNumber = Integer.valueOf( ( String ) keyVersionNumberAttr.get() );
+            newKeyVersionNumber = oldKeyVersionNumber + 1;
+            log.debug( "Found kvno '" + oldKeyVersionNumber + "', setting to '" + newKeyVersionNumber + "'." );
         }
 
-        return keyVersionNumber.intValue();
+        // TODO - just checking ...
+        Attribute principalName = userEntry.get( KerberosAttribute.PRINCIPAL );
+        log.debug( "Found principal = " + ( String ) principalName.get() );
+
+        return newKeyVersionNumber;
     }
 
 

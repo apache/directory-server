@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.interceptors;
+package org.apache.directory.server.core.kerberos;
 
 
 import java.util.ArrayList;
