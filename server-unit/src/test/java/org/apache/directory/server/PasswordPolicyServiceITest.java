@@ -35,7 +35,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.kerberos.shared.interceptors.PasswordPolicyService;
+import org.apache.directory.server.core.kerberos.PasswordPolicyService;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -93,7 +93,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
         List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
 
-        interceptorCfg.setName( "passwordPolicyService" );
+        interceptorCfg.setName( PasswordPolicyService.NAME );
         interceptorCfg.setInterceptor( new PasswordPolicyService() );
         list.add( interceptorCfg );
         configuration.setInterceptorConfigurations( list );
