@@ -2,9 +2,9 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.directory</groupId>
-    <artifactId>build</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <groupId>org.apache.directory.project</groupId>
+    <artifactId>project</artifactId>
+    <version>7</version>
   </parent>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>build</artifactId>
@@ -19,6 +19,14 @@
     <module>asn1-codec</module>
     <module>convert</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>
