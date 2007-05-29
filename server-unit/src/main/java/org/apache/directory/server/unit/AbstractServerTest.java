@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -206,4 +207,24 @@ public abstract class AbstractServerTest extends TestCase
             throw ne;
         }
     }
+    
+    /**
+     * Inject an ldif String into the server. DN must be relative to the
+     * root.
+     */
+    protected void injectEntries( String ldif ) throws NamingException
+    {
+        LdifReader reader = new LdifReader();
+        List<Entry> entries = reader.parseLdif( ldif );
+        
+        Iterator<Entry> entryIter = entries.iterator(); 
+        
+        while ( entryIter.hasNext() )
+        {
+            Entry entry = entryIter.next();
+            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+        }
+    }
+    
+    
 }
