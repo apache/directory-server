@@ -23,6 +23,8 @@ package org.apache.directory.server;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -34,6 +36,8 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -52,6 +56,7 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
 {
     private LdapContext ctx;
     
+    // 
     public void setUp() throws Exception
     {
         LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
@@ -80,47 +85,50 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
     
     public void testAfterAddSubscribeUserToSomeGroups() throws NamingException
     {
+        // Create two groups to be subscribed to : staff and teachers.
+        String ldif  = 
+            "version: 1\n" +
+            "\n" +
+            "dn: cn=staff, ou=system\n"+
+            "objectClass: top\n" +
+            "objectClass: groupOfUniqueNames\n" +
+            "uniqueMember: cn=dummy\n"+
+            "cn: staff\n" +
+            "\n" +
+            "dn: cn=teachers, ou=system\n"+
+            "objectClass: top\n" +
+            "objectClass: groupOfUniqueNames\n" +
+            "uniqueMember: cn=dummy\n"+
+            "cn: teachers\n";
+        
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, ListUtilsSP.class );
-        
-        // Create a group to be subscribed to.
-        Attributes staffGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "staff", true );
-        Attribute objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        staffGroupEntry.put( objectClass );
-        objectClass.add( SchemaConstants.TOP_OC );
-        objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
-        staffGroupEntry.put( SchemaConstants.UNIQUE_MEMBER_AT , "cn=dummy" );
-        Rdn staffRdn = new Rdn(SchemaConstants.CN_AT + "=" + "staff" );
-        sysRoot.createSubcontext( staffRdn.getUpName(), staffGroupEntry );
-        
-        // Create another group to be subscribed to.
-        Attributes teachersGroupEntry = new AttributesImpl( SchemaConstants.CN_AT, "teachers", true );
-        objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        teachersGroupEntry.put( objectClass );
-        objectClass.add( SchemaConstants.TOP_OC );
-        objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
-        teachersGroupEntry.put( SchemaConstants.UNIQUE_MEMBER_AT , "cn=dummy" );
-        Rdn teachersRdn = new Rdn( SchemaConstants.CN_AT + "=" + "teachers" );
-        sysRoot.createSubcontext( teachersRdn.getUpName(), teachersGroupEntry );
-        
+
+        // Inject the ldif file into the server
+        injectEntries( ldif );
+            
         // Create the Triger Specification within a Trigger Subentry.
-        String staffDN = staffRdn.getUpName() + "," + sysRoot.getNameInNamespace();
-        String teachersDN = teachersRdn.getUpName() + "," + sysRoot.getNameInNamespace();
+        String staffDN = "cn=staff, ou=system";
+        String teachersDN = "cn=teachers, ou=system";
+
         createTriggerSubentry( ctx, "triggerSubentry1",
             "AFTER Add " +
             "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
             "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
         
         // Create a test entry which is selected by the Trigger Subentry.
-        Attributes testEntry = new AttributesImpl( SchemaConstants.CN_AT, "The Teacher of All Times", true );
-        objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        testEntry.put( objectClass );
-        objectClass.add( SchemaConstants.TOP_OC );
-        objectClass.add( SchemaConstants.INET_ORG_PERSON_OC );
-        testEntry.put( SchemaConstants.SN_AT, "The Teacher" );
-        Rdn testEntryRdn = new Rdn( SchemaConstants.CN_AT + "=" + "The Teacher of All Times" );
-        sysRoot.createSubcontext( testEntryRdn.getUpName(), testEntry );
-                
+        String testEntry  = 
+            "version: 1\n" +
+            "\n" +
+            "dn: cn=The Teacher of All Times, ou=system\n"+
+            "objectClass: top\n" +
+            "objectClass: inetOrgPerson\n" +
+            "cn: The Teacher of All Times\n" +
+            "sn: TheTeacher";
+
+        // Inject the entry into the server
+        injectEntries( testEntry );
+
         // ------------------------------------------
         // The trigger should be fired at this point.
         // ------------------------------------------
@@ -128,9 +136,9 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         // Check if the Trigger really worked (subscribed the user to give grpups).
         Attributes staff = sysRoot.getAttributes( "cn=staff" );
         Attributes teachers = sysRoot.getAttributes( "cn=teachers" );
-        String testEntryName = ( ( LdapContext )sysRoot.lookup( testEntryRdn.getUpName() ) ).getNameInNamespace();
-        assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );
-        assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get(SchemaConstants.UNIQUE_MEMBER_AT), testEntryName ) );
+        String testEntryName = ( ( LdapContext )sysRoot.lookup( "cn=The Teacher of All Times" ) ).getNameInNamespace();
+        assertTrue( AttributeUtils.containsValueCaseIgnore( staff.get( "uniqueMember" ), testEntryName ) );
+        assertTrue( AttributeUtils.containsValueCaseIgnore( teachers.get( "uniqueMember" ), testEntryName ) );
     }
     
     public void testAfterDeleteBackupDeletedEntry() throws NamingException
@@ -139,24 +147,32 @@ public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServic
         JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilitiesSP.class );
         
         // Create a container for backing up deleted entries.
-        Attributes backupContext = new AttributesImpl( "ou", "backupContext", true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
-        backupContext.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        sysRoot.createSubcontext( "ou=backupContext", backupContext );
+        String ldif  = 
+            "version: 1\n" +
+            "\n" +
+            "dn: ou=backupContext, ou=system\n"+
+            "objectClass: top\n" +
+            "objectClass: organizationalUnit\n" +
+            "ou: backupContext\n";
+        
+        // Inject the ldif file into the server
+        injectEntries( ldif );
         
         // Create the Triger Specification within a Trigger Subentry.
         createTriggerSubentry( ctx, "triggerSubentry1",
             "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );
         
         // Create a test entry which is selected by the Trigger Subentry.
-        Attributes testEntry = new AttributesImpl( "ou", "testou", true );
-        objectClass = new AttributeImpl( "objectClass" );
-        testEntry.put( objectClass );
-        objectClass.add( "top" );
-        objectClass.add( "organizationalUnit" );
-        sysRoot.createSubcontext( "ou=testou", testEntry );
+        String ldif2  = 
+            "version: 1\n" +
+            "\n" +
+            "dn: ou=testou, ou=system\n"+
+            "objectClass: top\n" +
+            "objectClass: organizationalUnit\n" +
+            "ou: testou\n";
+        
+        // Inject the ldif file into the server
+        injectEntries( ldif2 );
         
         // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testou" );
