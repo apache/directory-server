@@ -28,6 +28,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -39,7 +40,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class DefaultServerTriggerServiceTest extends AbstractServerTriggerServiceTest
+public class TriggerServiceTest extends AbstractServerTest // AbstractServerTriggerServiceTest
 {
     private LdapContext ctx;
     
