@@ -45,9 +45,12 @@ public class ChainGuard implements IoHandlerCommand
         BindRequest request = ( BindRequest ) message;
         LdapResult result = request.getResultResponse().getLdapResult();
 
-        log.debug( "Is simple:       " + request.isSimple() );
-        log.debug( "SASL mechanism:  " + request.getSaslMechanism() );
-        log.debug( "Credentials:     " + request.getCredentials() );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Is simple:       " + request.isSimple() );
+            log.debug( "SASL mechanism:  " + request.getSaslMechanism() );
+            log.debug( "Credentials:     " + request.getCredentials() );
+        }
 
         // Guard clause:  LDAP version 3
         if ( !request.getVersion3() )
