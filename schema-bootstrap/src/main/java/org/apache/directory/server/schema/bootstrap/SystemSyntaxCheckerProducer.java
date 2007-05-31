@@ -76,7 +76,6 @@ import org.apache.directory.shared.ldap.schema.syntax.SupplierAndConsumerSyntaxC
 import org.apache.directory.shared.ldap.schema.syntax.SupplierInformationSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SupplierOrConsumerSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SupportedAlgorithmSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.TelephoneNumberSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.TeletexTerminalIdentifierSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.TelexNumberSyntaxChecker;
