@@ -69,7 +69,7 @@ public class LdapConfiguration extends ServiceConfiguration
     private String ldapsCertificatePassword = "changeit";
 
     /** The extended operation handlers. */
-    private final Collection extendedOperationHandlers = new ArrayList();
+    private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
 
     /** The supported authentication mechanisms. */
     private List<String> supportedMechanisms;
@@ -264,7 +264,7 @@ public class LdapConfiguration extends ServiceConfiguration
      */
     public Collection getExtendedOperationHandlers()
     {
-        return new ArrayList( extendedOperationHandlers );
+        return new ArrayList<ExtendedOperationHandler>( extendedOperationHandlers );
     }
 
 
@@ -273,7 +273,7 @@ public class LdapConfiguration extends ServiceConfiguration
      *
      * @param handlers A collection of {@link ExtendedOperationHandler}s.
      */
-    public void setExtendedOperationHandlers( Collection handlers )
+    public void setExtendedOperationHandlers( Collection<ExtendedOperationHandler> handlers )
     {
         for ( Iterator i = handlers.iterator(); i.hasNext(); )
         {
