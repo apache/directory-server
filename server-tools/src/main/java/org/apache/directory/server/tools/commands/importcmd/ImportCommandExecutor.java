@@ -67,7 +67,6 @@ import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
-import org.apache.directory.shared.ldap.codec.util.LdapResultEnum;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
