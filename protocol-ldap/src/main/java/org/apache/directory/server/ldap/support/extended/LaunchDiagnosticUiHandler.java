@@ -57,7 +57,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
     static
     {
-        Set set = new HashSet( 3 );
+        Set<String> set = new HashSet<String>( 3 );
         set.add( LaunchDiagnosticUiRequest.EXTENSION_OID );
         set.add( LaunchDiagnosticUiResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( set );

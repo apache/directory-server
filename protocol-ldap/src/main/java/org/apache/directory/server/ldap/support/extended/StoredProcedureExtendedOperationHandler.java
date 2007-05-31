@@ -122,7 +122,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     private static final Set EXTENSION_OIDS;
     static
     {
-        Set s = new HashSet();
+        Set<String> s = new HashSet<String>();
         s.add( StoredProcedureRequest.EXTENSION_OID );
         s.add( StoredProcedureResponse.EXTENSION_OID );
         EXTENSION_OIDS = Collections.unmodifiableSet( s );

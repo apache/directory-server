@@ -57,7 +57,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
 
     static
     {
-        Set set = new HashSet( 3 );
+        Set<String> set = new HashSet<String>( 3 );
         set.add( GracefulShutdownRequest.EXTENSION_OID );
         set.add( GracefulShutdownResponse.EXTENSION_OID );
         set.add( GracefulDisconnect.EXTENSION_OID );
