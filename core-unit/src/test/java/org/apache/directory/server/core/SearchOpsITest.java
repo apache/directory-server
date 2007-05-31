@@ -125,20 +125,22 @@ public class SearchOpsITest extends AbstractAdminTestCase
      *  Convenience method that performs a one level search using the 
      *  specified filter returning their DNs as Strings in a set.
      */
-    public Set searchGroups( String filter, SearchControls controls ) throws NamingException
+    public Set<String> searchGroups( String filter, SearchControls controls ) throws NamingException
     {
         if ( controls == null )
         {
             controls = new SearchControls();
         }
         
-        Set results = new HashSet();
+        Set<String> results = new HashSet<String>();
         NamingEnumeration list = sysRoot.search( "ou=groups", filter, controls );
+        
         while( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
             results.add( result.getName() );
         }
+        
         return results;
     }
     
