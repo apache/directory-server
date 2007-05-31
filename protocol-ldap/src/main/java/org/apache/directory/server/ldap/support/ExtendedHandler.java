@@ -43,14 +43,14 @@ import org.apache.mina.handler.demux.MessageHandler;
  */
 public class ExtendedHandler implements MessageHandler
 {
-    private Map handlers = new HashMap();
+    private Map<String, ExtendedOperationHandler> handlers = new HashMap<String, ExtendedOperationHandler>();
 
 
     public ExtendedOperationHandler addHandler( ExtendedOperationHandler eoh )
     {
         synchronized ( handlers )
         {
-            return ( ExtendedOperationHandler ) handlers.put( eoh.getOid(), eoh );
+            return handlers.put( eoh.getOid(), eoh );
         }
     }
 
@@ -59,14 +59,14 @@ public class ExtendedHandler implements MessageHandler
     {
         synchronized ( handlers )
         {
-            return ( ExtendedOperationHandler ) handlers.remove( oid );
+            return handlers.remove( oid );
         }
     }
 
 
     public ExtendedOperationHandler getHandler( String oid )
     {
-        return ( ExtendedOperationHandler ) handlers.get( oid );
+        return handlers.get( oid );
     }
 
 
@@ -79,7 +79,7 @@ public class ExtendedHandler implements MessageHandler
     public void messageReceived( IoSession session, Object request ) throws Exception
     {
         ExtendedRequest req = ( ExtendedRequest ) request;
-        ExtendedOperationHandler handler = ( ExtendedOperationHandler ) handlers.get( req.getOid() );
+        ExtendedOperationHandler handler = handlers.get( req.getOid() );
 
         if ( handler == null )
         {
