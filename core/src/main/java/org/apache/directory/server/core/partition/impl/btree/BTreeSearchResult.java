@@ -22,7 +22,6 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
 

@@ -33,7 +33,6 @@ import org.apache.directory.shared.ldap.util.ArrayEnumeration;
 import org.apache.directory.shared.ldap.util.LongComparator;
 
 import jdbm.RecordManager;
-import jdbm.helper.LongSerializer;
 import jdbm.recman.BaseRecordManager;
 
 import junit.framework.TestCase;
