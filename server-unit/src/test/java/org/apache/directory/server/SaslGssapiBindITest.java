@@ -20,22 +20,16 @@
 package org.apache.directory.server;
 
 
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
@@ -43,8 +37,6 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.kerberos.KeyDerivationService;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
-import org.apache.directory.server.kerberos.shared.jaas.CallbackHandlerBean;
-import org.apache.directory.server.kerberos.shared.jaas.Krb5LoginConfiguration;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
