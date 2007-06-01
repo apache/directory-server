@@ -20,38 +20,47 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
-import java.io.IOException;
-
-import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
-import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.apache.mina.filter.codec.ProtocolEncoder;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosDecoder implements ProtocolDecoder
+public class KerberosTcpProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private KdcRequestDecoder decoder = new KdcRequestDecoder();
+    private static final KerberosTcpProtocolCodecFactory INSTANCE = new KerberosTcpProtocolCodecFactory();
 
 
-    public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
+    /**
+     * Returns the singleton {@link KerberosTcpProtocolCodecFactory}.
+     *
+     * @return The singleton {@link KerberosTcpProtocolCodecFactory}.
+     */
+    public static KerberosTcpProtocolCodecFactory getInstance()
     {
-        out.write( decoder.decode( in.buf() ) );
+        return INSTANCE;
     }
 
 
-    public void dispose( IoSession session ) throws Exception
+    private KerberosTcpProtocolCodecFactory()
     {
-        // Unused interface method.
+        // Private constructor prevents instantiation outside this class.
     }
 
 
-    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
+    public ProtocolEncoder getEncoder()
     {
-        // Unused interface method.
+        // Create a new encoder.
+        return new KerberosTcpEncoder();
+    }
+
+
+    public ProtocolDecoder getDecoder()
+    {
+        // Create a new decoder.
+        return new KerberosTcpDecoder();
     }
 }

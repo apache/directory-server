@@ -20,47 +20,39 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
-import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosProtocolCodecFactory implements ProtocolCodecFactory
+public class KerberosTcpDecoder extends CumulativeProtocolDecoder
 {
-    private static final KerberosProtocolCodecFactory INSTANCE = new KerberosProtocolCodecFactory();
+    private KdcRequestDecoder decoder = new KdcRequestDecoder();
 
 
-    /**
-     * Returns the singleton {@link KerberosProtocolCodecFactory}.
-     *
-     * @return The singleton {@link KerberosProtocolCodecFactory}.
-     */
-    public static KerberosProtocolCodecFactory getInstance()
+    protected boolean doDecode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws Exception
     {
-        return INSTANCE;
-    }
+        if ( in.remaining() < 4 )
+        {
+            return false;
+        }
 
+        int recordLength = in.getInt();
 
-    private KerberosProtocolCodecFactory()
-    {
-        // Private constructor prevents instantiation outside this class.
-    }
+        if ( in.remaining() < recordLength )
+        {
+            in.rewind();
+            return false;
+        }
 
+        out.write( decoder.decode( in.buf() ) );
 
-    public ProtocolEncoder getEncoder()
-    {
-        // Create a new encoder.
-        return new KerberosEncoder();
-    }
-
-
-    public ProtocolDecoder getDecoder()
-    {
-        // Create a new decoder.
-        return new KerberosDecoder();
+        return true;
     }
 }

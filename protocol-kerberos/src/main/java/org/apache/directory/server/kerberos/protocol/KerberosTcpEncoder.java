@@ -28,7 +28,7 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
@@ -36,7 +36,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosEncoder implements ProtocolEncoder
+public class KerberosTcpEncoder extends ProtocolEncoderAdapter
 {
     private KdcReplyEncoder replyEncoder = new KdcReplyEncoder();
     private ErrorMessageEncoder errorEncoder = new ErrorMessageEncoder();
@@ -45,6 +45,9 @@ public class KerberosEncoder implements ProtocolEncoder
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {
         ByteBuffer buf = ByteBuffer.allocate( 1024 );
+
+        // make space for int length
+        buf.putInt( 0 );
 
         if ( message instanceof KdcReply )
         {
@@ -58,14 +61,20 @@ public class KerberosEncoder implements ProtocolEncoder
             }
         }
 
+        // mark position
+        int pos = buf.position();
+
+        // length is the data minus 4 bytes for the pre-pended length
+        int recordLength = buf.position() - 4;
+
+        // write the length
+        buf.rewind();
+        buf.putInt( recordLength );
+
+        // set the position back before flipping the buffer
+        buf.position( pos );
         buf.flip();
 
         out.write( buf );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
-        // Unused interface method.
     }
 }

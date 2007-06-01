@@ -40,6 +40,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -84,11 +85,19 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CREATED" );
+            log.debug( session.getRemoteAddress() + " CREATED : " + session.getTransportType() );
         }
 
-        session.getFilterChain().addFirst( "codec",
-            new ProtocolCodecFilter( KerberosProtocolCodecFactory.getInstance() ) );
+        if ( session.getTransportType() == TransportType.DATAGRAM )
+        {
+            session.getFilterChain().addFirst( "codec",
+                new ProtocolCodecFilter( KerberosUdpProtocolCodecFactory.getInstance() ) );
+        }
+        else
+        {
+            session.getFilterChain().addFirst( "codec",
+                new ProtocolCodecFilter( KerberosTcpProtocolCodecFactory.getInstance() ) );
+        }
     }
 
 
