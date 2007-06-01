@@ -162,9 +162,18 @@ public class GetPrincipal implements ContextOperation
         }
 
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
+
         String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
-        String encryptionType = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
+        modifier.setPrincipal( new KerberosPrincipal( principal ) );
+
         String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
+        modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
+
+        if ( attrs.get( KerberosAttribute.TYPE ) != null )
+        {
+            String val = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
+            modifier.setEncryptionType( Integer.parseInt( val ) );
+        }
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
         {
@@ -214,9 +223,6 @@ public class GetPrincipal implements ContextOperation
             }
         }
 
-        modifier.setPrincipal( new KerberosPrincipal( principal ) );
-        modifier.setEncryptionType( Integer.parseInt( encryptionType ) );
-        modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
         return modifier.getEntry();
     }
 }
