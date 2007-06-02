@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -145,7 +146,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( String name, int modOp, Attributes attrs ) throws NamingException
     {
-        modifyAttributes( new LdapDN( name ), modOp, attrs );
+        modifyAttributes( new LdapDN( name ), modOp, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -155,7 +156,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        getNexusProxy().modify( buildTarget( name ), modOp, attrs );
+        getNexusProxy().modify( buildTarget( name ), modOp, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -217,7 +218,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void bind( String name, Object obj, Attributes attrs ) throws NamingException
     {
-        bind( new LdapDN( name ), obj, attrs );
+        bind( new LdapDN( name ), obj, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -227,7 +228,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void bind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
-        if ( null == obj && null == attrs )
+        if ( ( null == obj ) && ( null == attrs ) )
         {
             throw new NamingException( "Both obj and attrs args are null. "
                 + "At least one of these parameters must not be null." );
@@ -240,6 +241,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             return;
         }
 
+        attrs = AttributeUtils.toCaseInsensitive( attrs );
+        
         // No object binding so we just add the attributes
         if ( null == obj )
         {
@@ -328,7 +331,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void rebind( String name, Object obj, Attributes attrs ) throws NamingException
     {
-        rebind( new LdapDN( name ), obj, attrs );
+        rebind( new LdapDN( name ), obj, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -339,11 +342,13 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public void rebind( Name name, Object obj, Attributes attrs ) throws NamingException
     {
         LdapDN target = buildTarget( name );
+        
         if ( getNexusProxy().hasEntry( target ) )
         {
             getNexusProxy().delete( target );
         }
-        bind( name, obj, attrs );
+        
+        bind( name, obj, AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -353,7 +358,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public DirContext createSubcontext( String name, Attributes attrs ) throws NamingException
     {
-        return createSubcontext( new LdapDN( name ), attrs );
+        return createSubcontext( new LdapDN( name ), AttributeUtils.toCaseInsensitive( attrs ) );
     }
 
 
@@ -371,7 +376,10 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         LdapDN target = buildTarget( name );
         Rdn rdn = target.getRdn( target.size() - 1 );
         
+        attrs = AttributeUtils.toCaseInsensitive( attrs );
+        
         Attributes attributes = ( Attributes ) attrs.clone();
+        
         if ( rdn.size() == 1 )
         {
             String rdnAttribute = rdn.getUpType();
@@ -459,7 +467,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public NamingEnumeration search( String name, Attributes matchingAttributes ) throws NamingException
     {
-        return search( new LdapDN( name ), matchingAttributes, null );
+        return search( new LdapDN( name ), AttributeUtils.toCaseInsensitive( matchingAttributes ), null );
     }
 
 
@@ -469,7 +477,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public NamingEnumeration search( Name name, Attributes matchingAttributes ) throws NamingException
     {
-        return search( name, matchingAttributes, null );
+        return search( name, AttributeUtils.toCaseInsensitive( matchingAttributes ), null );
     }
 
 
@@ -480,7 +488,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn )
         throws NamingException
     {
-        return search( new LdapDN( name ), matchingAttributes, attributesToReturn );
+        return search( new LdapDN( name ), AttributeUtils.toCaseInsensitive( matchingAttributes ), attributesToReturn );
     }
 
 
@@ -501,13 +509,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         }
 
         // If matchingAttributes is null/empty use a match for everything filter
-        if ( null == matchingAttributes || matchingAttributes.size() <= 0 )
+        if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
             PresenceNode filter = new PresenceNode( "objectClass" );
             return getNexusProxy().search( target, getEnvironment(), filter, ctls );
         }
 
         // Handle simple filter expressions without multiple terms
+        matchingAttributes = AttributeUtils.toCaseInsensitive( matchingAttributes );
+        
         if ( matchingAttributes.size() == 1 )
         {
             NamingEnumeration list = matchingAttributes.getAll();
