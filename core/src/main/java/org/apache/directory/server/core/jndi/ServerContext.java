@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
@@ -70,6 +71,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -388,7 +390,9 @@ public abstract class ServerContext implements EventContext
     {
         // First, use state factories to do a transformation
         DirStateFactory.Result res = DirectoryManager.getStateToBind( obj, name, this, env, null );
-        Attributes outAttrs = res.getAttributes();
+
+        // let's be sure that the Attributes is case insensitive
+        Attributes outAttrs = AttributeUtils.toCaseInsensitive( res.getAttributes() );
 
         if ( outAttrs != null )
         {
