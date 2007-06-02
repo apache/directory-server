@@ -48,6 +48,7 @@ public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
 
     private ChangePasswordProtocolCodecFactory()
     {
+        // Private constructor prevents instantiation outside this class.
     }
 
 

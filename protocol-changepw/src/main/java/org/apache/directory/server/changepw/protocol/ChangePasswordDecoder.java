@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.directory.server.changepw.io.ChangePasswordRequestDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
@@ -34,22 +34,11 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordDecoder implements ProtocolDecoder
+public class ChangePasswordDecoder extends ProtocolDecoderAdapter
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
         ChangePasswordRequestDecoder decoder = new ChangePasswordRequestDecoder();
         out.write( decoder.decode( in.buf() ) );
-    }
-
-
-    public void dispose( IoSession session ) throws Exception
-    {
-    }
-
-
-    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
-    {
-        // TODO Auto-generated method stub
     }
 }
