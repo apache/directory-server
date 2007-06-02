@@ -30,6 +30,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -608,6 +609,54 @@ public class AttributeUtils
         return attr;
     }
 
+    /**
+     * Check if the attributes is a BasicAttributes, and if so, switch
+     * the case sensitivity to false to avoid tricky problems in the server.
+     * (Ldap attributeTypes are *always* case insensitive)
+     * 
+     * @param attributes The Attributes to check
+     */
+    public static Attributes toCaseInsensitive( Attributes attributes )
+    {
+        if ( attributes == null )
+        {
+            return attributes;
+        }
+        
+        if ( attributes instanceof BasicAttributes )
+        {
+            if ( attributes.isCaseIgnored() )
+            {
+                // Just do nothing if the Attributes is already case insensitive
+                return attributes;
+            }
+            else
+            {
+                // Ok, bad news : we have to create a new BasicAttributes
+                // whiwh will be case insensitive
+                Attributes newAttrs = new BasicAttributes( true );
+                
+                NamingEnumeration attrs = attributes.getAll();
+                
+                if ( attrs != null )
+                {
+                    // Iterate through the attributes now
+                    while ( attrs.hasMoreElements() )
+                    {
+                        newAttrs.put( (Attribute)attrs.nextElement() );
+                    }
+                }
+                
+                return newAttrs;
+            }
+        }
+        else
+        {
+            // we can safely return the attributes if it's not a BasicAttributes
+            return attributes;
+        }
+    }
+    
 
     /**
      * Return a string representing the attributes with tabs in front of the
