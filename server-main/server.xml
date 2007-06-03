@@ -64,7 +64,7 @@
   
   <bean id="ldapConfiguration" class="org.apache.directory.server.ldap.LdapConfiguration">
     <!-- The port to run the LDAP protocol on.                              -->
-    <property name="ipPort" value="389" />
+    <property name="ipPort" value="10389" />
     <!-- Whether to allow anonymous access.                                 -->
     <property name="allowAnonymousAccess" value="false" />
     
@@ -102,20 +102,23 @@
     </property>
     
     <!-- The base DN containing users that can be SASL authenticated.       -->
-    <property name="searchBaseDn" value="ou=users,dc=example,dc=com" />
+    <property name="searchBaseDn" value="ou=users,ou=system" />
     
     <!-- SSL CONFIG CAN GO HERE-->
     
     <!-- limits searches by non-admin users to a max time of 15000          -->
     <!-- milliseconds and has a default value of 10000                      -->
     <property name="maxTimeLimit" value="15000" />
+
     <!-- limits searches to max size of 1000 entries: default value is 100  -->
     <property name="maxSizeLimit" value="1000" />
+
     <!-- the collection of extended operation handlers to install           -->
     <property name="extendedOperationHandlers">
       <list>
         <!--<bean class="org.apache.directory.server.ldap.support.starttls.StartTlsHandler"/>-->
         <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
+
         <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
       </list>
     </property>
@@ -232,7 +235,7 @@
             <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
           </property>
         </bean>
-        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+        <!-- bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="passwordPolicyService" />
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.kerberos.PasswordPolicyService" />
@@ -243,7 +246,7 @@
           <property name="interceptor">
             <bean class="org.apache.directory.server.core.kerberos.KeyDerivationService" />
           </property>
-        </bean>
+        </bean -->
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="schemaService" />
           <property name="interceptor">
