@@ -75,6 +75,18 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
+    public void setMaxTimeLimit( int maxTimeLimit )
+    {
+        super.setMaxTimeLimit( maxTimeLimit );
+    }
+    
+    
+    public void setMaxSizeLimit( int maxSizeLimit )
+    {
+        super.setMaxSizeLimit( maxSizeLimit );
+    }
+    
+
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
         super.setSynchPeriodMillis( synchPeriodMillis );
