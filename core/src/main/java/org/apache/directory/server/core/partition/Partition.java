@@ -45,16 +45,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public interface Partition
 {
-    /** The objectClass name for aliases: 'alias' */
-    String ALIAS_OBJECT = "alias";
-
-    /**
-     * The aliased Dn attribute name: aliasedObjectName for LDAP and
-     * aliasedEntryName or X.500.
-     */
-    String ALIAS_ATTRIBUTE = "aliasedObjectName";
-
-
     /**
      * Initializes this partition.
      */
