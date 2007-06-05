@@ -34,6 +34,10 @@ public class SchemaConstants
     public static final String TOP_OC = "top";
     public static final String TOP_OC_OID = "2.5.6.0";
     
+    // Alias
+    public static final String ALIAS_OC = "alias";
+    public static final String ALIAS_OC_OID = "2.5.6.1";
+    
     // OrganizationalUnit
     public static final String ORGANIZATIONAL_UNIT_OC = "organizationalUnit";
     public static final String ORGANIZATIONAL_UNIT_OC_OID = "2.5.6.5";
@@ -79,6 +83,10 @@ public class SchemaConstants
     // ObjectClass
     public static final String OBJECT_CLASS_AT = "objectClass";
     public static final String OBJECT_CLASS_AT_OID = "2.5.4.0";
+    
+    // AliasedObjectName
+    public static final String ALIASED_OBJECT_NAME_AT = "aliasedObjectName";
+    public static final String ALIASED_OBJECT_NAME_AT_OID = "2.5.4.1";
     
     // Cn
     public static final String CN_AT = "cn";
