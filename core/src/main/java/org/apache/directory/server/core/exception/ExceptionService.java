@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -82,7 +83,31 @@ public class ExceptionService extends BaseInterceptor
      * The OIDs normalizer map
      */
     private Map<String, OidNormalizer> normalizerMap;
+    
+    /**
+     * A cache to store entries which are not aliases. 
+     * It's a speedup, we will be able to avoid backend lookups.
+     * 
+     * Note that the backend also use a cache mechanism, but for performance gain, it's good 
+     * to manage a cache here. The main problem is that when a user modify the parent, we will
+     * have to update it at three different places :
+     * - in the backend,
+     * - in the partition cache,
+     * - in this cache.
+     * 
+     * The update of the backend and partition cache is already correctly handled, so we will
+     * just have to offer an access to refresh the local cache. This should be done in 
+     * delete, modify and move operations.
+     * 
+     * We need to be sure that frequently used DNs are always in cache, and not discarded.
+     * We will use a LRU cache for this purpose. 
+     */ 
+    private LRUMap notAliasCache;
 
+    /** Declare a default for this cache. 100 entries seems to be enough */
+    private static final int DEFAULT_CACHE_SIZE = 100;
+
+    
     /**
      * Creates an interceptor that is also the exception handling service.
      */
@@ -98,13 +123,13 @@ public class ExceptionService extends BaseInterceptor
         Attribute attr = nexus.getRootDSE( null ).get( "subschemaSubentry" );
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
+        notAliasCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
 
     public void destroy()
     {
     }
-
 
     /**
      * In the pre-invocation state this interceptor method checks to see if the entry to be added already exists.  If it
@@ -133,29 +158,48 @@ public class ExceptionService extends BaseInterceptor
         parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
-        Attributes attrs = null;
+        boolean notAnAlias = false;
         
-        try
+        synchronized( notAliasCache )
         {
-            attrs = nextInterceptor.lookup( new LookupOperationContext( parentDn ) );
-        }
-        catch ( Exception e )
-        {
-            LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.getUpName() 
-                + " not found" );
-            e2.setResolvedName( new LdapDN( nexus.getMatchedName( new GetMatchedNameOperationContext( parentDn ) ).getUpName() ) );
-            throw e2;
+        	notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
         }
         
-        Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
-        
-        if ( objectClass.contains( "alias" ) )
+        if ( notAnAlias == false )
         {
-            String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
-            ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
-            NamingException e = new LdapNamingException( msg, rc );
-            e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
-            throw e;
+        	// We don't know if the parent is an alias or not, so we will launch a 
+        	// lookup, and update the cache if it's not an alias
+            Attributes attrs = null;
+            
+            try
+            {
+                attrs = nextInterceptor.lookup( new LookupOperationContext( parentDn ) );
+            }
+            catch ( Exception e )
+            {
+                LdapNameNotFoundException e2 = new LdapNameNotFoundException( "Parent " + parentDn.getUpName() 
+                    + " not found" );
+                e2.setResolvedName( new LdapDN( nexus.getMatchedName( new GetMatchedNameOperationContext( parentDn ) ).getUpName() ) );
+                throw e2;
+            }
+            
+            Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
+            
+            if ( objectClass.contains( "alias" ) )
+            {
+                String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
+                ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
+                NamingException e = new LdapNamingException( msg, rc );
+                e.setResolvedName( new LdapDN( parentDn.getUpName() ) );
+                throw e;
+            }
+            else
+            {
+            	synchronized ( notAliasCache )
+            	{
+            		notAliasCache.put( parentDn.getNormName(), parentDn );
+            	}
+            }
         }
 
         nextInterceptor.add( opContext );
@@ -200,6 +244,14 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
+        synchronized( notAliasCache )
+        {
+        	if ( notAliasCache.containsKey( name.getNormName() ) )
+        	{
+        		notAliasCache.remove( name.getNormName() );
+        	}
+        }
+        
         nextInterceptor.delete( opContext );
     }
 
@@ -288,6 +340,19 @@ public class ExceptionService extends BaseInterceptor
             }
         }
 
+        // Let's assume that the new modified entry may be an alias,
+        // but we don't want to check that now...
+        // We will simply remove the DN from the NotAlias cache.
+        // It would be smarter to check the modified attributes, but
+        // it would also be more complex.
+        synchronized( notAliasCache )
+        {
+        	if ( notAliasCache.containsKey( ctx.getDn().getNormName() ) )
+        	{
+        		notAliasCache.remove( ctx.getDn().getNormName() );
+        	}
+        }
+
         nextInterceptor.modify( opContext );
     }
 
@@ -323,6 +388,15 @@ public class ExceptionService extends BaseInterceptor
             e = new LdapNameAlreadyBoundException( "target entry " + newDn.getUpName() + " already exists!" );
             e.setResolvedName( new LdapDN( newDn.getUpName() ) );
             throw e;
+        }
+
+        // Remove the previous entry from the notAnAlias cache
+        synchronized( notAliasCache )
+        {
+        	if ( notAliasCache.containsKey( dn.getNormName() ) )
+        	{
+        		notAliasCache.remove( dn.getNormName() );
+        	}
         }
 
         nextInterceptor.rename( opContext );
@@ -372,6 +446,15 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
+        // Remove the original entry from the NotAlias cache, if needed
+        synchronized( notAliasCache )
+        {
+        	if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+        	{
+        		notAliasCache.remove( oriChildName.getNormName() );
+        	}
+        }
+                
         nextInterceptor.move( opContext );
     }
 
@@ -419,6 +502,15 @@ public class ExceptionService extends BaseInterceptor
             throw e;
         }
 
+        // Remove the original entry from the NotAlias cache, if needed
+        synchronized( notAliasCache )
+        {
+        	if ( notAliasCache.containsKey( oriChildName.getNormName() ) )
+        	{
+        		notAliasCache.remove( oriChildName.getNormName() );
+        	}
+        }
+        
         nextInterceptor.moveAndRename( opContext );
     }
 
