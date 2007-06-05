@@ -150,6 +150,9 @@ public class SchemaService extends BaseInterceptor
      * subschemaSubentry attribute's value from Root DSE
      */
     private LdapDN subschemaSubentryDn;
+    
+    /** A normalized form for the SubschemaSubentry DN */
+    private String subschemaSubentryDnNorm;
 
     /**
      * the normalized name for the schema modification attributes
@@ -213,6 +216,7 @@ public class SchemaService extends BaseInterceptor
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( "subschemaSubentry" ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
         schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
         schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -486,7 +490,7 @@ public class SchemaService extends BaseInterceptor
         filterAttributesToReturn( searchCtls );
 
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
-        if ( !subschemaSubentryDn.toNormName().equals( base.toNormName() ) )
+        if ( !subschemaSubentryDnNorm.equals( base.toNormName() ) )
         {
             NamingEnumeration e = nextInterceptor.search( opContext );
             
@@ -1234,7 +1238,7 @@ public class SchemaService extends BaseInterceptor
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
-        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDn.getNormName() ) )
+        if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDnNorm ) )
         {
             entry = getSubschemaEntry( schemaSubentryReturnAttributes );
         }
@@ -1527,7 +1531,7 @@ public class SchemaService extends BaseInterceptor
         {
             schemaManager.modify( name, mods, entry, targetEntry );
         }
-        else if ( subschemaSubentryDn.getNormName().equals( name.getNormName() ) )
+        else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
             schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry );
             return;
