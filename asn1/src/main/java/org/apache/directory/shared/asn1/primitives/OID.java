@@ -21,6 +21,7 @@ package org.apache.directory.shared.asn1.primitives;
 
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
@@ -52,7 +53,10 @@ import org.apache.directory.shared.asn1.util.Asn1StringUtils;
  * 1.2   -> 0x2A (1*40 + 2 = 42 = 0x2A) 
  * 840   -> 0x86 0x48 (840 = 6 * 128 + 72 = (0x06 | 0x80) 0x48 = 0x86 0x48
  * 48018 -> 0x82 0xF7 0x12 (2 * 128 * 128 + 119 * 128 + 18 = (0x02 | 0x80) (0x77 | 0x80) 0x12
- * 
+ * .1    -> 0x01
+ * .2    -> 0x02
+ * .2    -> 0x02
+ *  
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class OID implements Serializable
@@ -64,6 +68,9 @@ public class OID implements Serializable
 
     /** The OID as a array of int */
     private long[] oidValues;
+    
+    /** Th hashcode, computed only once */
+    private int hash;
 
 
     // ~ Constructors
@@ -74,9 +81,9 @@ public class OID implements Serializable
      */
     public OID()
     {
-
         // We should not create this kind of object directly, it must
         // be created through the factory.
+    	hash = 0;
     }
 
 
@@ -85,9 +92,10 @@ public class OID implements Serializable
      * 
      * @param oid
      */
-    public OID(byte[] oid) throws DecoderException
+    public OID( byte[] oid ) throws DecoderException
     {
         setOID( oid );
+        hash = computeHashCode();
     }
 
 
@@ -96,9 +104,10 @@ public class OID implements Serializable
      * 
      * @param oid The String which is supposed to be an OID
      */
-    public OID(String oid) throws DecoderException
+    public OID( String oid ) throws DecoderException
     {
         setOID( oid );
+        hash = computeHashCode();
     }
 
 
@@ -195,6 +204,8 @@ public class OID implements Serializable
 
             pos++;
         }
+        
+        hash = computeHashCode();
     }
 
 
@@ -326,6 +337,8 @@ public class OID implements Serializable
         }
 
         oidValues[intPos++] = value;
+
+        hash = computeHashCode();
     }
 
 
@@ -493,28 +506,25 @@ public class OID implements Serializable
 
 
     /**
-     * Get the OID as a String
-     * 
-     * @return A String representing the OID
+     * Compute the hashcode for this object. No need to copute
+     * it live when calling the hashCode() method, as an OID
+     * never change.
      */
-    public String toString()
+    private int computeHashCode()
     {
-
-        StringBuffer sb = new StringBuffer();
-
-        if ( oidValues != null )
-        {
-            sb.append( oidValues[0] );
-
-            for ( int i = 1; i < oidValues.length; i++ )
-            {
-                sb.append( '.' ).append( oidValues[i] );
-            }
-        }
-
-        return sb.toString();
+    	int h = 37;
+    	
+    	for ( long val:oidValues )
+    	{
+    		int low = (int)(val & 0x0000FFFFL);
+    		int high = (int)(val >> 32);
+    		h = h*17 + high;
+    		h = h*17 + low;
+    	}
+    	
+    	return h;
     }
-
+    
     /**
      * Check that an OID is valid
      * @param oid The oid to be checked
@@ -632,4 +642,65 @@ public class OID implements Serializable
 
         return !dotSeen;
     }
+    
+    /**
+     * Get the OID as a String
+     * 
+     * @return A String representing the OID
+     */
+    public String toString()
+    {
+
+        StringBuffer sb = new StringBuffer();
+
+        if ( oidValues != null )
+        {
+            sb.append( oidValues[0] );
+
+            for ( int i = 1; i < oidValues.length; i++ )
+            {
+                sb.append( '.' ).append( oidValues[i] );
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+    	return hash;
+    }
+    
+    public boolean equals( Object oid )
+    {
+        if ( this == oid )
+        {
+            return true;
+        }
+        
+        if ( oid == null )
+        {
+            return false;
+        }
+        
+        if ( oid.getClass() != this.getClass() )
+        {
+            return false;
+        }
+        
+        OID instance = (OID)oid;
+   	
+    	if ( instance.hash != hash )
+    	{
+    		return false;
+    	}
+    	else
+    	{
+    		return Arrays.equals( instance.oidValues, oidValues );
+    	}
+    }
+    
 }
