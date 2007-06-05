@@ -185,7 +185,7 @@ public class ExceptionService extends BaseInterceptor
             
             Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
             
-            if ( objectClass.contains( "alias" ) )
+            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
             {
                 String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
