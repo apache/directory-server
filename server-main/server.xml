@@ -74,7 +74,7 @@
         <value>SIMPLE</value>
         <value>CRAM-MD5</value>
         <value>DIGEST-MD5</value>
-        <value>GSSAPI</value>
+        <!--<value>GSSAPI</value>-->
       </list>
     </property>
     
