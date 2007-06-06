@@ -213,7 +213,7 @@ public class SchemaService extends BaseInterceptor
         schemaManager = factoryCfg.getSchemaManager();
         
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( "subschemaSubentry" ).get();
+        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();

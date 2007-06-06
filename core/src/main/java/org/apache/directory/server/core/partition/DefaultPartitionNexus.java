@@ -145,7 +145,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         // setup that root DSE
         this.rootDSE = rootDSE;
-        Attribute attr = new AttributeImpl( "subschemaSubentry" );
+        Attribute attr = new AttributeImpl( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         attr.add( GLOBAL_SCHEMA_SUBENTRY_DN );
         rootDSE.put( attr );
 

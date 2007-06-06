@@ -98,7 +98,6 @@ public class SubentryService extends BaseInterceptor
     public static final String AC_SUBENTRIES = "accessControlSubentries";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
-    public static final String SCHEMA_SUBENTRY = "subschemaSubentry";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
@@ -109,7 +108,12 @@ public class SubentryService extends BaseInterceptor
     public static final String TRIGGER_SUBENTRIES = "triggerExecutionSubentries";
 
     public static final String[] SUBENTRY_OPATTRS =
-        { AC_SUBENTRIES, SCHEMA_SUBENTRY, COLLECTIVE_ATTRIBUTE_SUBENTRIES, TRIGGER_SUBENTRIES };
+        { 
+    	AC_SUBENTRIES, 
+    	SchemaConstants.SUBSCHEMA_SUBENTRY_AT, 
+    	COLLECTIVE_ATTRIBUTE_SUBENTRIES, 
+    	TRIGGER_SUBENTRIES 
+    	};
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
 
@@ -341,10 +345,10 @@ public class SubentryService extends BaseInterceptor
                 }
                 if ( subentry.isSchemaSubentry() )
                 {
-                    operational = subentryAttrs.get( SCHEMA_SUBENTRY );
+                    operational = subentryAttrs.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                        operational = new AttributeImpl( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -502,11 +506,11 @@ public class SubentryService extends BaseInterceptor
                     
                     if ( subentry.isSchemaSubentry() )
                     {
-                        operational = entry.get( SCHEMA_SUBENTRY );
+                        operational = entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                         
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                            operational = new AttributeImpl( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                             entry.put( operational );
                         }
                         
@@ -1148,10 +1152,10 @@ public class SubentryService extends BaseInterceptor
         }
         if ( subentry.isSchemaSubentry() )
         {
-            operational = ( Attribute ) entry.get( SCHEMA_SUBENTRY ).clone();
+            operational = ( Attribute ) entry.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( SCHEMA_SUBENTRY );
+                operational = new AttributeImpl( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
                 operational.add( newName.toString() );
             }
             else
@@ -1224,13 +1228,13 @@ public class SubentryService extends BaseInterceptor
         }
         if ( subentry.isSchemaSubentry() )
         {
-            if ( operational.get( SCHEMA_SUBENTRY ) == null )
+            if ( operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ) == null )
             {
-                operational.put( SCHEMA_SUBENTRY, name.toString() );
+                operational.put( SchemaConstants.SUBSCHEMA_SUBENTRY_AT, name.toString() );
             }
             else
             {
-                operational.get( SCHEMA_SUBENTRY ).add( name.toString() );
+                operational.get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).add( name.toString() );
             }
         }
         if ( subentry.isCollectiveSubentry() )

@@ -120,7 +120,7 @@ public class ExceptionService extends BaseInterceptor
     {
         nexus = factoryCfg.getPartitionNexus();
         normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        Attribute attr = nexus.getRootDSE( null ).get( "subschemaSubentry" );
+        Attribute attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
         notAliasCache = new LRUMap( DEFAULT_CACHE_SIZE );
