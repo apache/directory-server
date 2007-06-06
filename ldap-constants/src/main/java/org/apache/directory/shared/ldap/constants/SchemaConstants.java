@@ -159,6 +159,10 @@ public class SchemaConstants
     public static final String SUBSCHEMA_SUBENTRY_AT = "subschemaSubentry";
     public static final String SUBSCHEMA_SUBENTRY_AT_OID = "2.5.18.10";
 
+    // CollectiveAttributeSubentries
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT = "collectiveAttributeSubentries";
+    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT_OID = "2.5.18.12";
+
     // DitStructureRules
     public static final String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
     public static final String DIT_STRUCTURE_RULES_AT_OID = "2.5.21.1";
@@ -219,6 +223,14 @@ public class SchemaConstants
     // LdapSyntaxes
     public static final String LDAP_SYNTAXES_AT = "ldapSyntaxes";
     public static final String LDAP_SYNTAXES_AT_OID = "1.3.6.1.4.1.1466.101.120.16";
+
+    // AccessControlSubentries
+    public static final String ACCESS_CONTROL_SUBENTRIES_AT = "accessControlSubentries";
+    public static final String ACCESS_CONTROL_SUBENTRIES_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.11";
+
+    // TriggerExecutionSubentries
+    public static final String TRIGGER_EXECUTION_SUBENTRIES_AT = "triggerExecutionSubentries";
+    public static final String TRIGGER_EXECUTION_SUBENTRIES_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.27";
 
     // Comparators
     public static final String COMPARATORS_AT = "comparators";
