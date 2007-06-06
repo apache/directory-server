@@ -131,12 +131,11 @@ public class CipherTextHandler
         }
         catch ( IOException ioe )
         {
-            ioe.printStackTrace();
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
         }
         catch ( ClassCastException cce )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
         }
     }
 
@@ -160,12 +159,11 @@ public class CipherTextHandler
         }
         catch ( IOException ioe )
         {
-            ioe.printStackTrace();
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
         }
         catch ( ClassCastException cce )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
         }
     }
 
@@ -265,11 +263,11 @@ public class CipherTextHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, iae );
         }
         catch ( InstantiationException ie )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, ie );
         }
     }
 }

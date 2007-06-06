@@ -105,11 +105,11 @@ public class ChecksumHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP, iae );
         }
         catch ( InstantiationException ie )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP, ie );
         }
     }
 }

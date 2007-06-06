@@ -81,7 +81,8 @@ public class RandomKeyFactory
      * @return The list of KerberosKey's.
      * @throws KerberosException 
      */
-    public static Map<EncryptionType, EncryptionKey> getRandomKeys( Set<EncryptionType> ciphers ) throws KerberosException
+    public static Map<EncryptionType, EncryptionKey> getRandomKeys( Set<EncryptionType> ciphers )
+        throws KerberosException
     {
         Map<EncryptionType, EncryptionKey> map = new HashMap<EncryptionType, EncryptionKey>();
 
@@ -136,7 +137,7 @@ public class RandomKeyFactory
         }
         catch ( NoSuchAlgorithmException nsae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, nsae.getMessage() );
+            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, nsae );
         }
     }
 }
