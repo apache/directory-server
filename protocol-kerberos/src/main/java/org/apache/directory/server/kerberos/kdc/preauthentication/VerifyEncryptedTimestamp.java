@@ -110,11 +110,11 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                         }
                         catch ( IOException ioe )
                         {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
                         }
                         catch ( ClassCastException cce )
                         {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
                         }
 
                         timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,

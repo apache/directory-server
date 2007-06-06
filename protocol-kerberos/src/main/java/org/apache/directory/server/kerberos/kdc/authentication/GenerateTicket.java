@@ -105,7 +105,10 @@ public class GenerateTicket implements IoHandlerCommand
         {
             // TODO - possibly allow req.from range
             if ( !config.isPostdateAllowed() )
+            {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             newTicketBody.setFlag( TicketFlags.INVALID );
             newTicketBody.setStartTime( request.getFrom() );
         }

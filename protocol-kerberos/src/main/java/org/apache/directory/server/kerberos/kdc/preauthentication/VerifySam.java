@@ -80,7 +80,8 @@ public class VerifySam extends VerifierBase
 
             if ( preAuthData == null || preAuthData.length == 0 )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config.getEncryptionTypes() ) );
+                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config
+                    .getEncryptionTypes() ) );
             }
 
             try
@@ -98,7 +99,7 @@ public class VerifySam extends VerifierBase
             }
             catch ( SamException se )
             {
-                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, se.getMessage() );
+                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, se );
             }
 
             authContext.setClientKey( clientKey );

@@ -189,7 +189,7 @@ public class KerberosProtocolHandler implements IoHandler
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug( ke.getMessage(), ke );
+                log.warn( ke.getMessage(), ke );
             }
             else
             {
