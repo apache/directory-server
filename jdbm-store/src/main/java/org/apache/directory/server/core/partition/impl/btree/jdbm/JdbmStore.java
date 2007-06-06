@@ -69,58 +69,69 @@ public class JdbmStore
 {
     private static final Logger log = LoggerFactory.getLogger( JdbmStore.class );
 
+    /** The default cache size is set to 10 000 objects */
     private static final int DEFAULT_CACHE_SIZE = 10000;
-
-    /** The objectClass name for aliases: 'alias' */
-    private static final String ALIAS_OBJECT = "alias";
-
-    /**
-     * The aliased Dn attribute name: aliasedObjectName for LDAP and
-     * aliasedEntryName or X.500.
-     */
-    private static final String ALIAS_ATTRIBUTE = "aliasedObjectName";
-
 
     /** the JDBM record manager used by this database */
     private RecordManager recMan;
+    
     /** the normalized suffix DN of this backend database */
     private LdapDN normSuffix;
+    
     /** the user provided suffix DN of this backend database */
     private LdapDN upSuffix;
+    
     /** the working directory to use for files */
     private File workingDirectory;
+    
     /** the master table storing entries by primary key */
     private JdbmMasterTable master;
+    
     /** a map of attribute names to user indices */
     private Map<String, Index> indices;
+    
     /** a map of index names to system indices */
     private Map<String, Index> sysIndices;
 
     /** true if open */
     private boolean initialized;
+    
     /** true if we sync disks on every write operation */
     private boolean isSyncOnWrite = true;
-    
 
+    /**
+     * Declaration of the system indices we need in the server
+     */
+    
     /** the normalized distinguished name index */
     private Index ndnIdx;
+    
     /** the user provided distinguished name index */
     private Index updnIdx;
+    
     /** the attribute existance index */
     private Index existanceIdx;
+    
     /** the parent child relationship index */
     private Index hierarchyIdx;
+    
     /** the one level scope alias index */
     private Index oneAliasIdx;
+    
     /** the subtree scope alias index */
     private Index subAliasIdx;
+    
     /** a system index on aliasedObjectName attribute */
     private Index aliasIdx;
     
+    /** Two static declaration to avoid lookup all over the code */
     private static AttributeType OBJECT_CLASS_AT;
-    private static AttributeType ALIAS_AT;
+    private static AttributeType ALIASED_OBJECT_NAME_AT;
     
+    /** A pointer on the AT registry */
     private AttributeTypeRegistry attributeTypeRegistry;
+    
+    /** A pointer on the OID registry */
     private OidRegistry oidRegistry;
 
     // ------------------------------------------------------------------------
@@ -134,16 +145,177 @@ public class JdbmStore
     {
     }
 
+    /**
+     * Initialize the user declared indices
+     */
+    private void initCustomIndex( Object index, Set<String> sysOidSet, Set<String> customAddedSystemIndices ) throws NamingException
+    {
+        String name = null;
+        int cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
+        int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
+        
+        // no custom cacheSize info is available so default sticks
+        if ( index instanceof String ) 
+        {
+            name = ( String )index;
+            
+            if ( log.isDebugEnabled() )
+            {
+	            log.debug( "Using default cache size of {} for index on attribute {}", 
+	                new Integer( cacheSize ), name );
+            }
+        }
+        else if ( index instanceof IndexConfiguration )
+        {
+            // custom cache size is used
+            IndexConfiguration indexConfiguration = ( IndexConfiguration )index;
+            name = indexConfiguration.getAttributeId();
+            cacheSize = indexConfiguration.getCacheSize();
+            numDupLimit = indexConfiguration.getDuplicateLimit();
+            
+            if ( cacheSize <= 0 ) 
+            {
+                log.warn( "Cache size {} for index on attribute is null or negative. Using default value.", 
+                    new Integer(cacheSize), name );
+                cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
+            }
+            else
+            {
+                log.info( "Using cache size of {} for index on attribute {}", 
+                    new Integer( cacheSize ), name );
+            }
+            
+            if ( cacheSize <= 0 ) 
+            {
+                log.warn( "Duplicate limit {} for index on attribute is null or negative. Using default value.", 
+                    new Integer(numDupLimit), name );
+                cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
+            }
+            else
+            {
+                log.info( "Using duplicate limit of {} for index on attribute {}", 
+                    new Integer( numDupLimit ), name );
+            }
+        }
+        
+        String oid = oidRegistry.getOid( name );
+        AttributeType type = attributeTypeRegistry.lookup( oid );
+
+        // check if attribute is a system attribute
+        if ( sysOidSet.contains( oid ) )
+        {
+            if ( oid.equals( Oid.EXISTANCE ) )
+            {
+                setExistanceIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.EXISTANCE );
+            }
+            else if ( oid.equals( Oid.HIERARCHY ) )
+            {
+                setHierarchyIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.HIERARCHY );
+            }
+            else if ( oid.equals( Oid.UPDN ) )
+            {
+                setUpdnIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.UPDN );
+            }
+            else if ( oid.equals( Oid.NDN ) )
+            {
+                setNdnIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.NDN );
+            }
+            else if ( oid.equals( Oid.ONEALIAS ) )
+            {
+                setOneAliasIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.ONEALIAS );
+            }
+            else if ( oid.equals( Oid.SUBALIAS ) )
+            {
+                setSubAliasIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.SUBALIAS);
+            }
+            else if ( oid.equals( Oid.ALIAS ) )
+            {
+                setAliasIndexOn( type, cacheSize, numDupLimit );
+                customAddedSystemIndices.add( Oid.ALIAS );
+            }
+            else
+            {
+                throw new NamingException( "Unidentified system index " + oid );
+            }
+        }
+        else
+        {
+            addIndexOn( type, cacheSize, numDupLimit );
+        }
+    }
+    
+    /**
+     * Initialize the system indices
+     */
+    private void initSystemIndices( String systemIndexName, Set<String> customAddedSystemIndices ) throws NamingException
+    {
+        if ( ! customAddedSystemIndices.contains( systemIndexName ) )
+        {
+            AttributeType type = attributeTypeRegistry.lookup( systemIndexName );
+            
+            if ( log.isDebugEnabled() )
+            {
+            	log.debug( "Using default cache size of {} for index on attribute {}", 
+            			new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
+            }
+            
+            if ( systemIndexName.equals( Oid.EXISTANCE ) )
+            {
+                setExistanceIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE, 
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.HIERARCHY ) )
+            {
+                setHierarchyIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.UPDN ) )
+            {
+                setUpdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.NDN ) )
+            {
+                setNdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.ONEALIAS ) )
+            {
+                setOneAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.SUBALIAS ) )
+            {
+                setSubAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else if ( systemIndexName.equals( Oid.ALIAS ) )
+            {
+                setAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
+                    IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
+            }
+            else
+            {
+                throw new NamingException( "Unidentified system index " + systemIndexName );
+            }
+        }
+    }
     
     /**
      * Use this method to initialize the indices.  Only call this after
      * the registries and the optimizer have been enabled.  The '2' at the end
      * shows this is the 3rd init method called in the init sequence.
      * 
-     * @param indices
+     * @param indices The set of indices to initialize, found in the configuration file.
      * @throws NamingException
      */
-    protected void initIndices2(Set indices ) throws NamingException
+    protected void initIndices2( Set indices ) throws NamingException
     {
         Set<String> sysOidSet = new HashSet<String>();
         sysOidSet.add( Oid.EXISTANCE );
@@ -157,7 +329,7 @@ public class JdbmStore
         // Used to calculate the system indices we must automatically add
         Set<String> customAddedSystemIndices = new HashSet<String>();
         
-        for ( Iterator ii = indices.iterator(); ii.hasNext(); /**/ )
+        for ( Object indexName:indices )
         {
             /*
              * NOTE
@@ -173,102 +345,7 @@ public class JdbmStore
              * used.  If an IndexConfiguration is available then the custom
              * cacheSize is used.
              */
-            
-            Object nextObject = ii.next();
-            String name = null;
-            int cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-            int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
-            
-            // no custom cacheSize info is available so default sticks
-            if ( nextObject instanceof String ) 
-            {
-                name = ( String ) nextObject;
-                log.debug( "Using default cache size of {} for index on attribute {}", 
-                    new Integer( cacheSize ), name );
-            }
-            // custom cache size is used
-            else if ( nextObject instanceof IndexConfiguration )
-            {
-                IndexConfiguration indexConfiguration = ( IndexConfiguration ) nextObject;
-                name = indexConfiguration.getAttributeId();
-                cacheSize = indexConfiguration.getCacheSize();
-                numDupLimit = indexConfiguration.getDuplicateLimit();
-                
-                if ( cacheSize <= 0 ) 
-                {
-                    log.warn( "Cache size {} for index on attribute is null or negative. Using default value.", 
-                        new Integer(cacheSize), name );
-                    cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-                }
-                else
-                {
-                    log.info( "Using cache size of {} for index on attribute {}", 
-                        new Integer( cacheSize ), name );
-                }
-                
-                if ( cacheSize <= 0 ) 
-                {
-                    log.warn( "Duplicate limit {} for index on attribute is null or negative. Using default value.", 
-                        new Integer(numDupLimit), name );
-                    cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-                }
-                else
-                {
-                    log.info( "Using duplicate limit of {} for index on attribute {}", 
-                        new Integer( numDupLimit ), name );
-                }
-            }
-            
-            String oid = oidRegistry.getOid( name );
-            AttributeType type = attributeTypeRegistry.lookup( oid );
-
-            // check if attribute is a system attribute
-            if ( sysOidSet.contains( oid ) )
-            {
-                if ( oid.equals( Oid.EXISTANCE ) )
-                {
-                    setExistanceIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.EXISTANCE );
-                }
-                else if ( oid.equals( Oid.HIERARCHY ) )
-                {
-                    setHierarchyIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.HIERARCHY );
-                }
-                else if ( oid.equals( Oid.UPDN ) )
-                {
-                    setUpdnIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.UPDN );
-                }
-                else if ( oid.equals( Oid.NDN ) )
-                {
-                    setNdnIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.NDN );
-                }
-                else if ( oid.equals( Oid.ONEALIAS ) )
-                {
-                    setOneAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.ONEALIAS );
-                }
-                else if ( oid.equals( Oid.SUBALIAS ) )
-                {
-                    setSubAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.SUBALIAS);
-                }
-                else if ( oid.equals( Oid.ALIAS ) )
-                {
-                    setAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.ALIAS );
-                }
-                else
-                {
-                    throw new NamingException( "Unidentified system index " + oid );
-                }
-            }
-            else
-            {
-                addIndexOn( type, cacheSize, numDupLimit );
-            }
+            initCustomIndex( indexName, sysOidSet, customAddedSystemIndices );
         }
         
         // -------------------------------------------------------------------
@@ -279,54 +356,9 @@ public class JdbmStore
         // configured above and must be configured with defaults below.
         // -------------------------------------------------------------------
         
-        for ( Iterator ii = sysOidSet.iterator(); ii.hasNext(); /**/ )
+        for ( String systemIndexName:sysOidSet )
         {
-            String systemIndexName = ( String ) ii.next();
-            if ( ! customAddedSystemIndices.contains( systemIndexName ) )
-            {
-                AttributeType type = attributeTypeRegistry.lookup( systemIndexName );
-                log.debug( "Using default cache size of {} for index on attribute {}", 
-                    new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
-                if ( systemIndexName.equals( Oid.EXISTANCE ) )
-                {
-                    setExistanceIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE, 
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.HIERARCHY ) )
-                {
-                    setHierarchyIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.UPDN ) )
-                {
-                    setUpdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.NDN ) )
-                {
-                    setNdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.ONEALIAS ) )
-                {
-                    setOneAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.SUBALIAS ) )
-                {
-                    setSubAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.ALIAS ) )
-                {
-                    setAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else
-                {
-                    throw new NamingException( "Unidentified system index " + systemIndexName );
-                }
-            }
+        	initSystemIndices( systemIndexName, customAddedSystemIndices );
         }
     }
 
@@ -343,6 +375,7 @@ public class JdbmStore
     {
         // add entry for context, if it does not exist
         Attributes suffixOnDisk = getSuffixEntry();
+        
         if ( suffixOnDisk == null )
         {
             LdapDN dn = new LdapDN( suffix );
@@ -351,7 +384,12 @@ public class JdbmStore
         }
     }
 
-    
+    /**
+     * Initialize the JDBM storage system.
+     * 
+     * @param config The configuration conatining all the information about indices, cahce, etc.
+     * @throws NamingException If we get some error
+     */
     public synchronized void init( JdbmStoreConfiguration config ) throws NamingException
     {
         isSyncOnWrite = config.isSyncOnWrite();
@@ -360,7 +398,7 @@ public class JdbmStore
         attributeTypeRegistry = config.getAttributeTypeRegistry();
 
         OBJECT_CLASS_AT = attributeTypeRegistry.lookup( SchemaConstants.OBJECT_CLASS_AT );
-        ALIAS_AT = attributeTypeRegistry.lookup( ALIAS_ATTRIBUTE );
+        ALIASED_OBJECT_NAME_AT = attributeTypeRegistry.lookup( SchemaConstants.ALIASED_OBJECT_NAME_AT );
         
         this.upSuffix = new LdapDN( config.getSuffixDn() );
         this.normSuffix = LdapDN.normalize( upSuffix, attributeTypeRegistry.getNormalizerMapping() );
@@ -370,22 +408,33 @@ public class JdbmStore
 
         try
         {
+        	// First, check if the file storing the data exists
             String path = workingDirectory.getPath() + File.separator + "master";
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
             
             int cacheSize = config.getCacheSize();
+            
             if ( cacheSize < 0 )
             {
                 cacheSize = DEFAULT_CACHE_SIZE;
-                log.debug( "Using the default entry cache size of {} for {} partition", 
-                    new Integer( cacheSize ), config.getName() );
+                
+                if ( log.isDebugEnabled() )
+                {
+	                log.debug( "Using the default entry cache size of {} for {} partition", 
+	                    new Integer( cacheSize ), config.getName() );
+                }
             }
             else
             {
-                log.debug( "Using the custom configured cache size of {} for {} partition", 
-                    new Integer( cacheSize ), config.getName() );
+            	if ( log.isDebugEnabled() )
+            	{
+	                log.debug( "Using the custom configured cache size of {} for {} partition", 
+	                    new Integer( cacheSize ), config.getName() );
+            	}
             }
+            
+            // Now, create the entry cache for this partition 
             recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
         }
         catch ( IOException e )
@@ -395,17 +444,24 @@ public class JdbmStore
             throw ne;
         }
 
+        // Create the master table (the table wcontaining all the entries)
         master = new JdbmMasterTable( recMan );
+        
+        // Initializes this partition indices
         indices = new HashMap<String,Index>();
         sysIndices = new HashMap<String,Index>();
 
         initIndices2( config.getIndexedAttributes() );
         initSuffixEntry3( config.getSuffixDn(), config.getContextEntry() );
         
+        // We are done !
         initialized = true;
     }
 
-
+    /**
+     * Close the parttion : we have to close all the indices and the master table. 
+     *
+     */
     public synchronized void destroy()
     {
         if ( !initialized )
@@ -451,12 +507,8 @@ public class JdbmStore
             array.add( existanceIdx );
         }
 
-        Iterator list = array.iterator();
-
-        while ( list.hasNext() )
+        for ( Index index:array )
         {
-            Index index = ( Index ) list.next();
-
             try
             {
                 index.close();
@@ -488,13 +540,19 @@ public class JdbmStore
         initialized = false;
     }
 
-
+    /**
+     * @return True is the partition store is initialized
+     */
     public boolean isInitialized()
     {
         return initialized;
     }
 
-
+    /**
+     * This method is called when the synch thread is waking up, to write
+     * the modified data.
+     * @throws NamingException
+     */
     public synchronized void sync() throws NamingException
     {
         if ( !initialized )
@@ -512,13 +570,9 @@ public class JdbmStore
         array.add( hierarchyIdx );
         array.add( existanceIdx );
 
-        Iterator list = array.iterator();
-
         // Sync all user defined indices
-        while ( list.hasNext() )
+        for ( Index idx:array )
         {
-            Index idx = ( Index ) list.next();
-
             idx.sync();
         }
 
@@ -726,6 +780,7 @@ public class JdbmStore
         else
         {
             String name = "unknown";
+            
             try
             {
                 name = oidRegistry.getPrimaryName( id );
@@ -766,6 +821,7 @@ public class JdbmStore
         else
         {
             String name = "unknown";
+            
             try
             {
                 name = oidRegistry.getPrimaryName( id );
@@ -1019,6 +1075,7 @@ public class JdbmStore
         //
 
         LdapDN parentDn = null;
+        
         if ( normName.equals( normSuffix ) )
         {
             parentId = 0L;
@@ -1047,9 +1104,9 @@ public class JdbmStore
         // Start adding the system indices
         // Why bother doing a lookup if this is not an alias.
 
-        if ( objectClass.contains( ALIAS_OBJECT ) )
+        if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
-            Attribute aliasAttr = AttributeUtils.getAttribute( entry, ALIAS_AT );
+            Attribute aliasAttr = AttributeUtils.getAttribute( entry, ALIASED_OBJECT_NAME_AT );
             addAliasIndices( id, normName, ( String ) aliasAttr.get() );
         }
 
@@ -1059,6 +1116,7 @@ public class JdbmStore
 
         // Now work on the user defined indices
         NamingEnumeration list = entry.getIDs();
+        
         while ( list.hasMore() )
         {
             String attributeId = ( String ) list.next();
@@ -1104,7 +1162,8 @@ public class JdbmStore
         NamingEnumeration attrs = entry.getIDs();
 
         Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
-        if ( objectClass.contains( ALIAS_OBJECT ) )
+        
+        if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
         {
             dropAliasIndices( id );
         }
@@ -1208,21 +1267,22 @@ public class JdbmStore
         attributes.put( "_parent", getParentId( id ) );
 
         // Get all standard index attribute to value mappings
-        Iterator idxList = this.indices.values().iterator();
-        while ( idxList.hasNext() )
+        for ( Index index:this.indices.values() )
         {
-            Index index = ( Index ) idxList.next();
             NamingEnumeration list = index.listReverseIndices( id );
+            
             while ( list.hasMore() )
             {
                 IndexRecord rec = ( IndexRecord ) list.next();
                 Object val = rec.getIndexKey();
                 String attrId = index.getAttribute().getName();
                 Attribute attr = attributes.get( attrId );
+
                 if ( attr == null )
                 {
                     attr = new AttributeImpl( attrId );
                 }
+                
                 attr.add( val );
                 attributes.put( attr );
             }
@@ -1232,6 +1292,7 @@ public class JdbmStore
         // that looks like so 'existance[attribute]' and the value is set to id
         NamingEnumeration list = existanceIdx.listReverseIndices( id );
         StringBuffer val = new StringBuffer();
+        
         while ( list.hasMore() )
         {
             IndexRecord rec = ( IndexRecord ) list.next();
@@ -1241,10 +1302,12 @@ public class JdbmStore
 
             String valStr = val.toString();
             Attribute attr = attributes.get( valStr );
+            
             if ( attr == null )
             {
                 attr = new AttributeImpl( valStr );
             }
+            
             attr.add( rec.getEntryId() );
             attributes.put( attr );
             val.setLength( 0 );
@@ -1255,6 +1318,7 @@ public class JdbmStore
         list = hierarchyIdx.listIndices( id );
         Attribute childAttr = new AttributeImpl( "_child" );
         attributes.put( childAttr );
+        
         while ( list.hasMore() )
         {
             IndexRecord rec = ( IndexRecord ) list.next();
@@ -1307,7 +1371,7 @@ public class JdbmStore
             entryAttrToAddTo.add( mods.get( ii ) );
         }
 
-        if ( modsOid.equals( oidRegistry.getOid( ALIAS_ATTRIBUTE ) ) )
+        if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
         {
             String ndnStr = ( String ) ndnIdx.reverseLookup( id );
             addAliasIndices( id, new LdapDN( ndnStr ), ( String ) mods.get() );
@@ -1363,6 +1427,7 @@ public class JdbmStore
         {
             Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
             NamingEnumeration values = mods.getAll();
+            
             while ( values.hasMore() )
             {
                 entryAttr.remove( values.next() );
@@ -1376,7 +1441,7 @@ public class JdbmStore
         }
 
         // Aliases->single valued comp/partial attr removal is not relevant here
-        if ( modsOid.equals( oidRegistry.getOid( ALIAS_ATTRIBUTE ) ) )
+        if ( modsOid.equals( oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT ) ) )
         {
             dropAliasIndices( id );
         }
@@ -1417,7 +1482,8 @@ public class JdbmStore
             }
         }
 
-        String aliasAttributeOid = oidRegistry.getOid( ALIAS_ATTRIBUTE );
+        String aliasAttributeOid = oidRegistry.getOid( SchemaConstants.ALIASED_OBJECT_NAME_AT );
+        
         if ( modsOid.equals( aliasAttributeOid ) )
         {
             dropAliasIndices( id );
@@ -1460,6 +1526,7 @@ public class JdbmStore
                 }
 
                 break;
+                
             case ( DirContext.REMOVE_ATTRIBUTE  ):
                 attrs = mods.getIDs();
 
@@ -1471,6 +1538,7 @@ public class JdbmStore
                 }
 
                 break;
+                
             case ( DirContext.REPLACE_ATTRIBUTE  ):
                 attrs = mods.getIDs();
 
@@ -1482,6 +1550,7 @@ public class JdbmStore
                 }
 
                 break;
+                
             default:
                 throw new NamingException( "Unidentified modification operation" );
         }
@@ -1509,12 +1578,15 @@ public class JdbmStore
                 case ( DirContext.ADD_ATTRIBUTE  ):
                     add( id, entry, attrMods );
                     break;
+                    
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
                     remove( id, entry, attrMods );
                     break;
+                    
                 case ( DirContext.REPLACE_ATTRIBUTE  ):
                     replace( id, entry, attrMods );
                     break;
+                    
                 default:
                     throw new NamingException( "Unidentified modification operation" );
             }
@@ -1566,6 +1638,7 @@ public class JdbmStore
         String newRdnAttrOid = oidRegistry.getOid( newRdnAttr );
         AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdnAttrOid );
         Attribute rdnAttr = AttributeUtils.getAttribute( entry, newRdnAttrType );
+        
         if ( rdnAttr == null )
         {
             rdnAttr = new AttributeImpl( newRdnAttr );
@@ -1706,6 +1779,7 @@ public class JdbmStore
         }
 
         NamingEnumeration children = list( id );
+        
         while ( children.hasMore() )
         {
             // Get the child and its id
@@ -1829,6 +1903,7 @@ public class JdbmStore
         };
 
         Long movedBaseId = getEntryId( movedBase.toString() );
+        
         if ( aliasIdx.reverseLookup( movedBaseId ) != null )
         {
             dropAliasIndices( movedBaseId, movedBase );
@@ -1836,6 +1911,7 @@ public class JdbmStore
 
         NamingEnumeration aliases = new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ),
             isBaseDescendant );
+        
         while ( aliases.hasMore() )
         {
             IndexRecord entry = ( IndexRecord ) aliases.next();
