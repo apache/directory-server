@@ -80,7 +80,6 @@ public class PrincipalObjectFactory implements DirObjectFactory
             }
         }
 
-        modifier.setEncryptionType( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.TYPE ).get() ) );
         modifier.setKeyVersionNumber( Integer.parseInt( ( String ) attrs.get( KerberosAttribute.VERSION ).get() ) );
 
         return modifier.getEntry();

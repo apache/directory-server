@@ -32,8 +32,6 @@ public class KerberosAttribute
 
     /** the krb5kdc schema key for a krb5KDCEntry */
     public static final String KEY = "krb5Key";
-    /** the krb5kdc schema key encryption type for a krb5KDCEntry */
-    public static final String TYPE = "krb5EncryptionType";
     /** the krb5kdc schema principal name for a krb5KDCEntry */
     public static final String PRINCIPAL = "krb5PrincipalName";
     /** the krb5kdc schema key version identifier for a krb5KDCEntry */

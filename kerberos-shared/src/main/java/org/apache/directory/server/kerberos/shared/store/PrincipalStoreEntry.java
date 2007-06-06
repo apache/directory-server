@@ -37,6 +37,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 public class PrincipalStoreEntry
 {
     // principal
+    private String distinguishedName;
     private String commonName;
     private KerberosPrincipal principal;
     private String realmName;
@@ -48,6 +49,7 @@ public class PrincipalStoreEntry
     private KerberosTime validStart;
     private KerberosTime validEnd;
     private KerberosTime passwordEnd;
+    private int keyVersionNumber;
     private int maxLife;
     private int maxRenew;
     private int kdcFlags;
@@ -60,17 +62,19 @@ public class PrincipalStoreEntry
     private Map<EncryptionType, EncryptionKey> keyMap;
 
 
-    PrincipalStoreEntry( String commonName, String userId, KerberosPrincipal principal, int keyVersionNumber,
-        KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife, int maxRenew,
-        int kdcFlags, int keyType, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
+    PrincipalStoreEntry( String distinguishedName, String commonName, String userId, KerberosPrincipal principal,
+        int keyVersionNumber, KerberosTime validStart, KerberosTime validEnd, KerberosTime passwordEnd, int maxLife,
+        int maxRenew, int kdcFlags, Map<EncryptionType, EncryptionKey> keyMap, String realmName, SamType samType,
         boolean disabled, boolean lockedOut, KerberosTime expiration )
     {
+        this.distinguishedName = distinguishedName;
         this.commonName = commonName;
         this.userId = userId;
         this.principal = principal;
         this.validStart = validStart;
         this.validEnd = validEnd;
         this.passwordEnd = passwordEnd;
+        this.keyVersionNumber = keyVersionNumber;
         this.maxLife = maxLife;
         this.maxRenew = maxRenew;
         this.kdcFlags = kdcFlags;
@@ -117,6 +121,17 @@ public class PrincipalStoreEntry
 
 
     /**
+     * Returns the distinguished name.
+     *
+     * @return The distinguished name.
+     */
+    public String getDistinguishedName()
+    {
+        return distinguishedName;
+    }
+
+
+    /**
      * Returns the common name.
      *
      * @return The common name.
@@ -157,6 +172,17 @@ public class PrincipalStoreEntry
     public int getKDCFlags()
     {
         return kdcFlags;
+    }
+
+
+    /**
+     * Returns the key version number (kvno).
+     *
+     * @return The key version number (kvno).
+     */
+    public int getKeyVersionNumber()
+    {
+        return keyVersionNumber;
     }
 
 

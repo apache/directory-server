@@ -107,7 +107,6 @@ public class GetAllPrincipals implements ContextOperation
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
 
         String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
-        String encryptionType = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
         String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
 
         String commonName = ( String ) attrs.get( SchemaConstants.CN_AT ).get();
@@ -136,7 +135,6 @@ public class GetAllPrincipals implements ContextOperation
 
         modifier.setCommonName( commonName );
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
-        modifier.setEncryptionType( Integer.parseInt( encryptionType ) );
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
 
         return modifier.getEntry();

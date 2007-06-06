@@ -148,11 +148,9 @@ public class PrincipalStateFactory implements DirStateFactory
                     throw new InvalidAttributeValueException( "Unable to encode Kerberos key." );
                 }
 
-                int keyType = encryptionKey.getKeyType().getOrdinal();
                 int keyVersion = encryptionKey.getKeyVersion();
 
                 outAttrs.put( KerberosAttribute.PRINCIPAL, principal );
-                outAttrs.put( KerberosAttribute.TYPE, Integer.toString( keyType ) );
                 outAttrs.put( KerberosAttribute.VERSION, Integer.toString( keyVersion ) );
             }
 

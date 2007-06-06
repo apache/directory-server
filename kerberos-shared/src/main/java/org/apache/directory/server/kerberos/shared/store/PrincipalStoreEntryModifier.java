@@ -42,6 +42,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.SamType;
 public class PrincipalStoreEntryModifier
 {
     // principal
+    private String distinguishedName;
     private String commonName;
     private KerberosPrincipal principal;
     private String realmName;
@@ -59,7 +60,6 @@ public class PrincipalStoreEntryModifier
     private int maxLife;
     private int maxRenew;
     private int kdcFlags;
-    private int encryptionType;
     private SamType samType;
 
     private boolean disabled = false;
@@ -76,8 +76,8 @@ public class PrincipalStoreEntryModifier
      */
     public PrincipalStoreEntry getEntry()
     {
-        return new PrincipalStoreEntry( commonName, userId, principal, keyVersionNumber, validStart, validEnd,
-            passwordEnd, maxLife, maxRenew, kdcFlags, encryptionType, keyMap, realmName, samType, disabled, lockedOut,
+        return new PrincipalStoreEntry( distinguishedName, commonName, userId, principal, keyVersionNumber, validStart,
+            validEnd, passwordEnd, maxLife, maxRenew, kdcFlags, keyMap, realmName, samType, disabled, lockedOut,
             expiration );
     }
 
@@ -116,6 +116,17 @@ public class PrincipalStoreEntryModifier
 
 
     /**
+     * Sets the distinguished name (DN).
+     *
+     * @param distinguishedName
+     */
+    public void setDistinguishedName( String distinguishedName )
+    {
+        this.distinguishedName = distinguishedName;
+    }
+
+
+    /**
      * Sets the common name (cn).
      *
      * @param commonName
@@ -134,17 +145,6 @@ public class PrincipalStoreEntryModifier
     public void setUserId( String userId )
     {
         this.userId = userId;
-    }
-
-
-    /**
-     * Sets the encryption type.
-     *
-     * @param encryptionType
-     */
-    public void setEncryptionType( int encryptionType )
-    {
-        this.encryptionType = encryptionType;
     }
 
 
