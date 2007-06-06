@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 
 import org.apache.directory.server.kerberos.shared.io.decoder.KdcRequestDecoder;
+import org.apache.mina.common.BufferDataException;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
@@ -28,6 +29,9 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
 /**
+ * A {@link CumulativeProtocolDecoder} which supports Kerberos operation over TCP,
+ * by reassembling split packets prior to ASN.1 DER decoding.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -35,21 +39,51 @@ public class KerberosTcpDecoder extends CumulativeProtocolDecoder
 {
     private KdcRequestDecoder decoder = new KdcRequestDecoder();
 
+    private int maxObjectSize = 16384; // 16KB
 
+
+    /**
+     * Returns the allowed maximum size of the object to be decoded.
+     * If the size of the object to be decoded exceeds this value, this
+     * decoder will throw a {@link BufferDataException}.  The default
+     * value is <tt>16384</tt> (16KB).
+     * 
+     * @return The max object size.
+     */
+    public int getMaxObjectSize()
+    {
+        return maxObjectSize;
+    }
+
+
+    /**
+     * Sets the allowed maximum size of the object to be decoded.
+     * If the size of the object to be decoded exceeds this value, this
+     * decoder will throw a {@link BufferDataException}.  The default
+     * value is <tt>16384</tt> (16KB).
+     * 
+     * @param maxObjectSize 
+     */
+    public void setMaxObjectSize( int maxObjectSize )
+    {
+        if ( maxObjectSize <= 0 )
+        {
+            throw new IllegalArgumentException( "maxObjectSize: " + maxObjectSize );
+        }
+
+        this.maxObjectSize = maxObjectSize;
+    }
+
+
+    @Override
     protected boolean doDecode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws Exception
     {
-        if ( in.remaining() < 4 )
+        if ( !in.prefixedDataAvailable( 4, maxObjectSize ) )
         {
             return false;
         }
 
-        int recordLength = in.getInt();
-
-        if ( in.remaining() < recordLength )
-        {
-            in.rewind();
-            return false;
-        }
+        in.getInt();
 
         out.write( decoder.decode( in.buf() ) );
 
