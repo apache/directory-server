@@ -131,7 +131,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        Attribute triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -142,7 +142,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -166,13 +166,13 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -182,10 +182,10 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -200,13 +200,13 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -216,10 +216,10 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
         // Now modify the subentry by introducing an exclusion
@@ -236,7 +236,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         configuration = results.get( "ou=configuration,ou=system" );
-        triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -246,13 +246,13 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( triggerSubentries != null )
         {
             assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, triggerSubentries.size() );
@@ -272,24 +272,24 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( triggerSubentries != null )
         {
             assertEquals( "ou=configuration,ou=system should not be marked", 0, triggerSubentries.size() );
         }
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( triggerSubentries != null )
         {
             assertEquals( "ou=interceptors,ou=configuration,ou=system should not be marked", 0, triggerSubentries.size() );
         }
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -305,13 +305,13 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=newname,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -321,10 +321,10 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
     }
 
 
@@ -341,19 +341,19 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -363,14 +363,14 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -382,7 +382,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
         unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
         assertNull( "cn=unmarked,ou=configuration,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -394,7 +394,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -414,19 +414,19 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -436,14 +436,14 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -455,7 +455,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
         unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
         assertNull( results.get( "cn=marked,ou=configuration,ou=system" ) );
 
         // --------------------------------------------------------------------
@@ -467,7 +467,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         assertNull( results.get( "cn=unmarked,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
         assertNotNull( marked );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -487,19 +487,19 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes configuration = results.get( "ou=configuration,ou=system" );
-        Attribute triggerSubentries = configuration.get( SubentryService.TRIGGER_SUBENTRIES );
+        Attribute triggerSubentries = configuration.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes interceptors = results.get( "ou=interceptors,ou=configuration,ou=system" );
-        triggerSubentries = interceptors.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = interceptors.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "ou=interceptors,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
 
         Attributes marked = results.get( "cn=marked,ou=configuration,ou=system" );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=configuration,ou=system should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );
@@ -509,14 +509,14 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
         // --------------------------------------------------------------------
 
         Attributes system = results.get( "ou=system" );
-        assertNull( "ou=system should not be marked", system.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=system should not be marked", system.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes users = results.get( "ou=users,ou=system" );
-        assertNull( "ou=users,ou=system should not be marked", users.get( SubentryService.TRIGGER_SUBENTRIES ) );
+        assertNull( "ou=users,ou=system should not be marked", users.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         Attributes unmarked = results.get( "cn=unmarked,ou=system" );
         assertNull( "cn=unmarked,ou=system should not be marked", unmarked
-            .get( SubentryService.TRIGGER_SUBENTRIES ) );
+            .get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) );
 
         // --------------------------------------------------------------------
         // Now destry one of the marked/unmarked and rename to deleted entry
@@ -532,7 +532,7 @@ public class SubentryServiceForTriggersITest extends AbstractAdminTestCase
 
         marked = results.get( "cn=marked,ou=interceptors,ou=configuration,ou=system" );
         assertNotNull( marked );
-        triggerSubentries = marked.get( SubentryService.TRIGGER_SUBENTRIES );
+        triggerSubentries = marked.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         assertNotNull( "cn=marked,ou=interceptors,ou=configuration should be marked", triggerSubentries );
         assertEquals( "2.5.4.3=testsubentry,2.5.4.11=system", triggerSubentries.get() );
         assertEquals( 1, triggerSubentries.size() );

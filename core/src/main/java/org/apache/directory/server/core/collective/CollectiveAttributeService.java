@@ -46,6 +46,7 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -68,8 +69,6 @@ public class CollectiveAttributeService extends BaseInterceptor
     /** The service name */
     public static final String NAME = "collectiveAttributeService";
 
-    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
-    
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";
     
@@ -118,8 +117,9 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { COLLECTIVE_ATTRIBUTE_SUBENTRIES } ) );
-        Attribute caSubentries = entryWithCAS.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+        Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
+        	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT } ) );
+        Attribute caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
 
         /*
          * If there are no collective attribute subentries referenced

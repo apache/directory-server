@@ -95,24 +95,22 @@ public class SubentryService extends BaseInterceptor
 
     public static final String AC_AREA = "accessControlSpecificArea";
     public static final String AC_INNERAREA = "accessControlInnerArea";
-    public static final String AC_SUBENTRIES = "accessControlSubentries";
+    //public static final String AC_SUBENTRIES = "accessControlSubentries";
 
     public static final String SCHEMA_AREA = "subschemaAdminSpecificArea";
 
     public static final String COLLECTIVE_AREA = "collectiveAttributeSpecificArea";
     public static final String COLLECTIVE_INNERAREA = "collectiveAttributeInnerArea";
-    public static final String COLLECTIVE_ATTRIBUTE_SUBENTRIES = "collectiveAttributeSubentries";
     
     public static final String TRIGGER_AREA = "triggerExecutionSpecificArea";
     public static final String TRIGGER_INNERAREA = "triggerExecutionInnerArea";
-    public static final String TRIGGER_SUBENTRIES = "triggerExecutionSubentries";
 
     public static final String[] SUBENTRY_OPATTRS =
         { 
-    	AC_SUBENTRIES, 
+    	SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, 
     	SchemaConstants.SUBSCHEMA_SUBENTRY_AT, 
-    	COLLECTIVE_ATTRIBUTE_SUBENTRIES, 
-    	TRIGGER_SUBENTRIES 
+    	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, 
+    	SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT 
     	};
 
     private static final Logger log = LoggerFactory.getLogger( SubentryService.class );
@@ -335,10 +333,10 @@ public class SubentryService extends BaseInterceptor
                 
                 if ( subentry.isAccessControlSubentry() )
                 {
-                    operational = subentryAttrs.get( AC_SUBENTRIES );
+                    operational = subentryAttrs.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( AC_SUBENTRIES );
+                        operational = new AttributeImpl( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -355,20 +353,20 @@ public class SubentryService extends BaseInterceptor
                 }
                 if ( subentry.isCollectiveSubentry() )
                 {
-                    operational = subentryAttrs.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                    operational = subentryAttrs.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                        operational = new AttributeImpl( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
                 } 
                 if ( subentry.isTriggerSubentry() )
                 {
-                    operational = subentryAttrs.get( TRIGGER_SUBENTRIES );
+                    operational = subentryAttrs.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
                     if ( operational == null )
                     {
-                        operational = new AttributeImpl( TRIGGER_SUBENTRIES );
+                        operational = new AttributeImpl( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
                         subentryAttrs.put( operational );
                     }
                     operational.add( subentryDn.toString() );
@@ -493,11 +491,11 @@ public class SubentryService extends BaseInterceptor
                     
                     if ( subentry.isAccessControlSubentry() )
                     {
-                        operational = entry.get( AC_SUBENTRIES );
+                        operational = entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
                         
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( AC_SUBENTRIES );
+                            operational = new AttributeImpl( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
                             entry.put( operational );
                         }
                         
@@ -519,11 +517,11 @@ public class SubentryService extends BaseInterceptor
                     
                     if ( subentry.isCollectiveSubentry() )
                     {
-                        operational = entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                        operational = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                         
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                            operational = new AttributeImpl( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                             entry.put( operational );
                         }
                         
@@ -532,11 +530,11 @@ public class SubentryService extends BaseInterceptor
                     
                     if ( subentry.isTriggerSubentry() )
                     {
-                        operational = entry.get( TRIGGER_SUBENTRIES );
+                        operational = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
                         
                         if ( operational == null )
                         {
-                            operational = new AttributeImpl( TRIGGER_SUBENTRIES );
+                            operational = new AttributeImpl( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
                             entry.put( operational );
                         }
                         
@@ -1137,10 +1135,10 @@ public class SubentryService extends BaseInterceptor
 
         if ( subentry.isAccessControlSubentry() )
         {
-            operational = ( Attribute ) entry.get( AC_SUBENTRIES ).clone();
+            operational = ( Attribute ) entry.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( AC_SUBENTRIES );
+                operational = new AttributeImpl( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT );
                 operational.add( newName.toString() );
             }
             else
@@ -1167,10 +1165,10 @@ public class SubentryService extends BaseInterceptor
         }
         if ( subentry.isCollectiveSubentry() )
         {
-            operational = ( Attribute ) entry.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).clone();
+            operational = ( Attribute ) entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( COLLECTIVE_ATTRIBUTE_SUBENTRIES );
+                operational = new AttributeImpl( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
                 operational.add( newName.toString() );
             }
             else
@@ -1182,10 +1180,10 @@ public class SubentryService extends BaseInterceptor
         }
         if ( subentry.isTriggerSubentry() )
         {
-            operational = ( Attribute ) entry.get( TRIGGER_SUBENTRIES ).clone();
+            operational = ( Attribute ) entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).clone();
             if ( operational == null )
             {
-                operational = new AttributeImpl( TRIGGER_SUBENTRIES );
+                operational = new AttributeImpl( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
                 operational.add( newName.toString() );
             }
             else
@@ -1217,13 +1215,13 @@ public class SubentryService extends BaseInterceptor
         
         if ( subentry.isAccessControlSubentry() )
         {
-            if ( operational.get( AC_SUBENTRIES ) == null )
+            if ( operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ) == null )
             {
-                operational.put( AC_SUBENTRIES, name.toString() );
+                operational.put( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT, name.toString() );
             }
             else
             {
-                operational.get( AC_SUBENTRIES ).add( name.toString() );
+                operational.get( SchemaConstants.ACCESS_CONTROL_SUBENTRIES_AT ).add( name.toString() );
             }
         }
         if ( subentry.isSchemaSubentry() )
@@ -1239,24 +1237,24 @@ public class SubentryService extends BaseInterceptor
         }
         if ( subentry.isCollectiveSubentry() )
         {
-            if ( operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ) == null )
+            if ( operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ) == null )
             {
-                operational.put( COLLECTIVE_ATTRIBUTE_SUBENTRIES, name.toString() );
+                operational.put( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT, name.toString() );
             }
             else
             {
-                operational.get( COLLECTIVE_ATTRIBUTE_SUBENTRIES ).add( name.toString() );
+                operational.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT ).add( name.toString() );
             }
         }
         if ( subentry.isTriggerSubentry() )
         {
-            if ( operational.get( TRIGGER_SUBENTRIES ) == null )
+            if ( operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ) == null )
             {
-                operational.put( TRIGGER_SUBENTRIES, name.toString() );
+                operational.put( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT, name.toString() );
             }
             else
             {
-                operational.get( TRIGGER_SUBENTRIES ).add( name.toString() );
+                operational.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT ).add( name.toString() );
             }
         }
 

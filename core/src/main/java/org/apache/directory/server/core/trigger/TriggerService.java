@@ -85,12 +85,6 @@ public class TriggerService extends BaseInterceptor
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
 
-    /**
-     * the multivalued operational attribute used to track the prescriptive
-     * trigger subentries that apply to an entry
-     */
-    private static final String TRIGGER_SUBENTRIES_ATTR = "triggerExecutionSubentries";
-    
     /** a triggerSpecCache that responds to add, delete, and modify attempts */
     private TriggerSpecCache triggerSpecCache;
     /** a normalizing Trigger Specification parser */
@@ -139,7 +133,7 @@ public class TriggerService extends BaseInterceptor
             entry = proxy.lookup( new LookupOperationContext( parentDn ), PartitionNexusProxy.LOOKUP_BYPASS );
         }
 
-        Attribute subentries = entry.get( TRIGGER_SUBENTRIES_ATTR );
+        Attribute subentries = entry.get( SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT );
         if ( subentries == null )
         {
             return;
