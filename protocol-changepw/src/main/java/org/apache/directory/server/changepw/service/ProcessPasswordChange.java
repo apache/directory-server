@@ -67,13 +67,11 @@ public class ProcessPasswordChange implements IoHandlerCommand
         }
         catch ( NamingException ne )
         {
-            log.warn( ne.getMessage(), ne );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ne.getExplanation().getBytes() );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ne );
         }
         catch ( Exception e )
         {
-            log.error( "Unexpected exception.", e );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_HARDERROR );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_HARDERROR, e );
         }
 
         next.execute( session, message );

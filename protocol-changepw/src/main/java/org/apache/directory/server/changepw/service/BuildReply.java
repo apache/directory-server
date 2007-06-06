@@ -41,8 +41,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -51,9 +49,6 @@ import org.slf4j.LoggerFactory;
  */
 public class BuildReply implements IoHandlerCommand
 {
-    /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( BuildReply.class );
-
     private String contextKey = "context";
 
 
@@ -88,8 +83,7 @@ public class BuildReply implements IoHandlerCommand
         }
         catch ( KerberosException ke )
         {
-            log.error( ke.getMessage(), ke );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ke );
         }
 
         PrivateMessage privateMessage = new PrivateMessage( encPrivPart );
@@ -111,8 +105,7 @@ public class BuildReply implements IoHandlerCommand
         }
         catch ( KerberosException ke )
         {
-            log.error( ke.getMessage(), ke );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ke );
         }
 
         ApplicationReply appReply = new ApplicationReply( encRepPart );

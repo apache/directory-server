@@ -37,8 +37,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -47,9 +45,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExtractPassword implements IoHandlerCommand
 {
-    /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( ExtractPassword.class );
-
     private String contextKey = "context";
 
 
@@ -81,8 +76,7 @@ public class ExtractPassword implements IoHandlerCommand
         }
         catch ( KerberosException ke )
         {
-            log.error( ke.getMessage(), ke );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, ke );
         }
 
         ChangePasswordData passwordData = null;
@@ -107,8 +101,7 @@ public class ExtractPassword implements IoHandlerCommand
         }
         catch ( UnsupportedEncodingException uee )
         {
-            log.error( uee.getMessage(), uee );
-            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR );
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_SOFTERROR, uee );
         }
 
         next.execute( session, message );
