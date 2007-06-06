@@ -71,7 +71,7 @@ public class ConfigureChain implements IoHandlerCommand
         saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( config ) );
         session.setAttribute( "saslProps", saslProps );
 
-        session.setAttribute( "saslProps", config.getSaslHost() );
+        session.setAttribute( "saslHost", config.getSaslHost() );
         session.setAttribute( "baseDn", config.getSearchBaseDn() );
 
         Set activeMechanisms = getActiveMechanisms( config );
