@@ -38,6 +38,18 @@ public class SchemaConstants
     public static final String ALIAS_OC = "alias";
     public static final String ALIAS_OC_OID = "2.5.6.1";
     
+    // Country
+    public static final String COUNTRY_OC = "country";
+    public static final String COUNTRY_OC_OID = "2.5.6.2";
+
+    // Locality
+    public static final String LOCALITY_OC = "locality";
+    public static final String LOCALITY_OC_OID = "2.5.6.3";
+
+    // Organization
+    public static final String ORGANIZATION_OC = "organization";
+    public static final String ORGANIZATION_OC_OID = "2.5.6.4";
+
     // OrganizationalUnit
     public static final String ORGANIZATIONAL_UNIT_OC = "organizationalUnit";
     public static final String ORGANIZATIONAL_UNIT_OC_OID = "2.5.6.5";
@@ -50,9 +62,17 @@ public class SchemaConstants
     public static final String ORGANIZATIONAL_PERSON_OC = "organizationalPerson";
     public static final String ORGANIZATIONAL_PERSON_OC_OID = "2.5.6.7";
 
+    // OrganizationalRole
+    public static final String ORGANIZATIONAL_ROLE_OC = "organizationalRole";
+    public static final String ORGANIZATIONAL_ROLE_OC_OID = "2.5.6.8";
+
     // GroupOfNames
     public static final String GROUP_OF_NAMES_OC = "groupOfNames";
     public static final String GROUP_OF_NAMES_OC_OID = "2.5.6.9";
+    
+    // ResidentialPerson
+    public static final String RESIDENTIAL_PERSON_OC = "residentialPerson";
+    public static final String RESIDENTIAL_PERSON_OC_OID = "2.5.6.10";
     
     // GroupOfUniqueNames
     public static final String GROUP_OF_UNIQUE_NAMES_OC = "groupOfUniqueNames";
@@ -134,6 +154,10 @@ public class SchemaConstants
     // SubtreeSpecification
     public static final String SUBTREE_SPECIFICATION_AT = "subtreeSpecification";
     public static final String SUBTREE_SPECIFICATION_AT_OID = "2.5.18.6";
+
+    // SubschemaSubentry
+    public static final String SUBSCHEMA_SUBENTRY_AT = "subschemaSubentry";
+    public static final String SUBSCHEMA_SUBENTRY_AT_OID = "2.5.18.10";
 
     // DitStructureRules
     public static final String DIT_STRUCTURE_RULES_AT = "ditStructureRules";
