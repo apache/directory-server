@@ -63,7 +63,7 @@ public class GetPrincipal implements ContextOperation
     /**
      * Creates the action to be used against the embedded ApacheDS DIT.
      * 
-     * @param principal 
+     * @param principal The principal to search for in the directory.
      */
     public GetPrincipal( KerberosPrincipal principal )
     {
@@ -83,7 +83,7 @@ public class GetPrincipal implements ContextOperation
         }
 
         String[] attrIDs =
-            { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.TYPE, KerberosAttribute.KEY,
+            { KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION, KerberosAttribute.KEY,
                 KerberosAttribute.SAM_TYPE, KerberosAttribute.ACCOUNT_DISABLED,
                 KerberosAttribute.ACCOUNT_EXPIRATION_TIME, KerberosAttribute.ACCOUNT_LOCKEDOUT };
 
@@ -107,7 +107,8 @@ public class GetPrincipal implements ContextOperation
                     return null;
                 }
 
-                entry = getEntry( attrs );
+                String distinguishedName = result.getName();
+                entry = getEntry( distinguishedName, attrs );
             }
         }
         catch ( NamingException e )
@@ -122,25 +123,22 @@ public class GetPrincipal implements ContextOperation
     /**
      * Marshals an a PrincipalStoreEntry from an Attributes object.
      *
+     * @param dn the distinguished name of the Kerberos principal
      * @param attrs the attributes of the Kerberos principal
      * @return the entry for the principal
      * @throws NamingException if there are any access problems
      */
-    private PrincipalStoreEntry getEntry( Attributes attrs ) throws NamingException
+    private PrincipalStoreEntry getEntry( String distinguishedName, Attributes attrs ) throws NamingException
     {
         PrincipalStoreEntryModifier modifier = new PrincipalStoreEntryModifier();
+
+        modifier.setDistinguishedName( distinguishedName );
 
         String principal = ( String ) attrs.get( KerberosAttribute.PRINCIPAL ).get();
         modifier.setPrincipal( new KerberosPrincipal( principal ) );
 
         String keyVersionNumber = ( String ) attrs.get( KerberosAttribute.VERSION ).get();
         modifier.setKeyVersionNumber( Integer.parseInt( keyVersionNumber ) );
-
-        if ( attrs.get( KerberosAttribute.TYPE ) != null )
-        {
-            String val = ( String ) attrs.get( KerberosAttribute.TYPE ).get();
-            modifier.setEncryptionType( Integer.parseInt( val ) );
-        }
 
         if ( attrs.get( KerberosAttribute.ACCOUNT_DISABLED ) != null )
         {

@@ -41,6 +41,7 @@ import javax.security.sasl.Sasl;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;

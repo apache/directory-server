@@ -27,6 +27,8 @@ import javax.naming.ldap.LdapContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.AuthorizeCallback;
 
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +77,8 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         String username = authorizeCB.getAuthorizationID();
 
         GetPrincipal getPrincipal = new GetPrincipal( new KerberosPrincipal( username ) );
-        // Don't actually want the entry, rather the hacked in dn.
-        getPrincipal.execute( ctx, null );
-        String bindDn = getPrincipal.getDn();
+        PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ctx, null );
+        String bindDn = entry.getDistinguishedName();
 
         log.debug( "Converted username " + username + " to DN " + bindDn + "." );
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
