@@ -87,12 +87,15 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
             return null;
         }
         
-        if ( at.getEquality() == null )
+        MatchingRule mr = at.getEquality();
+        if ( mr == null )
         {
             return findEquality( at.getSuperior() );
         }
-        
-        return null;
+        else
+        {
+            return mr;
+        }
     }
 
 
@@ -124,12 +127,15 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
             return null;
         }
         
-        if ( at.getOrdering() == null )
+        MatchingRule mr = at.getOrdering();
+        if ( mr == null )
         {
             return findOrdering( at.getSuperior() );
         }
-        
-        return null;
+        else
+        {
+            return mr;
+        }
     }
 
 
@@ -161,12 +167,15 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
             return null;
         }
         
-        if ( at.getSubstr() == null )
+        MatchingRule mr = at.getSubstr();
+        if ( mr == null )
         {
             return findSubstr( at.getSuperior() );
         }
-        
-        return null;
+        else
+        {
+            return mr;
+        }
     }
 
 
