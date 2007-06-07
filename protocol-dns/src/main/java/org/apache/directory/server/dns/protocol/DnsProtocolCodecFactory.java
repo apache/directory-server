@@ -35,6 +35,11 @@ public class DnsProtocolCodecFactory implements ProtocolCodecFactory
     private static final DnsProtocolCodecFactory INSTANCE = new DnsProtocolCodecFactory();
 
 
+    /**
+     * Returns the singleton instance of {@link DnsProtocolCodecFactory}.
+     *
+     * @return The singleton instance of {@link DnsProtocolCodecFactory}.
+     */
     public static DnsProtocolCodecFactory getInstance()
     {
         return INSTANCE;
@@ -43,6 +48,7 @@ public class DnsProtocolCodecFactory implements ProtocolCodecFactory
 
     private DnsProtocolCodecFactory()
     {
+        // Private constructor prevents instantiation outside this class.
     }
 
 

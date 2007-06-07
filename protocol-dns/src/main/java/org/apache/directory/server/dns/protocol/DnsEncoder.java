@@ -25,7 +25,7 @@ import org.apache.directory.server.dns.io.encoder.DnsMessageEncoder;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
@@ -36,7 +36,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsEncoder implements ProtocolEncoder
+public class DnsEncoder extends ProtocolEncoderAdapter
 {
     private DnsMessageEncoder encoder = new DnsMessageEncoder();
 
@@ -49,10 +49,5 @@ public class DnsEncoder implements ProtocolEncoder
         buf.flip();
 
         out.write( buf );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
     }
 }

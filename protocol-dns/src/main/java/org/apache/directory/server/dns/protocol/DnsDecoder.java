@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.directory.server.dns.io.decoder.DnsMessageDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
@@ -37,7 +37,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsDecoder implements ProtocolDecoder
+public class DnsDecoder extends ProtocolDecoderAdapter
 {
     private DnsMessageDecoder decoder = new DnsMessageDecoder();
 
@@ -45,15 +45,5 @@ public class DnsDecoder implements ProtocolDecoder
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
     {
         out.write( decoder.decode( in ) );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
-    }
-
-
-    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
-    {
     }
 }

@@ -57,6 +57,12 @@ public class DnsProtocolHandler implements IoHandler
     private String contextKey = "context";
 
 
+    /**
+     * Creates a new instance of DnsProtocolHandler.
+     *
+     * @param config
+     * @param store
+     */
     public DnsProtocolHandler( DnsConfiguration config, RecordStore store )
     {
         this.config = config;
@@ -151,7 +157,7 @@ public class DnsProtocolHandler implements IoHandler
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
