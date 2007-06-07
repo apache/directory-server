@@ -35,6 +35,11 @@ public class NtpProtocolCodecFactory implements ProtocolCodecFactory
     private static final NtpProtocolCodecFactory INSTANCE = new NtpProtocolCodecFactory();
 
 
+    /**
+     * Returns the singleton instance of {@link NtpProtocolCodecFactory}.
+     *
+     * @return The singleton instance of {@link NtpProtocolCodecFactory}.
+     */
     public static NtpProtocolCodecFactory getInstance()
     {
         return INSTANCE;
@@ -43,6 +48,7 @@ public class NtpProtocolCodecFactory implements ProtocolCodecFactory
 
     private NtpProtocolCodecFactory()
     {
+        // Private constructor prevents instantiation outside this class.
     }
 
 

@@ -24,7 +24,7 @@ package org.apache.directory.server.ntp.protocol;
 import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
@@ -32,22 +32,11 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpDecoder implements ProtocolDecoder
+public class NtpDecoder extends ProtocolDecoderAdapter
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out )
     {
         NtpMessageDecoder decoder = new NtpMessageDecoder();
         out.write( decoder.decode( in.buf() ) );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
-    }
-
-
-    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
-    {
-        // TODO Auto-generated method stub
     }
 }

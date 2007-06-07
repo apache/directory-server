@@ -25,7 +25,7 @@ import org.apache.directory.server.ntp.io.NtpMessageEncoder;
 import org.apache.directory.server.ntp.messages.NtpMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
@@ -33,7 +33,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpEncoder implements ProtocolEncoder
+public class NtpEncoder extends ProtocolEncoderAdapter
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
@@ -45,10 +45,5 @@ public class NtpEncoder implements ProtocolEncoder
         buf.flip();
 
         out.write( buf );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
     }
 }
