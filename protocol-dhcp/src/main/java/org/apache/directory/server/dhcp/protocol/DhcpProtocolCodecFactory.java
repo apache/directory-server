@@ -32,10 +32,14 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  */
 public class DhcpProtocolCodecFactory implements ProtocolCodecFactory
 {
-    // Codec factory is also usually a singleton.
     private static DhcpProtocolCodecFactory INSTANCE = new DhcpProtocolCodecFactory();
 
 
+    /**
+     * Returns the singleton instance of {@link DhcpProtocolCodecFactory}.
+     *
+     * @return The singleton instance of {@link DhcpProtocolCodecFactory}.
+     */
     public static DhcpProtocolCodecFactory getInstance()
     {
         return INSTANCE;

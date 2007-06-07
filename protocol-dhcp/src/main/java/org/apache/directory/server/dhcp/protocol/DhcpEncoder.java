@@ -25,7 +25,7 @@ import org.apache.directory.server.dhcp.io.DhcpMessageEncoder;
 import org.apache.directory.server.dhcp.messages.DhcpMessage;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 
@@ -33,7 +33,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DhcpEncoder implements ProtocolEncoder
+public class DhcpEncoder extends ProtocolEncoderAdapter
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out )
     {
@@ -45,10 +45,5 @@ public class DhcpEncoder implements ProtocolEncoder
         buf.flip();
 
         out.write( buf );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
     }
 }

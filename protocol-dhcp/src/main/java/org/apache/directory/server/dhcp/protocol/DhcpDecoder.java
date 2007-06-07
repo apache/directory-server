@@ -25,7 +25,7 @@ import org.apache.directory.server.dhcp.DhcpException;
 import org.apache.directory.server.dhcp.io.DhcpMessageDecoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderAdapter;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 
@@ -33,22 +33,11 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DhcpDecoder implements ProtocolDecoder
+public class DhcpDecoder extends ProtocolDecoderAdapter
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws DhcpException
     {
         DhcpMessageDecoder decoder = new DhcpMessageDecoder();
         out.write( decoder.decode( in.buf() ) );
-    }
-
-
-    public void dispose( IoSession arg0 ) throws Exception
-    {
-    }
-
-
-    public void finishDecode( IoSession session, ProtocolDecoderOutput out ) throws Exception
-    {
-        // TODO Auto-generated method stub
     }
 }
