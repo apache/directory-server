@@ -186,6 +186,8 @@ public class AddITest extends AbstractServerTest
 
     /**
      * Try to add entry with required attribute missing.
+     * 
+     * @throws NamingException 
      */
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
@@ -220,6 +222,8 @@ public class AddITest extends AbstractServerTest
      * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     * 
+     * @throws LDAPException 
      */
     public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
@@ -260,6 +264,8 @@ public class AddITest extends AbstractServerTest
      * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     * 
+     * @throws LDAPException 
      */
     public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
     {
@@ -301,6 +307,8 @@ public class AddITest extends AbstractServerTest
      * Testcase to demonstrate DIRSERVER-643 ("Netscape SDK: Adding an entry with
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
+     * 
+     * @throws LDAPException 
      */
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
     {
@@ -339,6 +347,8 @@ public class AddITest extends AbstractServerTest
     
     /**
      * Try to add entry with invalid number of values for a single-valued atribute
+     * 
+     * @throws NamingException 
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
@@ -370,6 +380,8 @@ public class AddITest extends AbstractServerTest
 
     /**
      * Try to add entry and an alias to it. Afterwards, remove it.
+     * 
+     * @throws NamingException 
      */
     public void testAddAlias() throws NamingException
     {
@@ -406,10 +418,11 @@ public class AddITest extends AbstractServerTest
     /**
      * Try to add entry and an alias to it. Afterwards, remove it. This version
      * cretes a container entry before the operations.
+     * 
+     * @throws NamingException 
      */
     public void testAddAliasInContainer() throws NamingException
     {
-
         // Create container
         Attributes container = new AttributesImpl();
         Attribute containerOcls = new AttributeImpl( "objectclass" );

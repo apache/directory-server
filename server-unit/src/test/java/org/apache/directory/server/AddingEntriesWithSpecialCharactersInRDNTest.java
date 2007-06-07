@@ -53,7 +53,7 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
     {
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -99,6 +99,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    /**
     * adding an entry with hash sign (#) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithHashRdn() throws NamingException {
        Attributes attrs = getPersonAttributes("Bush", "Kate#Bush");
@@ -122,6 +124,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    /**
     * adding an entry with comma sign (,) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithCommaInRdn() throws NamingException {
 
@@ -200,6 +204,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 */
    /**
     * adding an entry with greater sign (>) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithGreaterSignInRdn() throws NamingException {
 
@@ -225,6 +231,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    /**
     * adding an entry with less sign (<) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithLessSignInRdn() throws NamingException {
 
@@ -250,6 +258,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    /**
     * adding an entry with semicolon (;) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithSemicolonInRdn() throws NamingException {
 
@@ -275,6 +285,8 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
 
    /**
     * adding an entry with equals sign (=) in RDN.
+    * 
+    * @throws NamingException 
     */
    public void testAddingWithEqualsInRdn() throws NamingException {
 

@@ -99,7 +99,7 @@ public class ReferralTest extends AbstractServerTest
      */
     private LdapContext getSystemRoot() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );

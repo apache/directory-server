@@ -54,7 +54,7 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     private LdapContext ctx = null;
 
-    public static final String RDN = "cn=Tori Amos";
+    private static final String RDN = "cn=Tori Amos";
 
 
     /**
@@ -132,6 +132,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Just a little test to check wether opening the connection and creation of
      * the person succeeds succeeds.
+     * 
+     * @throws NamingException 
      */
     public void testSetUpTearDown() throws NamingException
     {
@@ -340,6 +342,8 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute value
+     * 
+     * @throws NamingException 
      */
     public void testReplaceNonExistingAttribute() throws NamingException
     {
@@ -383,6 +387,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Create a person entry and try to remove an attribute value from the RDN
      * by Replacement
+     * 
+     * @throws NamingException 
      */
     public void testReplaceRdnByEmptyValueAttribute() throws NamingException
     {
@@ -413,6 +419,8 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute from the RDN
+     * 
+     * @throws NamingException 
      */
     public void testRemoveRdnAttribute() throws NamingException
     {
@@ -443,6 +451,8 @@ public class ModifyRemoveTest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove an attribute from the RDN
+     * 
+     * @throws NamingException 
      */
     public void testRemoveRdnAttributeValue() throws NamingException
     {
@@ -472,6 +482,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     
     /**
      * Create a person entry and try to remove objectClass attribute
+     * 
+     * @throws NamingException 
      */
     public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws NamingException {
 
@@ -499,6 +511,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Create a person entry and try to remove objectClass attribute. A variant
      * which works.
+     * 
+     * @throws NamingException 
      */
     public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws NamingException {
 

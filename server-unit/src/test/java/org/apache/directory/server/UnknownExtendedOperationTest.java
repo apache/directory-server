@@ -51,7 +51,7 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
     {
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -77,6 +77,8 @@ public class UnknownExtendedOperationTest extends AbstractServerTest
     /**
      * Calls an extended exception, which does not exist. Expected behaviour is
      * a CommunicationException.
+     * 
+     * @throws NamingException 
      */
     public void testUnknownExtendedOperation() throws NamingException
     {

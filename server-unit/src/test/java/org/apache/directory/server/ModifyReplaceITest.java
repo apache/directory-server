@@ -67,7 +67,7 @@ public class ModifyReplaceITest extends AbstractServerTest
     {
         super.setUp();
         
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + super.port + "/ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -87,6 +87,8 @@ public class ModifyReplaceITest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove a not present attribute
+     * 
+     * @throws NamingException 
      */
     public void testReplaceNotPresentAttribute() throws NamingException
     {
@@ -121,6 +123,8 @@ public class ModifyReplaceITest extends AbstractServerTest
 
     /**
      * Create a person entry and try to remove a non existing attribute
+     * 
+     * @throws NamingException 
      */
     public void testReplaceNonExistingAttribute() throws NamingException
     {

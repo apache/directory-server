@@ -45,7 +45,7 @@ public class ChangeListener
 {
     public static void main( String[] args ) throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:10389/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );

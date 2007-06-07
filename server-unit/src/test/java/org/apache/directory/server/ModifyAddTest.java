@@ -85,7 +85,7 @@ public class ModifyAddTest extends AbstractServerTest
     {
         super.setUp();
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -372,7 +372,7 @@ public class ModifyAddTest extends AbstractServerTest
      */
     public void testAddUnexistingAttribute() throws NamingException
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -429,6 +429,8 @@ public class ModifyAddTest extends AbstractServerTest
     /**
      * Create a person entry and perform a modify op, in which
      * we modify an attribute two times.
+     * 
+     * @throws NamingException 
      */
     public void testAttributeValueMultiMofificationDIRSERVER_636() throws NamingException {
 
@@ -480,6 +482,8 @@ public class ModifyAddTest extends AbstractServerTest
 
     /**
      * Try to add subschemaSubentry attribute to an entry
+     * 
+     * @throws NamingException 
      */
     public void testModifyOperationalAttributeAdd() throws NamingException
     {
@@ -509,6 +513,8 @@ public class ModifyAddTest extends AbstractServerTest
      * attribute which is part of the DN. This is not allowed.
      * 
      * A JIRA has been created for this bug : DIRSERVER_687
+     * 
+     * @throws NamingException 
      */
      public void testDNAttributeMemberMofificationDIRSERVER_687() throws NamingException {
 
@@ -544,6 +550,8 @@ public class ModifyAddTest extends AbstractServerTest
     
     /**
      * Try to modify an entry adding invalid number of values for a single-valued atribute
+     * 
+     * @throws NamingException 
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     public void testModifyAddWithInvalidNumberOfAttributeValues() throws NamingException

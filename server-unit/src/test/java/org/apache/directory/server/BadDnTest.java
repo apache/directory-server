@@ -39,10 +39,15 @@ public class BadDnTest extends AbstractServerTest
 {
     /**
      * Bind as a user.
+     * 
+     * @param bindDn 
+     * @param password 
+     * @return The {@link LdapContext} for the bound user. 
+     * @throws Exception 
      */
     public LdapContext bind( String bindDn, String password ) throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", bindDn );
@@ -58,6 +63,8 @@ public class BadDnTest extends AbstractServerTest
     /**
      * Test with bindDn which is not even found under any namingContext of the
      * server.
+     * 
+     * @throws Exception 
      */
     public void testBadBindDnNotInContext() throws Exception
     {
@@ -88,6 +95,8 @@ public class BadDnTest extends AbstractServerTest
 
     /**
      * Test with bindDn that is under a naming context but points to non-existant user.
+     * 
+     * @throws Exception 
      */
     public void testBadBindDnInContext() throws Exception
     {

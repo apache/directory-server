@@ -71,7 +71,7 @@ public class DelITest extends AbstractServerTest
      * Try to delete an entry with invalid DN. Expected result code is 32
      * (NO_SUCH_OBJECT) or 34 (INVALID_DN_SYNTAX).
      */
-    public void testDeleteWithIllegalName() throws LDAPException {
+    public void testDeleteWithIllegalName() {
         try {
             con.delete("This is an illegal name" + "," + BASE);
             fail("deletion should fail");
