@@ -314,7 +314,7 @@ public class MatchingRuleUseDescriptionSchemaParserTest extends TestCase
         value = "( 1.2.3.4.5.6.7.8.9.0 )";
         try
         {
-            mrud = parser.parseMatchingRuleUseDescription( value );
+            parser.parseMatchingRuleUseDescription( value );
             fail( "Exception expected, APPLIES is required" );
         }
         catch ( ParseException pe )
