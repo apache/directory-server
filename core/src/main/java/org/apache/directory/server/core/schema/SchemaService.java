@@ -829,7 +829,7 @@ public class SchemaService extends BaseInterceptor
         }
         else if ( existing == null )
         {
-            return new LockableAttributeImpl( "objectClasses" );
+            return new LockableAttributeImpl( "objectClass" );
         }
 
         switch ( modOp )
@@ -1247,6 +1247,11 @@ public class SchemaService extends BaseInterceptor
         if ( objectClassMod == null )
         {
             objectClass = entry.get( "objectClass" );
+            
+            if ( objectClass == null )
+            {
+                objectClass = new LockableAttributeImpl( "objectClass" );
+            }
         }
         else
         {
@@ -1607,6 +1612,15 @@ public class SchemaService extends BaseInterceptor
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
         Attribute objectClassAttr = entry.get( "objectClass" );
+        
+        // Protect the server against a null objectClassAttr
+        // It can be the case if the user forgot to add it to the entry ...
+        // In this case, we create an new one, empty
+        if ( objectClassAttr == null )
+        {
+            objectClassAttr = new LockableAttributeImpl( "objectClass" );
+        }
+
         List ocs = new ArrayList();
         
         alterObjectClasses( objectClassAttr );
