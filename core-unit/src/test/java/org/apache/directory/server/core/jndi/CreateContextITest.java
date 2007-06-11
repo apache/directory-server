@@ -33,6 +33,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 
@@ -362,5 +363,48 @@ public class CreateContextITest extends AbstractAdminTestCase
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
+    }
+    
+    public void testCreateContextWithNoObjectClass() throws Exception
+    {
+        Attributes attrs = new LockableAttributesImpl( true );
+
+        try
+        {
+            sysRoot.createSubcontext( "ou=subtest", attrs );// should Fails!
+            fail( "It is not allowed to create a context with a bad entry");
+        }
+        catch ( NamingException e )
+        {
+            assertNotNull( e );
+        }
+    }
+
+    public void testCreateJavaContainer() throws Exception
+    {
+        DirContext ctx = (DirContext)sysRoot.createSubcontext( "cn=subtest" );
+        assertNotNull( ctx );
+        
+        Attributes attributes = ctx.getAttributes( "" );
+        assertNotNull( attributes );
+        
+        assertEquals( "subtest", attributes.get( "cn" ).get() );
+        Attribute attribute = attributes.get( "objectClass" );
+        assertNotNull( attribute );
+        assertTrue( attribute.contains( "top" ) );
+        assertTrue( attribute.contains( "javaContainer" ) );
+    }
+
+    public void testCreateJavaContainerBadRDN() throws Exception
+    {
+        try
+        {
+            sysRoot.createSubcontext( "ou=subtest" );
+            fail( "It is not allowed to create a context with a bad RDN. CN is mandatory");
+        }
+        catch ( LdapSchemaViolationException lsve )
+        {
+            assertTrue( true );
+        }
     }
 }

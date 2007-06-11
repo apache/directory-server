@@ -33,7 +33,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -445,10 +445,9 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
             sysRoot.createSubcontext( "ou=blah,cn=toanother" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNamingException e )
+        catch ( LdapSchemaViolationException e )
         {
-            assertEquals( "cn=toanother,ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.ALIASPROBLEM, e.getResultCode() );
+            assertEquals( ResultCodeEnum.OBJECTCLASSVIOLATION, e.getResultCode() );
         }
     }
 
@@ -464,10 +463,9 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
             sysRoot.createSubcontext( "ou=blah,ou=abc" );
             fail( "Execution should never get here due to exception!" );
         }
-        catch ( LdapNameNotFoundException e )
+        catch ( LdapSchemaViolationException e )
         {
-            assertEquals( "ou=system", e.getResolvedName().toString() );
-            assertEquals( ResultCodeEnum.NOSUCHOBJECT, e.getResultCode() );
+            assertEquals( ResultCodeEnum.OBJECTCLASSVIOLATION, e.getResultCode() );
         }
     }
 
