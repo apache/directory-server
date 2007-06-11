@@ -1000,7 +1000,7 @@ public class SchemaService extends BaseInterceptor
         }
         else if ( existing == null )
         {
-            return new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
+            return new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         }
 
         switch ( modOp )
@@ -1308,6 +1308,11 @@ public class SchemaService extends BaseInterceptor
         if ( objectClassMod == null )
         {
             objectClass = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+
+            if ( objectClass == null )
+            {
+                objectClass = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            }
         }
         else
         {
