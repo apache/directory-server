@@ -131,9 +131,10 @@ public class SessionRegistry
      *
      * @return the registry environment
      */
-    public Hashtable getEnvironmentByCopy()
+    @SuppressWarnings( "unchecked" )
+    public Hashtable<String, Object> getEnvironmentByCopy()
     {
-        return ( Hashtable ) env.clone();
+        return ( Hashtable<String, Object> ) env.clone();
     }
 
 

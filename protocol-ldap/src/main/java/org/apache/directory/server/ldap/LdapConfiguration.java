@@ -23,8 +23,10 @@ package org.apache.directory.server.ldap;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
@@ -72,7 +74,7 @@ public class LdapConfiguration extends ServiceConfiguration
     private final Collection<ExtendedOperationHandler> extendedOperationHandlers = new ArrayList<ExtendedOperationHandler>();
 
     /** The supported authentication mechanisms. */
-    private List<String> supportedMechanisms;
+    private Set<String> supportedMechanisms;
 
     /** The name of this host, validated during SASL negotiation. */
     private String saslHost = "ldap.example.com";
@@ -95,7 +97,7 @@ public class LdapConfiguration extends ServiceConfiguration
         super.setIpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
 
-        supportedMechanisms = new ArrayList<String>();
+        supportedMechanisms = new HashSet<String>();
         supportedMechanisms.add( "SIMPLE" );
         supportedMechanisms.add( "CRAM-MD5" );
         supportedMechanisms.add( "DIGEST-MD5" );
@@ -382,7 +384,7 @@ public class LdapConfiguration extends ServiceConfiguration
      * 
      * @return The list of supported authentication mechanisms.
      */
-    public List getSupportedMechanisms()
+    public Set<String> getSupportedMechanisms()
     {
         return supportedMechanisms;
     }
@@ -393,7 +395,7 @@ public class LdapConfiguration extends ServiceConfiguration
      * 
      * @param supportedMechanisms The list of supported authentication mechanisms.
      */
-    public void setSupportedMechanisms( List<String> supportedMechanisms )
+    public void setSupportedMechanisms( Set<String> supportedMechanisms )
     {
         this.supportedMechanisms = supportedMechanisms;
     }
