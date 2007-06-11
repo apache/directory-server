@@ -60,6 +60,8 @@
     <property name="enabled" value="false" />
     <!-- The port to run the LDAPS protocol on.                              -->
     <property name="ipPort" value="636" />
+
+    <property name="enableLdaps" value="true" />
   </bean>
   
   <bean id="ldapConfiguration" class="org.apache.directory.server.ldap.LdapConfiguration">
