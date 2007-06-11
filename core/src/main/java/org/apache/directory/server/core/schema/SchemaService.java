@@ -1687,6 +1687,15 @@ public class SchemaService extends BaseInterceptor
         // 3-2) or if the AttributeType is COLLECTIVE
         // 4) We also check that for H-R attributes, we have a valid String in the values
         Attribute objectClassAttr = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
+        // Protect the server against a null objectClassAttr
+        // It can be the case if the user forgot to add it to the entry ...
+        // In this case, we create an new one, empty
+        if ( objectClassAttr == null )
+        {
+            objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        }
+        
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
 
         alterObjectClasses( objectClassAttr );
