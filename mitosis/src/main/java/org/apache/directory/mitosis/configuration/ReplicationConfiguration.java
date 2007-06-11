@@ -60,16 +60,23 @@ public class ReplicationConfiguration
     /** The logger */
     private static Logger log = LoggerFactory.getLogger( ReplicationConfiguration.class );
 
+    /** The server identifier */ 
     private ReplicaId replicaId;
+    
+    /** Default values for the communication part */
     private int serverPort = DEFAULT_SERVER_PORT;
     private int responseTimeout = DEFAULT_RESPONSE_TIMEOUT;
     private int replicationInterval = DEFAULT_REPLICATION_INTERVAL;
 
+    /** List of connected replicas */
     private final Set<Replica> peerReplicas = new HashSet<Replica>();
     
+    /** Factories */
     private UUIDFactory uuidFactory = new DefaultUUIDFactory();
     private CSNFactory csnFactory = new DefaultCSNFactory();
     private ReplicationStore store = new DerbyReplicationStore();
+    
+    /** The longest period of time before a stored entry is removed from storage */
     private int logMaxAge = DEFAULT_LOG_MAX_AGE; // a week (days)
 
 
@@ -217,9 +224,11 @@ public class ReplicationConfiguration
 
         Set<Replica> normalizedReplicas = new HashSet<Replica>();
         Iterator i = replicas.iterator();
+        
         while ( i.hasNext() )
         {
             Object o = i.next();
+            
             if ( o instanceof Replica )
             {
                 normalizedReplicas.add( ( Replica ) o );
@@ -229,8 +238,9 @@ public class ReplicationConfiguration
                 normalizedReplicas.add( new Replica( o.toString() ) );
             }
         }
-        this.peerReplicas.clear();
-        this.peerReplicas.addAll( normalizedReplicas );
+        
+        peerReplicas.clear();
+        peerReplicas.addAll( normalizedReplicas );
     }
 
     /**
@@ -322,13 +332,13 @@ public class ReplicationConfiguration
      * Validate Mitosis configuration.
      * 
      * We check that the configuration file contains valid
-     * parameters :
-     *  - a replicaId
-     *  - a valid server port (between 0 and 65535)
-     *  - a valid response timeout ( > 0 )
-     *  - a uuidFactory
-     *  - a CSN factory
-     *  - a store (derby)
+     * parameters :<br/>
+     *  - a replicaId<br/>
+     *  - a valid server port (between 0 and 65535)<br/>
+     *  - a valid response timeout ( > 0 )<br/>
+     *  - a uuidFactory<br/>
+     *  - a CSN factory<br/>
+     *  - a store (derby)<br/>
      *  - a list of valid replica, none of them being equal
      *  to the replicaId 
      *
@@ -342,7 +352,7 @@ public class ReplicationConfiguration
             throw new ReplicationConfigurationException( "Replica ID is not specified." );
         }
 
-        if ( serverPort < 0 || serverPort > 65535 )
+        if ( ( serverPort < 0 ) || ( serverPort > 65535 ) )
         {
             log.error( "The replica port is not between 0 and 65535" );
             throw new ReplicationConfigurationException( "Server port is invalid: " + serverPort );
@@ -388,13 +398,12 @@ public class ReplicationConfiguration
         ids.add( replicaId.getId() );
 
         // And store the local inetadress
-        Integer localPort = new Integer( serverPort );
-        servers.put( "localhost", localPort );
-        servers.put( "127.0.0.1", localPort );
+        servers.put( "localhost", serverPort );
+        servers.put( "127.0.0.1", serverPort );
 
         try
         {
-            servers.put( StringTools.lowerCase( InetAddress.getByName( "127.0.0.1" ).getHostName() ), localPort );
+            servers.put( StringTools.lowerCase( InetAddress.getByName( "127.0.0.1" ).getHostName() ), serverPort );
         }
         catch ( UnknownHostException uhe )
         {
@@ -402,24 +411,22 @@ public class ReplicationConfiguration
             throw new ReplicationConfigurationException( "Unknown host name" );
         }
 
-        for ( Iterator<Replica> peer = peerReplicas.iterator(); peer.hasNext(); )
+        for ( Replica peer:peerReplicas )
         {
-            Replica replica = peer.next();
-
-            if ( ids.contains( replica.getId().getId() ) )
+            if ( ids.contains( peer.getId().getId() ) )
             {
-                log.error( "Peer replica ID '{}' has already been declared.", replica.getId() );
-                throw new ReplicationConfigurationException( "Peer replica ID '" + replica.getId()
+                log.error( "Peer replica ID '{}' has already been declared.", peer.getId() );
+                throw new ReplicationConfigurationException( "Peer replica ID '" + peer.getId()
                     + "' has already been declared." );
             }
 
             // Now check that we don't already have a replica on a server with the same port 
-            String replicaServer = StringTools.lowerCase( replica.getAddress().getHostName() );
-            Integer replicaPort = new Integer( replica.getAddress().getPort() );
+            String replicaServer = StringTools.lowerCase( peer.getAddress().getHostName() );
+            int replicaPort = peer.getAddress().getPort();
 
             if ( servers.containsKey( replicaServer ) )
             {
-                Integer peerPort = ( servers.get( replicaServer ) );
+                int peerPort = servers.get( replicaServer );
 
                 if ( replicaPort == peerPort )
                 {
