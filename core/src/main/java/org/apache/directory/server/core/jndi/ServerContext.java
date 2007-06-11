@@ -52,9 +52,12 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.LockableAttributeImpl;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -292,10 +295,34 @@ public abstract class ServerContext implements EventContext
     {
         Attributes attributes = new LockableAttributesImpl();
         LdapDN target = buildTarget( name );
-        injectRdnAttributeValues( target, attributes );
         
-        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.JCONTAINER_ATTR );
-        attributes.put( JavaLdapSupport.OBJECTCLASS_ATTR, JavaLdapSupport.TOP_ATTR );
+        Attribute attribute = new LockableAttributeImpl( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( JavaLdapSupport.JCONTAINER_ATTR );
+        attributes.put( attribute );
+        
+        // Now add the CN attribute, which is mandatory
+        Rdn rdn = target.getRdn();
+        
+        if ( rdn != null )
+        {
+            if ( "cn".equals( rdn.getNormType() )  )
+            {
+                attributes.put( rdn.getUpType(), rdn.getValue() );
+            }
+            else
+            {
+                // No CN in the rdn, this is an error
+                throw new LdapSchemaViolationException( name + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!", 
+                    ResultCodeEnum.OBJECTCLASSVIOLATION );
+            }
+        }
+        else
+        {
+            // No CN in the rdn, this is an error
+            throw new LdapSchemaViolationException( name + " does not contains the mandatory 'cn' attribute for JavaContainer ObjectClass!", 
+                ResultCodeEnum.OBJECTCLASSVIOLATION );
+        }
 
         /*
          * Add the new context to the server which as a side effect adds 
