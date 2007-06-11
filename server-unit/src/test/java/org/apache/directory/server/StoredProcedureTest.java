@@ -25,14 +25,18 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
+import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 
 
 /**
@@ -46,8 +50,11 @@ public class StoredProcedureTest extends AbstractServerTest
     
     public void setUp() throws Exception
     {
+        /////////////////////////////////////////////////////////
+        // Enable the Stored Procedure Extended Operation Handler
+        /////////////////////////////////////////////////////////
         LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
-        Set handlers = new HashSet( ldapCfg.getExtendedOperationHandlers() );
+        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapCfg.getExtendedOperationHandlers() );
         handlers.add( new StoredProcedureExtendedOperationHandler() );
         ldapCfg.setExtendedOperationHandlers( handlers );
 
@@ -60,8 +67,6 @@ public class StoredProcedureTest extends AbstractServerTest
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
-
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
     }
 
 
@@ -74,9 +79,11 @@ public class StoredProcedureTest extends AbstractServerTest
     }
     
 
-    public void testExecuteProcedure() throws NamingException
+    public void testExecuteProcedureWithReturnValue() throws NamingException
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHello";
+        
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
         
         Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
@@ -84,13 +91,59 @@ public class StoredProcedureTest extends AbstractServerTest
     }
     
 
-    public void testExecuteProcedureWithParameters() throws NamingException, IOException
+    public void testExecuteProcedureWithParametersAndReturnValue() throws NamingException, IOException
     {
         String procedureName = HelloWorldProcedure.class.getName() + ".sayHelloTo";
+        
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
         
         Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
         
         assertEquals( "Hello Ersin!", response );
     }
     
+    
+    public void testSPDeleteSubtree() throws NamingException
+    {
+        String ldif =
+            "version: 1\n" +
+            "\n" +
+            "dn: ou=People,ou=system\n" +
+            "ou: People\n" +
+            "objectclass: organizationalUnit\n" +
+            "objectclass: top\n" +
+            "\n" + 
+            "dn: cn=John,ou=People,ou=system\n" +
+            "objectclass: person\n" +
+            "objectclass: top\n" +
+            "sn: John\n" +
+            "cn: John\n" +
+            "\n" +
+            "dn: cn=Jane,ou=People,ou=system\n" +
+            "objectclass: person\n" +
+            "objectclass: top\n" +
+            "sn: Jane\n" +
+            "cn: Jane\n";
+        
+        injectEntries( ldif );
+        
+        String spName = DITUtilitiesSP.class.getName() + ".deleteSubtree";
+        Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
+                                         new LdapDN( "ou=People" ) };
+        
+        JavaStoredProcedureUtils.callStoredProcedure( ctx, spName, params );
+        
+        try
+        {
+            sysRoot.lookup( "cn=Jane,ou=People" );
+            sysRoot.lookup( "cn=John,ou=People" );
+            sysRoot.lookup( "ou=People" );
+            fail( "We should not have come here." );
+        }
+        catch ( NameNotFoundException e )
+        {
+            // Expected
+        }
+    }
+     
 }

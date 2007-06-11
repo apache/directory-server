@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class TriggerServiceTest extends AbstractServerTest // AbstractServerTriggerServiceTest
+public class TriggerServiceTest extends AbstractServerTest
 {
     private LdapContext ctx;
     
@@ -89,7 +89,7 @@ public class TriggerServiceTest extends AbstractServerTest // AbstractServerTrig
         // Inject the ldif file into the server
         injectEntries( ldif );
             
-        // Create the Triger Specification within a Trigger Subentry.
+        // Create the Trigger Specification within a Trigger Subentry.
         String staffDN = "cn=staff, ou=system";
         String teachersDN = "cn=teachers, ou=system";
 
@@ -102,6 +102,16 @@ public class TriggerServiceTest extends AbstractServerTest // AbstractServerTrig
                                                      "AFTER Add " +
                                                          "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
                                                          "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
+        
+        /**
+         * The Trigger Specification without Java clutter:
+         * 
+         * AFTER Add
+         *     CALL "ListUtilsSP.subscribeToGroup" ( $entry , $ldapContext "cn=staff, ou=system" );
+         *     CALL "ListUtilsSP.subscribeToGroup" ( $entry , $ldapContext "cn=teachers, ou=system" );
+         * 
+         */
+        
         
         // Create a test entry which is selected by the Trigger Subentry.
         String testEntry  = 
@@ -142,10 +152,10 @@ public class TriggerServiceTest extends AbstractServerTest // AbstractServerTrig
             "objectClass: organizationalUnit\n" +
             "ou: backupContext\n";
         
-        // Inject the ldif file into the server
+        // Inject the ldif file into the server.
         injectEntries( ldif );
         
-        // Create the Triger Specification within a Trigger Subentry.
+        // Create the Trigger Specification within a Trigger Subentry.
         TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
         TriggerUtils.createTriggerExecutionSubentry( ctx,
                                                      "triggerSubentry1",
@@ -154,16 +164,26 @@ public class TriggerServiceTest extends AbstractServerTest // AbstractServerTrig
                                                          "CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" " +
                                                              " ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );        
 
+        
+        /**
+         * The Trigger Specification without Java clutter:
+         * 
+         * AFTER Delete
+         *     CALL "BackupUtilitiesSP.backupDeleted" ( $ldapContext "", $name, $operationPrincipal, $deletedEntry );
+         * 
+         */
+        
+        
         // Create a test entry which is selected by the Trigger Subentry.
         String ldif2  = 
             "version: 1\n" +
             "\n" +
-            "dn: ou=testou, ou=system\n"+
+            "dn: ou=testou, ou=system\n" +
             "objectClass: top\n" +
             "objectClass: organizationalUnit\n" +
             "ou: testou\n";
         
-        // Inject the ldif file into the server
+        // Inject the ldif file into the server.
         injectEntries( ldif2 );
         
         // Delete the test entry in order to fire the Trigger.
