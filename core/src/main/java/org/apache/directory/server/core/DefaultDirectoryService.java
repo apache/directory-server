@@ -47,7 +47,6 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
-import org.apache.directory.server.core.jndi.PropertyKeys;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -192,10 +191,6 @@ class DefaultDirectoryService extends DirectoryService
         }
         environment.put( Context.PROVIDER_URL, rootDN );
         
-        if ( principalDn != null )
-        {
-            environment.put( PropertyKeys.PARSED_BIND_DN, principalDn );
-        }
         return new ServerLdapContext( this, environment );
     }
 
@@ -261,10 +256,12 @@ class DefaultDirectoryService extends DirectoryService
         showSecurityWarnings();
         this.serviceListener = listener;
         started = true;
+        
         if ( !startupConfiguration.getTestEntries().isEmpty() )
         {
             createTestEntries( env );
         }
+        
         listener.afterStartup( this );
     }
 
@@ -751,11 +748,13 @@ class DefaultDirectoryService extends DirectoryService
         byte[] credential = AbstractContextFactory.getCredential( env );
         String authentication = AbstractContextFactory.getAuthentication( env );
         
-        LdapDN principalDn = ( LdapDN ) env.get( PropertyKeys.PARSED_BIND_DN );
+        LdapDN principalDn = new LdapDN( principal );
+
         ServerLdapContext ctx = ( ServerLdapContext ) 
             getJndiContext( principalDn, principal, credential, authentication, "" );
 
         Iterator i = startupConfiguration.getTestEntries().iterator();
+        
         while ( i.hasNext() )
         {
         	try
