@@ -42,42 +42,21 @@ public class ChainGuard implements IoHandlerCommand
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        BindRequest request = ( BindRequest ) message;
-        LdapResult result = request.getResultResponse().getLdapResult();
+        BindRequest bindRequest = ( BindRequest ) message;
 
-        if ( log.isDebugEnabled() )
-        {
-            log.debug( "Is simple:       " + request.isSimple() );
-            log.debug( "SASL mechanism:  " + request.getSaslMechanism() );
-            log.debug( "Credentials:     " + request.getCredentials() );
-        }
-
-        // Guard clause:  LDAP version 3
-        if ( !request.getVersion3() )
-        {
-            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( "Only LDAP v3 is supported." );
-            session.write( request.getResultResponse() );
-            return;
-        }
-
-        Set supportedMechanisms = ( Set ) session.getAttribute( "supportedMechanisms" );
-
-        // Guard clause:  Reject SIMPLE mechanism.
-        if ( request.isSimple() && !supportedMechanisms.contains( "SIMPLE" ) )
-        {
-            result.setResultCode( ResultCodeEnum.STRONG_AUTH_REQUIRED );
-            result.setErrorMessage( "Simple binds are disabled." );
-            session.write( request.getResultResponse() );
-            return;
-        }
+        @SuppressWarnings( "unchecked" )
+        Set<String> supportedMechanisms = ( Set<String> ) session.getAttribute( "supportedMechanisms" );
 
         // Guard clause:  Reject unsupported SASL mechanisms.
-        if ( !( request.isSimple() || supportedMechanisms.contains( request.getSaslMechanism() ) ) )
+        if ( !supportedMechanisms.contains( bindRequest.getSaslMechanism() ) )
         {
-            result.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
-            result.setErrorMessage( request.getSaslMechanism() + " is not a supported mechanism." );
-            session.write( request.getResultResponse() );
+            log.error( "Bind error : {} mechanism not supported. Please check the server.xml configuration file (supportedMechanisms field)", 
+                bindRequest.getSaslMechanism() );
+
+            LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+            bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+            bindResult.setErrorMessage( bindRequest.getSaslMechanism() + " is not a supported mechanism." );
+            session.write( bindRequest.getResultResponse() );
             return;
         }
 
@@ -85,14 +64,7 @@ public class ChainGuard implements IoHandlerCommand
          * We now have a canonicalized authentication mechanism for this session,
          * suitable for use in Hashed Adapter's, aka Demux HashMap's.
          */
-        if ( request.isSimple() )
-        {
-            session.setAttribute( "sessionMechanism", "SIMPLE" );
-        }
-        else
-        {
-            session.setAttribute( "sessionMechanism", request.getSaslMechanism() );
-        }
+        session.setAttribute( "sessionMechanism", bindRequest.getSaslMechanism() );
 
         next.execute( session, message );
     }

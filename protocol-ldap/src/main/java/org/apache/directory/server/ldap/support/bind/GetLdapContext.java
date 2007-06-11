@@ -28,7 +28,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
-import org.apache.directory.server.core.jndi.PropertyKeys;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
@@ -139,10 +138,9 @@ public class GetLdapContext implements IoHandlerCommand
         log.debug( Context.SECURITY_PRINCIPAL + " " + principal );
         log.debug( Context.SECURITY_CREDENTIALS + " " + credentials );
         log.debug( Context.SECURITY_AUTHENTICATION + " " + authenticationLevel );
-        log.debug( PropertyKeys.PARSED_BIND_DN + " " + principal );
 
         // clone the environment first then add the required security settings
-        Hashtable env = SessionRegistry.getSingleton().getEnvironmentByCopy();
+        Hashtable<String, Object> env = SessionRegistry.getSingleton().getEnvironmentByCopy();
         env.put( Context.SECURITY_PRINCIPAL, principal );
 
         if ( credentials != null )
@@ -151,7 +149,6 @@ public class GetLdapContext implements IoHandlerCommand
         }
 
         env.put( Context.SECURITY_AUTHENTICATION, authenticationLevel );
-        env.put( PropertyKeys.PARSED_BIND_DN, principal );
 
         BindRequest request = ( BindRequest ) message;
 
