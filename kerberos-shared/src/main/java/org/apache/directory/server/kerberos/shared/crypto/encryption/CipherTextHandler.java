@@ -35,6 +35,7 @@ import org.apache.directory.server.kerberos.shared.io.decoder.DecoderFactory;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncKrbPrivPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncTicketPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
+import org.apache.directory.server.kerberos.shared.io.encoder.AuthenticatorEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncApRepPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncAsRepPartEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncKrbPrivPartEncoder;
@@ -83,6 +84,7 @@ public class CipherTextHandler
         map.put( TicketGrantReply.class, EncTgsRepPartEncoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartEncoder.class );
         map.put( EncApRepPart.class, EncApRepPartEncoder.class );
+        map.put( Authenticator.class, AuthenticatorEncoder.class );
 
         DEFAULT_ENCODERS = Collections.unmodifiableMap( map );
     }
