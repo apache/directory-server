@@ -47,8 +47,11 @@ public class PrincipalNameEncoder
      *               name-type[0]     INTEGER,
      *               name-string[1]   SEQUENCE OF GeneralString
      * }
+     * 
+     * @param principal 
+     * @return The {@link DERSequence}. 
      */
-    protected static DERSequence encode( KerberosPrincipal principal )
+    public static DERSequence encode( KerberosPrincipal principal )
     {
         DERSequence vector = new DERSequence();
 
