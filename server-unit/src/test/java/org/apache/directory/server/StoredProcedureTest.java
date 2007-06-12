@@ -127,6 +127,8 @@ public class StoredProcedureTest extends AbstractServerTest
         
         injectEntries( ldif );
         
+        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
+        
         String spName = DITUtilitiesSP.class.getName() + ".deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
                                          new LdapDN( "ou=People" ) };
