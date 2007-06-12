@@ -17,7 +17,6 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.changepw.io;
 
 
@@ -25,7 +24,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
-import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
+import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
+import org.apache.directory.server.kerberos.shared.io.decoder.ErrorMessageDecoder;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 
 
@@ -33,34 +33,43 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordErrorEncoder
+public class ChangePasswordErrorDecoder
 {
     private static final int HEADER_LENGTH = 6;
 
 
     /**
-     * Encodes a {@link ChangePasswordError} into a {@link ByteBuffer}.
+     * Decodes a {@link ByteBuffer} into a {@link ChangePasswordError}.
      *
      * @param buf
-     * @param message
+     * @return The {@link ChangePasswordError}.
      * @throws IOException
      */
-    public void encode( ByteBuffer buf, ChangePasswordError message ) throws IOException
+    public ChangePasswordError decode( ByteBuffer buf ) throws IOException
     {
-        // Build error message bytes
-        ErrorMessage errorMessage = message.getErrorMessage();
-        ErrorMessageEncoder errorEncoder = new ErrorMessageEncoder();
-        byte[] errorBytes = errorEncoder.encode( errorMessage );
+        ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
 
-        short messageLength = ( short ) ( HEADER_LENGTH + errorBytes.length );
-        buf.putShort( messageLength );
+        short messageLength = buf.getShort();
+        modifier.setMessageLength( messageLength );
 
-        short protocolVersion = 1;
-        buf.putShort( protocolVersion );
+        modifier.setProtocolVersionNumber( buf.getShort() );
 
-        short zeroIndicatesError = 0;
-        buf.putShort( zeroIndicatesError );
+        /*
+         * TODO - No condition to set on modifier.
+         */
+        buf.getShort();
 
-        buf.put( errorBytes );
+        int errorLength = messageLength - HEADER_LENGTH;
+
+        byte[] errorBytes = new byte[errorLength];
+
+        buf.get( errorBytes );
+
+        ErrorMessageDecoder errorDecoder = new ErrorMessageDecoder();
+        ErrorMessage errorMessage = errorDecoder.decode( buf );
+
+        modifier.setErrorMessage( errorMessage );
+
+        return modifier.getChangePasswordError();
     }
 }

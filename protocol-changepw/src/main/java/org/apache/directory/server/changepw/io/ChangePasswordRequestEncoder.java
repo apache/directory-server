@@ -17,17 +17,16 @@
  *  under the License. 
  *  
  */
-
 package org.apache.directory.server.changepw.io;
 
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.server.changepw.messages.ChangePasswordReply;
-import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationReplyEncoder;
+import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
+import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequestEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.PrivateMessageEncoder;
-import org.apache.directory.server.kerberos.shared.messages.application.ApplicationReply;
+import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 
 
@@ -35,39 +34,39 @@ import org.apache.directory.server.kerberos.shared.messages.application.PrivateM
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordReplyEncoder
+public class ChangePasswordRequestEncoder
 {
     private static final int HEADER_LENGTH = 6;
 
 
     /**
-     * Encodes a {@link ChangePasswordReply} into a {@link ByteBuffer}.
+     * Encodes a {@link ChangePasswordRequest} into a {@link ByteBuffer}.
      *
      * @param buf
      * @param message
      * @throws IOException
      */
-    public void encode( ByteBuffer buf, ChangePasswordReply message ) throws IOException
+    public void encode( ByteBuffer buf, ChangePasswordRequest message ) throws IOException
     {
-        // Build application reply bytes
-        ApplicationReply appReply = message.getApplicationReply();
-        ApplicationReplyEncoder appEncoder = new ApplicationReplyEncoder();
-        byte[] encodedAppReply = appEncoder.encode( appReply );
+        // Build application request bytes
+        ApplicationRequest appRequest = message.getAuthHeader();
+        ApplicationRequestEncoder appEncoder = new ApplicationRequestEncoder();
+        byte[] encodedAppRequest = appEncoder.encode( appRequest );
 
         // Build private message bytes
         PrivateMessage privateMessage = message.getPrivateMessage();
         PrivateMessageEncoder privateEncoder = new PrivateMessageEncoder();
         byte[] privateBytes = privateEncoder.encode( privateMessage );
 
-        short messageLength = ( short ) ( HEADER_LENGTH + encodedAppReply.length + privateBytes.length );
+        short messageLength = ( short ) ( HEADER_LENGTH + encodedAppRequest.length + privateBytes.length );
 
         short protocolVersion = 1;
 
         buf.putShort( messageLength );
         buf.putShort( protocolVersion );
-        buf.putShort( ( short ) encodedAppReply.length );
+        buf.putShort( ( short ) encodedAppRequest.length );
 
-        buf.put( encodedAppReply );
+        buf.put( encodedAppRequest );
         buf.put( privateBytes );
     }
 }
