@@ -39,6 +39,9 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class EncTicketPartEncoder implements Encoder, EncoderFactory
 {
+    /**
+     * Application code constant for the {@link EncTicketPart} (3).
+     */
     private static final int APPLICATION_CODE = 3;
 
 
