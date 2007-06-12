@@ -20,7 +20,6 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -34,8 +33,7 @@ public class ApplicationRequest extends KerberosMessage
 {
     private ApOptions apOptions;
     private Ticket ticket;
-    private EncryptedData encPart;
-    private Authenticator authenticator;
+    private EncryptedData encPart; // Authenticator
 
 
     /**
@@ -72,17 +70,6 @@ public class ApplicationRequest extends KerberosMessage
     public ApOptions getApOptions()
     {
         return apOptions;
-    }
-
-
-    /**
-     * Returns the {@link Authenticator}.
-     *
-     * @return The {@link Authenticator}.
-     */
-    public Authenticator getAuthenticator()
-    {
-        return authenticator;
     }
 
 
@@ -161,17 +148,6 @@ public class ApplicationRequest extends KerberosMessage
     public void setApOptions( ApOptions options )
     {
         apOptions = options;
-    }
-
-
-    /**
-     * Sets the {@link Authenticator}.
-     *
-     * @param authenticator
-     */
-    public void setAuthenticator( Authenticator authenticator )
-    {
-        this.authenticator = authenticator;
     }
 
 
