@@ -120,8 +120,10 @@
       <list>
         <!--<bean class="org.apache.directory.server.ldap.support.starttls.StartTlsHandler"/>-->
         <bean class="org.apache.directory.server.ldap.support.extended.GracefulShutdownHandler"/>
-
         <bean class="org.apache.directory.server.ldap.support.extended.LaunchDiagnosticUiHandler"/>
+        <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.
+        <bean class="org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler"/>
+        -->
       </list>
     </property>
   </bean>
