@@ -26,8 +26,8 @@ import java.io.IOException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
+import org.apache.directory.shared.asn1.der.DERBitString;
 import org.apache.directory.shared.asn1.der.DERInteger;
-import org.apache.directory.shared.asn1.der.DEROctetString;
 import org.apache.directory.shared.asn1.der.DERSequence;
 import org.apache.directory.shared.asn1.der.DERTaggedObject;
 
@@ -79,7 +79,7 @@ public class ApplicationRequestEncoder
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( message.getProtocolVersionNumber() ) ) );
         sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( message.getMessageType().getOrdinal() ) ) );
-        sequence.add( new DERTaggedObject( 2, new DEROctetString( message.getApOptions().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 2, new DERBitString( message.getApOptions().getBytes() ) ) );
         sequence.add( new DERTaggedObject( 3, TicketEncoder.encode( message.getTicket() ) ) );
         sequence.add( new DERTaggedObject( 4, EncryptedDataEncoder.encodeSequence( message.getEncPart() ) ) );
 
