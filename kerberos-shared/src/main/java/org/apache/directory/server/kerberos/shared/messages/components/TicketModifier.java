@@ -35,6 +35,7 @@ public class TicketModifier
 {
     private int ticketVersionNumber;
     private KerberosPrincipalModifier serverModifier = new KerberosPrincipalModifier();
+    private KerberosPrincipal serverPrincipal;
     private EncryptedData encPart;
 
 
@@ -45,7 +46,11 @@ public class TicketModifier
      */
     public Ticket getTicket()
     {
-        KerberosPrincipal serverPrincipal = serverModifier.getKerberosPrincipal();
+        if ( serverPrincipal == null )
+        {
+            serverPrincipal = serverModifier.getKerberosPrincipal();
+        }
+
         return new Ticket( ticketVersionNumber, serverPrincipal, encPart );
     }
 
@@ -91,5 +96,16 @@ public class TicketModifier
     public void setServerRealm( String realm )
     {
         serverModifier.setRealm( realm );
+    }
+
+
+    /**
+     * Sets the server {@link KerberosPrincipal}.
+     *
+     * @param serverPrincipal
+     */
+    public void setServerPrincipal( KerberosPrincipal serverPrincipal )
+    {
+        this.serverPrincipal = serverPrincipal;
     }
 }

@@ -38,6 +38,7 @@ public class AuthenticatorModifier
 {
     private int versionNumber;
     private KerberosPrincipalModifier clientModifier = new KerberosPrincipalModifier();
+    private KerberosPrincipal clientPrincipal;
     private Checksum checksum;
     private int clientMicroSecond;
     private KerberosTime clientTime;
@@ -53,7 +54,10 @@ public class AuthenticatorModifier
      */
     public Authenticator getAuthenticator()
     {
-        KerberosPrincipal clientPrincipal = clientModifier.getKerberosPrincipal();
+        if ( clientPrincipal == null )
+        {
+            clientPrincipal = clientModifier.getKerberosPrincipal();
+        }
 
         return new Authenticator( versionNumber, clientPrincipal, checksum, clientMicroSecond, clientTime,
             subSessionKey, sequenceNumber, authorizationData );
@@ -90,6 +94,17 @@ public class AuthenticatorModifier
     public void setClientRealm( String realm )
     {
         clientModifier.setRealm( realm );
+    }
+
+
+    /**
+     * Sets the client {@link KerberosPrincipal}.
+     *
+     * @param clientPrincipal
+     */
+    public void setClientPrincipal( KerberosPrincipal clientPrincipal )
+    {
+        this.clientPrincipal = clientPrincipal;
     }
 
 

@@ -61,6 +61,21 @@ public class EncKrbPrivPartEncoder implements Encoder, EncoderFactory
     }
 
 
+    /**
+     * Encodes an {@link EncKrbPrivPart} into a {@link DERSequence}.
+     * 
+     * EncKrbPrivPart  ::= [APPLICATION 28] SEQUENCE {
+     *         user-data       [0] OCTET STRING,
+     *         timestamp       [1] KerberosTime OPTIONAL,
+     *         usec            [2] Microseconds OPTIONAL,
+     *         seq-number      [3] UInt32 OPTIONAL,
+     *         s-address       [4] HostAddress -- sender's addr --,
+     *         r-address       [5] HostAddress OPTIONAL -- recip's addr
+     * }
+     *
+     * @param message
+     * @return The {@link DERSequence};
+     */
     private DERSequence encodePrivatePartSequence( EncKrbPrivPart message )
     {
         DERSequence sequence = new DERSequence();

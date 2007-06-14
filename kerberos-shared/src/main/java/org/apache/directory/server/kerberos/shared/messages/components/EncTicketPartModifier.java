@@ -95,11 +95,11 @@ public class EncTicketPartModifier
     /**
      * Sets the client {@link KerberosPrincipal}.
      *
-     * @param principal
+     * @param clientPrincipal
      */
-    public void setClientPrincipal( KerberosPrincipal principal )
+    public void setClientPrincipal( KerberosPrincipal clientPrincipal )
     {
-        clientPrincipal = principal;
+        this.clientPrincipal = clientPrincipal;
     }
 
 
