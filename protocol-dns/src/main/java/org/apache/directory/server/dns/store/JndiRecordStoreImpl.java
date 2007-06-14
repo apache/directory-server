@@ -46,7 +46,13 @@ public class JndiRecordStoreImpl implements RecordStore
     private SearchStrategy strategy;
 
 
-    public JndiRecordStoreImpl(DnsConfiguration config, InitialContextFactory factory)
+    /**
+     * Creates a new instance of JndiRecordStoreImpl.
+     *
+     * @param config
+     * @param factory
+     */
+    public JndiRecordStoreImpl( DnsConfiguration config, InitialContextFactory factory )
     {
         this.config = config;
         this.factory = factory;

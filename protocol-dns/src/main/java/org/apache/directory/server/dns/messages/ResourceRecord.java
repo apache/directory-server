@@ -52,6 +52,7 @@ public interface ResourceRecord
 
 
     /**
+     * @param id 
      * @return Returns the value for an id.
      */
     public String get( String id );

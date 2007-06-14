@@ -92,6 +92,15 @@ public class ResourceRecordImpl implements ResourceRecord
     private Map attributes;
 
 
+    /**
+     * Creates a new instance of ResourceRecordImpl.
+     *
+     * @param domainName
+     * @param recordType
+     * @param recordClass
+     * @param timeToLive
+     * @param attributes
+     */
     public ResourceRecordImpl( String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
         Map attributes )
     {

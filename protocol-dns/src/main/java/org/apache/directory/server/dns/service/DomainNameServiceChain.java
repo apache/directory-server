@@ -37,6 +37,9 @@ public class DomainNameServiceChain extends IoHandlerChain
     private static final Logger log = LoggerFactory.getLogger( DomainNameServiceChain.class );
 
 
+    /**
+     * Creates a new instance of DomainNameServiceChain.
+     */
     public DomainNameServiceChain()
     {
         if ( log.isDebugEnabled() )

@@ -37,7 +37,12 @@ class DnsCatalog implements Catalog
     private Map map;
 
 
-    public DnsCatalog(Map map)
+    /**
+     * Creates a new instance of DnsCatalog.
+     *
+     * @param map
+     */
+    public DnsCatalog( Map map )
     {
         this.map = map;
     }

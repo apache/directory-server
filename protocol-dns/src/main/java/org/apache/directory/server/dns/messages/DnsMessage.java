@@ -74,6 +74,24 @@ public class DnsMessage
     private List<ResourceRecord> additionalRecords;
 
 
+    /**
+     * Creates a new instance of DnsMessage.
+     *
+     * @param transactionId
+     * @param messageType
+     * @param opCode
+     * @param authoritativeAnswer
+     * @param truncated
+     * @param recursionDesired
+     * @param recursionAvailable
+     * @param reserved
+     * @param acceptNonAuthenticatedData
+     * @param responseCode
+     * @param question
+     * @param answer
+     * @param authority
+     * @param additional
+     */
     public DnsMessage( int transactionId, MessageType messageType, OpCode opCode, boolean authoritativeAnswer,
         boolean truncated, boolean recursionDesired, boolean recursionAvailable, boolean reserved,
         boolean acceptNonAuthenticatedData, ResponseCode responseCode, List<QuestionRecord> question,

@@ -58,7 +58,7 @@ public class MonitorReply extends MonitorMessage
         next.execute( session, message );
     }
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }

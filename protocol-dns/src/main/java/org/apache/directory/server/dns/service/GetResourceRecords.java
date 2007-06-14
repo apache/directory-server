@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.QuestionRecord;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -67,9 +68,17 @@ public class GetResourceRecords implements IoHandlerCommand
     }
 
 
-    public Set getEntry( RecordStore store, QuestionRecord question ) throws Exception
+    /**
+     * Returns a set of {@link ResourceRecord}s from a {@link RecordStore}, given a DNS {@link QuestionRecord}.
+     *
+     * @param store
+     * @param question
+     * @return The set of {@link ResourceRecord}s.
+     * @throws Exception
+     */
+    public Set<ResourceRecord> getEntry( RecordStore store, QuestionRecord question ) throws Exception
     {
-        Set records = null;
+        Set<ResourceRecord> records = null;
 
         try
         {
@@ -99,7 +108,7 @@ public class GetResourceRecords implements IoHandlerCommand
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
