@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,9 +36,9 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-    
     String ptrName = "ptr.apache.org";
     String[] ptrParts = ptrName.split( "\\." );
+
 
     protected Map getAttributes()
     {
@@ -46,21 +47,22 @@ public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
         return map;
     }
 
+
     protected ResourceRecordEncoder getEncoder()
     {
         return new PointerRecordEncoder();
     }
 
+
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 15 );
-        expectedData.put( ( byte ) ptrParts[0].length() );    // 1
-        expectedData.put( ptrParts[0].getBytes() );           // + 3
-        expectedData.put( ( byte ) ptrParts[1].length() );    // + 1
-        expectedData.put( ptrParts[1].getBytes() );           // + 6
-        expectedData.put( ( byte ) ptrParts[2].length() );    // + 1
-        expectedData.put( ptrParts[2].getBytes() );           // + 3
-        expectedData.put( ( byte ) 0x00 );                      // + 1 = 15
+        expectedData.put( ( byte ) ptrParts[0].length() ); // 1
+        expectedData.put( ptrParts[0].getBytes() ); // + 3
+        expectedData.put( ( byte ) ptrParts[1].length() ); // + 1
+        expectedData.put( ptrParts[1].getBytes() ); // + 6
+        expectedData.put( ( byte ) ptrParts[2].length() ); // + 1
+        expectedData.put( ptrParts[2].getBytes() ); // + 3
+        expectedData.put( ( byte ) 0x00 ); // + 1 = 15
     }
-    
 }

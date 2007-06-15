@@ -37,7 +37,6 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class MailExchangeRecordDecoderTest extends TestCase
 {
-
     ByteBuffer inputBuffer;
 
     short preference = 10;

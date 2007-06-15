@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,9 +36,9 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-
     String characterString = "This is a string";
-    
+
+
     protected Map getAttributes()
     {
         Map map = new HashMap();
@@ -45,10 +46,12 @@ public class TextRecordEncoderTest extends AbstractResourceRecordEncoderTest
         return map;
     }
 
+
     protected ResourceRecordEncoder getEncoder()
     {
         return new TextRecordEncoder();
     }
+
 
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {

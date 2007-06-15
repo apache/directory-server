@@ -43,7 +43,6 @@ import org.apache.mina.common.ByteBuffer;
  */
 public abstract class AbstractResourceRecordEncoderTest extends TestCase
 {
-
     ByteBuffer expectedData;
     String domainName = "herse.apache.org";
     String[] domainNameParts = domainName.split( "\\." );

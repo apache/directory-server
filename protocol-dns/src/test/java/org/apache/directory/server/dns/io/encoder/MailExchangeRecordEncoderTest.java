@@ -36,7 +36,6 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-
     String mxPreference = "10";
     String mxHost = "mail.apache.org";
     String[] mxParts = mxHost.split( "\\." );
@@ -61,12 +60,12 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     {
         expectedData.put( ( byte ) 20 );
         expectedData.putShort( Short.parseShort( mxPreference ) );
-        expectedData.put( ( byte ) mxParts[0].length() );    // 1
-        expectedData.put( mxParts[0].getBytes() );           // + 4
-        expectedData.put( ( byte ) mxParts[1].length() );    // + 1
-        expectedData.put( mxParts[1].getBytes() );           // + 6
-        expectedData.put( ( byte ) mxParts[2].length() );    // + 1
-        expectedData.put( mxParts[2].getBytes() );           // + 3
-        expectedData.put( ( byte ) 0x00 );                   // + 1 = 17
+        expectedData.put( ( byte ) mxParts[0].length() ); // 1
+        expectedData.put( mxParts[0].getBytes() ); // + 4
+        expectedData.put( ( byte ) mxParts[1].length() ); // + 1
+        expectedData.put( mxParts[1].getBytes() ); // + 6
+        expectedData.put( ( byte ) mxParts[2].length() ); // + 1
+        expectedData.put( mxParts[2].getBytes() ); // + 3
+        expectedData.put( ( byte ) 0x00 ); // + 1 = 17
     }
 }

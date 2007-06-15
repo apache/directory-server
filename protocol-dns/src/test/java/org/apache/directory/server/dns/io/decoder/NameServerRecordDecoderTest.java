@@ -44,10 +44,11 @@ public class NameServerRecordDecoderTest extends TestCase
         { "ns", "hyperreal", "org" };
 
     NameServerRecordDecoder decoder;
-    
+
+
     public void setUp()
     {
-        inputBuffer = ByteBuffer.allocate( 128 );        
+        inputBuffer = ByteBuffer.allocate( 128 );
         inputBuffer.put( ( byte ) domainNameParts[0].length() );
         inputBuffer.put( domainNameParts[0].getBytes() );
         inputBuffer.put( ( byte ) domainNameParts[1].length() );
@@ -59,7 +60,8 @@ public class NameServerRecordDecoderTest extends TestCase
 
         decoder = new NameServerRecordDecoder();
     }
-    
+
+
     public void testDecode() throws Exception
     {
         Map attributes = decoder.decode( inputBuffer, ( short ) inputBuffer.remaining() );

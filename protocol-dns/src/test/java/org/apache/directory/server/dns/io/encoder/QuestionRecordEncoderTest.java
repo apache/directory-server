@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import junit.framework.TestCase;
 
 import org.apache.directory.server.dns.messages.QuestionRecord;
@@ -37,9 +38,9 @@ import org.apache.mina.common.ByteBuffer;
 public class QuestionRecordEncoderTest extends TestCase
 {
     ByteBuffer expectedData;
-    
+
     QuestionRecordEncoder encoder;
-    
+
     String name = "www.apache.org";
     String[] nameParts = name.split( "\\." );
     RecordType type = RecordType.A;
@@ -47,26 +48,28 @@ public class QuestionRecordEncoderTest extends TestCase
 
     QuestionRecord record = new QuestionRecord( name, type, rClass );
 
+
     public void setUp()
     {
         encoder = new QuestionRecordEncoder();
-        
+
         expectedData = ByteBuffer.allocate( 128 );
-        expectedData.put( ( byte ) nameParts[0].length() );     // 1
-        expectedData.put( nameParts[0].getBytes() );            // + 3
-        expectedData.put( ( byte ) nameParts[1].length() );     // + 1
-        expectedData.put( nameParts[1].getBytes() );            // + 6
-        expectedData.put( ( byte ) nameParts[2].length() );     // + 1
-        expectedData.put( nameParts[2].getBytes() );            // + 3
-        expectedData.put( ( byte ) 0x00 );                      // + 1 = 16
+        expectedData.put( ( byte ) nameParts[0].length() ); // 1
+        expectedData.put( nameParts[0].getBytes() ); // + 3
+        expectedData.put( ( byte ) nameParts[1].length() ); // + 1
+        expectedData.put( nameParts[1].getBytes() ); // + 6
+        expectedData.put( ( byte ) nameParts[2].length() ); // + 1
+        expectedData.put( nameParts[2].getBytes() ); // + 3
+        expectedData.put( ( byte ) 0x00 ); // + 1 = 16
         expectedData.putShort( type.convert() );
         expectedData.putShort( rClass.convert() );
     }
-    
+
+
     public void testEncode()
     {
         ByteBuffer out = ByteBuffer.allocate( 128 );
-        encoder.put( out, record);
+        encoder.put( out, record );
         assertEquals( expectedData, out );
     }
 }

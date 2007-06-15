@@ -20,6 +20,7 @@
 
 package org.apache.directory.server.dns.io.encoder;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,10 +36,10 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-
     String nsName = "ns1.eu.bitnames.com";
     String[] nsParts = nsName.split( "\\." );
-    
+
+
     protected Map getAttributes()
     {
         Map map = new HashMap();
@@ -46,22 +47,24 @@ public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTe
         return map;
     }
 
+
     protected ResourceRecordEncoder getEncoder()
     {
         return new NameServerRecordEncoder();
     }
 
+
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 19 );
-        expectedData.put( ( byte ) nsParts[0].length() );    // 1
-        expectedData.put( nsParts[0].getBytes() );           // + 3
-        expectedData.put( ( byte ) nsParts[1].length() );    // + 1
-        expectedData.put( nsParts[1].getBytes() );           // + 2
-        expectedData.put( ( byte ) nsParts[2].length() );    // + 1
-        expectedData.put( nsParts[2].getBytes() );           // + 7
-        expectedData.put( ( byte ) nsParts[3].length() );    // + 1
-        expectedData.put( nsParts[3].getBytes() );           // + 3
-        expectedData.put( ( byte ) 0x00 );                   // + 1 = 19
+        expectedData.put( ( byte ) nsParts[0].length() ); // 1
+        expectedData.put( nsParts[0].getBytes() ); // + 3
+        expectedData.put( ( byte ) nsParts[1].length() ); // + 1
+        expectedData.put( nsParts[1].getBytes() ); // + 2
+        expectedData.put( ( byte ) nsParts[2].length() ); // + 1
+        expectedData.put( nsParts[2].getBytes() ); // + 7
+        expectedData.put( ( byte ) nsParts[3].length() ); // + 1
+        expectedData.put( nsParts[3].getBytes() ); // + 3
+        expectedData.put( ( byte ) 0x00 ); // + 1 = 19
     }
 }

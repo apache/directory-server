@@ -77,12 +77,12 @@ public class CanonicalNameRecordEncoderTest extends AbstractResourceRecordEncode
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 18 );
-        expectedData.put( ( byte ) cnameParts[0].length() );    // 1
-        expectedData.put( cnameParts[0].getBytes() );           // + 5
-        expectedData.put( ( byte ) cnameParts[1].length() );    // + 1
-        expectedData.put( cnameParts[1].getBytes() );           // + 6
-        expectedData.put( ( byte ) cnameParts[2].length() );    // + 1
-        expectedData.put( cnameParts[2].getBytes() );           // + 3
-        expectedData.put( ( byte ) 0x00 );                      // + 1 = 18
+        expectedData.put( ( byte ) cnameParts[0].length() ); // 1
+        expectedData.put( cnameParts[0].getBytes() ); // + 5
+        expectedData.put( ( byte ) cnameParts[1].length() ); // + 1
+        expectedData.put( cnameParts[1].getBytes() ); // + 6
+        expectedData.put( ( byte ) cnameParts[2].length() ); // + 1
+        expectedData.put( cnameParts[2].getBytes() ); // + 3
+        expectedData.put( ( byte ) 0x00 ); // + 1 = 18
     }
 }

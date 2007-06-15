@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.common.ByteBuffer;
 
+
 /**
  * Tests for the A resource record decoder.
  * 

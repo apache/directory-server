@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.directory.server.dns.store.DnsAttribute;
 import org.apache.mina.common.ByteBuffer;
 
+
 /**
  * Tests for the A record encoder.
  * 
@@ -37,15 +38,16 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
 {
-
     InetAddress address;
 
-    
+
     protected void setUpResourceData()
     {
-        try {
+        try
+        {
             address = InetAddress.getByName( "127.0.0.1" );
-        } catch (UnknownHostException e)
+        }
+        catch ( UnknownHostException e )
         {
             // should never happen
         }
@@ -58,7 +60,7 @@ public class AddressRecordEncoderTest extends AbstractResourceRecordEncoderTest
         attributes.put( DnsAttribute.IP_ADDRESS, address );
         return attributes;
     }
-    
+
 
     protected ResourceRecordEncoder getEncoder()
     {
