@@ -61,7 +61,6 @@ public class MailExchangeRecordEncoderTest extends AbstractResourceRecordEncoder
     {
         expectedData.put( ( byte ) 20 );
         expectedData.putShort( Short.parseShort( mxPreference ) );
-        expectedData.put( ( byte ) 17 );
         expectedData.put( ( byte ) mxParts[0].length() );    // 1
         expectedData.put( mxParts[0].getBytes() );           // + 4
         expectedData.put( ( byte ) mxParts[1].length() );    // + 1

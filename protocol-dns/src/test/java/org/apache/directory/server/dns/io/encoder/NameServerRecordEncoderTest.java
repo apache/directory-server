@@ -53,7 +53,6 @@ public class NameServerRecordEncoderTest extends AbstractResourceRecordEncoderTe
 
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
-        expectedData.put( (byte ) 20 );
         expectedData.put( ( byte ) 19 );
         expectedData.put( ( byte ) nsParts[0].length() );    // 1
         expectedData.put( nsParts[0].getBytes() );           // + 3

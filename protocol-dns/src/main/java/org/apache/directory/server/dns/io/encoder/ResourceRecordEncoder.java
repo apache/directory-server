@@ -52,7 +52,8 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
 
     protected void putResourceRecord( ByteBuffer byteBuffer, ResourceRecord record )
     {
-        int startPosition = prepareForSizedData( byteBuffer );
+        int startPosition = byteBuffer.position();
+        byteBuffer.position( startPosition + 2 );
 
         putResourceRecordData( byteBuffer, record );
 
@@ -60,40 +61,25 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
     }
 
 
-    protected int prepareForSizedData( ByteBuffer byteBuffer )
-    {
-        int startPosition = byteBuffer.position();
-        byteBuffer.position( startPosition + 1 );
-        return startPosition;
-    }
-
-
     protected void putDataSize( ByteBuffer byteBuffer, int startPosition )
     {
-        byte length = ( byte ) ( byteBuffer.position() - startPosition + 1 );
+        int endPosition = byteBuffer.position();
+        short length = ( short ) ( endPosition - startPosition - 2 );
+
         byteBuffer.position( startPosition );
-        byteBuffer.put( length );
-        byteBuffer.position( startPosition + length - 1 );
+        byteBuffer.putShort( length );
+        byteBuffer.position( endPosition );
     }
 
 
     /**
      * <domain-name> is a domain name represented as a series of labels, and
      * terminated by a label with zero length.
+     * 
      * @param byteBuffer the ByteBuffer to encode the domain name into
      * @param domainName the domain name to encode
      */
     protected void putDomainName( ByteBuffer byteBuffer, String domainName )
-    {
-        int startPosition = prepareForSizedData( byteBuffer );
-
-        putDomainNameData( byteBuffer, domainName );
-
-        putDataSize( byteBuffer, startPosition );
-    }
-
-
-    protected void putDomainNameData( ByteBuffer byteBuffer, String domainName )
     {
         String[] labels = domainName.split( "\\." );
 
@@ -128,8 +114,9 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
      * <character-string> is a single length octet followed by that number
      * of characters.  <character-string> is treated as binary information,
      * and can be up to 256 characters in length (including the length octet).
+     * 
+     * @param byteBuffer The byte buffer to encode the character string into.
      * @param characterString the character string to encode
-     * @return byte array of the encoded character string
      */
     protected void putCharacterString( ByteBuffer byteBuffer, String characterString )
     {
@@ -142,5 +129,4 @@ public abstract class ResourceRecordEncoder implements RecordEncoder
             byteBuffer.put( ( byte ) characters[ii] );
         }
     }
-
 }

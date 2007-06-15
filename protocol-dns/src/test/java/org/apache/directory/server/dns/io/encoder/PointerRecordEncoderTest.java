@@ -53,7 +53,6 @@ public class PointerRecordEncoderTest extends AbstractResourceRecordEncoderTest
 
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
-        expectedData.put( ( byte ) 16 );
         expectedData.put( ( byte ) 15 );
         expectedData.put( ( byte ) ptrParts[0].length() );    // 1
         expectedData.put( ptrParts[0].getBytes() );           // + 3

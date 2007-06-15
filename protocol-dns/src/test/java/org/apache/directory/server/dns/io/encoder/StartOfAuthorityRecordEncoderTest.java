@@ -69,7 +69,6 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
     protected void putExpectedResourceData( ByteBuffer expectedData )
     {
         expectedData.put( ( byte ) 60 );   // 1 + 18 + 1 + 20 + 4 + 4 + 4 + 4 + 4
-        expectedData.put( ( byte ) 18 );
         expectedData.put( ( byte ) mNameParts[0].length() );    // 1
         expectedData.put( mNameParts[0].getBytes() );           // + 2
         expectedData.put( ( byte ) mNameParts[1].length() );    // + 1
@@ -77,7 +76,6 @@ public class StartOfAuthorityRecordEncoderTest extends AbstractResourceRecordEnc
         expectedData.put( ( byte ) mNameParts[2].length() );    // + 1
         expectedData.put( mNameParts[2].getBytes() );           // + 3
         expectedData.put( ( byte  ) 0x00 );                     // + 1 = 18
-        expectedData.put( ( byte ) 20 );
         expectedData.put( ( byte ) rNameParts[0].length() );    // 1
         expectedData.put( rNameParts[0].getBytes() );           // + 4
         expectedData.put( ( byte ) rNameParts[1].length() );    // + 1

@@ -66,7 +66,6 @@ public class ServerSelectionRecordEncoderTest extends AbstractResourceRecordEnco
         expectedData.putShort( Short.parseShort( priority ) );
         expectedData.putShort( Short.parseShort( weight ) );
         expectedData.putShort( Short.parseShort( port ) );
-        expectedData.put( ( byte ) 16 );
         expectedData.put( ( byte ) srvParts[0].length() );  // 1
         expectedData.put( srvParts[0].getBytes() );         // + 3
         expectedData.put( ( byte ) srvParts[1].length() );  // + 1
