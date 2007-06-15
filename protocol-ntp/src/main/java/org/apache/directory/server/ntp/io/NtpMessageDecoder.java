@@ -38,6 +38,12 @@ import org.apache.directory.server.ntp.messages.StratumType;
  */
 public class NtpMessageDecoder
 {
+    /**
+     * Decodes the {@link ByteBuffer} into an {@link NtpMessage}.
+     *
+     * @param request
+     * @return The {@link NtpMessage}.
+     */
     public NtpMessage decode( ByteBuffer request )
     {
         NtpMessageModifier modifier = new NtpMessageModifier();

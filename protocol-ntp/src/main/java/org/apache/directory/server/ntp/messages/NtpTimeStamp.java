@@ -56,13 +56,21 @@ public class NtpTimeStamp
     private long fraction = 0;
 
 
+    /**
+     * Creates a new instance of NtpTimeStamp that represents the time "right now."
+     */
     public NtpTimeStamp()
     {
         this( new Date() );
     }
 
 
-    public NtpTimeStamp(Date date)
+    /**
+     * Creates a new instance of NtpTimeStamp that represents the given {@link Date}.
+     *
+     * @param date
+     */
+    public NtpTimeStamp( Date date )
     {
         long msSinceStartOfNtpEpoch = date.getTime() - NTP_EPOCH_DIFFERENCE;
 
@@ -71,7 +79,12 @@ public class NtpTimeStamp
     }
 
 
-    public NtpTimeStamp(ByteBuffer data)
+    /**
+     * Creates a new instance of NtpTimeStamp from encoded data in a {@link ByteBuffer}.
+     *
+     * @param data
+     */
+    public NtpTimeStamp( ByteBuffer data )
     {
         for ( int ii = 0; ii < 4; ii++ )
         {
@@ -85,6 +98,11 @@ public class NtpTimeStamp
     }
 
 
+    /**
+     * Writes this {@link NtpTimeStamp} to the given {@link ByteBuffer}.
+     *
+     * @param buffer
+     */
     public void writeTo( ByteBuffer buffer )
     {
         byte[] bytes = new byte[8];

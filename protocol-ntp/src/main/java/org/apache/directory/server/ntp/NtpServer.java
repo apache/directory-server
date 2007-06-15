@@ -48,6 +48,13 @@ public class NtpServer
     private IoHandler handler;
 
 
+    /**
+     * Creates a new instance of NtpServer.
+     *
+     * @param config
+     * @param acceptor
+     * @param serviceConfig
+     */
     public NtpServer( NtpConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig )
     {
         this.config = config;
@@ -71,12 +78,21 @@ public class NtpServer
     }
 
 
+    /**
+     * Returns whether configuration being proposed as new is really different.
+     *
+     * @param newConfig
+     * @return Whether configuration being proposed as new is really different.
+     */
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
 
 
+    /**
+     * Destroys this instance of {@link NtpServer}.
+     */
     public void destroy()
     {
         acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );

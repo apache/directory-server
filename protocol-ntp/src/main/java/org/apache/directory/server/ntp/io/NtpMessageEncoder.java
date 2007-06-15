@@ -35,6 +35,12 @@ import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
  */
 public class NtpMessageEncoder
 {
+    /**
+     * Encodes the {@link NtpMessage} into the {@link ByteBuffer}.
+     *
+     * @param byteBuffer
+     * @param message
+     */
     public void encode( ByteBuffer byteBuffer, NtpMessage message )
     {
         byte header = 0x00;

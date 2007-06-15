@@ -44,6 +44,11 @@ public class NtpMessageModifier
     private NtpTimeStamp transmitTimestamp;
 
 
+    /**
+     * Returns the built {@link NtpMessage}.
+     *
+     * @return The {@link NtpMessage}.
+     */
     public NtpMessage getNtpMessage()
     {
         return new NtpMessage( leapIndicator, versionNumber, mode, stratumType, pollInterval, precision, rootDelay,

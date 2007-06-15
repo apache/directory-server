@@ -32,5 +32,11 @@ import org.apache.directory.server.ntp.messages.NtpMessage;
  */
 public interface NtpService
 {
+    /**
+     * Returns an {@link NtpMessage} reply for the given {@link NtpMessage} request.
+     *
+     * @param request
+     * @return The {@link NtpMessage} reply.
+     */
     public NtpMessage getReplyFor( NtpMessage request );
 }

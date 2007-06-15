@@ -44,10 +44,27 @@ public class NtpMessage
     private NtpTimeStamp transmitTimestamp;
 
 
-    public NtpMessage(LeapIndicatorType leapIndicator, int versionNumber, ModeType mode, StratumType stratumType,
+    /**
+     * Creates a new instance of NtpMessage.
+     *
+     * @param leapIndicator
+     * @param versionNumber
+     * @param mode
+     * @param stratumType
+     * @param pollInterval
+     * @param precision
+     * @param rootDelay
+     * @param rootDispersion
+     * @param referenceIdentifier
+     * @param referenceTimestamp
+     * @param originateTimestamp
+     * @param receiveTimestamp
+     * @param transmitTimestamp
+     */
+    public NtpMessage( LeapIndicatorType leapIndicator, int versionNumber, ModeType mode, StratumType stratumType,
         byte pollInterval, byte precision, int rootDelay, int rootDispersion, ReferenceIdentifier referenceIdentifier,
         NtpTimeStamp referenceTimestamp, NtpTimeStamp originateTimestamp, NtpTimeStamp receiveTimestamp,
-        NtpTimeStamp transmitTimestamp)
+        NtpTimeStamp transmitTimestamp )
     {
         this.leapIndicator = leapIndicator;
         this.versionNumber = versionNumber;
