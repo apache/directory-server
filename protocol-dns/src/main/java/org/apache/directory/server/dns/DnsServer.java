@@ -58,6 +58,7 @@ public class DnsServer
      *
      * @param config
      * @param acceptor
+     * @param serviceConfig 
      * @param store
      */
     public DnsServer( DnsConfiguration config, IoAcceptor acceptor, IoServiceConfig serviceConfig, RecordStore store )
@@ -84,12 +85,21 @@ public class DnsServer
     }
 
 
+    /**
+     * Returns whether configuration being proposed as new is really different.
+     *
+     * @param newConfig
+     * @return Whether configuration being proposed as new is really different.
+     */
     public boolean isDifferent( Dictionary newConfig )
     {
         return config.isDifferent( newConfig );
     }
 
 
+    /**
+     * Destroys this instance of {@link DnsServer}.
+     */
     public void destroy()
     {
         acceptor.unbind( new InetSocketAddress( config.getIpPort() ) );

@@ -70,6 +70,11 @@ public class DnsMessageModifier
     private List<ResourceRecord> additionalRecords;
 
 
+    /**
+     * Returns the {@link DnsMessage}.
+     *
+     * @return The {@link DnsMessage}.
+     */
     public DnsMessage getDnsMessage()
     {
         return new DnsMessage( transactionId, messageType, opCode, authoritativeAnswer, truncated, recursionDesired,
