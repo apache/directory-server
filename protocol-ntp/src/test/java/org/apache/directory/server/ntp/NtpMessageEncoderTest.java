@@ -22,6 +22,8 @@ package org.apache.directory.server.ntp;
 
 import java.nio.ByteBuffer;
 
+import junit.framework.TestCase;
+
 import org.apache.directory.server.ntp.io.NtpMessageDecoder;
 import org.apache.directory.server.ntp.io.NtpMessageEncoder;
 import org.apache.directory.server.ntp.messages.LeapIndicatorType;
@@ -31,20 +33,25 @@ import org.apache.directory.server.ntp.messages.NtpMessageModifier;
 import org.apache.directory.server.ntp.messages.NtpTimeStamp;
 import org.apache.directory.server.ntp.messages.ReferenceIdentifier;
 import org.apache.directory.server.ntp.messages.StratumType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpMessageEncoderTest extends AbstractNtpTestCase
+public class NtpMessageEncoderTest extends TestCase
 {
-    public NtpMessageEncoderTest()
-    {
-        super( NtpMessageEncoderTest.class );
-    }
+    /** the log for this class */
+    private static final Logger log = LoggerFactory.getLogger( NtpMessageEncoderTest.class );
 
 
+    /**
+     * Tests the encoding of an NTP message.
+     *
+     * @throws Exception
+     */
     public void testEncodeMessage() throws Exception
     {
         NtpMessageModifier modifier = new NtpMessageModifier();
@@ -78,5 +85,23 @@ public class NtpMessageEncoderTest extends AbstractNtpTestCase
         NtpMessage reply = decoder.decode( replyByteBuffer );
 
         print( reply );
+    }
+
+
+    protected void print( NtpMessage request )
+    {
+        log.debug( String.valueOf( request.getLeapIndicator() ) );
+        log.debug( String.valueOf( request.getVersionNumber() ) );
+        log.debug( String.valueOf( request.getMode() ) );
+        log.debug( String.valueOf( request.getStratum() ) );
+        log.debug( String.valueOf( request.getPollInterval() ) );
+        log.debug( String.valueOf( request.getPrecision() ) );
+        log.debug( String.valueOf( request.getRootDelay() ) );
+        log.debug( String.valueOf( request.getRootDispersion() ) );
+        log.debug( String.valueOf( request.getReferenceIdentifier() ) );
+        log.debug( String.valueOf( request.getReferenceTimestamp() ) );
+        log.debug( String.valueOf( request.getOriginateTimestamp() ) );
+        log.debug( String.valueOf( request.getReceiveTimestamp() ) );
+        log.debug( String.valueOf( request.getTransmitTimestamp() ) );
     }
 }
