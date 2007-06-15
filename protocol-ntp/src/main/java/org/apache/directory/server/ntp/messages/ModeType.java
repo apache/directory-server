@@ -47,41 +47,84 @@ import java.util.List;
 public final class ModeType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "Reserved mode" mode type.
      */
     public static final ModeType RESERVED = new ModeType( 0, "Reserved mode." );
+
+    /**
+     * Constant for the "Symmetric active mode" mode type.
+     */
     public static final ModeType SYMMETRIC_ACTIVE = new ModeType( 1, "Symmetric active mode." );
+
+    /**
+     * Constant for the "Symmetric passive mode" mode type.
+     */
     public static final ModeType RESERVED_PASSIVE = new ModeType( 2, "Symmetric passive mode." );
+
+    /**
+     * Constant for the "Client mode" mode type.
+     */
     public static final ModeType CLIENT = new ModeType( 3, "Client mode." );
+
+    /**
+     * Constant for the "Server mode" mode type.
+     */
     public static final ModeType SERVER = new ModeType( 4, "Server mode." );
+
+    /**
+     * Constant for the "Broadcast mode" mode type.
+     */
     public static final ModeType BROADCAST = new ModeType( 5, "Broadcast mode." );
+
+    /**
+     * Constant for the "Reserved for NTP control message" mode type.
+     */
     public static final ModeType RESERVED_FOR_NTP_CONTROL = new ModeType( 6, "Reserved for NTP control message." );
+
+    /**
+     * Constant for the "Reserved for private use" mode type.
+     */
     public static final ModeType RESERVED_FOR_PRIVATE_USE = new ModeType( 7, "Reserved for private use." );
 
     /**
-     * These two lines are all that's necessary to export a List of VALUES.
+     * Array for building a List of VALUES.
      */
     private static final ModeType[] values =
         { RESERVED, SYMMETRIC_ACTIVE, RESERVED_PASSIVE, CLIENT, SERVER, BROADCAST, RESERVED_FOR_NTP_CONTROL,
             RESERVED_FOR_PRIVATE_USE };
-    // VALUES needs to be located here, otherwise illegal forward reference
+
+    /**
+     * A list of all the mode type constants.
+     */
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
+    /**
+     * The name of the mode type.
+     */
     private final String name;
+
+    /**
+     * The value/code for the mode type.
+     */
     private final int ordinal;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ModeType(int ordinal, String name)
+    private ModeType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;
     }
 
 
+    /**
+     * Returns the mode type when specified by its ordinal.
+     *
+     * @param type
+     * @return The mode type.
+     */
     public static ModeType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -95,6 +138,11 @@ public final class ModeType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this mode type.
+     *
+     * @return The mode type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;

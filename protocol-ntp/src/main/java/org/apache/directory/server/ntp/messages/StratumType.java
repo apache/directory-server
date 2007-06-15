@@ -43,35 +43,58 @@ import java.util.List;
 public final class StratumType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "Unspecified or unavailable" stratum type.
      */
     public static final StratumType UNSPECIFIED = new StratumType( 0, "Unspecified or unavailable." );
+
+    /**
+     * Constant for the "Primary reference" stratum type.
+     */
     public static final StratumType PRIMARY_REFERENCE = new StratumType( 1, "Primary reference." );
+
+    /**
+     * Constant for the "Secondary reference" stratum type.
+     */
     public static final StratumType SECONDARY_REFERENCE = new StratumType( 2, "Secondary reference." );
 
     /**
-     * These two lines are all that's necessary to export a List of VALUES.
+     * Array for building a List of VALUES.
      */
     private static final StratumType[] values =
         { UNSPECIFIED, PRIMARY_REFERENCE, SECONDARY_REFERENCE };
-    // VALUES needs to be located here, otherwise illegal forward reference
+
+    /**
+     * A list of all the stratum type constants.
+     */
     public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
-    private final int ordinal;
+    /**
+     * The name of the stratum type.
+     */
     private final String name;
+
+    /**
+     * The value/code for the stratum type.
+     */
+    private final int ordinal;
 
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private StratumType(int ordinal, String name)
+    private StratumType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;
     }
 
 
+    /**
+     * Returns the stratum type when specified by its ordinal.
+     *
+     * @param type
+     * @return The stratum type.
+     */
     public static StratumType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -86,6 +109,11 @@ public final class StratumType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this stratum type.
+     *
+     * @return The stratum type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
