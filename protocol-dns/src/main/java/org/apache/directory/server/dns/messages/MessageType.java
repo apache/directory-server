@@ -31,7 +31,11 @@ import org.apache.directory.server.dns.util.ReverseEnumMap;
  */
 public enum MessageType implements EnumConverter<Byte>
 {
-    QUERY(0), RESPONSE(1);
+    /** A query message. */
+    QUERY(0),
+
+    /** A response message. */
+    RESPONSE(1);
 
     private static ReverseEnumMap<Byte, MessageType> map = new ReverseEnumMap<Byte, MessageType>( MessageType.class );
 
@@ -50,6 +54,12 @@ public enum MessageType implements EnumConverter<Byte>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link MessageType}.
+     *
+     * @param value
+     * @return The {@link MessageType}.
+     */
     public static MessageType convert( byte value )
     {
         return map.get( value );

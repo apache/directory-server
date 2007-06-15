@@ -64,7 +64,7 @@ public class DnsMessageDecoder
 
     static
     {
-        Map map = new HashMap();
+        Map<RecordType, RecordDecoder> map = new HashMap<RecordType, RecordDecoder>();
 
         map.put( RecordType.A, new AddressRecordDecoder() );
         map.put( RecordType.NS, new NameServerRecordDecoder() );
@@ -75,6 +75,13 @@ public class DnsMessageDecoder
     }
 
 
+    /**
+     * Decode the {@link ByteBuffer} into a {@link DnsMessage}.
+     *
+     * @param in
+     * @return The {@link DnsMessage}.
+     * @throws IOException
+     */
     public DnsMessage decode( ByteBuffer in ) throws IOException
     {
         DnsMessageModifier modifier = new DnsMessageModifier();

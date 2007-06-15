@@ -288,6 +288,12 @@ public enum ServiceType implements EnumConverter<Byte>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link ServiceType}.
+     *
+     * @param value
+     * @return The {@link ServiceType}.
+     */
     public static ServiceType convert( byte value )
     {
         return map.get( value );

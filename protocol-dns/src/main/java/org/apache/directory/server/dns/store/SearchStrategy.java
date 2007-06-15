@@ -24,6 +24,7 @@ package org.apache.directory.server.dns.store;
 import java.util.Set;
 
 import org.apache.directory.server.dns.messages.QuestionRecord;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 
 
 /**
@@ -36,5 +37,12 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
  */
 interface SearchStrategy
 {
-    Set getRecords( QuestionRecord question ) throws Exception;
+    /**
+     * Returns a set of {@link ResourceRecord}s, given a DNS {@link QuestionRecord}.
+     *
+     * @param question
+     * @return The set of {@link ResourceRecord}s.
+     * @throws Exception
+     */
+    Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception;
 }

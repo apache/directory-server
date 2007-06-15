@@ -33,10 +33,16 @@ package org.apache.directory.server.dns.util;
  *   public static Enum convert (K value);
  * </code>
  * 
+ * @param <K> 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface EnumConverter<K>
 {
+    /**
+     * Convert the enum to another type.
+     *
+     * @return The other type.
+     */
     K convert();
 }

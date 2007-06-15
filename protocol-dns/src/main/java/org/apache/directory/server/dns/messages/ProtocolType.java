@@ -177,6 +177,12 @@ public enum ProtocolType implements EnumConverter<Byte>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link ProtocolType}.
+     *
+     * @param value
+     * @return The {@link ProtocolType}.
+     */
     public static ProtocolType convert( byte value )
     {
         return map.get( value );

@@ -33,5 +33,12 @@ import org.apache.mina.common.ByteBuffer;
  */
 public interface RecordEncoder
 {
+    /**
+     * Encodes the {@link ResourceRecord} into the {@link ByteBuffer}.
+     *
+     * @param buffer
+     * @param record
+     * @throws IOException
+     */
     public void put( ByteBuffer buffer, ResourceRecord record ) throws IOException;
 }

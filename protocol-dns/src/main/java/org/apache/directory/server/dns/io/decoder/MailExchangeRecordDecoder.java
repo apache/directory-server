@@ -60,7 +60,7 @@ public class MailExchangeRecordDecoder implements RecordDecoder
 {
     public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
-        Map attributes = new HashMap();
+        Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put( DnsAttribute.MX_PREFERENCE, byteBuffer.getShort() );
         attributes.put( DnsAttribute.DOMAIN_NAME, DnsMessageDecoder.getDomainName( byteBuffer ) );
         return attributes;

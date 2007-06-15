@@ -23,11 +23,6 @@ package org.apache.directory.server.dns.messages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.dns.messages.RecordClass;
-import org.apache.directory.server.dns.messages.RecordType;
-import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.directory.server.dns.messages.ResourceRecordImpl;
-
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -43,6 +38,11 @@ public class ResourceRecordModifier
     private Map<String, String> attributes = new HashMap<String, String>();
 
 
+    /**
+     * Returns the {@link ResourceRecord} built by this {@link ResourceRecordModifier}.
+     *
+     * @return The {@link ResourceRecord}.
+     */
     public ResourceRecord getEntry()
     {
         return new ResourceRecordImpl( dnsName, dnsType, dnsClass, dnsTtl, attributes );

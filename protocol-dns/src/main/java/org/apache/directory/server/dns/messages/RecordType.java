@@ -207,12 +207,24 @@ public enum RecordType implements EnumConverter<Short>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link RecordType}.
+     *
+     * @param value
+     * @return The {@link RecordType}.
+     */
     public static RecordType convert( short value )
     {
         return map.get( value );
     }
 
 
+    /**
+     * Returns whether a given {@link RecordType} is a {@link ResourceRecord}.
+     *
+     * @param resourceType
+     * @return true of the {@link RecordType} is a {@link ResourceRecord}.
+     */
     public static boolean isResourceRecord( RecordType resourceType )
     {
         switch ( resourceType )

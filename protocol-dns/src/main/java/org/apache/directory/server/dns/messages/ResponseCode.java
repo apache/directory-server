@@ -66,6 +66,12 @@ public enum ResponseCode implements EnumConverter<Byte>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link ResponseCode}.
+     *
+     * @param value
+     * @return The {@link ResponseCode}.
+     */
     public static ResponseCode convert( byte value )
     {
         return map.get( value );

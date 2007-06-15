@@ -70,6 +70,13 @@ public class QuestionRecord
     private RecordClass recordClass;
 
 
+    /**
+     * Creates a new instance of QuestionRecord.
+     *
+     * @param domainName
+     * @param recordType
+     * @param recordClass
+     */
     public QuestionRecord( String domainName, RecordType recordType, RecordClass recordClass )
     {
         this.domainName = domainName;
@@ -81,6 +88,8 @@ public class QuestionRecord
     /**
      * The domain name of this query.
      * For example, www.example.com.
+     * 
+     * @return The domain name.
      */
     public String getDomainName()
     {
@@ -91,6 +100,8 @@ public class QuestionRecord
     /**
      * The type of the query.
      * For example, the type is A for address records.
+     * 
+     * @return The {@link RecordType}.
      */
     public RecordType getRecordType()
     {
@@ -101,6 +112,8 @@ public class QuestionRecord
     /**
      * The class for this query.
      * For example, the class is IN for the Internet.
+     * 
+     * @return The {@link RecordClass}.
      */
     public RecordClass getRecordClass()
     {

@@ -63,6 +63,12 @@ public enum OpCode implements EnumConverter<Byte>
     }
 
 
+    /**
+     * Converts an ordinal value into an {@link OpCode}.
+     *
+     * @param value
+     * @return The {@link OpCode}.
+     */
     public static OpCode convert( byte value )
     {
         return map.get( value );

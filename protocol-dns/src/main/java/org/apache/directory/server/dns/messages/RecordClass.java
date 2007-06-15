@@ -66,6 +66,12 @@ public enum RecordClass implements EnumConverter<Short>
     }
 
 
+    /**
+     * Converts an ordinal value into a {@link RecordClass}.
+     *
+     * @param value
+     * @return The {@link RecordClass}.
+     */
     public static RecordClass convert( short value )
     {
         return map.get( value );

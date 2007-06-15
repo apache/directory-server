@@ -64,6 +64,8 @@ public class GetRecords implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded JNDI provider.
+     * 
+     * @param question 
      */
     public GetRecords( QuestionRecord question )
     {
@@ -134,7 +136,7 @@ public class GetRecords implements ContextOperation
 
         NamingEnumeration list = ctx.search( transformDomainName( name ), filter, controls );
 
-        Set set = new HashSet();
+        Set<ResourceRecord> set = new HashSet<ResourceRecord>();
 
         while ( list.hasMore() )
         {

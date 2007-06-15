@@ -33,6 +33,12 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class QuestionRecordEncoder
 {
+    /**
+     * Encodes the {@link QuestionRecord} into the {@link ByteBuffer}.
+     *
+     * @param out
+     * @param question
+     */
     public void put( ByteBuffer out, QuestionRecord question )
     {
         encodeDomainName( out, question.getDomainName() );

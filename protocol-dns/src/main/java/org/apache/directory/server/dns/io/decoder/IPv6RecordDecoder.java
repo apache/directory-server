@@ -48,7 +48,7 @@ public class IPv6RecordDecoder implements RecordDecoder
 
     public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
-        Map attributes = new HashMap();
+        Map<String, Object> attributes = new HashMap<String, Object>();
         byte[] addressBytes = new byte[length];
         byteBuffer.get( addressBytes );
         attributes.put( DnsAttribute.IP_ADDRESS, InetAddress.getByAddress( addressBytes ) );

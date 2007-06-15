@@ -33,5 +33,14 @@ import org.apache.mina.common.ByteBuffer;
  */
 public interface RecordDecoder
 {
+    /**
+     * Decodes the given length of resource record data into attributes.  The
+     * type and number of attributes depends on the type of the resource record.
+     *
+     * @param byteBuffer
+     * @param length
+     * @return The map of attributes.
+     * @throws IOException
+     */
     public Map decode( ByteBuffer byteBuffer, short length ) throws IOException;
 }

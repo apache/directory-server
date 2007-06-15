@@ -26,6 +26,7 @@ import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 
 
 /**
@@ -61,7 +62,7 @@ public class JndiRecordStoreImpl implements RecordStore
     }
 
 
-    public Set getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
     {
         return strategy.getRecords( question );
     }

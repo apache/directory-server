@@ -31,6 +31,7 @@ import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
@@ -67,7 +68,7 @@ public class SingleBaseSearch implements SearchStrategy
     }
 
 
-    public Set getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
     {
         return ( Set ) execute( new GetRecords( question ) );
     }

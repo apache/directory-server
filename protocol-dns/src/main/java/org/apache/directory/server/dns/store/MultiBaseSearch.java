@@ -32,6 +32,7 @@ import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.messages.QuestionRecord;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
@@ -81,7 +82,7 @@ public class MultiBaseSearch implements SearchStrategy
     }
 
 
-    public Set getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
     {
         env.put( Context.PROVIDER_URL, catalog.getBaseDn( question.getDomainName() ) );
 

@@ -78,6 +78,12 @@ public class DnsMessageEncoder
     }
 
 
+    /**
+     * Encodes the {@link DnsMessage} into the {@link ByteBuffer}.
+     *
+     * @param byteBuffer
+     * @param message
+     */
     public void encode( ByteBuffer byteBuffer, DnsMessage message )
     {
         byteBuffer.putShort( ( short ) message.getTransactionId() );

@@ -55,6 +55,8 @@ public class GetFlatRecord implements ContextOperation
 
     /**
      * Creates the action to be used against the embedded JNDI provider.
+     * 
+     * @param question 
      */
     public GetFlatRecord( QuestionRecord question )
     {

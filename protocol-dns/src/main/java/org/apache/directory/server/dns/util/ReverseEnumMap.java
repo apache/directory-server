@@ -30,6 +30,8 @@ import java.util.Map;
  * <a href="http://www.javaspecialists.co.za/archive/newsletter.do?issue=113">
  * The JavaSpecialists newsletter</a>.
  * 
+ * @param <K> 
+ * @param <E> 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -38,6 +40,11 @@ public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
     private Map<K, E> reverseMap = new HashMap<K, E>();
 
 
+    /**
+     * Creates a new instance of ReverseEnumMap.
+     *
+     * @param enumType
+     */
     public ReverseEnumMap( Class<E> enumType )
     {
         for ( E e : enumType.getEnumConstants() )
@@ -47,6 +54,12 @@ public class ReverseEnumMap<K, E extends Enum<E> & EnumConverter<K>>
     }
 
 
+    /**
+     * Return the enum given an ordinal value.
+     *
+     * @param value
+     * @return The enum.
+     */
     public E get( K value )
     {
         E e = reverseMap.get( value );
