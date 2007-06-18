@@ -20,7 +20,11 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -34,6 +38,25 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class TicketEncoder
 {
+    /**
+     * Encodes a {@link Ticket} into a its ASN.1 DER encoding.
+     * 
+     * @param ticket
+     * @return The byte[] containing the ASN.1 DER encoding of the {@link Ticket}.
+     * @throws IOException
+     */
+    public static byte[] encodeTicket( Ticket ticket ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
+        aos.writeObject( encode( ticket ) );
+        aos.close();
+
+        return baos.toByteArray();
+    }
+
+
     /**
      * Ticket ::=                    [APPLICATION 1] SEQUENCE {
      *     tkt-vno[0]                   INTEGER,
