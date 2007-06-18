@@ -29,6 +29,7 @@ import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.NumericStringSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.ObjectClassTypeSyntaxChecker;
+import org.apache.directory.shared.ldap.schema.syntax.ObjectNameSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.OidSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
@@ -71,6 +72,9 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new NumberSyntax();
+        cb.schemaObjectProduced( this, syntax.getOid(), syntax );
+
+        syntax = new ObjectNameSyntax();
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
     
@@ -257,6 +261,59 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
         public final String getDescription()
         {
             return "The syntax for numeric strings.";
+        }
+
+        public final String getName()
+        {
+            return NAMES[0];
+        }
+
+        public final String[] getNames()
+        {
+            return NAMES;
+        }
+
+        public final String getOid()
+        {
+            return OID;
+        }
+
+        public final boolean isObsolete()
+        {
+            return false;
+        }
+
+        public String getSchema()
+        {
+            return MetaSchemaConstants.SCHEMA_NAME;
+        }
+
+        public void setSchema( String schemaName )
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static class ObjectNameSyntax implements Syntax
+    {
+        private static final long serialVersionUID = 1L;
+        private final static String OID = "1.3.6.1.4.1.18060.0.4.0.0.6";
+        private final static SyntaxChecker CHECKER = new ObjectNameSyntaxChecker();
+        private final static String[] NAMES = new String[] { "objectName" };
+        
+        public final SyntaxChecker getSyntaxChecker() throws NamingException
+        {
+            return CHECKER;
+        }
+
+        public final boolean isHumanReadible()
+        {
+            return true;
+        }
+
+        public final String getDescription()
+        {
+            return "The syntax for object names.";
         }
 
         public final String getName()
