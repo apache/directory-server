@@ -26,6 +26,7 @@ import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +47,12 @@ public class Main
     private static final int MAX_THREADS_DEFAULT = 4;
 
     protected static IoAcceptor udpAcceptor;
+    protected static IoAcceptor tcpAcceptor;
     protected static ThreadPoolExecutor threadPoolExecutor;
     protected static ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "ApacheDS" );
 
     private static DnsServer udpDnsServer;
+    private static DnsServer tcpDnsServer;
 
 
     /**
@@ -66,6 +69,7 @@ public class Main
         threadModel.setExecutor( threadPoolExecutor );
 
         udpAcceptor = new DatagramAcceptor();
+        tcpAcceptor = new SocketAcceptor();
 
         new Main().go();
     }
@@ -96,10 +100,11 @@ public class Main
 
         try
         {
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            udpConfig.setThreadModel( threadModel );
+            DatagramAcceptorConfig serviceConfig = new DatagramAcceptorConfig();
+            serviceConfig.setThreadModel( threadModel );
 
-            udpDnsServer = new DnsServer( dnsConfig, udpAcceptor, udpConfig, store );
+            udpDnsServer = new DnsServer( dnsConfig, udpAcceptor, serviceConfig, store );
+            tcpDnsServer = new DnsServer( dnsConfig, tcpAcceptor, serviceConfig, store );
         }
         catch ( Throwable t )
         {
@@ -120,6 +125,18 @@ public class Main
             }
 
             udpDnsServer = null;
+        }
+
+        if ( tcpDnsServer != null )
+        {
+            tcpDnsServer.destroy();
+
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of DNS Service complete: " + tcpDnsServer );
+            }
+
+            tcpDnsServer = null;
         }
     }
 }
