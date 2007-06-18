@@ -56,4 +56,39 @@ public class ObjectClassCreateTest extends AbstractAdminTestCase
             assertTrue( true );
         }
     }
+
+    /*
+     * Test that I can create an ObjectClass entry with an invalid
+     */
+    public void testCreateObjectClassWithNoObjectClass() 
+    throws NamingException
+    {
+        Attributes attributes = new BasicAttributes();
+        Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
+        
+        objectClassAttribute.add( "top" );
+        objectClassAttribute.add( "metaTop" );
+        objectClassAttribute.add( "metaObjectClass" );
+        
+        // Don't put the objectclasses in the entry : this is in purpose !
+        // attributes.put( objectClassAttribute );
+        
+        attributes.put( "m-oid", "testOID" );
+        
+        // This name is invalid
+        attributes.put( "m-name", "no-objectClasses" );
+        
+        LdapDN dn = getObjectClassContainer( "apachemeta" );
+        dn.add( MetaSchemaConstants.M_OID_AT + "=" + testOID );
+        
+        try
+        {
+            schemaRoot.createSubcontext( dn, attributes );
+            fail(); // Should not reach this point
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
 }
