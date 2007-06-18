@@ -35,7 +35,6 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
-import org.apache.directory.server.dns.protocol.DnsEncoder;
 import org.apache.mina.common.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +51,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DnsMessageEncoder
 {
-
     /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( DnsEncoder.class );
+    private static final Logger log = LoggerFactory.getLogger( DnsMessageEncoder.class );
 
     /**
      * A Hashed Adapter mapping record types to their encoders.
@@ -233,5 +231,4 @@ public class DnsMessageEncoder
     {
         return ( byte ) ( responseCode.convert() & 0x0F );
     }
-
 }

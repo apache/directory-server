@@ -37,7 +37,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsDecoder extends ProtocolDecoderAdapter
+public class DnsUdpDecoder extends ProtocolDecoderAdapter
 {
     private DnsMessageDecoder decoder = new DnsMessageDecoder();
 

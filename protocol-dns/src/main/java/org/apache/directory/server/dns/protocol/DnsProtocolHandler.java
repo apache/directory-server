@@ -76,7 +76,7 @@ public class DnsProtocolHandler implements IoHandler
     {
         log.debug( "{} CREATED", session.getRemoteAddress() );
 
-        session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( DnsProtocolCodecFactory.getInstance() ) );
+        session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( DnsProtocolUdpCodecFactory.getInstance() ) );
     }
 
 

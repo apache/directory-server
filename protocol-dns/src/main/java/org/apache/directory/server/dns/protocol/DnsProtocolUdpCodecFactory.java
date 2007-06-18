@@ -30,23 +30,23 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsProtocolCodecFactory implements ProtocolCodecFactory
+public class DnsProtocolUdpCodecFactory implements ProtocolCodecFactory
 {
-    private static final DnsProtocolCodecFactory INSTANCE = new DnsProtocolCodecFactory();
+    private static final DnsProtocolUdpCodecFactory INSTANCE = new DnsProtocolUdpCodecFactory();
 
 
     /**
-     * Returns the singleton instance of {@link DnsProtocolCodecFactory}.
+     * Returns the singleton instance of {@link DnsProtocolUdpCodecFactory}.
      *
-     * @return The singleton instance of {@link DnsProtocolCodecFactory}.
+     * @return The singleton instance of {@link DnsProtocolUdpCodecFactory}.
      */
-    public static DnsProtocolCodecFactory getInstance()
+    public static DnsProtocolUdpCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
 
-    private DnsProtocolCodecFactory()
+    private DnsProtocolUdpCodecFactory()
     {
         // Private constructor prevents instantiation outside this class.
     }
@@ -55,13 +55,13 @@ public class DnsProtocolCodecFactory implements ProtocolCodecFactory
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
-        return new DnsEncoder();
+        return new DnsUdpEncoder();
     }
 
 
     public ProtocolDecoder getDecoder()
     {
         // Create a new decoder.
-        return new DnsDecoder();
+        return new DnsUdpDecoder();
     }
 }
