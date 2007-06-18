@@ -1892,7 +1892,7 @@ public class SchemaService extends BaseInterceptor
                 {
                     String message = "Attribute value '" + 
                         (value instanceof String ? value : StringTools.dumpBytes( (byte[])value ) ) + 
-                        "' for attribute '" + attribute.getID() + "' is syntaxically incorrect";
+                        "' for attribute '" + attribute.getID() + "' is syntactically incorrect";
                     log.info( message );
                     
                     throw new LdapInvalidAttributeValueException( message, ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX );
