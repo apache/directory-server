@@ -316,7 +316,7 @@ public class AttributesFactory
      * 
      * <pre>
      *  objectclass ( 1.3.6.1.4.1.18060.0.4.0.3.2
-     *      NAME 'metaObjectclass'
+     *      NAME 'metaObjectClass'
      *      DESC 'meta definition of the objectclass object'
      *      SUP metaTop
      *      STRUCTURAL
