@@ -152,7 +152,7 @@ public class ObjectClassHolder extends SchemaElementImpl
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append( schemaToLdif( schemaName, "metaObjectclass" ) );
+        sb.append( schemaToLdif( schemaName, "metaObjectClass" ) );
 
         // The superiors
         if ( superiors.size() != 0 )

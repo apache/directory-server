@@ -79,7 +79,7 @@ public class TestSchemaToLdif extends TestCase
         String expected =
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOC, ou=schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -102,7 +102,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMinimal, ou=s\n" +
             " chema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n\n";
@@ -116,7 +116,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCNoName, ou=sc\n" +
             " hema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -138,7 +138,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCAbstract, ou=\n" +
             " schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -153,7 +153,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCAuxiliary, ou\n" +
             " =schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -168,7 +168,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCDesc, ou=sche\n" +
             " ma\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -183,7 +183,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMayOne, ou=sc\n" +
             " hema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -198,7 +198,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMay2, ou=sche\n" +
             " ma\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -214,7 +214,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMayMany, ou=s\n" +
             " chema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -231,7 +231,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMustOne, ou=s\n" +
             " chema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -246,7 +246,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMust2, ou=sch\n" +
             " ema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -262,7 +262,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCMustMany, ou=\n" +
             " schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -279,7 +279,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCNameOne, ou=s\n" +
             " chema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -294,7 +294,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCName2, ou=sch\n" +
             " ema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -310,7 +310,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCNameMany, ou=\n" +
             " schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -327,7 +327,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCObsolete, ou=\n" +
             " schema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -342,7 +342,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCSupOne, ou=sc\n" +
             " hema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -357,7 +357,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCSup2, ou=sche\n" +
             " ma\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
@@ -373,7 +373,7 @@ public class TestSchemaToLdif extends TestCase
             HEADER + 
             "dn: m-oid=1.3.6.1.4.1.18060.0.4.2.3.14, ou=objectClasses, cn=testOCSupMany, ou=s\n" +
             " chema\n" +
-            "objectclass: metaObjectclass\n" +
+            "objectclass: metaObjectClass\n" +
             "objectclass: metaTop\n" +
             "objectclass: top\n" +
             "m-oid: 1.3.6.1.4.1.18060.0.4.2.3.14\n" +
