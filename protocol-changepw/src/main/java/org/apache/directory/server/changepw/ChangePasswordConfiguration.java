@@ -127,6 +127,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
 
     /**
+     * @param primaryRealm The primaryRealm to set.
+     */
+    public void setPrimaryRealm( String primaryRealm )
+    {
+        this.primaryRealm = primaryRealm;
+    }
+
+
+    /**
      * Returns the encryption types.
      *
      * @return The encryption types.
@@ -134,6 +143,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     public EncryptionType[] getEncryptionTypes()
     {
         return encryptionTypes;
+    }
+
+
+    /**
+     * @param encryptionTypes The encryptionTypes to set.
+     */
+    public void setEncryptionTypes( EncryptionType[] encryptionTypes )
+    {
+        this.encryptionTypes = encryptionTypes;
     }
 
 
@@ -149,6 +167,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
 
     /**
+     * @param allowableClockSkew The allowableClockSkew to set.
+     */
+    public void setAllowableClockSkew( long allowableClockSkew )
+    {
+        this.allowableClockSkew = allowableClockSkew;
+    }
+
+
+    /**
      * Returns the Change Password service principal.
      *
      * @return The Change Password service principal.
@@ -160,6 +187,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
 
     /**
+     * @param servicePrincipal The Change Password service principal to set.
+     */
+    public void setServicePrincipal( String servicePrincipal )
+    {
+        this.servicePrincipal = servicePrincipal;
+    }
+
+
+    /**
      * Returns whether empty addresses are allowed.
      *
      * @return Whether empty addresses are allowed.
@@ -167,6 +203,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     public boolean isEmptyAddressesAllowed()
     {
         return isEmptyAddressesAllowed;
+    }
+
+
+    /**
+     * @param isEmptyAddressesAllowed The isEmptyAddressesAllowed to set.
+     */
+    public void setEmptyAddressesAllowed( boolean isEmptyAddressesAllowed )
+    {
+        this.isEmptyAddressesAllowed = isEmptyAddressesAllowed;
     }
 
 
