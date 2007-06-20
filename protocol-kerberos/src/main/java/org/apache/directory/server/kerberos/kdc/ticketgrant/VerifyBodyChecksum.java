@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -47,6 +49,12 @@ public class VerifyBodyChecksum implements IoHandlerCommand
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
         Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
+
+        if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
+            || authenticatorChecksum.getChecksumValue() == null )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
+        }
 
         log.debug( "Verifying body checksum type '" + authenticatorChecksum.getChecksumType() + "'." );
 
