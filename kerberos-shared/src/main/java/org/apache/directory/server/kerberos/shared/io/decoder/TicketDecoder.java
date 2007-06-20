@@ -25,6 +25,7 @@ import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.components.TicketModifier;
+import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
@@ -39,6 +40,23 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class TicketDecoder
 {
+    /**
+     * Decodes a byte array into an {@link Ticket}.
+     *
+     * @param encodedTicket
+     * @return The {@link Ticket}.
+     * @throws IOException
+     */
+    public static Ticket decode( byte[] encodedTicket ) throws IOException
+    {
+        ASN1InputStream ais = new ASN1InputStream( encodedTicket );
+
+        DERApplicationSpecific app = ( DERApplicationSpecific ) ais.readObject();
+
+        return decode( app );
+    }
+
+
     /**
      * Decodes a {@link DERSequence} into an array of {@link Ticket}s.
      *

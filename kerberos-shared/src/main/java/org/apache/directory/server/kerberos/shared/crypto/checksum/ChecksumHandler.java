@@ -59,6 +59,29 @@ public class ChecksumHandler
 
 
     /**
+     * Calculate a checksum based on raw bytes and an (optional) key for keyed checksums.
+     *
+     * @param checksumType
+     * @param bytes
+     * @param key
+     * @param usage
+     * @return The {@link Checksum}.
+     * @throws KerberosException
+     */
+    public Checksum calculateChecksum( ChecksumType checksumType, byte[] bytes, byte[] key, KeyUsage usage )
+        throws KerberosException
+    {
+        if ( !DEFAULT_CHECKSUMS.containsKey( checksumType ) )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+        }
+
+        ChecksumEngine digester = getEngine( checksumType );
+        return new Checksum( checksumType, digester.calculateChecksum( bytes, key, usage ) );
+    }
+
+
+    /**
      * Verify a checksum by providing the raw bytes and an (optional) key for keyed checksums.
      *
      * @param checksum

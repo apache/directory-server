@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -84,6 +85,25 @@ public class KdcRequestEncoder
         sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app ) ) );
 
         return sequence;
+    }
+
+
+    /**
+     * Encodes a {@link KdcRequest} into a byte[].
+     *
+     * @param request
+     * @return The encoded {@link KdcRequest}.
+     * @throws IOException
+     */
+    public byte[] encodeBody( KdcRequest request ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
+        aos.writeObject( encodeKdcRequestBody( request ) );
+        aos.close();
+
+        return baos.toByteArray();
     }
 
 

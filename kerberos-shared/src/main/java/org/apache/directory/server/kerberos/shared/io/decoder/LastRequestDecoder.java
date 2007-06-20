@@ -45,7 +45,7 @@ public class LastRequestDecoder
      * lr-value[1]              KerberosTime
      * }
      */
-    protected LastRequest decodeSequence( DERSequence sequence )
+    protected static LastRequest decodeSequence( DERSequence sequence )
     {
         LastRequestEntry[] entries = new LastRequestEntry[sequence.size()];
 
@@ -62,7 +62,7 @@ public class LastRequestDecoder
     }
 
 
-    protected LastRequestEntry decode( DERSequence sequence )
+    protected static LastRequestEntry decode( DERSequence sequence )
     {
         LastRequestType type = LastRequestType.NONE;
         KerberosTime value = null;

@@ -33,6 +33,7 @@ import org.apache.directory.server.kerberos.shared.io.decoder.AuthorizationDataD
 import org.apache.directory.server.kerberos.shared.io.decoder.Decoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.DecoderFactory;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncApRepPartDecoder;
+import org.apache.directory.server.kerberos.shared.io.decoder.EncKdcRepPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncKrbPrivPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncTicketPartDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedTimestampDecoder;
@@ -50,6 +51,7 @@ import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
+import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
@@ -100,6 +102,7 @@ public class CipherTextHandler
         map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );
+        map.put( EncKdcRepPart.class, EncKdcRepPartDecoder.class );
 
         DEFAULT_DECODERS = Collections.unmodifiableMap( map );
     }
