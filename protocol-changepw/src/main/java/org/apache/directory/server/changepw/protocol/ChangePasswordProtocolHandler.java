@@ -83,7 +83,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         log.debug( "{} CREATED", session.getRemoteAddress() );
 
         session.getFilterChain().addFirst( "codec",
-            new ProtocolCodecFilter( ChangePasswordProtocolCodecFactory.getInstance() ) );
+            new ProtocolCodecFilter( ChangePasswordUdpProtocolCodecFactory.getInstance() ) );
     }
 
 

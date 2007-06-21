@@ -34,7 +34,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordDecoder extends ProtocolDecoderAdapter
+public class ChangePasswordUdpDecoder extends ProtocolDecoderAdapter
 {
     public void decode( IoSession session, ByteBuffer in, ProtocolDecoderOutput out ) throws IOException
     {

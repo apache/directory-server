@@ -37,7 +37,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordEncoder extends ProtocolEncoderAdapter
+public class ChangePasswordUdpEncoder extends ProtocolEncoderAdapter
 {
     public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws IOException
     {

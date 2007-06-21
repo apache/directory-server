@@ -30,23 +30,23 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
+public class ChangePasswordUdpProtocolCodecFactory implements ProtocolCodecFactory
 {
-    private static final ChangePasswordProtocolCodecFactory INSTANCE = new ChangePasswordProtocolCodecFactory();
+    private static final ChangePasswordUdpProtocolCodecFactory INSTANCE = new ChangePasswordUdpProtocolCodecFactory();
 
 
     /**
-     * Returns the singleton instance of {@link ChangePasswordProtocolCodecFactory}.
+     * Returns the singleton instance of {@link ChangePasswordUdpProtocolCodecFactory}.
      *
-     * @return The singleton instance of {@link ChangePasswordProtocolCodecFactory}.
+     * @return The singleton instance of {@link ChangePasswordUdpProtocolCodecFactory}.
      */
-    public static ChangePasswordProtocolCodecFactory getInstance()
+    public static ChangePasswordUdpProtocolCodecFactory getInstance()
     {
         return INSTANCE;
     }
 
 
-    private ChangePasswordProtocolCodecFactory()
+    private ChangePasswordUdpProtocolCodecFactory()
     {
         // Private constructor prevents instantiation outside this class.
     }
@@ -55,13 +55,13 @@ public class ChangePasswordProtocolCodecFactory implements ProtocolCodecFactory
     public ProtocolEncoder getEncoder()
     {
         // Create a new encoder.
-        return new ChangePasswordEncoder();
+        return new ChangePasswordUdpEncoder();
     }
 
 
     public ProtocolDecoder getDecoder()
     {
         // Create a new decoder.
-        return new ChangePasswordDecoder();
+        return new ChangePasswordUdpDecoder();
     }
 }
