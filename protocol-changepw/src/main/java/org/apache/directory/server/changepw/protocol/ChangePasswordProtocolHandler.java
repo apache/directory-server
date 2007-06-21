@@ -43,6 +43,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -80,10 +81,21 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        log.debug( "{} CREATED", session.getRemoteAddress() );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( session.getRemoteAddress() + " CREATED : " + session.getTransportType() );
+        }
 
-        session.getFilterChain().addFirst( "codec",
-            new ProtocolCodecFilter( ChangePasswordUdpProtocolCodecFactory.getInstance() ) );
+        if ( session.getTransportType() == TransportType.DATAGRAM )
+        {
+            session.getFilterChain().addFirst( "codec",
+                new ProtocolCodecFilter( ChangePasswordUdpProtocolCodecFactory.getInstance() ) );
+        }
+        else
+        {
+            session.getFilterChain().addFirst( "codec",
+                new ProtocolCodecFilter( ChangePasswordTcpProtocolCodecFactory.getInstance() ) );
+        }
     }
 
 
