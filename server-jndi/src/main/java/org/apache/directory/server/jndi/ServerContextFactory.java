@@ -43,7 +43,7 @@ import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsServer;
-import org.apache.directory.server.dns.store.JndiRecordStoreImpl;
+import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.KerberosServer;
