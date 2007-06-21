@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.dns.store;
+package org.apache.directory.server.dns.store.jndi;
 
 
 import java.util.Map;

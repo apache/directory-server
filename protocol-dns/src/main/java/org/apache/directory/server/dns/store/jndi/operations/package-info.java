@@ -25,4 +25,4 @@
  * @version $Rev$, $Date$
  */
 
-package org.apache.directory.server.dns.store.operations;
+package org.apache.directory.server.dns.store.jndi.operations;

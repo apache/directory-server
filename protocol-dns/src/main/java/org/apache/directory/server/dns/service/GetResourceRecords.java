@@ -30,7 +30,6 @@ import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -74,28 +73,13 @@ public class GetResourceRecords implements IoHandlerCommand
      * @param store
      * @param question
      * @return The set of {@link ResourceRecord}s.
-     * @throws Exception
+     * @throws DNSException
      */
-    public Set<ResourceRecord> getEntry( RecordStore store, QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getEntry( RecordStore store, QuestionRecord question ) throws DnsException
     {
         Set<ResourceRecord> records = null;
 
-        try
-        {
-            records = store.getRecords( question );
-        }
-        catch ( LdapNameNotFoundException lnnfe )
-        {
-            log.debug( "Name for DNS record search does not exist.", lnnfe );
-
-            throw new DnsException( ResponseCode.NAME_ERROR );
-        }
-        catch ( Exception e )
-        {
-            log.debug( "Unexpected error retrieving DNS records.", e );
-
-            throw new DnsException( ResponseCode.SERVER_FAILURE );
-        }
+        records = store.getRecords( question );
 
         if ( records == null || records.isEmpty() )
         {

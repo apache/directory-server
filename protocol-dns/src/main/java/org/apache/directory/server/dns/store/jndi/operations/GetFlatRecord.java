@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.dns.store.operations;
+package org.apache.directory.server.dns.store.jndi.operations;
 
 
 import javax.naming.Name;

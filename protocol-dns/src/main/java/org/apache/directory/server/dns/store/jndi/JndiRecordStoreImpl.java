@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.dns.store;
+package org.apache.directory.server.dns.store.jndi;
 
 
 import java.util.Set;
@@ -25,8 +25,10 @@ import java.util.Set;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
+import org.apache.directory.server.dns.store.RecordStore;
 
 
 /**
@@ -62,7 +64,7 @@ public class JndiRecordStoreImpl implements RecordStore
     }
 
 
-    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
         return strategy.getRecords( question );
     }

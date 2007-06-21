@@ -22,6 +22,7 @@ package org.apache.directory.server.dns.store;
 
 import java.util.Set;
 
+import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 
@@ -36,10 +37,10 @@ public interface RecordStore
 {
     /**
      * Returns a set of {@link ResourceRecord}s, given a DNS {@link QuestionRecord}.
-     *
+     * If something bad happens throw the accurate {@link DNSException} 
      * @param question
      * @return The set of {@link ResourceRecord}s.
-     * @throws Exception
+     * @throws DNSException
      */
-    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception;
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException;
 }

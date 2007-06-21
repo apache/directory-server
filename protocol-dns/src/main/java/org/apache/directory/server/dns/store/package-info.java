@@ -19,8 +19,8 @@
  */
 
 /**
- * Provides the store implementation for serving DNS resource records
- * backed by JNDI.
+ * Provides {@link RecordStore} interface for serving DNS resource records
+ * to {@link DNSServer}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

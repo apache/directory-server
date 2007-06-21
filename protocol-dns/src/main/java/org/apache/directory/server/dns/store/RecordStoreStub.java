@@ -23,6 +23,7 @@ package org.apache.directory.server.dns.store;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.RecordClass;
 import org.apache.directory.server.dns.messages.RecordType;
@@ -36,7 +37,7 @@ import org.apache.directory.server.dns.messages.ResourceRecordModifier;
  */
 public class RecordStoreStub implements RecordStore
 {
-    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
         Set<ResourceRecord> set = new HashSet<ResourceRecord>();
 

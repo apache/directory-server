@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.dns.store;
+package org.apache.directory.server.dns.store.jndi;
 
 
 import java.util.Hashtable;
@@ -31,13 +31,16 @@ import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
-import org.apache.directory.server.dns.store.operations.GetRecords;
+import org.apache.directory.server.dns.messages.ResponseCode;
+import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +85,7 @@ public class MultiBaseSearch implements SearchStrategy
     }
 
 
-    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws Exception
+    public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
         env.put( Context.PROVIDER_URL, catalog.getBaseDn( question.getDomainName() ) );
 
@@ -91,12 +94,24 @@ public class MultiBaseSearch implements SearchStrategy
             DirContext ctx = ( DirContext ) factory.getInitialContext( env );
             return ( Set ) execute( ctx, new GetRecords( question ) );
         }
+        catch ( LdapNameNotFoundException lnnfe )
+	    {
+	        log.debug( "Name for DNS record search does not exist.", lnnfe );
+	
+	        throw new DnsException( ResponseCode.NAME_ERROR );
+	    }
         catch ( NamingException ne )
         {
             log.error( ne.getMessage(), ne );
             String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
+	    catch ( Exception e )
+	    {
+	        log.debug( "Unexpected error retrieving DNS records.", e );
+	        throw new DnsException( ResponseCode.SERVER_FAILURE );
+	    }
+
     }
 
 
