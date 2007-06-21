@@ -54,19 +54,18 @@ public class ChangePasswordErrorDecoder
 
         modifier.setProtocolVersionNumber( buf.getShort() );
 
-        /*
-         * TODO - No condition to set on modifier.
-         */
-        buf.getShort();
+        // AP_REQ length will be 0 for error messages
+        modifier.setAuthHeaderLength( buf.getShort() );
 
         int errorLength = messageLength - HEADER_LENGTH;
 
         byte[] errorBytes = new byte[errorLength];
 
         buf.get( errorBytes );
+        ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
 
         ErrorMessageDecoder errorDecoder = new ErrorMessageDecoder();
-        ErrorMessage errorMessage = errorDecoder.decode( buf );
+        ErrorMessage errorMessage = errorDecoder.decode( errorBuffer );
 
         modifier.setErrorMessage( errorMessage );
 
