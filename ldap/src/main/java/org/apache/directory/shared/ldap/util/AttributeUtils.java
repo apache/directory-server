@@ -335,7 +335,7 @@ public class AttributeUtils
         
         Normalizer normalizer = type.getEquality().getNormalizer();
 
-        if ( type.getSyntax().isHumanReadible() )
+        if ( type.getSyntax().isHumanReadable() )
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
             
@@ -451,7 +451,7 @@ public class AttributeUtils
         
         Normalizer normalizer = type.getEquality().getNormalizer();
 
-        if ( type.getSyntax().isHumanReadible() )
+        if ( type.getSyntax().isHumanReadable() )
         {
             for ( int jj = 0; jj < compared.length; jj++ )
             {
