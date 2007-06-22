@@ -143,61 +143,61 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax.setNames( new String[]
             { "ACI Item" } );
         // This is in direct conflict with RFC 2252 but for us ACI Item is human readable
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.2", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Access Point" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.3", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Attribute Type Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.4", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Audio" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.5", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Binary" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.6", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Bit String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.7", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Boolean" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.8", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Certificate" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.9", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Certificate List" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.10", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Certificate Pair" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -217,61 +217,61 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.11", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Country String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.12", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DN" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.13", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Data Quality Syntax" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.14", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Delivery Method" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.15", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Directory String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.16", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DIT Content Rule Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.17", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DIT Structure Rule Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.18", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DL Submit Permission" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.19", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DSA Quality Syntax" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.20", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "DSE Type" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -291,61 +291,61 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.21", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Enhanced Guide" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.22", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Facsimile Telephone Number" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.23", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Fax" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.24", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Generalized Time" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.25", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Guide" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.26", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "IA5 String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.27", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "INTEGER" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.28", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "JPEG" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.29", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Master And Shadow Access Points" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.30", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Matching Rule Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -365,55 +365,55 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.31", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Matching Rule Use Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.32", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Mail Preference" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.33", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "MHS OR Address" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.34", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Name And Optional UID" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.35", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Name Form Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.36", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Numeric String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.37", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Object Class Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.38", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "OID" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.39", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Other Mailbox" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -427,7 +427,7 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.40", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Octet String" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -447,61 +447,61 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.41", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Postal Address" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.42", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Protocol Information" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.43", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Presentation Address" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.44", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Printable String" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.45", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Subtree Specification" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.46", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Supplier Information" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.47", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Supplier Or Consumer" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.48", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Supplier And Consumer" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.49", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Supported Algorithm" } );
-        syntax.setHumanReadible( false );
+        syntax.setHumanReadable( false );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.50", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Telephone Number" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         /*
@@ -519,55 +519,55 @@ public class SystemSyntaxProducer extends AbstractBootstrapProducer
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.51", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Teletex Terminal Identifier" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.52", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Telex Number" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.53", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "UTC Time" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.54", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "LDAP Syntax Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.55", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Modify Rights" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.56", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "LDAP BootstrapSchema Definition" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.57", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "LDAP BootstrapSchema Description" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.58", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Substring Assertion" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
         
         syntax = new BootstrapSyntax( "1.3.6.1.4.1.1466.115.121.1.59", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "Trigger Specification" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
 }

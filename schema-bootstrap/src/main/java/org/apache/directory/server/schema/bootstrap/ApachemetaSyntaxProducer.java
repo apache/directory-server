@@ -91,7 +91,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return CHECKER;
         }
 
-        public final boolean isHumanReadible()
+        public final boolean isHumanReadable()
         {
             return true;
         }
@@ -145,7 +145,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return CHECKER;
         }
 
-        public final boolean isHumanReadible()
+        public final boolean isHumanReadable()
         {
             return true;
         }
@@ -199,7 +199,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return CHECKER;
         }
 
-        public final boolean isHumanReadible()
+        public final boolean isHumanReadable()
         {
             return true;
         }
@@ -253,7 +253,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return CHECKER;
         }
 
-        public final boolean isHumanReadible()
+        public final boolean isHumanReadable()
         {
             return true;
         }
@@ -306,7 +306,7 @@ public class ApachemetaSyntaxProducer extends AbstractBootstrapProducer
             return CHECKER;
         }
 
-        public final boolean isHumanReadible()
+        public final boolean isHumanReadable()
         {
             return true;
         }

@@ -128,9 +128,9 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
         }
 
 
-        public void setHumanReadible( boolean isHumanReadible )
+        public void setHumanReadable( boolean isHumanReadable )
         {
-            super.setHumanReadible( isHumanReadible );
+            super.setHumanReadable( isHumanReadable );
         }
 
 
