@@ -69,7 +69,7 @@ public interface MetaSchemaConstants
     String M_MUST_AT = "m-must";
     String M_MAY_AT = "m-may";
     String M_TYPE_OBJECT_CLASS_AT = "m-typeObjectClass";
-    String X_HUMAN_READIBLE_AT = "x-humanReadable";
+    String X_HUMAN_READABLE_AT = "x-humanReadable";
     
     // -- schema extensions & values --
     
