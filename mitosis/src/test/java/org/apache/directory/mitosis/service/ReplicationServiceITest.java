@@ -83,7 +83,7 @@ public class ReplicationServiceITest extends TestCase
         entry.put( "objectClass", "top" );
         ctxA.bind( "cn=test,ou=system", entry );
 
-        Thread.sleep( 5000 );
+        Thread.sleep( 7000 );
 
         Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
         Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
