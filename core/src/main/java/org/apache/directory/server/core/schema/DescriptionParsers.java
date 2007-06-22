@@ -541,7 +541,7 @@ public class DescriptionParsers
 
             SyntaxImpl syntax = new SyntaxImpl( desc.getNumericOid(), globalRegistries.getSyntaxCheckerRegistry() );
             setSchemaObjectProperties( desc, syntax );
-            syntax.setHumanReadible( isHumanReadable( desc ) );
+            syntax.setHumanReadable( isHumanReadable( desc ) );
             syntaxes[ii] = syntax;
         }
         
