@@ -107,7 +107,7 @@ public class ReplicationServiceITest extends TestCase
         entryB.put( "objectClass", "top" );
         ctxB.bind( "cn=test,ou=system", entryB );
 
-        Thread.sleep( 5000 );
+        Thread.sleep( 7000 );
 
         Assert.assertEquals( "B", getAttributeValue( ctxA, "cn=test,ou=system", "ou" ) );
         Assert.assertEquals( "B", getAttributeValue( ctxB, "cn=test,ou=system", "ou" ) );
