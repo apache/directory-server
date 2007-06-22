@@ -545,7 +545,7 @@ public class MetaSyntaxCheckerHandlerITest extends AbstractAdminTestCase
             return null;
         }
 
-        public boolean isHumanReadible()
+        public boolean isHumanReadable()
         {
             return false;
         }
