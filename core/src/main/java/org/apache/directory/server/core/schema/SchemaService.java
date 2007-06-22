@@ -1600,7 +1600,7 @@ public class SchemaService extends BaseInterceptor
                 continue;
             }
 
-            asBinary = !type.getSyntax().isHumanReadible();
+            asBinary = !type.getSyntax().isHumanReadable();
             asBinary = asBinary || ( ( binaries != null ) && ( binaries.contains( type ) ) );
             asBinary = asBinary || binaries.contains( type );
 
@@ -1719,7 +1719,7 @@ public class SchemaService extends BaseInterceptor
         }
 
         // Check the attributes values and transform them to String if necessary
-        assertHumanReadible( entry );
+        assertHumanReadable( entry );
         
         // Now check the syntaxes
         assertSyntaxes( entry );
@@ -1903,10 +1903,10 @@ public class SchemaService extends BaseInterceptor
     }
     
     /**
-     * Check that all the attribute's values which are Human Readible can be transformed
+     * Check that all the attribute's values which are Human Readable can be transformed
      * to valid String if they are stored as byte[].
      */
-    private void assertHumanReadible( Attributes entry ) throws NamingException
+    private void assertHumanReadable( Attributes entry ) throws NamingException
     {
         NamingEnumeration attributes = entry.getAll();
         boolean isEntryModified = false;
@@ -1920,7 +1920,7 @@ public class SchemaService extends BaseInterceptor
             AttributeType attributeType = registries.getAttributeTypeRegistry().lookup( attribute.getID() );
 
             // If the attributeType is H-R, check all of its values
-            if ( attributeType.getSyntax().isHumanReadible() )
+            if ( attributeType.getSyntax().isHumanReadable() )
             {
                 Enumeration values = attribute.getAll();
                 Attribute clone = null;
@@ -1962,7 +1962,7 @@ public class SchemaService extends BaseInterceptor
                     }
                     else
                     {
-                        throw new NamingException( "The value stored in an Human Readible attribute is not a String" );
+                        throw new NamingException( "The value stored in an Human Readable attribute is not a String" );
                     }
                 }
 

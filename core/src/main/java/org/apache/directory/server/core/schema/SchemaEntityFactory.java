@@ -542,10 +542,10 @@ public class SchemaEntityFactory
         SyntaxImpl syntax = new SyntaxImpl( oid, targetRegistries.getSyntaxCheckerRegistry() );
         syntax.setSchema( schema );
         
-        if ( entry.get( MetaSchemaConstants.X_HUMAN_READIBLE_AT ) != null )
+        if ( entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ) != null )
         {
-            String val = ( String ) entry.get( MetaSchemaConstants.X_HUMAN_READIBLE_AT ).get();
-            syntax.setHumanReadible( val.toUpperCase().equals( "TRUE" ) );
+            String val = ( String ) entry.get( MetaSchemaConstants.X_HUMAN_READABLE_AT ).get();
+            syntax.setHumanReadable( val.toUpperCase().equals( "TRUE" ) );
         }
         
         if ( entry.get( MetaSchemaConstants.M_DESCRIPTION_AT ) != null )

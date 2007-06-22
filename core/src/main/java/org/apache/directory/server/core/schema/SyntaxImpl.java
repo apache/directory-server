@@ -53,9 +53,9 @@ class SyntaxImpl extends AbstractSyntax implements MutableSchemaObject
     }
     
     
-    public void setHumanReadible( boolean humanReadible )
+    public void setHumanReadable( boolean humanReadable )
     {
-        super.setHumanReadible( humanReadible );
+        super.setHumanReadable( humanReadable );
     }
     
     
