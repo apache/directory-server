@@ -28,8 +28,8 @@ package org.apache.directory.shared.ldap.schema;
  */
 public abstract class AbstractSyntax extends AbstractSchemaObject implements Syntax
 {
-    /** the human readible flag */
-    private boolean isHumanReadible = false;
+    /** the human readable flag */
+    private boolean isHumanReadable = false;
 
 
     // ------------------------------------------------------------------------
@@ -53,13 +53,13 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
      * 
      * @param oid
      *            the OID for this Syntax
-     * @param isHumanReadible
-     *            whether or not Syntax is human readible
+     * @param isHumanReadable
+     *            whether or not Syntax is human readable
      */
-    protected AbstractSyntax(String oid, boolean isHumanReadible)
+    protected AbstractSyntax(String oid, boolean isHumanReadable)
     {
         super( oid );
-        this.isHumanReadible = isHumanReadible;
+        this.isHumanReadable = isHumanReadable;
     }
 
 
@@ -82,15 +82,15 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
      * 
      * @param oid
      *            the OID for this Syntax
-     * @param isHumanReadible
-     *            whether or not Syntax is human readible
+     * @param isHumanReadable
+     *            whether or not Syntax is human readable
      * @param description
      *            the description for this Syntax
      */
-    protected AbstractSyntax(String oid, String description, boolean isHumanReadible)
+    protected AbstractSyntax(String oid, String description, boolean isHumanReadable)
     {
         super( oid, description );
-        this.isHumanReadible = isHumanReadible;
+        this.isHumanReadable = isHumanReadable;
     }
 
 
@@ -99,11 +99,11 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     // ------------------------------------------------------------------------
 
     /**
-     * @see org.apache.directory.shared.ldap.schema.Syntax#isHumanReadible()
+     * @see org.apache.directory.shared.ldap.schema.Syntax#isHumanReadable()
      */
-    public final boolean isHumanReadible()
+    public final boolean isHumanReadable()
     {
-        return isHumanReadible;
+        return isHumanReadable;
     }
 
 
@@ -112,14 +112,14 @@ public abstract class AbstractSyntax extends AbstractSchemaObject implements Syn
     // ------------------------------------------------------------------------
 
     /**
-     * Sets the human readible flag value.
+     * Sets the human readable flag value.
      * 
-     * @param isHumanReadible
-     *            the human readible flag value to set
+     * @param isHumanReadable
+     *            the human readable flag value to set
      */
-    protected void setHumanReadible( boolean isHumanReadible )
+    protected void setHumanReadable( boolean isHumanReadable )
     {
-        this.isHumanReadible = isHumanReadible;
+        this.isHumanReadable = isHumanReadable;
     }
 
 

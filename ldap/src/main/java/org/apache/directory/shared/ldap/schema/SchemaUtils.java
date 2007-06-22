@@ -737,7 +737,7 @@ public class SchemaUtils
         buf.append( " X-SCHEMA '" );
         buf.append( syntax.getSchema() );
         
-        if ( syntax.isHumanReadible() )
+        if ( syntax.isHumanReadable() )
         {
             buf.append( "' X-IS-HUMAN-READABLE 'true'" );
         }

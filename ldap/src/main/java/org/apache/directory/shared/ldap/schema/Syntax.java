@@ -71,11 +71,11 @@ import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 public interface Syntax extends SchemaObject
 {
     /**
-     * Gets whether or not the Syntax is human readible.
+     * Gets whether or not the Syntax is human readable.
      * 
      * @return true if the syntax can be interpretted by humans, false otherwise
      */
-    boolean isHumanReadible();
+    boolean isHumanReadable();
 
 
     /**
