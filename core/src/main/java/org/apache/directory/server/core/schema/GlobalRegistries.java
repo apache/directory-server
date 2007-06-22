@@ -394,7 +394,7 @@ public class GlobalRegistries implements Registries
         //        try
         //        {
         //            String schema = attributeTypeRegistry.getSchemaName( at.getOid() );
-        //            if ( ! hasMatchingRule && at.getSyntax().isHumanReadible() )
+        //            if ( ! hasMatchingRule && at.getSyntax().isHumanReadable() )
         //            {
         //                errors.add( new NullPointerException( "attributeType "
         //                        + at.getName() + " in schema " + schema + " with OID "

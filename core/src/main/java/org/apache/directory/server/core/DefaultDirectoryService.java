@@ -813,7 +813,7 @@ class DefaultDirectoryService extends DirectoryService
         while ( list.hasNext() )
         {
             AttributeType type = ( AttributeType ) list.next();
-            if ( !type.getSyntax().isHumanReadible() )
+            if ( !type.getSyntax().isHumanReadable() )
             {
                 // add the OID for the attributeType
                 binaries.add( type.getOid() );

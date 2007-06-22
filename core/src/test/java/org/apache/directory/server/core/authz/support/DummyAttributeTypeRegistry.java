@@ -246,7 +246,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                     return new Syntax()
                     {
 
-                        public boolean isHumanReadible()
+                        public boolean isHumanReadable()
                         {
                             return true;
                         }
@@ -301,7 +301,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                             return new Syntax()
                             {
 
-                                public boolean isHumanReadible()
+                                public boolean isHumanReadable()
                                 {
                                     return true;
                                 }
