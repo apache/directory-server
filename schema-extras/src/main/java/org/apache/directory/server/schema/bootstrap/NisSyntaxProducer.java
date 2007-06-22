@@ -61,14 +61,14 @@ public class NisSyntaxProducer extends AbstractBootstrapProducer
         syntax.setDescription( "RFC2307 NIS Netgroup Triple" );
         syntax.setNames( new String[]
             { "NIS Netgroup Triple" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
         // 1.3.6.1.1.1.0.1 - RFC2307 Boot Parameter Syntax
         syntax = new BootstrapSyntax( "1.3.6.1.1.1.0.1", syntaxCheckerRegistry );
         syntax.setNames( new String[]
             { "NIS Boot Parameter" } );
-        syntax.setHumanReadible( true );
+        syntax.setHumanReadable( true );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
     }
