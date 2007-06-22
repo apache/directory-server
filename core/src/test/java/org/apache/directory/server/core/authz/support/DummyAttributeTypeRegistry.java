@@ -271,7 +271,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
                         private static final long serialVersionUID = 1L;
 
-                        public boolean isHumanReadible()
+                        public boolean isHumanReadable()
                         {
                             return true;
                         }
@@ -337,7 +337,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                                 private static final long serialVersionUID = 1L;
 
 
-                                public boolean isHumanReadible()
+                                public boolean isHumanReadable()
                                 {
                                     return true;
                                 }
