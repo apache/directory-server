@@ -37,7 +37,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
     /** whether or not this SchemaObject is active */
     protected boolean isObsolete = false;
 
-    /** a human readible identifiers for this SchemaObject */
+    /** a human readable identifiers for this SchemaObject */
     protected String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
 
     /** a short description of this SchemaObject */
