@@ -58,7 +58,6 @@ public class TicketGrantingServiceChain extends IoHandlerChain
         addLast( "verifyTgtAuthHeader", new VerifyTgtAuthHeader() );
         addLast( "verifyBodyChecksum", new VerifyBodyChecksum() );
         addLast( "getRequestPrincipalEntry", new GetRequestPrincipalEntry() );
-        addLast( "getSessionKey", new GetSessionKey() );
         addLast( "generateTicket", new GenerateTicket() );
         addLast( "buildReply", new BuildReply() );
 

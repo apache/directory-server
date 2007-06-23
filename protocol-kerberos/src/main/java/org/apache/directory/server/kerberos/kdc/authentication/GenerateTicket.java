@@ -26,6 +26,7 @@ import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -70,7 +71,6 @@ public class GenerateTicket implements IoHandlerCommand
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
         KdcConfiguration config = authContext.getConfig();
-        EncryptionKey sessionKey = authContext.getSessionKey();
 
         if ( request.getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
@@ -94,7 +94,9 @@ public class GenerateTicket implements IoHandlerCommand
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
 
+        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( authContext.getEncryptionType() );
         newTicketBody.setSessionKey( sessionKey );
+
         newTicketBody.setClientPrincipal( request.getClientPrincipal() );
         newTicketBody.setTransitedEncoding( new TransitedEncoding() );
 

@@ -44,7 +44,6 @@ public class AuthenticationServiceChain extends IoHandlerChain
         addLast( "verifyPolicy", new VerifyPolicy() );
         addLast( "preAuthenticationChain", new PreAuthenticationChain() );
         addLast( "getServerEntry", new GetServerEntry() );
-        addLast( "getSessionKey", new GetSessionKey() );
         addLast( "generateTicket", new GenerateTicket() );
         addLast( "buildReply", new BuildReply() );
         addLast( "sealReply", new SealReply() );

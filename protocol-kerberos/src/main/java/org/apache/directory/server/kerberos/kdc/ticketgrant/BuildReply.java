@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.mina.common.IoSession;
@@ -38,18 +37,18 @@ public class BuildReply implements IoHandlerCommand
 {
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
         KdcRequest request = tgsContext.getRequest();
         Ticket tgt = tgsContext.getTgt();
         Ticket newTicket = tgsContext.getNewTicket();
-        EncryptionKey sessionKey = tgsContext.getSessionKey();
 
         TicketGrantReply reply = new TicketGrantReply();
         reply.setClientPrincipal( tgt.getClientPrincipal() );
         reply.setTicket( newTicket );
-        reply.setKey( sessionKey );
+        reply.setKey( newTicket.getSessionKey() );
         reply.setNonce( request.getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
         reply.setLastRequest( new LastRequest() );

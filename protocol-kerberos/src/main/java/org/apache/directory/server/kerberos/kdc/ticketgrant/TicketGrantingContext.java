@@ -24,7 +24,6 @@ import org.apache.directory.server.kerberos.kdc.KdcContext;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 
@@ -40,7 +39,6 @@ public class TicketGrantingContext extends KdcContext
     private ApplicationRequest authHeader;
     private Ticket tgt;
     private Ticket newTicket;
-    private EncryptionKey sessionKey;
     private Authenticator authenticator;
     private ReplayCache replayCache;
 
@@ -135,24 +133,6 @@ public class TicketGrantingContext extends KdcContext
     public void setNewTicket( Ticket newTicket )
     {
         this.newTicket = newTicket;
-    }
-
-
-    /**
-     * @return Returns the sessionKey.
-     */
-    public EncryptionKey getSessionKey()
-    {
-        return sessionKey;
-    }
-
-
-    /**
-     * @param sessionKey The sessionKey to set.
-     */
-    public void setSessionKey( EncryptionKey sessionKey )
-    {
-        this.sessionKey = sessionKey;
     }
 
 

@@ -30,6 +30,7 @@ import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -70,7 +71,6 @@ public class GenerateTicket implements IoHandlerCommand
         EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getKeyMap().get( encryptionType );
 
         KdcConfiguration config = tgsContext.getConfig();
-        EncryptionKey sessionKey = tgsContext.getSessionKey();
 
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
 
@@ -78,7 +78,9 @@ public class GenerateTicket implements IoHandlerCommand
 
         processFlags( config, request, tgt, newTicketBody );
 
+        EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( tgsContext.getEncryptionType() );
         newTicketBody.setSessionKey( sessionKey );
+
         newTicketBody.setClientPrincipal( tgt.getClientPrincipal() );
 
         if ( request.getEncAuthorizationData() != null )

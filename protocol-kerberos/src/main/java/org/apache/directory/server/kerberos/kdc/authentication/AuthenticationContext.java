@@ -42,7 +42,6 @@ public class AuthenticationContext extends KdcContext
 
     private Ticket ticket;
     private EncryptionKey clientKey;
-    private EncryptionKey sessionKey;
     private ReplayCache replayCache;
 
     private PrincipalStoreEntry clientEntry;
@@ -136,24 +135,6 @@ public class AuthenticationContext extends KdcContext
     public void setClientKey( EncryptionKey clientKey )
     {
         this.clientKey = clientKey;
-    }
-
-
-    /**
-     * @return Returns the sessionKey.
-     */
-    public EncryptionKey getSessionKey()
-    {
-        return sessionKey;
-    }
-
-
-    /**
-     * @param sessionKey The sessionKey to set.
-     */
-    public void setSessionKey( EncryptionKey sessionKey )
-    {
-        this.sessionKey = sessionKey;
     }
 
 
