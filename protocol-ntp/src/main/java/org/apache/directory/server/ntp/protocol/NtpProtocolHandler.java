@@ -48,7 +48,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CREATED" );
+            log.debug( "{} CREATED", session.getRemoteAddress() );
         }
 
         session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( NtpProtocolCodecFactory.getInstance() ) );
@@ -59,7 +59,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " OPENED" );
+            log.debug( "{} OPENED", session.getRemoteAddress() );
         }
     }
 
@@ -68,7 +68,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CLOSED" );
+            log.debug( "{} CLOSED", session.getRemoteAddress() );
         }
     }
 
@@ -77,7 +77,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " IDLE(" + status + ")" );
+            log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
         }
     }
 
@@ -93,7 +93,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " RCVD: " + message );
+            log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
         }
 
         NtpMessage reply = ntpService.getReplyFor( ( NtpMessage ) message );
@@ -106,7 +106,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " SENT: " + message );
+            log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
         }
     }
 }

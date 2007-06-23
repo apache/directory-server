@@ -77,7 +77,7 @@ public class ChangePasswordServer
 
             acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
-            log.debug( "{} listening on port {}", name, new Integer( port ) );
+            log.debug( "{} listening on port {}.", name, new Integer( port ) );
         }
         catch ( IOException ioe )
         {
@@ -108,6 +108,6 @@ public class ChangePasswordServer
         acceptor = null;
         handler = null;
 
-        log.debug( "{} has stopped listening on port {}", config.getServiceName(), new Integer( config.getIpPort() ) );
+        log.debug( "{} has stopped listening on port {}.", config.getServiceName(), new Integer( config.getIpPort() ) );
     }
 }

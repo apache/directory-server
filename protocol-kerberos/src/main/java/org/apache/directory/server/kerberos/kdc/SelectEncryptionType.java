@@ -50,7 +50,7 @@ public class SelectEncryptionType implements IoHandlerCommand
 
         EncryptionType bestType = getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
-        log.debug( "Session will use encryption type " + bestType );
+        log.debug( "Session will use encryption type {}.", bestType );
 
         if ( bestType == null )
         {

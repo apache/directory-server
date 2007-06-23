@@ -125,20 +125,23 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         {
             Callback callback = callbacks[i];
 
-            log.debug( "Processing callback " + ( i + 1 ) + " of " + callbacks.length + ":  "
-                + callback.getClass().toString() );
+            if ( log.isDebugEnabled() )
+            {
+                log.debug( "Processing callback " + ( i + 1 ) + " of " + callbacks.length + ":  "
+                        + callback.getClass().toString() );
+            }
 
             if ( callback instanceof NameCallback )
             {
                 NameCallback nameCB = ( NameCallback ) callback;
-                log.debug( "NameCallback default name   " + nameCB.getDefaultName() );
+                log.debug( "NameCallback default name:  {}", nameCB.getDefaultName() );
 
                 username = nameCB.getDefaultName();
             }
             else if ( callback instanceof RealmCallback )
             {
                 RealmCallback realmCB = ( RealmCallback ) callback;
-                log.debug( "RealmCallback default text  " + realmCB.getDefaultText() );
+                log.debug( "RealmCallback default text:  {}", realmCB.getDefaultText() );
 
                 realm = realmCB.getDefaultText();
             }
@@ -158,17 +161,17 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
                 // hnelson (CRAM-MD5, DIGEST-MD5)
                 // hnelson@EXAMPLE.COM (GSSAPI)
-                log.debug( "AuthorizeCallback authnID      " + authorizeCB.getAuthenticationID() );
+                log.debug( "AuthorizeCallback authnID:  {}", authorizeCB.getAuthenticationID() );
 
                 // hnelson (CRAM-MD5, DIGEST-MD5)
                 // hnelson@EXAMPLE.COM (GSSAPI)
-                log.debug( "AuthorizeCallback authzID      " + authorizeCB.getAuthorizationID() );
+                log.debug( "AuthorizeCallback authzID:  {}", authorizeCB.getAuthorizationID() );
 
                 // null (CRAM-MD5, DIGEST-MD5, GSSAPI)
-                log.debug( "AuthorizeCallback authorizedID " + authorizeCB.getAuthorizedID() );
+                log.debug( "AuthorizeCallback authorizedID:  {}", authorizeCB.getAuthorizedID() );
 
                 // false (CRAM-MD5, DIGEST-MD5, GSSAPI)
-                log.debug( "AuthorizeCallback isAuthorized " + authorizeCB.isAuthorized() );
+                log.debug( "AuthorizeCallback isAuthorized:  {}", authorizeCB.isAuthorized() );
 
                 authorize( authorizeCB );
             }

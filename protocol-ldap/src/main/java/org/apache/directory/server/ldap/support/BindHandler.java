@@ -254,13 +254,12 @@ public class BindHandler implements MessageHandler
         {
             if ( bindRequest.isSimple() )
             {
-                log.debug( "Simple authentication" );
+                log.debug( "Simple authentication." );
                 
             }
             else
             {
-                log.debug( "SASL authentication" );
-                log.debug( "SASL mechanism:  {}", bindRequest.getSaslMechanism() );
+                log.debug( "SASL authentication with mechanism:  {}", bindRequest.getSaslMechanism() );
             }
         }
         

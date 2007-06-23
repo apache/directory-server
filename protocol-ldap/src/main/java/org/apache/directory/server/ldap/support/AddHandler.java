@@ -62,7 +62,7 @@ public class AddHandler implements MessageHandler
 
         if ( IS_DEBUG )
         {
-            log.debug( "Received a Add message : " + req.toString() );
+            log.debug( "Received an Add message:  {}", req.toString() );
         }
 
         try

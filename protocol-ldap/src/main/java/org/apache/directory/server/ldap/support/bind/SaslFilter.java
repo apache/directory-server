@@ -81,7 +81,7 @@ public class SaslFilter extends IoFilterAdapter
 
     public void messageReceived( NextFilter nextFilter, IoSession session, Object message ) throws SaslException
     {
-        log.debug( "Message received:  " + message );
+        log.debug( "Message received:  {}", message );
 
         /*
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
@@ -99,7 +99,7 @@ public class SaslFilter extends IoFilterAdapter
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
 
-            log.debug( "Will use SASL to unwrap received message of length:  " + bufferLength );
+            log.debug( "Will use SASL to unwrap received message of length:  {}", bufferLength );
             byte[] token = context.unwrap( bufferBytes, 0, bufferBytes.length );
             nextFilter.messageReceived( session, ByteBuffer.wrap( token ) );
         }
@@ -113,7 +113,7 @@ public class SaslFilter extends IoFilterAdapter
 
     public void filterWrite( NextFilter nextFilter, IoSession session, WriteRequest writeRequest ) throws SaslException
     {
-        log.debug( "Filtering write request:  " + writeRequest );
+        log.debug( "Filtering write request:  {}", writeRequest );
 
         /*
          * Check if security layer processing should be disabled once.
@@ -145,7 +145,7 @@ public class SaslFilter extends IoFilterAdapter
             byte[] bufferBytes = new byte[bufferLength];
             buf.get( bufferBytes );
 
-            log.debug( "Will use SASL to wrap message of length:  " + bufferLength );
+            log.debug( "Will use SASL to wrap message of length:  {}", bufferLength );
 
             byte[] saslLayer = context.wrap( bufferBytes, 0, bufferBytes.length );
 
@@ -158,7 +158,7 @@ public class SaslFilter extends IoFilterAdapter
             saslLayerBuffer.position( 0 );
             saslLayerBuffer.limit( 4 + saslLayer.length );
 
-            log.debug( "Sending encrypted token of length " + saslLayerBuffer.limit() );
+            log.debug( "Sending encrypted token of length {}.", saslLayerBuffer.limit() );
             nextFilter.filterWrite( session, new WriteRequest( saslLayerBuffer, writeRequest.getFuture() ) );
         }
         else

@@ -77,7 +77,7 @@ public class KerberosServer
 
             acceptor.bind( new InetSocketAddress( port ), handler, serviceConfig );
 
-            log.debug( name + " listening on port " + port );
+            log.debug( "{} listening on port {}.", name, port );
         }
         catch ( IOException ioe )
         {
@@ -108,6 +108,6 @@ public class KerberosServer
         acceptor = null;
         handler = null;
 
-        log.debug( config.getServiceName() + " has stopped listening on port " + config.getIpPort() );
+        log.debug( "{} has stopped listening on port {}.", config.getServiceName(), config.getIpPort() );
     }
 }

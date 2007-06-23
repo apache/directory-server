@@ -84,7 +84,7 @@ public class AbandonHandler implements MessageHandler
         {
             if ( IS_DEBUG )
             {
-                log.debug( "Abandoned request: " + req );
+                log.debug( "Abandoned request:  ", req );
             }
         }
     }

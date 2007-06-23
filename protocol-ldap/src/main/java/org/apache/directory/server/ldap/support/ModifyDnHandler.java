@@ -79,7 +79,7 @@ public class ModifyDnHandler implements MessageHandler
 
         if ( IS_DEBUG )
         {
-            log.debug( "req.getName() == [" + req.getName() + "]" );
+            log.debug( "req.getName() == [{}]", req.getName() );
         }
 
         if ( req.getName().isEmpty() )

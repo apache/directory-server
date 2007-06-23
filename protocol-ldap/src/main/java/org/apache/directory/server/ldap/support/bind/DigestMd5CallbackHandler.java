@@ -80,7 +80,11 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 
     protected void authorize( AuthorizeCallback authorizeCB )
     {
-        log.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword );
+        if ( log.isDebugEnabled() )
+        {
+            log.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword + "." );
+        }
+
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );

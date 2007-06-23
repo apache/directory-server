@@ -85,7 +85,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CREATED : " + session.getTransportType() );
+            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
         }
 
         if ( session.getTransportType() == TransportType.DATAGRAM )
@@ -105,7 +105,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " OPENED" );
+            log.debug( "{} OPENED", session.getRemoteAddress() );
         }
     }
 
@@ -114,7 +114,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CLOSED" );
+            log.debug( "{} CLOSED", session.getRemoteAddress() );
         }
     }
 
@@ -123,7 +123,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " IDLE(" + status + ")" );
+            log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
         }
     }
 
@@ -139,7 +139,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " RCVD: " + message );
+            log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
         }
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
@@ -212,7 +212,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " SENT: " + message );
+            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
     }
 

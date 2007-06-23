@@ -74,8 +74,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug( "entry for client principal " + clientName
-                    + " has no SAM type: proceeding with standard pre-authentication" );
+                log.debug( "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.", clientName );
             }
 
             EncryptionType encryptionType = authContext.getEncryptionType();
@@ -147,7 +146,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
 
         if ( log.isDebugEnabled() )
         {
-            log.debug( "Pre-authentication by encrypted timestamp successful for " + clientName + "." );
+            log.debug( "Pre-authentication by encrypted timestamp successful for {}.", clientName );
         }
 
         next.execute( session, message );

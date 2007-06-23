@@ -152,7 +152,7 @@ public class SearchHandler implements MessageHandler
 
     	if ( IS_DEBUG )
     	{
-    		log.debug( "Message received : " + request.toString() );
+    		log.debug( "Message received:  {}", request.toString() );
     	}
 
     	ServerLdapContext ctx;

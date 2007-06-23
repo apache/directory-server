@@ -51,7 +51,7 @@ public class VerifySam extends VerifierBase
 
     static
     {
-        log.debug( "Initializing SAM subsystem" );
+        log.debug( "Initializing SAM subsystem." );
         SamSubsystem.getInstance().setIntegrityChecker( new TimestampChecker() );
     }
 
@@ -72,8 +72,7 @@ public class VerifySam extends VerifierBase
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug( "entry for client principal " + clientName
-                    + " has a valid SAM type: invoking SAM subsystem for pre-authentication" );
+                log.debug( "Entry for client principal {} has a valid SAM type: invoking SAM subsystem for pre-authentication.", clientName );
             }
 
             PreAuthenticationData[] preAuthData = request.getPreAuthData();
@@ -106,7 +105,7 @@ public class VerifySam extends VerifierBase
 
             if ( log.isDebugEnabled() )
             {
-                log.debug( "Pre-authentication using SAM subsystem successful for " + clientName + "." );
+                log.debug( "Pre-authentication using SAM subsystem successful for {}.", clientName );
             }
         }
 

@@ -135,9 +135,9 @@ public class GetLdapContext implements IoHandlerCommand
         String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
         String authenticationLevel = getAuthenticationLevel( sessionMechanism );
 
-        log.debug( Context.SECURITY_PRINCIPAL + " " + principal );
-        log.debug( Context.SECURITY_CREDENTIALS + " " + credentials );
-        log.debug( Context.SECURITY_AUTHENTICATION + " " + authenticationLevel );
+        log.debug( "{} {}", Context.SECURITY_PRINCIPAL, principal );
+        log.debug( "{} {}", Context.SECURITY_CREDENTIALS, credentials );
+        log.debug( "{} {}", Context.SECURITY_AUTHENTICATION, authenticationLevel );
 
         // clone the environment first then add the required security settings
         Hashtable<String, Object> env = SessionRegistry.getSingleton().getEnvironmentByCopy();

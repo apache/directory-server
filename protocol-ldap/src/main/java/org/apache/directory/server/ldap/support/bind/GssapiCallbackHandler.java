@@ -80,7 +80,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ctx, null );
         String bindDn = entry.getDistinguishedName();
 
-        log.debug( "Converted username " + username + " to DN " + bindDn + "." );
+        log.debug( "Converted username {} to DN {}.", username, bindDn );
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );

@@ -63,7 +63,7 @@ public class ProcessPasswordChange implements IoHandlerCommand
         try
         {
             String principalName = store.changePassword( clientPrincipal, newPassword );
-            log.debug( "Successfully modified principal {}", principalName );
+            log.debug( "Successfully modified principal {}.", principalName );
         }
         catch ( NamingException ne )
         {
