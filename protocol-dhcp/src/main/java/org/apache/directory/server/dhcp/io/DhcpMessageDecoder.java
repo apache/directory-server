@@ -40,6 +40,7 @@ public class DhcpMessageDecoder
      * 
      * @return a DhcpMessage.
      * @param buffer ByteBuffer to convert to a DhcpMessage object
+     * @throws DhcpException 
      */
     public DhcpMessage decode( ByteBuffer buffer ) throws DhcpException
     {

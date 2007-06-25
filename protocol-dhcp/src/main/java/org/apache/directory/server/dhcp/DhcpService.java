@@ -32,5 +32,11 @@ import org.apache.directory.server.dhcp.messages.DhcpMessage;
  */
 public interface DhcpService
 {
+    /**
+     * Returns a reply for a given request.
+     *
+     * @param request
+     * @return The {@link DhcpMessage} reply.
+     */
     public DhcpMessage getReplyFor( DhcpMessage request );
 }
