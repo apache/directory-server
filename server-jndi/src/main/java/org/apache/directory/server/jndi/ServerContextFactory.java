@@ -108,6 +108,7 @@ public class ServerContextFactory extends CoreContextFactory
     private static ChangePasswordServer udpChangePasswordServer;
     private static NtpServer tcpNtpServer;
     private static NtpServer udpNtpServer;
+    private static DnsServer tcpDnsServer;
     private static DnsServer udpDnsServer;
     private DirectoryService directoryService;
 
@@ -218,10 +219,20 @@ public class ServerContextFactory extends CoreContextFactory
             
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of NTP Service complete: " + udpNtpServer );
+                log.info( "Unbind of NTP Service (UDP) complete: " + udpNtpServer );
             }
             
             udpNtpServer = null;
+        }
+
+        if ( tcpDnsServer != null )
+        {
+            tcpDnsServer.destroy();
+            if ( log.isInfoEnabled() )
+            {
+                log.info( "Unbind of DNS Service (TCP) complete: " + tcpDnsServer );
+            }
+            tcpDnsServer = null;
         }
 
         if ( udpDnsServer != null )
@@ -229,7 +240,7 @@ public class ServerContextFactory extends CoreContextFactory
             udpDnsServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of DNS Service complete: " + udpDnsServer );
+                log.info( "Unbind of DNS Service (UDP) complete: " + udpDnsServer );
             }
             udpDnsServer = null;
         }
@@ -638,6 +649,13 @@ public class ServerContextFactory extends CoreContextFactory
             DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
             udpConfig.setThreadModel( threadModel );
 
+            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+            tcpConfig.setDisconnectOnUnbind( false );
+            tcpConfig.setReuseAddress( true );
+            tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
+            tcpConfig.setThreadModel( threadModel );
+
+            tcpDnsServer = new DnsServer( dnsConfig, tcpAcceptor, tcpConfig, store );
             udpDnsServer = new DnsServer( dnsConfig, udpAcceptor, udpConfig, store );
         }
         catch ( Throwable t )
