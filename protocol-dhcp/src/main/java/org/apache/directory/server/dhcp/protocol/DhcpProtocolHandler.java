@@ -34,6 +34,8 @@ import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.DatagramConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -42,43 +44,44 @@ import org.apache.mina.transport.socket.nio.DatagramConnector;
  */
 public class DhcpProtocolHandler implements IoHandler
 {
+    private static final Logger log = LoggerFactory.getLogger( DhcpProtocolHandler.class );
+
+
     public void sessionCreated( IoSession session ) throws Exception
     {
-        System.out.println( session.getRemoteAddress() + " CREATED" );
+        log.debug( "{} CREATED", session.getRemoteAddress() );
         session.getFilterChain().addFirst( "codec", new ProtocolCodecFilter( new DhcpProtocolCodecFactory() ) );
     }
 
 
     public void sessionOpened( IoSession session )
     {
-        System.out.println( session.getRemoteAddress() + " OPENED" );
+        log.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
     public void sessionClosed( IoSession session )
     {
-        System.out.println( session.getRemoteAddress() + " CLOSED" );
+        log.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        System.out.println( session.getRemoteAddress() + " IDLE(" + status + ")" );
+        log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        System.out.println( session.getRemoteAddress() + " EXCEPTION" );
-        cause.printStackTrace( System.out );
-
+        log.debug( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close();
     }
 
 
     public void messageReceived( IoSession session, Object message ) throws Exception
     {
-        System.out.println( session.getRemoteAddress() + " RCVD: " + message );
+        log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
 
         DhcpMessage request = ( DhcpMessage ) message;
 
@@ -90,6 +93,7 @@ public class DhcpProtocolHandler implements IoHandler
             int PORT = 68;
             IoConnector connector = new DatagramConnector();
             InetAddress broadcast = InetAddress.getByName( null );
+
             ConnectFuture future = connector.connect( new InetSocketAddress( broadcast, PORT ),
                 new DhcpProtocolHandler() );
             future.join();
@@ -102,6 +106,6 @@ public class DhcpProtocolHandler implements IoHandler
 
     public void messageSent( IoSession session, Object message )
     {
-        System.out.println( session.getRemoteAddress() + " SENT: " + message );
+        log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
     }
 }
