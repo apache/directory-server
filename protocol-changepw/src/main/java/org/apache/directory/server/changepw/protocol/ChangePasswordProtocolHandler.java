@@ -83,7 +83,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CREATED : " + session.getTransportType() );
+            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
         }
 
         if ( session.getTransportType() == TransportType.DATAGRAM )
@@ -113,7 +113,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
+        log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
@@ -126,7 +126,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     public void messageReceived( IoSession session, Object message )
     {
-        log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
+        log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
 
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
         ChangePasswordRequest request = ( ChangePasswordRequest ) message;
@@ -176,7 +176,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
+            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
     }
 
