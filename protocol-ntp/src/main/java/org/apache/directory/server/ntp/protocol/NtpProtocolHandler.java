@@ -77,7 +77,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
+            log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
         }
     }
 
@@ -93,7 +93,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
+            log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
         }
 
         NtpMessage reply = ntpService.getReplyFor( ( NtpMessage ) message );
@@ -106,7 +106,7 @@ public class NtpProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
+            log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
         }
     }
 }
