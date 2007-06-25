@@ -77,7 +77,7 @@ public class DnsProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( session.getRemoteAddress() + " CREATED : " + session.getTransportType() );
+            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
         }
 
         if ( session.getTransportType() == TransportType.DATAGRAM )
@@ -107,7 +107,7 @@ public class DnsProtocolHandler implements IoHandler
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
+        log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
@@ -120,7 +120,7 @@ public class DnsProtocolHandler implements IoHandler
 
     public void messageReceived( IoSession session, Object message )
     {
-        log.debug( "{} RCVD: {}", session.getRemoteAddress(), message );
+        log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
 
         try
         {
@@ -166,7 +166,7 @@ public class DnsProtocolHandler implements IoHandler
 
     public void messageSent( IoSession session, Object message )
     {
-        log.debug( "{} SENT: {}", session.getRemoteAddress(), message );
+        log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
     }
 
 
