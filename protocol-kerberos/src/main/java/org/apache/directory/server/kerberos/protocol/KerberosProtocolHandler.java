@@ -123,7 +123,7 @@ public class KerberosProtocolHandler implements IoHandler
     {
         if ( log.isDebugEnabled() )
         {
-            log.debug( "{} IDLE({})", session.getRemoteAddress(), status );
+            log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
         }
     }
 

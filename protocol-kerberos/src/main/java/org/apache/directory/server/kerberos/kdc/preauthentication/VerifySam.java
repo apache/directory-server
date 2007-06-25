@@ -72,7 +72,7 @@ public class VerifySam extends VerifierBase
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug( "Entry for client principal {} has a valid SAM type: invoking SAM subsystem for pre-authentication.", clientName );
+                log.debug( "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.", clientName );
             }
 
             PreAuthenticationData[] preAuthData = request.getPreAuthData();

@@ -190,7 +190,7 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( log.isDebugEnabled() )
         {
-            log.debug( "Ticket will be issued for access to " + serverPrincipal.toString() + "." );
+            log.debug( "Ticket will be issued for access to {}.", serverPrincipal.toString() );
         }
 
         authContext.setTicket( newTicket );

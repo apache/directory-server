@@ -56,7 +56,7 @@ public class VerifyBodyChecksum implements IoHandlerCommand
             throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
         }
 
-        log.debug( "Verifying body checksum type '" + authenticatorChecksum.getChecksumType() + "'." );
+        log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
         checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
 
