@@ -1,6 +1,7 @@
+@echo off
+
 REM this script starts ApacheDS (as non-windows-service)
 
-@echo off
 
 IF NOT exist target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar GOTO :MVN
    echo uber jar exists
@@ -8,8 +9,8 @@ IF NOT exist target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar GOTO :MVN
 
 :MVN
    echo uber jar not found need to build it
-   mvn clean assembly:assembly
+   call mvn clean assembly:assembly
    GOTO :JAVA
 
 :JAVA
-   java -Dlog4j.configuration=file:///%cd%/log4j.properties -jar target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar server.xml
+   java -Dlog4j.configuration="file:///%cd%/log4j.properties" -jar target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar server.xml
