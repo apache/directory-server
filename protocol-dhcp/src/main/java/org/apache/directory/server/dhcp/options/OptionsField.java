@@ -40,18 +40,33 @@ public class OptionsField
     private Set<DhcpOption> options = new HashSet<DhcpOption>();
 
 
+    /**
+     * Adds the provided {@link DhcpOption} to this {@link OptionsField}.
+     *
+     * @param option
+     */
     public void add( DhcpOption option )
     {
         options.add( option );
     }
 
 
+    /**
+     * Returns whether this {@link OptionsField} is empty.
+     *
+     * @return true if this {@link OptionsField} is empty.
+     */
     public boolean isEmpty()
     {
         return options.isEmpty();
     }
 
 
+    /**
+     * Returns this {@link OptionsField} as an array of {@link DhcpOption}s.
+     *
+     * @return The array of {@link DhcpOption}s.
+     */
     public DhcpOption[] toArray()
     {
         return options.toArray( new DhcpOption[options.size()] );

@@ -40,7 +40,13 @@ public abstract class DhcpOption
     private int length;
 
 
-    public DhcpOption(int tag, int length)
+    /**
+     * Creates a new instance of DhcpOption.
+     *
+     * @param tag
+     * @param length
+     */
+    public DhcpOption( int tag, int length )
     {
         this.tag = tag;
         this.length = length;
@@ -50,6 +56,11 @@ public abstract class DhcpOption
     abstract protected void valueToByteBuffer( ByteBuffer out );
 
 
+    /**
+     * Writes this {@link DhcpOption} to the provided {@link ByteBuffer}.
+     *
+     * @param out
+     */
     public void writeTo( ByteBuffer out )
     {
         out.put( ( byte ) tag );

@@ -43,7 +43,13 @@ public abstract class AddressOption extends DhcpOption
     private byte[] value;
 
 
-    public AddressOption(int tag, byte[] value)
+    /**
+     * Creates a new instance of AddressOption.
+     *
+     * @param tag
+     * @param value
+     */
+    public AddressOption( int tag, byte[] value )
     {
         super( tag, length );
         this.value = value;

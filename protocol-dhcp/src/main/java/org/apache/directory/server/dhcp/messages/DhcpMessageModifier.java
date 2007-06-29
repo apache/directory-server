@@ -49,6 +49,11 @@ public class DhcpMessageModifier
     private OptionsField options = new OptionsField();
 
 
+    /**
+     * Get a new {@link DhcpMessage}.
+     *
+     * @return The new {@link DhcpMessage}.
+     */
     public DhcpMessage getDhcpMessage()
     {
         return new DhcpMessage( messageType, opCode, hardwareAddressType, hardwareAddressLength, hardwareOptions,
@@ -59,6 +64,8 @@ public class DhcpMessageModifier
 
     /**
      * Message type.
+     * 
+     * @param messageType 
      */
     public void setMessageType( MessageType messageType )
     {
@@ -69,6 +76,8 @@ public class DhcpMessageModifier
     /**
      * Message op code / message type.
      * 1 = BOOTREQUEST, 2 = BOOTREPLY
+     * 
+     * @param opCode 
      */
     public void setOpCode( byte opCode )
     {
@@ -79,6 +88,8 @@ public class DhcpMessageModifier
     /**
      * Hardware address type, see ARP section in
      * "Assigned Numbers" RFC; e.g., '1' = 10mb ethernet.
+     * 
+     * @param hardwareAddressType 
      */
     public void setHardwareAddressType( byte hardwareAddressType )
     {
@@ -88,6 +99,8 @@ public class DhcpMessageModifier
 
     /**
      * Hardware address length (e.g.  '6' for 10mb ethernet).
+     * 
+     * @param hardwareAddressLength 
      */
     public void setHardwareAddressLength( byte hardwareAddressLength )
     {
@@ -110,6 +123,8 @@ public class DhcpMessageModifier
      * Transaction ID, a random number chosen by the client,
      * used by the client and server to associate messages
      * and responses between a client and a server.
+     * 
+     * @param transactionId 
      */
     public void setTransactionId( int transactionId )
     {
@@ -120,6 +135,8 @@ public class DhcpMessageModifier
     /**
      * Filled in by client, seconds elapsed since client
      * began address acquisition or renewal process.
+     * 
+     * @param seconds 
      */
     public void setSeconds( short seconds )
     {
@@ -129,6 +146,8 @@ public class DhcpMessageModifier
 
     /**
      * Flags.
+     * 
+     * @param flags 
      */
     public void setFlags( short flags )
     {
@@ -139,6 +158,8 @@ public class DhcpMessageModifier
     /**
      * Client IP address; only filled in if client is in BOUND,
      * RENEW or REBINDING state and can respond to ARP requests.
+     * 
+     * @param actualClientAddress 
      */
     public void setActualClientAddress( byte[] actualClientAddress )
     {
@@ -148,6 +169,8 @@ public class DhcpMessageModifier
 
     /**
      * Get 'your' (client) IP address.
+     * 
+     * @param assignedClientAddress 
      */
     public void setAssignedClientAddress( byte[] assignedClientAddress )
     {
@@ -158,6 +181,8 @@ public class DhcpMessageModifier
     /**
      * IP address of next server to use in bootstrap;
      * returned in DHCPOFFER, DHCPACK by server.
+     * 
+     * @param nextServerAddress 
      */
     public void setNextServerAddress( byte[] nextServerAddress )
     {
@@ -167,6 +192,8 @@ public class DhcpMessageModifier
 
     /**
      * Relay agent IP address, used in booting via a relay agent.
+     * 
+     * @param relayAgentAddress 
      */
     public void setRelayAgentAddress( byte[] relayAgentAddress )
     {
@@ -176,6 +203,8 @@ public class DhcpMessageModifier
 
     /**
      * Client hardware address.
+     * 
+     * @param clientHardwareAddress 
      */
     public void setClientHardwareAddress( byte[] clientHardwareAddress )
     {
@@ -185,6 +214,8 @@ public class DhcpMessageModifier
 
     /**
      * Optional server host name, null terminated string.
+     * 
+     * @param serverHostname 
      */
     public void setServerHostname( byte[] serverHostname )
     {
@@ -195,6 +226,8 @@ public class DhcpMessageModifier
     /**
      * Boot file name, null terminated string; "generic" name or null
      * in DHCPDISCOVER, fully qualified directory-path name in DHCPOFFER.
+     * 
+     * @param bootFileName 
      */
     public void setBootFileName( byte[] bootFileName )
     {
@@ -205,6 +238,8 @@ public class DhcpMessageModifier
     /**
      * Optional parameters field.  See the options
      * documents for a list of defined options.
+     * 
+     * @param options 
      */
     public void setOptions( OptionsField options )
     {

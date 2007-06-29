@@ -50,10 +50,30 @@ public class DhcpMessage
     private OptionsField options = new OptionsField();
 
 
-    public DhcpMessage(MessageType messageType, byte opCode, byte hardwareAddressType, byte hardwareAddressLength,
+    /**
+     * Creates a new instance of DhcpMessage.
+     *
+     * @param messageType
+     * @param opCode
+     * @param hardwareAddressType
+     * @param hardwareAddressLength
+     * @param hardwareOptions
+     * @param transactionId
+     * @param seconds
+     * @param flags
+     * @param actualClientAddress
+     * @param assignedClientAddress
+     * @param nextServerAddress
+     * @param relayAgentAddress
+     * @param clientHardwareAddress
+     * @param serverHostname
+     * @param bootFileName
+     * @param options
+     */
+    public DhcpMessage( MessageType messageType, byte opCode, byte hardwareAddressType, byte hardwareAddressLength,
         byte hardwareOptions, int transactionId, short seconds, short flags, byte[] actualClientAddress,
         byte[] assignedClientAddress, byte[] nextServerAddress, byte[] relayAgentAddress, byte[] clientHardwareAddress,
-        byte[] serverHostname, byte[] bootFileName, OptionsField options)
+        byte[] serverHostname, byte[] bootFileName, OptionsField options )
     {
         this.messageType = messageType;
         this.opCode = opCode;
@@ -76,6 +96,8 @@ public class DhcpMessage
 
     /**
      * Message type.
+     * 
+     * @return The {@link MessageType}.
      */
     public MessageType getMessageType()
     {
@@ -86,6 +108,8 @@ public class DhcpMessage
     /**
      * Message op code / message type.
      * 1 = BOOTREQUEST, 2 = BOOTREPLY
+     * 
+     * @return The message op code (type).
      */
     public byte getOpCode()
     {
@@ -96,6 +120,8 @@ public class DhcpMessage
     /**
      * Hardware address type, see ARP section in
      * "Assigned Numbers" RFC; e.g., '1' = 10mb ethernet.
+     * 
+     * @return The hardware address type.
      */
     public byte getHardwareAddressType()
     {
@@ -105,6 +131,8 @@ public class DhcpMessage
 
     /**
      * Hardware address length (e.g.  '6' for 10mb ethernet).
+     * 
+     * @return The hardware address length.
      */
     public byte getHardwareAddressLength()
     {
@@ -115,6 +143,8 @@ public class DhcpMessage
     /**
      * Client sets to zero, optionally used by relay agents
      * when booting via a relay agent.
+     * 
+     * @return The hardware options.
      */
     public byte getHardwareOptions()
     {
@@ -126,6 +156,8 @@ public class DhcpMessage
      * Transaction ID, a random number chosen by the client,
      * used by the client and server to associate messages
      * and responses between a client and a server.
+     * 
+     * @return The transaction ID.
      */
     public int getTransactionId()
     {
@@ -136,6 +168,8 @@ public class DhcpMessage
     /**
      * Filled in by client, seconds elapsed since client
      * began address acquisition or renewal process.
+     * 
+     * @return The seconds.
      */
     public short getSeconds()
     {
@@ -145,6 +179,8 @@ public class DhcpMessage
 
     /**
      * Flags.
+     * 
+     * @return The flags.
      */
     public short getFlags()
     {
@@ -155,6 +191,8 @@ public class DhcpMessage
     /**
      * Client IP address; only filled in if client is in BOUND,
      * RENEW or REBINDING state and can respond to ARP requests.
+     * 
+     * @return The actual client addresses.
      */
     public byte[] getActualClientAddress()
     {
@@ -164,6 +202,8 @@ public class DhcpMessage
 
     /**
      * Get 'your' (client) IP address.
+     * 
+     * @return The assigned client addresses.
      */
     public byte[] getAssignedClientAddress()
     {
@@ -174,6 +214,8 @@ public class DhcpMessage
     /**
      * IP address of next server to use in bootstrap;
      * returned in DHCPOFFER, DHCPACK by server.
+     * 
+     * @return The next server address.
      */
     public byte[] getNextServerAddress()
     {
@@ -183,6 +225,8 @@ public class DhcpMessage
 
     /**
      * Relay agent IP address, used in booting via a relay agent.
+     * 
+     * @return The relay agent address.
      */
     public byte[] getRelayAgentAddress()
     {
@@ -192,6 +236,8 @@ public class DhcpMessage
 
     /**
      * Client hardware address.
+     * 
+     * @return The client hardware address.
      */
     public byte[] getClientHardwareAddress()
     {
@@ -201,6 +247,8 @@ public class DhcpMessage
 
     /**
      * Optional server host name, null terminated string.
+     * 
+     * @return The server hostname.
      */
     public byte[] getServerHostname()
     {
@@ -211,6 +259,8 @@ public class DhcpMessage
     /**
      * Boot file name, null terminated string; "generic" name or null
      * in DHCPDISCOVER, fully qualified directory-path name in DHCPOFFER.
+     * 
+     * @return The boot file name.
      */
     public byte[] getBootFileName()
     {
@@ -221,6 +271,8 @@ public class DhcpMessage
     /**
      * Optional parameters field.  See the options
      * documents for a list of defined options.
+     * 
+     * @return The options.
      */
     public OptionsField getOptions()
     {
