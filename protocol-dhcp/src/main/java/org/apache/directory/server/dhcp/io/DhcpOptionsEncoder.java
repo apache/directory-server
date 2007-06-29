@@ -38,6 +38,12 @@ public class DhcpOptionsEncoder
         { ( byte ) 99, ( byte ) 130, ( byte ) 83, ( byte ) 99 };
 
 
+    /**
+     * Encodes the {@link OptionsField} into the provided {@link ByteBuffer}.
+     *
+     * @param options
+     * @param message
+     */
     public void encode( OptionsField options, ByteBuffer message )
     {
         message.put( VENDOR_MAGIC_COOKIE );

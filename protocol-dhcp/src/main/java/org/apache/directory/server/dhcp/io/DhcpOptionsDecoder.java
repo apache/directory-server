@@ -50,6 +50,13 @@ public class DhcpOptionsDecoder
         { ( byte ) 99, ( byte ) 130, ( byte ) 83, ( byte ) 99 };
 
 
+    /**
+     * Decodes the {@link ByteBuffer} into an {@link OptionsField}.
+     *
+     * @param message
+     * @return The decoded {@link OptionsField}.
+     * @throws DhcpException
+     */
     public OptionsField decode( ByteBuffer message ) throws DhcpException
     {
         byte[] magicCookie = new byte[4];
