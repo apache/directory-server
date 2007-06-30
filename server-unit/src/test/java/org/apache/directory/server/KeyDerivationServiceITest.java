@@ -227,7 +227,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
 
     /**
-     * Tests that the modification on an entry caused keys to be derived and modified.
+     * Tests that the modification of an entry caused keys to be derived and modified.  The
+     * modify request contains both the 'userPassword' and the 'krb5PrincipalName'.
      * 
      * @throws NamingException
      * @throws IOException 
@@ -335,6 +336,136 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         attr = new AttributeImpl( "userPassword", newUserPassword );
         attributes.put( attr );
         attr = new AttributeImpl( KerberosAttribute.PRINCIPAL, newPrincipalName );
+        attributes.put( attr );
+
+        person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
+
+        // Read again from directory.
+        person = ( DirContext ) ctx.lookup( RDN );
+
+        attributes = person.getAttributes( "" );
+
+        if ( attributes.get( "userPassword" ) != null )
+        {
+            userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
+        }
+
+        assertEquals( "password length", 24, userPassword.length );
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 3, keyVersionNumber );
+    }
+
+
+    /**
+     * Tests that the modification of an entry caused keys to be derived and modified.  The
+     * modify request contains only the 'userPassword'.  The 'krb5PrincipalName' is to be
+     * obtained from the initial add of the user principal entry.
+     * 
+     * @throws NamingException
+     * @throws IOException 
+     */
+    public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, IOException
+    {
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=hnelson,ou=users,dc=example,dc=com" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( "java.naming.ldap.attributes.binary", "krb5key" );
+
+        DirContext ctx = new InitialDirContext( env );
+
+        String newUserPassword = "secretsecret";
+
+        // Modify password.
+        Attributes attributes = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes.put( attr );
+
+        DirContext person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
+
+        // Read again from directory.
+        person = ( DirContext ) ctx.lookup( RDN );
+
+        attributes = person.getAttributes( "" );
+
+        byte[] userPassword = null;
+
+        if ( attributes.get( "userPassword" ) != null )
+        {
+            userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
+        }
+
+        // Could be 4 or 5 depending on whether AES-256 is enabled or not.
+        assertTrue( "Number of keys", attributes.get( "krb5key" ).size() > 3 );
+
+        byte[] testBytes =
+            { 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74 };
+        assertTrue( Arrays.equals( userPassword, testBytes ) );
+
+        Attribute krb5key = attributes.get( "krb5key" );
+        Map<EncryptionType, EncryptionKey> map = reconstituteKeyMap( krb5key );
+        EncryptionKey encryptionKey = map.get( EncryptionType.DES_CBC_MD5 );
+
+        byte[] testKeyBytes =
+            { ( byte ) 0x16, ( byte ) 0x4A, ( byte ) 0x6D, ( byte ) 0x89, ( byte ) 0x5D, ( byte ) 0x76, ( byte ) 0x0E,
+                ( byte ) 0x23 };
+
+        assertTrue( Arrays.equals( encryptionKey.getKeyValue(), testKeyBytes ) );
+        assertEquals( EncryptionType.DES_CBC_MD5, encryptionKey.getKeyType() );
+
+        int keyVersionNumber = -1;
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 1, keyVersionNumber );
+
+        newUserPassword = "secretsecretsecret";
+
+        // Modify password.
+        attributes = new AttributesImpl( true );
+        attr = new AttributeImpl( "userPassword", newUserPassword );
+        attributes.put( attr );
+
+        person = ( DirContext ) ctx.lookup( RDN );
+        person.modifyAttributes( "", DirContext.REPLACE_ATTRIBUTE, attributes );
+
+        // Read again from directory.
+        person = ( DirContext ) ctx.lookup( RDN );
+
+        attributes = person.getAttributes( "" );
+
+        if ( attributes.get( "userPassword" ) != null )
+        {
+            userPassword = ( byte[] ) attributes.get( "userPassword" ).get();
+        }
+
+        assertEquals( "password length", 18, userPassword.length );
+
+        if ( attributes.get( KerberosAttribute.VERSION ) != null )
+        {
+            keyVersionNumber = Integer.valueOf( ( String ) attributes.get( KerberosAttribute.VERSION ).get() );
+        }
+
+        assertEquals( "Key version number", 2, keyVersionNumber );
+
+        newUserPassword = "secretsecretsecretsecret";
+
+        // Modify password.
+        attributes = new AttributesImpl( true );
+        attr = new AttributeImpl( "userPassword", newUserPassword );
         attributes.put( attr );
 
         person = ( DirContext ) ctx.lookup( RDN );

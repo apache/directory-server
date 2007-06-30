@@ -62,6 +62,7 @@ import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionKeyEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -74,9 +75,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An {@link Interceptor} that creates symmetric Kerberos keys for users.  When a
- * userPassword is added or modified, the userPassword and krb5PrincipalName are used
- * to derive Kerberos keys.  If the userPassword is the special keyword 'randomKey',
- * a random key is generated and used as the Kerberos key.
+ * 'userPassword' is added or modified, the 'userPassword' and 'krb5PrincipalName'
+ * are used to derive Kerberos keys.  If the 'userPassword' is the special keyword
+ * 'randomKey', a random key is generated and used as the Kerberos key.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -92,7 +93,7 @@ public class KeyDerivationService extends BaseInterceptor
     /**
      * Define the interceptors to bypass upon user lookup.
      */
-    private static final Collection USERLOOKUP_BYPASS;
+    private static final Collection<String> USERLOOKUP_BYPASS;
     static
     {
         Set<String> c = new HashSet<String>();
@@ -126,30 +127,34 @@ public class KeyDerivationService extends BaseInterceptor
 
         if ( entry.get( "userPassword" ) != null && entry.get( KerberosAttribute.PRINCIPAL ) != null )
         {
-            log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '" + normName.getUpName()
-                + "'" );
+            log.debug( "Adding the entry '{}' for DN '{}'.", AttributeUtils.toString( entry ), normName.getUpName() );
 
             Object firstValue = entry.get( "userPassword" ).get();
 
             if ( firstValue instanceof String )
             {
-                log.debug( "Adding Attribute id : 'userPassword',  Values : ['" + firstValue + "']" );
+                log.debug( "Adding Attribute id : 'userPassword',  Values : [ '{}' ]", firstValue );
             }
             else if ( firstValue instanceof byte[] )
             {
                 String string = StringTools.utf8ToString( ( byte[] ) firstValue );
 
-                StringBuffer sb = new StringBuffer();
-                sb.append( "'" + string + "' ( " );
-                sb.append( StringTools.dumpBytes( ( byte[] ) firstValue ).trim() );
-                log.debug( "Adding Attribute id : 'userPassword',  Values : [ " + sb.toString() + " ) ]" );
+                if ( log.isDebugEnabled() )
+                {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append( "'" + string + "' ( " );
+                    sb.append( StringTools.dumpBytes( ( byte[] ) firstValue ).trim() );
+                    sb.append( " )" );
+                    log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
+                }
+
                 firstValue = string;
             }
 
             String userPassword = ( String ) firstValue;
             String principalName = ( String ) entry.get( KerberosAttribute.PRINCIPAL ).get();
 
-            log.debug( "Got principal " + principalName + " with userPassword " + userPassword );
+            log.debug( "Got principal '{}' with userPassword '{}'.", principalName, userPassword );
 
             Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
@@ -158,10 +163,8 @@ public class KeyDerivationService extends BaseInterceptor
 
             entry.put( getKeyAttribute( keys ) );
 
-            log.debug( "Adding modified entry " + AttributeUtils.toString( entry ) + " for DN = '"
-                + normName.getUpName() + "'" );
-
-            // Optionally discard userPassword.
+            log.debug( "Adding modified entry '{}' for DN '{}'.", AttributeUtils.toString( entry ), normName
+                .getUpName() );
         }
 
         next.add( addContext );
@@ -169,30 +172,57 @@ public class KeyDerivationService extends BaseInterceptor
 
 
     /**
-     * Intercept the modification of the 'userPassword' attribute.  Use the 'userPassword' and 'krb5PrincipalName'
-     * attributes to derive Kerberos keys for the principal.  If the 'userPassword' is the special keyword
-     * 'randomKey', set random keys for the principal.  Perform a lookup to check for an existing key version
-     * number (kvno).  If a kvno exists, increment the kvno; otherwise, set the kvno to '0'.
+     * Intercept the modification of the 'userPassword' attribute.  Perform a lookup to check for an
+     * existing principal name and key version number (kvno).  If a 'krb5PrincipalName' is not in
+     * the modify request, attempt to use an existing 'krb5PrincipalName' attribute.  If a kvno
+     * exists, increment the kvno; otherwise, set the kvno to '0'.
+     * 
+     * If both a 'userPassword' and 'krb5PrincipalName' can be found, use the 'userPassword' and
+     * 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.
+     * 
+     * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
     public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
     {
-        LdapDN name = opContext.getDn();
         ModifyOperationContext modContext = ( ModifyOperationContext ) opContext;
+        ModifySubContext subContext = new ModifySubContext();
 
+        detectPasswordModification( modContext, subContext );
+
+        if ( subContext.getUserPassword() != null )
+        {
+            lookupPrincipalAttributes( modContext, subContext );
+        }
+
+        if ( subContext.isPrincipal() && subContext.hasValues() )
+        {
+            deriveKeys( modContext, subContext );
+        }
+
+        next.modify( modContext );
+    }
+
+
+    /**
+     * Detect password modification by checking the modify request for the 'userPassword'.  Additionally,
+     * check to see if a 'krb5PrincipalName' was provided.
+     *
+     * @param modContext
+     * @param subContext
+     * @throws NamingException
+     */
+    void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
+        throws NamingException
+    {
         ModificationItemImpl[] mods = modContext.getModItems();
 
-        String userPassword = null;
-        String principalName = null;
+        String operation = null;
 
         // Loop over attributes being modified to pick out 'userPassword' and 'krb5PrincipalName'.
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            Attribute attr = mods[ii].getAttribute();
-
             if ( log.isDebugEnabled() )
             {
-                String operation = null;
-
                 switch ( mods[ii].getModificationOp() )
                 {
                     case DirContext.ADD_ATTRIBUTE:
@@ -205,10 +235,9 @@ public class KeyDerivationService extends BaseInterceptor
                         operation = "Replacing";
                         break;
                 }
-
-                log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + attr );
             }
 
+            Attribute attr = mods[ii].getAttribute();
             String attrId = attr.getID();
 
             if ( attrId.equalsIgnoreCase( "userPassword" ) )
@@ -217,117 +246,138 @@ public class KeyDerivationService extends BaseInterceptor
 
                 if ( firstValue instanceof String )
                 {
-                    log.debug( "Adding Attribute id : 'userPassword',  Values : ['" + firstValue + "']" );
+                    log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, firstValue );
                 }
                 else if ( firstValue instanceof byte[] )
                 {
                     String string = StringTools.utf8ToString( ( byte[] ) firstValue );
 
-                    StringBuffer sb = new StringBuffer();
-                    sb.append( "'" + string + "' ( " );
-                    sb.append( StringTools.dumpBytes( ( byte[] ) firstValue ).trim() );
-                    log.debug( "Adding Attribute id : 'userPassword',  Values : [ " + sb.toString() + " ) ]" );
+                    if ( log.isDebugEnabled() )
+                    {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append( "'" + string + "' ( " );
+                        sb.append( StringTools.dumpBytes( ( byte[] ) firstValue ).trim() );
+                        sb.append( " )" );
+                        log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
+                    }
+
                     firstValue = string;
                 }
 
-                userPassword = ( String ) firstValue;
-                log.debug( "Got userPassword " + userPassword + "." );
+                subContext.setUserPassword( ( String ) firstValue );
+                log.debug( "Got userPassword '{}'.", subContext.getUserPassword() );
             }
 
             if ( attrId.equalsIgnoreCase( KerberosAttribute.PRINCIPAL ) )
             {
-                principalName = ( String ) attr.get();
-                log.debug( "Got principal " + principalName + "." );
+                subContext.setPrincipalName( ( String ) attr.get() );
+                log.debug( "Got principal '{}'.", subContext.getPrincipalName() );
             }
         }
-
-        if ( userPassword != null && principalName != null )
-        {
-            log.debug( "Got principal " + principalName + " with userPassword " + userPassword );
-
-            int kvno = lookupKeyVersionNumber( name );
-
-            Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
-
-            Set<ModificationItemImpl> newModsList = new HashSet<ModificationItemImpl>();
-
-            // Make sure we preserve any other modification items.
-            for ( int ii = 0; ii < mods.length; ii++ )
-            {
-                newModsList.add( mods[ii] );
-            }
-
-            // Add our modification items.
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-                KerberosAttribute.PRINCIPAL, principalName ) ) );
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
-                KerberosAttribute.VERSION, Integer.toString( kvno ) ) ) );
-            newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
-
-            mods = newModsList.toArray( mods );
-
-            modContext.setModItems( mods );
-        }
-
-        next.modify( opContext );
     }
 
 
     /**
-     * Lookup the principal entry's krb5KeyVersionNumber attribute.
+     * Lookup the principal's attributes that are relevant to executing key derivation.
      *
-     * @param principalDn
-     * @return The principal entry's krb5KeyVersionNumber attribute.
+     * @param modContext
+     * @param subContext
      * @throws NamingException
      */
-    protected int lookupKeyVersionNumber( LdapDN principalDn ) throws NamingException
+    void lookupPrincipalAttributes( ModifyOperationContext modContext, ModifySubContext subContext )
+        throws NamingException
     {
+        LdapDN principalDn = modContext.getDn();
+
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes userEntry;
 
-        try
-        {
-            LookupOperationContext lookupContext = new LookupOperationContext( new String[]
-                { KerberosAttribute.VERSION, KerberosAttribute.PRINCIPAL } );
-            lookupContext.setDn( principalDn );
+        LookupOperationContext lookupContext = new LookupOperationContext( new String[]
+            { SchemaConstants.OBJECT_CLASS_AT, KerberosAttribute.PRINCIPAL, KerberosAttribute.VERSION } );
+        lookupContext.setDn( principalDn );
 
-            userEntry = proxy.lookup( lookupContext, USERLOOKUP_BYPASS );
+        userEntry = proxy.lookup( lookupContext, USERLOOKUP_BYPASS );
 
-            if ( userEntry == null )
-            {
-                throw new LdapAuthenticationException( "Failed to lookup user for authentication: " + principalDn );
-            }
-        }
-        catch ( Exception cause )
+        if ( userEntry == null )
         {
-            log.error( "Authentication error : " + cause.getMessage() );
-            LdapAuthenticationException e = new LdapAuthenticationException();
-            e.setRootCause( e );
-            throw e;
+            throw new LdapAuthenticationException( "Failed to authenticate user '" + principalDn + "'." );
         }
 
-        int newKeyVersionNumber;
+        Attribute objectClass = userEntry.get( SchemaConstants.OBJECT_CLASS_AT );
+        if ( !objectClass.contains( "krb5principal" ) )
+        {
+            return;
+        }
+        else
+        {
+            subContext.isPrincipal( true );
+            log.debug( "DN {} is a Kerberos principal.  Will attempt key derivation.", principalDn.getUpName() );
+        }
+
+        if ( subContext.getPrincipalName() == null )
+        {
+            Attribute principalAttribute = userEntry.get( KerberosAttribute.PRINCIPAL );
+            String principalName = ( String ) principalAttribute.get();
+            subContext.setPrincipalName( principalName );
+            log.debug( "Found principal '{}' from lookup.", principalName );
+        }
 
         Attribute keyVersionNumberAttr = userEntry.get( KerberosAttribute.VERSION );
 
         if ( keyVersionNumberAttr == null )
         {
-            log.debug( "kvno was null, setting to 0." );
-            newKeyVersionNumber = 0;
+            subContext.setNewKeyVersionNumber( 0 );
+            log.debug( "Key version number was null, setting to 0." );
         }
         else
         {
             int oldKeyVersionNumber = Integer.valueOf( ( String ) keyVersionNumberAttr.get() );
-            newKeyVersionNumber = oldKeyVersionNumber + 1;
-            log.debug( "Found kvno '" + oldKeyVersionNumber + "', setting to '" + newKeyVersionNumber + "'." );
+            int newKeyVersionNumber = oldKeyVersionNumber + 1;
+            subContext.setNewKeyVersionNumber( newKeyVersionNumber );
+            log.debug( "Found key version number '{}', setting to '{}'.", oldKeyVersionNumber, newKeyVersionNumber );
+        }
+    }
+
+
+    /**
+     * Use the 'userPassword' and 'krb5PrincipalName' attributes to derive Kerberos keys for the principal.
+     * 
+     * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
+     *
+     * @param modContext
+     * @param subContext
+     */
+    void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext )
+    {
+        ModificationItemImpl[] mods = modContext.getModItems();
+
+        String principalName = subContext.getPrincipalName();
+        String userPassword = subContext.getUserPassword();
+        int kvno = subContext.getNewKeyVersionNumber();
+
+        log.debug( "Got principal '{}' with userPassword '{}'.", principalName, userPassword );
+
+        Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
+
+        Set<ModificationItemImpl> newModsList = new HashSet<ModificationItemImpl>();
+
+        // Make sure we preserve any other modification items.
+        for ( int ii = 0; ii < mods.length; ii++ )
+        {
+            newModsList.add( mods[ii] );
         }
 
-        // TODO - We may wish to lookup the principal name if one is not present in the modification items.
-        Attribute principalName = userEntry.get( KerberosAttribute.PRINCIPAL );
-        log.debug( "Found principal = " + ( String ) principalName.get() );
+        // Add our modification items.
+        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+            KerberosAttribute.PRINCIPAL, principalName ) ) );
+        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
+            KerberosAttribute.VERSION, Integer.toString( kvno ) ) ) );
+        newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
 
-        return newKeyVersionNumber;
+        ModificationItemImpl[] newMods = newModsList.toArray( mods );
+
+        modContext.setModItems( newMods );
     }
 
 
@@ -372,6 +422,68 @@ public class KeyDerivationService extends BaseInterceptor
         {
             // Derive key based on password and principal name.
             return KerberosKeyFactory.getKerberosKeys( principalName, userPassword );
+        }
+    }
+
+    class ModifySubContext
+    {
+        private boolean isPrincipal = false;
+        private String principalName;
+        private String userPassword;
+        private int newKeyVersionNumber = -1;
+
+
+        boolean isPrincipal()
+        {
+            return isPrincipal;
+        }
+
+
+        void isPrincipal( boolean isPrincipal )
+        {
+            this.isPrincipal = isPrincipal;
+        }
+
+
+        String getPrincipalName()
+        {
+            return principalName;
+        }
+
+
+        void setPrincipalName( String principalName )
+        {
+            this.principalName = principalName;
+        }
+
+
+        String getUserPassword()
+        {
+            return userPassword;
+        }
+
+
+        void setUserPassword( String userPassword )
+        {
+            this.userPassword = userPassword;
+        }
+
+
+        int getNewKeyVersionNumber()
+        {
+            return newKeyVersionNumber;
+        }
+
+
+        void setNewKeyVersionNumber( int newKeyVersionNumber )
+        {
+            this.newKeyVersionNumber = newKeyVersionNumber;
+        }
+
+
+        boolean hasValues()
+        {
+            return userPassword != null && principalName != null && newKeyVersionNumber > -1;
         }
     }
 }
