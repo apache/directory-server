@@ -47,7 +47,12 @@ public class ParameterRequestList extends DhcpOption
     private byte[] parameterRequestList;
 
 
-    public ParameterRequestList(byte[] parameterRequestList)
+    /**
+     * Creates a new instance of ParameterRequestList.
+     *
+     * @param parameterRequestList
+     */
+    public ParameterRequestList( byte[] parameterRequestList )
     {
         super( 55, 1 );
         this.parameterRequestList = parameterRequestList;

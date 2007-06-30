@@ -45,7 +45,12 @@ public class IpAddressLeaseTime extends DhcpOption
     private byte[] ipAddressLeaseTime;
 
 
-    public IpAddressLeaseTime(byte[] ipAddressLeaseTime)
+    /**
+     * Creates a new instance of IpAddressLeaseTime.
+     *
+     * @param ipAddressLeaseTime
+     */
+    public IpAddressLeaseTime( byte[] ipAddressLeaseTime )
     {
         super( 51, 4 );
         this.ipAddressLeaseTime = ipAddressLeaseTime;

@@ -44,7 +44,12 @@ public class MaximumDhcpMessageSize extends DhcpOption
     private byte[] maximumDhcpMessageSize;
 
 
-    public MaximumDhcpMessageSize(byte[] maximumDhcpMessageSize)
+    /**
+     * Creates a new instance of MaximumDhcpMessageSize.
+     *
+     * @param maximumDhcpMessageSize
+     */
+    public MaximumDhcpMessageSize( byte[] maximumDhcpMessageSize )
     {
         super( 57, 2 );
         this.maximumDhcpMessageSize = maximumDhcpMessageSize;

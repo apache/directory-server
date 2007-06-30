@@ -37,7 +37,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class Pop3Servers extends AddressListOption
 {
-    public Pop3Servers(byte[] pop3Server)
+    /**
+     * Creates a new instance of Pop3Servers.
+     *
+     * @param pop3Server
+     */
+    public Pop3Servers( byte[] pop3Server )
     {
         super( 70, pop3Server );
     }

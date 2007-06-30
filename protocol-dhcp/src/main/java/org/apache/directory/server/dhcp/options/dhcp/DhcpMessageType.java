@@ -50,7 +50,12 @@ public class DhcpMessageType extends DhcpOption
     private byte[] messageType;
 
 
-    public DhcpMessageType(byte[] messageType)
+    /**
+     * Creates a new instance of DhcpMessageType.
+     *
+     * @param messageType
+     */
+    public DhcpMessageType( byte[] messageType )
     {
         super( 53, 1 );
         this.messageType = messageType;

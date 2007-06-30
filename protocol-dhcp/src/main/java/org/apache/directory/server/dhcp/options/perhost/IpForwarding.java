@@ -42,7 +42,12 @@ public class IpForwarding extends DhcpOption
     private byte[] ipForwarding;
 
 
-    public IpForwarding(byte[] ipForwarding)
+    /**
+     * Creates a new instance of IpForwarding.
+     *
+     * @param ipForwarding
+     */
+    public IpForwarding( byte[] ipForwarding )
     {
         super( 19, 1 );
         this.ipForwarding = ipForwarding;

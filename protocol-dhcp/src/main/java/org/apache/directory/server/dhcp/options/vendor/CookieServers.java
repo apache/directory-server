@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class CookieServers extends AddressListOption
 {
-    public CookieServers(byte[] cookieServers)
+    /**
+     * Creates a new instance of CookieServers.
+     *
+     * @param cookieServers
+     */
+    public CookieServers( byte[] cookieServers )
     {
         super( 8, cookieServers );
     }

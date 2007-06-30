@@ -42,7 +42,12 @@ public class MaskSupplier extends DhcpOption
     private byte[] maskSupplier;
 
 
-    public MaskSupplier(byte[] maskSupplier)
+    /**
+     * Creates a new instance of MaskSupplier.
+     *
+     * @param maskSupplier
+     */
+    public MaskSupplier( byte[] maskSupplier )
     {
         super( 30, 1 );
         this.maskSupplier = maskSupplier;

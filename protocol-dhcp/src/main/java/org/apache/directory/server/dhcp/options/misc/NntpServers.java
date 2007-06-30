@@ -37,7 +37,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NntpServers extends AddressListOption
 {
-    public NntpServers(byte[] nntpServer)
+    /**
+     * Creates a new instance of NntpServers.
+     *
+     * @param nntpServer
+     */
+    public NntpServers( byte[] nntpServer )
     {
         super( 71, nntpServer );
     }

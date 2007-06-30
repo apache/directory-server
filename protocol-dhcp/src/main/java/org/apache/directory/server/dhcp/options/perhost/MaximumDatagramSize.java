@@ -42,7 +42,12 @@ public class MaximumDatagramSize extends DhcpOption
     private byte[] maximumDatagramSize;
 
 
-    public MaximumDatagramSize(byte[] maximumDatagramSize)
+    /**
+     * Creates a new instance of MaximumDatagramSize.
+     *
+     * @param maximumDatagramSize
+     */
+    public MaximumDatagramSize( byte[] maximumDatagramSize )
     {
         super( 22, 2 );
         this.maximumDatagramSize = maximumDatagramSize;

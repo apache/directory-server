@@ -43,7 +43,12 @@ public class RebindingTimeValue extends DhcpOption
     private int rebindingTimeValue;
 
 
-    public RebindingTimeValue(int rebindingTimeValue)
+    /**
+     * Creates a new instance of RebindingTimeValue.
+     *
+     * @param rebindingTimeValue
+     */
+    public RebindingTimeValue( int rebindingTimeValue )
     {
         super( 59, 4 );
         this.rebindingTimeValue = rebindingTimeValue;

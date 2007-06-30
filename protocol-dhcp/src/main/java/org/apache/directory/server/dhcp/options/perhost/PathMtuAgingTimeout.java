@@ -42,7 +42,12 @@ public class PathMtuAgingTimeout extends DhcpOption
     private byte[] pathMtuAgingTimeout;
 
 
-    public PathMtuAgingTimeout(byte[] pathMtuAgingTimeout)
+    /**
+     * Creates a new instance of PathMtuAgingTimeout.
+     *
+     * @param pathMtuAgingTimeout
+     */
+    public PathMtuAgingTimeout( byte[] pathMtuAgingTimeout )
     {
         super( 24, 4 );
         this.pathMtuAgingTimeout = pathMtuAgingTimeout;

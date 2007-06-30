@@ -42,7 +42,12 @@ public class PerformMaskDiscovery extends DhcpOption
     private byte[] performMaskDiscovery;
 
 
-    public PerformMaskDiscovery(byte[] performMaskDiscovery)
+    /**
+     * Creates a new instance of PerformMaskDiscovery.
+     *
+     * @param performMaskDiscovery
+     */
+    public PerformMaskDiscovery( byte[] performMaskDiscovery )
     {
         super( 29, 1 );
         this.performMaskDiscovery = performMaskDiscovery;

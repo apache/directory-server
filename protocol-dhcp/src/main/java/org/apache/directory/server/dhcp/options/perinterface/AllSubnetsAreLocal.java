@@ -44,7 +44,12 @@ public class AllSubnetsAreLocal extends DhcpOption
     private byte[] allSubnetsAreLocal;
 
 
-    public AllSubnetsAreLocal(byte[] allSubnetsAreLocal)
+    /**
+     * Creates a new instance of AllSubnetsAreLocal.
+     *
+     * @param allSubnetsAreLocal
+     */
+    public AllSubnetsAreLocal( byte[] allSubnetsAreLocal )
     {
         super( 27, 1 );
         this.allSubnetsAreLocal = allSubnetsAreLocal;

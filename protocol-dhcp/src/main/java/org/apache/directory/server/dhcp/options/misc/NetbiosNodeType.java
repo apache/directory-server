@@ -53,7 +53,12 @@ public class NetbiosNodeType extends DhcpOption
     private byte[] netbiosNodeType;
 
 
-    public NetbiosNodeType(byte[] netbiosNodeType)
+    /**
+     * Creates a new instance of NetbiosNodeType.
+     *
+     * @param netbiosNodeType
+     */
+    public NetbiosNodeType( byte[] netbiosNodeType )
     {
         super( 46, 1 );
         this.netbiosNodeType = netbiosNodeType;

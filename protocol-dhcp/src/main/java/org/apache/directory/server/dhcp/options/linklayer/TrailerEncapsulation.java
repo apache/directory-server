@@ -42,7 +42,12 @@ public class TrailerEncapsulation extends DhcpOption
     private byte[] trailerEncapsulation;
 
 
-    public TrailerEncapsulation(byte[] trailerEncapsulation)
+    /**
+     * Creates a new instance of TrailerEncapsulation.
+     *
+     * @param trailerEncapsulation
+     */
+    public TrailerEncapsulation( byte[] trailerEncapsulation )
     {
         super( 34, 1 );
         this.trailerEncapsulation = trailerEncapsulation;

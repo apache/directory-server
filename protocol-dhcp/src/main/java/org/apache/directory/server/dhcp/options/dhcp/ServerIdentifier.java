@@ -43,7 +43,12 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class ServerIdentifier extends AddressOption
 {
-    public ServerIdentifier(byte[] serverIdentifier)
+    /**
+     * Creates a new instance of ServerIdentifier.
+     *
+     * @param serverIdentifier
+     */
+    public ServerIdentifier( byte[] serverIdentifier )
     {
         super( 54, serverIdentifier );
     }

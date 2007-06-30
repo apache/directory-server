@@ -39,7 +39,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class TimeServers extends AddressListOption
 {
-    public TimeServers(byte[] timeServers)
+    /**
+     * Creates a new instance of TimeServers.
+     *
+     * @param timeServers
+     */
+    public TimeServers( byte[] timeServers )
     {
         super( 4, timeServers );
     }

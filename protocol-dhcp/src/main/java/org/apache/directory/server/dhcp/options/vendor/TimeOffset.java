@@ -44,7 +44,12 @@ public class TimeOffset extends DhcpOption
     private byte[] timeOffset;
 
 
-    public TimeOffset(byte[] timeOffset)
+    /**
+     * Creates a new instance of TimeOffset.
+     *
+     * @param timeOffset
+     */
+    public TimeOffset( byte[] timeOffset )
     {
         super( 2, 4 );
         this.timeOffset = timeOffset;

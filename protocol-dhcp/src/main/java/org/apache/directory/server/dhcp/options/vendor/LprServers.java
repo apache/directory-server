@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class LprServers extends AddressListOption
 {
-    public LprServers(byte[] lprServers)
+    /**
+     * Creates a new instance of LprServers.
+     *
+     * @param lprServers
+     */
+    public LprServers( byte[] lprServers )
     {
         super( 9, lprServers );
     }

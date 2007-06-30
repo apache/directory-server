@@ -37,6 +37,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class PadOption extends DhcpOption
 {
+    /**
+     * Creates a new instance of PadOption.
+     */
     public PadOption()
     {
         super( 0, 1 );

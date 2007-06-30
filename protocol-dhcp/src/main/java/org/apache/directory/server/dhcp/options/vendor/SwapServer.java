@@ -35,7 +35,12 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class SwapServer extends AddressOption
 {
-    public SwapServer(byte[] swapServer)
+    /**
+     * Creates a new instance of SwapServer.
+     *
+     * @param swapServer
+     */
+    public SwapServer( byte[] swapServer )
     {
         super( 16, swapServer );
     }

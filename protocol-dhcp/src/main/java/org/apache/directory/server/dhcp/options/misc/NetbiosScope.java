@@ -41,7 +41,12 @@ public class NetbiosScope extends DhcpOption
     private byte[] netbiosScope;
 
 
-    public NetbiosScope(byte[] netbiosScope)
+    /**
+     * Creates a new instance of NetbiosScope.
+     *
+     * @param netbiosScope
+     */
+    public NetbiosScope( byte[] netbiosScope )
     {
         super( 47, 1 );
         this.netbiosScope = netbiosScope;

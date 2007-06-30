@@ -43,7 +43,12 @@ public class HostName extends DhcpOption
     private byte[] hostName;
 
 
-    public HostName(byte[] hostName)
+    /**
+     * Creates a new instance of HostName.
+     *
+     * @param hostName
+     */
+    public HostName( byte[] hostName )
     {
         super( 12, 1 );
         this.hostName = hostName;

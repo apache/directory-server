@@ -42,7 +42,12 @@ public class BootFileSize extends DhcpOption
     private byte[] bootFileSize;
 
 
-    public BootFileSize(byte[] bootFileSize)
+    /**
+     * Creates a new instance of BootFileSize.
+     *
+     * @param bootFileSize
+     */
+    public BootFileSize( byte[] bootFileSize )
     {
         super( 13, 2 );
         this.bootFileSize = bootFileSize;

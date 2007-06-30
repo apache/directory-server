@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class ResourceLocationServers extends AddressListOption
 {
-    public ResourceLocationServers(byte[] resourceLocationServers)
+    /**
+     * Creates a new instance of ResourceLocationServers.
+     *
+     * @param resourceLocationServers
+     */
+    public ResourceLocationServers( byte[] resourceLocationServers )
     {
         super( 11, resourceLocationServers );
     }

@@ -38,6 +38,9 @@ import org.apache.directory.server.dhcp.options.DhcpOption;
  */
 public class EndOption extends DhcpOption
 {
+    /**
+     * Creates a new instance of EndOption.
+     */
     public EndOption()
     {
         super( 255, 1 );

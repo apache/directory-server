@@ -43,7 +43,12 @@ public class NonLocalSourceRouting extends DhcpOption
     private byte[] nonLocalSourceRouting;
 
 
-    public NonLocalSourceRouting(byte[] nonLocalSourceRouting)
+    /**
+     * Creates a new instance of NonLocalSourceRouting.
+     *
+     * @param nonLocalSourceRouting
+     */
+    public NonLocalSourceRouting( byte[] nonLocalSourceRouting )
     {
         super( 20, 1 );
         this.nonLocalSourceRouting = nonLocalSourceRouting;

@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class Routers extends AddressListOption
 {
-    public Routers(byte[] routers)
+    /**
+     * Creates a new instance of Routers.
+     *
+     * @param routers
+     */
+    public Routers( byte[] routers )
     {
         super( 3, routers );
     }

@@ -35,7 +35,12 @@ import org.apache.directory.server.dhcp.options.AddressOption;
  */
 public class RequestedIpAddress extends AddressOption
 {
-    public RequestedIpAddress(byte[] requestedIpAddress)
+    /**
+     * Creates a new instance of RequestedIpAddress.
+     *
+     * @param requestedIpAddress
+     */
+    public RequestedIpAddress( byte[] requestedIpAddress )
     {
         super( 50, requestedIpAddress );
     }

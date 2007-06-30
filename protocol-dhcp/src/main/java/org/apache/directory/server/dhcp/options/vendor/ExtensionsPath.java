@@ -48,7 +48,12 @@ public class ExtensionsPath extends DhcpOption
     private byte[] extensionsPath;
 
 
-    public ExtensionsPath(byte[] extensionsPath)
+    /**
+     * Creates a new instance of ExtensionsPath.
+     *
+     * @param extensionsPath
+     */
+    public ExtensionsPath( byte[] extensionsPath )
     {
         super( 18, 1 );
         this.extensionsPath = extensionsPath;

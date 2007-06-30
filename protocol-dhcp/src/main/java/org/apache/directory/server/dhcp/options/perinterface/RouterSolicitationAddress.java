@@ -40,7 +40,12 @@ public class RouterSolicitationAddress extends DhcpOption
     private byte[] routerSolicitationAddress;
 
 
-    public RouterSolicitationAddress(byte[] routerSolicitationAddress)
+    /**
+     * Creates a new instance of RouterSolicitationAddress.
+     *
+     * @param routerSolicitationAddress
+     */
+    public RouterSolicitationAddress( byte[] routerSolicitationAddress )
     {
         super( 32, 4 );
         this.routerSolicitationAddress = routerSolicitationAddress;

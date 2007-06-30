@@ -43,7 +43,12 @@ public class PerformRouterDiscovery extends DhcpOption
     private byte[] performRouterDiscovery;
 
 
-    public PerformRouterDiscovery(byte[] performRouterDiscovery)
+    /**
+     * Creates a new instance of PerformRouterDiscovery.
+     *
+     * @param performRouterDiscovery
+     */
+    public PerformRouterDiscovery( byte[] performRouterDiscovery )
     {
         super( 31, 1 );
         this.performRouterDiscovery = performRouterDiscovery;

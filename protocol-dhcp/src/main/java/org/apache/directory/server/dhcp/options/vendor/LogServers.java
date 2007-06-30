@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class LogServers extends AddressListOption
 {
-    public LogServers(byte[] logServers)
+    /**
+     * Creates a new instance of LogServers.
+     *
+     * @param logServers
+     */
+    public LogServers( byte[] logServers )
     {
         super( 7, logServers );
     }

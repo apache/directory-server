@@ -43,7 +43,12 @@ public class TcpKeepaliveInterval extends DhcpOption
     private byte[] tcpKeepaliveInterval;
 
 
-    public TcpKeepaliveInterval(byte[] tcpKeepaliveInterval)
+    /**
+     * Creates a new instance of TcpKeepaliveInterval.
+     *
+     * @param tcpKeepaliveInterval
+     */
+    public TcpKeepaliveInterval( byte[] tcpKeepaliveInterval )
     {
         super( 39, 1 );
         this.tcpKeepaliveInterval = tcpKeepaliveInterval;

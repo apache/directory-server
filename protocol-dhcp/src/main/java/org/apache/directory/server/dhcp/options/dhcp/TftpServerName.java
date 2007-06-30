@@ -40,7 +40,12 @@ public class TftpServerName extends DhcpOption
     private byte[] tftpServerName;
 
 
-    public TftpServerName(byte[] tftpServerName)
+    /**
+     * Creates a new instance of TftpServerName.
+     *
+     * @param tftpServerName
+     */
+    public TftpServerName( byte[] tftpServerName )
     {
         super( 66, 1 );
         this.tftpServerName = tftpServerName;

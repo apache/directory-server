@@ -38,7 +38,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class StreetTalkServers extends AddressListOption
 {
-    public StreetTalkServers(byte[] streetTalkServer)
+    /**
+     * Creates a new instance of StreetTalkServers.
+     *
+     * @param streetTalkServer
+     */
+    public StreetTalkServers( byte[] streetTalkServer )
     {
         super( 75, streetTalkServer );
     }

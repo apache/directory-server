@@ -44,7 +44,12 @@ public class PathMtuPlateauTable extends DhcpOption
     private byte[] pathMtuPlateauTable;
 
 
-    public PathMtuPlateauTable(byte[] pathMtuPlateauTable)
+    /**
+     * Creates a new instance of PathMtuPlateauTable.
+     *
+     * @param pathMtuPlateauTable
+     */
+    public PathMtuPlateauTable( byte[] pathMtuPlateauTable )
     {
         super( 25, 2 );
         this.pathMtuPlateauTable = pathMtuPlateauTable;

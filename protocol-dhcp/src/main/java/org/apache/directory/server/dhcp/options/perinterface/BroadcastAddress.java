@@ -40,7 +40,12 @@ public class BroadcastAddress extends DhcpOption
     private byte[] broadcastAddress;
 
 
-    public BroadcastAddress(byte[] broadcastAddress)
+    /**
+     * Creates a new instance of BroadcastAddress.
+     *
+     * @param broadcastAddress
+     */
+    public BroadcastAddress( byte[] broadcastAddress )
     {
         super( 28, 4 );
         this.broadcastAddress = broadcastAddress;

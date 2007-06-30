@@ -46,7 +46,12 @@ public class PolicyFilter extends DhcpOption
     private byte[] policyFilter;
 
 
-    public PolicyFilter(byte[] policyFilter)
+    /**
+     * Creates a new instance of PolicyFilter.
+     *
+     * @param policyFilter
+     */
+    public PolicyFilter( byte[] policyFilter )
     {
         super( 21, 8 );
         this.policyFilter = policyFilter;

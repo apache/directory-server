@@ -39,7 +39,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class XWindowDisplayManagers extends AddressListOption
 {
-    public XWindowDisplayManagers(byte[] xWindowDisplayManager)
+    /**
+     * Creates a new instance of XWindowDisplayManagers.
+     *
+     * @param xWindowDisplayManager
+     */
+    public XWindowDisplayManagers( byte[] xWindowDisplayManager )
     {
         super( 49, xWindowDisplayManager );
     }

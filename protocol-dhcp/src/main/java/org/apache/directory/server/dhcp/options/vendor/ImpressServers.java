@@ -39,7 +39,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class ImpressServers extends AddressListOption
 {
-    public ImpressServers(byte[] impressServers)
+    /**
+     * Creates a new instance of ImpressServers.
+     *
+     * @param impressServers
+     */
+    public ImpressServers( byte[] impressServers )
     {
         super( 10, impressServers );
     }

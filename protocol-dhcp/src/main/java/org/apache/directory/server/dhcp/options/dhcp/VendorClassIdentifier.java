@@ -49,7 +49,12 @@ public class VendorClassIdentifier extends DhcpOption
     private byte[] vendorClassIdentifier;
 
 
-    public VendorClassIdentifier(byte[] vendorClassIdentifier)
+    /**
+     * Creates a new instance of VendorClassIdentifier.
+     *
+     * @param vendorClassIdentifier
+     */
+    public VendorClassIdentifier( byte[] vendorClassIdentifier )
     {
         super( 60, 1 );
         this.vendorClassIdentifier = vendorClassIdentifier;

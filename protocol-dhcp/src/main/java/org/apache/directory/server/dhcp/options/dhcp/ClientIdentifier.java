@@ -58,7 +58,12 @@ public class ClientIdentifier extends DhcpOption
     private byte[] clientIdentifier;
 
 
-    public ClientIdentifier(byte[] clientIdentifier)
+    /**
+     * Creates a new instance of ClientIdentifier.
+     *
+     * @param clientIdentifier
+     */
+    public ClientIdentifier( byte[] clientIdentifier )
     {
         super( 61, 2 );
         this.clientIdentifier = clientIdentifier;

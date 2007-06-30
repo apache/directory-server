@@ -44,7 +44,12 @@ public class Message extends DhcpOption
     private byte[] message;
 
 
-    public Message(byte[] message)
+    /**
+     * Creates a new instance of Message.
+     *
+     * @param message
+     */
+    public Message( byte[] message )
     {
         super( 56, 1 );
         this.message = message;

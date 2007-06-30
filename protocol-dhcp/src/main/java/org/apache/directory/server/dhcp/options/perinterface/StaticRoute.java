@@ -50,7 +50,12 @@ public class StaticRoute extends DhcpOption
     private byte[] staticRoute;
 
 
-    public StaticRoute(byte[] staticRoute)
+    /**
+     * Creates a new instance of StaticRoute.
+     *
+     * @param staticRoute
+     */
+    public StaticRoute( byte[] staticRoute )
     {
         super( 33, 8 );
         this.staticRoute = staticRoute;

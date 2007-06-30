@@ -42,7 +42,12 @@ public class RootPath extends DhcpOption
     private byte[] rootPath;
 
 
-    public RootPath(byte[] rootPath)
+    /**
+     * Creates a new instance of RootPath.
+     *
+     * @param rootPath
+     */
+    public RootPath( byte[] rootPath )
     {
         super( 17, 1 );
         this.rootPath = rootPath;

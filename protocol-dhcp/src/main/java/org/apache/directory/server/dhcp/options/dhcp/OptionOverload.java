@@ -53,7 +53,12 @@ public class OptionOverload extends DhcpOption
     private byte[] optionOverload;
 
 
-    public OptionOverload(byte[] optionOverload)
+    /**
+     * Creates a new instance of OptionOverload.
+     *
+     * @param optionOverload
+     */
+    public OptionOverload( byte[] optionOverload )
     {
         super( 52, 1 );
         this.optionOverload = optionOverload;

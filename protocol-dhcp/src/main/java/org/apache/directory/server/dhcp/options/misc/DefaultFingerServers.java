@@ -37,7 +37,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultFingerServers extends AddressListOption
 {
-    public DefaultFingerServers(byte[] defaultFingerServer)
+    /**
+     * Creates a new instance of DefaultFingerServers.
+     *
+     * @param defaultFingerServer
+     */
+    public DefaultFingerServers( byte[] defaultFingerServer )
     {
         super( 73, defaultFingerServer );
     }

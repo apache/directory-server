@@ -43,7 +43,12 @@ public class MeritDumpFile extends DhcpOption
     private byte[] meritDumpFile;
 
 
-    public MeritDumpFile(byte[] meritDumpFile)
+    /**
+     * Creates a new instance of MeritDumpFile.
+     *
+     * @param meritDumpFile
+     */
+    public MeritDumpFile( byte[] meritDumpFile )
     {
         super( 14, 1 );
         this.meritDumpFile = meritDumpFile;

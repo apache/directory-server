@@ -40,7 +40,12 @@ public class ArpCacheTimeout extends DhcpOption
     private byte[] arpCacheTimeout;
 
 
-    public ArpCacheTimeout(byte[] arpCacheTimeout)
+    /**
+     * Creates a new instance of ArpCacheTimeout.
+     *
+     * @param arpCacheTimeout
+     */
+    public ArpCacheTimeout( byte[] arpCacheTimeout )
     {
         super( 35, 4 );
         this.arpCacheTimeout = arpCacheTimeout;

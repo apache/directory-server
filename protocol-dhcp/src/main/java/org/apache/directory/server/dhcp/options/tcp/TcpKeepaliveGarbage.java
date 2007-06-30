@@ -43,7 +43,12 @@ public class TcpKeepaliveGarbage extends DhcpOption
     private byte[] tcpKeepaliveGarbage;
 
 
-    public TcpKeepaliveGarbage(byte[] tcpKeepaliveGarbage)
+    /**
+     * Creates a new instance of TcpKeepaliveGarbage.
+     *
+     * @param tcpKeepaliveGarbage
+     */
+    public TcpKeepaliveGarbage( byte[] tcpKeepaliveGarbage )
     {
         super( 38, 4 );
         this.tcpKeepaliveGarbage = tcpKeepaliveGarbage;

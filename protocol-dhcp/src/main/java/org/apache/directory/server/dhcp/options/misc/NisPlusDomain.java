@@ -41,7 +41,12 @@ public class NisPlusDomain extends DhcpOption
     private byte[] nisPlusDomain;
 
 
-    public NisPlusDomain(byte[] nisPlusDomain)
+    /**
+     * Creates a new instance of NisPlusDomain.
+     *
+     * @param nisPlusDomain
+     */
+    public NisPlusDomain( byte[] nisPlusDomain )
     {
         super( 64, 1 );
         this.nisPlusDomain = nisPlusDomain;

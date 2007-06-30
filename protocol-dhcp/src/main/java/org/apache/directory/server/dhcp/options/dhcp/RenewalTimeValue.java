@@ -43,7 +43,12 @@ public class RenewalTimeValue extends DhcpOption
     private int renewalTimeValue;
 
 
-    public RenewalTimeValue(int renewalTimeValue)
+    /**
+     * Creates a new instance of RenewalTimeValue.
+     *
+     * @param renewalTimeValue
+     */
+    public RenewalTimeValue( int renewalTimeValue )
     {
         super( 58, 4 );
         this.renewalTimeValue = renewalTimeValue;

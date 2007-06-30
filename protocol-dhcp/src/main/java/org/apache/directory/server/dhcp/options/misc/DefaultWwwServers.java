@@ -37,7 +37,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DefaultWwwServers extends AddressListOption
 {
-    public DefaultWwwServers(byte[] defaultWwwServer)
+    /**
+     * Creates a new instance of DefaultWwwServers.
+     *
+     * @param defaultWwwServer
+     */
+    public DefaultWwwServers( byte[] defaultWwwServer )
     {
         super( 72, defaultWwwServer );
     }

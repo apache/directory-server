@@ -43,7 +43,12 @@ public class EthernetEncapsulation extends DhcpOption
     private byte[] ethernetEncapsulation;
 
 
-    public EthernetEncapsulation(byte[] ethernetEncapsulation)
+    /**
+     * Creates a new instance of EthernetEncapsulation.
+     *
+     * @param ethernetEncapsulation
+     */
+    public EthernetEncapsulation( byte[] ethernetEncapsulation )
     {
         super( 36, 1 );
         this.ethernetEncapsulation = ethernetEncapsulation;

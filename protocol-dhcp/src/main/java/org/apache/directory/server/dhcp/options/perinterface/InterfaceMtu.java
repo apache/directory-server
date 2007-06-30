@@ -41,7 +41,12 @@ public class InterfaceMtu extends DhcpOption
     private byte[] interfaceMtu;
 
 
-    public InterfaceMtu(byte[] interfaceMtu)
+    /**
+     * Creates a new instance of InterfaceMtu.
+     *
+     * @param interfaceMtu
+     */
+    public InterfaceMtu( byte[] interfaceMtu )
     {
         super( 26, 2 );
         this.interfaceMtu = interfaceMtu;

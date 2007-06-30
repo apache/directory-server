@@ -68,7 +68,12 @@ public class VendorSpecificInformation extends DhcpOption
     private byte[] vendorSpecificInformation;
 
 
-    public VendorSpecificInformation(byte[] vendorSpecificInformation)
+    /**
+     * Creates a new instance of VendorSpecificInformation.
+     *
+     * @param vendorSpecificInformation
+     */
+    public VendorSpecificInformation( byte[] vendorSpecificInformation )
     {
         super( 43, 1 );
         this.vendorSpecificInformation = vendorSpecificInformation;

@@ -33,32 +33,88 @@ import java.util.List;
 public final class MessageType implements Comparable
 {
     /**
-     * Enumeration elements are constructed once upon class loading.
-     * Order of appearance here determines the order of compareTo.
+     * Constant for the "Null" message type.
      */
     public static final MessageType NULL = new MessageType( 0, "Null" );
+
+    /**
+     * Constant for the "DHCP Discover" message type.
+     */
     public static final MessageType DHCPDISCOVER = new MessageType( 1, "DHCP Discover" );
+
+    /**
+     * Constant for the "DHCP Offer" message type.
+     */
     public static final MessageType DHCPOFFER = new MessageType( 2, "DHCP Offer" );
+
+    /**
+     * Constant for the "DHCP Request" message type.
+     */
     public static final MessageType DHCPREQUEST = new MessageType( 3, "DHCP Request" );
+
+    /**
+     * Constant for the "DHCP Decline" message type.
+     */
     public static final MessageType DHCPDECLINE = new MessageType( 4, "DHCP Decline" );
+
+    /**
+     * Constant for the "DHCP Acknowledge" message type.
+     */
     public static final MessageType DHCPACK = new MessageType( 5, "DHCP Acknowledge" );
+
+    /**
+     * Constant for the "DHCP Not Acknowledge" message type.
+     */
     public static final MessageType DHCPNAK = new MessageType( 6, "DHCP Not Acknowledge" );
+
+    /**
+     * Constant for the "DHCP Release" message type.
+     */
     public static final MessageType DHCPRELEASE = new MessageType( 7, "DHCP Release" );
+
+    /**
+     * Constant for the "DHCP Inform" message type.
+     */
     public static final MessageType DHCPINFORM = new MessageType( 8, "DHCP Inform" );
 
+    /**
+     * Array for building a List of VALUES.
+     */
+    private static final MessageType[] values =
+        { NULL, DHCPDISCOVER, DHCPOFFER, DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, DHCPRELEASE, DHCPINFORM };
 
-    public String toString()
+    /**
+     * A list of all the message type constants.
+     */
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    /**
+     * The name of the message type.
+     */
+    private final String name;
+
+    /**
+     * The value/code for the message type.
+     */
+    private final int ordinal;
+
+
+    /**
+     * Private constructor prevents construction outside of this class.
+     */
+    private MessageType( int ordinal, String name )
     {
-        return name;
+        this.ordinal = ordinal;
+        this.name = name;
     }
 
 
-    public int compareTo( Object that )
-    {
-        return ordinal - ( ( MessageType ) that ).ordinal;
-    }
-
-
+    /**
+     * Returns the message type when specified by its ordinal.
+     *
+     * @param type
+     * @return The message type.
+     */
     public static MessageType getTypeByOrdinal( int type )
     {
         for ( int ii = 0; ii < values.length; ii++ )
@@ -68,30 +124,25 @@ public final class MessageType implements Comparable
     }
 
 
+    /**
+     * Returns the number associated with this message type.
+     *
+     * @return The message type ordinal.
+     */
     public int getOrdinal()
     {
         return ordinal;
     }
 
-    /// PRIVATE /////
-    private final String name;
-    private final int ordinal;
 
-
-    /**
-     * Private constructor prevents construction outside of this class.
-     */
-    private MessageType(int ordinal, String name)
+    public int compareTo( Object that )
     {
-        this.ordinal = ordinal;
-        this.name = name;
+        return ordinal - ( ( MessageType ) that ).ordinal;
     }
 
-    /**
-     * These two lines are all that's necessary to export a List of VALUES.
-     */
-    private static final MessageType[] values =
-        { NULL, DHCPDISCOVER, DHCPOFFER, DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, DHCPRELEASE, DHCPINFORM };
-    // VALUES needs to be located here, otherwise illegal forward reference
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+
+    public String toString()
+    {
+        return name;
+    }
 }

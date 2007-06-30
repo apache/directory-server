@@ -37,7 +37,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class NisPlusServers extends AddressListOption
 {
-    public NisPlusServers(byte[] nisPlusServers)
+    /**
+     * Creates a new instance of NisPlusServers.
+     *
+     * @param nisPlusServers
+     */
+    public NisPlusServers( byte[] nisPlusServers )
     {
         super( 65, nisPlusServers );
     }

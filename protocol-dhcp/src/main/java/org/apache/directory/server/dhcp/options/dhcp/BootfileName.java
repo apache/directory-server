@@ -40,7 +40,12 @@ public class BootfileName extends DhcpOption
     private byte[] bootFileName;
 
 
-    public BootfileName(byte[] bootFileName)
+    /**
+     * Creates a new instance of BootfileName.
+     *
+     * @param bootFileName
+     */
+    public BootfileName( byte[] bootFileName )
     {
         super( 67, 1 );
         this.bootFileName = bootFileName;

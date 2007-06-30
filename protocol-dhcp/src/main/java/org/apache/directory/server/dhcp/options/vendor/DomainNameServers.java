@@ -39,7 +39,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class DomainNameServers extends AddressListOption
 {
-    public DomainNameServers(byte[] domainNameServers)
+    /**
+     * Creates a new instance of DomainNameServers.
+     *
+     * @param domainNameServers
+     */
+    public DomainNameServers( byte[] domainNameServers )
     {
         super( 6, domainNameServers );
     }

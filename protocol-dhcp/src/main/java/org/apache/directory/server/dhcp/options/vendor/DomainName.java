@@ -41,7 +41,12 @@ public class DomainName extends DhcpOption
     private byte[] domainName;
 
 
-    public DomainName(byte[] domainName)
+    /**
+     * Creates a new instance of DomainName.
+     *
+     * @param domainName
+     */
+    public DomainName( byte[] domainName )
     {
         super( 15, 1 );
         this.domainName = domainName;

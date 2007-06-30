@@ -41,7 +41,12 @@ public class TcpDefaultTimeToLive extends DhcpOption
     private byte[] tcpDefaultTimeToLive;
 
 
-    public TcpDefaultTimeToLive(byte[] tcpDefaultTimeToLive)
+    /**
+     * Creates a new instance of TcpDefaultTimeToLive.
+     *
+     * @param tcpDefaultTimeToLive
+     */
+    public TcpDefaultTimeToLive( byte[] tcpDefaultTimeToLive )
     {
         super( 37, 1 );
         this.tcpDefaultTimeToLive = tcpDefaultTimeToLive;

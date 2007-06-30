@@ -39,7 +39,12 @@ import org.apache.directory.server.dhcp.options.AddressListOption;
  */
 public class MobileIpHomeAgents extends AddressListOption
 {
-    public MobileIpHomeAgents(byte[] mobileIpHomeAgent)
+    /**
+     * Creates a new instance of MobileIpHomeAgents.
+     *
+     * @param mobileIpHomeAgent
+     */
+    public MobileIpHomeAgents( byte[] mobileIpHomeAgent )
     {
         super( 68, mobileIpHomeAgent );
     }
