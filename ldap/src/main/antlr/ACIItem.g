@@ -494,7 +494,10 @@ attributeValue
         // A Dn can be considered as a set of attributeTypeAndValues
         // So, parse the set as a Dn and extract each attributeTypeAndValue
         LdapDN attributeTypeAndValueSetAsDn = new LdapDN( token.getText() );
-        attributeTypeAndValueSetAsDn.normalize( oidsMap );
+        if ( oidsMap != null )
+        {        
+            attributeTypeAndValueSetAsDn.normalize( oidsMap );
+        }
         Enumeration attributeTypeAndValueSet = attributeTypeAndValueSetAsDn.getAll();
         while ( attributeTypeAndValueSet.hasMoreElements() )
         {
@@ -1159,7 +1162,10 @@ distinguishedName returns [ LdapDN name ]
     token:SAFEUTF8STRING
     {
         name = new LdapDN( token.getText() );
-        name.normalize( oidsMap );
+        if ( oidsMap != null )
+        {
+            name.normalize( oidsMap );
+        }
         log.debug( "recognized a DistinguishedName: " + token.getText() );
     }
     ;

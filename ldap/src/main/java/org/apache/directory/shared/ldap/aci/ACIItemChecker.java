@@ -42,10 +42,10 @@ import antlr.TokenStreamException;
 public class ACIItemChecker
 {
     /** the antlr generated parser being wrapped */
-    private ReusableAntlrACIItemChecker checker;
+    private ReusableAntlrACIItemParser checker;
 
     /** the antlr generated lexer being wrapped */
-    private ReusableAntlrACIItemCheckerLexer lexer;
+    private ReusableAntlrACIItemLexer lexer;
 
     private final boolean isNormalizing;
 
@@ -55,27 +55,9 @@ public class ACIItemChecker
      */
     public ACIItemChecker()
     {
-        this.lexer = new ReusableAntlrACIItemCheckerLexer( new StringReader( "" ) );
-        this.checker = new ReusableAntlrACIItemChecker( lexer );
-
-        this.checker.init(); // this method MUST be called while we cannot do
-        // constructor overloading for antlr generated parser
+        this.lexer = new ReusableAntlrACIItemLexer( new StringReader( "" ) );
+        this.checker = new ReusableAntlrACIItemParser( lexer );
         this.isNormalizing = false;
-    }
-
-
-    /**
-     * Creates a normalizing ACIItem parser.
-     */
-    public ACIItemChecker(NameComponentNormalizer normalizer, Map oidsMap )
-    {
-        this.lexer = new ReusableAntlrACIItemCheckerLexer( new StringReader( "" ) );
-        this.checker = new ReusableAntlrACIItemChecker( lexer );
-
-        this.checker.setNormalizer( normalizer );
-        this.checker.init(); // this method MUST be called while we cannot do
-        // constructor overloading for antlr generated parser
-        this.isNormalizing = true;
     }
 
 

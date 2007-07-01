@@ -258,37 +258,37 @@ public class ACIItemChekerTest extends TestCase
     {
         String spec;
         
-//        // no name-value-pair
-//        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
-//            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { must_be_a_name_value_pair } , "
-//            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
-//            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
-//            + " maximum   2, minimum  1 } } }  }  }   ";
-//        try
-//        {
-//            checker.parse( spec );
-//            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
-//        }
-//        catch ( ParseException e )
-//        {
-//            // Expected
-//        }
-//        
-//        // no name-value-pair
-//        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
-//            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { x=y,m=n,k=l,x } , "
-//            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
-//            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
-//            + " maximum   2, minimum  1 } } }  }  }   ";
-//        try
-//        {
-//            checker.parse( spec );
-//            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
-//        }
-//        catch ( ParseException e )
-//        {
-//            // Expected
-//        }
+        // no name-value-pair
+        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
+            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { must_be_a_name_value_pair } , "
+            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
+            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
+            + " maximum   2, minimum  1 } } }  }  }   ";
+        try
+        {
+            checker.parse( spec );
+            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
+        }
+        catch ( ParseException e )
+        {
+            // Expected
+        }
+        
+        // no name-value-pair
+        spec = "{ identificationTag \"id2\"   , precedence 14, authenticationLevel none  , "
+            + "itemOrUserFirst userFirst:  { userPermissions { { protectedItems{ entry  , attributeType { cn  , ou }  , attributeValue { x=y,m=n,k=l,x } , "
+            + "rangeOfValues (cn=ErsinEr) }  , grantsAndDenials { grantBrowse } } }, userClasses {  allUsers  , name { \"ou=people,cn=ersin\" }, "
+            + "subtree {{ minimum 7, maximum 9, base \"ou=system\" }, { base \"ou=ORGANIZATIONUNIT\","
+            + " maximum   2, minimum  1 } } }  }  }   ";
+        try
+        {
+            checker.parse( spec );
+            fail("Expected ParseException, invalid protected item 'attributeValue { must_be_a_name_value_pair }'");
+        }
+        catch ( ParseException e )
+        {
+            // Expected
+        }
     }
     
     
@@ -310,38 +310,38 @@ public class ACIItemChekerTest extends TestCase
             // Expected
         }
         
-//        spec = "{ identificationTag \"id2\" }";
-//        try
-//        {
-//            checker.parse( spec );
-//            fail("Expected ParseException, ACIItem is incomplete'");
-//        }
-//        catch ( ParseException e )
-//        {
-//            // Expected
-//        }
-//        
-//        spec = "{ identificationTag \"id2\", precedence 14 } ";
-//        try
-//        {
-//            checker.parse( spec );
-//            fail("Expected ParseException, ACIItem is incomplete'");
-//        }
-//        catch ( ParseException e )
-//        {
-//            // Expected
-//        }
-//        
-//        spec = "{ identificationTag \"id2\", precedence 14, authenticationLevel none } ";
-//        try
-//        {
-//            checker.parse( spec );
-//            fail("Expected ParseException, ACIItem is incomplete'");
-//        }
-//        catch ( ParseException e )
-//        {
-//            // Expected
-//        }
+        spec = "{ identificationTag \"id2\" }";
+        try
+        {
+            checker.parse( spec );
+            fail("Expected ParseException, ACIItem is incomplete'");
+        }
+        catch ( ParseException e )
+        {
+            // Expected
+        }
+        
+        spec = "{ identificationTag \"id2\", precedence 14 } ";
+        try
+        {
+            checker.parse( spec );
+            fail("Expected ParseException, ACIItem is incomplete'");
+        }
+        catch ( ParseException e )
+        {
+            // Expected
+        }
+        
+        spec = "{ identificationTag \"id2\", precedence 14, authenticationLevel none } ";
+        try
+        {
+            checker.parse( spec );
+            fail("Expected ParseException, ACIItem is incomplete'");
+        }
+        catch ( ParseException e )
+        {
+            // Expected
+        }
     }
     
 }
