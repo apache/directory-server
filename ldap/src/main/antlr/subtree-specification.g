@@ -80,7 +80,7 @@ options
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrSubtreeSpecificationParser.class );
     
-    private final FilterParserImpl filterParser = new FilterParserImpl();
+    private FilterParserImpl filterParser;
     
     private NormalizerMappingResolver resolver;
     
@@ -162,6 +162,8 @@ subtreeSpecification returns [SubtreeSpecification ss]
             new String [] { "base", "specificExclusions", "minimum", "maximum", "specificationFilter" } );
     chopBeforeExclusions = new HashSet();
     chopAfterExclusions = new HashSet();
+    // always create a new filter parser in case we may have some statefulness problems with it
+    filterParser = new FilterParserImpl();
 }
     :
     OPEN_CURLY ( SP )*
