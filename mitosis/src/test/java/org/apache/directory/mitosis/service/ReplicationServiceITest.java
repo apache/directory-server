@@ -30,6 +30,7 @@ import java.util.Random;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
@@ -48,6 +49,7 @@ import org.apache.directory.server.core.configuration.MutableInterceptorConfigur
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.mina.util.AvailablePortFinder;
 
@@ -72,21 +74,11 @@ public class ReplicationServiceITest extends TestCase
         destroyAllReplicas();
     }
 
-    public void testOneWayBind() throws Exception
+    public void testOneWay() throws Exception
     {
-        LdapContext ctxA = getReplicaContext( "A" );
-        LdapContext ctxB = getReplicaContext( "B" );
-        LdapContext ctxC = getReplicaContext( "C" );
-
-        Attributes entry = new AttributesImpl( true );
-        entry.put( "cn", "test" );
-        entry.put( "objectClass", "top" );
-        ctxA.bind( "cn=test,ou=system", entry );
-
-        Thread.sleep( 7000 );
-
-        Assert.assertNotNull( ctxB.lookup( "cn=test,ou=system" ) );
-        Assert.assertNotNull( ctxC.lookup( "cn=test,ou=system" ) );
+        String dn1 = "cn=test,ou=system";
+        testOneWayBind( dn1 );
+        testOneWayUnbind( dn1 );
     }
     
     public void _testTwoWayBind() throws Exception
@@ -112,6 +104,52 @@ public class ReplicationServiceITest extends TestCase
         Assert.assertEquals( "B", getAttributeValue( ctxA, "cn=test,ou=system", "ou" ) );
         Assert.assertEquals( "B", getAttributeValue( ctxB, "cn=test,ou=system", "ou" ) );
         Assert.assertEquals( "B", getAttributeValue( ctxC, "cn=test,ou=system", "ou" ) );
+    }
+    
+    private void testOneWayBind( String dn ) throws Exception
+    {
+        LdapContext ctxA = getReplicaContext( "A" );
+        LdapContext ctxB = getReplicaContext( "B" );
+        LdapContext ctxC = getReplicaContext( "C" );
+        
+        Attributes entry = new AttributesImpl( true );
+        entry.put( "cn", "test" );
+        entry.put( "objectClass", "top" );
+        ctxA.bind( dn, entry );
+
+        Thread.sleep( 7000 );
+
+        Assert.assertNotNull( ctxB.lookup( dn ) );
+        Assert.assertNotNull( ctxC.lookup( dn ) );
+    }
+    
+    private void testOneWayUnbind( String dn ) throws Exception
+    {
+        LdapContext ctxA = getReplicaContext( "A" );
+        LdapContext ctxB = getReplicaContext( "B" );
+        LdapContext ctxC = getReplicaContext( "C" );
+        
+        ctxA.unbind( dn );
+        
+        Thread.sleep( 7000 );
+        
+        assertNotExists( ctxA, dn );
+        assertNotExists( ctxB, dn );
+        assertNotExists( ctxC, dn );
+    }
+    
+    private void assertNotExists( LdapContext ctx, String dn ) throws NamingException
+    {
+        try
+        {
+            ctx.lookup( dn );
+        }
+        catch ( LdapNameNotFoundException e )
+        {
+            // This is expected so return immediately.
+            return;
+        }
+        throw new AssertionError( "The entry exists" );
     }
     
     private String getAttributeValue( LdapContext ctx, String name, String attrName ) throws Exception
