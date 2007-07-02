@@ -70,7 +70,7 @@ public class PasswordPolicyService extends BaseInterceptor
 
         Attributes entry = ( ( AddOperationContext ) addContext ).getEntry();
 
-        log.debug( "Adding the entry " + AttributeUtils.toString( entry ) + " for DN = '" + normName.getUpName() + "'" );
+        log.debug( "Adding the entry '{}' for DN '{}'.", AttributeUtils.toString( entry ), normName.getUpName() );
 
         Object attr = null;
 
@@ -83,17 +83,21 @@ public class PasswordPolicyService extends BaseInterceptor
 
             if ( attr instanceof String )
             {
-                log.debug( "Adding Attribute id : 'userPassword',  Values : ['" + attr + "']" );
+                log.debug( "Adding Attribute id : 'userPassword',  Values : [ '{}' ]", attr );
                 userPassword = ( String ) attr;
             }
             else if ( attr instanceof byte[] )
             {
                 String string = StringTools.utf8ToString( ( byte[] ) attr );
 
-                StringBuffer sb = new StringBuffer();
-                sb.append( "'" + string + "' ( " );
-                sb.append( StringTools.dumpBytes( ( byte[] ) attr ).trim() );
-                log.debug( "Adding Attribute id : 'userPassword',  Values : [ " + sb.toString() + " ) ]" );
+                if ( log.isDebugEnabled() )
+                {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append( "'" + string + "' ( " );
+                    sb.append( StringTools.dumpBytes( ( byte[] ) attr ).trim() );
+                    sb.append( " )" );
+                    log.debug( "Adding Attribute id : 'userPassword',  Values : [ {} ]", sb.toString() );
+                }
 
                 userPassword = string;
             }
@@ -127,17 +131,20 @@ public class PasswordPolicyService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            switch ( mods[ii].getModificationOp() )
+            if ( log.isDebugEnabled() )
             {
-                case DirContext.ADD_ATTRIBUTE:
-                    operation = "Adding";
-                    break;
-                case DirContext.REMOVE_ATTRIBUTE:
-                    operation = "Removing";
-                    break;
-                case DirContext.REPLACE_ATTRIBUTE:
-                    operation = "Replacing";
-                    break;
+            	switch ( mods[ii].getModificationOp() )
+	            {
+	                case DirContext.ADD_ATTRIBUTE:
+	                    operation = "Adding";
+	                    break;
+	                case DirContext.REMOVE_ATTRIBUTE:
+	                    operation = "Removing";
+	                    break;
+	                case DirContext.REPLACE_ATTRIBUTE:
+	                    operation = "Replacing";
+	                    break;
+	            }
             }
 
             Attribute attr = mods[ii].getAttribute();
@@ -151,16 +158,20 @@ public class PasswordPolicyService extends BaseInterceptor
                 {
                     if ( userPassword instanceof String )
                     {
-                        log.debug( "Adding Attribute id : 'userPassword',  Values : ['" + attr + "']" );
+                        log.debug( "{} Attribute id : 'userPassword',  Values : [ '{}' ]", operation, attr );
                     }
                     else if ( userPassword instanceof byte[] )
                     {
                         String string = StringTools.utf8ToString( ( byte[] ) userPassword );
 
-                        StringBuffer sb = new StringBuffer();
-                        sb.append( "'" + string + "' ( " );
-                        sb.append( StringTools.dumpBytes( ( byte[] ) userPassword ).trim() );
-                        log.debug( "Adding Attribute id : 'userPassword',  Values : [ " + sb.toString() + " ) ]" );
+                        if ( log.isDebugEnabled() )
+                        {
+                            StringBuffer sb = new StringBuffer();
+                            sb.append( "'" + string + "' ( " );
+                            sb.append( StringTools.dumpBytes( ( byte[] ) userPassword ).trim() );
+                            sb.append( " )" );
+                            log.debug( "{} Attribute id : 'userPassword',  Values : [ {} ]", operation, sb.toString() );
+                        }
 
                         userPassword = string;
                     }
@@ -170,7 +181,10 @@ public class PasswordPolicyService extends BaseInterceptor
                 }
             }
 
-            log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mods[ii].getAttribute() );
+            if ( log.isDebugEnabled() )
+            {
+            	log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mods[ii].getAttribute() );
+            }
         }
 
         next.modify( opContext );
