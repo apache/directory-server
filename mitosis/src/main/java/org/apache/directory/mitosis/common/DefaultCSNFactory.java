@@ -28,7 +28,6 @@ package org.apache.directory.mitosis.common;
 public class DefaultCSNFactory implements CSNFactory
 {
     private static int operationSequence;
-    private static long lastTimestamp = System.currentTimeMillis();
 
 
     public DefaultCSNFactory()
@@ -53,13 +52,12 @@ public class DefaultCSNFactory implements CSNFactory
     public synchronized CSN newInstance( ReplicaId replicaId )
     {
         long newTimestamp = System.currentTimeMillis();
-        if ( lastTimestamp == newTimestamp )
+        if ( operationSequence == Integer.MAX_VALUE )
         {
             operationSequence = 0;
         }
 
         CSN newCSN = new DefaultCSN( newTimestamp, replicaId, operationSequence++ );
-        lastTimestamp = newTimestamp;
         return newCSN;
     }
 }
