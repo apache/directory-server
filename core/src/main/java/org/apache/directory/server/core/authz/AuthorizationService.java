@@ -535,9 +535,12 @@ public class AuthorizationService extends BaseInterceptor
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
-            
             next.modify( opContext );
-            tupleCache.subentryModified( name, mods, entry );
+            /**
+             * @TODO: A virtual entry can be created here for not hitting the backend again.
+             */
+            Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+            tupleCache.subentryModified( name, mods, modifiedEntry );
             groupCache.groupModified( name, mods, entry );
             return;
         }
@@ -582,7 +585,11 @@ public class AuthorizationService extends BaseInterceptor
         
 
         next.modify( opContext );
-        tupleCache.subentryModified( name, mods, entry );
+        /**
+         * @TODO: A virtual entry can be created here for not hitting the backend again.
+         */
+        Attributes modifiedEntry = proxy.lookup( new LookupOperationContext( name ), PartitionNexusProxy.LOOKUP_BYPASS );
+        tupleCache.subentryModified( name, mods, modifiedEntry );
         groupCache.groupModified( name, mods, entry );
     }
 
