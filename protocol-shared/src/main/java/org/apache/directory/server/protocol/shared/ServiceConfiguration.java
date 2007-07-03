@@ -164,7 +164,7 @@ public abstract class ServiceConfiguration
      * @param config
      * @return Whether the configuration is different.
      */
-    public boolean isDifferent( Dictionary config )
+    public boolean isDifferent( Dictionary<String, Object> config )
     {
         int port = getIpPort();
 

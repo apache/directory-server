@@ -59,13 +59,13 @@ public class GetCatalog implements ContextOperation
 
         String filter = "(objectClass=" + ENTRY + ")";
 
-        NamingEnumeration list = ctx.search( "", filter, controls );
+        NamingEnumeration<SearchResult> list = ctx.search( "", filter, controls );
 
         Map<String, String> catalog = new HashMap<String, String>();
 
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
 
             Attributes attrs = result.getAttributes();
             Attribute attr;
