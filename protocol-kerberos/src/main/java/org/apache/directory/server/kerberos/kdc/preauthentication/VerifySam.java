@@ -102,6 +102,7 @@ public class VerifySam extends VerifierBase
             }
 
             authContext.setClientKey( clientKey );
+            authContext.setPreAuthenticated( true );
 
             if ( log.isDebugEnabled() )
             {

@@ -72,6 +72,15 @@ public class GenerateTicket implements IoHandlerCommand
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
         KdcConfiguration config = authContext.getConfig();
 
+        // The INITIAL flag indicates that a ticket was issued using the AS protocol.
+        newTicketBody.setFlag( TicketFlags.INITIAL );
+
+        // The PRE-AUTHENT flag indicates that the client used pre-authentication.
+        if ( authContext.isPreAuthenticated() )
+        {
+            newTicketBody.setFlag( TicketFlags.PRE_AUTHENT );
+        }
+
         if ( request.getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
             newTicketBody.setFlag( TicketFlags.FORWARDABLE );

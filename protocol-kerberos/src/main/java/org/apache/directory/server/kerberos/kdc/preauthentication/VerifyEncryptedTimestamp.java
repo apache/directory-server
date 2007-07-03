@@ -143,6 +143,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
         }
 
         authContext.setClientKey( clientKey );
+        authContext.setPreAuthenticated( true );
 
         if ( log.isDebugEnabled() )
         {

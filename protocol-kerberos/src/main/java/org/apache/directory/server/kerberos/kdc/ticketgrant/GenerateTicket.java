@@ -127,6 +127,11 @@ public class GenerateTicket implements IoHandlerCommand
     private void processFlags( KdcConfiguration config, KdcRequest request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException
     {
+        if ( tgt.getFlag( TicketFlags.PRE_AUTHENT ) )
+        {
+            newTicketBody.setFlag( TicketFlags.PRE_AUTHENT );
+        }
+
         if ( request.getOption( KdcOptions.FORWARDABLE ) )
         {
             if ( !tgt.getFlag( TicketFlags.FORWARDABLE ) )

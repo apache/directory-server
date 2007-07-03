@@ -47,6 +47,8 @@ public class AuthenticationContext extends KdcContext
     private PrincipalStoreEntry clientEntry;
     private PrincipalStoreEntry serverEntry;
 
+    private boolean isPreAuthenticated;
+
 
     /**
      * @return Returns the serverEntry.
@@ -153,5 +155,23 @@ public class AuthenticationContext extends KdcContext
     public void setTicket( Ticket ticket )
     {
         this.ticket = ticket;
+    }
+
+
+    /**
+     * @return true if the client used pre-authentication.
+     */
+    public boolean isPreAuthenticated()
+    {
+        return isPreAuthenticated;
+    }
+
+
+    /**
+     * @param isPreAuthenticated Whether the client used pre-authentication.
+     */
+    public void setPreAuthenticated( boolean isPreAuthenticated )
+    {
+        this.isPreAuthenticated = isPreAuthenticated;
     }
 }
