@@ -56,11 +56,11 @@ public class GetResourceRecords implements IoHandlerCommand
         DnsMessage request = ( DnsMessage ) message;
         List<QuestionRecord> questions = request.getQuestionRecords();
 
-        Iterator it = questions.iterator();
+        Iterator<QuestionRecord> it = questions.iterator();
 
         while ( it.hasNext() )
         {
-            dnsContext.addResourceRecords( getEntry( store, ( QuestionRecord ) it.next() ) );
+            dnsContext.addResourceRecords( getEntry( store, it.next() ) );
         }
 
         next.execute( session, message );

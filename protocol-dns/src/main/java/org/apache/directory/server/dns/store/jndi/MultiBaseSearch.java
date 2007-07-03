@@ -74,7 +74,7 @@ public class MultiBaseSearch implements SearchStrategy
         try
         {
             DirContext ctx = ( DirContext ) factory.getInitialContext( env );
-            catalog = new DnsCatalog( ( Map ) execute( ctx, new GetCatalog() ) );
+            catalog = new DnsCatalog( ( Map<String, Object> ) execute( ctx, new GetCatalog() ) );
         }
         catch ( Exception e )
         {
@@ -92,30 +92,36 @@ public class MultiBaseSearch implements SearchStrategy
         try
         {
             DirContext ctx = ( DirContext ) factory.getInitialContext( env );
-            return ( Set ) execute( ctx, new GetRecords( question ) );
+            return ( Set<ResourceRecord> ) execute( ctx, new GetRecords( question ) );
         }
         catch ( LdapNameNotFoundException lnnfe )
-	    {
-	        log.debug( "Name for DNS record search does not exist.", lnnfe );
-	
-	        throw new DnsException( ResponseCode.NAME_ERROR );
-	    }
+        {
+            log.debug( "Name for DNS record search does not exist.", lnnfe );
+
+            throw new DnsException( ResponseCode.NAME_ERROR );
+        }
         catch ( NamingException ne )
         {
             log.error( ne.getMessage(), ne );
             String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
-	    catch ( Exception e )
-	    {
-	        log.debug( "Unexpected error retrieving DNS records.", e );
-	        throw new DnsException( ResponseCode.SERVER_FAILURE );
-	    }
+        catch ( Exception e )
+        {
+            log.debug( "Unexpected error retrieving DNS records.", e );
+            throw new DnsException( ResponseCode.SERVER_FAILURE );
+        }
 
     }
 
 
     private Object execute( DirContext ctx, ContextOperation operation ) throws Exception
+    {
+        return operation.execute( ctx, null );
+    }
+
+
+    private Set<ResourceRecord> execute( DirContext ctx, DnsOperation operation ) throws Exception
     {
         return operation.execute( ctx, null );
     }

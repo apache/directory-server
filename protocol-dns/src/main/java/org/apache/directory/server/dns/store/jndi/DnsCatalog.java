@@ -34,7 +34,7 @@ import org.apache.directory.server.protocol.shared.catalog.Catalog;
  */
 class DnsCatalog implements Catalog
 {
-    private Map map;
+    private Map<String, Object> map;
 
 
     /**
@@ -42,7 +42,7 @@ class DnsCatalog implements Catalog
      *
      * @param map
      */
-    public DnsCatalog( Map map )
+    public DnsCatalog( Map<String, Object> map )
     {
         this.map = map;
     }

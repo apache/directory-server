@@ -60,7 +60,7 @@ public class DnsMessageDecoder
     /**
      * A Hashed Adapter mapping record types to their encoders.
      */
-    private static final Map DEFAULT_DECODERS;
+    private static final Map<RecordType, RecordDecoder> DEFAULT_DECODERS;
 
     static
     {
@@ -133,7 +133,7 @@ public class DnsMessageDecoder
             int timeToLive = byteBuffer.getInt();
             short dataLength = byteBuffer.getShort();
 
-            Map attributes = decode( byteBuffer, recordType, dataLength );
+            Map<String, Object> attributes = decode( byteBuffer, recordType, dataLength );
             records.add( new ResourceRecordImpl( domainName, recordType, recordClass, timeToLive, attributes ) );
         }
 
@@ -141,7 +141,7 @@ public class DnsMessageDecoder
     }
 
 
-    private Map decode( ByteBuffer byteBuffer, RecordType type, short length ) throws IOException
+    private Map<String, Object> decode( ByteBuffer byteBuffer, RecordType type, short length ) throws IOException
     {
         RecordDecoder recordDecoder = ( RecordDecoder ) DEFAULT_DECODERS.get( type );
 

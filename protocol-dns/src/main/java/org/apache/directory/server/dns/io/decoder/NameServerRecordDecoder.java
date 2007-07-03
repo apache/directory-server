@@ -52,10 +52,9 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class NameServerRecordDecoder implements RecordDecoder
 {
-
-    public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
+    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( DnsAttribute.DOMAIN_NAME, DnsMessageDecoder.getDomainName( byteBuffer ) );
         return map;
     }

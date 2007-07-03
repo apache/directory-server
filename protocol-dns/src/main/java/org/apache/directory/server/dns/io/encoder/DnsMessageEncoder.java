@@ -57,7 +57,7 @@ public class DnsMessageEncoder
     /**
      * A Hashed Adapter mapping record types to their encoders.
      */
-    private static final Map DEFAULT_ENCODERS;
+    private static final Map<RecordType, RecordEncoder> DEFAULT_ENCODERS;
 
     static
     {
@@ -123,11 +123,11 @@ public class DnsMessageEncoder
 
         QuestionRecordEncoder encoder = new QuestionRecordEncoder();
 
-        Iterator it = questions.iterator();
+        Iterator<QuestionRecord> it = questions.iterator();
 
         while ( it.hasNext() )
         {
-            QuestionRecord question = ( QuestionRecord ) it.next();
+            QuestionRecord question = it.next();
             encoder.put( byteBuffer, question );
         }
     }
@@ -140,11 +140,11 @@ public class DnsMessageEncoder
             return;
         }
 
-        Iterator it = records.iterator();
+        Iterator<ResourceRecord> it = records.iterator();
 
         while ( it.hasNext() )
         {
-            ResourceRecord record = ( ResourceRecord ) it.next();
+            ResourceRecord record = it.next();
 
             try
             {

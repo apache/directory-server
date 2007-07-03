@@ -58,7 +58,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class MailExchangeRecordDecoder implements RecordDecoder
 {
-    public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
+    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put( DnsAttribute.MX_PREFERENCE, byteBuffer.getShort() );

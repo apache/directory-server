@@ -51,7 +51,7 @@ import org.apache.mina.common.ByteBuffer;
  */
 public class AddressRecordDecoder implements RecordDecoder
 {
-    public Map decode( ByteBuffer byteBuffer, short length ) throws IOException
+    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException
     {
         Map<String, Object> attributes = new HashMap<String, Object>();
         byte[] addressBytes = new byte[length];

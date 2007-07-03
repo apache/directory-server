@@ -17,30 +17,33 @@
  *  under the License. 
  *  
  */
+package org.apache.directory.server.dns.store.jndi;
 
-package org.apache.directory.server.dns.io.decoder;
 
+import java.io.Serializable;
+import java.util.Set;
 
-import java.io.IOException;
-import java.util.Map;
+import javax.naming.Name;
+import javax.naming.directory.DirContext;
 
-import org.apache.mina.common.ByteBuffer;
+import org.apache.directory.server.dns.messages.ResourceRecord;
 
 
 /**
+ * Interface to support the command pattern with JNDI contexts.
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ * @version $Rev: 437023 $, $Date: 2006-08-25 16:50:47 -0700 (Fri, 25 Aug 2006) $
  */
-public interface RecordDecoder
+public interface DnsOperation extends Serializable
 {
     /**
-     * Decodes the given length of resource record data into attributes.  The
-     * type and number of attributes depends on the type of the resource record.
-     *
-     * @param byteBuffer
-     * @param length
-     * @return The map of attributes.
-     * @throws IOException
+     * The command pattern execute method.
+     * 
+     * @param ctx The context to execute the command with
+     * @param baseDn The base DN for working with the context
+     * @return Set<ResourceRecord> The result returned by the command
+     * @throws Exception The exception thrown by the command
      */
-    public Map<String, Object> decode( ByteBuffer byteBuffer, short length ) throws IOException;
+    public Set<ResourceRecord> execute( DirContext ctx, Name baseDn ) throws Exception;
 }

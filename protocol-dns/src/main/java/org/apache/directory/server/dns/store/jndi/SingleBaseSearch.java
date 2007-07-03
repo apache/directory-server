@@ -36,7 +36,6 @@ import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,11 +72,11 @@ public class SingleBaseSearch implements SearchStrategy
 
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
-        return ( Set ) execute( new GetRecords( question ) );
+        return execute( new GetRecords( question ) );
     }
 
 
-    private Object execute( ContextOperation operation ) throws DnsException
+    private Set<ResourceRecord> execute( DnsOperation operation ) throws DnsException
     {
     	try {
     		
@@ -108,8 +107,5 @@ public class SingleBaseSearch implements SearchStrategy
 	        log.debug( "Unexpected error retrieving DNS records.", e );
 	        throw new DnsException( ResponseCode.SERVER_FAILURE );
 	    }
-
-
-
     }
 }

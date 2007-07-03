@@ -44,7 +44,7 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.dns.store.jndi.DnsOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
@@ -54,7 +54,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetRecords implements ContextOperation
+public class GetRecords implements DnsOperation
 {
     private static final long serialVersionUID = 1077580995617778894L;
 
@@ -119,7 +119,7 @@ public class GetRecords implements ContextOperation
      * Note that the base is a relative path from the exiting context.
      * It is not a DN.
      */
-    public Object execute( DirContext ctx, Name base ) throws Exception
+    public Set<ResourceRecord> execute( DirContext ctx, Name base ) throws Exception
     {
         if ( question == null )
         {
@@ -134,13 +134,13 @@ public class GetRecords implements ContextOperation
 
         String filter = "(objectClass=" + TYPE_TO_OBJECTCLASS.get( type ) + ")";
 
-        NamingEnumeration list = ctx.search( transformDomainName( name ), filter, controls );
+        NamingEnumeration<SearchResult> list = ctx.search( transformDomainName( name ), filter, controls );
 
         Set<ResourceRecord> set = new HashSet<ResourceRecord>();
 
         while ( list.hasMore() )
         {
-            SearchResult result = ( SearchResult ) list.next();
+            SearchResult result = list.next();
             Name relative = getRelativeName( ctx.getNameInNamespace(), result.getName() );
 
             set.add( getRecord( result.getAttributes(), relative ) );
@@ -202,7 +202,7 @@ public class GetRecords implements ContextOperation
         String dnsTtl = ( attr = attrs.get( DnsAttribute.TTL ) ) != null ? ( String ) attr.get() : SOA_MINIMUM;
         modifier.setDnsTtl( Integer.parseInt( dnsTtl ) );
 
-        NamingEnumeration ids = attrs.getIDs();
+        NamingEnumeration<String> ids = attrs.getIDs();
 
         while ( ids.hasMore() )
         {
@@ -260,7 +260,7 @@ public class GetRecords implements ContextOperation
 
     private RecordType getType( Attribute objectClass ) throws NamingException
     {
-        NamingEnumeration list = objectClass.getAll();
+        NamingEnumeration<?> list = objectClass.getAll();
 
         while ( list.hasMore() )
         {

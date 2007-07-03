@@ -89,7 +89,7 @@ public class ResourceRecordImpl implements ResourceRecord
      * resource.  The format of this information varies
      * according to the TYPE and CLASS of the resource record.
      */
-    private Map attributes;
+    private Map<String, Object> attributes;
 
 
     /**
@@ -102,7 +102,7 @@ public class ResourceRecordImpl implements ResourceRecord
      * @param attributes
      */
     public ResourceRecordImpl( String domainName, RecordType recordType, RecordClass recordClass, int timeToLive,
-        Map attributes )
+        Map<String, Object> attributes )
     {
         this.domainName = domainName;
         this.recordType = recordType;

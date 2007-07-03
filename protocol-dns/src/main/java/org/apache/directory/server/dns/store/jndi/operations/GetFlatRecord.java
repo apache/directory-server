@@ -20,6 +20,9 @@
 package org.apache.directory.server.dns.store.jndi.operations;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,7 +37,7 @@ import org.apache.directory.server.dns.messages.RecordType;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResourceRecordModifier;
 import org.apache.directory.server.dns.store.DnsAttribute;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.server.dns.store.jndi.DnsOperation;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -45,7 +48,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class GetFlatRecord implements ContextOperation
+public class GetFlatRecord implements DnsOperation
 {
     private static final long serialVersionUID = 4931303293468915435L;
 
@@ -68,7 +71,7 @@ public class GetFlatRecord implements ContextOperation
      * Note that the base is a relative path from the exiting context.
      * It is not a DN.
      */
-    public Object execute( DirContext ctx, Name base ) throws Exception
+    public Set<ResourceRecord> execute( DirContext ctx, Name base ) throws Exception
     {
         if ( question == null )
         {
@@ -81,13 +84,13 @@ public class GetFlatRecord implements ContextOperation
         matchAttrs.put( new AttributeImpl( DnsAttribute.TYPE, question.getRecordType().name() ) );
         matchAttrs.put( new AttributeImpl( DnsAttribute.CLASS, question.getRecordClass().name() ) );
 
-        ResourceRecord record = null;
+        Set<ResourceRecord> record = new HashSet<ResourceRecord>();
 
-        NamingEnumeration answer = ctx.search( base, matchAttrs );
+        NamingEnumeration<SearchResult> answer = ctx.search( base, matchAttrs );
 
         if ( answer.hasMore() )
         {
-            SearchResult result = ( SearchResult ) answer.next();
+            SearchResult result = answer.next();
 
             Attributes attrs = result.getAttributes();
 
@@ -96,7 +99,7 @@ public class GetFlatRecord implements ContextOperation
                 return null;
             }
 
-            record = getRecord( attrs );
+            record.add( getRecord( attrs ) );
         }
 
         return record;
@@ -126,11 +129,11 @@ public class GetFlatRecord implements ContextOperation
         modifier.setDnsClass( RecordClass.valueOf( dnsClass ) );
         modifier.setDnsTtl( Integer.parseInt( dnsTtl ) );
 
-        NamingEnumeration ids = attrs.getIDs();
+        NamingEnumeration<String> ids = attrs.getIDs();
 
         while ( ids.hasMore() )
         {
-            String id = ( String ) ids.next();
+            String id = ids.next();
             modifier.put( id, ( String ) attrs.get( id ).get() );
         }
 

@@ -35,7 +35,7 @@ public class ResourceRecordModifier
     private RecordClass dnsClass;
     private int dnsTtl;
 
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
 
     /**
