@@ -558,14 +558,34 @@ public class AuthorizationService extends BaseInterceptor
 
         for ( int ii = 0; ii < mods.length; ii++ )
         {
+            Attribute attr = mods[ii].getAttribute();
+            
             switch ( mods[ii].getModificationOp() )
             {
                 case ( DirContext.ADD_ATTRIBUTE  ):
                     perms = ADD_PERMS;
+                    // If the attribute is being created with an initial value ...
+                    if ( entry.get( attr.getID() ) == null )
+                    {
+                        // ... we also need to check if adding the attribute is permitted
+                        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                            attr.getID(), null, perms, tuples, entry );
+                    }
                     break;
                     
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
                     perms = REMOVE_PERMS;
+                    Attribute entryAttr = entry.get( attr.getID() );
+                    if (  entryAttr != null )
+                    {
+                        // If there is only one value remaining in the attribute ...
+                        if ( entryAttr.get( 1 ) == null )
+                        {
+                            // ... we also need to check if removing the attribute at all is permitted
+                            engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                                attr.getID(), null, perms, tuples, entry );
+                        }
+                    }
                     break;
                     
                 case ( DirContext.REPLACE_ATTRIBUTE  ):
@@ -573,12 +593,10 @@ public class AuthorizationService extends BaseInterceptor
                     break;
             }
 
-            Attribute attr = mods[ii].getAttribute();
-            
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
-                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
-                    .getID(), attr.get( jj ), perms, tuples, entry );
+                engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                    attr.getID(), attr.get( jj ), perms, tuples, entry );
             }
         }
 

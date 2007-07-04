@@ -171,10 +171,10 @@ public class RelatedProtectedItemFilterTest extends TestCase
 
         tuples = getTuples( new ProtectedItem.AllAttributeValues( attrTypes ) );
 
-        Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+        Assert.assertEquals( 1, filterA.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
             null, null, "attrA", null, null, null ).size() );
 
-        Assert.assertEquals( 0, filterB.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, USER_NAME, null,
+        Assert.assertEquals( 0, filterB.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, USER_NAME, null,
             null, null, "attrB", null, null, null ).size() );
     }
 

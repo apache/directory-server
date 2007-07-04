@@ -44,6 +44,7 @@ import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -94,13 +95,16 @@ public class ACDFEngine
         SubtreeEvaluator subtreeEvaluator = new SubtreeEvaluator( oidRegistry, attrTypeRegistry );
         RefinementEvaluator refinementEvaluator = new RefinementEvaluator( new RefinementLeafEvaluator( oidRegistry ) );
 
-        filters = new ACITupleFilter[]
-            { new RelatedUserClassFilter( subtreeEvaluator ),
-                new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, attrTypeRegistry ), 
-                new MaxValueCountFilter(),
-                new MaxImmSubFilter(), new RestrictedByFilter(), new MicroOperationFilter(),
-                new HighestPrecedenceFilter(), new MostSpecificUserClassFilter(),
-                new MostSpecificProtectedItemFilter(), };
+        filters = new ACITupleFilter[] {
+            new RelatedUserClassFilter( subtreeEvaluator ),
+            new RelatedProtectedItemFilter( refinementEvaluator, entryEvaluator, oidRegistry, attrTypeRegistry ),
+            new MaxValueCountFilter(),
+            new MaxImmSubFilter(),
+            new RestrictedByFilter(),
+            new MicroOperationFilter(),
+            new HighestPrecedenceFilter(),
+            new MostSpecificUserClassFilter(),
+            new MostSpecificProtectedItemFilter() };
     }
 
 
@@ -144,6 +148,7 @@ public class ACDFEngine
         c.add( SubentryService.NAME );
         c.add( OperationalAttributeService.NAME );
         c.add( EventService.NAME );
+        c.add( TriggerService.NAME );
         USER_LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 

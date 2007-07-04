@@ -84,19 +84,25 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
 
             // modify the entry as the user
             DirContext userContext = getContextAs( userName, password );
+            int k = 2;
+            k++;
             userContext.modifyAttributes( entryRdn, mods );
 
             return true;
         }
         catch ( LdapNoPermissionException e )
         {
-            return false;
+        }
+        catch ( Exception e2 )
+        {
         }
         finally
         {
             // let's clean up
             adminContext.destroySubcontext( entryRdn );
         }
+        
+        return false;
     }
 
 
@@ -297,7 +303,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -348,7 +354,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
@@ -374,7 +380,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
@@ -418,7 +424,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
