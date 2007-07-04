@@ -84,16 +84,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
 
             // modify the entry as the user
             DirContext userContext = getContextAs( userName, password );
-            int k = 2;
-            k++;
             userContext.modifyAttributes( entryRdn, mods );
 
             return true;
         }
         catch ( LdapNoPermissionException e )
-        {
-        }
-        catch ( Exception e2 )
         {
         }
         finally
