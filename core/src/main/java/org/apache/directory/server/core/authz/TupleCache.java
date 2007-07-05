@@ -245,20 +245,17 @@ public class TupleCache
         {
             return;
         }
-
-        boolean isAciModified = false;
         
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            // Check for the name and for the OID
-            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT );
-            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), SchemaConstants.PRESCRIPTIVE_ACI_AT_OID );
-        }
-        
-        if ( isAciModified )
-        {
-            subentryDeleted( normName, entry );
-            subentryAdded( normName.getUpName(), normName, entry );
+            String attrID = mods[ii].getAttribute().getID();
+            if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
+                attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
+            {
+                subentryDeleted( normName, entry );
+                subentryAdded( normName.getUpName(), normName, entry );
+                continue;
+            }
         }
     }
 

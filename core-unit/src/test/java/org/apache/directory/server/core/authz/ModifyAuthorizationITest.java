@@ -516,4 +516,33 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
     //    }
     
     
+    public void testPresciptiveACIModification() throws NamingException
+    {
+        
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+            new AttributesImpl( "registeredAddress", "100 Park Ave.", true ) );
+
+        createUser( "billyd", "billyd" );
+
+        createAccessControlSubentry( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { allUsers }, " + "userPermissions { "
+            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } } } } }" );
+
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE,
+            new AttributesImpl( "registeredAddress", "200 Park Ave.", true ) );
+        
+        changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { allUsers }, " + "userPermissions { "
+            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { denyModify } } } } }" );
+
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        deleteAccessControlSubentry( "modifyACI" );
+        
+    }
+    
 }
