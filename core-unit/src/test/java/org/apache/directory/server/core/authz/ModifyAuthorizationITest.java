@@ -327,7 +327,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -397,7 +397,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
@@ -514,4 +514,6 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
     //        // should work with billyd now that all users are authorized
     //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
     //    }
+    
+    
 }
