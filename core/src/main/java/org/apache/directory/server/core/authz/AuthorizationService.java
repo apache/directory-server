@@ -579,7 +579,7 @@ public class AuthorizationService extends BaseInterceptor
                     if (  entryAttr != null )
                     {
                         // If there is only one value remaining in the attribute ...
-                        if ( entryAttr.get( 1 ) == null )
+                        if ( entryAttr.size() == 1 )
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
