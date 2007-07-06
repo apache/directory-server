@@ -490,7 +490,8 @@ public class AuthorizationService extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modify( name, modOp, mods );
-            tupleCache.subentryModified( name, modOp, mods, entry );
+            Attributes modifiedEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+            tupleCache.subentryModified( name, modOp, mods, modifiedEntry );
             groupCache.groupModified( name, modOp, mods, entry );
             return;
         }
@@ -521,7 +522,36 @@ public class AuthorizationService extends BaseInterceptor
 
         while ( attrList.hasMore() )
         {
+
             Attribute attr = ( Attribute ) attrList.next();
+
+            switch ( modOp )
+            {
+                case ( DirContext.ADD_ATTRIBUTE  ):
+                    // If the attribute is being created with an initial value ...
+                    if ( entry.get( attr.getID() ) == null )
+                    {
+                        // ... we also need to check if adding the attribute is permitted
+                        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                            attr.getID(), null, perms, tuples, entry );
+                    }
+                    break;
+                case ( DirContext.REMOVE_ATTRIBUTE  ):
+                    Attribute entryAttr = entry.get( attr.getID() );
+                    if (  entryAttr != null )
+                    {
+                        // If there is only one value remaining in the attribute ...
+                        if ( entryAttr.size() == 1 )
+                        {
+                            // ... we also need to check if removing the attribute at all is permitted
+                            engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                                attr.getID(), null, perms, tuples, entry );
+                        }
+                    }
+                    break;
+            }
+
+            
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
@@ -530,7 +560,8 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         next.modify( name, modOp, mods );
-        tupleCache.subentryModified( name, modOp, mods, entry );
+        Attributes modifiedEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+        tupleCache.subentryModified( name, modOp, mods, modifiedEntry );
         groupCache.groupModified( name, modOp, mods, entry );
     }
 
@@ -555,7 +586,8 @@ public class AuthorizationService extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.modify( name, mods );
-            tupleCache.subentryModified( name, mods, entry );
+            Attributes modifiedEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+            tupleCache.subentryModified( name, mods, modifiedEntry );
             groupCache.groupModified( name, mods, entry );
             return;
         }
@@ -572,20 +604,43 @@ public class AuthorizationService extends BaseInterceptor
         Collection perms = null;
         for ( int ii = 0; ii < mods.length; ii++ )
         {
+
+            Attribute attr = mods[ii].getAttribute();            
+
             switch ( mods[ii].getModificationOp() )
             {
                 case ( DirContext.ADD_ATTRIBUTE  ):
                     perms = ADD_PERMS;
+                    // If the attribute is being created with an initial value ...
+                    if ( entry.get( attr.getID() ) == null )
+                    {
+                        // ... we also need to check if adding the attribute is permitted
+                        engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                            attr.getID(), null, perms, tuples, entry );
+                    }
                     break;
+                    
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
                     perms = REMOVE_PERMS;
+                    Attribute entryAttr = entry.get( attr.getID() );
+                    if (  entryAttr != null )
+                    {
+                        // If there is only one value remaining in the attribute ...
+                        if ( entryAttr.size() == 1 )
+                        {
+                            // ... we also need to check if removing the attribute at all is permitted
+                            engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
+                                attr.getID(), null, perms, tuples, entry );
+                        }
+                    }
                     break;
+                    
                 case ( DirContext.REPLACE_ATTRIBUTE  ):
                     perms = REPLACE_PERMS;
                     break;
             }
 
-            Attribute attr = mods[ii].getAttribute();
+            
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
@@ -594,7 +649,8 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         next.modify( name, mods );
-        tupleCache.subentryModified( name, mods, entry );
+        Attributes modifiedEntry = proxy.lookup( name, PartitionNexusProxy.LOOKUP_BYPASS );
+        tupleCache.subentryModified( name, mods, modifiedEntry );
         groupCache.groupModified( name, mods, entry );
     }
 

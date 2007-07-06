@@ -213,7 +213,7 @@ public class TupleCache
 
         tuples.remove( normName.toString() );
     }
-
+    
 
     public void subentryModified( LdapDN normName, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
     {
@@ -221,16 +221,16 @@ public class TupleCache
         {
             return;
         }
-
-        boolean isAciModified = false;
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
-            isAciModified |= AttributeUtils.containsValueCaseIgnore( mods[ii].getAttribute(), ACI_ATTR );
-        }
-        if ( isAciModified )
-        {
-            subentryDeleted( normName, entry );
-            subentryAdded( normName.getUpName(), normName, entry );
+            String attrID = mods[ii].getAttribute().getID();
+            if ( attrID.equalsIgnoreCase( ACI_ATTR ) )
+            {
+                subentryDeleted( normName, entry );
+                subentryAdded( normName.getUpName(), normName, entry );
+                continue;
+            }
         }
     }
 

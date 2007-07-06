@@ -297,7 +297,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group
@@ -326,7 +326,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
@@ -348,7 +348,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
@@ -374,7 +374,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {registeredAddress}}, grantsAndDenials { grantAdd } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.ADD_ATTRIBUTE, changes ) );
@@ -396,7 +396,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
+            + "{ protectedItems {attributeType {telephoneNumber}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantRemove } } " + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
         assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", DirContext.REMOVE_ATTRIBUTE, changes ) );
@@ -418,7 +418,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
             + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
             + "userClasses { userGroup { \"cn=TestGroup,ou=groups,ou=system\" } }, " + "userPermissions { "
             + "{ protectedItems {entry}, grantsAndDenials { grantModify, grantBrowse } }, "
-            + "{ protectedItems {allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
+            + "{ protectedItems {attributeType {registeredAddress}, allAttributeValues {telephoneNumber}}, grantsAndDenials { grantAdd, grantRemove } } "
             + "} } }" );
 
         // try a modify operation which should succeed with ACI and group membership change
@@ -513,4 +513,34 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
     //        // should work with billyd now that all users are authorized
     //        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", "867-5309" ) );
     //    }
+
+
+    public void testPresciptiveACIModification() throws NamingException
+    {
+        
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+            new LockableAttributesImpl( "registeredAddress", "100 Park Ave.", true ) );
+
+        createUser( "billyd", "billyd" );
+
+        createAccessControlSubentry( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { allUsers }, " + "userPermissions { "
+            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { grantModify, grantBrowse, grantAdd, grantRemove } } } } }" );
+
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE,
+            new LockableAttributesImpl( "registeredAddress", "200 Park Ave.", true ) );
+        
+        changePresciptiveACI( "modifyACI", "{ " + "identificationTag \"modifyAci\", "
+            + "precedence 14, " + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
+            + "userClasses { allUsers }, " + "userPermissions { "
+            + "{ protectedItems {entry, allUserAttributeTypesAndValues}, grantsAndDenials { denyModify } } } } }" );
+
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        deleteAccessControlSubentry( "modifyACI" );
+        
+    }
 }

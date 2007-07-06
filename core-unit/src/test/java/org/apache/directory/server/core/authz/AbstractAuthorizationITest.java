@@ -337,4 +337,18 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         Attributes changes = new LockableAttributesImpl( "subentryACI", aciItem, true );
         adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
     }
+
+
+    /**
+     * Replaces values of an prescriptiveACI attribute of a subentry subordinate
+     * to ou=system.
+     * @throws NamingException 
+     *
+     */
+    public void changePresciptiveACI( String cn, String aciItem ) throws NamingException
+    {
+        DirContext adminCtx = getContextAsAdmin();
+        Attributes changes = new LockableAttributesImpl( "prescriptiveACI", aciItem );
+        adminCtx.modifyAttributes( "cn=" + cn, DirContext.REPLACE_ATTRIBUTE, changes );
+    }
 }
