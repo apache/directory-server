@@ -31,6 +31,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.referral.ReferralService;
@@ -65,7 +66,8 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
     {
         super( service, env );
-        refService = (( ReferralService )service.getConfiguration().getInterceptorChain().get( ReferralService.NAME ) );        
+        refService = (( ReferralService )service.getConfiguration()
+            .getInterceptorChain().get( StartupConfiguration.REFERRAL_SERVICE_NAME ) );        
     }
 
 
@@ -79,7 +81,8 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
-        refService = (( ReferralService )service.getConfiguration().getInterceptorChain().get( ReferralService.NAME ) );        
+        refService = (( ReferralService )service.getConfiguration()
+            .getInterceptorChain().get( StartupConfiguration.REFERRAL_SERVICE_NAME ) );        
     }
 
 

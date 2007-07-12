@@ -565,7 +565,7 @@ class DefaultDirectoryService extends DirectoryService
 
             partitionNexus.add( new AddOperationContext( name, attributes ) );
             
-            Interceptor authzInterceptor = interceptorChain.get( AuthorizationService.NAME );
+            Interceptor authzInterceptor = interceptorChain.get( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
             
             if ( authzInterceptor == null )
             {

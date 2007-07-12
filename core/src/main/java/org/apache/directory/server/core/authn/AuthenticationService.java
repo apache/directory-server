@@ -70,9 +70,6 @@ public class AuthenticationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
     
-    /** The service name */
-    public static final String NAME = "authenticationService";
-    
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 

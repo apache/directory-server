@@ -42,10 +42,10 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.configuration.MutableReplicationInterceptorConfiguration;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -208,12 +208,11 @@ public class ReplicationServiceITest extends TestCase
             }
 
             ReplicationService replicationService = new ReplicationService();
-            replicationService.setConfiguration( replicationCfg );
-
-            MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
+            MutableReplicationInterceptorConfiguration interceptorCfg = 
+                new MutableReplicationInterceptorConfiguration();
             interceptorCfg.setName( "mitosis" );
-            interceptorCfg.setInterceptor( replicationService );
-
+            interceptorCfg.setInterceptorClassName( replicationService.getClass().getName() );
+            interceptorCfg.setReplicationConfiguration( replicationCfg );
             interceptorCfgs.add( interceptorCfg );
 
             ldapCfg.setInterceptorConfigurations( interceptorCfgs );

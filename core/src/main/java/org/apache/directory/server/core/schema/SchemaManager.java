@@ -35,17 +35,11 @@ import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.collective.CollectiveAttributeService;
-import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -178,14 +172,14 @@ public class SchemaManager
         VALID_OU_VALUES.add( SchemaConstants.DIT_STRUCTURE_RULES_AT.toLowerCase() );
         
         HashSet<String> set = new HashSet<String>();
-        set.add( NormalizationService.NAME );
-        set.add( AuthenticationService.NAME );
-        set.add( ReferralService.NAME );
-        set.add( AuthorizationService.NAME );
-        set.add( DefaultAuthorizationService.NAME );
-        set.add( ExceptionService.NAME );
-        set.add( SchemaService.NAME );
-        set.add( CollectiveAttributeService.NAME );
+        set.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
+        set.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
+        set.add( StartupConfiguration.REFERRAL_SERVICE_NAME );
+        set.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
+        set.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
+        set.add( StartupConfiguration.EXCEPTION_SERVICE_NAME );
+        set.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
+        set.add( StartupConfiguration.COLLECTIVE_ATTRIBUTE_SERVICE_NAME );
         SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS = Collections.unmodifiableCollection( set );
     }
 

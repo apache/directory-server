@@ -35,12 +35,12 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,10 +207,7 @@ public class InterceptorChain
      */
     public InterceptorChain()
     {
-        MutableInterceptorConfiguration tailCfg = new MutableInterceptorConfiguration();
-        tailCfg.setName( "tail" );
-        tailCfg.setInterceptor( FINAL_INTERCEPTOR );
-        tail = new Entry( null, null, tailCfg );
+        tail = new Entry( "tail", null, null, FINAL_INTERCEPTOR );
         head = tail;
     }
 
@@ -281,11 +278,11 @@ public class InterceptorChain
             {
                 try
                 {
-                    deregister( entry.configuration.getName() );
+                    deregister( entry.getName() );
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " + entry.configuration.getName(), t );
+                    log.warn( "Failed to deregister an interceptor: " + entry.getName(), t );
                 }
             }
         }
@@ -304,7 +301,7 @@ public class InterceptorChain
             return null;
         }
 
-        return e.configuration.getInterceptor();
+        return e.interceptor;
     }
 
 
@@ -318,7 +315,7 @@ public class InterceptorChain
         
         do
         {
-            result.add( e.configuration.getInterceptor() );
+            result.add( e.interceptor );
             e = e.nextEntry;
         }
         while ( e != tail );
@@ -351,7 +348,7 @@ public class InterceptorChain
     }
 
 
-    public synchronized InterceptorConfiguration remove( String interceptorName ) throws NamingException
+    public synchronized String remove( String interceptorName ) throws NamingException
     {
         return deregister( interceptorName );
     }
@@ -382,7 +379,7 @@ public class InterceptorChain
     /**
      * Removes and deinitializes the interceptor with the specified name.
      */
-    private InterceptorConfiguration deregister( String name ) throws ConfigurationException
+    private String deregister( String name ) throws ConfigurationException
     {
         Entry entry = checkOldName( name );
         Entry prevEntry = entry.prevEntry;
@@ -406,34 +403,73 @@ public class InterceptorChain
         }
 
         name2entry.remove( name );
-        entry.configuration.getInterceptor().destroy();
+        entry.interceptor.destroy();
 
-        return entry.configuration;
+        return entry.getName();
     }
 
+    
+    private Interceptor getInterceptorInstance( InterceptorConfiguration interceptorConfiguration ) 
+        throws NamingException
+    {
+        Class interceptorClass = null;
+        Interceptor interceptor = null;
+        
+        // Load the interceptor class and if we cannot find it blow a config exception
+        try
+        {
+            interceptorClass = Class.forName( interceptorConfiguration.getInterceptorClassName() );
+        }
+        catch( ClassNotFoundException e )
+        {
+            LdapConfigurationException lce = new LdapConfigurationException( "Failed to load interceptor class '" +
+                interceptorConfiguration.getInterceptorClassName() + "' for interceptor named '" +
+                interceptorConfiguration.getName() );
+            lce.setRootCause( e );
+            throw lce;
+        }
+        
+        // Now instantiate the interceptor
+        try
+        {
+            interceptor = ( Interceptor ) interceptorClass.newInstance();
+        }
+        catch ( Exception e )
+        {
+            LdapConfigurationException lce = 
+                new LdapConfigurationException( "Failed while trying to instantiate interceptor class '" +
+                interceptorConfiguration.getInterceptorClassName() + "' for interceptor named '" +
+                interceptorConfiguration.getName() );
+            lce.setRootCause( e );
+            throw lce;
+        }
+        
+        return interceptor;
+    }
+    
 
     private void register0( InterceptorConfiguration cfg, Entry nextEntry ) throws NamingException
     {
         String name = cfg.getName();
-        Interceptor interceptor = cfg.getInterceptor();
+        Interceptor interceptor = getInterceptorInstance( cfg );
         interceptor.init( factoryCfg, cfg );
 
         Entry newEntry;
         if ( nextEntry == head )
         {
-            newEntry = new Entry( null, head, cfg );
+            newEntry = new Entry( cfg.getName(), null, head, interceptor );
             head.prevEntry = newEntry;
             head = newEntry;
         }
         else if ( head == tail )
         {
-            newEntry = new Entry( null, tail, cfg );
+            newEntry = new Entry( cfg.getName(), null, tail, interceptor );
             tail.prevEntry = newEntry;
             head = newEntry;
         }
         else
         {
-            newEntry = new Entry( nextEntry.prevEntry, nextEntry, cfg );
+            newEntry = new Entry( cfg.getName(), nextEntry.prevEntry, nextEntry, interceptor );
             nextEntry.prevEntry.nextEntry = newEntry;
             nextEntry.prevEntry = newEntry;
         }
@@ -498,7 +534,7 @@ public class InterceptorChain
         Entry next = head;
         while ( next != tail )
         {
-            if ( invocation.isBypassed( next.configuration.getName() ) )
+            if ( invocation.isBypassed( next.getName() ) )
             {
                 next = next.nextEntry;
             }
@@ -515,7 +551,7 @@ public class InterceptorChain
     public Attributes getRootDSE( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -537,7 +573,7 @@ public class InterceptorChain
     public LdapDN getMatchedName( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
 
         try
@@ -559,7 +595,7 @@ public class InterceptorChain
     public LdapDN getSuffix( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -581,7 +617,7 @@ public class InterceptorChain
     public boolean compare( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -603,7 +639,7 @@ public class InterceptorChain
     public Iterator listSuffixes( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -625,7 +661,7 @@ public class InterceptorChain
     public void addContextPartition( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -647,7 +683,7 @@ public class InterceptorChain
     public void removeContextPartition( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -669,7 +705,7 @@ public class InterceptorChain
     public void delete( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -690,7 +726,7 @@ public class InterceptorChain
     public void add( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
-        Interceptor head = node.configuration.getInterceptor();
+        Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
         
         try
@@ -711,7 +747,7 @@ public class InterceptorChain
     public void bind( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
-        Interceptor head = node.configuration.getInterceptor();
+        Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
         
         try
@@ -732,7 +768,7 @@ public class InterceptorChain
     public void unbind( OperationContext opContext ) throws NamingException
     {
         Entry node = getStartingEntry();
-        Interceptor head = node.configuration.getInterceptor();
+        Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
         
         try
@@ -753,7 +789,7 @@ public class InterceptorChain
     public void modify( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -795,7 +831,7 @@ public class InterceptorChain
     public NamingEnumeration list( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -818,7 +854,7 @@ public class InterceptorChain
         throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -840,7 +876,7 @@ public class InterceptorChain
     public Attributes lookup( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -862,7 +898,7 @@ public class InterceptorChain
     public boolean hasEntry( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -884,7 +920,7 @@ public class InterceptorChain
     public void rename( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -905,7 +941,7 @@ public class InterceptorChain
     public void move( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -926,7 +962,7 @@ public class InterceptorChain
     public void moveAndRename( OperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
-        Interceptor head = entry.configuration.getInterceptor();
+        Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
         
         try
@@ -952,21 +988,31 @@ public class InterceptorChain
 
         private Entry nextEntry;
 
-        private final InterceptorConfiguration configuration;
+        private final String name;
+        
+        private final Interceptor interceptor;
 
         private final NextInterceptor nextInterceptor;
 
-
-        private Entry(Entry prevEntry, Entry nextEntry, InterceptorConfiguration configuration)
+        
+        private final String getName()
         {
-            if ( configuration == null )
+            return name;
+        }
+
+        
+        private Entry( String name, Entry prevEntry, Entry nextEntry, Interceptor interceptor )
+        {
+            this.name = name;
+            
+            if ( interceptor == null )
             {
-                throw new NullPointerException( "configuration" );
+                throw new NullPointerException( "interceptor" );
             }
 
             this.prevEntry = prevEntry;
             this.nextEntry = nextEntry;
-            this.configuration = configuration;
+            this.interceptor = interceptor;
             this.nextInterceptor = new NextInterceptor()
             {
                 private Entry getNextEntry()
@@ -993,7 +1039,7 @@ public class InterceptorChain
                     Entry next = Entry.this.nextEntry;
                     while ( next != tail )
                     {
-                        if ( invocation.isBypassed( next.configuration.getName() ) )
+                        if ( invocation.isBypassed( next.getName() ) )
                         {
                             next = next.nextEntry;
                         }
@@ -1010,7 +1056,7 @@ public class InterceptorChain
                 public boolean compare( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1031,7 +1077,7 @@ public class InterceptorChain
                 public Attributes getRootDSE( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1052,7 +1098,7 @@ public class InterceptorChain
                 public LdapDN getMatchedName( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1073,7 +1119,7 @@ public class InterceptorChain
                 public LdapDN getSuffix( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1094,7 +1140,7 @@ public class InterceptorChain
                 public Iterator listSuffixes( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1115,7 +1161,7 @@ public class InterceptorChain
                 public void delete( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1135,7 +1181,7 @@ public class InterceptorChain
                 public void add( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1155,7 +1201,7 @@ public class InterceptorChain
                 public void modify( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1175,7 +1221,7 @@ public class InterceptorChain
                 public NamingEnumeration list( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1197,7 +1243,7 @@ public class InterceptorChain
                     throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1218,7 +1264,7 @@ public class InterceptorChain
                 public Attributes lookup( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1239,7 +1285,7 @@ public class InterceptorChain
                 public boolean hasEntry( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1260,7 +1306,7 @@ public class InterceptorChain
                 public void rename( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1280,7 +1326,7 @@ public class InterceptorChain
                 public void move( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1301,7 +1347,7 @@ public class InterceptorChain
                     throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1321,7 +1367,7 @@ public class InterceptorChain
                 public void bind( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
     
                     try
                     {
@@ -1341,7 +1387,7 @@ public class InterceptorChain
                 public void unbind( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1361,7 +1407,7 @@ public class InterceptorChain
                 public void addContextPartition( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {
@@ -1382,7 +1428,7 @@ public class InterceptorChain
                 public void removeContextPartition( OperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
-                    Interceptor interceptor = next.configuration.getInterceptor();
+                    Interceptor interceptor = next.interceptor;
 
                     try
                     {

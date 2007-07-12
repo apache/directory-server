@@ -52,6 +52,28 @@ public class DbFileListing
     }
 
 
+    /**
+     * Reads the DBFILES resource within some jar on the classpath that 
+     * has this file and loaded it's db files into the name2type map with
+     * something like the following entries ( key => value ):
+     * <pre>
+     * schema/master.db => MASTER_FILE
+     * schema/apacheOnealias.db => SYSTEM_INDEX
+     * schema/apacheSubalias.db => SYSTEM_INDEX
+     * schema/apacheNdn.db => SYSTEM_INDEX
+     * schema/apacheExistance.db => SYSTEM_INDEX
+     * schema/apacheAlias.db => SYSTEM_INDEX
+     * schema/apacheHierarchy.db => SYSTEM_INDEX
+     * schema/apacheUpdn.db => SYSTEM_INDEX
+     * schema/objectClass.db => USER_INDEX
+     * schema/ou.db => USER_INDEX
+     * schema/cn.db => USER_INDEX
+     * schema/m-oid.db => USER_INDEX
+     * schema/m-disabled.db => USER_INDEX
+     * </pre>
+     *
+     * @throws IOException
+     */
     private void init() throws IOException
     {
 
@@ -77,7 +99,8 @@ public class DbFileListing
                 if ( userIndexMode )
                 {
                     name2type.put( line.trim(), DbFileType.USER_INDEX );
-                } else
+                } 
+                else
                 {
                     name2type.put( line.trim(), DbFileType.SYSTEM_INDEX );
                 }
@@ -89,6 +112,16 @@ public class DbFileListing
         }
     }
 
+    
+    /**
+     * Gets the DBFILE resource from within a jar off the base path.  If another jar
+     * with such a DBFILE resource exists then an error will result since the resource
+     * is not unique across all the jars.
+     *
+     * @param resourceName the file name of the resource to load
+     * @return the InputStream to read the contents of the resource
+     * @throws IOException if there are problems reading or finding a unique copy of the resource
+     */
     public static InputStream getUniqueResourceAsStream( String resourceName ) throws IOException
     {
         resourceName = BASE_PATH + resourceName;

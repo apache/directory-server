@@ -74,9 +74,6 @@ public class DefaultAuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( DefaultAuthorizationService.class );
-    
-    /** The service name */
-    public static final String NAME = "defaultAuthorizationService";
 
     /**
      * the base distinguished {@link Name} for all users

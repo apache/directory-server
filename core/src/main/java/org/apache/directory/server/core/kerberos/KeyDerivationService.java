@@ -33,12 +33,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.collective.CollectiveAttributeService;
-import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -48,13 +43,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.referral.ReferralService;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFactory;
@@ -97,18 +86,18 @@ public class KeyDerivationService extends BaseInterceptor
     static
     {
         Set<String> c = new HashSet<String>();
-        c.add( NormalizationService.NAME );
-        c.add( AuthenticationService.NAME );
-        c.add( ReferralService.NAME );
-        c.add( AuthorizationService.NAME );
-        c.add( DefaultAuthorizationService.NAME );
-        c.add( ExceptionService.NAME );
-        c.add( OperationalAttributeService.NAME );
-        c.add( SchemaService.NAME );
-        c.add( SubentryService.NAME );
-        c.add( CollectiveAttributeService.NAME );
-        c.add( EventService.NAME );
-        c.add( TriggerService.NAME );
+        c.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
+        c.add( StartupConfiguration.REFERRAL_SERVICE_NAME );
+        c.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.EXCEPTION_SERVICE_NAME );
+        c.add( StartupConfiguration.OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
+        c.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
+        c.add( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        c.add( StartupConfiguration.COLLECTIVE_ATTRIBUTE_SERVICE_NAME );
+        c.add( StartupConfiguration.EVENT_SERVICE_NAME );
+        c.add( StartupConfiguration.TRIGGER_SERVICE_NAME );
         USERLOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 

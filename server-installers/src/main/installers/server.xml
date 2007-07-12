@@ -199,107 +199,93 @@
       <list>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="normalizationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.normalization.NormalizationService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.normalization.NormalizationService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="authenticationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.authn.AuthenticationService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.authn.AuthenticationService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="referralService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.referral.ReferralService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.referral.ReferralService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="authorizationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.authz.AuthorizationService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.authz.AuthorizationService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="defaultAuthorizationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.authz.DefaultAuthorizationService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.authz.DefaultAuthorizationService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="exceptionService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.exception.ExceptionService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.exception.ExceptionService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="operationalAttributeService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.operational.OperationalAttributeService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.operational.OperationalAttributeService" />
         </bean>
-        <!-- bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+        <!-- Uncomment to enable the password policy service
+        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="passwordPolicyService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.kerberos.PasswordPolicyService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.kerberos.PasswordPolicyService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="keyDerivationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.kerberos.KeyDerivationService" />
-          </property>
-        </bean -->
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.kerberos.KeyDerivationService" />
+        </bean> 
+        -->
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="schemaService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.schema.SchemaService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.schema.SchemaService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="subentryService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.subtree.SubentryService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.subtree.SubentryService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="collectiveAttributeService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.collective.CollectiveAttributeService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.collective.CollectiveAttributeService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="eventService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.event.EventService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.event.EventService" />
         </bean>
         <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
           <property name="name" value="triggerService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.server.core.trigger.TriggerService" />
-          </property>
+          <property name="interceptorClassName" 
+            value="org.apache.directory.server.core.trigger.TriggerService" />
         </bean>
 
-        <!-- Uncomment to enable replication service
-        <bean class="org.apache.directory.server.core.configuration.MutableInterceptorConfiguration">
+        <!-- Uncomment to enable replication service 
+        <bean class="org.apache.directory.mitosis.configuration.MutableReplicationInterceptorConfiguration">
           <property name="name" value="replicationService" />
-          <property name="interceptor">
-            <bean class="org.apache.directory.mitosis.service.ReplicationService">
-              <property name="configuration">
-                <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
-                  <property name="replicaId">
-                    <bean class="org.apache.directory.mitosis.common.ReplicaId">
-                      <constructor-arg>
-                        <value>instance_a</value>
-                      </constructor-arg>
-                    </bean>
-                  </property>
-                  <property name="serverPort" value="10390" />
-                  <property name="peerReplicas" value="instance_b@localhost:10392" />
+          <property name="interceptorClassName" 
+            value="org.apache.directory.mitosis.service.ReplicationService" />
+          <property name="replicationConfiguration">
+            <bean class="org.apache.directory.mitosis.configuration.ReplicationConfiguration">
+              <property name="replicaId">
+                <bean class="org.apache.directory.mitosis.common.ReplicaId">
+                  <constructor-arg>
+                    <value>instance_a</value>
+                  </constructor-arg>
                 </bean>
               </property>
+              <property name="serverPort" value="10390" />
+              <property name="peerReplicas" value="instance_b@localhost:10392" />
             </bean>
           </property>
         </bean>

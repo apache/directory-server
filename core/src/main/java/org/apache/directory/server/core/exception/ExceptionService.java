@@ -73,9 +73,6 @@ import org.apache.directory.shared.ldap.util.EmptyEnumeration;
  */
 public class ExceptionService extends BaseInterceptor
 {
-    /** The service name */
-    public static final String NAME = "exceptionService";
-
     private PartitionNexus nexus;
     private LdapDN subschemSubentryDn;
     

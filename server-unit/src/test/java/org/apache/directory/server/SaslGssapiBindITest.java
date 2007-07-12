@@ -124,7 +124,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
 
         interceptorCfg.setName( KeyDerivationService.NAME );
-        interceptorCfg.setInterceptor( new KeyDerivationService() );
+        interceptorCfg.setInterceptorClassName( "org.apache.directory.server.core.kerberos.KeyDerivationService" );
         list.add( interceptorCfg );
         configuration.setInterceptorConfigurations( list );
 

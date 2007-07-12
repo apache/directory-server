@@ -87,9 +87,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SubentryService extends BaseInterceptor
 {
-    /** The service name */
-    public static final String NAME = "subentryService";
-
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
 

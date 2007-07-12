@@ -36,6 +36,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -77,11 +78,6 @@ public class TriggerService extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerService.class );
-
-    /** The service name */
-    public static final String NAME = "triggerService";
-    
-    
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
 
@@ -436,7 +432,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         while ( attrList.hasMore() )
@@ -510,7 +506,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         

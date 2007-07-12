@@ -20,11 +20,8 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.interceptor.Interceptor;
-
-
 /**
- * A configuration for {@link Interceptor}.
+ * Holds general configuration information for interceptors.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -32,7 +29,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 public class InterceptorConfiguration
 {
     private String name;
-    private Interceptor interceptor;
+    private String interceptorClassName;
 
 
     /**
@@ -44,22 +41,22 @@ public class InterceptorConfiguration
 
 
     /**
-     * Returns the {@link Interceptor} that this configuration
-     * configures.
+     * Returns the fully qualified class name of the interceptor 
+     * implementation associated with this configuration.
      */
-    public Interceptor getInterceptor()
+    public String getInterceptorClassName()
     {
-        return interceptor;
+        return interceptorClassName;
     }
 
 
     /**
-     * Sets the {@link Interceptor} that this configuration
-     * configures.
+     * Sets the fully qualified class name of the interceptor associated
+     * with this configuration.
      */
-    protected void setInterceptor( Interceptor authenticator )
+    protected void setInterceptorClassName( String interceptorClass )
     {
-        this.interceptor = authenticator;
+        this.interceptorClassName = interceptorClass;
     }
 
 
@@ -93,9 +90,9 @@ public class InterceptorConfiguration
             throw new ConfigurationException( "Name is not specified." );
         }
 
-        if ( interceptor == null )
+        if ( interceptorClassName == null )
         {
-            throw new ConfigurationException( "Interceptor is not specified." );
+            throw new ConfigurationException( "Interceptor class name is not specified." );
         }
     }
     

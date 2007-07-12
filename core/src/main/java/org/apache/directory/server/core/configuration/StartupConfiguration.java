@@ -31,20 +31,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
-import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.collective.CollectiveAttributeService;
-import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.exception.ExceptionService;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.operational.OperationalAttributeService;
-import org.apache.directory.server.core.referral.ReferralService;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +46,56 @@ import org.slf4j.LoggerFactory;
  */
 public class StartupConfiguration extends Configuration
 {
+    /** The normalizationService name */
+    public static final String NORMALIZATION_SERVICE_NAME = "normalizationService";
+    /** The fully qualified class name for the normalization service */
+    private static final String NORMALIZATION_SERVICE_CLASS = "org.apache.directory.server.core.normalization.NormalizationService";
+    /** The authenticationService name */
+    public static final String AUTHENTICATION_SERVICE_NAME = "authenticationService";
+    /** The fully qualified class name for the normalization service */
+    private static final String AUTHENTICATION_SERVICE_CLASS = "org.apache.directory.server.core.authn.AuthenticationService";
+    /** The referralService name */
+    public static final String REFERRAL_SERVICE_NAME = "referralService";
+    /** The fully qualified class name for the referral service */
+    private static final String REFERRAL_SERVICE_CLASS = "org.apache.directory.server.core.referral.ReferralService";
+    /** The authorizationService name */
+    public static final String AUTHORIZATION_SERVICE_NAME = "authorizationService";
+    /** The fully qualified class name for the authorization service */
+    private static final String AUTHORIZATION_SERVICE_CLASS = "org.apache.directory.server.core.authz.AuthorizationService";
+    /** The default authorization service name */
+    public static final String DEFAULT_AUTHORIZATION_SERVICE_NAME = "defaultAuthorizationService";
+    /** The fully qualified class name for the default authorization service */
+    private static final String DEFAULT_AUTHORIZATION_SERVICE_CLASS = "org.apache.directory.server.core.authz.DefaultAuthorizationService";
+    /** The exceptionService name */
+    public static final String EXCEPTION_SERVICE_NAME = "exceptionService";
+    /** The fully qualified class name for the default authorization service */
+    private static final String EXCEPTION_SERVICE_CLASS = "org.apache.directory.server.core.exception.ExceptionService";
+    /** The operationalAttributeService name */
+    public static final String OPERATIONAL_ATTRIBUTE_SERVICE_NAME = "operationalAttributeService";
+    /** The fully qualified class name for the default operational attribute service */
+    private static final String OPERATIONAL_ATTRIBUTE_SERVICE_CLASS = "org.apache.directory.server.core.operational.OperationalAttributeService";
+    /** The schemaService name */
+    public static final String SCHEMA_SERVICE_NAME = "schemaService";
+    /** The fully qualified class name for the schema service */
+    private static final String SCHEMA_SERVICE_CLASS = "org.apache.directory.server.core.schema.SchemaService";
+    /** The subentryService name */
+    public static final String SUBENTRY_SERVICE_NAME = "subentryService";
+    /** The fully qualified class name for the subentry service */
+    private static final String SUBENTRY_SERVICE_CLASS = "org.apache.directory.server.core.subtree.SubentryService";
+    /** The collectiveAttributeService name */
+    public static final String COLLECTIVE_ATTRIBUTE_SERVICE_NAME = "collectiveAttributeService";
+    /** The fully qualified class name for the collective attribute service */
+    private static final String COLLECTIVE_ATTRIBUTE_SERVICE_CLASS = "org.apache.directory.server.core.collective.CollectiveAttributeService";
+    /** The eventService name */
+    public static final String EVENT_SERVICE_NAME = "eventService";
+    /** The fully qualified class name for the event service */
+    private static final String EVENT_SERVICE_CLASS = "org.apache.directory.server.core.event.EventService";
+    /** The triggerService name */
+    public static final String TRIGGER_SERVICE_NAME = "triggerService";
+    /** The fully qualified class name for the trigger service */
+    private static final String TRIGGER_SERVICE_CLASS = "org.apache.directory.server.core.trigger.TriggerService";
+    /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( StartupConfiguration.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     private static final long serialVersionUID = 4826762196566871677L;
 
@@ -123,7 +157,7 @@ public class StartupConfiguration extends Configuration
         setAuthenticatorConfigurations( set );
     }
 
-
+    
     private void setDefaultInterceptorConfigurations()
     {
         // Set default interceptor chains
@@ -131,63 +165,63 @@ public class StartupConfiguration extends Configuration
         List<InterceptorConfiguration> list = new ArrayList<InterceptorConfiguration>();
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( NormalizationService.NAME );
-        interceptorCfg.setInterceptor( new NormalizationService() );
+        interceptorCfg.setName( NORMALIZATION_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( NORMALIZATION_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( AuthenticationService.NAME );
-        interceptorCfg.setInterceptor( new AuthenticationService() );
+        interceptorCfg.setName( AUTHENTICATION_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( AUTHENTICATION_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( ReferralService.NAME );
-        interceptorCfg.setInterceptor( new ReferralService() );
+        interceptorCfg.setName( REFERRAL_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( REFERRAL_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( AuthorizationService.NAME );
-        interceptorCfg.setInterceptor( new AuthorizationService() );
+        interceptorCfg.setName( AUTHORIZATION_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( AUTHORIZATION_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( DefaultAuthorizationService.NAME );
-        interceptorCfg.setInterceptor( new DefaultAuthorizationService() );
+        interceptorCfg.setName( DEFAULT_AUTHORIZATION_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( DEFAULT_AUTHORIZATION_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( ExceptionService.NAME );
-        interceptorCfg.setInterceptor( new ExceptionService() );
+        interceptorCfg.setName( EXCEPTION_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( EXCEPTION_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( OperationalAttributeService.NAME );
-        interceptorCfg.setInterceptor( new OperationalAttributeService() );
+        interceptorCfg.setName( OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( OPERATIONAL_ATTRIBUTE_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( SchemaService.NAME );
-        interceptorCfg.setInterceptor( new SchemaService() );
+        interceptorCfg.setName( SCHEMA_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( SCHEMA_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( SubentryService.NAME );
-        interceptorCfg.setInterceptor( new SubentryService() );
+        interceptorCfg.setName( SUBENTRY_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( SUBENTRY_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( CollectiveAttributeService.NAME );
-        interceptorCfg.setInterceptor( new CollectiveAttributeService() );
+        interceptorCfg.setName( COLLECTIVE_ATTRIBUTE_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( COLLECTIVE_ATTRIBUTE_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( EventService.NAME );
-        interceptorCfg.setInterceptor( new EventService() );
+        interceptorCfg.setName( EVENT_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( EVENT_SERVICE_CLASS );
         list.add( interceptorCfg );
         
         interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( TriggerService.NAME );
-        interceptorCfg.setInterceptor( new TriggerService() );
+        interceptorCfg.setName( TRIGGER_SERVICE_NAME );
+        interceptorCfg.setInterceptorClassName( TRIGGER_SERVICE_CLASS );
         list.add( interceptorCfg );
 
         setInterceptorConfigurations( list );

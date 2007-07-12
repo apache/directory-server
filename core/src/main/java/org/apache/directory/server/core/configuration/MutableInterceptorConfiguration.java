@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.interceptor.Interceptor;
-
-
 /**
  * A mutable version of {@link InterceptorConfiguration}.
  *
@@ -40,9 +37,9 @@ public class MutableInterceptorConfiguration extends InterceptorConfiguration
     }
 
 
-    public void setInterceptor( Interceptor interceptor )
+    public void setInterceptorClassName( String interceptorClassName )
     {
-        super.setInterceptor( interceptor );
+        super.setInterceptorClassName( interceptorClassName );
     }
 
 

@@ -70,9 +70,6 @@ public class NormalizationService extends BaseInterceptor
 {
     /** logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
-    
-    /** The service name */
-    public static final String NAME = "normalizationService";
 
     /** a filter node value normalizer and undefined node remover */
     private NormalizingVisitor normVisitor;

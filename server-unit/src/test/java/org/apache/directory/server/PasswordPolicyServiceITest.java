@@ -94,7 +94,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
 
         interceptorCfg.setName( PasswordPolicyService.NAME );
-        interceptorCfg.setInterceptor( new PasswordPolicyService() );
+        interceptorCfg.setInterceptorClassName( "org.apache.directory.server.core.kerberos.PasswordPolicyService" );
         list.add( interceptorCfg );
         configuration.setInterceptorConfigurations( list );
 

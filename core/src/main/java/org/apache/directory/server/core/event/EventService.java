@@ -83,9 +83,6 @@ public class EventService extends BaseInterceptor
 {
     private static Logger log = LoggerFactory.getLogger( EventService.class );
     
-    /** The service name */
-    public static final String NAME = "eventService";
-    
     private PartitionNexus nexus;
     private Map sources = new HashMap();
     private Evaluator evaluator = null;

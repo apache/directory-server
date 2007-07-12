@@ -77,9 +77,6 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class OperationalAttributeService extends BaseInterceptor
 {
-    /** The service name */
-    public static final String NAME = "operationalAttributeService";
-
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 

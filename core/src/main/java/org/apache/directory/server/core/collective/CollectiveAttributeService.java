@@ -66,9 +66,6 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  */
 public class CollectiveAttributeService extends BaseInterceptor
 {
-    /** The service name */
-    public static final String NAME = "collectiveAttributeService";
-
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";
     

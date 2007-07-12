@@ -38,14 +38,11 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
-import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -60,14 +57,9 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -98,9 +90,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ReferralService extends BaseInterceptor
 {
-    /** The service name */
-    public static final String NAME = "referralService";
-    
     private static final Logger log = LoggerFactory.getLogger( ReferralService.class );
     private static final String IGNORE = "ignore";
     private static final String THROW_FINDING_BASE = "throw-finding-base";
@@ -124,16 +113,16 @@ public class ReferralService extends BaseInterceptor
          * partitions of the system during startup and during add/remove partition ops
          */
         Collection<String> c = new HashSet<String>();
-        c.add( NormalizationService.NAME );
-        c.add( AuthenticationService.NAME );
-        c.add( AuthorizationService.NAME );
-        c.add( DefaultAuthorizationService.NAME );
-        c.add( SchemaService.NAME );
-        c.add( SubentryService.NAME );
-        c.add( OperationalAttributeService.NAME );
-        c.add( ReferralService.NAME );
-        c.add( EventService.NAME );
-        c.add( TriggerService.NAME );
+        c.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
+        c.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
+        c.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
+        c.add( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        c.add( StartupConfiguration.OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
+        c.add( StartupConfiguration.REFERRAL_SERVICE_NAME );
+        c.add( StartupConfiguration.EVENT_SERVICE_NAME );
+        c.add( StartupConfiguration.TRIGGER_SERVICE_NAME );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 

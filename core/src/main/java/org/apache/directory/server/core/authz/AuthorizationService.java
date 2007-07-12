@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.authz;
 
 
-
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +38,7 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -87,9 +87,6 @@ public class AuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( AuthorizationService.class );
-    
-    /** The service name */
-    public static final String NAME = "authorizationService";
 
     /**
      * the multivalued op attr used to track the perscriptive access control
@@ -422,7 +419,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( name, entry );
         NamingEnumeration attrList = entry.getAll();
         
@@ -821,7 +818,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         
@@ -896,7 +893,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         

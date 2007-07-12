@@ -24,25 +24,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
 
 import junit.framework.TestCase;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
@@ -51,30 +45,42 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
- * Unit test cases for InterceptorChain methods.
+ * Unit test cases for InterceptorChain methods which test bypass 
+ * instructions in the chain.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class InterceptorChainTest extends TestCase
 {
-    private final MockInterceptor[] interceptorArray =
-        { new MockInterceptor( "0" ), new MockInterceptor( "1" ), new MockInterceptor( "2" ),
-            new MockInterceptor( "3" ), new MockInterceptor( "4" ) };
+    private static final int INTERCEPTOR_COUNT = 5;
     private InterceptorChain chain;
-    private List<Interceptor> interceptors = new ArrayList<Interceptor>( interceptorArray.length );
+    List<MockInterceptor> interceptors = new ArrayList<MockInterceptor>( INTERCEPTOR_COUNT );
 
-
+    
+    public InterceptorChainTest()
+    {
+    }
+    
+    
     protected void setUp() throws Exception
     {
         chain = new InterceptorChain();
 
-        for ( int ii = 0; ii < interceptorArray.length; ii++ )
+        for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
         {
             MutableInterceptorConfiguration config = new MutableInterceptorConfiguration();
-            config.setInterceptor( interceptorArray[ii] );
-            config.setName( interceptorArray[ii].getName() );
+            config.setInterceptorClassName( MockInterceptor.class.getName() );
+            config.setName( Integer.toString( ii ) );
             chain.addLast( config );
+        }
+        
+        List interceptorsInChain = chain.getAll();
+        for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
+        {
+            MockInterceptor interceptor = ( MockInterceptor ) interceptorsInChain.get( ii );
+            interceptor.setTest( this );
+            interceptor.setName( Integer.toString( ii ) );
         }
     }
 
@@ -92,8 +98,7 @@ public class InterceptorChainTest extends TestCase
         Context ctx = new DeadContext();
         DirectoryService ds = new MockDirectoryService();
         PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, ds );
-        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]
-            { dn } );
+        Invocation i = new Invocation( proxy, ctx, "lookup", new Object[]{ dn } );
         InvocationStack.getInstance().push( i );
 
         try
@@ -104,10 +109,10 @@ public class InterceptorChainTest extends TestCase
         {
         }
 
-        assertEquals( interceptorArray.length, interceptors.size() );
-        for ( int ii = 0; ii < interceptorArray.length; ii++ )
+        assertEquals( INTERCEPTOR_COUNT, interceptors.size() );
+        for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            assertEquals( interceptorArray[ii], interceptors.get( ii ) );
+            assertEquals( Integer.toString( ii ), interceptors.get( ii ).getName() );
         }
     }
 
@@ -130,15 +135,11 @@ public class InterceptorChainTest extends TestCase
         {
         }
 
-        assertEquals( interceptorArray.length - 1, interceptors.size() );
-        for ( int ii = 0; ii < interceptorArray.length; ii++ )
+        assertEquals( INTERCEPTOR_COUNT - 1, interceptors.size() );
+        for ( int ii = 1; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            if ( ii != 0 )
-            {
-                assertEquals( interceptorArray[ii], interceptors.get( ii - 1 ) );
-            }
+            assertEquals( Integer.toString( ii ), interceptors.get( ii - 1 ).getName() );
         }
-        assertFalse( interceptors.contains( interceptorArray[0] ) );
     }
 
 
@@ -163,16 +164,11 @@ public class InterceptorChainTest extends TestCase
         {
         }
 
-        assertEquals( interceptorArray.length - 2, interceptors.size() );
-        for ( int ii = 0; ii < interceptorArray.length; ii++ )
+        assertEquals( INTERCEPTOR_COUNT - 2, interceptors.size() );
+        for ( int ii = 2; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            if ( ii != 0 && ii != 1 )
-            {
-                assertEquals( interceptorArray[ii], interceptors.get( ii - 2 ) );
-            }
+            assertEquals( Integer.toString( ii ), interceptors.get( ii - 2 ).getName() );
         }
-        assertFalse( interceptors.contains( interceptorArray[0] ) );
-        assertFalse( interceptors.contains( interceptorArray[1] ) );
     }
 
 
@@ -197,12 +193,10 @@ public class InterceptorChainTest extends TestCase
         {
         }
 
-        assertEquals( interceptorArray.length - 2, interceptors.size() );
-        assertEquals( interceptorArray[1], interceptors.get( 0 ) );
-        assertEquals( interceptorArray[2], interceptors.get( 1 ) );
-        assertEquals( interceptorArray[3], interceptors.get( 2 ) );
-        assertFalse( interceptors.contains( interceptorArray[0] ) );
-        assertFalse( interceptors.contains( interceptorArray[4] ) );
+        assertEquals( INTERCEPTOR_COUNT - 2, interceptors.size() );
+        assertEquals( "1", interceptors.get( 0 ).getName() );
+        assertEquals( "2", interceptors.get( 1 ).getName() );
+        assertEquals( "3", interceptors.get( 2 ).getName() );
     }
 
 
@@ -227,12 +221,10 @@ public class InterceptorChainTest extends TestCase
         {
         }
 
-        assertEquals( interceptorArray.length - 2, interceptors.size() );
-        assertEquals( interceptorArray[0], interceptors.get( 0 ) );
-        assertEquals( interceptorArray[2], interceptors.get( 1 ) );
-        assertEquals( interceptorArray[4], interceptors.get( 2 ) );
-        assertFalse( interceptors.contains( interceptorArray[1] ) );
-        assertFalse( interceptors.contains( interceptorArray[3] ) );
+        assertEquals( INTERCEPTOR_COUNT - 2, interceptors.size() );
+        assertEquals( "0", interceptors.get( 0 ).getName() );
+        assertEquals( "2", interceptors.get( 1 ).getName() );
+        assertEquals( "4", interceptors.get( 2 ).getName() );
     }
 
 
@@ -257,172 +249,7 @@ public class InterceptorChainTest extends TestCase
         assertEquals( 0, interceptors.size() );
     }
 
-    class MockInterceptor implements Interceptor
-    {
-        String name;
-
-
-        public MockInterceptor(String name)
-        {
-            this.name = name;
-        }
-
-
-        public String getName()
-        {
-            return this.name;
-        }
-
-
-        public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
-            throws NamingException
-        {
-        }
-
-
-        public void destroy()
-        {
-        }
-
-
-        public Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.getRootDSE( opContext );
-        }
-
-
-        public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.getMatchedName( opContext );
-        }
-
-
-        public LdapDN getSuffix ( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.getSuffix( opContext );
-        }
-
-
-        public Iterator listSuffixes ( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.listSuffixes( opContext );
-        }
-
-
-        public void addContextPartition( NextInterceptor next, OperationContext opContext )
-            throws NamingException
-        {
-            interceptors.add( this );
-            next.addContextPartition( opContext );
-        }
-
-
-        public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.removeContextPartition( opContext );
-        }
-
-
-        public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.compare( opContext );
-        }
-
-
-        public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.delete( opContext );
-        }
-
-
-        public void add(NextInterceptor next, OperationContext opContext )
-            throws NamingException
-        {
-            interceptors.add( this );
-            next.add( opContext );
-        }
-
-
-        public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.modify( opContext );
-        }
-
-
-        public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.list( opContext );
-        }
-
-
-        public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.search( opContext );
-        }
-
-
-        public Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.lookup( opContext );
-        }
-
-
-        public boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            return next.hasEntry( opContext );
-        }
-
-
-        public void rename( NextInterceptor next, OperationContext opContext )
-            throws NamingException
-        {
-            interceptors.add( this );
-            next.rename( opContext );
-        }
-
-
-        public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.move( opContext );
-        }
-
-
-        public void moveAndRename( NextInterceptor next, OperationContext opContext )
-            throws NamingException
-        {
-            interceptors.add( this );
-            next.moveAndRename( opContext );
-        }
-
-
-        public void bind( NextInterceptor next, OperationContext opContext )
-        throws NamingException
-        {
-            interceptors.add( this );
-            next.bind( opContext );
-        }
-
-
-        public void unbind( NextInterceptor next, OperationContext opContext ) throws NamingException
-        {
-            interceptors.add( this );
-            next.unbind( opContext );
-        }
-    }
-
+    
     class MockDirectoryService extends DirectoryService
     {
         public void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException

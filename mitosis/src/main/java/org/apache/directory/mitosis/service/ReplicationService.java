@@ -26,7 +26,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -43,6 +42,7 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.configuration.ReplicationInterceptorConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationServerProtocolCodecFactory;
@@ -172,13 +172,6 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void setConfiguration( ReplicationConfiguration cfg )
-    {
-        cfg.validate();
-        this.configuration = cfg;
-    }
-
-
     public DirectoryServiceConfiguration getFactoryConfiguration()
     {
         return directoryServiceConfiguration;
@@ -187,6 +180,8 @@ public class ReplicationService extends BaseInterceptor
 
     public void init( DirectoryServiceConfiguration serviceCfg, InterceptorConfiguration cfg ) throws NamingException
     {
+        ReplicationInterceptorConfiguration replicationCfg = ( ReplicationInterceptorConfiguration ) cfg;
+        configuration = replicationCfg.getReplicationConfiguration();
         configuration.validate();
         // and then preserve frequently used ones
         directoryServiceConfiguration = serviceCfg;
