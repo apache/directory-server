@@ -22,12 +22,14 @@ package org.apache.directory.server.tools.commands.dumpcmd;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,21 +43,45 @@ import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
+import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryServiceListener;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.interceptor.InterceptorChain;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
-//import org.apache.directory.server.core.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.schema.PartitionSchemaLoader;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.schema.SerializableComparator;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
 import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
 import org.apache.directory.server.tools.util.Parameter;
 import org.apache.directory.server.tools.util.ToolCommandException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.Base64;
@@ -76,7 +102,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     public static final String EXCLUDEDATTRIBUTES_PARAMETER = "excluded-attributes";
     public static final String INCLUDEOPERATIONAL_PARAMETER = "include-operational";
 
-    private DefaultRegistries bootstrapRegistries = new DefaultRegistries( "bootstrap", 
+    private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", 
         new BootstrapSchemaLoader(), new DefaultOidRegistry() );
     private Set<String> exclusions = new HashSet<String>();
     private boolean includeOperational = false;
@@ -136,19 +162,149 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             notifyExceptionListener( e );
         }
     }
+    
+    
+    private Registries loadRegistries() throws Exception
+    {
+        // --------------------------------------------------------------------
+        // Load the bootstrap schemas to start up the schema partition
+        // --------------------------------------------------------------------
+
+        // setup temporary loader and temp registry 
+        BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
+        OidRegistry oidRegistry = new DefaultOidRegistry();
+        final Registries registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
+        
+        // load essential bootstrap schemas 
+        Set<Schema> bootstrapSchemas = new HashSet<Schema>();
+        bootstrapSchemas.add( new ApachemetaSchema() );
+        bootstrapSchemas.add( new ApacheSchema() );
+        bootstrapSchemas.add( new CoreSchema() );
+        bootstrapSchemas.add( new SystemSchema() );
+        loader.loadWithDependencies( bootstrapSchemas, registries );
+
+        // run referential integrity tests
+        java.util.List errors = registries.checkRefInteg();
+        if ( !errors.isEmpty() )
+        {
+            NamingException e = new NamingException();
+            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            throw e;
+        }
+        
+        SerializableComparator.setRegistry( registries.getComparatorRegistry() );
+        
+        // --------------------------------------------------------------------
+        // Initialize schema partition or bomb out if we cannot find it on disk
+        // --------------------------------------------------------------------
+        
+        // If not present then we need to abort 
+        File schemaDirectory = new File( getLayout().getPartitionsDirectory(), "schema" );
+        if ( ! schemaDirectory.exists() )
+        {
+            throw new LdapConfigurationException( "The following schema directory from " +
+                    "the installation layout could not be found:\n\t" + schemaDirectory );
+        }
+        
+        MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
+        schemaPartitionConfig.setName( "schema" );
+        schemaPartitionConfig.setCacheSize( 1000 );
+        
+        DbFileListing listing = null;
+        try 
+        {
+            listing = new DbFileListing();
+        }
+        catch( IOException e )
+        {
+            throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
+                ResultCodeEnum.OTHER );
+        }
+        
+        schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
+        schemaPartitionConfig.setOptimizerEnabled( true );
+        schemaPartitionConfig.setSuffix( "ou=schema" );
+        
+        Attributes entry = new AttributesImpl();
+        entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        entry.put( SchemaConstants.OU_AT, "schema" );
+        schemaPartitionConfig.setContextEntry( entry );
+        JdbmPartition schemaPartition = new JdbmPartition();
+        
+        DirectoryServiceConfiguration dsc = new DirectoryServiceConfiguration()
+        {
+            public Hashtable getEnvironment()
+            {
+                return null;
+            }
+
+            public String getInstanceId()
+            {
+                return "1";
+            }
+
+            public InterceptorChain getInterceptorChain()
+            {
+                return null;
+            }
+
+            public PartitionNexus getPartitionNexus()
+            {
+                return null;
+            }
+
+            public Registries getRegistries()
+            {
+                return registries;
+            }
+
+            public SchemaManager getSchemaManager()
+            {
+                return null;
+            }
+
+            public DirectoryService getService()
+            {
+                return null;
+            }
+
+            public DirectoryServiceListener getServiceListener()
+            {
+                return null;
+            }
+
+            public StartupConfiguration getStartupConfiguration()
+            {
+                return getConfiguration();
+            }
+
+            public boolean isFirstStart()
+            {
+                return false;
+            }
+        };
+        
+        schemaPartition.init( dsc, schemaPartitionConfig );
+        schemaPartitionConfig.setContextPartition( schemaPartition );
+
+        // --------------------------------------------------------------------
+        // Initialize schema subsystem and reset registries
+        // --------------------------------------------------------------------
+        
+        PartitionSchemaLoader schemaLoader = new PartitionSchemaLoader( schemaPartition, registries );
+        Registries globalRegistries = new DefaultRegistries( "global", schemaLoader, oidRegistry );
+        schemaLoader.loadEnabled( globalRegistries );
+        SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );        
+        return globalRegistries;
+    }
 
 
     private void execute() throws Exception
     {
         getLayout().verifyInstallation();
         
-        if ( true )
-        {
-            throw new RuntimeException( "Schema initialization is a bit messed up or needs to be " +
-                    "/n re-evaluated here." );
-        }
-        
-        // loader.load( getConfiguration().getBootstrapSchemas(), bootstrapRegistries );
+        bootstrapRegistries = loadRegistries();
 
         PrintWriter out = null;
         if ( excludedAttributes != null )
@@ -169,7 +325,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         {
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
-
+        
         for ( int ii = 0; ii < partitions.length; ii++ )
         {
             File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partitions[ii] );
@@ -226,6 +382,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                 configUrl = getLayout().getConfigurationFile().toURL();
                 factory = new FileSystemXmlApplicationContext( configUrl.toString() );
                 setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
+                MutableServerStartupConfiguration msc = ( MutableServerStartupConfiguration ) getConfiguration();
+                msc.setWorkingDirectory( getLayout().getPartitionsDirectory() );
             }
             catch ( MalformedURLException e )
             {
