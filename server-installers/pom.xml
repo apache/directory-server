@@ -28,6 +28,12 @@
     </dependency>  
 
     <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-xml</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.directory.daemon</groupId>
       <artifactId>daemon-bootstrappers</artifactId>
       <scope>provided</scope>
@@ -316,8 +322,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>dependency-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
             <id>unpack-server-xml</id>
