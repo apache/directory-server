@@ -282,7 +282,7 @@ public class DefaultOidRegistry implements OidRegistry
                     return;
                 }
 
-                list = new ArrayList();
+                list = new ArrayList(2);
                 list.add( name );
                 list.add( value );
                 value = list;
