@@ -6,4 +6,4 @@ else
   mvn clean assembly:assembly
 fi
 
-java -Dlog4j.configuration=file://$(pwd)/log4j.properties -jar target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar server.xml 
+java -Dlog4j.debug -Dlog4j.configuration=file:./log4j.properties -jar target/apacheds-server-main-1.5.1-SNAPSHOT-app.jar server.xml 
