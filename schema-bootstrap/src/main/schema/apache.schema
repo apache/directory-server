@@ -198,6 +198,10 @@ objectclass ( 1.3.6.1.4.1.18060.0.4.1.3.7
     STRUCTURAL
     MUST ( unixFilePath ) )
 
+# ===============
+# SP related
+# ===============
+
 attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.21
     NAME 'fullyQualifiedJavaClassName'
     DESC 'The fully qualified name for a (Java) class'
@@ -221,6 +225,54 @@ attributetype ( 1.3.6.1.4.1.18060.0.4.1.2.23
     SUP distinguishedName
     EQUALITY distinguishedNameMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
+
+# New SP related schema
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.5.1
+    NAME 'storedProcLangId'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.5.2
+    NAME 'storedProcUnitName'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.5.3
+    NAME 'storedProcUnit'
+    SUP top
+    ABSTRACT
+    MUST ( storedProcLangId $ storedProcUnitName ) )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.5.4
+    NAME 'javaByteCode'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.5.5
+    NAME 'javaStoredProcUnit'
+    SUP storedProcUnit
+    STRUCTURAL
+    MUST ( javaByteCode ) )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.5.6
+    NAME 'javaxScriptLangId'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.18060.0.4.1.5.7
+    NAME 'javaxScriptCode'
+    EQUALITY caseExactIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+objectclass ( 1.3.6.1.4.1.18060.0.4.1.5.8
+    NAME 'javaxScriptStoredProcUnit'
+    SUP storedProcUnit
+    STRUCTURAL
+    MUST ( javaxScriptLangId $ javaxScriptCode ) )
 
 # ===============
 # Trigger related
