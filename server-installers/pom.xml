@@ -334,6 +334,8 @@
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${basedir}/src/main/installers</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>

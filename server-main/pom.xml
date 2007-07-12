@@ -110,9 +110,12 @@
                   <groupId>${pom.groupId}</groupId>
                   <artifactId>apacheds-server-xml</artifactId>
                   <version>${pom.version}</version>
+                  <overWrite>true</overWrite>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${basedir}</outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
