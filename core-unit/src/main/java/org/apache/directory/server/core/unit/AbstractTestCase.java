@@ -47,6 +47,7 @@ import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -392,5 +393,24 @@ public abstract class AbstractTestCase extends TestCase
     protected void setLoadClass( Class loadClass )
     {
         this.loadClass = loadClass;
+    }
+    
+    
+    /**
+     * Inject an ldif String into the server. DN must be relative to the
+     * root.
+     */
+    protected void injectEntries( String ldif ) throws NamingException
+    {
+        LdifReader reader = new LdifReader();
+        List<Entry> entries = reader.parseLdif( ldif );
+        
+        Iterator<Entry> entryIter = entries.iterator(); 
+        
+        while ( entryIter.hasNext() )
+        {
+            Entry entry = entryIter.next();
+            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
+        }
     }
 }

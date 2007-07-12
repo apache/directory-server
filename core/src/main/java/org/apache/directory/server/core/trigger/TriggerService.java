@@ -21,7 +21,6 @@
 package org.apache.directory.server.core.trigger;
 
 
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +49,10 @@ import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.sp.LdapClassLoader;
+import org.apache.directory.server.core.sp.JavaStoredProcEngineConfig;
+import org.apache.directory.server.core.sp.StoredProcEngine;
+import org.apache.directory.server.core.sp.StoredProcEngineConfig;
+import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -63,7 +65,6 @@ import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
-import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,8 @@ public class TriggerService extends BaseInterceptor
 
     /** a Trigger Execution Authorizer */
     private TriggerExecutionAuthorizer triggerExecutionAuthorizer = new SimpleTriggerExecutionAuthorizer();
+    
+    private StoredProcExecutionManager manager;
 
     /**
      * Adds prescriptiveTrigger TriggerSpecificaitons to a collection of
@@ -232,6 +235,15 @@ public class TriggerService extends BaseInterceptor
                 }
             );
         chain = dirServCfg.getInterceptorChain();
+        
+        //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
+        StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
+        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<StoredProcEngineConfig>();
+        //spEngineConfigs.add( javaxScriptSPEngineConfig );
+        spEngineConfigs.add( javaSPEngineConfig );
+        String spContainer = "ou=Stored Procedures,ou=system";
+        manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
+        
         this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
@@ -574,50 +586,26 @@ public class TriggerService extends BaseInterceptor
         {
         	List<Object> arguments = new ArrayList<Object>();
         	arguments.addAll( injector.getArgumentsToInject( spSpec.getParameters() ) );
-        	List<Class> typeList = new ArrayList<Class>();
-            typeList.addAll( getTypesFromValues( arguments ) );
-            Class[] types = getTypesFromValues( arguments ).toArray( EMPTY_CLASS_ARRAY );
             Object[] values = arguments.toArray();
-            Object returnValue = executeProcedure( callerRootCtx, spSpec.getName(), types, values );
-            returnValues.add(returnValue);
+            Object returnValue = executeProcedure( callerRootCtx, spSpec.getName(), values );
+            returnValues.add( returnValue );
 		}
         
         return returnValues; 
     }
+
     
-    private static Class[] EMPTY_CLASS_ARRAY = new Class[ 0 ];
-    
-    private List<Class> getTypesFromValues( List objects )
+    private Object executeProcedure( ServerLdapContext ctx, String procedure, Object[] values ) throws NamingException
     {
-        List<Class> types = new ArrayList<Class>();
-        
-        Iterator it = objects.iterator();
-        
-        while( it.hasNext() )
-        {
-            types.add( it.next().getClass() );
-        }
-        
-        return types;
-    }
-    
-    private Object executeProcedure( ServerLdapContext ctx, String procedure, Class[] types, Object[] values ) throws NamingException
-    {
-        int lastDot = procedure.lastIndexOf( '.' );
-        String className = procedure.substring( 0, lastDot );
-        String methodName = procedure.substring( lastDot + 1 );
-        LdapClassLoader loader = new LdapClassLoader( ctx );
         
         try
         {
-            Class clazz = loader.loadClass( className );
-            Method proc = DirectoryClassUtils.getAssignmentCompatibleMethod( clazz, methodName, types );
-            return proc.invoke( null, values );
+            Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
+            StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
+            return engine.invokeProcedure( ctx, procedure, values );
         }
-        catch ( Exception e )
+        catch ( NamingException e )
         {
-            log.debug( "Exception occured during executing stored procedure:\n" +
-                e.getMessage() + "\n" + e.getStackTrace() );
             LdapNamingException lne = new LdapNamingException( ResultCodeEnum.OTHER );
             lne.setRootCause( e );
             throw lne;

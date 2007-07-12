@@ -18,18 +18,16 @@
  *  
  */
 
-package org.apache.directory.server;
+package org.apache.directory.server.core.trigger;
 
-
-import java.util.Hashtable;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.sp.BaseJavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
@@ -40,22 +38,21 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class TriggerServiceTest extends AbstractServerTest
+public class TriggerServiceITest extends AbstractAdminTestCase
 {
     private LdapContext ctx;
+    LdapContext spCtx;
     
     
     public void setUp() throws Exception
     {
         super.setUp();
 
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialLdapContext( env, null );
+        ctx = sysRoot;
+        Attributes spContainer = new AttributesImpl( "objectClass", "top", true );
+        spContainer.get( "objectClass" ).add( "organizationalUnit" );
+        spContainer.put( "ou", "Stored Procedures" );
+        spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
     
     
@@ -87,13 +84,13 @@ public class TriggerServiceTest extends AbstractServerTest
         injectEntries( ldif );
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilitiesSP.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
         // Create the Entry Trigger Specification.
         TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
         LdapContext entry = ( LdapContext ) ctx.lookup( "ou=testEntry" );
         String triggerSpec = "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() +
-            ".backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );";
+            ":backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );";
         TriggerUtils.loadEntryTriggerSpecification( entry, triggerSpec );
         
         // Delete the test entry in order to fire the Trigger.
@@ -111,7 +108,7 @@ public class TriggerServiceTest extends AbstractServerTest
     public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, BackupUtilitiesSP.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
         // Create a container for backing up deleted entries.
         String ldif  = 
@@ -131,7 +128,7 @@ public class TriggerServiceTest extends AbstractServerTest
                                                      "triggerSubentry1",
                                                      "{}",
                                                      "AFTER Delete " +
-                                                         "CALL \"" + BackupUtilitiesSP.class.getName() + ".backupDeleted\" " +
+                                                         "CALL \"" + BackupUtilitiesSP.class.getName() + ":backupDeleted\" " +
                                                              " ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );" );        
 
         /**
@@ -185,7 +182,7 @@ public class TriggerServiceTest extends AbstractServerTest
             "cn: teachers\n";
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, ListUtilsSP.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
 
         // Inject the ldif file into the server
         injectEntries( ldif );
@@ -201,15 +198,15 @@ public class TriggerServiceTest extends AbstractServerTest
                                                      "triggerSubentry1",
                                                      "{}",
                                                      "AFTER Add " +
-                                                         "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
-                                                         "CALL \"" + ListUtilsSP.class.getName() + ".subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
+                                                         "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + staffDN + "\" ); " +
+                                                         "CALL \"" + ListUtilsSP.class.getName() + ":subscribeToGroup\" ( $entry , $ldapContext \"" + teachersDN + "\" );" );
         
         /**
          * The Trigger Specification without Java clutter:
          * 
          * AFTER Add
-         *     CALL "ListUtilsSP.subscribeToGroup" ( $entry , $ldapContext "cn=staff, ou=system" );
-         *     CALL "ListUtilsSP.subscribeToGroup" ( $entry , $ldapContext "cn=teachers, ou=system" );
+         *     CALL "ListUtilsSP:subscribeToGroup" ( $entry , $ldapContext "cn=staff, ou=system" );
+         *     CALL "ListUtilsSP:subscribeToGroup" ( $entry , $ldapContext "cn=teachers, ou=system" );
          * 
          */
 
