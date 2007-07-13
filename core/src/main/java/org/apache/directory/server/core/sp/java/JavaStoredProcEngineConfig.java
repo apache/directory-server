@@ -19,17 +19,33 @@
  */
 
 
-package org.apache.directory.server.core.sp;
+package org.apache.directory.server.core.sp.java;
 
+import org.apache.directory.server.core.sp.StoredProcEngine;
+import org.apache.directory.server.core.sp.StoredProcEngineConfig;
+
+
+/**
+ * A {@link StoredProcEngineConfig} implementation specific to Java stored procedures.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ $Date$
+ */
 public class JavaStoredProcEngineConfig implements StoredProcEngineConfig
 {
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.sp.StoredProcEngineConfig#getStoredProcEngineType()
+     */
     public Class<? extends StoredProcEngine> getStoredProcEngineType()
     {
         return JavaStoredProcEngine.class;
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.sp.StoredProcEngineConfig#getStoredProcLangId()
+     */
     public String getStoredProcLangId()
     {
         return JavaStoredProcEngine.storedProcLangId;

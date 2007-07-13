@@ -21,10 +21,26 @@
 
 package org.apache.directory.server.core.sp;
 
+
+/**
+ * A configuration wrapper for {@link StoredProcEngine}s.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ $Date$
+ */
 public interface StoredProcEngineConfig
 {
+    /**
+     * Returns the type of the associated {@link StoredProcEngine}.
+     * 
+     */
     public Class<? extends StoredProcEngine> getStoredProcEngineType();
     
+    
+    /**
+     * Returns the unique language identifier of the {@link StoredProcEngine}.
+     * 
+     */
     public String getStoredProcLangId();
 
 }

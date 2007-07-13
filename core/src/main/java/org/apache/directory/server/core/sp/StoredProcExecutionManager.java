@@ -32,40 +32,69 @@ import javax.naming.directory.SearchResult;
 
 import javax.naming.ldap.LdapContext;
 
-
+/**
+ * A Factory type class which holds a registry of supported {@link StoredProcEngineConfig}s. A container reference
+ * as the base for Stored Procedure storage on the DIT is also handled by this class.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ $Date$
+ */
 public class StoredProcExecutionManager
 {
+    
+    private final String storedProcContainer;
 
-    private final String spContainer;
-
-    private final List<StoredProcEngineConfig> spEngineConfigs;
+    private final List<StoredProcEngineConfig> storedProcEngineConfigs;
 
 
-    public StoredProcExecutionManager( final String spContainer, final List<StoredProcEngineConfig> spEngineConfigs )
+    /**
+     * Creates a {@link StoredProcExecutionManager} instance.
+     * 
+     * @param storedProcContainer The base of the DIT subtree used for storing stored procedure units.
+     * @param storedProcEngineConfigs A list of {@link StoredProcEngineConfig}s to register different {@link StoredProcEngine}s with this manager.
+     */
+    public StoredProcExecutionManager( final String storedProcContainer, final List<StoredProcEngineConfig> storedProcEngineConfigs )
     {
-        this.spContainer = spContainer;
-        this.spEngineConfigs = spEngineConfigs;
+        this.storedProcContainer = storedProcContainer;
+        this.storedProcEngineConfigs = storedProcEngineConfigs;
     }
     
-    public Attributes findStoredProcUnit( LdapContext rootCtx, String fullSPName ) throws NamingException
+    /**
+     * Finds and returns a stored procedure unit entry whose identifier name
+     * is extracted from fullSPName.
+     * 
+     * @param rootDSE A handle on the root DSE to be used for searching the SP Unit over.
+     * @param fullSPName Full name of the Stored Procedure including the unit name.
+     * @return The entry associated with the SP Unit.
+     * @throws NamingException If the unit cannot be located or any other error occurs.
+     */
+    public Attributes findStoredProcUnit( LdapContext rootDSE, String fullSPName ) throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setReturningAttributes( new String[] { "*" } );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String filter = "(storedProcUnitName=" + spUnitName + ")";
-        NamingEnumeration<SearchResult> results = rootCtx.search( spContainer, filter, controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( storedProcContainer, filter, controls );
         Attributes spUnitEntry = results.nextElement().getAttributes();
         return spUnitEntry;
     }
 
 
+    /**
+     * Initializes and returns a {@link StoredProcEngine} instance which can operate on spUnitEntry
+     * considering its specific stored procedure language.
+     * 
+     * @param spUnitEntry The entry which a {@link StoredProcEngine} type will be mathched with respect to the language identifier.
+     * @return A {@link StoredProcEngine} associated with spUnitEntry.
+     * @throws NamingException If no {@link StoredProcEngine} that can be associated with the language identifier in spUnitEntry can be found.
+     */
     public StoredProcEngine getStoredProcEngineInstance( Attributes spUnitEntry ) throws NamingException
     {
 
         String spLangId = ( String ) spUnitEntry.get( "storedProcLangId" ).get();
 
-        for ( StoredProcEngineConfig engineConfig : spEngineConfigs )
+        for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )
         {
             if ( engineConfig.getStoredProcLangId().equalsIgnoreCase( spLangId ) )
             {

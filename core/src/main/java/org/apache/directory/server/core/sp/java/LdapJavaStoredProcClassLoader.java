@@ -18,7 +18,7 @@
  *  
  */
 
-package org.apache.directory.server.core.sp;
+package org.apache.directory.server.core.sp.java;
 
 
 import javax.naming.NamingException;

@@ -21,9 +21,17 @@
 
 package org.apache.directory.server.core.sp;
 
+
+/**
+ * A utility class for working with Stored Procedures.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ $Date$
+ */
 public class StoredProcUtils
 {
     
+    /** The delimiter used to tokenize a full SP name into the unit and SP name */
     public static final String SPUnitDelimiter = ":";
 
     public static String extractStoredProcName( String fullSPName )
@@ -39,4 +47,5 @@ public class StoredProcUtils
         String className = fullSPName.substring( 0, delimiter );
         return className;
     }
+    
 }

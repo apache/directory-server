@@ -19,7 +19,7 @@
  */
 
 
-package org.apache.directory.server.core.sp;
+package org.apache.directory.server.core.sp.java;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,9 +32,17 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.core.sp.StoredProcEngine;
+import org.apache.directory.server.core.sp.StoredProcUtils;
 import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 
 
+/**
+ * A {@link StoredProcEngine} implementation specific to Java stored procedures.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ $Date$
+ */
 public class JavaStoredProcEngine implements StoredProcEngine
 {
 
@@ -43,6 +51,9 @@ public class JavaStoredProcEngine implements StoredProcEngine
     private Attributes spUnit;
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.sp.StoredProcEngine#invokeProcedure(javax.naming.ldap.LdapContext, java.lang.String, java.lang.Object[])
+     */
     public Object invokeProcedure( LdapContext rootCtx, String fullSPName, Object[] spArgs ) throws NamingException
     {
         Attribute javaByteCode = spUnit.get( "javaByteCode" );
@@ -100,12 +111,18 @@ public class JavaStoredProcEngine implements StoredProcEngine
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.sp.StoredProcEngine#getSPLangId()
+     */
     public String getSPLangId()
     {
         return storedProcLangId;
     }
 
 
+    /* (non-Javadoc)
+     * @see org.apache.directory.server.core.sp.StoredProcEngine#setSPUnitEntry(javax.naming.directory.Attributes)
+     */
     public void setSPUnitEntry( Attributes spUnit )
     {
         this.spUnit = spUnit;
