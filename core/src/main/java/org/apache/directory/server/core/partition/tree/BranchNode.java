@@ -17,10 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition;
+package org.apache.directory.server.core.partition.tree;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.directory.server.core.partition.Partition;
 
 /**
  * 
@@ -31,46 +33,51 @@ import java.util.Map;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PartitionContainer extends AbstractPartitionStructure
+public class BranchNode extends AbstractNode
 {
     /** Stores the list of all the descendant partitions and containers */
-    private Map<String, PartitionStructure> children;
+    private Map<String, Node> children;
+    
     
     /**
      * Creates a new instance of PartitionContainer.
      */
-    public PartitionContainer()
+    public BranchNode()
     {
-        children = new HashMap<String, PartitionStructure>();
+        children = new HashMap<String, Node>();
     }
 
+    
     /**
-     * @see PartitionStructure#isPartition()
+     * @see Node#isLeaf()
      */
-    public boolean isPartition()
+    public boolean isLeaf()
     {
         return false;
     }
     
+    
     /**
-     * @see PartitionStructure#addPartitionHandler( String, PartitionStructure )
+     * @see Node#addNode( String, Node )
      */
-    public PartitionStructure addPartitionHandler( String name, PartitionStructure child )
+    public Node addNode( String name, Node child )
     {
         children.put( name, child );
         return this;
     }
     
+    
     /**
-     * @see PartitionStructure#contains( String )     
+     * @see Node#contains( String )     
      */
     public boolean contains( String name )
     {
         return children.containsKey( name );
     }
     
+    
     /**
-     * @see PartitionStructure#getPartition()
+     * @see Node#getPartition()
      * 
      * As this is a container, we just return null;
      */
@@ -79,10 +86,11 @@ public class PartitionContainer extends AbstractPartitionStructure
         return null;
     }
 
+    
     /**
-     * @see PartitionStructure#getPartition( String )
+     * @see Node#getChildOrThis( String )
      */
-    public PartitionStructure getPartition( String name )
+    public Node getChildOrThis( String name )
     {
         if ( children.containsKey( name ) )
         {
@@ -93,6 +101,7 @@ public class PartitionContainer extends AbstractPartitionStructure
             return null;
         }
     }
+    
     
     /**
      * @see Object#toString()
@@ -105,7 +114,7 @@ public class PartitionContainer extends AbstractPartitionStructure
         
         boolean isFirst = true;
         
-        for ( PartitionStructure child:children.values() )
+        for ( Node child:children.values() )
         {
             if ( isFirst )
             {
@@ -116,13 +125,13 @@ public class PartitionContainer extends AbstractPartitionStructure
                 sb.append(  ", " );
             }
 
-            if ( child instanceof PartitionContainer )
+            if ( child instanceof BranchNode )
             {
-                sb.append( "C:").append( child.toString() );
+                sb.append( "Branch:").append( child.toString() );
             }
             else
             {
-                sb.append( "P: " ).append( "'" ).append( child.toString() ).append( "'" );
+                sb.append( "Leaf: " ).append( "'" ).append( child.toString() ).append( "'" );
             }
         }
 

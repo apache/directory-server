@@ -17,42 +17,47 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition;
+package org.apache.directory.server.core.partition.tree;
+
 
 import javax.naming.NamingException;
 
+import org.apache.directory.server.core.partition.Partition;
+
+
 /**
- * 
- * Stores a real Partition. This object is itself stored into a Pazrtition Container.
+ * A leaf node which stores a Partition. These objects are stored in BranchNodes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class PartitionHandler extends AbstractPartitionStructure
+public class LeafNode extends AbstractNode
 {
     /** The stored partition */
     private Partition partition;
+
     
     /**
-     * 
-     * Creates a new instance of PartitionHandler.
+     * Creates a new instance of LeafNode.
      *
-     * @param partition The partition to store
+     * @param partition the partition to store
      */
-    public PartitionHandler( Partition partition )
+    public LeafNode( Partition partition )
     {
         this.partition = partition;
     }
 
+    
     /**
-     * @see PartitionStructure#isPartition()
+     * @see Node#isLeaf()
      */
-    public boolean isPartition()
+    public boolean isLeaf()
     {
         return true;
     }
     
+    
     /**
-     * @see PartitionStructure#contains( String )
+     * @see Node#contains( String )
      */
     public boolean contains( String name )
     {
@@ -65,27 +70,30 @@ public class PartitionHandler extends AbstractPartitionStructure
             return false;
         }
     }
+    
 
     /**
-     * @see PartitionStructure#addPartitionHandler( String, PartitionStructure )
+     * @see Node#addNode( String, Node )
      */
-    public PartitionStructure addPartitionHandler( String name, PartitionStructure partition )
+    public Node addNode( String name, Node partition )
     {
         return this;
     }
     
+    
     /**
-     * @see PartitionStructure#getPartition()
+     * @see Node#getPartition()
      */
     public Partition getPartition()
     {
         return partition;
     }
+    
 
     /**
-     * @see PartitionStructure#getPartition( String )
+     * @see Node#getChildOrThis( String )
      */
-    public PartitionStructure getPartition( String name )
+    public Node getChildOrThis( String name )
     {
         try
         {
@@ -104,6 +112,7 @@ public class PartitionHandler extends AbstractPartitionStructure
         }
     }
 
+    
     /**
      * @see Object#toString()
      */

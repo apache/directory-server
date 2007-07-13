@@ -17,24 +17,30 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition;
+package org.apache.directory.server.core.partition.tree;
 
+
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+
 /**
- * An interface for PartitionStructure implementations. 
+ * An interface for nodes in a tree designed to quickly lookup partitions.
+ * Branch nodes in this tree contain other nodes.  Leaf nodes in the tree
+ * contain a referrence to a partition whose suffix is the path through the 
+ * nodes of the tree from the root.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public interface PartitionStructure
+public interface Node
 {
     /**
-     * Tells if the implementation is a Partition object. If it's a PartitionContainer
-     * instance, it returns false.
+     * Tells if the implementation is a leaf node. If it's a branch node
+     * then false is returned.
      *
-     * @return <code>true</code> if the class is an instance of PartitionHandler, false otherwise.
+     * @return <code>true</code> if the class is a leaf node, false otherwise.
      */
-    boolean isPartition();
+    boolean isLeaf();
     
     /**
      * Add a new Partition to the current container.
@@ -43,7 +49,7 @@ public interface PartitionStructure
      * @param children The PartitionStructure object (it should be a PartitionHandler)
      * @return The current PartitionStructure to which a Partition has been added.
      */
-    PartitionStructure addPartitionHandler( String name, PartitionStructure children );
+    Node addNode( String name, Node children );
     
     /**
      * Tells if the current PartitionStructure contains the given partition.
@@ -66,7 +72,7 @@ public interface PartitionStructure
      * @param name The name we are looking for 
      * @return The associated PartitionHandler or PartitionContainer
      */
-    PartitionStructure getPartition( String name );
+    Node getChildOrThis( String name );
     
     /**
      * @return Get the partition if the object is an instance of PartitionHandler, null otherwise
@@ -85,5 +91,5 @@ public interface PartitionStructure
      * @param partition The associated partition
      * @return The modified global structure.
      */
-    PartitionStructure buildPartitionStructure( PartitionStructure current, LdapDN dn, int index, Partition partition );
+    Node buildNode( Node current, LdapDN dn, int index, Partition partition );
 }

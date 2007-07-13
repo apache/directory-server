@@ -54,6 +54,8 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.tree.Node;
+import org.apache.directory.server.core.partition.tree.BranchNode;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -124,7 +126,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
-    private PartitionStructure partitionList = new PartitionContainer();
+    private Node partitionList = new BranchNode();
     
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -400,7 +402,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( key, system );
         
-            partitionList.buildPartitionStructure( partitionList, system.getSuffix(), 0, system );
+            partitionList.buildNode( partitionList, system.getSuffix(), 0, system );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( system.getUpSuffix().getUpName() );
@@ -578,7 +580,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( partition.getSuffix().toString(), partition );
             
-            partitionList.buildPartitionStructure( partitionList, partition.getSuffix(), 0, partition );
+            partitionList.buildNode( partitionList, partition.getSuffix(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( partition.getUpSuffix().getUpName() );
@@ -607,11 +609,11 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.remove( key );
         
-            partitionList = new PartitionContainer();
+            partitionList = new BranchNode();
             
             for ( Partition part:partitions.values() )
             {
-                partitionList.buildPartitionStructure( partitionList, part.getSuffix(), 0, partition );
+                partitionList.buildNode( partitionList, part.getSuffix(), 0, partition );
             }
     
             partition.sync();
@@ -1034,7 +1036,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Partition getBackend( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
-        PartitionStructure currentPartition = partitionList;
+        Node currentPartition = partitionList;
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
@@ -1047,9 +1049,9 @@ public class DefaultPartitionNexus extends PartitionNexus
                 
                 if ( currentPartition.contains( rdn ) )
                 {
-                    currentPartition = currentPartition.getPartition( rdn );
+                    currentPartition = currentPartition.getChildOrThis( rdn );
     
-                    if ( currentPartition.isPartition() )
+                    if ( currentPartition.isLeaf() )
                     {
                         return currentPartition.getPartition();
                     }

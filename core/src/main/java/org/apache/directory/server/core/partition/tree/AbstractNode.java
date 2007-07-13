@@ -17,8 +17,9 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.partition;
+package org.apache.directory.server.core.partition.tree;
 
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -28,21 +29,21 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 
-public abstract class AbstractPartitionStructure implements PartitionStructure
+public abstract class AbstractNode implements Node
 {
     /**
-     * @see PartitionStructure#buildPartitionStructure(PartitionStructure, LdapDN, int, Partition)
+     * @see Node#buildNode(Node, LdapDN, int, Partition)
      */
-    public PartitionStructure buildPartitionStructure( PartitionStructure current, LdapDN dn, int index, Partition partition )
+    public Node buildNode( Node current, LdapDN dn, int index, Partition partition )
     {
         if ( index == dn.size() - 1 )
         {
-            return current.addPartitionHandler( dn.getRdn( index ).toString(), new PartitionHandler( partition ) );
+            return current.addNode( dn.getRdn( index ).toString(), new LeafNode( partition ) );
         }
         else
         {
-            return current.addPartitionHandler( dn.getRdn( index ).toString(), 
-                buildPartitionStructure( new PartitionContainer(), dn, index + 1, partition ) );
+            return current.addNode( dn.getRdn( index ).toString(), 
+                buildNode( new BranchNode(), dn, index + 1, partition ) );
         }
     }
 }
