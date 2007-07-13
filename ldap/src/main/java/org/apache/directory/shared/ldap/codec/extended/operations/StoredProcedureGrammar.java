@@ -30,8 +30,9 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.log4j.Logger;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,7 +46,7 @@ public class StoredProcedureGrammar extends AbstractGrammar implements IGrammar
 
     /** The logger */
     //private static final Logger log = LoggerFactory.getLogger( StoredProcedureGrammar.class );
-    static final Logger log = Logger.getLogger( StoredProcedureGrammar.class );
+    static final Logger log = LoggerFactory.getLogger( StoredProcedureGrammar.class );
 
     /** The instance of grammar. StoredProcedureGrammar is a singleton. */
     private static IGrammar instance = new StoredProcedureGrammar();
