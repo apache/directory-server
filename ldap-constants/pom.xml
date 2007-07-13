@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.shared</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>shared-parent</artifactId>
     <version>0.9.7-SNAPSHOT</version>
   </parent>
   <artifactId>shared-ldap-constants</artifactId>
