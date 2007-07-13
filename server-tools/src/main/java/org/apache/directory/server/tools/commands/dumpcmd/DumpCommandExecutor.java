@@ -222,7 +222,6 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
         
         schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
-        schemaPartitionConfig.setOptimizerEnabled( true );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();

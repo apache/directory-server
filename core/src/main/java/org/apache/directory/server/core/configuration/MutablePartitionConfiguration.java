@@ -26,7 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
 
 
 /**
@@ -35,7 +34,7 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfi
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MutablePartitionConfiguration extends BTreePartitionConfiguration
+public class MutablePartitionConfiguration extends PartitionConfiguration
 {
     /**
      * Creates a new instance.
@@ -74,11 +73,6 @@ public class MutablePartitionConfiguration extends BTreePartitionConfiguration
         super.setSuffix( suffix );
     }
     
-    
-    public void setOptimizerEnabled( boolean optimizerEnabled )
-    {
-        super.setOptimizerEnabled( optimizerEnabled );
-    }
     
     /**
      * Get's the entry cache size for this partition.

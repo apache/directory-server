@@ -134,7 +134,6 @@ public class PartitionSchemaLoaderTest extends TestCase
         pc.setName( "schema" );
         pc.setCacheSize( 1000 );
         pc.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
-        pc.setOptimizerEnabled( true );
         pc.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();

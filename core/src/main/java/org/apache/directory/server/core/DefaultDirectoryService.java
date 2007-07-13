@@ -861,7 +861,6 @@ class DefaultDirectoryService extends DirectoryService
         }
         
         schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
-        schemaPartitionConfig.setOptimizerEnabled( true );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();

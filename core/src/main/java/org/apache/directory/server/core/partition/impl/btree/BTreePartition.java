@@ -65,7 +65,7 @@ public abstract class BTreePartition implements Partition
 
     /** the search engine used to search the database */
     private SearchEngine searchEngine = null;
-    private Optimizer optimizer = new NoOpOptimizer();
+    private Optimizer optimizer;
     
     protected AttributeTypeRegistry attributeTypeRegistry = null;
     protected OidRegistry oidRegistry = null;
@@ -342,10 +342,18 @@ public abstract class BTreePartition implements Partition
     {
         if ( cfg instanceof BTreePartitionConfiguration )
         {
-            if ( ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() )
+            if ( ! ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() )
+            {
+                optimizer = new NoOpOptimizer();
+            }
+            else
             {
                 optimizer = new DefaultOptimizer( this );
             }
+        }
+        else
+        {
+            optimizer = new DefaultOptimizer( this );
         }
     }
 
