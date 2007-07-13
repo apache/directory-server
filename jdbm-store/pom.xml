@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.5.1-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-jdbm-store</artifactId>
@@ -27,11 +27,13 @@
       <scope>test</scope>
     </dependency>
 
+<!--
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>nlog4j</artifactId>
       <scope>provided</scope>
     </dependency>
+-->
 
     <dependency>
       <groupId>jdbm</groupId>

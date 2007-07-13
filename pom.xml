@@ -9,7 +9,7 @@
   </parent>
 
   <groupId>org.apache.directory.server</groupId>
-  <artifactId>build</artifactId>
+  <artifactId>apacheds-parent</artifactId>
   <version>1.5.1-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
@@ -114,17 +114,23 @@
         <version>1.3</version>
       </dependency>
 
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>1.1</version>
-      </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>jcl104-over-slf4j</artifactId>
+          <version>1.4.0</version>
+        </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>nlog4j</artifactId>
-        <version>1.2.25</version>
-      </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>1.4.0</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>nlog4j</artifactId>
+          <version>1.2.25</version>
+        </dependency>
 
       <dependency>
         <groupId>jdbm</groupId>
@@ -255,9 +261,30 @@
     </dependency>
 
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl104-over-slf4j</artifactId>
+      <version>1.4.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+      <version>1.2.25</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

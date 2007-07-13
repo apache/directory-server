@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.5.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.directory.server</groupId>
@@ -16,6 +16,7 @@
   <name>ApacheDS Protocol Shared</name>
   <packaging>jar</packaging>
 
+<!--
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -23,5 +24,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+-->
 
 </project>
