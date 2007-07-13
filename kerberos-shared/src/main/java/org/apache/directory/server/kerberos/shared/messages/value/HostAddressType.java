@@ -26,144 +26,69 @@ import java.util.List;
 
 
 /**
+ * Type-safe enumerator for RFC 4120 section 7.5.3 "Address Types."
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public final class HostAddressType implements Comparable
 {
     /**
-     * Constant for the "null" host address type.
+     * Constant for the "IPv4" host address type.
      */
-    public static final HostAddressType NULL = new HostAddressType( 0, "null" );
+    public static final HostAddressType ADDRTYPE_IPV4 = new HostAddressType( 2, "IPv4" );
 
     /**
-     * Constant for the "Unix" host address type.
+     * Constant for the "Directional" host address type.
      */
-    public static final HostAddressType ADDRTYPE_UNIX = new HostAddressType( 1, "Unix" );
+    public static final HostAddressType ADDRTYPE_DIRECTIONAL = new HostAddressType( 3, "Directional" );
 
     /**
-     * Constant for the "Internet" host address type.
+     * Constant for the "ChaosNet" host address type.
      */
-    public static final HostAddressType ADDRTYPE_INET = new HostAddressType( 2, "Internet" );
+    public static final HostAddressType ADDRTYPE_CHAOSNET = new HostAddressType( 5, "ChaosNet" );
 
     /**
-     * Constant for the "Arpanet" host address type.
+     * Constant for the "XEROX Network Services (XNS)" host address type.
      */
-    public static final HostAddressType ADDRTYPE_IMPLINK = new HostAddressType( 3, "Arpanet" );
+    public static final HostAddressType ADDRTYPE_XNS = new HostAddressType( 6, "XEROX Network Services (XNS)" );
 
     /**
-     * Constant for the "PUP" host address type.
+     * Constant for the "ISO" host address type.
      */
-    public static final HostAddressType ADDRTYPE_PUP = new HostAddressType( 4, "PUP" );
+    public static final HostAddressType ADDRTYPE_ISO = new HostAddressType( 7, "ISO" );
 
     /**
-     * Constant for the "CHAOS" host address type.
+     * Constant for the "DECNET Phase IV" host address type.
      */
-    public static final HostAddressType ADDRTYPE_CHAOS = new HostAddressType( 5, "CHAOS" );
+    public static final HostAddressType ADDRTYPE_DECNET = new HostAddressType( 12, "DECNET Phase IV" );
 
     /**
-     * Constant for the "XEROX Network Services" host address type.
+     * Constant for the "AppleTalk DDP" host address type.
      */
-    public static final HostAddressType ADDRTYPE_XNS = new HostAddressType( 6, "XEROX Network Services" );
-
-    /**
-     * Constant for the "IPX" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_IPX = new HostAddressType( 6, "IPX" );
-
-    /**
-     * Constant for the "OSI" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_OSI = new HostAddressType( 7, "OSI" );
-
-    /**
-     * Constant for the "European Computer Manufacturers" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_ECMA = new HostAddressType( 8, "European Computer Manufacturers" );
-
-    /**
-     * Constant for the "Datakit" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_DATAKIT = new HostAddressType( 9, "Datakit" );
-
-    /**
-     * Constant for the "CCITT" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_CCITT = new HostAddressType( 10, "CCITT" );
-
-    /**
-     * Constant for the "SNA" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_SNA = new HostAddressType( 11, "SNA" );
-
-    /**
-     * Constant for the "DECnet" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_DECNET = new HostAddressType( 12, "DECnet" );
-
-    /**
-     * Constant for the "Direct Data Link Interface" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_DLI = new HostAddressType( 13, "Direct Data Link Interface" );
-
-    /**
-     * Constant for the "LAT" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_LAT = new HostAddressType( 14, "LAT" );
-
-    /**
-     * Constant for the "NSC Hyperchannel" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_HYLINK = new HostAddressType( 15, "NSC Hyperchannel" );
-
-    /**
-     * Constant for the "AppleTalk" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_APPLETALK = new HostAddressType( 16, "AppleTalk" );
+    public static final HostAddressType ADDRTYPE_APPLETALK = new HostAddressType( 16, "AppleTalk DDP" );
 
     /**
      * Constant for the "NetBios" host address type.
      */
-    public static final HostAddressType ADDRTYPE_NETBIOS = new HostAddressType( 17, "NetBios" );
+    public static final HostAddressType ADDRTYPE_NETBIOS = new HostAddressType( 20, "NetBios" );
 
     /**
-     * Constant for the "VoiceView" host address type.
+     * Constant for the "IPv6" host address type.
      */
-    public static final HostAddressType ADDRTYPE_VOICEVIEW = new HostAddressType( 18, "VoiceView" );
-
-    /**
-     * Constant for the "Firefox" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_FIREFOX = new HostAddressType( 19, "Firefox" );
-
-    /**
-     * Constant for the "Banyan" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_BAN = new HostAddressType( 21, "Banyan" );
-
-    /**
-     * Constant for the "ATM" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_ATM = new HostAddressType( 22, "ATM" );
-
-    /**
-     * Constant for the "Internet Protocol V6" host address type.
-     */
-    public static final HostAddressType ADDRTYPE_INET6 = new HostAddressType( 23, "Internet Protocol V6" );
+    public static final HostAddressType ADDRTYPE_IPV6 = new HostAddressType( 24, "IPv6" );
 
     /**
      * Array for building a List of VALUES.
      */
     private static final HostAddressType[] values =
-        { NULL, ADDRTYPE_UNIX, ADDRTYPE_INET, ADDRTYPE_IMPLINK, ADDRTYPE_PUP, ADDRTYPE_CHAOS, ADDRTYPE_XNS,
-            ADDRTYPE_IPX, ADDRTYPE_OSI, ADDRTYPE_ECMA, ADDRTYPE_DATAKIT, ADDRTYPE_CCITT, ADDRTYPE_SNA, ADDRTYPE_DECNET,
-            ADDRTYPE_DLI, ADDRTYPE_LAT, ADDRTYPE_HYLINK, ADDRTYPE_APPLETALK, ADDRTYPE_NETBIOS, ADDRTYPE_VOICEVIEW,
-            ADDRTYPE_FIREFOX, ADDRTYPE_BAN, ADDRTYPE_ATM, ADDRTYPE_INET6 };
+        { ADDRTYPE_IPV4, ADDRTYPE_DIRECTIONAL, ADDRTYPE_CHAOSNET, ADDRTYPE_XNS, ADDRTYPE_ISO, ADDRTYPE_DECNET,
+            ADDRTYPE_APPLETALK, ADDRTYPE_NETBIOS, ADDRTYPE_IPV6 };
 
     /**
      * A List of all the host address type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<HostAddressType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the host address type.
@@ -202,7 +127,7 @@ public final class HostAddressType implements Comparable
             }
         }
 
-        return NULL;
+        return ADDRTYPE_IPV4;
     }
 
 

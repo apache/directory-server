@@ -56,7 +56,7 @@ public class HostAddress
      */
     public HostAddress( InetAddress internetAddress )
     {
-        addressType = HostAddressType.ADDRTYPE_INET;
+        addressType = HostAddressType.ADDRTYPE_IPV4;
         byte[] newAddress = internetAddress.getAddress();
         address = new byte[newAddress.length];
         System.arraycopy( newAddress, 0, address, 0, newAddress.length );

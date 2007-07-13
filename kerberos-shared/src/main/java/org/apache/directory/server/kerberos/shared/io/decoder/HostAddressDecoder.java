@@ -46,7 +46,7 @@ public class HostAddressDecoder
      */
     protected static HostAddress decode( DERSequence sequence )
     {
-        HostAddressType type = HostAddressType.NULL;
+        HostAddressType type = HostAddressType.ADDRTYPE_IPV4;
         byte[] value = null;
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
