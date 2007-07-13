@@ -126,7 +126,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
-    private Node partitionList = new BranchNode();
+    private Node partitionLookupTree = new BranchNode();
     
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -398,11 +398,11 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new ConfigurationException( "Duplicate partition suffix: " + key );
         }
         
-        synchronized ( partitionList )
+        synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
         
-            partitionList.buildNode( partitionList, system.getSuffix(), 0, system );
+            partitionLookupTree.buildNode( partitionLookupTree, system.getSuffix(), 0, system );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( system.getUpSuffix().getUpName() );
@@ -576,11 +576,11 @@ public class DefaultPartitionNexus extends PartitionNexus
             partition.init( factoryCfg, config );
         }
         
-        synchronized ( partitionList )
+        synchronized ( partitionLookupTree )
         {
             partitions.put( partition.getSuffix().toString(), partition );
             
-            partitionList.buildNode( partitionList, partition.getSuffix(), 0, partition );
+            partitionLookupTree.buildNode( partitionLookupTree, partition.getSuffix(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( partition.getUpSuffix().getUpName() );
@@ -605,15 +605,15 @@ public class DefaultPartitionNexus extends PartitionNexus
         // This is easier to create a new structure from scratch than to reorganize
         // the current structure. As this strcuture is not modified often
         // this is an acceptable solution.
-        synchronized (partitionList)
+        synchronized (partitionLookupTree)
         {
             partitions.remove( key );
         
-            partitionList = new BranchNode();
+            partitionLookupTree = new BranchNode();
             
             for ( Partition part:partitions.values() )
             {
-                partitionList.buildNode( partitionList, part.getSuffix(), 0, partition );
+                partitionLookupTree.buildNode( partitionLookupTree, part.getSuffix(), 0, partition );
             }
     
             partition.sync();
@@ -1036,24 +1036,24 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Partition getBackend( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
-        Node currentPartition = partitionList;
+        Node currentNode = partitionLookupTree;
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( partitionList )
+        synchronized ( partitionLookupTree )
         {
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
             {
                 String rdn = rdns.nextElement();
                 
-                if ( currentPartition.contains( rdn ) )
+                if ( currentNode.contains( rdn ) )
                 {
-                    currentPartition = currentPartition.getChildOrThis( rdn );
+                    currentNode = currentNode.getChildOrThis( rdn );
     
-                    if ( currentPartition.isLeaf() )
+                    if ( currentNode.isLeaf() )
                     {
-                        return currentPartition.getPartition();
+                        return currentNode.getPartition();
                     }
                 }
                 else
