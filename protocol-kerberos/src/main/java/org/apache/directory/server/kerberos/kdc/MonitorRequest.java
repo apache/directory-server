@@ -48,15 +48,24 @@ public class MonitorRequest implements IoHandlerCommand
 
         if ( log.isDebugEnabled() )
         {
-            log.debug( "Responding to authentication request:" + "\n\trealm:                 " + request.getRealm()
-                + "\n\tserverPrincipal:       " + request.getServerPrincipal() + "\n\tclientPrincipal:       "
-                + request.getClientPrincipal() + "\n\tclientAddress:         " + clientAddress
-                + "\n\thostAddresses:         " + request.getAddresses() + "\n\tencryptionType:        "
-                + getEncryptionTypes( request ) + "\n\tfrom krb time:         " + request.getFrom()
-                + "\n\trealm krb time:        " + request.getRtime() + "\n\tkdcOptions:            "
-                + request.getKdcOptions() + "\n\tmessageType:           " + request.getMessageType()
-                + "\n\tnonce:                 " + request.getNonce() + "\n\tprotocolVersionNumber: "
-                + request.getProtocolVersionNumber() + "\n\ttill:                  " + request.getTill() );
+            StringBuffer sb = new StringBuffer();
+
+            sb.append( "Responding to authentication request:" );
+            sb.append( "\n\t" + "realm:                 " + request.getRealm() );
+            sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+            sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
+            sb.append( "\n\t" + "clientAddress:         " + clientAddress );
+            sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+            sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+            sb.append( "\n\t" + "from krb time:         " + request.getFrom() );
+            sb.append( "\n\t" + "realm krb time:        " + request.getRtime() );
+            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+            sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
+            sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
+            sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
+            sb.append( "\n\t" + "till:                  " + request.getTill() );
+
+            log.debug( sb.toString() );
         }
 
         next.execute( session, message );
