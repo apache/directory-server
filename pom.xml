@@ -9,8 +9,8 @@
   <packaging>pom</packaging>
   <modules>
     <module>project</module>
-    <module>apacheds</module>
     <module>shared</module>
     <module>daemon</module>
+    <module>apacheds</module>
   </modules>
 </project>
