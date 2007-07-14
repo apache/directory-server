@@ -30,7 +30,7 @@ import org.apache.directory.server.core.partition.Partition;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class LeafNode extends AbstractNode
+public class LeafNode implements Node
 {
     /** The stored partition */
     private Partition partition;
@@ -55,61 +55,13 @@ public class LeafNode extends AbstractNode
         return true;
     }
     
-    
-    /**
-     * @see Node#contains( String )
-     */
-    public boolean contains( String name )
-    {
-        try
-        {
-            return partition.getSuffix().getNormName().equals(  name  );
-        }
-        catch ( NamingException ne )
-        {
-            return false;
-        }
-    }
-    
 
-    /**
-     * @see Node#addNode( String, Node )
-     */
-    public Node addNode( String name, Node partition )
-    {
-        return this;
-    }
-    
-    
     /**
      * @see Node#getPartition()
      */
     public Partition getPartition()
     {
         return partition;
-    }
-    
-
-    /**
-     * @see Node#getChildOrThis( String )
-     */
-    public Node getChildOrThis( String name )
-    {
-        try
-        {
-            if ( partition.getSuffix().getNormName().equals( name ) )
-            {
-                return this;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        catch ( NamingException ne )
-        {
-            return null;
-        }
     }
 
     

@@ -54,6 +54,7 @@ import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.tree.LeafNode;
 import org.apache.directory.server.core.partition.tree.Node;
 import org.apache.directory.server.core.partition.tree.BranchNode;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
@@ -126,7 +127,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
-    private Node partitionLookupTree = new BranchNode();
+    private BranchNode partitionLookupTree = new BranchNode();
     
     /** the read only rootDSE attributes */
     private final Attributes rootDSE;
@@ -402,7 +403,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( key, system );
         
-            partitionLookupTree.buildNode( partitionLookupTree, system.getSuffix(), 0, system );
+            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffix(), 0, system );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( system.getUpSuffix().getUpName() );
@@ -580,7 +581,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             partitions.put( partition.getSuffix().toString(), partition );
             
-            partitionLookupTree.buildNode( partitionLookupTree, partition.getSuffix(), 0, partition );
+            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffix(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             namingContexts.add( partition.getUpSuffix().getUpName() );
@@ -613,7 +614,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             
             for ( Partition part:partitions.values() )
             {
-                partitionLookupTree.buildNode( partitionLookupTree, part.getSuffix(), 0, partition );
+                partitionLookupTree.recursivelyAddPartition( partitionLookupTree, part.getSuffix(), 0, partition );
             }
     
             partition.sync();
@@ -1046,19 +1047,26 @@ public class DefaultPartitionNexus extends PartitionNexus
             while ( rdns.hasMoreElements() )
             {
                 String rdn = rdns.nextElement();
-                
-                if ( currentNode.contains( rdn ) )
-                {
-                    currentNode = currentNode.getChildOrThis( rdn );
-    
-                    if ( currentNode.isLeaf() )
-                    {
-                        return currentNode.getPartition();
-                    }
-                }
-                else
+
+                if ( currentNode == null )
                 {
                     break;
+                }
+                
+                if ( currentNode instanceof LeafNode )
+                {
+                    return ( ( LeafNode ) currentNode ).getPartition();
+                }
+
+                BranchNode currentBranch = ( BranchNode ) currentNode;
+                if ( currentBranch.contains( rdn ) )
+                {
+                    currentNode = currentBranch.getChild( rdn );
+                    
+                    if ( currentNode instanceof LeafNode )
+                    {
+                        return ( ( LeafNode ) currentNode ).getPartition();
+                    }
                 }
             }
         }

@@ -20,10 +20,6 @@
 package org.apache.directory.server.core.partition.tree;
 
 
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
-
 /**
  * An interface for nodes in a tree designed to quickly lookup partitions.
  * Branch nodes in this tree contain other nodes.  Leaf nodes in the tree
@@ -41,55 +37,4 @@ public interface Node
      * @return <code>true</code> if the class is a leaf node, false otherwise.
      */
     boolean isLeaf();
-    
-    /**
-     * Add a new Partition to the current container.
-     *
-     * @param name The partition name
-     * @param children The PartitionStructure object (it should be a PartitionHandler)
-     * @return The current PartitionStructure to which a Partition has been added.
-     */
-    Node addNode( String name, Node children );
-    
-    /**
-     * Tells if the current PartitionStructure contains the given partition.
-     * 
-     * If the PartitionStructure is an instance of PartitionHandler, returns true
-     * if the partition's name equals the given name.
-     *
-     * If the PartitionStructure is an instance of PartitionContainer, returns true
-     * if the container's children contains the given name.
-     *
-     * @param name The name we are looking for
-     * @return <code>true</code> if the PartitionStructure instance contains this name
-     */
-    boolean contains( String name );
-    
-    /**
-     * Returns the Partition associated with this name, if any, or null if the name is not 
-     * found
-     *
-     * @param name The name we are looking for 
-     * @return The associated PartitionHandler or PartitionContainer
-     */
-    Node getChildOrThis( String name );
-    
-    /**
-     * @return Get the partition if the object is an instance of PartitionHandler, null otherwise
-     */
-    Partition getPartition();
-    
-    /**
-     * Construct the global partition structure, assuming the DN passed as an argument is a partition
-     * name.
-     * 
-     * This is a recursive method.
-     *
-     * @param current The current structure
-     * @param dn The DN associated with the partition
-     * @param index The current RDN being processed 
-     * @param partition The associated partition
-     * @return The modified global structure.
-     */
-    Node buildNode( Node current, LdapDN dn, int index, Partition partition );
 }
