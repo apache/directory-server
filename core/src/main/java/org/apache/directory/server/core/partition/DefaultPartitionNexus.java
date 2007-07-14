@@ -120,10 +120,10 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     private DirectoryServiceConfiguration factoryCfg;
 
-    /** the system backend */
+    /** the system partition */
     private Partition system;
 
-    /** the backends keyed by normalized suffix strings */
+    /** the partitions keyed by normalized suffix strings */
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
     
     /** A structure to hold all the partitions */
@@ -492,7 +492,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     public boolean compare( OperationContext compareContext ) throws NamingException
     {
-        Partition partition = getBackend( compareContext.getDn() );
+        Partition partition = getPartition( compareContext.getDn() );
         AttributeTypeRegistry registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         
         CompareOperationContext ctx = (CompareOperationContext)compareContext;
@@ -675,7 +675,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public LdapDN getSuffix ( OperationContext getSuffixContext ) throws NamingException
     {
-        Partition backend = getBackend( getSuffixContext.getDn() );
+        Partition backend = getPartition( getSuffixContext.getDn() );
         return backend.getSuffix();
     }
 
@@ -720,13 +720,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
     public void bind( OperationContext bindContext ) throws NamingException
     {
-        Partition partition = getBackend( bindContext.getDn() );
+        Partition partition = getPartition( bindContext.getDn() );
         partition.bind( bindContext );
     }
 
     public void unbind( OperationContext unbindContext ) throws NamingException
     {
-        Partition partition = getBackend( unbindContext.getDn() );
+        Partition partition = getPartition( unbindContext.getDn() );
         partition.unbind( unbindContext );
     }
 
@@ -736,7 +736,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void delete( OperationContext deleteContext ) throws NamingException
     {
-        Partition backend = getBackend( deleteContext.getDn() );
+        Partition backend = getPartition( deleteContext.getDn() );
         backend.delete( deleteContext );
     }
 
@@ -752,7 +752,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void add( OperationContext addContext ) throws NamingException
     {
-        Partition backend = getBackend( addContext.getDn() );
+        Partition backend = getPartition( addContext.getDn() );
         backend.add( addContext );
     }
 
@@ -762,7 +762,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void modify( OperationContext modifyContext ) throws NamingException
     {
-        Partition backend = getBackend( modifyContext.getDn() );
+        Partition backend = getPartition( modifyContext.getDn() );
         backend.modify( modifyContext );
     }
 
@@ -772,7 +772,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public NamingEnumeration list( OperationContext opContext ) throws NamingException
     {
-        Partition backend = getBackend( opContext.getDn() );
+        Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
     }
 
@@ -921,7 +921,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             throw new LdapNameNotFoundException();
         }
 
-        Partition backend = getBackend( base );
+        Partition backend = getPartition( base );
         return backend.search( opContext );
     }
 
@@ -966,7 +966,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             return retval;
         }
 
-        Partition backend = getBackend( dn );
+        Partition backend = getPartition( dn );
         return backend.lookup( ctx );
     }
 
@@ -988,7 +988,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             return true;
         }
 
-        Partition backend = getBackend( dn );
+        Partition backend = getPartition( dn );
         return backend.hasEntry( opContext );
     }
 
@@ -998,7 +998,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void rename( OperationContext opContext ) throws NamingException
     {
-        Partition backend = getBackend( opContext.getDn() );
+        Partition backend = getPartition( opContext.getDn() );
         backend.rename( opContext );
     }
 
@@ -1008,7 +1008,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void move( OperationContext opContext ) throws NamingException
     {
-        Partition backend = getBackend( opContext.getDn() );
+        Partition backend = getPartition( opContext.getDn() );
         backend.move( opContext );
     }
 
@@ -1018,23 +1018,19 @@ public class DefaultPartitionNexus extends PartitionNexus
      */
     public void moveAndRename( OperationContext opContext ) throws NamingException
     {
-        Partition backend = getBackend( opContext.getDn() );
+        Partition backend = getPartition( opContext.getDn() );
         backend.moveAndRename( opContext );
     }
 
 
-    // ------------------------------------------------------------------------
-    // Private Methods
-    // ------------------------------------------------------------------------
-
     /**
-     * Gets the backend partition associated with a normalized dn.
+     * Gets the partition associated with a normalized dn.
      *
-     * @param dn the normalized distinguished name to resolve to a backend
+     * @param dn the normalized distinguished name to resolve to a partition
      * @return the backend partition associated with the normalized dn
-     * @throws NamingException if the name cannot be resolved to a backend
+     * @throws NamingException if the name cannot be resolved to a partition
      */
-    private Partition getBackend( LdapDN dn ) throws NamingException
+    public Partition getPartition( LdapDN dn ) throws NamingException
     {
         Enumeration<String> rdns = dn.getAll();
         Node currentNode = partitionLookupTree;
@@ -1075,10 +1071,9 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public Partition getPartition( LdapDN dn ) throws NamingException
-    {
-        return getBackend( dn );
-    }
+    // ------------------------------------------------------------------------
+    // Private Methods
+    // ------------------------------------------------------------------------
 
 
     public void registerSupportedExtensions( Set extensionOids )
