@@ -29,11 +29,11 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.SimpleAuthenticator;
 import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.shared.ldap.ldif.Entry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,8 @@ public class StartupConfiguration extends Configuration
     private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
     private List interceptorConfigurations; // Set<InterceptorConfiguration>
     private PartitionConfiguration systemPartitionConfiguration; 
-    private Set<PartitionConfiguration> partitionConfigurations = new HashSet<PartitionConfiguration>();
+    private Set<? extends PartitionConfiguration> partitionConfigurations = 
+        new HashSet<PartitionConfiguration>();
     private List testEntries = new ArrayList(); // List<Attributes>
 
 
@@ -281,22 +282,23 @@ public class StartupConfiguration extends Configuration
      */
     protected void setPartitionConfigurations( Set<? extends PartitionConfiguration> contextParitionConfigurations )
     {
-        Set newSet = ConfigurationUtil.getTypeSafeSet( contextParitionConfigurations,
-            PartitionConfiguration.class );
+        Set<? extends PartitionConfiguration> newSet = 
+            ( Set <? extends PartitionConfiguration> ) ConfigurationUtil
+            .getTypeSafeSet( contextParitionConfigurations, PartitionConfiguration.class );
 
-        Set names = new HashSet();
+        Set<String> names = new HashSet<String>();
         Iterator i = newSet.iterator();
         while ( i.hasNext() )
         {
             PartitionConfiguration cfg = ( PartitionConfiguration ) i.next();
             cfg.validate();
 
-            String name = cfg.getId();
-            if ( names.contains( name ) )
+            String id = cfg.getId();
+            if ( names.contains( id ) )
             {
-                throw new ConfigurationException( "Duplicate partition name: " + name );
+                throw new ConfigurationException( "Duplicate partition id: " + id );
             }
-            names.add( name );
+            names.add( id );
         }
 
         this.partitionConfigurations = newSet;
@@ -355,7 +357,7 @@ public class StartupConfiguration extends Configuration
     {
         List newList = ConfigurationUtil.getTypeSafeList( interceptorConfigurations, InterceptorConfiguration.class );
 
-        Set names = new HashSet();
+        Set<String> names = new HashSet<String>();
         Iterator i = newList.iterator();
         while ( i.hasNext() )
         {

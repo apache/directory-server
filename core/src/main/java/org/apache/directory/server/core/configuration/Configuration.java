@@ -23,8 +23,6 @@ package org.apache.directory.server.core.configuration;
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import org.apache.directory.server.core.DirectoryService;
-
 
 /**
  * A configuration that provides required, optional, or default properties

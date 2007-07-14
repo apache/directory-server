@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.DirectoryService;
-
-
 /**
  * A {@link Configuration} that shuts down ApacheDS.
  *

@@ -22,8 +22,6 @@ package org.apache.directory.server.core.configuration;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 

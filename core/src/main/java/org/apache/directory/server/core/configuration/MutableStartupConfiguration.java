@@ -24,8 +24,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.server.core.DirectoryService;
-
 
 /**
  * A mutable version of {@link StartupConfiguration}.
@@ -74,7 +72,7 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setAuthenticatorConfigurations( Set authenticators )
+    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticators )
     {
         super.setAuthenticatorConfigurations( authenticators );
     }

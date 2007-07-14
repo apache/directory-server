@@ -42,6 +42,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.MultiMap;
 import org.apache.directory.shared.ldap.util.StringTools;
 
+
 /**
  * A JavaBeans {@link PropertyEditor} that can convert {@link Attributes} to
  * LDIF string and vice versa. This class is useful when you're going to

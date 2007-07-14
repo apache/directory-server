@@ -20,10 +20,6 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexus;
-
-
 /**
  * A {@link Configuration} that adds a new {@link Partition} to
  * the current {@link PartitionNexus}.
