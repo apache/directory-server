@@ -21,7 +21,6 @@
   </modules>
 
   <dependencies>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -68,8 +67,9 @@
         <groupId>org.slf4j</groupId>
         <artifactId>nlog4j</artifactId>
         <version>1.2.25</version>
+        <scope>test</scope>
       </dependency>
- 
+
       <dependency>
         <groupId>antlr</groupId>
         <artifactId>antlr</artifactId>
@@ -80,6 +80,7 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>3.8.1</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
