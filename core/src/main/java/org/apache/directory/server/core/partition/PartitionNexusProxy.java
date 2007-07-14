@@ -159,7 +159,20 @@ public class PartitionNexusProxy extends PartitionNexus
         return this.configuration.getPartitionNexus().getLdapContext();
     }
 
+    
+    public String getId()
+    {
+        throw new UnsupportedOperationException( "Nexus partition proxy objects do not have an Id." );
+    }
 
+    
+    public PartitionConfiguration getConfiguration()
+    {
+        throw new UnsupportedOperationException( "Nexus partition proxy objects do not have a " +
+                "partition configuration." );
+    }
+
+    
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException
     {
     }

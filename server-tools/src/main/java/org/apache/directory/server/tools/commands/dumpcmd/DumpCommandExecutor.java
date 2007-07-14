@@ -207,7 +207,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
         
         MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
-        schemaPartitionConfig.setName( "schema" );
+        schemaPartitionConfig.setId( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
         DbFileListing listing = null;
@@ -285,7 +285,6 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         };
         
         schemaPartition.init( dsc, schemaPartitionConfig );
-        schemaPartitionConfig.setContextPartition( schemaPartition );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries

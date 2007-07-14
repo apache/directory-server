@@ -131,8 +131,9 @@ public class PartitionSchemaLoaderTest extends TestCase
         // --------------------------------------------------------------------
         
         MutablePartitionConfiguration pc = new MutablePartitionConfiguration();
-        pc.setName( "schema" );
+        pc.setId( "schema" );
         pc.setCacheSize( 1000 );
+        pc.setPartitionClassName( JdbmPartition.class.getName() );
         pc.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
         pc.setSuffix( "ou=schema" );
         

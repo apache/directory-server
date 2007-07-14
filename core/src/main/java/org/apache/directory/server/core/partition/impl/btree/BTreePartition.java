@@ -66,6 +66,7 @@ public abstract class BTreePartition implements Partition
     /** the search engine used to search the database */
     private SearchEngine searchEngine = null;
     private Optimizer optimizer;
+    private BTreePartitionConfiguration cfg;
     
     protected AttributeTypeRegistry attributeTypeRegistry = null;
     protected OidRegistry oidRegistry = null;
@@ -82,6 +83,18 @@ public abstract class BTreePartition implements Partition
     {
     }
 
+    
+    public BTreePartitionConfiguration getConfiguration()
+    {
+        return cfg;
+    }
+    
+    
+    public String getId()
+    {
+        return cfg.getId();
+    }
+    
     
     /**
      * Allows for schema entity registries to be swapped out during runtime.  This is 
@@ -338,11 +351,12 @@ public abstract class BTreePartition implements Partition
      * 
      * @param cfg
      */
-    protected void initOptimizer0( PartitionConfiguration cfg )
+    protected void initOptimizerAndConfiguration0( PartitionConfiguration cfg ) throws NamingException
     {
         if ( cfg instanceof BTreePartitionConfiguration )
         {
-            if ( ! ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() )
+            this.cfg = ( BTreePartitionConfiguration ) cfg;
+            if ( ! this.cfg.isOptimizerEnabled() )
             {
                 optimizer = new NoOpOptimizer();
             }
@@ -353,6 +367,7 @@ public abstract class BTreePartition implements Partition
         }
         else
         {
+            this.cfg = BTreePartitionConfiguration.convert( cfg );
             optimizer = new DefaultOptimizer( this );
         }
     }
@@ -361,7 +376,7 @@ public abstract class BTreePartition implements Partition
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
-        initOptimizer0( cfg );
+        initOptimizerAndConfiguration0( cfg );
         initRegistries1( factoryCfg.getRegistries() );
         initIndices2( cfg.getIndexedAttributes() );
         initSuffixEntry3( cfg.getSuffix(), cfg.getContextEntry() );

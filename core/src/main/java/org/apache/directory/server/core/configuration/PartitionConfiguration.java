@@ -27,8 +27,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -46,14 +44,16 @@ public class PartitionConfiguration
 {
     /** The name of reserved system partition */
     public static final String SYSTEM_PARTITION_NAME = "system";
+    public static final String DEFAULT_PARTITION_IMPLEMENTATION =
+        "org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition";
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
-    private String name;
+    private String id;
     private int cacheSize = -1;
     private String suffix;
     private Set indexedAttributes; // Set<String> or <IndexConfiguration>
     private Attributes contextEntry = new AttributesImpl( true );
-    private Partition contextPartition = new JdbmPartition();
+    private String partitionClassName = DEFAULT_PARTITION_IMPLEMENTATION;
 
 
     /**
@@ -69,9 +69,9 @@ public class PartitionConfiguration
      * Returns user-defined name of the {@link Partition} that
      * this configuration configures.
      */
-    public String getName()
+    public String getId()
     {
-        return name;
+        return id;
     }
 
 
@@ -79,10 +79,10 @@ public class PartitionConfiguration
      * Sets user-defined name of the {@link Partition} that
      * this configuration configures.
      */
-    protected void setName( String name )
+    protected void setId( String id )
     {
-        name = name.trim();
-        this.name = name;
+        id = id.trim();
+        this.id = id;
     }
 
 
@@ -106,24 +106,24 @@ public class PartitionConfiguration
 
 
     /**
-     * Returns the {@link Partition} that this configuration configures.
+     * Returns the partition implementation's fully qualified class name.
      */
-    public Partition getContextPartition()
+    public String getPartitionClassName()
     {
-        return contextPartition;
+        return partitionClassName;
     }
 
 
     /**
-     * Sets the {@link Partition} that this configuration configures.
+     * Sets the fully qualified class name of the partition implementation.
      */
-    protected void setContextPartition( Partition partition )
+    protected void setPartitionClassName( String partitionClassName )
     {
-        if ( partition == null )
+        if ( partitionClassName == null )
         {
-            throw new NullPointerException( "partition" );
+            throw new NullPointerException( "partitionClassName" );
         }
-        this.contextPartition = partition;
+        this.partitionClassName = partitionClassName;
     }
 
 
@@ -199,7 +199,7 @@ public class PartitionConfiguration
      */
     public void validate()
     {
-        if ( getName() == null || getName().length() == 0 )
+        if ( getId() == null || getId().length() == 0 )
         {
             throw new ConfigurationException( "Name is not specified." );
         }
@@ -207,6 +207,11 @@ public class PartitionConfiguration
         if ( getSuffix() == null )
         {
             throw new ConfigurationException( "Suffix is not specified." );
+        }
+
+        if ( getPartitionClassName() == null )
+        {
+            throw new ConfigurationException( "PartitionClassName is not specified." );
         }
     }
 

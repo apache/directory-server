@@ -19,13 +19,13 @@
  */
 package org.apache.directory.server.core.partition.impl.btree;
 
+
 import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.partition.Partition;
 
 
 /**
@@ -42,21 +42,21 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
     }
     
     
-    public void setName( String name )
+    public void setId( String name )
     {
-        super.setName( name );
+        super.setId( name );
     }
 
 
-    public void setIndexedAttributes( Set indexedAttributes )
+    public void setIndexedAttributes( Set<Object> indexedAttributes )
     {
         super.setIndexedAttributes( indexedAttributes );
     }
 
 
-    public void setContextPartition( Partition partition )
+    public void setPartitionClassName( String partitionClassName )
     {
-        super.setContextPartition( partition );
+        super.setPartitionClassName( partitionClassName );
     }
 
 
@@ -91,7 +91,7 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
         newConfig.setCacheSize( config.getCacheSize() );
         newConfig.setContextEntry( config.getContextEntry() );
         newConfig.setIndexedAttributes( config.getIndexedAttributes() );
-        newConfig.setName( config.getName() );
+        newConfig.setId( config.getId() );
         newConfig.setSuffix( config.getSuffix() );
         newConfig.setSynchOnWrite( false );
         return newConfig;

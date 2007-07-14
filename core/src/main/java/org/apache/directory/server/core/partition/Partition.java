@@ -46,6 +46,22 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface Partition
 {
     /**
+     * Get's the configuration for this partition.
+     *
+     * @return the configuration for this partition.
+     */
+    PartitionConfiguration getConfiguration();
+    
+    
+    /**
+     * Get's the unique identifier for this partition.
+     *
+     * @return the unique identifier for this partition
+     */
+    String getId();
+    
+    
+    /**
      * Initializes this partition.
      */
     void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException;

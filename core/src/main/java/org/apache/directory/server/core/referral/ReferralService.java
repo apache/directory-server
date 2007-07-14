@@ -773,7 +773,7 @@ public class ReferralService extends BaseInterceptor
         next.addContextPartition( opContext );
 
         // add referrals immediately after adding the new partition
-        Partition partition = ((AddContextPartitionOperationContext)opContext).getCfg().getContextPartition();
+        Partition partition = ( ( AddContextPartitionOperationContext ) opContext ).getPartition();
         LdapDN suffix = partition.getSuffix();
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration list = invocation.getProxy().search( 

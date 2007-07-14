@@ -152,7 +152,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             // Add apache.org paritition since all work will be done here
             MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
             partConfig.setIndexedAttributes( indexedAttributes );
-            partConfig.setName( "test" );
+            partConfig.setId( "test" );
             partConfig.setSuffix( "ou=test" );
             partConfig.setContextEntry( attributes );
             

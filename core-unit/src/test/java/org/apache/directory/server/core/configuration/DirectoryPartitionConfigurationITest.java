@@ -33,7 +33,6 @@ import org.apache.directory.server.core.configuration.AddPartitionConfiguration;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.RemovePartitionConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -55,13 +54,12 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
     public void testAddAndRemove() throws Exception
     {
         MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
-        partitionCfg.setName( "removable" );
+        partitionCfg.setId( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
         Attributes ctxEntry = new AttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
         partitionCfg.setContextEntry( ctxEntry );
-        partitionCfg.setContextPartition( new JdbmPartition() );
 
         // Test AddContextPartition
         AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partitionCfg );

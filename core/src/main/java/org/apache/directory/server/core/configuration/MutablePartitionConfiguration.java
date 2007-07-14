@@ -25,8 +25,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.partition.Partition;
-
 
 /**
  * A mutable version of {@link PartitionConfiguration}.
@@ -44,9 +42,9 @@ public class MutablePartitionConfiguration extends PartitionConfiguration
     }
 
 
-    public void setName( String name )
+    public void setId( String id )
     {
-        super.setName( name );
+        super.setId( id );
     }
 
 
@@ -56,9 +54,9 @@ public class MutablePartitionConfiguration extends PartitionConfiguration
     }
 
 
-    public void setContextPartition( Partition partition )
+    public void setPartitionClassName( String partitionClassName )
     {
-        super.setContextPartition( partition );
+        super.setPartitionClassName( partitionClassName );
     }
 
 

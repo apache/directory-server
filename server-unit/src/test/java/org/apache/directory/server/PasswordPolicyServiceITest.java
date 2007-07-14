@@ -68,7 +68,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
         // Add partition 'example'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setName( "example" );
+        pcfg.setId( "example" );
         pcfg.setSuffix( "dc=example,dc=com" );
 
         Set<Object> indexedAttrs = new HashSet<Object>();

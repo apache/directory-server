@@ -297,10 +297,11 @@
   <!-- use the following partitionConfiguration to override defaults for  -->
   <!-- the system partition                                               --> 
   <bean id="systemPartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
-    <property name="name" value="system" />
+    <property name="id" value="system" />
     <property name="cacheSize" value="100" />
     <property name="suffix" value="ou=system" />
-
+    <property name="partitionClassName" 
+      value="org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition" />
     <!-- the optimizer is enabled by default but may not always be what     -->
     <!-- you want if your queries are really simple                         -->
     <property name="optimizerEnabled" value="true" />
@@ -369,9 +370,11 @@
 
 
   <bean id="examplePartitionConfiguration" class="org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration">
-    <property name="name" value="example" />
+    <property name="id" value="example" />
     <property name="cacheSize" value="100" />
     <property name="suffix" value="dc=example,dc=com" />
+    <property name="partitionClassName" 
+      value="org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition" />
 
     <!-- the optimizer is enabled by default but may not always be what     -->
     <!-- you want if your queries are really simple                         -->

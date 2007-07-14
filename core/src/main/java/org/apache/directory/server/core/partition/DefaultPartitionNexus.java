@@ -205,7 +205,19 @@ public class DefaultPartitionNexus extends PartitionNexus
         rootDSE.put( attr );
     }
 
+    
+    public PartitionConfiguration getConfiguration()
+    {
+        throw new UnsupportedOperationException( "The NEXUS partition does not have a " +
+                "standard partition configuration associated with it." );
+    }
+    
 
+    public String getId()
+    {
+        return "NEXUS";
+    }
+    
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
@@ -219,8 +231,9 @@ public class DefaultPartitionNexus extends PartitionNexus
         this.attrRegistry = this.factoryCfg.getRegistries().getAttributeTypeRegistry();
         this.oidRegistry = this.factoryCfg.getRegistries().getOidRegistry();
         
-        List<PartitionConfiguration> initializedPartitionCfgs = new ArrayList<PartitionConfiguration>();
-        initializedPartitionCfgs.add( initializeSystemPartition() );
+        initializeSystemPartition();
+        List<Partition> initializedPartitions = new ArrayList<Partition>();
+        initializedPartitions.add( 0, this.system );
 
         Iterator i = factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
         try
@@ -228,8 +241,9 @@ public class DefaultPartitionNexus extends PartitionNexus
             while ( i.hasNext() )
             {
                 PartitionConfiguration c = ( PartitionConfiguration ) i.next();
-                addContextPartition( new AddContextPartitionOperationContext( c ) );
-                initializedPartitionCfgs.add( 0, c );
+                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( c );
+                addContextPartition( opCtx );
+                initializedPartitions.add( opCtx.getPartition() );
             }
             initialized = true;
         }
@@ -237,11 +251,10 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             if ( !initialized )
             {
-                i = initializedPartitionCfgs.iterator();
+                i = initializedPartitions.iterator();
                 while ( i.hasNext() )
                 {
-                    PartitionConfiguration partitionCfg = ( PartitionConfiguration ) i.next();
-                    Partition partition = partitionCfg.getContextPartition();
+                    Partition partition = ( Partition ) i.next();
                     i.remove();
                     try
                     {
@@ -249,7 +262,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                     catch ( Exception e )
                     {
-                        log.warn( "Failed to destroy a partition: " + partitionCfg.getSuffix(), e );
+                        log.warn( "Failed to destroy a partition: " + partition.getSuffix(), e );
                     }
                     finally
                     {
@@ -295,7 +308,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             // check a few things to make sure users configured it properly
             // ---------------------------------------------------------------
 
-            if ( ! systemCfg.getName().equals( "system" ) ) 
+            if ( ! systemCfg.getId().equals( "system" ) ) 
             {
                 throw new ConfigurationException( "System partition has wrong name: should be 'system'." );
             }
@@ -356,7 +369,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         else
         {
             systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setName( "system" );
+            systemCfg.setId( "system" );
             
             // @TODO need to make this configurable for the system partition
             systemCfg.setCacheSize( 500 );
@@ -364,7 +377,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     
             // Add indexed attributes for system partition
-            Set<String> indexedSystemAttrs = new HashSet<String>();
+            Set<Object> indexedSystemAttrs = new HashSet<Object>();
             indexedSystemAttrs.add( Oid.ALIAS );
             indexedSystemAttrs.add( Oid.EXISTANCE );
             indexedSystemAttrs.add( Oid.HIERARCHY );
@@ -391,7 +404,6 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         system = new JdbmPartition(); // using default implementation.
         system.init( factoryCfg, systemCfg );
-        systemCfg.setContextPartition( system );
         String key = system.getSuffix().toString();
         
         if ( partitions.containsKey( key ) )
@@ -402,7 +414,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-        
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffix(), 0, system );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
@@ -561,8 +572,10 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     public synchronized void addContextPartition( OperationContext addContextPartitionContext ) throws NamingException
     {
-        PartitionConfiguration config = ((AddContextPartitionOperationContext)addContextPartitionContext).getCfg();
-        Partition partition = config.getContextPartition();
+        AddContextPartitionOperationContext operationContext = 
+            ( AddContextPartitionOperationContext ) addContextPartitionContext;
+        PartitionConfiguration config = operationContext.getPartitionConfiguration();
+        Partition partition = operationContext.getPartition();
 
         // Turn on default indices
         String key = config.getSuffix();
@@ -580,7 +593,6 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( partition.getSuffix().toString(), partition );
-            
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffix(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );

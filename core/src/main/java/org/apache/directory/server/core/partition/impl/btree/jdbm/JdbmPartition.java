@@ -83,7 +83,7 @@ public class JdbmPartition extends BTreePartition
         throws NamingException
     {
         // setup optimizer and registries for parent
-        initOptimizer0( cfg );
+        initOptimizerAndConfiguration0( cfg );
         initRegistries1( factoryCfg.getRegistries() );
         
         // initialize the store
@@ -92,13 +92,13 @@ public class JdbmPartition extends BTreePartition
         storeConfig.setCacheSize( cfg.getCacheSize() );
         storeConfig.setContextEntry( cfg.getContextEntry() );
         storeConfig.setIndexedAttributes( cfg.getIndexedAttributes() );
-        storeConfig.setName( cfg.getName() );
+        storeConfig.setName( cfg.getId() );
         storeConfig.setOidRegistry( oidRegistry );
         storeConfig.setSuffixDn( cfg.getSuffix() );
         
         storeConfig.setWorkingDirectory( new File( 
             factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
-            + File.separator + cfg.getName() ) );
+            + File.separator + cfg.getId() ) );
         
         if ( cfg instanceof BTreePartitionConfiguration )
         {

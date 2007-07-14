@@ -291,7 +291,7 @@ public class StartupConfiguration extends Configuration
             PartitionConfiguration cfg = ( PartitionConfiguration ) i.next();
             cfg.validate();
 
-            String name = cfg.getName();
+            String name = cfg.getId();
             if ( names.contains( name ) )
             {
                 throw new ConfigurationException( "Duplicate partition name: " + name );

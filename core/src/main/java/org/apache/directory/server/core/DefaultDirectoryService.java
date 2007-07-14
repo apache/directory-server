@@ -846,7 +846,7 @@ class DefaultDirectoryService extends DirectoryService
         // --------------------------------------------------------------------
         
         MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
-        schemaPartitionConfig.setName( "schema" );
+        schemaPartitionConfig.setId( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
         DbFileListing listing = null;
@@ -870,7 +870,6 @@ class DefaultDirectoryService extends DirectoryService
         schemaPartitionConfig.setContextEntry( entry );
         JdbmPartition schemaPartition = new JdbmPartition();
         schemaPartition.init( configuration, schemaPartitionConfig );
-        schemaPartitionConfig.setContextPartition( schemaPartition );
 
         // --------------------------------------------------------------------
         // Enable schemas of all indices of partition configurations 
@@ -999,7 +998,8 @@ class DefaultDirectoryService extends DirectoryService
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( configuration, null );
-        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( schemaPartitionConfig ) );
+        partitionNexus.addContextPartition( 
+            new AddContextPartitionOperationContext( schemaPartitionConfig, schemaPartition ) );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );
