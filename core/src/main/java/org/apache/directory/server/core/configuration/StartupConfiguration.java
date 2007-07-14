@@ -29,9 +29,6 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.authn.AnonymousAuthenticator;
-import org.apache.directory.server.core.authn.SimpleAuthenticator;
-import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.shared.ldap.ldif.Entry;
 
 import org.slf4j.Logger;
@@ -46,6 +43,13 @@ import org.slf4j.LoggerFactory;
  */
 public class StartupConfiguration extends Configuration
 {
+    /** fully qualified class name of the string authenticator implementation */
+    private static final String STRONG_AUTHENTICATOR = "org.apache.directory.server.core.authn.StrongAuthenticator";
+    /** fully qualified class name of the simple authenticator implementation */
+    private static final String SIMPLE_AUTHENTICATOR = "org.apache.directory.server.core.authn.SimpleAuthenticator";
+    /** fully qualified class name of the anonymous authenticator implementation */
+    private static final String ANONYMOUS_AUTHENTICATOR = "org.apache.directory.server.core.authn.AnonymousAuthenticator";
+    
     /** The normalizationService name */
     public static final String NORMALIZATION_SERVICE_NAME = "normalizationService";
     /** The fully qualified class name for the normalization service */
@@ -145,15 +149,15 @@ public class StartupConfiguration extends Configuration
     private void setDefaultAuthenticatorConfigurations()
     {
         Set<AuthenticatorConfiguration> set = new HashSet<AuthenticatorConfiguration>();
-
+        
         // Anonymous
-        set.add( new MutableAuthenticatorConfiguration( "Anonymous", new AnonymousAuthenticator() ) );
+        set.add( new MutableAuthenticatorConfiguration( "Anonymous", ANONYMOUS_AUTHENTICATOR ) );
 
         // Simple
-        set.add( new MutableAuthenticatorConfiguration( "Simple", new SimpleAuthenticator() ) );
+        set.add( new MutableAuthenticatorConfiguration( "Simple", SIMPLE_AUTHENTICATOR ) );
 
         // Strong
-        set.add( new MutableAuthenticatorConfiguration( "Strong", new StrongAuthenticator() ) );
+        set.add( new MutableAuthenticatorConfiguration( "Strong", STRONG_AUTHENTICATOR ) );
 
         setAuthenticatorConfigurations( set );
     }

@@ -20,9 +20,6 @@
 package org.apache.directory.server.core.configuration;
 
 
-import org.apache.directory.server.core.authn.Authenticator;
-
-
 /**
  * A mutable version of {@link AuthenticatorConfiguration}.
  *
@@ -31,7 +28,6 @@ import org.apache.directory.server.core.authn.Authenticator;
  */
 public class MutableAuthenticatorConfiguration extends AuthenticatorConfiguration
 {
-
     /**
      * Creates a new instance.
      */
@@ -39,27 +35,30 @@ public class MutableAuthenticatorConfiguration extends AuthenticatorConfiguratio
     {
     }
 
+    
     /**
      * Create and register an authenticator with its name
      * 
      * @param name The authenticator name
      * @param authenticator The authenticator to register
      */
-    public MutableAuthenticatorConfiguration( String name, Authenticator authenticator )
+    public MutableAuthenticatorConfiguration( String name, String authenticatorClassName )
     {
-        super.setAuthenticator( name, authenticator );
+        super.setAuthenticatorClassName( name, authenticatorClassName );
     }
 
+    
     /**
      * Register an authenticator
      * 
      * @param authenticator The authenticator to register
      */
-    public void setAuthenticator( Authenticator authenticator )
+    public void setAuthenticatorClassName( String authenticatorClassName )
     {
-        super.setAuthenticator( authenticator );
+        super.setAuthenticatorClassName( authenticatorClassName );
     }
 
+    
     public void setName( String name )
     {
         super.setName( name );

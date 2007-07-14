@@ -32,7 +32,7 @@ import org.apache.directory.server.core.authn.Authenticator;
 public class AuthenticatorConfiguration
 {
     private String name;
-    private Authenticator authenticator;
+    private String authenticatorClassName;
 
 
     /**
@@ -44,20 +44,21 @@ public class AuthenticatorConfiguration
 
 
     /**
-     * Returns the {@link Authenticator} this configuration is configuring.
+     * Returns the fully qualified class name for the Authenticator implementation 
+     * class.
      */
-    public Authenticator getAuthenticator()
+    public String getAuthenticatorClassName()
     {
-        return authenticator;
+        return authenticatorClassName;
     }
 
 
     /**
      * Sets the {@link Authenticator} to configure.
      */
-    protected void setAuthenticator( Authenticator authenticator )
+    protected void setAuthenticatorClassName( String authenticatorClassName )
     {
-        this.authenticator = authenticator;
+        this.authenticatorClassName = authenticatorClassName;
     }
 
     /**
@@ -66,9 +67,9 @@ public class AuthenticatorConfiguration
      * @param name The authenticator name
      * @param authenticator The authenticator to register
      */
-    protected void setAuthenticator( String name, Authenticator authenticator )
+    protected void setAuthenticatorClassName( String name, String authenticatorClassName )
     {
-        this.authenticator = authenticator;
+        this.authenticatorClassName = authenticatorClassName;
         this.name = name;
     }
 
@@ -104,9 +105,9 @@ public class AuthenticatorConfiguration
             throw new ConfigurationException( "Name is not specified." );
         }
 
-        if ( authenticator == null )
+        if ( authenticatorClassName == null )
         {
-            throw new ConfigurationException( "Authenticator is not specified." );
+            throw new ConfigurationException( "Authenticator class name is not specified." );
         }
     }
 }

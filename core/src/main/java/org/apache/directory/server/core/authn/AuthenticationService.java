@@ -52,6 +52,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -130,6 +131,52 @@ public class AuthenticationService extends BaseInterceptor
         authenticators.clear();
     }
 
+    
+    private Authenticator instantiateAuthenticator( AuthenticatorConfiguration cfg ) throws NamingException
+    {
+        if ( cfg == null )
+        {
+            throw new IllegalStateException( "Cannot get instance of authenticator without a proper " +
+                    "configuration." );
+        }
+        
+        Class authenticatorClass;
+        try
+        {
+            authenticatorClass = Class.forName( cfg.getAuthenticatorClassName() );
+        }
+        catch ( ClassNotFoundException e )
+        {
+            String msg = "Could not load authenticator implementation class '" 
+                + cfg.getAuthenticatorClassName() + "' for authenticator with name " + cfg.getName();
+            log.error( msg );
+            throw new LdapConfigurationException( msg, e );
+        }
+        
+        Authenticator authenticator = null;
+        try
+        {
+            authenticator = ( Authenticator ) authenticatorClass.newInstance();
+        }
+        catch ( InstantiationException e )
+        {
+            String msg = "No default constructor in authenticator implementation class '" 
+                + cfg.getAuthenticatorClassName() + "' for authenticator with name " + cfg.getName();
+            log.error( msg );
+            throw new LdapConfigurationException( msg, e );
+        }
+        catch ( IllegalAccessException e )
+        {
+            String msg = "Default constructor for authenticator implementation class '" 
+                + cfg.getAuthenticatorClassName() + "' for authenticator with name " 
+                + cfg.getName() + " is not publicly accessible.";
+            log.error( msg );
+            throw new LdapConfigurationException( msg, e );
+        }
+        
+        return authenticator;
+    }
+    
 
     /**
      * Initializes the specified {@link Authenticator} and registers it to
@@ -137,17 +184,18 @@ public class AuthenticationService extends BaseInterceptor
      */
     private void register( AuthenticatorConfiguration cfg ) throws NamingException
     {
-        cfg.getAuthenticator().init( factoryCfg, cfg );
+        Authenticator authenticator = instantiateAuthenticator( cfg );
+        authenticator.init( factoryCfg, cfg );
 
-        Collection<Authenticator> authenticatorList = getAuthenticators( cfg.getAuthenticator().getAuthenticatorType() );
+        Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
         
         if ( authenticatorList == null )
         {
             authenticatorList = new ArrayList<Authenticator>();
-            authenticators.put( cfg.getAuthenticator().getAuthenticatorType(), authenticatorList );
+            authenticators.put( authenticator.getAuthenticatorType(), authenticatorList );
         }
 
-        authenticatorList.add( cfg.getAuthenticator() );
+        authenticatorList.add( authenticator );
     }
 
 

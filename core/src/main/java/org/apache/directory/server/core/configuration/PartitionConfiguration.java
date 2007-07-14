@@ -27,7 +27,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -153,15 +152,6 @@ public class PartitionConfiguration
     public String getSuffix()
     {
         return suffix;
-    }
-
-
-    /**
-     * Returns the normalized suffix of the {@link Partition}.
-     */
-    public Name getNormalizedSuffix( MatchingRuleRegistry matchingRuleRegistry ) throws NamingException
-    {
-        return getNormalizedSuffix( matchingRuleRegistry.lookup( "distinguishedNameMatch" ).getNormalizer() );
     }
 
 
