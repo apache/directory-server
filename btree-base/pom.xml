@@ -16,14 +16,6 @@
   </description>
 
   <dependencies>
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
