@@ -21,6 +21,8 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.mina.common.IoSession;
@@ -45,6 +47,11 @@ public class ConfigureAuthenticationChain implements IoHandlerCommand
 
         authContext.setReplayCache( replayCache );
         authContext.setCipherTextHandler( cipherTextHandler );
+
+        if ( authContext.getRequest().getProtocolVersionNumber() != 5 )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_BAD_PVNO );
+        }
 
         next.execute( session, message );
     }
