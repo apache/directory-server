@@ -34,9 +34,16 @@ import java.util.TimeZone;
  */
 public class KerberosTime implements Comparable<KerberosTime>
 {
-    /**
-     * Constant for the {@link KerberosTime} "infinity."
-     */
+    /** The number of milliseconds in a minute. */
+    public static final int MINUTE = 60000;
+
+    /** The number of milliseconds in a day. */
+    public static final int DAY = MINUTE * 1440;
+
+    /** The number of milliseconds in a week. */
+    public static final int WEEK = MINUTE * 10080;
+
+    /** Constant for the {@link KerberosTime} "infinity." */
     public static final KerberosTime INFINITY = new KerberosTime( Long.MAX_VALUE );
 
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
