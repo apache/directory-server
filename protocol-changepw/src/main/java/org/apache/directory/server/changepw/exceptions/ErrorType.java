@@ -32,7 +32,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class ErrorType implements Comparable
+public final class ErrorType implements Comparable<ErrorType>
 {
     /**
      * Constant for the "Request failed due to being malformed" error type.
@@ -89,7 +89,7 @@ public final class ErrorType implements Comparable
     /**
      * A list of all the error type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<ErrorType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the error type.
@@ -139,11 +139,11 @@ public final class ErrorType implements Comparable
      * type.
      *
      * @param that the object to compare this ErrorType to
-     * @return ordinal - ( ( ErrorType ) that ).ordinal;
+     * @return ordinal - that.ordinal;
      */
-    public int compareTo( Object that )
+    public int compareTo( ErrorType that )
     {
-        return this.ordinal - ( ( ErrorType ) that ).ordinal;
+        return this.ordinal - that.ordinal;
     }
 
 
