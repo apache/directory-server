@@ -49,14 +49,10 @@ public class MonitorRequest implements IoHandlerCommand
                     .getAttribute( getContextKey() );
 
                 ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
-                short authHeaderLength = request.getAuthHeaderLength();
-                short messageLength = request.getMessageLength();
                 short versionNumber = request.getVersionNumber();
 
                 StringBuffer sb = new StringBuffer();
                 sb.append( "Responding to change password request:" );
-                sb.append( "\n\t" + "authHeaderLength " + authHeaderLength );
-                sb.append( "\n\t" + "messageLength    " + messageLength );
                 sb.append( "\n\t" + "versionNumber    " + versionNumber );
 
                 log.debug( sb.toString() );

@@ -31,27 +31,12 @@ abstract public class AbstractPasswordMessage
      */
     public static final int PVNO = 1;
 
-    private short messageLength;
     private short versionNumber;
-    private short authHeaderLength;
 
 
-    protected AbstractPasswordMessage( short messageLength, short versionNumber, short authHeaderLength )
+    protected AbstractPasswordMessage( short versionNumber )
     {
-        this.messageLength = messageLength;
         this.versionNumber = versionNumber;
-        this.authHeaderLength = authHeaderLength;
-    }
-
-
-    /**
-     * Returns the message length.
-     *
-     * @return The message length.
-     */
-    public short getMessageLength()
-    {
-        return messageLength;
     }
 
 
@@ -63,16 +48,5 @@ abstract public class AbstractPasswordMessage
     public short getVersionNumber()
     {
         return versionNumber;
-    }
-
-
-    /**
-     * Returns the length of the AuthHeader.
-     *
-     * @return The length of the AuthHeader.
-     */
-    public short getAuthHeaderLength()
-    {
-        return authHeaderLength;
     }
 }

@@ -43,10 +43,9 @@ public class ChangePasswordReply extends AbstractPasswordMessage
      * @param applicationReply
      * @param privateMessage
      */
-    public ChangePasswordReply( short messageLength, short versionNumber, short authHeaderLength,
-        ApplicationReply applicationReply, PrivateMessage privateMessage )
+    public ChangePasswordReply( short versionNumber, ApplicationReply applicationReply, PrivateMessage privateMessage )
     {
-        super( messageLength, versionNumber, authHeaderLength );
+        super( versionNumber );
 
         this.applicationReply = applicationReply;
         this.privateMessage = privateMessage;

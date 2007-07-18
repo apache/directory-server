@@ -26,20 +26,7 @@ package org.apache.directory.server.changepw.messages;
  */
 abstract public class AbstractPasswordMessageModifier
 {
-    protected short messageLength;
     protected short versionNumber;
-    protected short authHeaderLength;
-
-
-    /**
-     * Sets the message length.
-     *
-     * @param messageLength
-     */
-    public void setMessageLength( short messageLength )
-    {
-        this.messageLength = messageLength;
-    }
 
 
     /**
@@ -50,16 +37,5 @@ abstract public class AbstractPasswordMessageModifier
     public void setProtocolVersionNumber( short versionNumber )
     {
         this.versionNumber = versionNumber;
-    }
-
-
-    /**
-     * Sets the AuthHeader length.
-     *
-     * @param authHeaderLength
-     */
-    public void setAuthHeaderLength( short authHeaderLength )
-    {
-        this.authHeaderLength = authHeaderLength;
     }
 }

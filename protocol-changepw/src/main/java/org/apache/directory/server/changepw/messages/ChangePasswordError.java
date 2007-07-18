@@ -40,10 +40,9 @@ public class ChangePasswordError extends AbstractPasswordMessage
      * @param authHeaderLength
      * @param errorMessage
      */
-    public ChangePasswordError( short messageLength, short versionNumber, short authHeaderLength,
-        ErrorMessage errorMessage )
+    public ChangePasswordError( short versionNumber, ErrorMessage errorMessage )
     {
-        super( messageLength, versionNumber, authHeaderLength );
+        super( versionNumber );
 
         this.errorMessage = errorMessage;
     }

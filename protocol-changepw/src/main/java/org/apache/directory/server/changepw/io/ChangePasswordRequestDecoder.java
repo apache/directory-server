@@ -48,11 +48,11 @@ public class ChangePasswordRequestDecoder
     {
         ChangePasswordRequestModifier modifier = new ChangePasswordRequestModifier();
 
-        modifier.setMessageLength( buf.getShort() );
+        buf.getShort(); // message length
+
         modifier.setProtocolVersionNumber( buf.getShort() );
 
         short authHeaderLength = buf.getShort();
-        modifier.setAuthHeaderLength( authHeaderLength );
 
         byte[] undecodedAuthHeader = new byte[authHeaderLength];
         buf.get( undecodedAuthHeader, 0, authHeaderLength );

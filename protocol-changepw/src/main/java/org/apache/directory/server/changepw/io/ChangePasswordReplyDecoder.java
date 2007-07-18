@@ -55,9 +55,7 @@ public class ChangePasswordReplyDecoder
         short protocolVersion = buf.getShort();
         short encodedAppReplyLength = buf.getShort();
 
-        modifier.setMessageLength( messageLength );
         modifier.setProtocolVersionNumber( protocolVersion );
-        modifier.setAuthHeaderLength( encodedAppReplyLength );
 
         byte[] encodedAppReply = new byte[encodedAppReplyLength];
         buf.get( encodedAppReply );

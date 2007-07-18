@@ -41,7 +41,7 @@ public class ChangePasswordRequestModifier extends AbstractPasswordMessageModifi
      */
     public ChangePasswordRequest getChangePasswordMessage()
     {
-        return new ChangePasswordRequest( messageLength, versionNumber, authHeaderLength, authHeader, privateMessage );
+        return new ChangePasswordRequest( versionNumber, authHeader, privateMessage );
     }
 
 

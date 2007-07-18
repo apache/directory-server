@@ -41,8 +41,7 @@ public class ChangePasswordReplyModifier extends AbstractPasswordMessageModifier
      */
     public ChangePasswordReply getChangePasswordReply()
     {
-        return new ChangePasswordReply( messageLength, versionNumber, authHeaderLength, applicationReply,
-            privateMessage );
+        return new ChangePasswordReply( versionNumber, applicationReply, privateMessage );
     }
 
 

@@ -39,7 +39,7 @@ public class ChangePasswordErrorModifier extends AbstractPasswordMessageModifier
      */
     public ChangePasswordError getChangePasswordError()
     {
-        return new ChangePasswordError( messageLength, versionNumber, authHeaderLength, errorMessage );
+        return new ChangePasswordError( versionNumber, errorMessage );
     }
 
 

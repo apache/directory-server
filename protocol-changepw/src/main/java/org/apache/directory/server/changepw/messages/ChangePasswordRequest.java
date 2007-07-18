@@ -37,16 +37,13 @@ public class ChangePasswordRequest extends AbstractPasswordMessage
     /**
      * Creates a new instance of ChangePasswordRequest.
      *
-     * @param messageLength
      * @param versionNumber
-     * @param authHeaderLength
      * @param authHeader
      * @param privateMessage
      */
-    public ChangePasswordRequest( short messageLength, short versionNumber, short authHeaderLength,
-        ApplicationRequest authHeader, PrivateMessage privateMessage )
+    public ChangePasswordRequest( short versionNumber, ApplicationRequest authHeader, PrivateMessage privateMessage )
     {
-        super( messageLength, versionNumber, authHeaderLength );
+        super( versionNumber );
 
         this.authHeader = authHeader;
         this.privateMessage = privateMessage;
