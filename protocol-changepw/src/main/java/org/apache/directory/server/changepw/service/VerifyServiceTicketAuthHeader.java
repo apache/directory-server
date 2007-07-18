@@ -22,6 +22,9 @@ package org.apache.directory.server.changepw.service;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
+import org.apache.directory.server.changepw.exceptions.ErrorType;
+import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -29,6 +32,7 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
@@ -61,6 +65,13 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 
         Authenticator authenticator = verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
             emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11 );
+
+        ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
+
+        if ( request.getVersionNumber() == 1 && !ticket.getFlag( TicketFlags.INITIAL ) )
+        {
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_INITIAL_FLAG_NEEDED );
+        }
 
         changepwContext.setAuthenticator( authenticator );
 
