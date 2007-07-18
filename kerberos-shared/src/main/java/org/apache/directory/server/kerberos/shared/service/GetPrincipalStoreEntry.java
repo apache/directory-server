@@ -62,9 +62,14 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
             throw new KerberosException( errorType, e );
         }
 
-        if ( entry == null || entry.getKeyMap().isEmpty() )
+        if ( entry == null )
         {
             throw new KerberosException( errorType );
+        }
+
+        if ( entry.getKeyMap() == null || entry.getKeyMap().isEmpty() )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NULL_KEY );
         }
 
         return entry;
