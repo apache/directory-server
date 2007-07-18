@@ -51,23 +51,31 @@ public class MonitorReply implements IoHandlerCommand
 
             if ( log.isDebugEnabled() )
             {
-                StringBuffer sb = new StringBuffer();
+                try
+                {
+                    StringBuffer sb = new StringBuffer();
 
-                sb.append( "Responding to authentication request with reply:" );
-                sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
-                sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
-                sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
-                sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
-                sb.append( "\n\t" + "start time:            " + success.getStartTime() );
-                sb.append( "\n\t" + "end time:              " + success.getEndTime() );
-                sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
-                sb.append( "\n\t" + "renew till time:       " + success.getRenewTill() );
-                sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
-                sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
+                    sb.append( "Responding to authentication request with reply:" );
+                    sb.append( "\n\t" + "client realm:          " + success.getClientRealm() );
+                    sb.append( "\n\t" + "server realm:          " + success.getServerRealm() );
+                    sb.append( "\n\t" + "serverPrincipal:       " + success.getServerPrincipal() );
+                    sb.append( "\n\t" + "clientPrincipal:       " + success.getClientPrincipal() );
+                    sb.append( "\n\t" + "hostAddresses:         " + success.getClientAddresses() );
+                    sb.append( "\n\t" + "start time:            " + success.getStartTime() );
+                    sb.append( "\n\t" + "end time:              " + success.getEndTime() );
+                    sb.append( "\n\t" + "auth time:             " + success.getAuthTime() );
+                    sb.append( "\n\t" + "renew till time:       " + success.getRenewTill() );
+                    sb.append( "\n\t" + "messageType:           " + success.getMessageType() );
+                    sb.append( "\n\t" + "nonce:                 " + success.getNonce() );
+                    sb.append( "\n\t" + "protocolVersionNumber: " + success.getProtocolVersionNumber() );
 
-                log.debug( sb.toString() );
+                    log.debug( sb.toString() );
+                }
+                catch ( Exception e )
+                {
+                    // This is a monitor.  No exceptions should bubble up.
+                    log.error( "Error in reply monitor", e );
+                }
             }
         }
         else
@@ -78,17 +86,25 @@ public class MonitorReply implements IoHandlerCommand
 
                 if ( log.isDebugEnabled() )
                 {
-                    StringBuffer sb = new StringBuffer();
+                    try
+                    {
+                        StringBuffer sb = new StringBuffer();
 
-                    sb.append( "Responding to authentication request with error:" );
-                    sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
-                    sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
-                    sb.append( "\n\t" + "server time:           " + error.getClientTime() );
-                    sb.append( "\n\t" + "client time:           " + error.getServerTime() );
-                    sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
-                    sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
+                        sb.append( "Responding to authentication request with error:" );
+                        sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
+                        sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
+                        sb.append( "\n\t" + "server time:           " + error.getClientTime() );
+                        sb.append( "\n\t" + "client time:           " + error.getServerTime() );
+                        sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
+                        sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
 
-                    log.debug( sb.toString() );
+                        log.debug( sb.toString() );
+                    }
+                    catch ( Exception e )
+                    {
+                        // This is a monitor.  No exceptions should bubble up.
+                        log.error( "Error in reply monitor", e );
+                    }
                 }
             }
         }

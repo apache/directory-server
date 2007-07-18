@@ -44,15 +44,23 @@ public class MonitorContext implements IoHandlerCommand
 
         if ( log.isDebugEnabled() )
         {
-            StringBuffer sb = new StringBuffer();
+            try
+            {
+                StringBuffer sb = new StringBuffer();
 
-            sb.append( "Monitoring context:" );
-            sb.append( "\n\t" + "config:                 " + kdcContext.getConfig() );
-            sb.append( "\n\t" + "store:                  " + kdcContext.getStore() );
-            sb.append( "\n\t" + "request:                " + kdcContext.getRequest() );
-            sb.append( "\n\t" + "reply:                  " + kdcContext.getReply() );
+                sb.append( "Monitoring context:" );
+                sb.append( "\n\t" + "config:                 " + kdcContext.getConfig() );
+                sb.append( "\n\t" + "store:                  " + kdcContext.getStore() );
+                sb.append( "\n\t" + "request:                " + kdcContext.getRequest() );
+                sb.append( "\n\t" + "reply:                  " + kdcContext.getReply() );
 
-            log.debug( sb.toString() );
+                log.debug( sb.toString() );
+            }
+            catch ( Exception e )
+            {
+                // This is a monitor.  No exceptions should bubble up.
+                log.error( "Error in context monitor", e );
+            }
         }
 
         next.execute( session, message );

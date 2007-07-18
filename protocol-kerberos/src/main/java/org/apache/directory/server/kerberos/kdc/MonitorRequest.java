@@ -48,24 +48,32 @@ public class MonitorRequest implements IoHandlerCommand
 
         if ( log.isDebugEnabled() )
         {
-            StringBuffer sb = new StringBuffer();
+            try
+            {
+                StringBuffer sb = new StringBuffer();
 
-            sb.append( "Responding to authentication request:" );
-            sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-            sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-            sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-            sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-            sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
-            sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
-            sb.append( "\n\t" + "from krb time:         " + request.getFrom() );
-            sb.append( "\n\t" + "realm krb time:        " + request.getRtime() );
-            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
-            sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
-            sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
-            sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
-            sb.append( "\n\t" + "till:                  " + request.getTill() );
+                sb.append( "Responding to authentication request:" );
+                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
+                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
+                sb.append( "\n\t" + "clientAddress:         " + clientAddress );
+                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+                sb.append( "\n\t" + "from krb time:         " + request.getFrom() );
+                sb.append( "\n\t" + "realm krb time:        " + request.getRtime() );
+                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+                sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
+                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
+                sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
+                sb.append( "\n\t" + "till:                  " + request.getTill() );
 
-            log.debug( sb.toString() );
+                log.debug( sb.toString() );
+            }
+            catch ( Exception e )
+            {
+                // This is a monitor.  No exceptions should bubble up.
+                log.error( "Error in request monitor", e );
+            }
         }
 
         next.execute( session, message );
