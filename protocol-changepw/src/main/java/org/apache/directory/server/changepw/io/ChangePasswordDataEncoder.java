@@ -20,14 +20,12 @@
 package org.apache.directory.server.changepw.io;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.kerberos.shared.io.encoder.PrincipalNameEncoder;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DEROctetString;
@@ -41,6 +39,27 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class ChangePasswordDataEncoder
 {
+    /**
+     * Encodes a {@link ChangePasswordData} into a byte array.
+     *
+     * @param data
+     * @return The byte array.
+     * @throws IOException
+     */
+    public byte[] encode( ChangePasswordData data ) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ASN1OutputStream aos = new ASN1OutputStream( baos );
+
+        DERSequence dataSequence = encodeDataSequence( data );
+        aos.writeObject( dataSequence );
+
+        aos.close();
+
+        return baos.toByteArray();
+    }
+
+
     /**
      * Encodes a {@link ChangePasswordData} into a {@link ByteBuffer}.
      *
@@ -64,11 +83,17 @@ public class ChangePasswordDataEncoder
         DERSequence sequence = new DERSequence();
         sequence.add( new DERTaggedObject( 0, new DEROctetString( data.getPassword() ) ) );
 
-        PrincipalName name = data.getPrincipalName();
-        KerberosPrincipal principal = new KerberosPrincipal( name.getNameComponent(), name.getNameType() );
-        sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( principal ) ) );
+        // OPTIONAL
+        if ( data.getPrincipalName() != null )
+        {
+            sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( data.getPrincipalName() ) ) );
+        }
 
-        sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( data.getRealm() ) ) );
+        // OPTIONAL
+        if ( data.getRealm() != null )
+        {
+            sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( data.getRealm() ) ) );
+        }
 
         return sequence;
     }

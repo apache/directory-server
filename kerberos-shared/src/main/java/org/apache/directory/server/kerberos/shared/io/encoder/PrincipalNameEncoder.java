@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
@@ -43,13 +44,15 @@ public class PrincipalNameEncoder
 
 
     /**
+     * Encodes a {@link KerberosPrincipal} into a {@link DERSequence}.
+     * 
      * PrincipalName ::=   SEQUENCE {
      *               name-type[0]     INTEGER,
      *               name-string[1]   SEQUENCE OF GeneralString
      * }
      * 
      * @param principal 
-     * @return The {@link DERSequence}. 
+     * @return The {@link DERSequence}.
      */
     public static DERSequence encode( KerberosPrincipal principal )
     {
@@ -62,9 +65,26 @@ public class PrincipalNameEncoder
     }
 
 
+    /**
+     * Encodes a {@link PrincipalName} into a {@link DERSequence}.
+     *
+     * @param name
+     * @return The {@link DERSequence}.
+     */
+    public static DERSequence encode( PrincipalName name )
+    {
+        DERSequence vector = new DERSequence();
+
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType() ) ) );
+        vector.add( new DERTaggedObject( 1, encodeNameSequence( name ) ) );
+
+        return vector;
+    }
+
+
     private static DERSequence encodeNameSequence( KerberosPrincipal principal )
     {
-        Iterator it = getNameStrings( principal ).iterator();
+        Iterator<String> it = getNameStrings( principal ).iterator();
 
         DERSequence vector = new DERSequence();
 
@@ -77,10 +97,32 @@ public class PrincipalNameEncoder
     }
 
 
-    private static List getNameStrings( KerberosPrincipal principal )
+    private static List<String> getNameStrings( KerberosPrincipal principal )
     {
         String nameComponent = principal.getName().split( REALM_SEPARATOR )[0];
         String[] components = nameComponent.split( COMPONENT_SEPARATOR );
+        return Arrays.asList( components );
+    }
+
+
+    private static DERSequence encodeNameSequence( PrincipalName name )
+    {
+        Iterator<String> it = getNameStrings( name ).iterator();
+
+        DERSequence vector = new DERSequence();
+
+        while ( it.hasNext() )
+        {
+            vector.add( DERGeneralString.valueOf( ( String ) it.next() ) );
+        }
+
+        return vector;
+    }
+
+
+    private static List<String> getNameStrings( PrincipalName name )
+    {
+        String[] components = name.getNameComponent().split( COMPONENT_SEPARATOR );
         return Arrays.asList( components );
     }
 }
