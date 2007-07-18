@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class TransitedEncodingType implements Comparable
+public final class TransitedEncodingType implements Comparable<TransitedEncodingType>
 {
     /**
      * Constant for the "null" transited encoding type.
@@ -51,7 +51,7 @@ public final class TransitedEncodingType implements Comparable
     /**
      * A List of all the transited encoding type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<TransitedEncodingType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the transited encoding type.
@@ -105,9 +105,9 @@ public final class TransitedEncodingType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( TransitedEncodingType that )
     {
-        return ordinal - ( ( TransitedEncodingType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

@@ -39,7 +39,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class KeyUsage implements Comparable
+public final class KeyUsage implements Comparable<KeyUsage>
 {
     /**
      * AS-REQ PA-ENC-TIMESTAMP padata timestamp, encrypted with the client key (Section 5.2.7.2)
@@ -131,7 +131,7 @@ public final class KeyUsage implements Comparable
     /**
      * VALUES needs to be located here, otherwise illegal forward reference.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<KeyUsage> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     private final int ordinal;
     private final String name;
@@ -178,9 +178,9 @@ public final class KeyUsage implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( KeyUsage that )
     {
-        return ordinal - ( ( KeyUsage ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class PrincipalNameType implements Comparable
+public final class PrincipalNameType implements Comparable<PrincipalNameType>
 {
     /**
      * Constant for the "unknown name type" principal name type.
@@ -80,7 +80,7 @@ public final class PrincipalNameType implements Comparable
     /**
      * A List of all the principal name type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<PrincipalNameType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the principal name type.
@@ -134,9 +134,9 @@ public final class PrincipalNameType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( PrincipalNameType that )
     {
-        return ordinal - ( ( PrincipalNameType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

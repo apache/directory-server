@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class SamType implements Comparable
+public final class SamType implements Comparable<SamType>
 {
     /*
      * Enumeration elements are constructed once upon class loading.
@@ -65,7 +65,7 @@ public final class SamType implements Comparable
             PA_SAM_TYPE_CRYPTOCARD, PA_SAM_TYPE_APACHE };
 
     /** a list of all the sam type constants */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<SamType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /** the name of the sam type */
     private final String name;
@@ -77,7 +77,7 @@ public final class SamType implements Comparable
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private SamType(int ordinal, String name)
+    private SamType( int ordinal, String name )
     {
         this.ordinal = ordinal;
         this.name = name;
@@ -102,9 +102,9 @@ public final class SamType implements Comparable
      * @param that the object to compare this SamType to
      * @return ordinal - ( ( SamType ) that ).ordinal;
      */
-    public int compareTo( Object that )
+    public int compareTo( SamType that )
     {
-        return ordinal - ( ( SamType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class LastRequestType implements Comparable
+public final class LastRequestType implements Comparable<LastRequestType>
 {
     /**
      * Constant for the "none" last request type.
@@ -76,7 +76,7 @@ public final class LastRequestType implements Comparable
     /**
      * A List of all the last request type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<LastRequestType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the checksum type.
@@ -130,9 +130,9 @@ public final class LastRequestType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( LastRequestType that )
     {
-        return ordinal - ( ( LastRequestType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

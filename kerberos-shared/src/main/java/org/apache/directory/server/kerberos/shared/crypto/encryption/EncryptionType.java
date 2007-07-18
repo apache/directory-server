@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class EncryptionType implements Comparable
+public final class EncryptionType implements Comparable<EncryptionType>
 {
     /**
      * The "unknown" encryption type.
@@ -238,9 +238,9 @@ public final class EncryptionType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( EncryptionType that )
     {
-        return ordinal - ( ( EncryptionType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

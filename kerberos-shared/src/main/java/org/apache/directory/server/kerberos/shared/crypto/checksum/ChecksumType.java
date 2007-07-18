@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class ChecksumType implements Comparable
+public final class ChecksumType implements Comparable<ChecksumType>
 {
     /**
      * The "unknown" checksum type.
@@ -134,7 +134,7 @@ public final class ChecksumType implements Comparable
     /**
      * A List of all the checksum type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<ChecksumType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the checksum type.
@@ -188,9 +188,9 @@ public final class ChecksumType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( ChecksumType that )
     {
-        return ordinal - ( ( ChecksumType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

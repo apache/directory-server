@@ -31,7 +31,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class HostAddressType implements Comparable
+public final class HostAddressType implements Comparable<HostAddressType>
 {
     /**
      * Constant for the "IPv4" host address type.
@@ -142,9 +142,9 @@ public final class HostAddressType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( HostAddressType that )
     {
-        return ordinal - ( ( HostAddressType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

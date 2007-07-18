@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class MessageType implements Comparable
+public final class MessageType implements Comparable<MessageType>
 {
     /**
      * Constant for the "null" message type.
@@ -107,7 +107,7 @@ public final class MessageType implements Comparable
     /**
      * A list of all the message type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<MessageType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the message type.
@@ -161,9 +161,9 @@ public final class MessageType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( MessageType that )
     {
-        return ordinal - ( ( MessageType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

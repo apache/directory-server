@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class AuthorizationType implements Comparable
+public final class AuthorizationType implements Comparable<AuthorizationType>
 {
     /**
      * Constant for the "null" authorization type.
@@ -93,7 +93,7 @@ public final class AuthorizationType implements Comparable
     /**
      * A List of all the authorization type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<AuthorizationType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the authorization type.
@@ -145,9 +145,9 @@ public final class AuthorizationType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( AuthorizationType that )
     {
-        return ordinal - ( ( AuthorizationType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

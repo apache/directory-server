@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PreAuthenticationDataType implements Comparable
+public class PreAuthenticationDataType implements Comparable<PreAuthenticationDataType>
 {
     /**
      * Constant for the "null" pre-authentication data type.
@@ -138,7 +138,7 @@ public class PreAuthenticationDataType implements Comparable
     /**
      * A list of all the pre-authentication type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<PreAuthenticationDataType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the pre-authentication type.
@@ -192,9 +192,9 @@ public class PreAuthenticationDataType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( PreAuthenticationDataType that )
     {
-        return ordinal - ( ( PreAuthenticationDataType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 
