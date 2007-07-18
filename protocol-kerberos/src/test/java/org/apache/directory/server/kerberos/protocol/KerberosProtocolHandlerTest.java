@@ -31,12 +31,14 @@ import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncoder;
+import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
@@ -234,6 +236,68 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
         assertEquals( "The client or server has a null key", 9, error.getErrorCode() );
+    }
+
+
+    public void testSpecificEndTime() throws Exception
+    {
+        RequestBodyModifier modifier = new RequestBodyModifier();
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
+        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        modifier.setRealm( "EXAMPLE.COM" );
+        modifier.setEType( config.getEncryptionTypes() );
+
+        modifier.setKdcOptions( new KdcOptions() );
+
+        long now = System.currentTimeMillis();
+
+        KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
+        modifier.setTill( requestedEndTime );
+
+        KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+
+        String passPhrase = "secret";
+        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+
+        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+
+        handler.messageReceived( session, message );
+
+        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+
+        assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
+    }
+
+
+    public void testEndTimeExceedsMaximumAllowable() throws Exception
+    {
+        RequestBodyModifier modifier = new RequestBodyModifier();
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
+        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        modifier.setRealm( "EXAMPLE.COM" );
+        modifier.setEType( config.getEncryptionTypes() );
+
+        modifier.setKdcOptions( new KdcOptions() );
+
+        long now = System.currentTimeMillis();
+
+        KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
+        modifier.setTill( requestedEndTime );
+
+        KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+
+        String passPhrase = "secret";
+        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+
+        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+
+        handler.messageReceived( session, message );
+
+        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+
+        KerberosTime expectedEndTime = new KerberosTime( now + KerberosTime.DAY );
+        boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
+        assertTrue( "Expected end time", isClose );
     }
 
 

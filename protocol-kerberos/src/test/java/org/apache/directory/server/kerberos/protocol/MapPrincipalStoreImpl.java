@@ -50,14 +50,18 @@ public class MapPrincipalStoreImpl implements PrincipalStore
         String passPhrase = "secret";
 
         PrincipalStoreEntry entry = getEntry( principalName, passPhrase );
-
         store.put( entry.getPrincipal(), entry );
 
         principalName = "tquist@EXAMPLE.COM";
         passPhrase = "secret";
 
         entry = getNullKeyEntry( principalName );
+        store.put( entry.getPrincipal(), entry );
 
+        principalName = "krbtgt/EXAMPLE.COM@EXAMPLE.COM";
+        passPhrase = "randomKey";
+
+        entry = getEntry( principalName, passPhrase );
         store.put( entry.getPrincipal(), entry );
     }
 
