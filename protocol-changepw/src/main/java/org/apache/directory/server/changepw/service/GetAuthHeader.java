@@ -20,6 +20,8 @@
 package org.apache.directory.server.changepw.service;
 
 
+import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
+import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -42,6 +44,16 @@ public class GetAuthHeader implements IoHandlerCommand
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
+
+        if ( request.getVersionNumber() != 1 )
+        {
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_BAD_VERSION );
+        }
+
+        if ( request.getAuthHeader() == null || request.getAuthHeader().getTicket() == null )
+        {
+            throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_AUTHERROR );
+        }
 
         ApplicationRequest authHeader = request.getAuthHeader();
         Ticket ticket = authHeader.getTicket();
