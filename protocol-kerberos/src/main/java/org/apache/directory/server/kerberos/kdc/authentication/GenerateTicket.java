@@ -83,16 +83,31 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getKdcOptions().get( KdcOptions.FORWARDABLE ) )
         {
+            if ( !config.isForwardableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             newTicketBody.setFlag( TicketFlags.FORWARDABLE );
         }
 
         if ( request.getKdcOptions().get( KdcOptions.PROXIABLE ) )
         {
+            if ( !config.isProxiableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             newTicketBody.setFlag( TicketFlags.PROXIABLE );
         }
 
         if ( request.getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
         {
+            if ( !config.isPostdateAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             newTicketBody.setFlag( TicketFlags.MAY_POSTDATE );
         }
 
@@ -112,36 +127,99 @@ public class GenerateTicket implements IoHandlerCommand
         KerberosTime now = new KerberosTime();
         newTicketBody.setAuthTime( now );
 
+        KerberosTime startTime = request.getFrom();
+
+        /*
+         * "If the requested starttime is absent, indicates a time in the past,
+         * or is within the window of acceptable clock skew for the KDC and the
+         * POSTDATE option has not been specified, then the starttime of the
+         * ticket is set to the authentication server's current time."
+         */
+        if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
+            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+        {
+            startTime = now;
+        }
+
+        /*
+         * "If it indicates a time in the future beyond the acceptable clock skew,
+         * but the POSTDATED option has not been specified, then the error
+         * KDC_ERR_CANNOT_POSTDATE is returned."
+         */
+        if ( startTime != null && startTime.greaterThan( now )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() )
+            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
+        }
+
+        /*
+         * "Otherwise the requested starttime is checked against the policy of the
+         * local realm and if the ticket's starttime is acceptable, it is set as
+         * requested, and the INVALID flag is set in the new ticket."
+         */
         if ( request.getKdcOptions().get( KdcOptions.POSTDATED ) )
         {
-            // TODO - possibly allow req.from range
             if ( !config.isPostdateAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
+            newTicketBody.setFlag( TicketFlags.POSTDATED );
             newTicketBody.setFlag( TicketFlags.INVALID );
-            newTicketBody.setStartTime( request.getFrom() );
+            newTicketBody.setStartTime( startTime );
         }
 
         long till = 0;
         if ( request.getTill().getTime() == 0 )
+        {
             till = Long.MAX_VALUE;
+        }
         else
+        {
             till = request.getTill().getTime();
+        }
+
         /*
          new_tkt.endtime := min(till,
          new_tkt.starttime+client.max_life,
          new_tkt.starttime+server.max_life,
          new_tkt.starttime+max_life_for_realm);
          */
-        long endTime = Math.min( now.getTime() + config.getMaximumTicketLifetime(), till );
+        long endTime = Math.min( till, startTime.getTime() + config.getMaximumTicketLifetime() );
         KerberosTime kerberosEndTime = new KerberosTime( endTime );
         newTicketBody.setEndTime( kerberosEndTime );
 
+        /*
+         * "If the requested expiration time minus the starttime (as determined
+         * above) is less than a site-determined minimum lifetime, an error
+         * message with code KDC_ERR_NEVER_VALID is returned."
+         */
+        if ( kerberosEndTime.lessThan( startTime ) )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
+        }
+
+        long ticketLifeTime = Math.abs( startTime.getTime() - kerberosEndTime.getTime() );
+        if ( ticketLifeTime < config.getAllowableClockSkew() )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
+        }
+
+        /*
+         * "If the requested expiration time for the ticket exceeds what was determined
+         * as above, and if the 'RENEWABLE-OK' option was requested, then the 'RENEWABLE'
+         * flag is set in the new ticket, and the renew-till value is set as if the
+         * 'RENEWABLE' option were requested."
+         */
         long tempRtime = 0;
         if ( request.getKdcOptions().get( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
         {
+            if ( !config.isRenewableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             request.getKdcOptions().set( KdcOptions.RENEWABLE );
             tempRtime = request.getTill().getTime();
         }
@@ -157,7 +235,6 @@ public class GenerateTicket implements IoHandlerCommand
          omit new_tkt.renew-till;
          endif
          */
-
         if ( tempRtime == 0 || request.getRtime() == null )
         {
             tempRtime = request.getTill().getTime();
@@ -169,25 +246,27 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getKdcOptions().get( KdcOptions.RENEWABLE ) )
         {
-            newTicketBody.setFlag( TicketFlags.RENEWABLE );
-
-            /*
-             * 'from' KerberosTime is OPTIONAL
-             */
-            KerberosTime fromTime = request.getFrom();
-
-            if ( fromTime == null )
+            if ( !config.isRenewableAllowed() )
             {
-                fromTime = new KerberosTime();
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            long renewTill = Math.min( fromTime.getTime() + config.getMaximumRenewableLifetime(), tempRtime );
+            newTicketBody.setFlag( TicketFlags.RENEWABLE );
+
+            long renewTill = Math.min( tempRtime, startTime.getTime() + config.getMaximumRenewableLifetime() );
             newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
         }
 
         if ( request.getAddresses() != null )
         {
             newTicketBody.setClientAddresses( request.getAddresses() );
+        }
+        else
+        {
+            if ( !config.isEmptyAddressesAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
         }
 
         EncTicketPart ticketPart = newTicketBody.getEncTicketPart();
