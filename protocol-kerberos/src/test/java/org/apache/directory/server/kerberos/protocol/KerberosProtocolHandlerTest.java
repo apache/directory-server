@@ -73,6 +73,9 @@ public class KerberosProtocolHandlerTest extends TestCase
     private DummySession session;
 
 
+    /**
+     * Creates a new instance of KerberosProtocolHandlerTest.
+     */
     public KerberosProtocolHandlerTest()
     {
         config = new KdcConfiguration();
@@ -109,6 +112,9 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests the protocol version number, which must be '5'.
+     */
     public void testProtocolVersionNumber()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -126,6 +132,10 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that Kerberos reply messages sent to the KDC will be rejected with the
+     * correct error message.
+     */
     public void testIncorrectMessageDirection()
     {
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REP, null, null );
@@ -144,6 +154,9 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that a non-existent client principal returns the correct error message.
+     */
     public void testClientNotFound()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -161,6 +174,11 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests when the KDC configuration requires pre-authentication by encrypted
+     * timestamp that an AS_REQ without pre-authentication is rejected with the
+     * correct error message.
+     */
     public void testPreAuthenticationRequired()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -178,6 +196,11 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that a non-existent server principal returns the correct error message.
+     * 
+     * @throws Exception 
+     */
     public void testServerNotFound() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -200,6 +223,10 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that when a client principal is not configured with Kerberos keys that
+     * the correct error message is returned.
+     */
     public void testClientNullKey()
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -217,6 +244,12 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that when a server principal is not configured with Kerberos keys that
+     * the correct error message is returned.
+     * 
+     * @throws Exception 
+     */
     public void testServerNullKey() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -239,6 +272,12 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that a user-specified end time is honored when that end time does not
+     * violate policy.
+     *
+     * @throws Exception
+     */
     public void testSpecificEndTime() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -269,6 +308,13 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests when an end time is requested that exceeds the maximum end time as 
+     * configured in policy that the maximum allowable end time is returned instead
+     * of the requested end time.
+     *
+     * @throws Exception
+     */
     public void testEndTimeExceedsMaximumAllowable() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
@@ -301,6 +347,11 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests that RENEWABLE and RENEWABLE_OK are mutually exclusive.  RENEWABLE_OK
+     * should be set by default, but if a request is made for a RENEWABLE ticket then
+     * the RENEWABLE_OK flag should be cleared.
+     */
     public void testRenewableOk()
     {
         // RENEWABLE_OK defaulted on.
@@ -308,8 +359,6 @@ public class KerberosProtocolHandlerTest extends TestCase
         // {
         //     clear renewable_ok
         // }
-
-        // renewable and renewable_ok should not be set at the same time.
     }
 
 
@@ -363,7 +412,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         }
 
 
-        public Object getMessage()
+        private Object getMessage()
         {
             return message;
         }
@@ -371,6 +420,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         protected void updateTrafficMask()
         {
+            // Do nothing.
         }
 
 
