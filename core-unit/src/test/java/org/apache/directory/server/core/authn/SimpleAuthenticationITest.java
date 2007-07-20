@@ -662,8 +662,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         envUser.put( Context.SECURITY_CREDENTIALS, "test" );
         envUser.put( Context.SECURITY_AUTHENTICATION, "simple" );
         envUser.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext idcUer = new InitialDirContext( envUser );
-        idcUer.close();
+        InitialDirContext idcUser = new InitialDirContext( envUser );
+        idcUser.close();
         
         // bind as admin
         Hashtable<String,Object> envAdmin = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
@@ -684,7 +684,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         envUser.put( Context.SECURITY_CREDENTIALS, "test" );
         try
         {
-            idcUer = new InitialDirContext( envUser );
+            idcUser = new InitialDirContext( envUser );
             fail( "Authentication with old password should fail" );
         }
         catch ( NamingException e )
