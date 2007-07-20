@@ -376,7 +376,7 @@ public class AuthenticationService extends BaseInterceptor
             // try each authenticator
             for ( Authenticator authenticator:authenticators )
             {
-                authenticator.invalidateCache( getPrincipal().getJndiName() );
+                authenticator.invalidateCache( principalDn );
             }
         }
     }

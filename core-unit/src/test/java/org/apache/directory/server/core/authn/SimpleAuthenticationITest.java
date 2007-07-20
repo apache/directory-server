@@ -649,4 +649,47 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
     }
+    
+    /**
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1001
+     */
+    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
+    {
+        // bind as akarasulu
+        Hashtable<String,Object> envUser = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        envUser.put( Context.PROVIDER_URL, "ou=system" );
+        envUser.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
+        envUser.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        envUser.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext idcUer = new InitialDirContext( envUser );
+        idcUer.close();
+        
+        // bind as admin
+        Hashtable<String,Object> envAdmin = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        envAdmin.put( Context.PROVIDER_URL, "ou=system" );
+        envAdmin.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        envAdmin.put( Context.SECURITY_CREDENTIALS, "secret" );
+        envAdmin.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        envAdmin.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext idcAdmin = new InitialDirContext( envAdmin );
+        
+        // now modify the password for akarasulu (while we're admin)
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        idcAdmin.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        idcAdmin.close();
+        
+        // try to bind as akarasulu with old password
+        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
+        try
+        {
+            idcUer = new InitialDirContext( envUser );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+    }
 }
