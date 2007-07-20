@@ -30,6 +30,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
@@ -438,5 +439,48 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         user = ic.getAttributes( "" );
         assertNotNull( user );
         assertEquals( "newPassword", StringTools.utf8ToString( ( byte[] ) user.get( "userPassword" ).get() ) );
+    }
+    
+    /**
+     * @see https://issues.apache.org/jira/browse/DIRSERVER-1001
+     */
+    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
+    {
+        // bind as akarasulu
+        Hashtable envUser = new Hashtable( configuration.toJndiEnvironment() );
+        envUser.put( Context.PROVIDER_URL, "ou=system" );
+        envUser.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
+        envUser.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        envUser.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext idcUser = new InitialDirContext( envUser );
+        idcUser.close();
+        
+        // bind as admin
+        Hashtable envAdmin = new Hashtable( configuration.toJndiEnvironment() );
+        envAdmin.put( Context.PROVIDER_URL, "ou=system" );
+        envAdmin.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        envAdmin.put( Context.SECURITY_CREDENTIALS, "secret" );
+        envAdmin.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        envAdmin.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        InitialDirContext idcAdmin = new InitialDirContext( envAdmin );
+        
+        // now modify the password for akarasulu (while we're admin)
+        Attribute userPasswordAttribute = new BasicAttribute( "userPassword", "newpwd", true );
+        idcAdmin.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        idcAdmin.close();
+        
+        // try to bind as akarasulu with old password
+        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
+        try
+        {
+            idcUser = new InitialDirContext( envUser );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
     }
 }

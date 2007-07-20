@@ -331,7 +331,7 @@ public class AuthenticationService extends BaseInterceptor
             for ( Iterator ii = authenticators.iterator(); ii.hasNext(); /**/ )
             {
                 Authenticator authenticator = ( Authenticator ) ii.next();
-                authenticator.invalidateCache( getPrincipal().getJndiName() );
+                authenticator.invalidateCache( principalDn );
             }
         }
     }
