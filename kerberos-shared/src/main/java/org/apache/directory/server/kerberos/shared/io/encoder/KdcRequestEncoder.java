@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -82,7 +83,7 @@ public class KdcRequestEncoder
             sequence.add( new DERTaggedObject( 3, encodePreAuthData( app.getPreAuthData() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app ) ) );
+        sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app.getRequestBody() ) ) );
 
         return sequence;
     }
@@ -91,16 +92,16 @@ public class KdcRequestEncoder
     /**
      * Encodes a {@link KdcRequest} into a byte[].
      *
-     * @param request
+     * @param requestBody
      * @return The encoded {@link KdcRequest}.
      * @throws IOException
      */
-    public byte[] encodeBody( KdcRequest request ) throws IOException
+    public byte[] encodeRequestBody( RequestBody requestBody ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        aos.writeObject( encodeKdcRequestBody( request ) );
+        aos.writeObject( encodeKdcRequestBody( requestBody ) );
         aos.close();
 
         return baos.toByteArray();
@@ -128,61 +129,63 @@ public class KdcRequestEncoder
      *     additional-tickets[11]       SEQUENCE OF Ticket OPTIONAL
      * }
      */
-    private DERSequence encodeKdcRequestBody( KdcRequest request )
+    private DERSequence encodeKdcRequestBody( RequestBody requestBody )
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, new DERBitString( request.getKdcOptions().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 0, new DERBitString( requestBody.getKdcOptions().getBytes() ) ) );
 
         // OPTIONAL
-        if ( request.getClientPrincipal() != null )
+        if ( requestBody.getClientPrincipal() != null )
         {
-            sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( request.getClientPrincipal() ) ) );
+            sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( requestBody.getClientPrincipal() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( request.getRealm().toString() ) ) );
+        sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( requestBody.getServerPrincipal().getRealm()
+            .toString() ) ) );
 
         // OPTIONAL
-        if ( request.getServerPrincipal() != null )
+        if ( requestBody.getServerPrincipal() != null )
         {
-            sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( request.getServerPrincipal() ) ) );
-        }
-
-        // OPTIONAL
-        if ( request.getFrom() != null )
-        {
-            sequence.add( new DERTaggedObject( 4, KerberosTimeEncoder.encode( request.getFrom() ) ) );
-        }
-
-        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( request.getTill() ) ) );
-
-        // OPTIONAL
-        if ( request.getRtime() != null )
-        {
-            sequence.add( new DERTaggedObject( 6, KerberosTimeEncoder.encode( request.getRtime() ) ) );
-        }
-
-        sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( request.getNonce() ) ) );
-
-        sequence.add( new DERTaggedObject( 8, EncryptionTypeEncoder.encode( request.getEType() ) ) );
-
-        // OPTIONAL
-        if ( request.getAddresses() != null )
-        {
-            sequence.add( new DERTaggedObject( 9, HostAddressesEncoder.encodeSequence( request.getAddresses() ) ) );
+            sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( requestBody.getServerPrincipal() ) ) );
         }
 
         // OPTIONAL
-        if ( request.getEncAuthorizationData() != null )
+        if ( requestBody.getFrom() != null )
         {
-            sequence.add( new DERTaggedObject( 10, EncryptedDataEncoder.encodeSequence( request
+            sequence.add( new DERTaggedObject( 4, KerberosTimeEncoder.encode( requestBody.getFrom() ) ) );
+        }
+
+        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( requestBody.getTill() ) ) );
+
+        // OPTIONAL
+        if ( requestBody.getRtime() != null )
+        {
+            sequence.add( new DERTaggedObject( 6, KerberosTimeEncoder.encode( requestBody.getRtime() ) ) );
+        }
+
+        sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( requestBody.getNonce() ) ) );
+
+        sequence.add( new DERTaggedObject( 8, EncryptionTypeEncoder.encode( requestBody.getEType() ) ) );
+
+        // OPTIONAL
+        if ( requestBody.getAddresses() != null )
+        {
+            sequence.add( new DERTaggedObject( 9, HostAddressesEncoder.encodeSequence( requestBody.getAddresses() ) ) );
+        }
+
+        // OPTIONAL
+        if ( requestBody.getEncAuthorizationData() != null )
+        {
+            sequence.add( new DERTaggedObject( 10, EncryptedDataEncoder.encodeSequence( requestBody
                 .getEncAuthorizationData() ) ) );
         }
 
         // OPTIONAL
-        if ( request.getAdditionalTickets() != null )
+        if ( requestBody.getAdditionalTickets() != null )
         {
-            sequence.add( new DERTaggedObject( 11, TicketEncoder.encodeSequence( request.getAdditionalTickets() ) ) );
+            sequence
+                .add( new DERTaggedObject( 11, TicketEncoder.encodeSequence( requestBody.getAdditionalTickets() ) ) );
         }
 
         return sequence;

@@ -88,6 +88,17 @@ public class KdcRequest extends KerberosMessage
 
 
     /**
+     * Returns the request body.
+     * 
+     * @return The request body.
+     */
+    public RequestBody getRequestBody()
+    {
+        return requestBody;
+    }
+
+
+    /**
      * Returns the bytes of the body.  This is used for verifying checksums in
      * the Ticket-Granting Service (TGS).
      *
