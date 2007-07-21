@@ -63,6 +63,12 @@ public class MapPrincipalStoreImpl implements PrincipalStore
 
         entry = getEntry( principalName, passPhrase );
         store.put( entry.getPrincipal(), entry );
+
+        principalName = "ldap/ldap.example.com@EXAMPLE.COM";
+        passPhrase = "randomKey";
+
+        entry = getEntry( principalName, passPhrase );
+        store.put( entry.getPrincipal(), entry );
     }
 
 
