@@ -31,6 +31,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
 
 /**
+ * "The replay cache will store at least the server name, along with the client name,
+ * time, and microsecond fields from the recently-seen authenticators, and if a
+ * matching tuple is found, the KRB_AP_ERR_REPEAT error is returned."
+ *    
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -41,25 +45,30 @@ public class InMemoryReplayCache implements ReplayCache
     private List<ReplayCacheEntry> list = new ArrayList<ReplayCacheEntry>();
 
 
-    public synchronized boolean isReplay( KerberosTime clientTime, KerberosPrincipal clientPrincipal )
+    public synchronized boolean isReplay( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal,
+        KerberosTime clientTime, int clientMicroSeconds )
     {
-        ReplayCacheEntry testEntry = new ReplayCacheEntry( clientTime, clientPrincipal );
-        Iterator it = list.iterator();
+        ReplayCacheEntry testEntry = new ReplayCacheEntry( serverPrincipal, clientPrincipal, clientTime,
+            clientMicroSeconds );
+
+        Iterator<ReplayCacheEntry> it = list.iterator();
         while ( it.hasNext() )
         {
-            ReplayCacheEntry entry = ( ReplayCacheEntry ) it.next();
+            ReplayCacheEntry entry = it.next();
             if ( entry.equals( testEntry ) )
             {
                 return true;
             }
         }
+
         return false;
     }
 
 
-    public synchronized void save( KerberosTime clientTime, KerberosPrincipal clientPrincipal )
+    public synchronized void save( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal,
+        KerberosTime clientTime, int clientMicroSeconds )
     {
-        list.add( new ReplayCacheEntry( clientTime, clientPrincipal ) );
+        list.add( new ReplayCacheEntry( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) );
         purgeExpired();
     }
 
@@ -73,10 +82,10 @@ public class InMemoryReplayCache implements ReplayCache
 
         KerberosTime age = new KerberosTime( now - TWO_WEEKS );
 
-        Iterator it = list.iterator();
+        Iterator<ReplayCacheEntry> it = list.iterator();
         while ( it.hasNext() )
         {
-            ReplayCacheEntry entry = ( ReplayCacheEntry ) it.next();
+            ReplayCacheEntry entry = it.next();
             if ( entry.olderThan( age ) )
             {
                 list.remove( entry );
@@ -86,38 +95,47 @@ public class InMemoryReplayCache implements ReplayCache
 
     private class ReplayCacheEntry
     {
-        private KerberosTime clientTime;
+        private KerberosPrincipal serverPrincipal;
         private KerberosPrincipal clientPrincipal;
+        private KerberosTime clientTime;
+        private int clientMicroSeconds;
 
 
         /**
          * Creates a new instance of ReplayCacheEntry.
-         *
-         * @param time
-         * @param principal
+         * 
+         * @param serverPrincipal 
+         * @param clientPrincipal 
+         * @param clientTime 
+         * @param clientMicroSeconds 
          */
-        public ReplayCacheEntry( KerberosTime time, KerberosPrincipal principal )
+        public ReplayCacheEntry( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal,
+            KerberosTime clientTime, int clientMicroSeconds )
         {
-            clientTime = time;
-            clientPrincipal = principal;
+            this.serverPrincipal = serverPrincipal;
+            this.clientPrincipal = clientPrincipal;
+            this.clientTime = clientTime;
+            this.clientMicroSeconds = clientMicroSeconds;
         }
 
 
         /**
-         * Returns whether this {@link ReplayCacheEntry} is equal another {@link ReplayCacheEntry}.
-         * {@link ReplayCacheEntry}'s are equal when the client time and the client principal are equal.
+         * Returns whether this {@link ReplayCacheEntry} is equal to another {@link ReplayCacheEntry}.
+         * {@link ReplayCacheEntry}'s are equal when the server name, client name, client time, and
+         * the client microseconds are equal.
          *
-         * @param other
+         * @param that
          * @return true if the ReplayCacheEntry's are equal.
          */
-        public boolean equals( ReplayCacheEntry other )
+        public boolean equals( ReplayCacheEntry that )
         {
-            return clientTime.equals( other.clientTime ) && clientPrincipal.equals( other.clientPrincipal );
+            return serverPrincipal.equals( that.serverPrincipal ) && clientPrincipal.equals( that.clientPrincipal )
+                && clientTime.equals( that.clientTime ) && clientMicroSeconds == that.clientMicroSeconds;
         }
 
 
         /**
-         * Return whether this {@link ReplayCacheEntry} is older than a given time.
+         * Returns whether this {@link ReplayCacheEntry} is older than a given time.
          *
          * @param time
          * @return true if the {@link ReplayCacheEntry} is older.

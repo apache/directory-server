@@ -26,26 +26,38 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
 
 /**
+ * "The replay cache will store at least the server name, along with the client name,
+ * time, and microsecond fields from the recently-seen authenticators, and if a
+ * matching tuple is found, the KRB_AP_ERR_REPEAT error is returned."
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface ReplayCache
 {
     /**
-     * Returns whether a request is a replay, based on the client time and client principal.
-     *
-     * @param clientTime
+     * Returns whether a request is a replay, based on the server principal, client
+     * principal, time, and microseconds.
+     * 
+     * @param serverPrincipal 
      * @param clientPrincipal
+     * @param clientTime
+     * @param clientMicroSeconds 
      * @return true if the request is a replay.
      */
-    boolean isReplay( KerberosTime clientTime, KerberosPrincipal clientPrincipal );
+    boolean isReplay( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
+        int clientMicroSeconds );
 
 
     /**
-     * Saves the client time and client principal to the replay cache.
+     * Saves the server principal, client principal, time, and microseconds to
+     * the replay cache.
      *
-     * @param clientTime
+     * @param serverPrincipal 
      * @param clientPrincipal
+     * @param clientTime
+     * @param clientMicroSeconds 
      */
-    void save( KerberosTime clientTime, KerberosPrincipal clientPrincipal );
+    void save( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
+        int clientMicroSeconds );
 }
