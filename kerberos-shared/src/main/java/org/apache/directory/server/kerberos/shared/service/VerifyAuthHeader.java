@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.shared.service;
 
 import java.net.InetAddress;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -63,12 +65,13 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
      * @param clientAddress
      * @param lockBox
      * @param authenticatorKeyUsage
+     * @param isValidate
      * @return The authenticator.
      * @throws KerberosException
      */
     public Authenticator verifyAuthHeader( ApplicationRequest authHeader, Ticket ticket, EncryptionKey serverKey,
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
-        CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage ) throws KerberosException
+        CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage, boolean isValidate ) throws KerberosException
     {
         if ( authHeader.getProtocolVersionNumber() != 5 )
         {
@@ -134,27 +137,42 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             }
         }
 
-        if ( replayCache.isReplay( authenticator.getClientTime(), authenticator.getClientPrincipal() ) )
+        KerberosPrincipal serverPrincipal = ticket.getServerPrincipal();
+        KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
+        KerberosTime clientTime = authenticator.getClientTime();
+        int clientMicroSeconds = authenticator.getClientMicroSecond();
+
+        if ( replayCache.isReplay( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_REPEAT );
         }
 
-        replayCache.save( authenticator.getClientTime(), authenticator.getClientPrincipal() );
+        replayCache.save( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds );
 
         if ( !authenticator.getClientTime().isInClockSkew( clockSkew ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_SKEW );
         }
 
-        if ( ticket.getStartTime() != null && !ticket.getStartTime().isInClockSkew( clockSkew )
-            || ticket.getFlag( TicketFlags.INVALID ) )
+        /*
+         * "The server computes the age of the ticket: local (server) time minus
+         * the starttime inside the Ticket.  If the starttime is later than the
+         * current time by more than the allowable clock skew, or if the INVALID
+         * flag is set in the ticket, the KRB_AP_ERR_TKT_NYV error is returned."
+         */
+        KerberosTime startTime = ( ticket.getStartTime() != null ) ? ticket.getStartTime() : ticket.getAuthTime();
+
+        KerberosTime now = new KerberosTime();
+        boolean isValidStartTime = startTime.lessThan( now );
+
+        if ( !isValidStartTime || ( ticket.getFlag( TicketFlags.INVALID ) && !isValidate ) )
         {
             // it hasn't yet become valid
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
         }
 
         // TODO - doesn't take into account skew
-        if ( !ticket.getEndTime().greaterThan( new KerberosTime() ) )
+        if ( !ticket.getEndTime().greaterThan( now ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
         }
