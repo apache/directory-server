@@ -64,7 +64,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
         CipherTextHandler cipherTextHandler = changepwContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, ticket, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11 );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER11, false );
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
