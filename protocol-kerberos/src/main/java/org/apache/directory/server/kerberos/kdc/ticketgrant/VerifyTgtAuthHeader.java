@@ -29,6 +29,7 @@ import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
@@ -46,6 +47,8 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
 
         ApplicationRequest authHeader = tgsContext.getAuthHeader();
         Ticket tgt = tgsContext.getTgt();
+        
+        boolean isValidate = tgsContext.getRequest().getKdcOptions().get( KdcOptions.VALIDATE );
 
         EncryptionType encryptionType = tgt.getEncPart().getEncryptionType();
         EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
@@ -57,7 +60,7 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
         Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7 );
+            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7, isValidate );
 
         tgsContext.setAuthenticator( authenticator );
 
