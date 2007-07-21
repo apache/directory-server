@@ -92,6 +92,9 @@ public class ChangepwProtocolHandlerTest extends TestCase
     private CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
 
+    /**
+     * Creates a new instance of ChangepwProtocolHandlerTest.
+     */
     public ChangepwProtocolHandlerTest()
     {
         config = new ChangePasswordConfiguration();
@@ -101,6 +104,9 @@ public class ChangepwProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests the protocol version number, which must be '1'.
+     */
     public void testProtocolVersionNumber()
     {
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 2, null, null );
@@ -113,6 +119,10 @@ public class ChangepwProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests when a service ticket is missing that the request is rejected with
+     * the correct error message.
+     */
     public void testMissingTicket()
     {
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 1, null, null );
@@ -125,6 +135,12 @@ public class ChangepwProtocolHandlerTest extends TestCase
     }
 
 
+    /**
+     * Tests when the INITIAL flag is missing that the request is rejected with
+     * the correct error message.
+     * 
+     * @throws Exception 
+     */
     public void testInitialFlagRequired() throws Exception
     {
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -143,11 +159,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         AuthenticatorModifier modifier = new AuthenticatorModifier();
         modifier.setVersionNumber( 5 );
         modifier.setClientRealm( "EXAMPLE.COM" );
-
-        PrincipalNameModifier clientModifier = new PrincipalNameModifier();
-        clientModifier.addName( "hnelson" );
-
-        modifier.setClientName( clientModifier.getPrincipalName() );
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
         modifier.setClientTime( new KerberosTime() );
         modifier.setClientMicroSecond( 0 );
 
@@ -220,12 +232,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         AuthenticatorModifier modifier = new AuthenticatorModifier();
         modifier.setVersionNumber( 5 );
         modifier.setClientRealm( "EXAMPLE.COM" );
-
-        PrincipalNameModifier clientModifier = new PrincipalNameModifier();
-        clientModifier.addName( "hnelson" );
-        clientModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
-
-        modifier.setClientName( clientModifier.getPrincipalName() );
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
         modifier.setClientTime( new KerberosTime() );
         modifier.setClientMicroSecond( 0 );
 
@@ -236,8 +243,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
 
         String newPassword = "secretsecret";
 
-        PrivateMessage priv = getSetPasswordPrivateMessage( newPassword, subSessionKey, clientModifier
-            .getPrincipalName() );
+        PrivateMessage priv = getSetPasswordPrivateMessage( newPassword, subSessionKey, getPrincipalName( "hnelson" ) );
 
         ChangePasswordRequest message = new ChangePasswordRequest( ( short ) 0xFF80, apReq, priv );
 
@@ -285,7 +291,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
 
         ChangePasswordDataModifier dataModifier = new ChangePasswordDataModifier();
-        dataModifier.setNewPassword( "secretsecret".getBytes() );
+        dataModifier.setNewPassword( newPassword.getBytes() );
         dataModifier.setTargetName( targetPrincipalName );
         dataModifier.setTargetRealm( "EXAMPLE.COM" );
         ChangePasswordData data = dataModifier.getChangePasswdData();
@@ -310,6 +316,16 @@ public class ChangepwProtocolHandlerTest extends TestCase
         return privateMessage;
     }
 
+
+    private PrincipalName getPrincipalName( String principalName )
+    {
+        PrincipalNameModifier principalNameModifier = new PrincipalNameModifier();
+        principalNameModifier.addName( principalName );
+        principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
+
+        return principalNameModifier.getPrincipalName();
+    }
+
     private static class DummySession extends BaseIoSession
     {
         Object message;
@@ -324,7 +340,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         }
 
 
-        public Object getMessage()
+        private Object getMessage()
         {
             return message;
         }
@@ -332,6 +348,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
 
         protected void updateTrafficMask()
         {
+            // Do nothing.
         }
 
 
