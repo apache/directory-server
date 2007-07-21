@@ -88,6 +88,9 @@ public class KdcConfiguration extends ServiceConfiguration
     /** The default for allowing renewable tickets */
     private static final boolean DEFAULT_TGS_RENEWABLE_ALLOWED = true;
 
+    /** The default for verifying the body checksum */
+    private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
+
     /** The encryption types. */
     private EncryptionType[] encryptionTypes;
 
@@ -123,6 +126,9 @@ public class KdcConfiguration extends ServiceConfiguration
 
     /** Whether renewable tickets are allowed. */
     private boolean isRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
+
+    /** Whether to verify the body checksum. */
+    private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
 
     /**
@@ -362,6 +368,24 @@ public class KdcConfiguration extends ServiceConfiguration
     public boolean isPaEncTimestampRequired()
     {
         return isPaEncTimestampRequired;
+    }
+
+
+    /**
+     * @return the isBodyChecksumVerified
+     */
+    public boolean isBodyChecksumVerified()
+    {
+        return isBodyChecksumVerified;
+    }
+
+
+    /**
+     * @param isBodyChecksumVerified the isBodyChecksumVerified to set
+     */
+    public void setBodyChecksumVerified( boolean isBodyChecksumVerified )
+    {
+        this.isBodyChecksumVerified = isBodyChecksumVerified;
     }
 
 
