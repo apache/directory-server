@@ -30,6 +30,7 @@ public class KdcOptions extends Options
      * KDC option - reserved.
      */
     public static final int RESERVED = 0;
+
     /**
      * KDC option - forwardable.
      */
