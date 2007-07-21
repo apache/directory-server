@@ -125,6 +125,7 @@ public class GenerateTicket implements IoHandlerCommand
         newTicketBody.setTransitedEncoding( new TransitedEncoding() );
 
         KerberosTime now = new KerberosTime();
+
         newTicketBody.setAuthTime( now );
 
         KerberosTime startTime = request.getFrom();
@@ -212,7 +213,8 @@ public class GenerateTicket implements IoHandlerCommand
          * flag is set in the new ticket, and the renew-till value is set as if the
          * 'RENEWABLE' option were requested."
          */
-        long tempRtime = 0;
+        KerberosTime tempRtime = request.getRtime();
+
         if ( request.getKdcOptions().get( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
         {
             if ( !config.isRenewableAllowed() )
@@ -221,7 +223,7 @@ public class GenerateTicket implements IoHandlerCommand
             }
 
             request.getKdcOptions().set( KdcOptions.RENEWABLE );
-            tempRtime = request.getTill().getTime();
+            tempRtime = request.getTill();
         }
 
         /*
@@ -235,15 +237,6 @@ public class GenerateTicket implements IoHandlerCommand
          omit new_tkt.renew-till;
          endif
          */
-        if ( tempRtime == 0 || request.getRtime() == null )
-        {
-            tempRtime = request.getTill().getTime();
-        }
-        else
-        {
-            tempRtime = request.getRtime().getTime();
-        }
-
         if ( request.getKdcOptions().get( KdcOptions.RENEWABLE ) )
         {
             if ( !config.isRenewableAllowed() )
@@ -253,7 +246,12 @@ public class GenerateTicket implements IoHandlerCommand
 
             newTicketBody.setFlag( TicketFlags.RENEWABLE );
 
-            long renewTill = Math.min( tempRtime, startTime.getTime() + config.getMaximumRenewableLifetime() );
+            if ( tempRtime == null || tempRtime.isZero() )
+            {
+                tempRtime = KerberosTime.INFINITY;
+            }
+
+            long renewTill = Math.min( tempRtime.getTime(), startTime.getTime() + config.getMaximumRenewableLifetime() );
             newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
         }
 
