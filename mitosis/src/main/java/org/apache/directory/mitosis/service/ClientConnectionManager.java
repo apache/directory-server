@@ -136,6 +136,27 @@ class ClientConnectionManager
             }
         }
     }
+    
+    /**
+     * Interrupt the unconnected connections to make them attempt to connect immediately.
+     *
+     */
+    public void interruptConnectors()
+    {
+        for( Iterator i = sessions.values().iterator(); i.hasNext(); )
+        {
+            Connection con = ( Connection ) i.next();
+            synchronized( con )
+            {
+                // Wake up the replicas that are sleeping.
+                if ( con.inProgress && con.connector != null )
+                {
+                    con.connector.interrupt();
+                }
+            }
+        }
+        
+    }
 
     private class ConnectionMonitor extends Thread
     {

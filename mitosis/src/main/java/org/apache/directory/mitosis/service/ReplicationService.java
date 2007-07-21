@@ -265,6 +265,15 @@ public class ReplicationService extends BaseInterceptor
         this.clientConnectionManager.replicate();
     }
 
+    /**
+     * Wake the sleeping (unconnected) replicas.
+     */
+    public void interruptConnectors()
+    {
+        log.info( "Waking sleeping replicas..." );
+        this.clientConnectionManager.interruptConnectors();
+    }
+
 
     /**
      * Purges old replication logs and the old entries marked as 'deleted'

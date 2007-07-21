@@ -61,8 +61,8 @@ import org.apache.mina.util.AvailablePortFinder;
  */
 public class ReplicationServiceITest extends TestCase
 {
-    private Map contexts = new HashMap();
-    private Map replicationServices = new HashMap();
+    private Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
+    private Map<String, ReplicationService> replicationServices = new HashMap<String, ReplicationService>();
 
     protected void setUp() throws Exception
     {
@@ -76,12 +76,20 @@ public class ReplicationServiceITest extends TestCase
 
     public void testOneWay() throws Exception
     {
-        String dn1 = "cn=test,ou=system";
-        testOneWayBind( dn1 );
-        testOneWayUnbind( dn1 );
+        String dn = "cn=test,ou=system";
+        testOneWayBind( dn );
+        testOneWayUnbind( dn );
     }
     
-    public void _testTwoWayBind() throws Exception
+    /**
+     * Test that the entry created last will win in the case of a conflict.
+     * 
+     * NOTE: This test is DISABLED as there is an occasional problem when a message is acknowledged
+     * too quickly, meaning no further messages can be sent until it has timed out (DIRSERVER-998).
+     *
+     * @throws Exception
+     */
+    public void disabled_testTwoWayBind() throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
         LdapContext ctxB = getReplicaContext( "B" );
@@ -90,16 +98,27 @@ public class ReplicationServiceITest extends TestCase
         Attributes entryA = new AttributesImpl( true );
         entryA.put( "cn", "test" );
         entryA.put( "ou", "A" );
-        entryA.put( "objectClass", "top" );
-        ctxA.bind( "cn=test,ou=system", entryA );
+        entryA.put( "objectClass", "top" ).add( "extensibleObject" );
+        ctxA.bind( "cn=test,ou=system", null, entryA );
+        
+        // Ensure the second bind is undebatebly the second.
+        Thread.sleep( 100 );
 
         Attributes entryB = new AttributesImpl( true );
         entryB.put( "cn", "test" );
         entryB.put( "ou", "B" );
-        entryB.put( "objectClass", "top" );
-        ctxB.bind( "cn=test,ou=system", entryB );
+        entryB.put( "objectClass", "top" ).add( "extensibleObject" );
+        ctxB.bind( "cn=test,ou=system", null, entryB );
 
-        Thread.sleep( 7000 );
+        // Let both replicas replicate.  Note that a replica can only receive
+        // logs from one peer at a time so we must delay between replications.
+        replicationServices.get( "A" ).replicate();
+        
+        Thread.sleep( 5000 );
+        
+        replicationServices.get( "B" ).replicate();
+        
+        Thread.sleep( 5000 );
 
         Assert.assertEquals( "B", getAttributeValue( ctxA, "cn=test,ou=system", "ou" ) );
         Assert.assertEquals( "B", getAttributeValue( ctxB, "cn=test,ou=system", "ou" ) );
@@ -114,11 +133,14 @@ public class ReplicationServiceITest extends TestCase
         
         Attributes entry = new AttributesImpl( true );
         entry.put( "cn", "test" );
-        entry.put( "objectClass", "top" );
-        ctxA.bind( dn, entry );
+        entry.put( "objectClass", "top" ).add( "extensibleObject" );
+        ctxA.bind( dn, null, entry );
 
-        Thread.sleep( 7000 );
+        replicationServices.get( "A" ).replicate();
+        
+        Thread.sleep( 5000 );
 
+        Assert.assertNotNull( ctxA.lookup( dn ) );
         Assert.assertNotNull( ctxB.lookup( dn ) );
         Assert.assertNotNull( ctxC.lookup( dn ) );
     }
@@ -131,7 +153,9 @@ public class ReplicationServiceITest extends TestCase
         
         ctxA.unbind( dn );
         
-        Thread.sleep( 7000 );
+        replicationServices.get( "A" ).replicate();
+
+        Thread.sleep( 5000 );
         
         assertNotExists( ctxA, dn );
         assertNotExists( ctxB, dn );
@@ -154,7 +178,7 @@ public class ReplicationServiceITest extends TestCase
     
     private String getAttributeValue( LdapContext ctx, String name, String attrName ) throws Exception
     {
-        Attribute attr = ( ( Attributes ) ctx.lookup( name ) ).get( attrName );
+        Attribute attr = ctx.getAttributes( name ).get( attrName );
         return ( String ) attr.get();
     }
 
@@ -197,7 +221,7 @@ public class ReplicationServiceITest extends TestCase
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
             // Disable automatic replication to prevent unexpected behavior
-            replicationCfg.setReplicationInterval(1);
+            replicationCfg.setReplicationInterval(0);
             replicationCfg.setServerPort( replica.getAddress().getPort() );
             for( int j = 0; j < replicas.length; j++ )
             {
@@ -207,11 +231,10 @@ public class ReplicationServiceITest extends TestCase
                 }
             }
 
-            ReplicationService replicationService = new ReplicationService();
             MutableReplicationInterceptorConfiguration interceptorCfg = 
                 new MutableReplicationInterceptorConfiguration();
             interceptorCfg.setName( "mitosis" );
-            interceptorCfg.setInterceptorClassName( replicationService.getClass().getName() );
+            interceptorCfg.setInterceptorClassName( ReplicationService.class.getName() );
             interceptorCfg.setReplicationConfiguration( replicationCfg );
             interceptorCfgs.add( interceptorCfg );
 
@@ -233,27 +256,35 @@ public class ReplicationServiceITest extends TestCase
             // Initialize the server instance.
             LdapContext context = new InitialLdapContext( env, null );
             contexts.put( replicaId, context );
+            ReplicationService replicationService = (ReplicationService) DirectoryService.getInstance( replicaId ).getConfiguration().getInterceptorChain().get( "mitosis" );
             replicationServices.put( replicaId, replicationService );
         }
+
+        // Ensure all replicas have had a chance to connect to each other since the last one started.
+        for( Iterator<ReplicationService> i = replicationServices.values().iterator(); i.hasNext(); )
+        {
+            i.next().interruptConnectors();
+        }
+        Thread.sleep( 1000 );
     }
 
     private LdapContext getReplicaContext( String name ) throws Exception
     {
-        LdapContext context = ( LdapContext ) contexts.get( name );
+        LdapContext context = contexts.get( name );
         if( context == null )
         {
             throw new IllegalArgumentException( "No such replica: " + name );
         }
 
-        return context;
+        return ( LdapContext ) context.lookup( "" );
     }
     
     @SuppressWarnings("unchecked")
     private void destroyAllReplicas() throws Exception
     {
-        for( Iterator i = contexts.keySet().iterator(); i.hasNext(); )
+        for( Iterator<String> i = contexts.keySet().iterator(); i.hasNext(); )
         {
-            String replicaId = ( String ) i.next();
+            String replicaId = i.next();
             File workDir = DirectoryService.getInstance( replicaId )
                     .getConfiguration().getStartupConfiguration()
                     .getWorkingDirectory();
