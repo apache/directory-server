@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.protocol;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
@@ -50,7 +51,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameT
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoService;
@@ -220,7 +220,7 @@ public class KerberosProtocolHandlerTest extends TestCase
      * 
      * @throws Exception 
      */
-    public void testPreAuthenticationFailed() throws Exception
+    public void testPreAuthenticationIntegrityFailed() throws Exception
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
         modifier.setClientName( getPrincipalName( "hnelson" ) );
@@ -238,7 +238,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "badpassword";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -246,6 +246,44 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
         assertEquals( "Integrity check on decrypted field failed", 31, error.getErrorCode() );
+    }
+
+
+    /**
+     * "If required to do so, the server pre-authenticates the request, and
+     * if the pre-authentication check fails, an error message with the code
+     * KDC_ERR_PREAUTH_FAILED is returned."
+     * 
+     * @throws Exception 
+     */
+    public void testPreAuthenticationFailed() throws Exception
+    {
+        RequestBodyModifier modifier = new RequestBodyModifier();
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
+        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        modifier.setRealm( "EXAMPLE.COM" );
+        modifier.setEType( config.getEncryptionTypes() );
+
+        modifier.setKdcOptions( new KdcOptions() );
+
+        long now = System.currentTimeMillis();
+
+        KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
+        modifier.setTill( requestedEndTime );
+
+        KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+
+        KerberosTime timeStamp = new KerberosTime( 0 );
+        String passPhrase = "secret";
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+
+        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+
+        handler.messageReceived( session, message );
+
+        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+
+        assertEquals( "Pre-authentication information was invalid", 24, error.getErrorCode() );
     }
 
 
@@ -280,7 +318,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -307,7 +345,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -356,7 +394,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -397,7 +435,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -445,7 +483,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -493,7 +531,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -540,7 +578,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -582,7 +620,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -623,7 +661,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -676,7 +714,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -726,7 +764,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -769,7 +807,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -807,7 +845,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -855,7 +893,7 @@ public class KerberosProtocolHandlerTest extends TestCase
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
 
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -904,7 +942,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -948,7 +986,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -992,7 +1030,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1038,11 +1076,11 @@ public class KerberosProtocolHandlerTest extends TestCase
         modifier.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
-        modifier.setTill( requestedRenewTillTime );
+        modifier.setRtime( requestedRenewTillTime );
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1091,11 +1129,11 @@ public class KerberosProtocolHandlerTest extends TestCase
         modifier.setTill( requestedEndTime );
 
         KerberosTime requestedRenewTillTime = new KerberosTime( now + 2 * KerberosTime.WEEK );
-        modifier.setTill( requestedRenewTillTime );
+        modifier.setRtime( requestedRenewTillTime );
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1140,7 +1178,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1176,7 +1214,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1212,7 +1250,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1248,7 +1286,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1284,7 +1322,7 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthenticationData( clientPrincipal, passPhrase );
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -1295,16 +1333,23 @@ public class KerberosProtocolHandlerTest extends TestCase
     }
 
 
-    private PreAuthenticationData[] getPreAuthenticationData( KerberosPrincipal clientPrincipal, String passPhrase )
+    private PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
         throws Exception
+    {
+        KerberosTime timeStamp = new KerberosTime();
+
+        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
+    }
+
+
+    private PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase,
+        KerberosTime timeStamp ) throws Exception
     {
         PreAuthenticationData[] paData = new PreAuthenticationData[1];
 
-        KerberosTime timeStamp = new KerberosTime();
         EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
 
-        TicketFactory ticketFactory = new TicketFactory();
-        EncryptionKey clientKey = ticketFactory.getServerKey( clientPrincipal, passPhrase );
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
 
         EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
 
@@ -1327,6 +1372,23 @@ public class KerberosProtocolHandlerTest extends TestCase
         principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
 
         return principalNameModifier.getPrincipalName();
+    }
+
+
+    /**
+     * Returns an encryption key derived from a principal name and passphrase.
+     *
+     * @param principal
+     * @param passPhrase
+     * @return The server's {@link EncryptionKey}.
+     */
+    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase )
+    {
+        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "DES" );
+        byte[] keyBytes = kerberosKey.getEncoded();
+        EncryptionKey key = new EncryptionKey( EncryptionType.DES_CBC_MD5, keyBytes );
+
+        return key;
     }
 
     private static class DummySession extends BaseIoSession
