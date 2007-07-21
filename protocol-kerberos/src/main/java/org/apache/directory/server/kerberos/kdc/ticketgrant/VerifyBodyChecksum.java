@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -47,18 +48,23 @@ public class VerifyBodyChecksum implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
-        byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
-        Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
+        KdcConfiguration config = tgsContext.getConfig();
 
-        if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
-            || authenticatorChecksum.getChecksumValue() == null )
+        if ( config.isBodyChecksumVerified() )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
+            byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
+            Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
+
+            if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
+                || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
+            {
+                throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
+            }
+
+            log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
+
+            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
         }
-
-        log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
-
-        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
 
         next.execute( session, message );
     }
