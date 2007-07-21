@@ -37,6 +37,10 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 /**
  * Differs from the changepw getAuthHeader by verifying the presence of TGS_REQ.
  * 
+ * Note that reading the application request requires first determining the server
+ * for which a ticket was issued, and choosing the correct key for decryption.  The
+ * name of the server appears in the plaintext part of the ticket.
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -62,8 +66,14 @@ public class GetAuthHeader implements IoHandlerCommand
 
     protected ApplicationRequest getAuthHeader( KdcRequest request ) throws KerberosException, IOException
     {
-        byte[] undecodedAuthHeader = null;
         PreAuthenticationData[] preAuthData = request.getPreAuthData();
+
+        if ( preAuthData == null || preAuthData.length < 1 )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
+        }
+
+        byte[] undecodedAuthHeader = null;
 
         for ( int ii = 0; ii < preAuthData.length; ii++ )
         {
