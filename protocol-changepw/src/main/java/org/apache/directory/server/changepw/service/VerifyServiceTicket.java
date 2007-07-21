@@ -23,18 +23,21 @@ package org.apache.directory.server.changepw.service;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.service.VerifyTicket;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class VerifyServiceTicket extends VerifyTicket
+public class VerifyServiceTicket implements IoHandlerCommand
 {
     private String contextKey = "context";
+
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -44,13 +47,16 @@ public class VerifyServiceTicket extends VerifyTicket
         String primaryRealm = config.getPrimaryRealm();
         KerberosPrincipal changepwPrincipal = config.getServicePrincipal();
 
-        verifyTicket( ticket, primaryRealm, changepwPrincipal );
+        if ( !ticket.getRealm().equals( primaryRealm ) || !ticket.getServerPrincipal().equals( changepwPrincipal ) )
+        {
+            throw new KerberosException( ErrorType.KRB_AP_ERR_NOT_US );
+        }
 
         next.execute( session, message );
     }
 
 
-    public String getContextKey()
+    protected String getContextKey()
     {
         return ( this.contextKey );
     }
