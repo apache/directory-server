@@ -21,6 +21,8 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.mina.common.IoSession;
@@ -38,12 +40,18 @@ public class ConfigureTicketGrantingChain implements IoHandlerCommand
 
     private String contextKey = "context";
 
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
         tgsContext.setReplayCache( replayCache );
         tgsContext.setCipherTextHandler( cipherTextHandler );
+
+        if ( tgsContext.getRequest().getProtocolVersionNumber() != 5 )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_BAD_PVNO );
+        }
 
         next.execute( session, message );
     }
