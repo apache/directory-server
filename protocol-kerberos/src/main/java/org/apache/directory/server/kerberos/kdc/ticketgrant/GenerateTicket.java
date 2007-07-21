@@ -100,25 +100,28 @@ public class GenerateTicket implements IoHandlerCommand
         if ( request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
             /*
-             if (server not specified) then
-             server = req.second_ticket.client;
-             endif
-             if ((req.second_ticket is not a TGT) or
-             (req.second_ticket.client != server)) then
-             error_out(KDC_ERR_POLICY);
-             endif
-             new_tkt.enc-part := encrypt OCTET STRING
-             using etype_for_key(second-ticket.key), second-ticket.key;
+             * if (server not specified) then
+             *         server = req.second_ticket.client;
+             * endif
+             * 
+             * if ((req.second_ticket is not a TGT) or
+             *     (req.second_ticket.client != server)) then
+             *        error_out(KDC_ERR_POLICY);
+             * endif
+             * 
+             * new_tkt.enc-part := encrypt OCTET STRING using etype_for_key(second-ticket.key), second-ticket.key;
              */
-            throw new KerberosException( ErrorType.KDC_ERR_SVC_UNAVAILABLE );
+            throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
+        else
+        {
+            EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
 
-        EncryptedData encryptedData = cipherTextHandler.seal( serverKey, ticketPart, KeyUsage.NUMBER2 );
+            Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
+            newTicket.setEncTicketPart( ticketPart );
 
-        Ticket newTicket = new Ticket( ticketPrincipal, encryptedData );
-        newTicket.setEncTicketPart( ticketPart );
-
-        tgsContext.setNewTicket( newTicket );
+            tgsContext.setNewTicket( newTicket );
+        }
 
         next.execute( session, message );
     }
@@ -148,6 +151,7 @@ public class GenerateTicket implements IoHandlerCommand
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
+
             newTicketBody.setFlag( TicketFlags.FORWARDED );
             newTicketBody.setClientAddresses( request.getAddresses() );
         }
@@ -188,6 +192,16 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.MAY_POSTDATE );
         }
 
+        /*
+         * "Otherwise, if the TGT has the MAY-POSTDATE flag set, then the resulting
+         * ticket will be postdated, and the requested starttime is checked against
+         * the policy of the local realm.  If acceptable, the ticket's starttime is
+         * set as requested, and the INVALID flag is set.  The postdated ticket MUST
+         * be validated before use by presenting it to the KDC after the starttime
+         * has been reached.  However, in no case may the starttime, endtime, or
+         * renew-till time of a newly-issued postdated ticket extend beyond the
+         * renew-till time of the TGT."
+         */
         if ( request.getOption( KdcOptions.POSTDATED ) )
         {
             if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
@@ -195,13 +209,13 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
-            newTicketBody.setFlag( TicketFlags.POSTDATED );
-            newTicketBody.setFlag( TicketFlags.INVALID );
-
             if ( !config.isPostdateAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
+
+            newTicketBody.setFlag( TicketFlags.POSTDATED );
+            newTicketBody.setFlag( TicketFlags.INVALID );
 
             newTicketBody.setStartTime( request.getFrom() );
         }
@@ -213,7 +227,9 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( tgt.getStartTime().greaterThan( new KerberosTime() ) )
+            KerberosTime startTime = ( tgt.getStartTime() != null ) ? tgt.getStartTime() : tgt.getAuthTime();
+
+            if ( startTime.greaterThan( new KerberosTime() ) )
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
             }
@@ -228,7 +244,7 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.clearFlag( TicketFlags.INVALID );
         }
 
-        if ( request.getOption( KdcOptions.RESERVED ) || request.getOption( KdcOptions.RENEWABLE_OK ) )
+        if ( request.getOption( KdcOptions.RESERVED ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
@@ -242,7 +258,35 @@ public class GenerateTicket implements IoHandlerCommand
 
         newTicketBody.setAuthTime( tgt.getAuthTime() );
 
+        KerberosTime startTime = request.getFrom();
+
+        /*
+         * "If the requested starttime is absent, indicates a time in the past,
+         * or is within the window of acceptable clock skew for the KDC and the
+         * POSTDATE option has not been specified, then the starttime of the
+         * ticket is set to the authentication server's current time."
+         */
+        if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
+            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+        {
+            startTime = now;
+        }
+
+        /*
+         * "If it indicates a time in the future beyond the acceptable clock skew,
+         * but the POSTDATED option has not been specified or the MAY-POSTDATE flag
+         * is not set in the TGT, then the error KDC_ERR_CANNOT_POSTDATE is
+         * returned."
+         */
+        if ( startTime != null && startTime.greaterThan( now )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() )
+            && ( !request.getKdcOptions().get( KdcOptions.POSTDATED ) || !tgt.getFlag( TicketFlags.MAY_POSTDATE ) ) )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
+        }
+
         KerberosTime renewalTime = null;
+        KerberosTime kerberosEndTime = null;
 
         if ( request.getOption( KdcOptions.RENEW ) )
         {
@@ -251,7 +295,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
-            if ( tgt.getRenewTill().greaterThan( now ) )
+            if ( tgt.getRenewTill().lessThan( now ) )
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
             }
@@ -259,13 +303,21 @@ public class GenerateTicket implements IoHandlerCommand
             echoTicket( newTicketBody, tgt );
 
             newTicketBody.setStartTime( now );
-            long oldLife = tgt.getEndTime().getTime() - tgt.getStartTime().getTime();
-            newTicketBody.setEndTime( new KerberosTime( Math
-                .min( tgt.getRenewTill().getTime(), now.getTime() + oldLife ) ) );
+
+            KerberosTime tgtStartTime = ( tgt.getStartTime() != null ) ? tgt.getStartTime() : tgt.getAuthTime();
+
+            long oldLife = tgt.getEndTime().getTime() - tgtStartTime.getTime();
+
+            kerberosEndTime = new KerberosTime( Math.min( tgt.getRenewTill().getTime(), now.getTime() + oldLife ) );
+            newTicketBody.setEndTime( kerberosEndTime );
         }
         else
         {
-            newTicketBody.setStartTime( now );
+            if ( newTicketBody.getEncTicketPart().getStartTime() == null )
+            {
+                newTicketBody.setStartTime( now );
+            }
+
             KerberosTime till;
             if ( request.getTill().isZero() )
             {
@@ -283,12 +335,13 @@ public class GenerateTicket implements IoHandlerCommand
              */
             List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
             minimizer.add( till );
-            minimizer.add( new KerberosTime( now.getTime() + config.getMaximumTicketLifetime() ) );
+            minimizer.add( new KerberosTime( startTime.getTime() + config.getMaximumTicketLifetime() ) );
             minimizer.add( tgt.getEndTime() );
-            KerberosTime minTime = Collections.min( minimizer );
-            newTicketBody.setEndTime( minTime );
+            kerberosEndTime = Collections.min( minimizer );
 
-            if ( request.getOption( KdcOptions.RENEWABLE_OK ) && minTime.lessThan( request.getTill() )
+            newTicketBody.setEndTime( kerberosEndTime );
+
+            if ( request.getOption( KdcOptions.RENEWABLE_OK ) && kerberosEndTime.lessThan( request.getTill() )
                 && tgt.getFlag( TicketFlags.RENEWABLE ) )
             {
                 // we set the RENEWABLE option for later processing                           
@@ -335,6 +388,22 @@ public class GenerateTicket implements IoHandlerCommand
             minimizer.add( new KerberosTime( now.getTime() + config.getMaximumRenewableLifetime() ) );
             minimizer.add( tgt.getRenewTill() );
             newTicketBody.setRenewTill( Collections.min( minimizer ) );
+        }
+
+        /*
+         * "If the requested expiration time minus the starttime (as determined
+         * above) is less than a site-determined minimum lifetime, an error
+         * message with code KDC_ERR_NEVER_VALID is returned."
+         */
+        if ( kerberosEndTime.lessThan( startTime ) )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
+        }
+
+        long ticketLifeTime = Math.abs( startTime.getTime() - kerberosEndTime.getTime() );
+        if ( ticketLifeTime < config.getAllowableClockSkew() )
+        {
+            throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
         }
     }
 
