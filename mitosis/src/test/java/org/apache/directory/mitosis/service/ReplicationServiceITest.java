@@ -33,6 +33,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -50,7 +52,9 @@ import org.apache.directory.server.core.configuration.MutableStartupConfiguratio
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.mina.util.AvailablePortFinder;
 
 /**
@@ -78,6 +82,7 @@ public class ReplicationServiceITest extends TestCase
     {
         String dn = "cn=test,ou=system";
         testOneWayBind( dn );
+        testOneWayModify( dn );
         testOneWayUnbind( dn );
     }
     
@@ -143,6 +148,25 @@ public class ReplicationServiceITest extends TestCase
         Assert.assertNotNull( ctxA.lookup( dn ) );
         Assert.assertNotNull( ctxB.lookup( dn ) );
         Assert.assertNotNull( ctxC.lookup( dn ) );
+    }
+
+    private void testOneWayModify( String dn ) throws Exception
+    {
+        LdapContext ctxA = getReplicaContext( "A" );
+        LdapContext ctxB = getReplicaContext( "B" );
+        LdapContext ctxC = getReplicaContext( "C" );
+        
+        String newValue = "anything";
+        
+        ctxA.modifyAttributes( dn, new ModificationItem[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou", newValue ))} );
+
+        replicationServices.get( "A" ).replicate();
+        
+        Thread.sleep( 5000 );
+
+        Assert.assertEquals( newValue, getAttributeValue( ctxB, dn, "ou" ) );
+        Assert.assertEquals( newValue, getAttributeValue( ctxC, dn, "ou" ) );
     }
     
     private void testOneWayUnbind( String dn ) throws Exception

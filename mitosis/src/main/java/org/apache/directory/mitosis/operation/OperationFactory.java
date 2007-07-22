@@ -122,7 +122,7 @@ public class OperationFactory
         entry.remove( Constants.ENTRY_UUID );
         entry.remove( Constants.ENTRY_DELETED );
         entry.put( Constants.ENTRY_UUID, uuidFactory.newInstance().toOctetString() );
-        entry.put( Constants.ENTRY_DELETED, "false" );
+        entry.put( Constants.ENTRY_DELETED, "FALSE" );
 
         // NOTE: We inlined addDefaultOperations() because ApacheDS currently
         // creates an index entry only for ADD operation (and not for
@@ -136,7 +136,7 @@ public class OperationFactory
     /**
      * Creates a new {@link Operation} that performs "delete" operation.
      * The created {@link Operation} doesn't actually delete the entry.
-     * Instead, it sets {@link Constants#ENTRY_DELETED} to "true". 
+     * Instead, it sets {@link Constants#ENTRY_DELETED} to "TRUE". 
      */
     public Operation newDelete( LdapDN normalizedName )
     {
@@ -145,7 +145,7 @@ public class OperationFactory
 
         // Transform into replace operation.
         result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
-            "true" ) ) );
+            "TRUE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
@@ -156,7 +156,7 @@ public class OperationFactory
      * 
      * @return a {@link CompositeOperation} that consists of one or more
      * {@link AttributeOperation}s and one additional operation that
-     * sets {@link Constants#ENTRY_DELETED} to "false" to resurrect the
+     * sets {@link Constants#ENTRY_DELETED} to "FALSE" to resurrect the
      * entry the modified attributes belong to.
      */
     public Operation newModify( OperationContext opContext )
@@ -177,7 +177,7 @@ public class OperationFactory
 
         // Resurrect the entry in case it is deleted.
         result.add( new ReplaceAttributeOperation( csn, normalizedName, new AttributeImpl( Constants.ENTRY_DELETED,
-            "false" ) ) );
+            "FALSE" ) ) );
 
         return addDefaultOperations( result, csn, normalizedName );
     }
@@ -267,7 +267,7 @@ public class OperationFactory
 
             // Delete the old entry
             result.add( new ReplaceAttributeOperation( csn, oldEntryName, new AttributeImpl( Constants.ENTRY_DELETED,
-                "true" ) ) );
+                "TRUE" ) ) );
 
             // Get the old entry attributes and replace RDN if required
             Attributes entry = sr.getAttributes();
@@ -316,7 +316,7 @@ public class OperationFactory
              * throwing an exception and delete the entry if so and return
              * without throwing an exception.
              */
-            if ( value != null && "true".equalsIgnoreCase( value.toString() ) )
+            if ( value != null && "TRUE".equalsIgnoreCase( value.toString() ) )
             {
                 return;
             }

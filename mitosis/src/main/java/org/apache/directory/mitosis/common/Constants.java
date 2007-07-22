@@ -57,7 +57,7 @@ public class Constants
     
     /**
      * A {@link SearchResultFilter} that filters out the entries whose
-     * {@link #ENTRY_DELETED} attribute is <tt>true</tt>.
+     * {@link #ENTRY_DELETED} attribute is <tt>TRUE</tt>.
      */
     public static final SearchResultFilter DELETED_ENTRIES_FILTER = new SearchResultFilter()
     {
@@ -67,7 +67,7 @@ public class Constants
             Attributes entry = result.getAttributes();
             Attribute deleted = entry.get( ENTRY_DELETED );
             Object value = deleted == null ? null : deleted.get();
-            return ( value == null || !"true".equalsIgnoreCase( value.toString() ) );
+            return ( value == null || !"TRUE".equalsIgnoreCase( value.toString() ) );
         }
     };
 

@@ -34,7 +34,7 @@ import org.quartz.JobExecutionException;
 /**
  * A <a href="http://www.opensymphony.com/quartz/">OpenSymphony Quartz</a>
  * {@link Job} that purges old replication logs and the old entries marked as
- * 'deleted' (i.e. {@link Constants#ENTRY_DELETED} is <tt>true</tt>).  This
+ * 'deleted' (i.e. {@link Constants#ENTRY_DELETED} is <tt>TRUE</tt>).  This
  * {@link Job} just calls {@link ReplicationService#purgeAgedData()} to
  * purge old data. 
  * 

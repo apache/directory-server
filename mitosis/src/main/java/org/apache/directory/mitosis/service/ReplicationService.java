@@ -122,7 +122,7 @@ import org.slf4j.LoggerFactory;
  *     valid.  If the local <tt>entryCSN</tt> value is bigger then that of the
  *     incoming operation, it means conflict, and therefore an appropriate
  *     conflict resolution mechanism should get engaged.</li>
- * <li><tt>entryDeleted</tt> - is <tt>true</tt> if and only if the entry is
+ * <li><tt>entryDeleted</tt> - is <tt>TRUE</tt> if and only if the entry is
  *     deleted.  The entry is not deleted immediately by a delete operation
  *     because <tt>entryCSN</tt> attribute should be retained for certain
  *     amount of time to determine whether the incoming change log, which
@@ -134,7 +134,7 @@ import org.slf4j.LoggerFactory;
  *     by calling {@link ReplicationConfiguration#setLogMaxAge(int)}.
  *     Because of this attribute, <tt>lookup</tt> and <tt>search</tt>
  *     operations are overrided to ignore entries with <tt>entryDeleted</tt>
- *     set to <tt>true</tt>.</li>
+ *     set to <tt>TRUE</tt>.</li>
  * </ul>
  * 
  * @author The Apache Directory Project (dev@directory.apache.org)
@@ -277,7 +277,7 @@ public class ReplicationService extends BaseInterceptor
 
     /**
      * Purges old replication logs and the old entries marked as 'deleted'
-     * (i.e. {@link Constants#ENTRY_DELETED} is <tt>true</tt>).  This method
+     * (i.e. {@link Constants#ENTRY_DELETED} is <tt>TRUE</tt>).  This method
      * should be called periodically to make sure the size of the DIT and
      * {@link ReplicationStore} increase limitlessly.
      * 
@@ -302,7 +302,7 @@ public class ReplicationService extends BaseInterceptor
         try
         {
             filter = parser.parse( "(& (" + ENTRY_CSN_OID + "=<" + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID
-                + "=true))" );
+                + "=TRUE))" );
         }
         catch ( IOException e )
         {
@@ -549,6 +549,6 @@ public class ReplicationService extends BaseInterceptor
         }
 
         Attribute deleted = entry.get( Constants.ENTRY_DELETED );
-        return ( deleted != null && "true".equalsIgnoreCase( deleted.get().toString() ) );
+        return ( deleted != null && "TRUE".equalsIgnoreCase( deleted.get().toString() ) );
     }
 }
