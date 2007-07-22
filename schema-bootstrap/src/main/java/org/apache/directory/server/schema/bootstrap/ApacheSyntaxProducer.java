@@ -44,11 +44,6 @@ import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
  */
 public class ApacheSyntaxProducer extends AbstractBootstrapProducer
 {
-    private final static JavaByteSyntaxChecker JAVA_BYTE_SYNTAX_CHECKER = new JavaByteSyntaxChecker();
-    private final static JavaShortSyntaxChecker JAVA_SHORT_SYNTAX_CHECKER = new JavaShortSyntaxChecker();
-    private final static JavaIntegerSyntaxChecker JAVA_INT_SYNTAX_CHECKER = new JavaIntegerSyntaxChecker();
-    private final static JavaLongSyntaxChecker JAVA_LONG_SYNTAX_CHECKER = new JavaLongSyntaxChecker();
-
     public ApacheSyntaxProducer()
     {
         super( ProducerTypeEnum.SYNTAX_PRODUCER );
@@ -66,46 +61,98 @@ public class ApacheSyntaxProducer extends AbstractBootstrapProducer
     public void produce( Registries registries, ProducerCallback cb )
         throws NamingException
     {
-        Syntax syntax = null;
+        AbstractSyntax syntax = null;
         
-        syntax = new AbstractSyntax( SchemaConstants.JAVA_BYTE_SYNTAX )
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_BYTE_SYNTAX, "a syntax for java byte values", true )
         {
             private static final long serialVersionUID = 1L;
+            private final JavaByteSyntaxChecker JAVA_BYTE_SYNTAX_CHECKER = new JavaByteSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_BYTE";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_BYTE" };
+            }
+            
             public SyntaxChecker getSyntaxChecker() throws NamingException
             {
                 return JAVA_BYTE_SYNTAX_CHECKER;
             }
         };
+        syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
-        syntax = new AbstractSyntax( SchemaConstants.JAVA_SHORT_SYNTAX )
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_SHORT_SYNTAX, "a syntax for java short values", true )
         {
             private static final long serialVersionUID = 1L;
+            private final JavaShortSyntaxChecker JAVA_SHORT_SYNTAX_CHECKER = new JavaShortSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_SHORT";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_SHORT" };
+            }
+            
             public SyntaxChecker getSyntaxChecker() throws NamingException
             {
                 return JAVA_SHORT_SYNTAX_CHECKER;
             }
         };
+        syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
-        syntax = new AbstractSyntax( SchemaConstants.JAVA_INT_SYNTAX )
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_INT_SYNTAX, "a syntax for java int values", true )
         {
             private static final long serialVersionUID = 1L;
+            private final JavaIntegerSyntaxChecker JAVA_INT_SYNTAX_CHECKER = new JavaIntegerSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_INT";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_INT" };
+            }
+            
             public SyntaxChecker getSyntaxChecker() throws NamingException
             {
                 return JAVA_INT_SYNTAX_CHECKER;
             }
         };
+        syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
 
-        syntax = new AbstractSyntax( SchemaConstants.JAVA_LONG_SYNTAX )
+        syntax = new AbstractSyntax( SchemaConstants.JAVA_LONG_SYNTAX, "a syntax for java long values", true )
         {
             private static final long serialVersionUID = 1L;
+            private final JavaLongSyntaxChecker JAVA_LONG_SYNTAX_CHECKER = new JavaLongSyntaxChecker();
+
+            public String getName()
+            {
+                return "JAVA_LONG";
+            }
+            
+            public String[] getNames()
+            {
+                return new String[] { "JAVA_LONG" };
+            }
+            
             public SyntaxChecker getSyntaxChecker() throws NamingException
             {
                 return JAVA_LONG_SYNTAX_CHECKER;
             }
         };
+        syntax.setSchema( "apache" );
         cb.schemaObjectProduced( this, syntax.getOid(), syntax );
     }
 }
