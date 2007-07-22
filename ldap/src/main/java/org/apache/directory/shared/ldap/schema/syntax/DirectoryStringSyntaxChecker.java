@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -34,10 +35,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class DirectoryStringSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.6 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.15";
-    
-
     /**
      * 
      * Creates a new instance of DirectoryStringSyntaxChecker.
@@ -45,7 +42,7 @@ public class DirectoryStringSyntaxChecker extends AbstractSyntaxChecker
      */
     public DirectoryStringSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.DIRECTORY_STRING_SYNTAX );
     }
     
     

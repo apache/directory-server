@@ -256,10 +256,24 @@ public interface SchemaConstants
     String GENERALIZED_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.24";
     String INTEGER_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.27";
     String UTC_TIME_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.53";
+    String DIRECTORY_STRING_SYNTAX = "1.3.6.1.4.1.1466.115.121.1.15";
 
     String JAVA_BYTE_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.0";
     String JAVA_CHAR_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.1";
     String JAVA_SHORT_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.2";
     String JAVA_LONG_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.3";
     String JAVA_INT_SYNTAX = "1.3.6.1.4.1.18060.0.4.1.0.4";
+
+    // ---- MatchingRules -----------------------------------------------------
+
+    String CASE_IGNORE_MR = "caseIgnoreMatch";
+    String CASE_IGNORE_SUBSTRING_MR = "caseIgnoreSubstringsMatch";
+    String CASE_EXACT_MR = "caseExactMatch";
+    String CASE_EXACT_SUBSTRING_MR = "caseExactSubstringsMatch";
+    String INTEGER_MR = "integerMatch";
+    String INTEGER_ORDERING_MR = "integerOrderingMatch";
+    String BOOLEAN_MR = "booleanMatch";
+    String BIT_STRING_MR = "bitStringMatch";
+    String GENERALIZED_TIME_MR = "generalizedTimeMatch";
+    String GENERALIZED_TIME_ORDERING_MR = "generalizedTimeOrderingMatch";
 }
