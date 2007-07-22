@@ -92,4 +92,20 @@ public class AbstractSchemaDescription
         extensions.put( key, values );
     }
 
+
+    public int hashCode()
+    {
+        return numericOid.hashCode();
+    }
+
+
+    public boolean equals( Object obj )
+    {
+        if ( ! ( obj instanceof AbstractSchemaDescription ) )
+        {
+            return false;
+        }
+
+        return ( ( AbstractSchemaDescription ) obj ).numericOid.equals( numericOid );
+    }
 }

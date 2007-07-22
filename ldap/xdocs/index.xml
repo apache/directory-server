@@ -24,11 +24,11 @@
         <p>
           The The LDAP Data Interchange Format (LDIF) parsing 
           package Parses an LDIF into a multimap or a JNDI 
-          Attributes instance of attribute key/value pairs with 
-          potential more than one attribute value per attribute.  
+          Attributes instance of attributeToPropertyMapping key/value pairs with
+          potential more than one attributeToPropertyMapping value per attributeToPropertyMapping.
           This parser populates the MultiMap or Attributes 
-          instance with all attributes within the LDIF including 
-          control attributes like the 'dn' and the changeType.
+          instance with all attributeToPropertyMappings within the LDIF including
+          control attributeToPropertyMappings like the 'dn' and the changeType.
         </p>
         <p>
           The package contain an LDIF entry class that can be used.  Along

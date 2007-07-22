@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -38,9 +39,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class BitStringSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.2 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.6";
-    
     /**
      * 
      * Creates a new instance of BitStringSyntaxChecker.
@@ -48,7 +46,7 @@ public class BitStringSyntaxChecker extends AbstractSyntaxChecker
      */
     public BitStringSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.BIT_STRING_SYNTAX );
     }
     
     /**

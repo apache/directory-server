@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.regex.Pattern;
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -66,9 +67,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class GeneralizedTimeSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.13 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.24";
-    
     /** The GeneralizedDate pattern matching */
     private static final String GENERALIZED_TIME_PATTERN = 
                 "^\\d{4}" +                                 // century + year : 0000 to 9999
@@ -92,7 +90,7 @@ public class GeneralizedTimeSyntaxChecker extends AbstractSyntaxChecker
      */
     public GeneralizedTimeSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.GENERALIZED_TIME_SYNTAX );
     }
     
     /**

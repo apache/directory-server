@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+
 
 /**
  * A binary value (universal value acceptor) syntax checker.
@@ -29,8 +31,6 @@ package org.apache.directory.shared.ldap.schema.syntax;
 public class BinarySyntaxChecker extends AbstractSyntaxChecker
 {
     /** the Apache assigned internal OID for this syntax checker */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.5";
-
     public static final SyntaxChecker INSTANCE = new BinarySyntaxChecker();
 
 
@@ -39,7 +39,7 @@ public class BinarySyntaxChecker extends AbstractSyntaxChecker
      */
     public BinarySyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.BINARY_SYNTAX );
     }
 
 

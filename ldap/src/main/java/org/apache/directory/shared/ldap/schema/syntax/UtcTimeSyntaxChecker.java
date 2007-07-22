@@ -23,6 +23,7 @@ package org.apache.directory.shared.ldap.schema.syntax;
 import java.util.regex.Pattern;
 
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 
 /**
@@ -60,9 +61,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class UtcTimeSyntaxChecker extends AbstractSyntaxChecker
 {
-    /** The Syntax OID, according to RFC 4517, par. 3.3.34 */
-    private static final String SC_OID = "1.3.6.1.4.1.1466.115.121.1.53";
-    
     /** The GeneralizedDate pattern matching */
     private static final String UTC_TIME_PATTERN = 
                 "^\\d{2}" +                                 // year : 00 to 99
@@ -85,7 +83,7 @@ public class UtcTimeSyntaxChecker extends AbstractSyntaxChecker
      */
     public UtcTimeSyntaxChecker()
     {
-        super( SC_OID );
+        super( SchemaConstants.UTC_TIME_SYNTAX );
     }
     
     
