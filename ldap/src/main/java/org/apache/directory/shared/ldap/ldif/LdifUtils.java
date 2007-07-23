@@ -19,6 +19,8 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -168,9 +170,18 @@ public class LdifUtils
             	String str = (String) value;
             	if ( !LdifUtils.isLDIFSafe( str ) )
             	{
-            		char[] encoded = Base64.encode( ( ( String ) value ).getBytes() );
-            		
-            		lineBuffer.append( ":: " + new String( encoded ) );
+            		char[] encoded;
+                    try
+                    {
+                        // force encoding using UTF-8 charset, as required in RFC2849 note 7
+                        encoded = Base64.encode( ( ( String ) value ).getBytes( "UTF-8" ) );
+                    }
+                    catch ( UnsupportedEncodingException e )
+                    {
+                        encoded = Base64.encode( ( ( String ) value ).getBytes() );
+                    }
+
+                    lineBuffer.append( ":: " + new String( encoded ) );
             	}
             	else
             	{

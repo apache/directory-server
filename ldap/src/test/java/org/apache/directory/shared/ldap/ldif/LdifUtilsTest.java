@@ -19,6 +19,10 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+
 import junit.framework.TestCase;
 
 public class LdifUtilsTest extends TestCase
@@ -224,5 +228,18 @@ public class LdifUtilsTest extends TestCase
         assertEquals( "abcde\n fghi\n jklm\n n", LdifUtils.stripLineToNChars( "abcdefghijklmn", 5 ) );
         assertEquals( "abcde\n fghi\n jklm\n no", LdifUtils.stripLineToNChars( "abcdefghijklmno", 5 ) );
         assertEquals( "abcde\n fghi\n jklm\n nop", LdifUtils.stripLineToNChars( "abcdefghijklmnop", 5 ) );
+    }
+    
+    
+    /**
+     * Tests that unsave characters are encoded using UTF-8 charset. 
+     * 
+     * @throws NamingException
+     */
+    public void testConvertToLdifEncoding() throws NamingException
+    {
+        Attributes attributes = new BasicAttributes( "cn", "Saarbr\u00FCcken" );
+        String ldif = LdifUtils.convertToLdif( attributes );
+        assertEquals( "cn:: U2FhcmJyw7xja2Vu\n", ldif );
     }
 }
