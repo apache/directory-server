@@ -39,39 +39,49 @@ public final class AuthorizationType implements Comparable<AuthorizationType>
     /**
      * Constant for the "if relevant" authorization type.
      */
-    public static final AuthorizationType IF_RELEVANT = new AuthorizationType( 1, "if relevant" );
+    public static final AuthorizationType AD_IF_RELEVANT = new AuthorizationType( 1, "if relevant" );
 
     /**
      * Constant for the "intended for server" authorization type.
      */
-    public static final AuthorizationType INTENDED_FOR_SERVER = new AuthorizationType( 2, "intended for server" );
+    public static final AuthorizationType AD_INTENDED_FOR_SERVER = new AuthorizationType( 2, "intended for server" );
 
     /**
      * Constant for the  "intended for application class" authorization type.
      */
-    public static final AuthorizationType INTENDED_FOR_APPLICATION_CLASS = new AuthorizationType( 3,
+    public static final AuthorizationType AD_INTENDED_FOR_APPLICATION_CLASS = new AuthorizationType( 3,
         "intended for application class" );
 
     /**
      * Constant for the "kdc issued" authorization type.
      */
-    public static final AuthorizationType KDC_ISSUED = new AuthorizationType( 4, "kdc issued" );
+    public static final AuthorizationType AD_KDC_ISSUED = new AuthorizationType( 4, "kdc issued" );
 
     /**
-     * Constant for the "or" authorization type.
+     * Constant for the "and-or" authorization type.
      */
-    public static final AuthorizationType OR = new AuthorizationType( 5, "or" );
+    public static final AuthorizationType AD_AND_OR = new AuthorizationType( 5, "and-or" );
 
     /**
      * Constant for the "mandatory ticket extensions" authorization type.
      */
-    public static final AuthorizationType MANDATORY_TICKET_EXTENSIONS = new AuthorizationType( 6,
+    public static final AuthorizationType AD_MANDATORY_TICKET_EXTENSIONS = new AuthorizationType( 6,
         "mandatory ticket extensions" );
 
     /**
      * Constant for the "in ticket extensions" authorization type.
      */
-    public static final AuthorizationType IN_TICKET_EXTENSIONS = new AuthorizationType( 7, "in ticket extensions" );
+    public static final AuthorizationType AD_IN_TICKET_EXTENSIONS = new AuthorizationType( 7, "in ticket extensions" );
+
+    /**
+     * Constant for the "mandatory for KDC" authorization type.
+     */
+    public static final AuthorizationType AD_MANDATORY_FOR_KDC = new AuthorizationType( 8, "mandatory for KDC" );
+
+    /**
+     * Constant for the "Initial verified CAS" authorization type.
+     */
+    public static final AuthorizationType AD_INITIAL_VERIFIED_CAS = new AuthorizationType( 9, "Initial verified CAS" );
 
     /**
      * Constant for the "OSF DCE" authorization type.
@@ -84,11 +94,27 @@ public final class AuthorizationType implements Comparable<AuthorizationType>
     public static final AuthorizationType SESAME = new AuthorizationType( 65, "sesame" );
 
     /**
+     * Constant for the "OSF DCE PKI CERTID" authorization type.
+     */
+    public static final AuthorizationType AD_OSF_DCE_PKI_CERTID = new AuthorizationType( 66, "OSF DCE PKI CERTID" );
+
+    /**
+     * Constant for the "WIN2K PAC" authorization type.
+     */
+    public static final AuthorizationType AD_WIN2K_PAC = new AuthorizationType( 128, "WIN2K PAC" );
+
+    /**
+     * Constant for the "encryption negotiation" authorization type.
+     */
+    public static final AuthorizationType AD_ETYPE_NEGOTIATION = new AuthorizationType( 129, "encryption negotiation" );
+
+    /**
      * Array for building a List of VALUES.
      */
     private static final AuthorizationType[] values =
-        { NULL, IF_RELEVANT, INTENDED_FOR_SERVER, INTENDED_FOR_APPLICATION_CLASS, KDC_ISSUED, OR,
-            MANDATORY_TICKET_EXTENSIONS, IN_TICKET_EXTENSIONS, OSF_DCE, SESAME };
+        { NULL, AD_IF_RELEVANT, AD_INTENDED_FOR_SERVER, AD_INTENDED_FOR_APPLICATION_CLASS, AD_KDC_ISSUED, AD_AND_OR,
+            AD_MANDATORY_TICKET_EXTENSIONS, AD_IN_TICKET_EXTENSIONS, AD_MANDATORY_FOR_KDC, AD_INITIAL_VERIFIED_CAS,
+            OSF_DCE, SESAME, AD_OSF_DCE_PKI_CERTID, AD_WIN2K_PAC, AD_ETYPE_NEGOTIATION };
 
     /**
      * A List of all the authorization type constants.

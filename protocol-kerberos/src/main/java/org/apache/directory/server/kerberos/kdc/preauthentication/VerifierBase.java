@@ -76,7 +76,7 @@ public abstract class VerifierBase implements IoHandlerCommand
         }
 
         PreAuthenticationDataModifier encTypeModifier = new PreAuthenticationDataModifier();
-        encTypeModifier.setDataType( PreAuthenticationDataType.PA_ENCTYPE_INFO );
+        encTypeModifier.setDataType( PreAuthenticationDataType.PA_ETYPE_INFO );
         encTypeModifier.setDataValue( encTypeInfo );
 
         paDataSequence[1] = encTypeModifier.getPreAuthenticationData();

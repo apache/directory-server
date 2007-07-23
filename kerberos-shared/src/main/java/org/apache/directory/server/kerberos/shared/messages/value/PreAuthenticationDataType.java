@@ -87,28 +87,46 @@ public class PreAuthenticationDataType implements Comparable<PreAuthenticationDa
     /**
      * Constant for the "encryption info" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType PA_ENCTYPE_INFO = new PreAuthenticationDataType( 11,
-        "Encryption info." );
+    public static final PreAuthenticationDataType PA_ETYPE_INFO = new PreAuthenticationDataType( 11, "Encryption info." );
 
     /**
      * Constant for the "SAM challenge" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType SAM_CHALLENGE = new PreAuthenticationDataType( 12, "SAM challenge." );
+    public static final PreAuthenticationDataType PA_SAM_CHALLENGE = new PreAuthenticationDataType( 12,
+        "SAM challenge." );
 
     /**
      * Constant for the "SAM response" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType SAM_RESPONSE = new PreAuthenticationDataType( 13, "SAM response." );
+    public static final PreAuthenticationDataType PA_SAM_RESPONSE = new PreAuthenticationDataType( 13, "SAM response." );
 
     /**
-     * Constant for the "PK as request" pre-authentication data type.
+     * Constant for the "Old PK AS request" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType PA_PK_AS_REQ = new PreAuthenticationDataType( 14, "PK as request" );
+    public static final PreAuthenticationDataType PA_PK_AS_REQ_OLD = new PreAuthenticationDataType( 14,
+        "Old PK AS request." );
 
     /**
-     * Constant for the "PK as response" pre-authentication data type.
+     * Constant for the "Old PK AS reply" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType PA_PK_AS_REP = new PreAuthenticationDataType( 15, "PK as response" );
+    public static final PreAuthenticationDataType PA_PK_AS_REP_OLD = new PreAuthenticationDataType( 15,
+        "Old PK AS reply." );
+
+    /**
+     * Constant for the "PK AS request" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_PK_AS_REQ = new PreAuthenticationDataType( 16, "PK AS request." );
+
+    /**
+     * Constant for the "PK AS reply" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_PK_AS_REP = new PreAuthenticationDataType( 17, "PK AS reply." );
+
+    /**
+     * Constant for the "Encryption info 2" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_ETYPE_INFO2 = new PreAuthenticationDataType( 19,
+        "Encryption info 2." );
 
     /**
      * Constant for the "use specified key version" pre-authentication data type.
@@ -119,21 +137,110 @@ public class PreAuthenticationDataType implements Comparable<PreAuthenticationDa
     /**
      * Constant for the "SAM redirect" pre-authentication data type.
      */
-    public static final PreAuthenticationDataType SAM_REDIRECT = new PreAuthenticationDataType( 21, "SAM redirect." );
+    public static final PreAuthenticationDataType PA_SAM_REDIRECT = new PreAuthenticationDataType( 21, "SAM redirect." );
 
     /**
-     * Constant for the "get from typed data" pre-authentication data type.
+     * Constant for the "Embedded in typed data" pre-authentication data type.
      */
     public static final PreAuthenticationDataType PA_GET_FROM_TYPED_DATA = new PreAuthenticationDataType( 22,
-        "Get from typed data" );
+        "Embedded in typed data." );
+
+    /**
+     * Constant for the "Embeds padata" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_PADATA = new PreAuthenticationDataType( 22, "Embeds padata." );
+
+    /**
+     * Constant for the "SAM encryption info" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_SAM_ETYPE_INFO = new PreAuthenticationDataType( 23,
+        "SAM encryption info." );
+
+    /**
+     * Constant for the "Alternate principal" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_ALT_PRINC = new PreAuthenticationDataType( 24,
+        "Alternate principal." );
+
+    /**
+     * Constant for the "SAM challenge 2" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_SAM_CHALLENGE2 = new PreAuthenticationDataType( 30,
+        "SAM challenge 2." );
+
+    /**
+     * Constant for the "SAM response 2" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_SAM_RESPONSE2 = new PreAuthenticationDataType( 31,
+        "SAM response 2." );
+
+    /**
+     * Constant for the "Reserved extra TGT" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_EXTRA_TGT = new PreAuthenticationDataType( 41,
+        "Reserved extra TGT." );
+
+    /**
+     * Constant for the "CertificateSet from CMS" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_PKINIT_CMS_CERTIFICATES = new PreAuthenticationDataType( 101,
+        "CertificateSet from CMS." );
+
+    /**
+     * Constant for the "PrincipalName" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_KRB_PRINCIPAL = new PreAuthenticationDataType( 102,
+        "PrincipalName." );
+
+    /**
+     * Constant for the "Realm" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_KRB_REALM = new PreAuthenticationDataType( 103, "Realm." );
+
+    /**
+     * Constant for the "Trusted certifiers" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_TRUSTED_CERTIFIERS = new PreAuthenticationDataType( 104,
+        "Trusted certifiers." );
+
+    /**
+     * Constant for the "Certificate index" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_CERTIFICATE_INDEX = new PreAuthenticationDataType( 105,
+        "Certificate index." );
+
+    /**
+     * Constant for the "application specific" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_APP_DEFINED_ERROR = new PreAuthenticationDataType( 106,
+        "application specific." );
+
+    /**
+     * Constant for the "Request nonce" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_REQ_NONCE = new PreAuthenticationDataType( 107, "Request nonce." );
+
+    /**
+     * Constant for the "Request sequence number" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType TD_REQ_SEQ = new PreAuthenticationDataType( 108,
+        "Request sequence number." );
+
+    /**
+     * Constant for the "PAC request" pre-authentication data type.
+     */
+    public static final PreAuthenticationDataType PA_PAC_REQUEST = new PreAuthenticationDataType( 128, "PAC request." );
 
     /**
      * Array for building a List of VALUES.
      */
     private static final PreAuthenticationDataType[] values =
         { NULL, PA_TGS_REQ, PA_ENC_TIMESTAMP, PA_PW_SALT, PA_ENC_UNIX_TIME, PA_SANDIA_SECUREID, PA_SESAME, PA_OSF_DCE,
-            PA_CYBERSAFE_SECUREID, PA_ASF3_SALT, PA_ENCTYPE_INFO, SAM_CHALLENGE, SAM_RESPONSE, PA_PK_AS_REQ,
-            PA_PK_AS_REP, PA_USE_SPECIFIED_KVNO, SAM_REDIRECT, PA_GET_FROM_TYPED_DATA };
+            PA_CYBERSAFE_SECUREID, PA_ASF3_SALT, PA_ETYPE_INFO, PA_SAM_CHALLENGE, PA_SAM_RESPONSE, PA_PK_AS_REQ_OLD,
+            PA_PK_AS_REP_OLD, PA_PK_AS_REQ, PA_PK_AS_REP, PA_ETYPE_INFO2, PA_USE_SPECIFIED_KVNO, PA_SAM_REDIRECT,
+            PA_GET_FROM_TYPED_DATA, TD_PADATA, PA_SAM_ETYPE_INFO, PA_ALT_PRINC, PA_SAM_CHALLENGE2, PA_SAM_RESPONSE2,
+            PA_EXTRA_TGT, TD_PKINIT_CMS_CERTIFICATES, TD_KRB_PRINCIPAL, TD_KRB_REALM, TD_TRUSTED_CERTIFIERS,
+            TD_CERTIFICATE_INDEX, TD_APP_DEFINED_ERROR, TD_REQ_NONCE, TD_REQ_SEQ, PA_PAC_REQUEST };
 
     /**
      * A list of all the pre-authentication type constants.
