@@ -32,50 +32,63 @@ import java.util.List;
 public final class PrincipalNameType implements Comparable<PrincipalNameType>
 {
     /**
-     * Constant for the "unknown name type" principal name type.
+     * Constant for the "Name type not known" principal name type.
      */
-    public static final PrincipalNameType KRB_NT_UNKNOWN = new PrincipalNameType( 0, "unknown name type" );
+    public static final PrincipalNameType KRB_NT_UNKNOWN = new PrincipalNameType( 0, "Name type not known." );
 
     /**
-     * Constant for the "user principal name type" principal name type.
+     * Constant for the "Just the name of the principal as in DCE, or for users" principal name type.
      */
-    public static final PrincipalNameType KRB_NT_PRINCIPAL = new PrincipalNameType( 1, "user principal name type" );
+    public static final PrincipalNameType KRB_NT_PRINCIPAL = new PrincipalNameType( 1,
+        "Just the name of the principal as in DCE, or for users." );
 
     /**
-     * Constant for the "service and other unique instance (krbtgt) name type" principal name type.
+     * Constant for the "Service and other unique instance (krbtgt)" principal name type.
      */
     public static final PrincipalNameType KRB_NT_SRV_INST = new PrincipalNameType( 2,
-        "service and other unique instance (krbtgt) name type" );
+        "Service and other unique instance (krbtgt)." );
 
     /**
-     * Constant for the "service with host name as instance (telnet, rcommands)" principal name type.
+     * Constant for the "Service with host name as instance (telnet, rcommands)" principal name type.
      */
     public static final PrincipalNameType KRB_NT_SRV_HST = new PrincipalNameType( 3,
-        "service with host name as instance (telnet, rcommands)" );
+        "Service with host name as instance (telnet, rcommands)." );
 
     /**
-     * Constant for the "service with host name as instance (telnet, rcommands) name type" principal name type.
+     * Constant for the "Service with host as remaining components" principal name type.
      */
     public static final PrincipalNameType KRB_NT_SRV_XHST = new PrincipalNameType( 4,
-        "service with host name as instance (telnet, rcommands) name type" );
+        "Service with host as remaining components." );
 
     /**
-     * Constant for the "unique ID name type" principal name type.
+     * Constant for the "Unique ID" principal name type.
      */
-    public static final PrincipalNameType KRB_NT_UID = new PrincipalNameType( 5, "unique ID name type" );
+    public static final PrincipalNameType KRB_NT_UID = new PrincipalNameType( 5, "Unique ID." );
 
     /**
-     * Constant for the "nt x500 principal; encoded X.509 Distinguished name [RFC 2253]" principal name type.
+     * Constant for the "Encoded X.509 Distinguished name [RFC2253]" principal name type.
      */
     public static final PrincipalNameType KRB_NT_X500_PRINCIPAL = new PrincipalNameType( 6,
-        "nt x500 principal; encoded X.509 Distinguished name [RFC 2253]" );
+        "Encoded X.509 Distinguished name [RFC2253]." );
+
+    /**
+     * Constant for the "Name in form of SMTP email name (e.g., user@example.com)" principal name type.
+     */
+    public static final PrincipalNameType KRB_NT_SMTP_NAME = new PrincipalNameType( 7,
+        "Name in form of SMTP email name (e.g., user@example.com)." );
+
+    /**
+     * Constant for the "Enterprise name; may be mapped to principal name" principal name type.
+     */
+    public static final PrincipalNameType KRB_NT_ENTERPRISE = new PrincipalNameType( 10,
+        "Enterprise name; may be mapped to principal name." );
 
     /**
      * Array for building a List of VALUES.
      */
     private static final PrincipalNameType[] values =
         { KRB_NT_UNKNOWN, KRB_NT_PRINCIPAL, KRB_NT_SRV_INST, KRB_NT_SRV_HST, KRB_NT_SRV_XHST, KRB_NT_UID,
-            KRB_NT_X500_PRINCIPAL };
+            KRB_NT_X500_PRINCIPAL, KRB_NT_SMTP_NAME, KRB_NT_ENTERPRISE };
 
     /**
      * A List of all the principal name type constants.

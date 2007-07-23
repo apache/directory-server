@@ -39,9 +39,9 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KDC_ERR_NONE = new ErrorType( 0, "No error" );
 
     /**
-     * Client's entry in database expired.
+     * Client's entry in database has expired.
      */
-    public static final ErrorType KDC_ERR_NAME_EXP = new ErrorType( 1, "Client's entry in database expired" );
+    public static final ErrorType KDC_ERR_NAME_EXP = new ErrorType( 1, "Client's entry in database has expired" );
 
     /**
      * Server's entry in database has expired.
@@ -126,10 +126,9 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KDC_ERR_PADATA_TYPE_NOSUPP = new ErrorType( 16, "KDC has no support for padata type" );
 
     /**
-     * KDC has no support for transitedEncoding type.
+     * KDC has no support for transited type.
      */
-    public static final ErrorType KDC_ERR_TRTYPE_NOSUPP = new ErrorType( 17,
-        "KDC has no support for transitedEncoding type" );
+    public static final ErrorType KDC_ERR_TRTYPE_NOSUPP = new ErrorType( 17, "KDC has no support for transited type" );
 
     /**
      * Clients credentials have been revoked.
@@ -148,20 +147,20 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KDC_ERR_TGT_REVOKED = new ErrorType( 20, "TGT has been revoked" );
 
     /**
-     * Client not yet valid - try again later.
+     * Client not yet valid; try again later.
      */
-    public static final ErrorType KDC_ERR_CLIENT_NOTYET = new ErrorType( 21, "Client not yet valid - try again later" );
+    public static final ErrorType KDC_ERR_CLIENT_NOTYET = new ErrorType( 21, "Client not yet valid; try again later" );
 
     /**
-     * Server not yet valid - try again later.
+     * Server not yet valid; try again later.
      */
-    public static final ErrorType KDC_ERR_SERVICE_NOTYET = new ErrorType( 22, "Server not yet valid - try again later" );
+    public static final ErrorType KDC_ERR_SERVICE_NOTYET = new ErrorType( 22, "Server not yet valid; try again later" );
 
     /**
-     * Password has expired - change password to reset.
+     * Password has expired; change password to reset.
      */
     public static final ErrorType KDC_ERR_KEY_EXPIRED = new ErrorType( 23,
-        "Password has expired - change password to reset" );
+        "Password has expired; change password to reset" );
 
     /**
      * Pre-authentication information was invalid.
@@ -186,10 +185,9 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KDC_ERR_MUST_USE_USER2USER = new ErrorType( 27, "Server valid for user2user only" );
 
     /**
-     * KDC Policy rejects transitedEncoding path.
+     * KDC Policy rejects transited path.
      */
-    public static final ErrorType KDC_ERR_PATH_NOT_ACCEPTED = new ErrorType( 28,
-        "KDC Policy rejects transitedEncoding path" );
+    public static final ErrorType KDC_ERR_PATH_NOT_ACCEPTED = new ErrorType( 28, "KDC Policy rejects transited path" );
 
     /**
      * A service is not available.
@@ -294,6 +292,17 @@ public final class ErrorType implements Comparable<ErrorType>
         "Inappropriate type of checksum in message" );
 
     /**
+     * Policy rejects transited path.
+     */
+    public static final ErrorType KRB_AP_PATH_NOT_ACCEPTED = new ErrorType( 51, "Policy rejects transited path" );
+
+    /**
+     * Response too big for UDP; retry with TCP.
+     */
+    public static final ErrorType KRB_ERR_RESPONSE_TOO_BIG = new ErrorType( 52,
+        "Response too big for UDP; retry with TCP" );
+
+    /**
      * Generic error (description in e-text).
      */
     public static final ErrorType KRB_ERR_GENERIC = new ErrorType( 60, "Generic error (description in e-text)" );
@@ -307,7 +316,7 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Client is not trusted.
      */
-    public static final ErrorType KRB_ERR_CLIENT_NOT_TRUSTED = new ErrorType( 62, "Client is not trusted" );
+    public static final ErrorType KDC_ERR_CLIENT_NOT_TRUSTED = new ErrorType( 62, "Client is not trusted" );
 
     /**
      * KDC is not trusted.
@@ -317,12 +326,13 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Signature is invalid.
      */
-    public static final ErrorType KRB_ERR_INVALID_SIG = new ErrorType( 64, "Signature is invalid" );
+    public static final ErrorType KDC_ERR_INVALID_SIG = new ErrorType( 64, "Signature is invalid" );
 
     /**
-     * Key too weak.
+     * Diffie-Hellman (DH) key parameters not accepted.
      */
-    public static final ErrorType KRB_ERR_KEY_TOO_WEAK = new ErrorType( 65, "Key too weak" );
+    public static final ErrorType KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED = new ErrorType( 65,
+        "Diffie-Hellman (DH) key parameters not accepted." );
 
     /**
      * Certificates do not match.
@@ -330,9 +340,9 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KRB_ERR_CERTIFICATE_MISMATCH = new ErrorType( 66, "Certificates do not match" );
 
     /**
-     * No tgt for user-to-user authentication.
+     * No TGT available to validate USER-TO-USER.
      */
-    public static final ErrorType KRB_AP_ERR_NO_TGT = new ErrorType( 67, "No tgt for user-to-user authentication" );
+    public static final ErrorType KRB_AP_ERR_NO_TGT = new ErrorType( 67, "No TGT available to validate USER-TO-USER" );
 
     /**
      * Wrong realm.
@@ -340,30 +350,30 @@ public final class ErrorType implements Comparable<ErrorType>
     public static final ErrorType KRB_ERR_WRONG_REALM = new ErrorType( 68, "Wrong realm" );
 
     /**
-     * User-to-user authentication required.
+     * Ticket must be for USER-TO-USER.
      */
     public static final ErrorType KRB_AP_ERR_USER_TO_USER_REQUIRED = new ErrorType( 69,
-        "User-to-user authentication required" );
+        "Ticket must be for USER-TO-USER" );
 
     /**
      * Can't verify certificate.
      */
-    public static final ErrorType KRB_ERR_CANT_VERIFY_CERTIFICATE = new ErrorType( 70, "Can't verify certificate" );
+    public static final ErrorType KDC_ERR_CANT_VERIFY_CERTIFICATE = new ErrorType( 70, "Can't verify certificate" );
 
     /**
      * Invalid certificate.
      */
-    public static final ErrorType KRB_ERR_INVALID_CERTIFICATE = new ErrorType( 71, "Invalid certificate" );
+    public static final ErrorType KDC_ERR_INVALID_CERTIFICATE = new ErrorType( 71, "Invalid certificate" );
 
     /**
      * Revoked certificate.
      */
-    public static final ErrorType KRB_ERR_REVOKED_CERTIFICATE = new ErrorType( 72, "Revoked certificate" );
+    public static final ErrorType KDC_ERR_REVOKED_CERTIFICATE = new ErrorType( 72, "Revoked certificate" );
 
     /**
      * Revocation status unknown.
      */
-    public static final ErrorType KRB_ERR_REVOCATION_STATUS_UNKNOWN = new ErrorType( 73, "Revocation status unknown" );
+    public static final ErrorType KDC_ERR_REVOCATION_STATUS_UNKNOWN = new ErrorType( 73, "Revocation status unknown" );
 
     /**
      * Revocation status unavailable.
@@ -374,12 +384,41 @@ public final class ErrorType implements Comparable<ErrorType>
     /**
      * Client names do not match.
      */
-    public static final ErrorType KRB_ERR_CLIENT_NAME_MISMATCH = new ErrorType( 75, "Client names do not match" );
+    public static final ErrorType KDC_ERR_CLIENT_NAME_MISMATCH = new ErrorType( 75, "Client names do not match" );
 
     /**
      * KDC names do not match.
      */
     public static final ErrorType KRB_ERR_KDC_NAME_MISMATCH = new ErrorType( 76, "KDC names do not match" );
+
+    /**
+     * Inconsistent key purpose.
+     */
+    public static final ErrorType KDC_ERR_INCONSISTENT_KEY_PURPOSE = new ErrorType( 77, "Inconsistent key purpose" );
+
+    /**
+     * Digest in certificate not accepted.
+     */
+    public static final ErrorType KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED = new ErrorType( 78,
+        "Digest in certificate not accepted" );
+
+    /**
+     * PA checksum must be included.
+     */
+    public static final ErrorType KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED = new ErrorType( 79,
+        "PA checksum must be included" );
+
+    /**
+     * Digest in signed data not accepted.
+     */
+    public static final ErrorType KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED = new ErrorType( 80,
+        "Digest in signed data not accepted" );
+
+    /**
+     * Public key encryption not supported.
+     */
+    public static final ErrorType KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED = new ErrorType( 81,
+        "Public key encryption not supported" );
 
     /**
      * Array for building a List of VALUES.
@@ -396,12 +435,15 @@ public final class ErrorType implements Comparable<ErrorType>
             KRB_AP_ERR_TKT_NYV, KRB_AP_ERR_REPEAT, KRB_AP_ERR_NOT_US, KRB_AP_ERR_BADMATCH, KRB_AP_ERR_SKEW,
             KRB_AP_ERR_BADADDR, KRB_AP_ERR_BADVERSION, KRB_AP_ERR_MSG_TYPE, KRB_AP_ERR_MODIFIED, KRB_AP_ERR_BADORDER,
             KRB_AP_ERR_BADKEYVER, KRB_AP_ERR_NOKEY, KRB_AP_ERR_MUT_FAIL, KRB_AP_ERR_BADDIRECTION, KRB_AP_ERR_METHOD,
-            KRB_AP_ERR_BADSEQ, KRB_AP_ERR_INAPP_CKSUM, KRB_ERR_GENERIC, KRB_ERR_FIELD_TOOLONG,
-            KRB_ERR_CLIENT_NOT_TRUSTED, KRB_ERR_KDC_NOT_TRUSTED, KRB_ERR_INVALID_SIG, KRB_ERR_KEY_TOO_WEAK,
-            KRB_ERR_CERTIFICATE_MISMATCH, KRB_AP_ERR_NO_TGT, KRB_ERR_WRONG_REALM, KRB_AP_ERR_USER_TO_USER_REQUIRED,
-            KRB_ERR_CANT_VERIFY_CERTIFICATE, KRB_ERR_INVALID_CERTIFICATE, KRB_ERR_REVOKED_CERTIFICATE,
-            KRB_ERR_REVOCATION_STATUS_UNKNOWN, KRB_ERR_REVOCATION_STATUS_UNAVAILABLE, KRB_ERR_CLIENT_NAME_MISMATCH,
-            KRB_ERR_KDC_NAME_MISMATCH };
+            KRB_AP_ERR_BADSEQ, KRB_AP_ERR_INAPP_CKSUM, KRB_AP_PATH_NOT_ACCEPTED, KRB_ERR_RESPONSE_TOO_BIG,
+            KRB_ERR_GENERIC, KRB_ERR_FIELD_TOOLONG, KDC_ERR_CLIENT_NOT_TRUSTED, KRB_ERR_KDC_NOT_TRUSTED,
+            KDC_ERR_INVALID_SIG, KDC_ERR_DH_KEY_PARAMETERS_NOT_ACCEPTED, KRB_ERR_CERTIFICATE_MISMATCH,
+            KRB_AP_ERR_NO_TGT, KRB_ERR_WRONG_REALM, KRB_AP_ERR_USER_TO_USER_REQUIRED, KDC_ERR_CANT_VERIFY_CERTIFICATE,
+            KDC_ERR_INVALID_CERTIFICATE, KDC_ERR_REVOKED_CERTIFICATE, KDC_ERR_REVOCATION_STATUS_UNKNOWN,
+            KRB_ERR_REVOCATION_STATUS_UNAVAILABLE, KDC_ERR_CLIENT_NAME_MISMATCH, KRB_ERR_KDC_NAME_MISMATCH,
+            KDC_ERR_INCONSISTENT_KEY_PURPOSE, KDC_ERR_DIGEST_IN_CERT_NOT_ACCEPTED,
+            KDC_ERR_PA_CHECKSUM_MUST_BE_INCLUDED, KDC_ERR_DIGEST_IN_SIGNED_DATA_NOT_ACCEPTED,
+            KDC_ERR_PUBLIC_KEY_ENCRYPTION_NOT_SUPPORTED };
 
     /**
      * A List of all the error type constants.
