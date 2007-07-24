@@ -196,7 +196,14 @@ public class KerberosProtocolHandler implements IoHandler
                 log.warn( ke.getMessage() );
             }
 
-            session.write( getErrorMessage( config.getServicePrincipal(), ke ) );
+            ErrorMessage error = getErrorMessage( config.getServicePrincipal(), ke );
+
+            if ( log.isDebugEnabled() )
+            {
+                logErrorMessage( error );
+            }
+
+            session.write( error );
         }
         catch ( Exception e )
         {
@@ -231,6 +238,30 @@ public class KerberosProtocolHandler implements IoHandler
         modifier.setExplanatoryData( exception.getExplanatoryData() );
 
         return modifier.getErrorMessage();
+    }
+
+
+    protected void logErrorMessage( ErrorMessage error )
+    {
+        try
+        {
+            StringBuffer sb = new StringBuffer();
+
+            sb.append( "Responding to request with error:" );
+            sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
+            sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
+            sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
+            sb.append( "\n\t" + "client time:           " + error.getServerTime() );
+            sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
+            sb.append( "\n\t" + "server time:           " + error.getClientTime() );
+
+            log.debug( sb.toString() );
+        }
+        catch ( Exception e )
+        {
+            // This is a monitor.  No exceptions should bubble up.
+            log.error( "Error in reply monitor", e );
+        }
     }
 
 

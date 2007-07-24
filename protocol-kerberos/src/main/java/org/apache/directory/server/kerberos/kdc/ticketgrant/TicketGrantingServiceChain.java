@@ -39,6 +39,8 @@ public class TicketGrantingServiceChain extends IoHandlerChain
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( TicketGrantingServiceChain.class );
 
+    private String serviceName = "Ticket-Granting Service (TGS)";
+
 
     /**
      * Creates a new instance of TicketGrantingServiceChain.
@@ -47,7 +49,7 @@ public class TicketGrantingServiceChain extends IoHandlerChain
     {
         if ( log.isDebugEnabled() )
         {
-            addLast( "monitorRequest", new MonitorRequest() );
+            addLast( "monitorRequest", new MonitorRequest( serviceName ) );
         }
 
         addLast( "configureTicketGrantingChain", new ConfigureTicketGrantingChain() );
@@ -63,12 +65,12 @@ public class TicketGrantingServiceChain extends IoHandlerChain
 
         if ( log.isDebugEnabled() )
         {
-            addLast( "monitorContext", new MonitorContext() );
+            addLast( "monitorContext", new MonitorContext( serviceName ) );
         }
 
         if ( log.isDebugEnabled() )
         {
-            addLast( "monitorReply", new MonitorReply() );
+            addLast( "monitorReply", new MonitorReply( serviceName ) );
         }
 
         addLast( "sealReply", new SealReply() );

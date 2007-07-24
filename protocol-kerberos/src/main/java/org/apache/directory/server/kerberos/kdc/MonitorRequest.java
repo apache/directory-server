@@ -37,35 +37,49 @@ public class MonitorRequest implements IoHandlerCommand
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
 
+    private String serviceName;
+
     private String contextKey = "context";
+
+
+    /**
+     * Creates a new instance of MonitorRequest.
+     *
+     * @param serviceName
+     */
+    public MonitorRequest( String serviceName )
+    {
+        this.serviceName = serviceName;
+    }
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcRequest request = kdcContext.getRequest();
-        String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
         if ( log.isDebugEnabled() )
         {
             try
             {
+                String clientAddress = kdcContext.getClientAddress().getHostAddress();
+
                 StringBuffer sb = new StringBuffer();
 
-                sb.append( "Responding to authentication request:" );
-                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-                sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
-                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
-                sb.append( "\n\t" + "from krb time:         " + request.getFrom() );
-                sb.append( "\n\t" + "realm krb time:        " + request.getRtime() );
-                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+                sb.append( "Received " + serviceName + " request:" );
                 sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
-                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
                 sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "till:                  " + request.getTill() );
+                sb.append( "\n\t" + "clientAddress:         " + clientAddress );
+                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
+                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
+                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
+                sb.append( "\n\t" + "from time:             " + request.getFrom() );
+                sb.append( "\n\t" + "till time:             " + request.getTill() );
+                sb.append( "\n\t" + "renew-till time:       " + request.getRtime() );
+                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
 
                 log.debug( sb.toString() );
             }
