@@ -79,9 +79,9 @@ public final class EncryptionType implements Comparable<EncryptionType>
     public static final EncryptionType DES3_CBC_SHA1 = new EncryptionType( 7, "des3-cbc-sha1" );
 
     /**
-     * The dsaWithSHA1-CmsOID encryption type.
+     * The id-dsa-with-sha1-CmsOID encryption type.
      */
-    public static final EncryptionType DSAWITHSHA1_CMSOID = new EncryptionType( 9, "dsaWithSHA1-CmsOID" );
+    public static final EncryptionType ID_DSA_WITH_SHA1_CMSOID = new EncryptionType( 9, "id-dsa-with-sha1-CmsOID" );
 
     /**
      * The md5WithRSAEncryption-CmsOID encryption type.
@@ -90,15 +90,15 @@ public final class EncryptionType implements Comparable<EncryptionType>
         "md5WithRSAEncryption-CmsOID" );
 
     /**
-     * The sha1WithRSAEncryption-CmsOID encryption type.
+     * The sha-1WithRSAEncryption-CmsOID encryption type.
      */
-    public static final EncryptionType SHA1WITHRSAENCRYPTION_CMSOID = new EncryptionType( 11,
-        "sha1WithRSAEncryption-CmsOID" );
+    public static final EncryptionType SHA_1WITHRSAENCRYPTION_CMSOID = new EncryptionType( 11,
+        "sha-1WithRSAEncryption-CmsOID" );
 
     /**
-     * The rc2CBC-EnvOID encryption type.
+     * The rc2-cbc-EnvOID encryption type.
      */
-    public static final EncryptionType RC2CBC_ENVOID = new EncryptionType( 12, "rc2CBC-EnvOID" );
+    public static final EncryptionType RC2_CBC_ENVOID = new EncryptionType( 12, "rc2-cbc-EnvOID" );
 
     /**
      * The rsaEncryption-EnvOID encryption type.
@@ -106,14 +106,14 @@ public final class EncryptionType implements Comparable<EncryptionType>
     public static final EncryptionType RSAENCRYPTION_ENVOID = new EncryptionType( 13, "rsaEncryption-EnvOID" );
 
     /**
-     * The rsaES-OAEP-ENV-OID encryption type.
+     * The id-RSAES-OAEP-EnvOID encryption type.
      */
-    public static final EncryptionType RSAES_OAEP_ENV_OID = new EncryptionType( 14, "rsaES-OAEP-ENV-OID" );
+    public static final EncryptionType ID_RSAES_OAEP_ENVOID = new EncryptionType( 14, "id-RSAES-OAEP-EnvOID" );
 
     /**
-     * The des-ede3-cbc-Env-OID encryption type.
+     * The des-ede3-cbc-EnvOID encryption type.
      */
-    public static final EncryptionType DES_EDE3_CBC_ENV_OID = new EncryptionType( 15, "des-ede3-cbc-Env-OID" );
+    public static final EncryptionType DES_EDE3_CBC_ENVOID = new EncryptionType( 15, "des-ede3-cbc-EnvOID" );
 
     /**
      * The des3-cbc-sha1-kd encryption type.
@@ -165,8 +165,8 @@ public final class EncryptionType implements Comparable<EncryptionType>
      */
     private static final EncryptionType[] values =
         { UNKNOWN, NULL, DES_CBC_CRC, DES_CBC_MD4, DES_CBC_MD5, RESERVED4, DES3_CBC_MD5, RESERVED6, DES3_CBC_SHA1,
-            DSAWITHSHA1_CMSOID, MD5WITHRSAENCRYPTION_CMSOID, SHA1WITHRSAENCRYPTION_CMSOID, RC2CBC_ENVOID,
-            RSAENCRYPTION_ENVOID, RSAES_OAEP_ENV_OID, DES_EDE3_CBC_ENV_OID, DES3_CBC_SHA1_KD, AES128_CTS_HMAC_SHA1_96,
+            ID_DSA_WITH_SHA1_CMSOID, MD5WITHRSAENCRYPTION_CMSOID, SHA_1WITHRSAENCRYPTION_CMSOID, RC2_CBC_ENVOID,
+            RSAENCRYPTION_ENVOID, ID_RSAES_OAEP_ENVOID, DES_EDE3_CBC_ENVOID, DES3_CBC_SHA1_KD, AES128_CTS_HMAC_SHA1_96,
             AES256_CTS_HMAC_SHA1_96, RC4_HMAC, RC4_HMAC_EXP, SUBKEY_KEYMATERIAL, RC4_MD4, RC4_HMAC_OLD,
             RC4_HMAC_OLD_EXP };
 
