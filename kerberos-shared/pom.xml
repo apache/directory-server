@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.0.3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-kerberos-shared</artifactId>

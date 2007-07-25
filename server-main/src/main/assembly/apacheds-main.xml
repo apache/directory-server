@@ -16,6 +16,8 @@
       <unpack>true</unpack>
       <scope>runtime</scope>
       <excludes>
+        <exclude>commons-logging:commons-logging</exclude>
+        <exclude>log4j:log4j</exclude>
         <exclude>aopalliance:aopalliance</exclude>
         <exclude>jasperreports:jasperreports</exclude>
         <exclude>freemarker:freemarker</exclude>

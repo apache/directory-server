@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
-    <version>1.0.2</version>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-server-installers</artifactId>
   <name>ApacheDS Server Installers</name>
@@ -29,10 +29,6 @@
       <version>${pom.version}</version>
     </dependency>  
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-daemon</groupId>
       <artifactId>commons-daemon</artifactId>
     </dependency>
@@ -53,12 +49,16 @@
       <artifactId>spring-beans</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl104-over-slf4j</artifactId>
     </dependency>
   </dependencies>
   <build>
@@ -73,6 +73,7 @@
             <exclude>org.apache.directory.server:apacheds-server-tools</exclude>
 
             <exclude>ant:ant</exclude>
+            <exclude>commons-logging:commons-logging</exclude>
             <exclude>checkstyle:checkstyle</exclude>
             <exclude>aopalliance:aopalliance</exclude>
             <exclude>xerces:xerces</exclude>

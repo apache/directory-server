@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
+    <artifactId>apacheds-parent</artifactId>
     <version>1.0.3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-protocol-dns</artifactId>
@@ -13,11 +13,6 @@
   </description>
   <packaging>jar</packaging>  
   <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>

@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.directory.server</groupId>
-    <artifactId>build</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-benchmarks</artifactId>
   <name>ApacheDS Benchmarks</name>
@@ -12,12 +12,5 @@
     Set of programs to run to benchmark the performance of the server.
   </description>
   <packaging>jar</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <version>1.2.25</version>
-    </dependency>
-  </dependencies>
 </project>
 
