@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.schema;
 
 
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -32,6 +33,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
+import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 
 
 /**
@@ -609,6 +611,197 @@ public class SchemaUtils
         // the extensions would go here before closing off the description
 
         buf.append( " )" );
+
+        return buf;
+    }
+
+
+    /**
+     * Renders an attributeType description object into a new StringBuffer
+     * according to the Attribute Type Description Syntax defined in MODELS
+     * 1.3.6.1.4.1.1466.115.121.1.3. The syntax is described in detail within
+     * section 4.1.2. of (@TODO NEEDS TO CHANGE SINCE THIS IS NOW AN RFC) LDAPBIS [<a
+     * href="http://ietf.org/internet-drafts/draft-ietf-ldapbis-models-12.txt">MODELS</a>]
+     * which is replicated here for convenience:
+     *
+     * <pre>
+     *  4.1.2. Attribute Types
+     *
+     *   Attribute Type definitions are written according to the ABNF:
+     *
+     *   AttributeTypeDescription = LPAREN WSP
+     *         numericoid                    ; object identifier
+     *         [ SP &quot;NAME&quot; SP qdescrs ]      ; short names (descriptors)
+     *         [ SP &quot;DESC&quot; SP qdstring ]     ; description
+     *         [ SP &quot;OBSOLETE&quot; ]             ; not active
+     *         [ SP &quot;SUP&quot; SP oid ]           ; supertype
+     *         [ SP &quot;EQUALITY&quot; SP oid ]      ; equality matching rule
+     *         [ SP &quot;ORDERING&quot; SP oid ]      ; ordering matching rule
+     *         [ SP &quot;SUBSTR&quot; SP oid ]        ; substrings matching rule
+     *         [ SP &quot;SYNTAX&quot; SP noidlen ]    ; value syntax
+     *         [ SP &quot;SINGLE-VALUE&quot; ]         ; single-value
+     *         [ SP &quot;COLLECTIVE&quot; ]           ; collective
+     *         [ SP &quot;NO-USER-MODIFICATION&quot; ] ; not user modifiable
+     *         [ SP &quot;USAGE&quot; SP usage ]       ; usage
+     *         extensions WSP RPAREN         ; extensions
+     *
+     *     usage = &quot;userApplications&quot;     /  ; user
+     *             &quot;directoryOperation&quot;   /  ; directory operational
+     *             &quot;distributedOperation&quot; /  ; DSA-shared operational
+     *             &quot;dSAOperation&quot;            ; DSA-specific operational
+     *
+     *   where:
+     *     &lt;numericoid&gt; is object identifier assigned to this attribute type;
+     *     NAME &lt;qdescrs&gt; are short names (descriptors) identifying this
+     *         attribute type;
+     *     DESC &lt;qdstring&gt; is a short descriptive string;
+     *     OBSOLETE indicates this attribute type is not active;
+     *     SUP oid specifies the direct supertype of this type;
+     *     EQUALITY, ORDERING, SUBSTR provide the oid of the equality,
+     *         ordering, and substrings matching rules, respectively;
+     *     SYNTAX identifies value syntax by object identifier and may suggest
+     *         a minimum upper bound;
+     *     SINGLE-VALUE indicates attributes of this type are restricted to a
+     *         single value;
+     *     COLLECTIVE indicates this attribute type is collective
+     *         [X.501][RFC3671];
+     *     NO-USER-MODIFICATION indicates this attribute type is not user
+     *         modifiable;
+     *     USAGE indicates the application of this attribute type; and
+     *     &lt;extensions&gt; describe extensions.
+     * </pre>
+     * @param atd the AttributeTypeDescription to render the description for
+     * @return the StringBuffer containing the rendered attributeType description
+     * @throws NamingException if there are problems accessing the objects
+     * associated with the attribute type.
+     */
+    public static StringBuffer render( AttributeTypeDescription atd ) throws NamingException
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append( "( " ).append( atd.getNumericOid() );
+
+        if ( atd.getNames() != null && atd.getNames().size() > 0 )
+        {
+            buf.append( " NAME " );
+            render( buf, atd.getNames().toArray( new String[ atd.getNames().size() ]) ).append( " " );
+        }
+        else
+        {
+            buf.append( " " );
+        }
+
+        if ( atd.getDescription() != null )
+        {
+            buf.append( "DESC " ).append( "'" ).append( atd.getDescription() ).append( "' " );
+        }
+
+        if ( atd.isObsolete() )
+        {
+            buf.append( " OBSOLETE" );
+        }
+
+        if ( atd.getSuperType() != null )
+        {
+            buf.append( " SUP " ).append( atd.getSuperType() );
+        }
+
+        if ( atd.getEqualityMatchingRule() != null )
+        {
+            buf.append( " EQUALITY " ).append( atd.getEqualityMatchingRule() );
+        }
+
+        if ( atd.getOrderingMatchingRule() != null )
+        {
+            buf.append( " ORDERING " ).append( atd.getOrderingMatchingRule() );
+        }
+
+        if ( atd.getSubstringsMatchingRule() != null )
+        {
+            buf.append( " SUBSTR " ).append( atd.getSubstringsMatchingRule() );
+        }
+
+        if ( atd.getSyntax() != null )
+        {
+            buf.append( " SYNTAX " ).append( atd.getSyntax() );
+
+            if ( atd.getSyntaxLength() > 0 )
+            {
+                buf.append( "{" ).append( atd.getSyntaxLength() ).append( "}" );
+            }
+        }
+
+        if ( atd.isSingleValued() )
+        {
+            buf.append( " SINGLE-VALUE" );
+        }
+
+        if ( atd.isCollective() )
+        {
+            buf.append( " COLLECTIVE" );
+        }
+
+        if ( !atd.isUserModifiable() )
+        {
+            buf.append( " NO-USER-MODIFICATION" );
+        }
+
+        if ( atd.getUsage() != null )
+        {
+            buf.append( " USAGE " ).append( UsageEnum.render( atd.getUsage() ) );
+        }
+
+        return buf.append( render( atd.getExtensions() ) ).append( ")" );
+    }
+
+
+    /**
+     * Renders the schema extensions into a new StringBuffer.
+     *
+     * @param extensions the schema extensions map with key and values
+     * @return a StringBuffer with the extensions component of a syntax description
+     */
+    public static StringBuffer render( Map<String, List<String>> extensions )
+    {
+        StringBuffer buf = new StringBuffer();
+        
+        if ( extensions.isEmpty() )
+        {
+            return buf;
+        }
+
+        for ( String key : extensions.keySet() )
+        {
+            buf.append( " " ).append( key ).append( " " );
+
+            List<String> values = extensions.get( key );
+
+            // For extensions without values like X-IS-HUMAN-READIBLE
+            if ( values == null || values.isEmpty() )
+            {
+                continue;
+            }
+
+            // For extensions with a single value we can use one qdstring like 'value'
+            if ( values.size() == 1 )
+            {
+                buf.append( "'" ).append( values.get( 0 ) ).append( "' " );
+                continue;
+            }
+
+            // For extensions with several values we have to surround whitespace
+            // separated list of qdstrings like ( 'value0' 'value1' 'value2' )
+            buf.append( "( " );
+            for ( String value : values )
+            {
+                buf.append( "'" ).append( value ).append( "' " );
+            }
+            buf.append( ")" );
+        }
+
+        if ( buf.charAt( buf.length() - 1 ) != ' ' )
+        {
+            buf.append( " " );
+        }
 
         return buf;
     }
