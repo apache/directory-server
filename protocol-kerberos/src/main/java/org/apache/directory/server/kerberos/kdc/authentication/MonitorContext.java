@@ -96,9 +96,9 @@ public class MonitorContext implements IoHandlerCommand
                 EncryptionType encryptionType = authContext.getEncryptionType();
                 int clientKeyVersion = clientEntry.getKeyMap().get( encryptionType ).getKeyVersion();
                 int serverKeyVersion = serverEntry.getKeyMap().get( encryptionType ).getKeyVersion();
-                sb.append( "\n\t" + "Request key type        " + encryptionType );
-                sb.append( "\n\t" + "Client key version    " + clientKeyVersion );
-                sb.append( "\n\t" + "Server key version    " + serverKeyVersion );
+                sb.append( "\n\t" + "Request key type       " + encryptionType );
+                sb.append( "\n\t" + "Client key version     " + clientKeyVersion );
+                sb.append( "\n\t" + "Server key version     " + serverKeyVersion );
 
                 log.debug( sb.toString() );
             }
