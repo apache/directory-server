@@ -45,82 +45,6 @@ public class AttributesImpl implements Attributes
 {
     static transient final long serialVersionUID = 1L;
     
-    /** This flag is used if the attribute name is not caseSensitive */
-    private boolean ignoreCase;
-
-    /**
-     * An holder to store <Id, Attribute> couples
-     */
-    /*private class Holder implements Serializable, Cloneable
-    {
-        static transient final long serialVersionUID = 1L;
-        
-        // The user provided attribute ID
-        private String upId;
-        
-        // The attribute. Should be an instance of LockableAttribute
-        private Attribute attribute;
-        
-        /**
-         * Create a new holder for the given ID
-         * @param upId The attribute UP id
-         * @param attribute The attribute
-         * /
-        private Holder( String upId, Attribute attribute )
-        {
-            this.upId = upId;
-            this.attribute = attribute;
-        }
-        
-        /**
-         * @see Object#clone()
-         * /
-        public Object clone() throws CloneNotSupportedException
-        {
-            Holder clone = (Holder)super.clone();
-            
-            clone.upId = upId;
-            
-            if ( attribute instanceof BasicAttribute )
-            {
-                // The BasicAttribute clone() method does not
-                // copy the values.
-                clone.attribute = new AttributeImpl( attribute.getID() );
-                
-                try
-                {
-                    NamingEnumeration values = attribute.getAll();
-                    
-                    while ( values.hasMoreElements() )
-                    {
-                        clone.attribute.add( AttributeUtils.cloneValue( values.nextElement() ) );
-                    }
-                }
-                catch( NamingException ne )
-                {
-                    
-                }
-            }
-            clone.attribute = (Attribute)attribute.clone();
-            
-            return clone;
-        }
-        
-        /**
-         * @see Object#toString()
-         * /
-        public String toString()
-        {
-            StringBuffer sb = new StringBuffer();
-            
-            sb.append( upId ).append( ": " );
-            
-            sb.append( attribute ).append( '\n' );
-            
-            return sb.toString();
-        }
-    }*/
-    
     /**
      * An iterator which returns Attributes.  
      */
@@ -196,7 +120,6 @@ public class AttributesImpl implements Attributes
     public AttributesImpl()
     {
         keyMap = new HashMap<String, AttributeImpl>();
-        ignoreCase = true;
     }
 
     /**
@@ -205,7 +128,6 @@ public class AttributesImpl implements Attributes
     public AttributesImpl( boolean ignoreCase )
     {
         keyMap = new HashMap<String, AttributeImpl>();
-        this.ignoreCase = ignoreCase;
     }
 
     /**
@@ -215,7 +137,6 @@ public class AttributesImpl implements Attributes
     {
         keyMap = new HashMap<String, AttributeImpl>();
         put( id, value );
-        ignoreCase = true;
     }
 
     /**
@@ -225,7 +146,6 @@ public class AttributesImpl implements Attributes
     {
         keyMap = new HashMap<String, AttributeImpl>();
         put( id, value );
-        this.ignoreCase = ignoreCase;
     }
 
     /**
@@ -239,8 +159,6 @@ public class AttributesImpl implements Attributes
         }
         else if ( attributes instanceof BasicAttributes )
         {
-            ignoreCase = attributes.isCaseIgnored();
-            
             NamingEnumeration attrs = attributes.getAll();
             keyMap = new HashMap<String, AttributeImpl>();
 
@@ -265,8 +183,6 @@ public class AttributesImpl implements Attributes
                 AttributeImpl attribute = clone.keyMap.get( key );
                 keyMap.put( key, (AttributeImpl)attribute.clone() );
             }
-            
-            ignoreCase = clone.ignoreCase;
         }
         else
         {
@@ -366,11 +282,11 @@ public class AttributesImpl implements Attributes
      * Determines whether the attribute set ignores the case of attribute
      * identifiers when retrieving or adding attributes.
      * 
-     * @return true always.
+     * @return always <code>true</code>.
      */
     public boolean isCaseIgnored()
     {
-        return ignoreCase;
+        return true;
     }
 
 

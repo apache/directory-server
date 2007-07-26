@@ -1512,12 +1512,9 @@ public class StringTools
     /**
      * Check if a text is present at the current position in another string.
      * 
-     * @param string1
-     *            The string which contains the data
-     * @param index
-     *            Current position in the string
-     * @param text
-     *            The text we want to check
+     * @param string1 The string which contains the data
+     * @param index Current position in the string
+     * @param text The text we want to check
      * @return <code>true</code> if the string contains the text.
      */
     public static final boolean areEquals( String string1, int index, String text )
@@ -1537,7 +1534,7 @@ public class StringTools
         }
         else
         {
-            return string1.substring( index ).startsWith( text );
+        	return string1.substring( index ).startsWith( text );
         }
     }
     
@@ -1633,12 +1630,9 @@ public class StringTools
     /**
      * Test if the current character is equal to a specific character.
      * 
-     * @param string
-     *            The String which contains the data
-     * @param index
-     *            Current position in the string
-     * @param car
-     *            The character we want to compare with the current string
+     * @param string The String which contains the data
+     * @param index Current position in the string
+     * @param car The character we want to compare with the current string
      *            position
      * @return <code>true</code> if the current character equals the given
      *         character.
@@ -1659,6 +1653,35 @@ public class StringTools
         else
         {
             return string.charAt( index ) == car;
+        }
+    }
+
+    /**
+     * Test if the current character is equal to a specific character.
+     * 
+     * @param string The String which contains the data
+     * @param index Current position in the string
+     * @param car The character we want to compare with the current string
+     *            position
+     * @return <code>true</code> if the current character equals the given
+     *         character.
+     */
+    public static final boolean isICharASCII( String string, int index, char car )
+    {
+        if ( string == null )
+        {
+            return false;
+        }
+        
+        int length = string.length();
+        
+        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
+        {
+            return false;
+        }
+        else
+        {
+            return ( ( string.charAt( index ) | 0x20 ) & car ) == car;
         }
     }
 

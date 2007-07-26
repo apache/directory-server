@@ -237,17 +237,18 @@ public class RdnParser
      */
     private static int parseOidPrefix( String string, Position pos )
     {
-        if ( ( StringTools.areEquals( string, pos.start, DNUtils.OID_LOWER ) )
-            || ( StringTools.areEquals( string, pos.start, DNUtils.OID_UPPER ) ) )
-        {
-            pos.end += DNUtils.OID_LOWER.length();
-
-            return DNUtils.PARSING_OK;
-        }
-        else
-        {
-            return DNUtils.PARSING_ERROR;
-        }
+    	if ( StringTools.isICharASCII( string, pos.start, 'O' ) &&
+    		 StringTools.isICharASCII( string, pos.start + 1, 'I' ) && 
+    		 StringTools.isICharASCII( string, pos.start + 2, 'D' ) &&
+    		 StringTools.isICharASCII( string, pos.start + 3, '.' ) )
+    	{
+    		pos.end += DNUtils.OID_LOWER.length();
+    		return DNUtils.PARSING_OK;
+    	}
+    	else
+    	{
+    		return DNUtils.PARSING_ERROR;
+    	}
     }
 
 

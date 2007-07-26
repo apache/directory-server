@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.ExtensibleMatchFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class StoreTypeMatchingRuleAction extends GrammarAction
             ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) searchRequest
                 .getTerminalFilter();
 
-            String type = new String( tlv.getValue().getData() );
+            String type = StringTools.utf8ToString( tlv.getValue().getData() );
             extensibleMatchFilter.setType( type );
 
             if ( IS_DEBUG )

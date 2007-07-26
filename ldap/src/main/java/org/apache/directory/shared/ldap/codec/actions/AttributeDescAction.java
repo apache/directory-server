@@ -26,6 +26,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLV;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class AttributeDescAction extends GrammarAction
             value = tlv.getValue().getData();
         }
 
-        attributeDescription = new String( value );
+        attributeDescription = StringTools.utf8ToString( value );
         searchRequest.addAttribute( attributeDescription );
 
         // We can have an END transition

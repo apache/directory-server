@@ -53,6 +53,7 @@ public class AttributesSerializerUtils
 
         int pos = 0;
         AttributesImpl attrs = new AttributesImpl();
+        
         while ( pos < buf.length )
         {
             String id = AttributeSerializerUtils.readString( buf, pos );
@@ -99,6 +100,7 @@ public class AttributesSerializerUtils
         // calculate the size of the entire byte[] and allocate
         byte[] buf = new byte[calculateSize( attrs )];
         int pos = 0;
+        
         try
         {
             for ( NamingEnumeration ii = attrs.getAll(); ii.hasMore(); /**/)

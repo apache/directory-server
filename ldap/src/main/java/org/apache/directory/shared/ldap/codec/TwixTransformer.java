@@ -31,7 +31,6 @@ import javax.naming.directory.Attribute;
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.codec.abandon.AbandonRequest;
 import org.apache.directory.shared.ldap.codec.add.AddRequest;
 import org.apache.directory.shared.ldap.codec.add.AddResponse;
@@ -107,6 +106,7 @@ import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.GracefulShutdownRequest;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -856,15 +856,8 @@ public class TwixTransformer implements TransformerSpi
 
         // Snickers : String errorMessage -> Twix : LdapString errorMessage
         String errorMessage = snickersLdapResult.getErrorMessage();
-
-        if ( ( errorMessage == null ) || ( errorMessage.length() == 0 ) )
-        {
-            twixLdapResult.setErrorMessage( "" );
-        }
-        else
-        {
-            twixLdapResult.setErrorMessage( new String( snickersLdapResult.getErrorMessage().getBytes() ) );
-        }
+        
+        twixLdapResult.setErrorMessage( StringTools.isEmpty( errorMessage ) ? "" : errorMessage );
 
         // Snickers : String matchedDn -> Twix : LdapDN matchedDN
         twixLdapResult.setMatchedDN( snickersLdapResult.getMatchedDn() );
@@ -1244,7 +1237,7 @@ public class TwixTransformer implements TransformerSpi
             twixControl.setCriticality( control.isCritical() );
             twixControl.setControlValue( control.getEncodedValue() );
             twixControl.setEncodedValue( control.getEncodedValue() );
-            twixControl.setControlType( new String( Asn1StringUtils.getBytesUtf8( control.getID() ) ) );
+            twixControl.setControlType( control.getID() );
             twixControl.setParent( twixMessage );
         }
     }

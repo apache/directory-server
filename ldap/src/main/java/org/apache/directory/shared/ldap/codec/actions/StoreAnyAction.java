@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class StoreAnyAction extends GrammarAction
             throw new DecoderException( "The substring any filter is empty" );
         }
 
-        String any = new String( tlv.getValue().getData() );
+        String any = StringTools.utf8ToString( tlv.getValue().getData() );
         substringFilter.addAnySubstrings( any );
 
         // We now have to get back to the nearest filter which is

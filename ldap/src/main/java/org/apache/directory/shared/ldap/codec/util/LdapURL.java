@@ -332,16 +332,8 @@ public class LdapURL
             throw new LdapURLEncodingException( "The byte array is empty : this is not a valid LdapURL." );
         }
 
-        try
-        {
-            string = new String( bytes, "UTF-8" );
-            this.bytes = bytes;
-        }
-        catch ( UnsupportedEncodingException uee )
-        {
-            throw new LdapURLEncodingException( "The byte array is not an UTF-8 encoded Unicode String : "
-                + uee.getMessage() );
-        }
+        string = StringTools.utf8ToString( bytes );
+        this.bytes = bytes;
 
         parse( string.toCharArray() );
     }

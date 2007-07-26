@@ -21,6 +21,9 @@ package org.apache.directory.shared.ldap.util;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -44,8 +47,43 @@ public class AttributeSerializerUtils
 
     /** value for type parameter for string (non-binary) attributes */
     static final byte STRING_TYPE = 0x00;
+    
     /** value for type parameter for byte array (binary) attributes */
     static final byte BYTE_ARRAY_TYPE = 0x01;
+    
+    /*
+    private class ExtensibleByteArray
+    {
+    	private static final int EXTENSION = 2048;
+    	private List<byte[]> array;
+    	private byte[] currentData;
+    	private int pos = 0;
+    	private int limit = EXTENSION;
+    	
+    	private ExtensibleByteArray()
+    	{
+    		array = new ArrayList<byte[]>();
+    		currentData = new byte[EXTENSION];
+    		array.add( currentData );
+    	}
+    	
+    	private void extend()
+    	{
+    		limit += EXTENSION;
+    		array.add( new byte[EXTENSION] );
+    	}
+    	
+    	private void put( byte b )
+    	{
+    		if ( pos == limit )
+    		{
+    			extend();
+    			currentData = 
+    		}
+    		
+    		
+    	}
+    }*/
     
 
     // -----------------------------------------------------------------------
@@ -261,6 +299,9 @@ public class AttributeSerializerUtils
         Attribute attr = ( Attribute ) obj;
         
         // calculate the size of the entire byte[] and allocate
+        ByteBuffer bb = ByteBuffer.allocate( 4096 );
+        
+        bb.hasRemaining();
         byte[] buf = new byte[calculateSize( attr )];
         
         // write the length of the id and it's value

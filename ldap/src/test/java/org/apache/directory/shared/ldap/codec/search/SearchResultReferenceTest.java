@@ -240,16 +240,27 @@ public class SearchResultReferenceTest extends TestCase
         // Allocate a BindRequest Container
         IAsn1Container ldapMessageContainer = new LdapMessageContainer();
 
-        try
+        long t0 = System.currentTimeMillis();
+        
+        for ( int i = 0; i < 100000; i++ )
         {
-            ldapDecoder.decode( stream, ldapMessageContainer );
+	        try
+	        {
+	            ((LdapMessageContainer)ldapMessageContainer).clean();
+	            ldapDecoder.decode( stream, ldapMessageContainer );
+	        }
+	        catch ( DecoderException de )
+	        {
+	            de.printStackTrace();
+	            fail( de.getMessage() );
+	        }
+	        
+	        stream.flip();
         }
-        catch ( DecoderException de )
-        {
-            de.printStackTrace();
-            fail( de.getMessage() );
-        }
+        long t1 = System.currentTimeMillis();
 
+        System.out.println( "Delta : " + (t1 - t0) );
+        
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchResultReference searchResultReference = message.getSearchResultReference();
 
