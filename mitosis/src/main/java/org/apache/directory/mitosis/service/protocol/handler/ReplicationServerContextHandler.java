@@ -69,7 +69,7 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
     public synchronized void contextEnd( ReplicationContext ctx ) throws Exception
     {
         // Reset the mark if the context has the unfinished transaction.
-        if ( !ctx.getPeer().equals( replicaInTransaction ) )
+        if ( ctx.getPeer() != null && ctx.getPeer().equals( replicaInTransaction ) )
         {
             replicaInTransaction = null;
         }
