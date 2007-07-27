@@ -20,66 +20,41 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
-
-import junit.framework.TestCase;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncoder;
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.mina.common.IoFilterChain;
-import org.apache.mina.common.IoHandler;
-import org.apache.mina.common.IoService;
-import org.apache.mina.common.IoServiceConfig;
-import org.apache.mina.common.IoSessionConfig;
-import org.apache.mina.common.TransportType;
-import org.apache.mina.common.WriteFuture;
-import org.apache.mina.common.support.BaseIoSession;
 
 
 /**
- * Tests the KerberosProtocolHandler.
+ * Tests the Authentication Service (AS) via the {@link KerberosProtocolHandler}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KerberosProtocolHandlerTest extends TestCase
+public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 {
     private KdcConfiguration config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
-    private CipherTextHandler lockBox;
 
 
     /**
-     * Creates a new instance of KerberosProtocolHandlerTest.
+     * Creates a new instance of {@link AuthenticationServiceTest}.
      */
-    public KerberosProtocolHandlerTest()
+    public AuthenticationServiceTest()
     {
         config = new KdcConfiguration();
         store = new MapPrincipalStoreImpl();
@@ -1330,156 +1305,5 @@ public class KerberosProtocolHandlerTest extends TestCase
 
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
         assertEquals( "KDC cannot accommodate requested option", 13, error.getErrorCode() );
-    }
-
-
-    private PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
-        throws Exception
-    {
-        KerberosTime timeStamp = new KerberosTime();
-
-        return getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase, timeStamp );
-    }
-
-
-    private PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase,
-        KerberosTime timeStamp ) throws Exception
-    {
-        PreAuthenticationData[] paData = new PreAuthenticationData[1];
-
-        EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
-
-        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
-
-        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
-
-        byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
-
-        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
-        preAuth.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        preAuth.setDataValue( encodedEncryptedData );
-
-        paData[0] = preAuth.getPreAuthenticationData();
-
-        return paData;
-    }
-
-
-    private PrincipalName getPrincipalName( String principalName )
-    {
-        PrincipalNameModifier principalNameModifier = new PrincipalNameModifier();
-        principalNameModifier.addName( principalName );
-        principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
-
-        return principalNameModifier.getPrincipalName();
-    }
-
-
-    /**
-     * Returns an encryption key derived from a principal name and passphrase.
-     *
-     * @param principal
-     * @param passPhrase
-     * @return The server's {@link EncryptionKey}.
-     */
-    protected EncryptionKey getEncryptionKey( KerberosPrincipal principal, String passPhrase )
-    {
-        KerberosKey kerberosKey = new KerberosKey( principal, passPhrase.toCharArray(), "DES" );
-        byte[] keyBytes = kerberosKey.getEncoded();
-        EncryptionKey key = new EncryptionKey( EncryptionType.DES_CBC_MD5, keyBytes );
-
-        return key;
-    }
-
-    private static class DummySession extends BaseIoSession
-    {
-        Object message;
-
-
-        @Override
-        public WriteFuture write( Object message )
-        {
-            this.message = message;
-
-            return super.write( message );
-        }
-
-
-        private Object getMessage()
-        {
-            return message;
-        }
-
-
-        protected void updateTrafficMask()
-        {
-            // Do nothing.
-        }
-
-
-        public IoService getService()
-        {
-            return null;
-        }
-
-
-        public IoHandler getHandler()
-        {
-            return null;
-        }
-
-
-        public IoFilterChain getFilterChain()
-        {
-            return null;
-        }
-
-
-        public TransportType getTransportType()
-        {
-            return null;
-        }
-
-
-        public SocketAddress getRemoteAddress()
-        {
-            return new InetSocketAddress( 10088 );
-        }
-
-
-        public SocketAddress getLocalAddress()
-        {
-            return null;
-        }
-
-
-        public IoSessionConfig getConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteRequests()
-        {
-            return 0;
-        }
-
-
-        public SocketAddress getServiceAddress()
-        {
-            return null;
-        }
-
-
-        public IoServiceConfig getServiceConfig()
-        {
-            return null;
-        }
-
-
-        public int getScheduledWriteBytes()
-        {
-            return 0;
-        }
     }
 }
