@@ -81,7 +81,7 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.PRE_AUTHENT );
         }
 
-        if ( request.getKdcOptions().get( KdcOptions.FORWARDABLE ) )
+        if ( request.getOption( KdcOptions.FORWARDABLE ) )
         {
             if ( !config.isForwardableAllowed() )
             {
@@ -91,7 +91,7 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.FORWARDABLE );
         }
 
-        if ( request.getKdcOptions().get( KdcOptions.PROXIABLE ) )
+        if ( request.getOption( KdcOptions.PROXIABLE ) )
         {
             if ( !config.isProxiableAllowed() )
             {
@@ -101,7 +101,7 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.PROXIABLE );
         }
 
-        if ( request.getKdcOptions().get( KdcOptions.ALLOW_POSTDATE ) )
+        if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
         {
             if ( !config.isPostdateAllowed() )
             {
@@ -111,9 +111,9 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.MAY_POSTDATE );
         }
 
-        if ( request.getKdcOptions().get( KdcOptions.RENEW ) || request.getKdcOptions().get( KdcOptions.VALIDATE )
-            || request.getKdcOptions().get( KdcOptions.PROXY ) || request.getKdcOptions().get( KdcOptions.FORWARDED )
-            || request.getKdcOptions().get( KdcOptions.ENC_TKT_IN_SKEY ) )
+        if ( request.getOption( KdcOptions.RENEW ) || request.getOption( KdcOptions.VALIDATE )
+            || request.getOption( KdcOptions.PROXY ) || request.getOption( KdcOptions.FORWARDED )
+            || request.getOption( KdcOptions.ENC_TKT_IN_SKEY ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
         }
@@ -137,7 +137,7 @@ public class GenerateTicket implements IoHandlerCommand
          * ticket is set to the authentication server's current time."
          */
         if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+            && !request.getOption( KdcOptions.POSTDATED ) )
         {
             startTime = now;
         }
@@ -148,8 +148,7 @@ public class GenerateTicket implements IoHandlerCommand
          * KDC_ERR_CANNOT_POSTDATE is returned."
          */
         if ( startTime != null && startTime.greaterThan( now )
-            && !startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+            && !startTime.isInClockSkew( config.getAllowableClockSkew() ) && !request.getOption( KdcOptions.POSTDATED ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -159,7 +158,7 @@ public class GenerateTicket implements IoHandlerCommand
          * local realm and if the ticket's starttime is acceptable, it is set as
          * requested, and the INVALID flag is set in the new ticket."
          */
-        if ( request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+        if ( request.getOption( KdcOptions.POSTDATED ) )
         {
             if ( !config.isPostdateAllowed() )
             {
@@ -182,10 +181,8 @@ public class GenerateTicket implements IoHandlerCommand
         }
 
         /*
-         new_tkt.endtime := min(till,
-         new_tkt.starttime+client.max_life,
-         new_tkt.starttime+server.max_life,
-         new_tkt.starttime+max_life_for_realm);
+         * The end time is the minimum of (a) the requested till time or (b)
+         * the start time plus maximum lifetime as configured in policy.
          */
         long endTime = Math.min( till, startTime.getTime() + config.getMaximumTicketLifetime() );
         KerberosTime kerberosEndTime = new KerberosTime( endTime );
@@ -215,29 +212,18 @@ public class GenerateTicket implements IoHandlerCommand
          */
         KerberosTime tempRtime = request.getRtime();
 
-        if ( request.getKdcOptions().get( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
+        if ( request.getOption( KdcOptions.RENEWABLE_OK ) && request.getTill().greaterThan( kerberosEndTime ) )
         {
             if ( !config.isRenewableAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            request.getKdcOptions().set( KdcOptions.RENEWABLE );
+            request.setOption( KdcOptions.RENEWABLE );
             tempRtime = request.getTill();
         }
 
-        /*
-         if (req.kdc-options.RENEWABLE is set) then
-         set new_tkt.flags.RENEWABLE;
-         new_tkt.renew-till := min(rtime,
-         new_tkt.starttime+client.max_rlife,
-         new_tkt.starttime+server.max_rlife,
-         new_tkt.starttime+max_rlife_for_realm);
-         else
-         omit new_tkt.renew-till;
-         endif
-         */
-        if ( request.getKdcOptions().get( KdcOptions.RENEWABLE ) )
+        if ( request.getOption( KdcOptions.RENEWABLE ) )
         {
             if ( !config.isRenewableAllowed() )
             {
@@ -251,11 +237,17 @@ public class GenerateTicket implements IoHandlerCommand
                 tempRtime = KerberosTime.INFINITY;
             }
 
+            /*
+             * The renew-till time is the minimum of (a) the requested renew-till
+             * time or (b) the start time plus maximum renewable lifetime as
+             * configured in policy.
+             */
             long renewTill = Math.min( tempRtime.getTime(), startTime.getTime() + config.getMaximumRenewableLifetime() );
             newTicketBody.setRenewTill( new KerberosTime( renewTill ) );
         }
 
-        if ( request.getAddresses() != null )
+        if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
+            && request.getAddresses().getAddresses().length > 0 )
         {
             newTicketBody.setClientAddresses( request.getAddresses() );
         }

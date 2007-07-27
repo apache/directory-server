@@ -137,6 +137,11 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.FORWARDABLE ) )
         {
+            if ( !config.isForwardableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.FORWARDABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
@@ -147,13 +152,30 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.FORWARDED ) )
         {
+            if ( !config.isForwardableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.FORWARDABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
+            if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
+                && request.getAddresses().getAddresses().length > 0 )
+            {
+                newTicketBody.setClientAddresses( request.getAddresses() );
+            }
+            else
+            {
+                if ( !config.isEmptyAddressesAllowed() )
+                {
+                    throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+                }
+            }
+
             newTicketBody.setFlag( TicketFlags.FORWARDED );
-            newTicketBody.setClientAddresses( request.getAddresses() );
         }
 
         if ( tgt.getFlag( TicketFlags.FORWARDED ) )
@@ -163,6 +185,11 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.PROXIABLE ) )
         {
+            if ( !config.isProxiableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.PROXIABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
@@ -173,17 +200,39 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.PROXY ) )
         {
+            if ( !config.isProxiableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.PROXIABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
+            if ( request.getAddresses() != null && request.getAddresses().getAddresses() != null
+                && request.getAddresses().getAddresses().length > 0 )
+            {
+                newTicketBody.setClientAddresses( request.getAddresses() );
+            }
+            else
+            {
+                if ( !config.isEmptyAddressesAllowed() )
+                {
+                    throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+                }
+            }
+
             newTicketBody.setFlag( TicketFlags.PROXY );
-            newTicketBody.setClientAddresses( request.getAddresses() );
         }
 
         if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
         {
+            if ( !config.isPostdateAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
@@ -204,14 +253,14 @@ public class GenerateTicket implements IoHandlerCommand
          */
         if ( request.getOption( KdcOptions.POSTDATED ) )
         {
-            if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
-            {
-                throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
-            }
-
             if ( !config.isPostdateAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
+            if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
             newTicketBody.setFlag( TicketFlags.POSTDATED );
@@ -222,6 +271,11 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.VALIDATE ) )
         {
+            if ( !config.isPostdateAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.INVALID ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
@@ -267,7 +321,7 @@ public class GenerateTicket implements IoHandlerCommand
          * ticket is set to the authentication server's current time."
          */
         if ( startTime == null || startTime.lessThan( now ) || startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && !request.getKdcOptions().get( KdcOptions.POSTDATED ) )
+            && !request.getOption( KdcOptions.POSTDATED ) )
         {
             startTime = now;
         }
@@ -280,7 +334,7 @@ public class GenerateTicket implements IoHandlerCommand
          */
         if ( startTime != null && startTime.greaterThan( now )
             && !startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && ( !request.getKdcOptions().get( KdcOptions.POSTDATED ) || !tgt.getFlag( TicketFlags.MAY_POSTDATE ) ) )
+            && ( !request.getOption( KdcOptions.POSTDATED ) || !tgt.getFlag( TicketFlags.MAY_POSTDATE ) ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -290,6 +344,11 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.RENEW ) )
         {
+            if ( !config.isRenewableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             if ( !tgt.getFlag( TicketFlags.RENEWABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
@@ -328,10 +387,10 @@ public class GenerateTicket implements IoHandlerCommand
                 till = request.getTill();
             }
 
-            // TODO - config; requires store
             /*
-             new_tkt.starttime+client.max_life,
-             new_tkt.starttime+server.max_life,
+             * The end time is the minimum of (a) the requested till time or (b)
+             * the start time plus maximum lifetime as configured in policy or (c)
+             * the end time of the TGT.
              */
             List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
             minimizer.add( till );
@@ -344,7 +403,12 @@ public class GenerateTicket implements IoHandlerCommand
             if ( request.getOption( KdcOptions.RENEWABLE_OK ) && kerberosEndTime.lessThan( request.getTill() )
                 && tgt.getFlag( TicketFlags.RENEWABLE ) )
             {
-                // we set the RENEWABLE option for later processing                           
+                if ( !config.isRenewableAllowed() )
+                {
+                    throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+                }
+
+                // We set the RENEWABLE option for later processing.                           
                 request.setOption( KdcOptions.RENEWABLE );
                 long rtime = Math.min( request.getTill().getTime(), tgt.getRenewTill().getTime() );
                 renewalTime = new KerberosTime( rtime );
@@ -368,13 +432,18 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.RENEWABLE ) && tgt.getFlag( TicketFlags.RENEWABLE ) )
         {
+            if ( !config.isRenewableAllowed() )
+            {
+                throw new KerberosException( ErrorType.KDC_ERR_POLICY );
+            }
+
             newTicketBody.setFlag( TicketFlags.RENEWABLE );
 
             /*
-             new_tkt.starttime+client.max_rlife,
-             new_tkt.starttime+server.max_rlife,
+             * The renew-till time is the minimum of (a) the requested renew-till
+             * time or (b) the start time plus maximum renewable lifetime as
+             * configured in policy or (c) the renew-till time of the TGT.
              */
-            // TODO - client and server configurable; requires store
             List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
 
             /*
@@ -385,7 +454,7 @@ public class GenerateTicket implements IoHandlerCommand
                 minimizer.add( rtime );
             }
 
-            minimizer.add( new KerberosTime( now.getTime() + config.getMaximumRenewableLifetime() ) );
+            minimizer.add( new KerberosTime( startTime.getTime() + config.getMaximumRenewableLifetime() ) );
             minimizer.add( tgt.getRenewTill() );
             newTicketBody.setRenewTill( Collections.min( minimizer ) );
         }
