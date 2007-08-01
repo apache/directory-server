@@ -187,13 +187,15 @@ public class KerberosProtocolHandler implements IoHandler
         }
         catch ( KerberosException ke )
         {
+            String messageText = ke.getMessage() + " (" + ke.getErrorCode() + ")";
+
             if ( log.isDebugEnabled() )
             {
-                log.warn( ke.getMessage(), ke );
+                log.warn( messageText, ke );
             }
             else
             {
-                log.warn( ke.getMessage() );
+                log.warn( messageText );
             }
 
             ErrorMessage error = getErrorMessage( config.getServicePrincipal(), ke );
