@@ -58,6 +58,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IdleStatus;
+import org.apache.mina.common.WriteFuture;
 import org.apache.mina.util.SessionLog;
 
 
@@ -122,7 +123,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         // Send a login message.
         LoginMessage m = new LoginMessage( ctx.getNextSequence(), ctx.getService().getConfiguration().getReplicaId() );
-        ctx.getSession().write( m );
+        writeTimeLimitedMessage( ctx, m );
 
         // Set write timeout
         ctx.getSession().setWriteTimeout( ctx.getConfiguration().getResponseTimeout() );
@@ -178,10 +179,20 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     public void messageSent( ReplicationContext ctx, Object message ) throws Exception
     {
-        if ( message instanceof LogEntryMessage || message instanceof LoginMessage )
-        {
-            ctx.scheduleExpiration( message );
-        }
+    }
+    
+    
+    /**
+     * A helper to write a message and schedule that message for expiration.
+     *
+     * @param ctx
+     * @param message
+     * @return
+     */
+    public WriteFuture writeTimeLimitedMessage( ReplicationContext ctx, Object message )
+    {
+        ctx.scheduleExpiration( message );
+        return ctx.getSession().write( message );
     }
 
 
@@ -245,11 +256,23 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             && ctx.getSession().getScheduledWriteRequests() == 0 )
         {
         	// Initiate replication process asking update vector.
+            if ( SessionLog.isDebugEnabled( ctx.getSession() ) ) {
+                SessionLog.debug( ctx.getSession(), "(" +
+                    ctx.getConfiguration().getReplicaId().getId() + "->" +
+                    (ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null") +
+                    ") Beginning replication. " );
+            }
         	ctx.getSession().write( new BeginLogEntriesMessage( ctx.getNextSequence() ) );
         	return true;
         }
         else
         {
+            if ( SessionLog.isDebugEnabled( ctx.getSession() ) ) {
+                SessionLog.debug( ctx.getSession(), "(" +
+                    ctx.getConfiguration().getReplicaId().getId() + "->" +
+                    (ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null") +
+                    ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:" + ctx.getScheduledExpirations() + ", scheduledWriteRequests:" + ctx.getSession().getScheduledWriteRequests() );
+            }
         	return false;
         }
     }
@@ -391,7 +414,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 Operation op = new AddEntryOperation( csn, dn, attrs );
 
                 // Send a LogEntry message for the entry.
-                ctx.getSession().write( new LogEntryMessage( ctx.getNextSequence(), op ) );
+                writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
             }
         }
         finally
@@ -425,7 +448,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             while ( logIt.next() )
             {
                 Operation op = logIt.getOperation();
-                ctx.getSession().write( new LogEntryMessage( ctx.getNextSequence(), op ) );
+                writeTimeLimitedMessage( ctx, new LogEntryMessage( ctx.getNextSequence(), op ) );
             }
         }
         finally
