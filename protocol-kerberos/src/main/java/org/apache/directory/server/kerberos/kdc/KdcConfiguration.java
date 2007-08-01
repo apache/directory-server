@@ -82,8 +82,8 @@ public class KdcConfiguration extends ServiceConfiguration
     /** The default for allowing proxiable tickets */
     private static final boolean DEFAULT_TGS_PROXIABLE_ALLOWED = true;
 
-    /** The default for allowing postdatable tickets */
-    private static final boolean DEFAULT_TGS_POSTDATE_ALLOWED = true;
+    /** The default for allowing postdated tickets */
+    private static final boolean DEFAULT_TGS_POSTDATED_ALLOWED = true;
 
     /** The default for allowing renewable tickets */
     private static final boolean DEFAULT_TGS_RENEWABLE_ALLOWED = true;
@@ -121,8 +121,8 @@ public class KdcConfiguration extends ServiceConfiguration
     /** Whether proxiable addresses are allowed. */
     private boolean isProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
-    /** Whether postdating is allowed. */
-    private boolean isPostdateAllowed = DEFAULT_TGS_POSTDATE_ALLOWED;
+    /** Whether postdated tickets are allowed. */
+    private boolean isPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
     private boolean isRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
@@ -175,11 +175,11 @@ public class KdcConfiguration extends ServiceConfiguration
 
 
     /**
-     * @return the isPostdateAllowed
+     * @return the isPostdatedAllowed
      */
-    public boolean isPostdateAllowed()
+    public boolean isPostdatedAllowed()
     {
-        return isPostdateAllowed;
+        return isPostdatedAllowed;
     }
 
 
@@ -265,11 +265,11 @@ public class KdcConfiguration extends ServiceConfiguration
 
 
     /**
-     * @param isPostdateAllowed the isPostdateAllowed to set
+     * @param isPostdatedAllowed the isPostdatedAllowed to set
      */
-    public void setPostdateAllowed( boolean isPostdateAllowed )
+    public void setPostdatedAllowed( boolean isPostdatedAllowed )
     {
-        this.isPostdateAllowed = isPostdateAllowed;
+        this.isPostdatedAllowed = isPostdatedAllowed;
     }
 
 

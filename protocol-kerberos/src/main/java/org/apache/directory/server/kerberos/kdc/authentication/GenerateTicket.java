@@ -103,7 +103,7 @@ public class GenerateTicket implements IoHandlerCommand
 
         if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
         {
-            if ( !config.isPostdateAllowed() )
+            if ( !config.isPostdatedAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
@@ -160,7 +160,7 @@ public class GenerateTicket implements IoHandlerCommand
          */
         if ( request.getOption( KdcOptions.POSTDATED ) )
         {
-            if ( !config.isPostdateAllowed() )
+            if ( !config.isPostdatedAllowed() )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }

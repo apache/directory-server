@@ -409,7 +409,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     public void testAllowPostdate() throws Exception
     {
         // Deny ALLOW_POSTDATE tickets in policy.
-        config.setPostdateAllowed( false );
+        config.setPostdatedAllowed( false );
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -458,7 +458,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     public void testPostdated() throws Exception
     {
         // Deny POSTDATED tickets in policy.
-        config.setPostdateAllowed( false );
+        config.setPostdatedAllowed( false );
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
@@ -507,7 +507,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     public void testValidateInvalidTicket() throws Exception
     {
         // Deny VALIDATE tickets in policy.
-        config.setPostdateAllowed( false );
+        config.setPostdatedAllowed( false );
 
         // Get the mutable ticket part.
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );

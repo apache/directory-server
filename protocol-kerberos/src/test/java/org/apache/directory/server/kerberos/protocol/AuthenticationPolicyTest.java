@@ -136,7 +136,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     {
         // Deny POSTDATED tickets in policy.
         config.setPaEncTimestampRequired( false );
-        config.setPostdateAllowed( false );
+        config.setPostdatedAllowed( false );
 
         RequestBodyModifier modifier = new RequestBodyModifier();
         modifier.setClientName( getPrincipalName( "hnelson" ) );
@@ -171,7 +171,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
     {
         // Deny POSTDATED tickets in policy.
         config.setPaEncTimestampRequired( false );
-        config.setPostdateAllowed( false );
+        config.setPostdatedAllowed( false );
 
         RequestBodyModifier modifier = new RequestBodyModifier();
         modifier.setClientName( getPrincipalName( "hnelson" ) );
