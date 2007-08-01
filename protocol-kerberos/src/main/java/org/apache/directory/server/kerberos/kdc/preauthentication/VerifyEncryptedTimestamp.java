@@ -121,6 +121,11 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                     }
                 }
 
+                if ( preAuthData.length > 0 && timestamp == null )
+                {
+                    throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
+                }
+
                 if ( timestamp == null )
                 {
                     throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
