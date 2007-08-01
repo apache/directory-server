@@ -836,6 +836,49 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
 
     /**
+     * Tests that a service ticket can be requested without the use of a TGT.  The
+     * returned service ticket will have the INITIAL flag set.
+     * 
+     * @throws Exception
+     */
+    public void testInitialServiceTicket() throws Exception
+    {
+        String servicePrincipalName = "ldap/ldap.example.com@EXAMPLE.COM";
+
+        RequestBodyModifier modifier = new RequestBodyModifier();
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
+        modifier.setServerName( getPrincipalName( servicePrincipalName ) );
+        modifier.setRealm( "EXAMPLE.COM" );
+        modifier.setEType( config.getEncryptionTypes() );
+
+        modifier.setKdcOptions( new KdcOptions() );
+
+        long now = System.currentTimeMillis();
+        KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
+        modifier.setTill( requestedEndTime );
+
+        KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+        String passPhrase = "secret";
+        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+
+        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+
+        handler.messageReceived( session, message );
+
+        AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
+
+        assertTrue( "INITIAL flag", reply.getFlags().get( TicketFlags.INITIAL ) );
+        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+
+        assertTrue( "INITIAL flag", reply.getTicket().getFlags().get( TicketFlags.INITIAL ) );
+        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+
+        assertEquals( "Service principal name", reply.getServerPrincipal().getName(), servicePrincipalName );
+        assertEquals( "Service principal name", reply.getTicket().getServerPrincipal().getName(), servicePrincipalName );
+    }
+
+
+    /**
      * Tests whether a renewable ticket will be accepted in lieu of a non-renewable
      * ticket if the requested ticket expiration date cannot be satisfied by a
      * non-renewable ticket (due to configuration constraints).
