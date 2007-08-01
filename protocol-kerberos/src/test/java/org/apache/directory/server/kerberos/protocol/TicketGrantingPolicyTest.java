@@ -181,13 +181,6 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      */
     public void testForwardedNoAddressesTicket() throws Exception
     {
-        /*
-         * Test case needs further testing to ensure the localhost address is
-         * resolved uniformly on different platforms, or else the test case will fail.
-         */
-        assertTrue( true );
-
-        /*
         // Deny empty addresses tickets in policy.
         config.setEmptyAddressesAllowed( false );
 
@@ -231,7 +224,6 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
-        */
     }
 
 
@@ -346,13 +338,6 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      */
     public void testProxyNoAddressesTicket() throws Exception
     {
-        /*
-         * Test case needs further testing to ensure the localhost address is
-         * resolved uniformly on different platforms, or else the test case will fail.
-         */
-        assertTrue( true );
-
-        /*
         // Deny empty addresses tickets in policy.
         config.setEmptyAddressesAllowed( false );
 
@@ -396,7 +381,6 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
         assertEquals( "KDC policy rejects request", 12, error.getErrorCode() );
-        */
     }
 
 
