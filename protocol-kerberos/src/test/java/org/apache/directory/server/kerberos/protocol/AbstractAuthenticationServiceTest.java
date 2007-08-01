@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.security.SecureRandom;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -62,6 +63,7 @@ import org.apache.mina.common.support.BaseIoSession;
 public abstract class AbstractAuthenticationServiceTest extends TestCase
 {
     protected CipherTextHandler lockBox;
+    protected static final SecureRandom random = new SecureRandom();
 
 
     protected PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )

@@ -271,7 +271,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
 
         Authenticator authenticator = authenticatorModifier.getAuthenticator();
 
-        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.NUMBER11 );
+        EncryptedData encryptedAuthenticator = lockBox.seal( sessionKey, authenticator, KeyUsage.NUMBER7 );
 
         return encryptedAuthenticator;
     }
