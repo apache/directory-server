@@ -20,11 +20,11 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
+import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -35,7 +35,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
  */
 public class ConfigureTicketGrantingChain implements IoHandlerCommand
 {
-    private static final ReplayCache replayCache = new InMemoryReplayCache();
+    private static final InMemoryReplayCache replayCache = new InMemoryReplayCache();
     private static final CipherTextHandler cipherTextHandler = new CipherTextHandler();
 
     private String contextKey = "context";
@@ -45,7 +45,11 @@ public class ConfigureTicketGrantingChain implements IoHandlerCommand
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
+        KdcConfiguration config = tgsContext.getConfig();
+        long clockSkew = config.getAllowableClockSkew();
+        replayCache.setClockSkew( clockSkew );
         tgsContext.setReplayCache( replayCache );
+
         tgsContext.setCipherTextHandler( cipherTextHandler );
 
         if ( tgsContext.getRequest().getProtocolVersionNumber() != 5 )
