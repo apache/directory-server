@@ -80,10 +80,12 @@ public class ReplicationServiceITest extends TestCase
 
     public void testOneWay() throws Exception
     {
-        String dn = "cn=test,ou=system";
-        testOneWayBind( dn );
-        testOneWayModify( dn );
-        testOneWayUnbind( dn );
+        String dn1 = "cn=test,ou=system";
+//        String dn2 = "cn=test2,ou=system";
+        testOneWayBind( dn1 );
+        testOneWayModify( dn1 );
+//        testOneWayRename( dn1, dn2 );
+        testOneWayUnbind( dn1 );
     }
     
     /**
@@ -168,6 +170,26 @@ public class ReplicationServiceITest extends TestCase
         Assert.assertEquals( newValue, getAttributeValue( ctxB, dn, "ou" ) );
         Assert.assertEquals( newValue, getAttributeValue( ctxC, dn, "ou" ) );
     }
+
+//    private void testOneWayRename( String dn1, String dn2 ) throws Exception
+//    {
+//        LdapContext ctxA = getReplicaContext( "A" );
+//        LdapContext ctxB = getReplicaContext( "B" );
+//        LdapContext ctxC = getReplicaContext( "C" );
+//        
+//        ctxA.rename( dn1, dn2 );
+//        
+//        replicationServices.get( "A" ).replicate();
+//
+//        Thread.sleep( 5000 );
+//        
+//        assertNotExists( ctxA, dn1 );
+//        assertNotExists( ctxB, dn1 );
+//        assertNotExists( ctxC, dn1 );
+//        Assert.assertNotNull( ctxA.lookup( dn2 ) );
+//        Assert.assertNotNull( ctxB.lookup( dn2 ) );
+//        Assert.assertNotNull( ctxC.lookup( dn2 ) );
+//    }
     
     private void testOneWayUnbind( String dn ) throws Exception
     {
@@ -289,7 +311,7 @@ public class ReplicationServiceITest extends TestCase
         {
             i.next().interruptConnectors();
         }
-        Thread.sleep( 1000 );
+        Thread.sleep( 5000 );
     }
 
     private LdapContext getReplicaContext( String name ) throws Exception
