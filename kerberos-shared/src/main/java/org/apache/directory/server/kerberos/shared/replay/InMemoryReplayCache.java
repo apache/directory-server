@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.shared.replay;
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,9 +39,20 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
  */
 public class InMemoryReplayCache implements ReplayCache
 {
-    private static final long TWO_WEEKS = 1000 * 60 * 60 * 24 * 14;
-
     private List<ReplayCacheEntry> list = new ArrayList<ReplayCacheEntry>();
+
+    private long clockSkew = 5 * KerberosTime.MINUTE;
+
+
+    /**
+     * Sets the clock skew.
+     *
+     * @param clockSkew
+     */
+    public void setClockSkew( long clockSkew )
+    {
+        this.clockSkew = clockSkew;
+    }
 
 
     public synchronized boolean isReplay( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal,
@@ -55,9 +65,15 @@ public class InMemoryReplayCache implements ReplayCache
         while ( it.hasNext() )
         {
             ReplayCacheEntry entry = it.next();
+
             if ( entry.equals( testEntry ) )
             {
                 return true;
+            }
+
+            if ( entry.isOutsideClockSkew( clockSkew ) )
+            {
+                it.remove();
             }
         }
 
@@ -69,28 +85,6 @@ public class InMemoryReplayCache implements ReplayCache
         KerberosTime clientTime, int clientMicroSeconds )
     {
         list.add( new ReplayCacheEntry( serverPrincipal, clientPrincipal, clientTime, clientMicroSeconds ) );
-        purgeExpired();
-    }
-
-
-    /*
-     * TODO - age needs to be configurable; requires store
-     */
-    private synchronized void purgeExpired()
-    {
-        long now = new Date().getTime();
-
-        KerberosTime age = new KerberosTime( now - TWO_WEEKS );
-
-        Iterator<ReplayCacheEntry> it = list.iterator();
-        while ( it.hasNext() )
-        {
-            ReplayCacheEntry entry = it.next();
-            if ( entry.olderThan( age ) )
-            {
-                list.remove( entry );
-            }
-        }
     }
 
     private class ReplayCacheEntry
@@ -137,12 +131,12 @@ public class InMemoryReplayCache implements ReplayCache
         /**
          * Returns whether this {@link ReplayCacheEntry} is older than a given time.
          *
-         * @param time
-         * @return true if the {@link ReplayCacheEntry} is older.
+         * @param clockSkew
+         * @return true if the {@link ReplayCacheEntry}'s client time is outside the clock skew time.
          */
-        public boolean olderThan( KerberosTime time )
+        public boolean isOutsideClockSkew( long clockSkew )
         {
-            return time.greaterThan( clientTime );
+            return !clientTime.isInClockSkew( clockSkew );
         }
     }
 }
