@@ -39,6 +39,7 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -84,6 +85,7 @@ public class OperationFactory
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
+    private final AttributeTypeRegistry attributeRegistry;
 
 
     public OperationFactory( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
@@ -93,6 +95,7 @@ public class OperationFactory
         this.nexus = serviceCfg.getPartitionNexus();
         this.uuidFactory = cfg.getUuidFactory();
         this.csnFactory = cfg.getCsnFactory();
+        this.attributeRegistry = serviceCfg.getRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -264,6 +267,7 @@ public class OperationFactory
 
             // Get the name of the old entry
             LdapDN oldEntryName = new LdapDN( sr.getName() );
+            oldEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Delete the old entry
             result.add( new ReplaceAttributeOperation( csn, oldEntryName, new AttributeImpl( Constants.ENTRY_DELETED,
@@ -284,9 +288,10 @@ public class OperationFactory
             {
                 newEntryName.add( oldEntryName.get( oldEntryName.size() - i ) );
             }
+            newEntryName.normalize( attributeRegistry.getNormalizerMapping() );
 
             // Add the new entry
-            result.add( newAdd( csn, new LdapDN( newEntryName.getUpName() ), entry ) );
+            result.add( newAdd( csn, newEntryName, entry ) );
 
             // Add default operations to the old entry.
             // Please note that newAdd() already added default operations
