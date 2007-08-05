@@ -30,6 +30,7 @@ import java.util.Random;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -55,6 +56,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 
 /**
@@ -84,8 +86,9 @@ public class ReplicationServiceITest extends TestCase
         String dn2 = "cn=test2,ou=system";
         testOneWayBind( dn1 );
         testOneWayModify( dn1 );
-        testOneWayRename( dn1, dn2 );
-        testOneWayUnbind( dn2 );
+        testOneWayRename( dn1, dn2, true );
+        testOneWayRename( dn2, dn1, false );
+        testOneWayUnbind( dn1 );
     }
     
     /**
@@ -171,12 +174,15 @@ public class ReplicationServiceITest extends TestCase
         Assert.assertEquals( newValue, getAttributeValue( ctxC, dn, "ou" ) );
     }
 
-    private void testOneWayRename( String dn1, String dn2 ) throws Exception
+    private void testOneWayRename( String dn1, String dn2, boolean deleteRDN ) throws Exception
     {
         LdapContext ctxA = getReplicaContext( "A" );
         LdapContext ctxB = getReplicaContext( "B" );
         LdapContext ctxC = getReplicaContext( "C" );
         
+        String oldRDNValue = (String) new LdapDN(dn1).getRdn().getUpValue();
+        
+        ctxA.addToEnvironment( "java.naming.ldap.deleteRDN", Boolean.toString( deleteRDN ) );
         ctxA.rename( dn1, dn2 );
         
         replicationServices.get( "A" ).replicate();
@@ -189,6 +195,26 @@ public class ReplicationServiceITest extends TestCase
         Assert.assertNotNull( ctxA.lookup( dn2 ) );
         Assert.assertNotNull( ctxB.lookup( dn2 ) );
         Assert.assertNotNull( ctxC.lookup( dn2 ) );
+
+        Attribute oldRDNAttributeA = ctxA.getAttributes( dn2 ).get( new LdapDN(dn1).getRdn().getUpType() );
+        Attribute oldRDNAttributeB = ctxB.getAttributes( dn2 ).get( new LdapDN(dn1).getRdn().getUpType() );
+        Attribute oldRDNAttributeC = ctxC.getAttributes( dn2 ).get( new LdapDN(dn1).getRdn().getUpType() );
+        boolean oldRDNExistsA = attributeContainsValue( oldRDNAttributeA, oldRDNValue );
+        boolean oldRDNExistsB = attributeContainsValue( oldRDNAttributeB, oldRDNValue );
+        boolean oldRDNExistsC = attributeContainsValue( oldRDNAttributeC, oldRDNValue );
+        
+        if ( deleteRDN )
+        {
+            Assert.assertFalse( oldRDNExistsA );
+            Assert.assertFalse( oldRDNExistsB );
+            Assert.assertFalse( oldRDNExistsC );
+        }
+        else
+        {
+            Assert.assertTrue( oldRDNExistsA );
+            Assert.assertTrue( oldRDNExistsB );
+            Assert.assertTrue( oldRDNExistsC );
+        }
     }
     
     private void testOneWayUnbind( String dn ) throws Exception
@@ -226,6 +252,19 @@ public class ReplicationServiceITest extends TestCase
     {
         Attribute attr = ctx.getAttributes( name ).get( attrName );
         return ( String ) attr.get();
+    }
+    
+    private boolean attributeContainsValue( Attribute attribute, Object value ) throws NamingException
+    {
+        boolean foundValue = false;
+        for ( NamingEnumeration ne = attribute.getAll(); ne.hasMore(); )
+        {
+            if ( value.equals( ne.next() ) )
+            {
+                foundValue = true;
+            }
+        }
+        return foundValue;
     }
 
     @SuppressWarnings("unchecked")

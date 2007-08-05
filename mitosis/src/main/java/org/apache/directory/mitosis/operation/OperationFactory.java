@@ -25,19 +25,25 @@ import java.util.Map;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.mitosis.common.CSNFactory;
+import org.apache.directory.mitosis.common.Constants;
+import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.UUIDFactory;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -46,12 +52,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNFactory;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.UUIDFactory;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 
 
 /**
@@ -239,18 +239,11 @@ public class OperationFactory
     /**
      * Returns a new {@link Operation} that performs "move" operation.
      * Please note this operation is the most fragile operation I've written
-     * so it should be reviewed completely again.  This methods
-     * doesn't allow you to specify <tt>deleteOldRn</tt> as <tt>false</tt>
-     * for now.  This limitation should be removed too.
+     * so it should be reviewed completely again.
      */
     public Operation newMove( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn )
         throws NamingException
     {
-        if ( !deleteOldRn )
-        {
-            throw new OperationNotSupportedException( "deleteOldRn must be true." );
-        }
-
         // Prepare to create composite operations
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
@@ -277,8 +270,33 @@ public class OperationFactory
             Attributes entry = sr.getAttributes();
             if ( oldEntryName.size() == oldName.size() )
             {
-                entry.remove( NamespaceTools.getRdnAttribute( oldName.get( oldName.size() - 1 ) ) );
-                entry.put( NamespaceTools.getRdnAttribute( newRdn ), NamespaceTools.getRdnValue( newRdn ) );
+                if ( deleteOldRn )
+                {
+                    // Delete the old RDN attribute value
+                    String oldRDNAttributeID = oldName.getRdn().getUpType();
+                    Attribute oldRDNAttribute = entry.get( oldRDNAttributeID );
+                    if ( oldRDNAttribute != null )
+                    {
+                        boolean removed = oldRDNAttribute.remove( oldName.getRdn().getUpValue() );
+                        if ( removed && oldRDNAttribute.size() == 0 )
+                        {
+                            // Now an empty attribute, remove it.
+                            entry.remove( oldRDNAttributeID );
+                        }
+                    }
+                }
+                // Add the new RDN attribute value.
+                String newRDNAttributeID = NamespaceTools.getRdnAttribute( newRdn );
+                String newRDNAttributeValue = NamespaceTools.getRdnValue( newRdn );
+                Attribute newRDNAttribute = entry.get( newRDNAttributeID );
+                if ( newRDNAttribute != null )
+                {
+                    newRDNAttribute.add( newRDNAttributeValue );
+                }
+                else
+                {
+                    entry.put( newRDNAttributeID, newRDNAttributeValue );
+                }
             }
 
             // Calculate new name from newParentName, oldEntryName, and newRdn.
