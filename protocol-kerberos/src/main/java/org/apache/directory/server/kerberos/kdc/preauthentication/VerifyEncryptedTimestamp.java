@@ -74,7 +74,9 @@ public class VerifyEncryptedTimestamp extends VerifierBase
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug( "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.", clientName );
+                log.debug(
+                    "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.",
+                    clientName );
             }
 
             EncryptionType encryptionType = authContext.getEncryptionType();
@@ -138,11 +140,11 @@ public class VerifyEncryptedTimestamp extends VerifierBase
                 }
 
                 /*
-                 if(decrypted_enc_timestamp and usec is replay)
-                 error_out(KDC_ERR_PREAUTH_FAILED);
-                 endif
-
-                 add decrypted_enc_timestamp and usec to replay cache;
+                 * if(decrypted_enc_timestamp and usec is replay)
+                 *         error_out(KDC_ERR_PREAUTH_FAILED);
+                 * endif
+                 * 
+                 * add decrypted_enc_timestamp and usec to replay cache;
                  */
             }
         }

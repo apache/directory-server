@@ -58,8 +58,8 @@ public class VerifyTgt implements IoHandlerCommand
         String requestServerName = tgsContext.getRequest().getServerPrincipal().getName();
 
         /*
-         * if (tgt.sname is not a TGT for local realm and is not
-         * req.sname) then error_out(KRB_AP_ERR_NOT_US);
+         * if (tgt.sname is not a TGT for local realm and is not req.sname)
+         *     then error_out(KRB_AP_ERR_NOT_US);
          */
         if ( !tgtServerName.equals( config.getServicePrincipal().getName() )
             && !tgtServerName.equals( requestServerName ) )

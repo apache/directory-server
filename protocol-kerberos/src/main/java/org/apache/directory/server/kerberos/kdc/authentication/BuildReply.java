@@ -51,7 +51,7 @@ public class BuildReply implements IoHandlerCommand
 
         // TODO - fetch lastReq for this client; requires store
         reply.setLastRequest( new LastRequest() );
-        // TODO    - resp.key-expiration := client.expiration; requires store
+        // TODO - resp.key-expiration := client.expiration; requires store
 
         reply.setNonce( request.getNonce() );
 

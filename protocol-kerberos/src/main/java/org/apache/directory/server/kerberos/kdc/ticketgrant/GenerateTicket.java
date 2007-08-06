@@ -106,7 +106,7 @@ public class GenerateTicket implements IoHandlerCommand
              * 
              * if ((req.second_ticket is not a TGT) or
              *     (req.second_ticket.client != server)) then
-             *        error_out(KDC_ERR_POLICY);
+             *         error_out(KDC_ERR_POLICY);
              * endif
              * 
              * new_tkt.enc-part := encrypt OCTET STRING using etype_for_key(second-ticket.key), second-ticket.key;
@@ -289,9 +289,9 @@ public class GenerateTicket implements IoHandlerCommand
             }
 
             /*
-             if (check_hot_list(tgt)) then
-             error_out(KRB_AP_ERR_REPEAT);
-             endif
+             * if (check_hot_list(tgt)) then
+             *         error_out(KRB_AP_ERR_REPEAT);
+             * endif
              */
 
             echoTicket( newTicketBody, tgt );
@@ -478,16 +478,17 @@ public class GenerateTicket implements IoHandlerCommand
 
 
     /*
-     if (realm_tgt_is_for(tgt) := tgt.realm) then
-     // tgt issued by local realm
-     new_tkt.transited := tgt.transited;
-     else
-     // was issued for this realm by some other realm
-     if (tgt.transited.tr-type not supported) then
-     error_out(KDC_ERR_TRTYPE_NOSUPP);
-     endif
-     new_tkt.transited := compress_transited(tgt.transited + tgt.realm)
-     endif
+     * if (realm_tgt_is_for(tgt) := tgt.realm) then
+     *         // tgt issued by local realm
+     *         new_tkt.transited := tgt.transited;
+     * else
+     *         // was issued for this realm by some other realm
+     *         if (tgt.transited.tr-type not supported) then
+     *                 error_out(KDC_ERR_TRTYPE_NOSUPP);
+     *         endif
+     * 
+     *         new_tkt.transited := compress_transited(tgt.transited + tgt.realm)
+     * endif
      */
     private void processTransited( EncTicketPartModifier newTicketBody, Ticket tgt )
     {
