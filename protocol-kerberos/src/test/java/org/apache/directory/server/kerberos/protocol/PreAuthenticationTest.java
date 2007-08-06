@@ -24,12 +24,19 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
@@ -164,5 +171,95 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
         ErrorMessage error = ( ErrorMessage ) session.getMessage();
 
         assertEquals( "Pre-authentication information was invalid", 24, error.getErrorCode() );
+    }
+
+
+    /**
+     * Tests when pre-authentication is included that is not supported by the KDC, that
+     * the correct error message is returned.
+     * 
+     * @throws Exception 
+     */
+    public void testPreAuthenticationNoSupport() throws Exception
+    {
+        RequestBodyModifier modifier = new RequestBodyModifier();
+        modifier.setClientName( getPrincipalName( "hnelson" ) );
+        modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
+        modifier.setRealm( "EXAMPLE.COM" );
+        modifier.setEType( config.getEncryptionTypes() );
+
+        modifier.setKdcOptions( new KdcOptions() );
+
+        long now = System.currentTimeMillis();
+
+        KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
+        modifier.setTill( requestedEndTime );
+
+        KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
+        String passPhrase = "secret";
+        PreAuthenticationData[] paData = getPreAuthPublicKey( clientPrincipal, passPhrase );
+
+        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+
+        handler.messageReceived( session, message );
+
+        ErrorMessage error = ( ErrorMessage ) session.getMessage();
+
+        assertEquals( "KDC has no support for padata type", 16, error.getErrorCode() );
+    }
+
+
+    /**
+     * Returns pre-authentication payload of type PA_PK_AS_REQ.  Note that the actual
+     * payload is an encrypted timestamp, but with only the type set to PA_PK_AS_REQ.
+     * This is being used to test the error condition when an unsupported pre-authentication
+     * type is received by the KDC.  The time for the timestamp is set to the current time.
+     *
+     * @param clientPrincipal
+     * @param passPhrase
+     * @return The array of pre-authentication data.
+     * @throws Exception
+     */
+    private PreAuthenticationData[] getPreAuthPublicKey( KerberosPrincipal clientPrincipal, String passPhrase )
+        throws Exception
+    {
+        KerberosTime timeStamp = new KerberosTime();
+
+        return getPreAuthPublicKey( clientPrincipal, passPhrase, timeStamp );
+    }
+
+
+    /**
+     * Returns pre-authentication payload of type PA_PK_AS_REQ.  Note that the actual
+     * payload is an encrypted timestamp, but with the type set to PA_PK_AS_REQ.  This
+     * is being used to test the error condition caused when an unsupported
+     * pre-authentication type is received by the KDC.
+     *
+     * @param clientPrincipal
+     * @param passPhrase
+     * @param timeStamp
+     * @return The array of pre-authentication data.
+     * @throws Exception
+     */
+    private PreAuthenticationData[] getPreAuthPublicKey( KerberosPrincipal clientPrincipal, String passPhrase,
+        KerberosTime timeStamp ) throws Exception
+    {
+        PreAuthenticationData[] paData = new PreAuthenticationData[1];
+
+        EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
+
+        EncryptionKey clientKey = getEncryptionKey( clientPrincipal, passPhrase );
+
+        EncryptedData encryptedData = lockBox.seal( clientKey, encryptedTimeStamp, KeyUsage.NUMBER1 );
+
+        byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
+
+        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
+        preAuth.setDataType( PreAuthenticationDataType.PA_PK_AS_REQ );
+        preAuth.setDataValue( encodedEncryptedData );
+
+        paData[0] = preAuth.getPreAuthenticationData();
+
+        return paData;
     }
 }
