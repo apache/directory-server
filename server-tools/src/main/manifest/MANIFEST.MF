@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Main-Class: org.apache.directory.server.tools.ApachedsTools
-Class-Path: logger.jar daemon.jar bootstrapper.jar 
+Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar 
  ../lib/antlr-2.7.6.jar 
  ../lib/apacheds-kerberos-shared-1.5.1-SNAPSHOT.jar 
  ../lib/apacheds-protocol-changepw-1.5.1-SNAPSHOT.jar 
@@ -21,8 +21,9 @@ Class-Path: logger.jar daemon.jar bootstrapper.jar
  ../lib/apacheds-bootstrap-extract-1.5.1-SNAPSHOT.jar 
  ../lib/commons-collections-3.2.jar 
  ../lib/commons-lang-2.3.jar 
- ../lib/jcl104-over-slf4j-1.4.0.jar 
- ../lib/slf4j-api-1.4.0.jar 
+ ../lib/jcl104-over-slf4j-1.4.0.jar
+  ../lib/nlog4j-1.2.25.jar
+  ../lib/slf4j-api-1.4.0.jar 
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/mina-core-1.0.3.jar 

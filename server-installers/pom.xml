@@ -99,6 +99,30 @@
 
   <build>
     <plugins>
+<!--
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="target/images"/>
+                <get src="http://builds.organicelement.com/repository/download/bt4/.lastSuccessful/ApacheDirectoryStudio_Windows.zip"
+                     verbose="on" usetimestamp="true"
+                     dest="target/ApacheDirectoryStudio.zip"
+                />
+                <touch file="target/ApacheDirectoryStudio.zip"/>
+                <unzip src="target/ApacheDirectoryStudio.zip" dest="target/images/win32" overwrite="false" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+-->
       <plugin>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-plugin</artifactId>
@@ -132,6 +156,7 @@
 
           <application>
             <name>apacheds</name>
+            <icon>src/main/resources/feather.ico</icon>
             <version>${pom.version}</version>
             <copyrightYear>2007</copyrightYear>
             <minimumJavaVersion>1.5</minimumJavaVersion>
@@ -152,7 +177,6 @@
               <author>trustin@apache.org</author>
             </authors>
           </application>
-
           <packagedFiles>
             <packagedFile>
               <source>org.apache.directory.server:apacheds-server-tools</source>
@@ -173,150 +197,128 @@
           </applicationClass>
 
           <rpmTargets>
-            <rpmTarget>
-              <packagedFiles>
-                <packagedFile>
-                  <source>rpm-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <id>linux-jsvc-rpm</id>
-              <rpmSpecificationFile>src/main/installers/rpm-apacheds.spec</rpmSpecificationFile>
-              <finalName>
-                apacheds-${pom.version}-linux-i386.rpm
-              </finalName>
-              <osName>Linux</osName>
-              <osFamily>unix</osFamily>
-              <osArch>i386</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </rpmTarget>
+              <rpmTarget>
+                <packagedFiles>
+                  <packagedFile>
+                    <source>rpm-apacheds-tools.sh</source>
+                    <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                    <installationBundleId>Binaries</installationBundleId>
+                    <executable>true</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-fhs.conf</source>
+                    <destinationPath>conf/apacheds.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-sysconfig.conf</source>
+                    <destinationPath>conf/apacheds-sysconfig.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-default.conf</source>
+                    <destinationPath>conf/apacheds-default.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>false</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>../resources/adstree.ico</source>
+                    <destinationPath>logo.ico</destinationPath>
+                    <executable>false</executable>
+                    <filtered>false</filtered>
+                  </packagedFile>
+                </packagedFiles>
+                <id>apacheds-rpm</id>
+                <rpmSpecificationFile>src/main/installers/apacheds-rpm.spec</rpmSpecificationFile>
+                <!--<rpmTopDir>${user.home}/rpmbuild</rpmTopDir>-->
+                <finalName>
+                  apacheds-server-${pom.version}-i386.rpm
+                </finalName>
+                <osName>Linux</osName>
+                <osFamily>unix</osFamily>
+                <osArch>i386</osArch>
+                <daemonFramework>tanuki</daemonFramework>
+                <scriptFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/src/sh.script.in</scriptFile>
+                <bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>
+              </rpmTarget>
           </rpmTargets>
 
-          <innoTargets>
-            <innoTarget>
-              <id>windows-xp-procrun</id>
-              <innoConfigurationFile>src/main/installers/inno-apacheds.iss</innoConfigurationFile>
+          <nsisTargets>
+            <nsisTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>apacheds.conf</source>
+                  <destinationPath>conf/apacheds.conf</destinationPath>
+                  <executable>false</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+                <packagedFile>
+                  <source>apacheds-default.conf</source>
+                  <destinationPath>conf/apacheds-default.conf</destinationPath>
+                  <executable>false</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+                <packagedFile>
+                  <source>../resources/adstree.ico</source>
+                  <destinationPath>server.ico</destinationPath>
+                  <executable>false</executable>
+                  <filtered>false</filtered>
+                </packagedFile>
+              </packagedFiles>
+
+              <id>win32</id>
+              <nsisCompiler>/usr/local/share/nsis/makensis</nsisCompiler>
+              <nsisConfigurationFile>src/main/installers/apacheds-server-win.nsi</nsisConfigurationFile>
               <finalName>
-                apacheds-${pom.version}-win32-setup
+                apacheds-server-${pom.version}-setup
               </finalName>
               <osName>Windows XP</osName>
               <osFamily>windows</osFamily>
               <osVersion>5.1</osVersion>
               <osArch>x86</osArch>
-              <daemonFramework>procrun</daemonFramework>
-            </innoTarget>
-          </innoTargets>
-
-          <izPackTargets>
-            <izPackTarget>
-              <packagedFiles>
-                <packagedFile>
-                  <source>izpack-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <id>linux-jsvc</id>
-              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
-              <finalName>
-                apacheds-${pom.version}-linux-i386-setup.jar
-              </finalName>
-              <osName>Linux</osName>
-              <osFamily>unix</osFamily>
-              <osArch>i386</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
-
-            <izPackTarget>
-              <packagedFiles>
-                <packagedFile>
-                  <source>izpack-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <id>linux-jsvc-x86_64</id>
-              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
-              <finalName>
-                apacheds-${pom.version}-linux-x86_64-setup.jar
-              </finalName>
-              <osName>Linux</osName>
-              <osFamily>unix</osFamily>
-              <osArch>x86_64</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
+              <daemonFramework>tanuki</daemonFramework>
+            </nsisTarget>
 <!--
-            <izPackTarget>
+            <nsisTarget>
               <packagedFiles>
                 <packagedFile>
-                  <source>izpack-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
+                  <source>apacheds.conf</source>
+                  <destinationPath>conf/apacheds.conf</destinationPath>
+                  <executable>false</executable>
                   <filtered>true</filtered>
                 </packagedFile>
+                <packagedFile>
+                  <source>apacheds-default.conf</source>
+                  <destinationPath>conf/apacheds-default.conf</destinationPath>
+                  <executable>false</executable>
+                  <filtered>true</filtered>
+                </packagedFile>
+                <packagedFile>
+                  <source>../resources/adstree.ico</source>
+                  <destinationPath>server.ico</destinationPath>
+                  <executable>false</executable>
+                  <filtered>false</filtered>
+                </packagedFile>
               </packagedFiles>
-              <finalName>
-                apacheds-${pom.version}-solaris-sparc-setup.jar
-              </finalName>
-              <id>solaris-jsvc-sparc</id>
-              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
-              <osName>sunos</osName>
-              <osFamily>unix</osFamily>
-              <osArch>sparc</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
 
-            <izPackTarget>
-              <packagedFiles>
-                <packagedFile>
-                  <source>izpack-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <id>solaris-jsvc-i386</id>
-              <izPackInstallFile>src/main/installers/izpack-unix.xml</izPackInstallFile>
+              <id>win32</id>
+              <nsisCompiler>/usr/local/share/nsis/makensis</nsisCompiler>
+              <nsisConfigurationFile>src/main/installers/apacheds-suite-win.nsi</nsisConfigurationFile>
               <finalName>
-                apacheds-${pom.version}-solaris-i386-setup.jar
+                apacheds-suite-${pom.version}-setup
               </finalName>
-              <osName>sunos</osName>
-              <osFamily>unix</osFamily>
-              <osArch>i386</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
-
-            <izPackTarget>
-              <packagedFiles>
-                <packagedFile>
-                  <source>izpack-apacheds-tools.sh</source>
-                  <destinationPath>bin/apacheds-tools.sh</destinationPath>
-                  <installationBundleId>Binaries</installationBundleId>
-                  <executable>true</executable>
-                  <filtered>true</filtered>
-                </packagedFile>
-              </packagedFiles>
-              <id>macosx-jsvc</id>
-              <izPackInstallFile>src/main/installers/izpack-mac.xml</izPackInstallFile>
-              <finalName>
-                apacheds-${pom.version}-macosx-ppc-setup.jar
-              </finalName>
-              <osName>macosx</osName>
-              <osFamily>unix</osFamily>
-              <osArch>ppc</osArch>
-              <daemonFramework>jsvc</daemonFramework>
-            </izPackTarget>
+              <osName>Windows XP</osName>
+              <osFamily>windows</osFamily>
+              <osVersion>5.1</osVersion>
+              <osArch>x86</osArch>
+              <daemonFramework>tanuki</daemonFramework>
+            </nsisTarget>
 -->
-          </izPackTargets>
+          </nsisTargets>
+
         </configuration>
         <executions>
           <execution>

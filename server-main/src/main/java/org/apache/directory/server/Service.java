@@ -61,15 +61,16 @@ public class Service implements DaemonApplication
         printBanner();
         long startTime = System.currentTimeMillis();
 
-        if ( install != null )
-        {
-            log.info( "server: loading settings from ", install.getConfigurationFile() );
-            ApplicationContext factory = null;
-            factory = new FileSystemXmlApplicationContext( install.getConfigurationFile().toURL().toString() );
-            cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
-            env = ( Properties ) factory.getBean( "environment" );
-        }
-        else if ( args.length > 0 && new File( args[0] ).exists() ) // hack that takes server.xml file argument
+//        if ( install != null )
+//        {
+//            log.info( "server: loading settings from ", install.getConfigurationFile() );
+//            ApplicationContext factory = null;
+//            factory = new FileSystemXmlApplicationContext( install.getConfigurationFile().toURL().toString() );
+//            cfg = ( MutableServerStartupConfiguration ) factory.getBean( "configuration" );
+//            env = ( Properties ) factory.getBean( "environment" );
+//        }
+//        else if ( args.length > 0 && new File( args[0] ).exists() ) // hack that takes server.xml file argument
+        if ( args.length > 0 && new File( args[0] ).exists() ) // hack that takes server.xml file argument
         {
             log.info( "server: loading settings from ", args[0] );
             ApplicationContext factory = null;
