@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.6.0_02" class="java.beans.XMLDecoder"> 
+ <array class="[Ljava.lang.Object;" length="1"> 
+  <void index="0"> 
+   <array class="java.lang.Object" length="3"> 
+    <void index="0"> 
+     <object class="org.apache.directory.studio.ldapbrowser.core.model.ConnectionParameter"> 
+      <void property="aliasesDereferencingMethod"> 
+       <int>1</int> 
+      </void> 
+      <void property="authMethod"> 
+       <int>1</int> 
+      </void> 
+      <void property="baseDN"> 
+       <object class="org.apache.directory.studio.ldapbrowser.core.model.DN"> 
+        <void property="rdns"> 
+         <array class="org.apache.directory.studio.ldapbrowser.core.model.RDN" length="2"> 
+          <void index="0"> 
+           <object class="org.apache.directory.studio.ldapbrowser.core.model.RDN"> 
+            <void property="parts"> 
+             <array class="org.apache.directory.studio.ldapbrowser.core.model.RDNPart" length="1"> 
+              <void index="0"> 
+               <object class="org.apache.directory.studio.ldapbrowser.core.model.RDNPart"> 
+                <void property="type"> 
+                 <string>dc</string> 
+                </void> 
+                <void property="unencodedValue"> 
+                 <string>example</string> 
+                </void> 
+               </object> 
+              </void> 
+             </array> 
+            </void> 
+           </object> 
+          </void> 
+          <void index="1"> 
+           <object class="org.apache.directory.studio.ldapbrowser.core.model.RDN"> 
+            <void property="parts"> 
+             <array class="org.apache.directory.studio.ldapbrowser.core.model.RDNPart" length="1"> 
+              <void index="0"> 
+               <object class="org.apache.directory.studio.ldapbrowser.core.model.RDNPart"> 
+                <void property="type"> 
+                 <string>dc</string> 
+                </void> 
+                <void property="unencodedValue"> 
+                 <string>com</string> 
+                </void> 
+               </object> 
+              </void> 
+             </array> 
+            </void> 
+           </object> 
+          </void> 
+         </array> 
+        </void> 
+       </object> 
+      </void> 
+      <void property="bindPassword"> 
+       <string>secret</string> 
+      </void> 
+      <void property="bindPrincipal"> 
+       <string>uid=admin,ou=system</string> 
+      </void> 
+      <void property="connectionProviderClassName"> 
+       <string>org.apache.directory.studio.ldapbrowser.core.internal.model.JNDIConnectionProvider</string> 
+      </void> 
+      <void property="countLimit"> 
+       <int>1000</int> 
+      </void> 
+      <void property="fetchBaseDNs"> 
+       <boolean>true</boolean> 
+      </void> 
+      <void property="host"> 
+       <string>localhost</string> 
+      </void> 
+      <void property="name"> 
+       <string>Example</string> 
+      </void> 
+      <void property="port"> 
+       <int>10389</int> 
+      </void> 
+      <void property="referralsHandlingMethod"> 
+       <int>1</int> 
+      </void> 
+     </object> 
+    </void> 
+    <void index="1"> 
+     <array class="org.apache.directory.studio.ldapbrowser.core.model.SearchParameter" length="0"/> 
+    </void> 
+    <void index="2"> 
+     <array class="org.apache.directory.studio.ldapbrowser.core.model.BookmarkParameter" length="0"/> 
+    </void> 
+   </array> 
+  </void> 
+ </array> 
+</java> 
