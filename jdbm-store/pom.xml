@@ -27,14 +27,6 @@
       <scope>test</scope>
     </dependency>
 
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
