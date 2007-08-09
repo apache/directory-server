@@ -241,8 +241,8 @@
                 <osFamily>unix</osFamily>
                 <osArch>i386</osArch>
                 <daemonFramework>tanuki</daemonFramework>
-                <scriptFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/src/sh.script.in</scriptFile>
-                <bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>
+                <scriptFile>src/main/installers/apacheds-init</scriptFile>
+                <!--<bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>-->
               </rpmTarget>
           </rpmTargets>
 
