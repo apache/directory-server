@@ -35,7 +35,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -92,12 +91,6 @@ public class AddEntryOperation extends Operation
             recursiveDelete( nexus, normalizedName, registry );
         }
 
-        String rdn = normalizedName.get( normalizedName.size() - 1 );
-        // Remove the attribute first in case we're using a buggy 
-        // AttributesImpl which doesn't replace old attributes
-        // when we put a new one.
-        entry.remove( NamespaceTools.getRdnAttribute( rdn ) );
-        entry.put( NamespaceTools.getRdnAttribute( rdn ), NamespaceTools.getRdnValue( rdn ) );
         nexus.add( new AddOperationContext( normalizedName, entry ) );
     }
 
