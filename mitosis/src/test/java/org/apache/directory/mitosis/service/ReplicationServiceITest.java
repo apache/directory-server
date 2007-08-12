@@ -19,45 +19,21 @@
  */
 package org.apache.directory.mitosis.service;
 
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.configuration.MutableReplicationInterceptorConfiguration;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.mina.util.AvailablePortFinder;
 
 /**
  * A test case for {@link ReplicationServiceITest}
@@ -65,19 +41,11 @@ import org.apache.mina.util.AvailablePortFinder;
  * @author The Apache Directory Project Team (dev@directory.apache.org)
  * @version $Rev$, $Date$
  */
-public class ReplicationServiceITest extends TestCase
+public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 {
-    private Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
-    private Map<String, ReplicationService> replicationServices = new HashMap<String, ReplicationService>();
-
     protected void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
-    }
-
-    protected void tearDown() throws Exception
-    {
-        destroyAllReplicas();
     }
 
     public void testOneWay() throws Exception
@@ -265,143 +233,5 @@ public class ReplicationServiceITest extends TestCase
             }
         }
         return foundValue;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void createReplicas( String[] names ) throws Exception
-    {
-        int lastAvailablePort = 1024;
-
-        Replica[] replicas = new Replica[ names.length ];
-        for( int i = 0; i < names.length; i++ )
-        {
-            int replicationPort = AvailablePortFinder
-                    .getNextAvailable( lastAvailablePort );
-            lastAvailablePort = replicationPort + 1;
-
-            replicas[ i ] = new Replica( new ReplicaId( names[ i ] ),
-                    new InetSocketAddress( "127.0.0.1", replicationPort ) );
-        }
-
-        Random random = new Random();
-        String homeDirectory = System.getProperty( "java.io.tmpdir" )
-                + File.separator + "mitosis-"
-                + Long.toHexString( random.nextLong() );
-
-        for( int i = 0; i < replicas.length; i++ )
-        {
-            Replica replica = replicas[ i ];
-            String replicaId = replicas[ i ].getId().getId();
-            MutableStartupConfiguration ldapCfg = new MutableStartupConfiguration(
-                    replicaId );
-
-            File workDir = new File( homeDirectory + File.separator
-                    + ldapCfg.getInstanceId() );
-
-            ldapCfg.setShutdownHookEnabled( false );
-            ldapCfg.setWorkingDirectory( workDir );
-
-            List<InterceptorConfiguration> interceptorCfgs = ldapCfg.getInterceptorConfigurations();
-
-            ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
-            replicationCfg.setReplicaId( replica.getId() );
-            // Disable automatic replication to prevent unexpected behavior
-            replicationCfg.setReplicationInterval(0);
-            replicationCfg.setServerPort( replica.getAddress().getPort() );
-            for( int j = 0; j < replicas.length; j++ )
-            {
-                if( replicas[ j ] != replica )
-                {
-                    replicationCfg.addPeerReplica( replicas[ j ] );
-                }
-            }
-
-            MutableReplicationInterceptorConfiguration interceptorCfg = 
-                new MutableReplicationInterceptorConfiguration();
-            interceptorCfg.setName( "mitosis" );
-            interceptorCfg.setInterceptorClassName( ReplicationService.class.getName() );
-            interceptorCfg.setReplicationConfiguration( replicationCfg );
-            interceptorCfgs.add( interceptorCfg );
-
-            ldapCfg.setInterceptorConfigurations( interceptorCfgs );
-
-            if( workDir.exists() )
-            {
-                FileUtils.deleteDirectory( workDir );
-            }
-
-            Hashtable env = new Hashtable( ldapCfg.toJndiEnvironment() );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
-            env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-            env.put( Context.PROVIDER_URL, "" );
-            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
-                    .getName() );
-
-            // Initialize the server instance.
-            LdapContext context = new InitialLdapContext( env, null );
-            contexts.put( replicaId, context );
-            ReplicationService replicationService = (ReplicationService) DirectoryService.getInstance( replicaId ).getConfiguration().getInterceptorChain().get( "mitosis" );
-            replicationServices.put( replicaId, replicationService );
-        }
-
-        // Ensure all replicas have had a chance to connect to each other since the last one started.
-        for( Iterator<ReplicationService> i = replicationServices.values().iterator(); i.hasNext(); )
-        {
-            i.next().interruptConnectors();
-        }
-        Thread.sleep( 5000 );
-    }
-
-    private LdapContext getReplicaContext( String name ) throws Exception
-    {
-        LdapContext context = contexts.get( name );
-        if( context == null )
-        {
-            throw new IllegalArgumentException( "No such replica: " + name );
-        }
-
-        return ( LdapContext ) context.lookup( "" );
-    }
-    
-    @SuppressWarnings("unchecked")
-    private void destroyAllReplicas() throws Exception
-    {
-        for( Iterator<String> i = contexts.keySet().iterator(); i.hasNext(); )
-        {
-            String replicaId = i.next();
-            File workDir = DirectoryService.getInstance( replicaId )
-                    .getConfiguration().getStartupConfiguration()
-                    .getWorkingDirectory();
-
-            Hashtable env = new Hashtable();
-            env.put( Context.PROVIDER_URL, "ou=system" );
-            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
-                    .getName() );
-            env.putAll( new ShutdownConfiguration( replicaId )
-                    .toJndiEnvironment() );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
-            try
-            {
-                new InitialContext( env );
-            }
-            catch( Exception e )
-            {
-            }
-
-            try
-            {
-                FileUtils.deleteDirectory( workDir );
-            }
-            catch( Exception e )
-            {
-                e.printStackTrace();
-            }
-
-            workDir.getParentFile().delete();
-
-            i.remove();
-        }
     }
 }
