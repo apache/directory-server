@@ -301,7 +301,7 @@ public class ReplicationService extends BaseInterceptor
 
         try
         {
-            filter = parser.parse( "(& (" + ENTRY_CSN_OID + "=<" + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID
+            filter = parser.parse( "(& (" + ENTRY_CSN_OID + "<=" + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID
                 + "=TRUE))" );
         }
         catch ( IOException e )
@@ -344,7 +344,7 @@ public class ReplicationService extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration e = nexus.search( 
+        NamingEnumeration<SearchResult> e = nexus.search( 
             new SearchOperationContext( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
@@ -352,7 +352,7 @@ public class ReplicationService extends BaseInterceptor
         {
             while ( e.hasMore() )
             {
-                SearchResult sr = ( SearchResult ) e.next();
+                SearchResult sr = e.next();
                 LdapDN name = new LdapDN( sr.getName() );
                 if ( name.size() > contextName.size() )
                 {
@@ -365,12 +365,11 @@ public class ReplicationService extends BaseInterceptor
             e.close();
         }
 
-        Iterator<LdapDN> it = names.iterator();
-        while ( it.hasNext() )
+        for ( LdapDN name : names )
         {
-            LdapDN name = it.next();
             try
             {
+                name.normalize( attrRegistry.getNormalizerMapping() );
                 Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
                 log.info( "Purge: " + name + " (" + entry + ')' );
                 nexus.delete( new DeleteOperationContext( name ) );
