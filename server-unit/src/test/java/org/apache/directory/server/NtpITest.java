@@ -117,12 +117,14 @@ public class NtpITest extends AbstractServerTest
 
     /**
      * Tests to make sure NTP works when enabled in the server.
+     * 
+     * @throws Exception 
      */
     public void testNtp() throws Exception
     {
         long currentTime = System.currentTimeMillis();
 
-        InetAddress host = InetAddress.getLocalHost();
+        InetAddress host = InetAddress.getByName( null );
 
         NTPUDPClient ntp = new NTPUDPClient();
         ntp.setDefaultTimeout( 5000 );
