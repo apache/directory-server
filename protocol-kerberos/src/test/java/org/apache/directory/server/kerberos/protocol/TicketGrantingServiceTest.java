@@ -523,7 +523,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         modifier.setTill( requestedEndTime );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getLocalHost() ) };
+            { new HostAddress( InetAddress.getByName( null ) ) };
         HostAddresses addresses = new HostAddresses( address );
         modifier.setAddresses( addresses );
 
@@ -581,7 +581,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         modifier.setTill( requestedEndTime );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getLocalHost() ) };
+            { new HostAddress( InetAddress.getByName( null ) ) };
         HostAddresses addresses = new HostAddresses( address );
         modifier.setAddresses( addresses );
 
