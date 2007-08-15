@@ -23,7 +23,7 @@ package org.apache.directory.server.schema.bootstrap.partition;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class UniqueResourceTest extends TestCase
 {
