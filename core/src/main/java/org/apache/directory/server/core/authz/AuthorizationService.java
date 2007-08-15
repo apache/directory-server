@@ -429,7 +429,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // Assemble all the information required to make an access control decision
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
 
         // Build the total collection of tuples to be considered for add rights
@@ -493,7 +493,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -542,7 +542,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -630,7 +630,7 @@ public class AuthorizationService extends BaseInterceptor
             }
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -669,7 +669,7 @@ public class AuthorizationService extends BaseInterceptor
 
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN userName = principal.getJndiName();
-        Set<LdapDN> userGroups = groupCache.getGroups( userName.toNormName() );
+        Set userGroups = groupCache.getGroups( userName.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
@@ -749,7 +749,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -796,7 +796,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
@@ -872,7 +872,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
@@ -982,7 +982,7 @@ public class AuthorizationService extends BaseInterceptor
             return next.compare( opContext );
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
