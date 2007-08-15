@@ -37,11 +37,11 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
-import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -118,9 +118,9 @@ public class ACDFEngine
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
-    public void checkPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN username,
+    public void checkPermission( PartitionNexusProxy proxy, Collection<LdapDN> userGroupNames, LdapDN username,
                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                 Collection microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
+                                 Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
     {
         if ( !hasPermission( proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
             microOperations, aciTuples, entry ) )
@@ -129,7 +129,7 @@ public class ACDFEngine
         }
     }
 
-    public static final Collection USER_LOOKUP_BYPASS;
+    public static final Collection<String> USER_LOOKUP_BYPASS;
     static
     {
         Collection<String> c = new HashSet<String>();
@@ -164,7 +164,7 @@ public class ACDFEngine
      */
     public boolean hasPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN userName,
                                   AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                  Collection microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
+                                  Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
     {
         if ( entryName == null )
         {

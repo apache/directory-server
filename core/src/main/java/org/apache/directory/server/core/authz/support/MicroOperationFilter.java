@@ -43,9 +43,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class MicroOperationFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
-                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+    public Collection<ACITuple> filter( 
+                Collection<ACITuple> tuples, 
+                OperationScope scope, 
+                PartitionNexusProxy proxy,
+                Collection<LdapDN> userGroupNames, 
+                LdapDN userName, 
+                Attributes userEntry, 
+                AuthenticationLevel authenticationLevel,
+                LdapDN entryName, 
+                String attrId, 
+                Object attrValue, 
+                Attributes entry, 
+                Collection<MicroOperation> microOperations )
         throws NamingException
     {
         if ( tuples.size() == 0 )
@@ -64,9 +74,9 @@ public class MicroOperationFilter implements ACITupleFilter
              */
 
             boolean retain = true;
-            for ( Iterator j = microOperations.iterator(); j.hasNext(); )
+            
+            for ( MicroOperation microOp:microOperations )
             {
-                MicroOperation microOp = ( MicroOperation ) j.next();
                 if ( !tuple.getMicroOperations().contains( microOp ) )
                 {
                     retain = false;

@@ -22,7 +22,6 @@ package org.apache.directory.server.core.authz.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -30,6 +29,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -49,9 +49,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class MostSpecificUserClassFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
-                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+    public Collection<ACITuple> filter( 
+            Collection<ACITuple> tuples, 
+            OperationScope scope, 
+            PartitionNexusProxy proxy,
+            Collection<LdapDN> userGroupNames, 
+            LdapDN userName, 
+            Attributes userEntry, 
+            AuthenticationLevel authenticationLevel,
+            LdapDN entryName, 
+            String attrId, 
+            Object attrValue, 
+            Attributes entry, 
+            Collection<MicroOperation> microOperations )
         throws NamingException
     {
         if ( tuples.size() <= 1 )
@@ -59,16 +69,14 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
             return tuples;
         }
 
-        Collection filteredTuples = new ArrayList();
+        Collection<ACITuple> filteredTuples = new ArrayList<ACITuple>();
 
         // If there are any tuples matching the requestor with UserClasses
         // element name or thisEntry, discard all other tuples.
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( ACITuple tuple:tuples )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
-            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( UserClass userClass:tuple.getUserClasses() )
             {
-                UserClass userClass = ( UserClass ) j.next();
                 if ( userClass instanceof UserClass.Name || userClass instanceof UserClass.ThisEntry )
                 {
                     filteredTuples.add( tuple );
@@ -84,12 +92,10 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching UserGroup,
         // discard all other tuples.
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( ACITuple tuple:tuples )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
-            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( UserClass userClass:tuple.getUserClasses() )
             {
-                UserClass userClass = ( UserClass ) j.next();
                 if ( userClass instanceof UserClass.UserGroup )
                 {
                     filteredTuples.add( tuple );
@@ -105,12 +111,10 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 
         // Otherwise if there are any tuples matching subtree,
         // discard all other tuples.
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( ACITuple tuple:tuples )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
-            for ( Iterator j = tuple.getUserClasses().iterator(); j.hasNext(); )
+            for ( UserClass userClass:tuple.getUserClasses() )
             {
-                UserClass userClass = ( UserClass ) j.next();
                 if ( userClass instanceof UserClass.Subtree )
                 {
                     filteredTuples.add( tuple );
