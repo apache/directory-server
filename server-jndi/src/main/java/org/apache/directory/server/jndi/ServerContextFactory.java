@@ -65,10 +65,12 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.apache.mina.common.ThreadModel;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.filter.executor.ExecutorFilter;
@@ -130,6 +132,9 @@ public class ServerContextFactory extends CoreContextFactory
      */
     public void beforeStartup( DirectoryService service )
     {
+        ByteBuffer.setAllocator(new SimpleByteBufferAllocator());
+        ByteBuffer.setUseDirectBuffers(false);
+        
         DirectoryServiceContext dsc = new DirectoryServiceContext();
         contexts.put(service, dsc);
 
