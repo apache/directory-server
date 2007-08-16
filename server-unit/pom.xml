@@ -135,9 +135,6 @@ tests run maven with the -Dintegration switch.
               <forkMode>pertest</forkMode>
               <!-- <argLine>-agentlib:yjpagent</argLine> -->
               <argLine>-Xmx1024m</argLine>
-              <excludes>
-                <exclude>**/NtpITest.java</exclude>
-              </excludes>
             </configuration>
           </plugin>
         </plugins>
