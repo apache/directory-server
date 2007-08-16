@@ -420,6 +420,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             // Add the Rdn attribute
             boolean doRdnPut = attributes.get( rdnAttribute ) == null;
             doRdnPut = doRdnPut || attributes.get( rdnAttribute ).size() == 0;
+            
+            // TODO Fix DIRSERVER-832
             doRdnPut = doRdnPut || !attributes.get( rdnAttribute ).contains( rdnValue );
     
             if ( doRdnPut )
@@ -436,6 +438,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add the Rdn attribute
                 boolean doRdnPut = attributes.get( atav.getNormType() ) == null;
                 doRdnPut = doRdnPut || attributes.get( atav.getNormType() ).size() == 0;
+                
+                // TODO Fix DIRSERVER-832
                 doRdnPut = doRdnPut || !attributes.get( atav.getNormType() ).contains( atav.getValue() );
         
                 if ( doRdnPut )
