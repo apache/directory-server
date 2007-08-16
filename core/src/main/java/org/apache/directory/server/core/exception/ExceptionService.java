@@ -59,6 +59,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 
@@ -182,7 +183,7 @@ public class ExceptionService extends BaseInterceptor
             
             Attribute objectClass = attrs.get( SchemaConstants.OBJECT_CLASS_AT );
             
-            if ( objectClass.contains( SchemaConstants.ALIAS_OC ) )
+            if ( AttributeUtils.containsValueCaseIgnore( objectClass, SchemaConstants.ALIAS_OC ) )
             {
                 String msg = "Attempt to add entry to alias '" + name.getUpName() + "' not allowed.";
                 ResultCodeEnum rc = ResultCodeEnum.ALIAS_PROBLEM;
@@ -327,6 +328,7 @@ public class ExceptionService extends BaseInterceptor
                 {
                     for ( int jj = 0; jj < modAttr.size(); jj++ )
                     {
+                    	// TODO Fix DIRSERVER-832
                         if ( entryAttr.contains( modAttr.get( jj ) ) )
                         {
                             throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( jj )
