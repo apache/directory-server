@@ -37,6 +37,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -65,9 +66,19 @@ public class MaxImmSubFilter implements ACITupleFilter
     }
 
 
-    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
-                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+    public Collection<ACITuple> filter( 
+            Collection<ACITuple> tuples, 
+            OperationScope scope, 
+            PartitionNexusProxy proxy,
+            Collection<LdapDN> userGroupNames, 
+            LdapDN userName, 
+            Attributes userEntry, 
+            AuthenticationLevel authenticationLevel,
+            LdapDN entryName, 
+            String attrId, 
+            Object attrValue, 
+            Attributes entry, 
+            Collection<MicroOperation> microOperations )
         throws NamingException
     {
         if ( entryName.size() == 0 )
