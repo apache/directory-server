@@ -22,8 +22,10 @@ package org.apache.directory.server.core.invocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.naming.Context;
 
@@ -41,9 +43,11 @@ public class Invocation
 {
     private final Context caller;
     private final String name;
-    private final List parameters;
-    private final Collection bypassed;
+    private final List<Object> parameters;
+    private final Collection<String> bypassed;
     private final PartitionNexusProxy proxy;
+    
+    private static final Set<String> EMPTY_STRING_SET = new HashSet<String>();
 
 
     /**
@@ -52,9 +56,9 @@ public class Invocation
      * @param caller the JNDI {@link Context} that made this invocation
      * @param name the name of the called method
      */
-    public Invocation(PartitionNexusProxy proxy, Context caller, String name)
+    public Invocation( PartitionNexusProxy proxy, Context caller, String name )
     {
-        this( proxy, caller, name, null, Collections.EMPTY_SET );
+        this( proxy, caller, name, null, EMPTY_STRING_SET );
     }
 
 
@@ -65,9 +69,9 @@ public class Invocation
      * @param name the name of the called method
      * @param parameters the array of parameters passed to the called method
      */
-    public Invocation(PartitionNexusProxy proxy, Context caller, String name, Object[] parameters)
+    public Invocation( PartitionNexusProxy proxy, Context caller, String name, Object[] parameters )
     {
-        this( proxy, caller, name, parameters, Collections.EMPTY_SET );
+        this( proxy, caller, name, parameters, EMPTY_STRING_SET );
     }
 
 
@@ -79,17 +83,19 @@ public class Invocation
      * @param parameters the array of parameters passed to the called method
      * @param bypassed the set of bypassed Interceptor names
      */
-    public Invocation(PartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
-        Collection bypassed)
+    public Invocation( PartitionNexusProxy proxy, Context caller, String name, Object[] parameters,
+        Collection<String> bypassed )
     {
         if ( proxy == null )
         {
             throw new NullPointerException( "proxy" );
         }
+        
         if ( caller == null )
         {
             throw new NullPointerException( "caller" );
         }
+        
         if ( name == null )
         {
             throw new NullPointerException( "name" );
@@ -102,7 +108,7 @@ public class Invocation
 
         if ( bypassed == null )
         {
-            this.bypassed = Collections.EMPTY_SET;
+            this.bypassed = EMPTY_STRING_SET;
         }
         else
         {
@@ -113,7 +119,8 @@ public class Invocation
         this.caller = caller;
         this.name = name;
 
-        List paramList = new ArrayList();
+        List<Object> paramList = new ArrayList<Object>();
+        
         for ( int i = 0; i < parameters.length; i++ )
         {
             paramList.add( parameters[i] );
@@ -153,7 +160,7 @@ public class Invocation
     /**
      * Returns the list of parameters parameters passed to the called method.
      */
-    public List getParameters()
+    public List<Object> getParameters()
     {
         return parameters;
     }
