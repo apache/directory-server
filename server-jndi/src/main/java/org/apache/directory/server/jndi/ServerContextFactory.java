@@ -555,8 +555,9 @@ public class ServerContextFactory extends CoreContextFactory
 
         try
         {
-            // Disable the disconnection of the clients on unbind
             SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
+
+            // Disable the disconnection of the clients on unbind
             acceptorCfg.setDisconnectOnUnbind( false );
             acceptorCfg.setReuseAddress( true );
             acceptorCfg.setFilterChainBuilder( chainBuilder );

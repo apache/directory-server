@@ -103,7 +103,7 @@ public class StartupConfiguration extends Configuration
 
     private static final long serialVersionUID = 4826762196566871677L;
 
-    public static final int MAX_THREADS_DEFAULT = 4;
+    public static final int MAX_THREADS_DEFAULT = 32;
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
     public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 

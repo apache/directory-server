@@ -21,6 +21,7 @@ package org.apache.directory.server;
 
 
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
@@ -133,14 +134,16 @@ public class PersistentSearchTest extends AbstractServerTest
         Thread t = new Thread( listener, "PSearchListener" );
         t.start();
 
+        // let's wait until the listener thread started
         while ( !listener.isReady )
         {
             Thread.sleep( 100 );
         }
+        // Now we wait until the listener is registered (timing dependent crap)
         Thread.sleep( 250 );
 
-        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, new AttributesImpl( "description", PERSON_DESCRIPTION,
-            true ) );
+        ctx.modifyAttributes( RDN, DirContext.REMOVE_ATTRIBUTE, 
+            new AttributesImpl( "description", PERSON_DESCRIPTION, true ) );
         long start = System.currentTimeMillis();
         while ( t.isAlive() )
         {
@@ -515,7 +518,7 @@ public class PersistentSearchTest extends AbstractServerTest
      */
     public void testPsearchUsingJndiNotifications() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -535,8 +538,16 @@ public class PersistentSearchTest extends AbstractServerTest
             ctx.destroySubcontext( rdn );
         }
 
-        NamingEvent event = ( NamingEvent ) listener.list.get( 0 );
-        assertEquals( edc, event.getSource() );
+        if ( ! listener.hasError )
+        {
+            EventObject event = listener.list.get( 0 );
+            assertEquals( edc, event.getSource() );
+        }
+        else
+        {
+            throw new RuntimeException( "got naming exception while processing events", 
+                listener.exceptionEvent.getException() );
+        }
     }
 
 
@@ -612,8 +623,9 @@ public class PersistentSearchTest extends AbstractServerTest
 
     class JndiNotificationListener implements NamespaceChangeListener, ObjectChangeListener
     {
-        ArrayList list = new ArrayList();
-
+        boolean hasError = false;
+        ArrayList<EventObject> list = new ArrayList();
+        NamingExceptionEvent exceptionEvent = null;
 
         public void objectAdded( NamingEvent evt )
         {
@@ -635,6 +647,8 @@ public class PersistentSearchTest extends AbstractServerTest
 
         public void namingExceptionThrown( NamingExceptionEvent evt )
         {
+            hasError = true;
+            exceptionEvent = evt;
             list.add( 0, evt );
         }
 
