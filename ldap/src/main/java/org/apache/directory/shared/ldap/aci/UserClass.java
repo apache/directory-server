@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -128,33 +127,24 @@ public abstract class UserClass implements Serializable
      */
     private static abstract class NamedUserClass extends UserClass
     {
-        protected final Set names;
+        protected final Set<javax.naming.Name> names;
 
 
         /**
          * Creates a new instance.
          * 
-         * @param names
-         *            a set of names
+         * @param names a set of names
          */
-        protected NamedUserClass(Set names)
+        protected NamedUserClass( Set<javax.naming.Name> names )
         {
-            for ( Iterator i = names.iterator(); i.hasNext(); )
-            {
-                Object val = i.next();
-                if ( !( val instanceof javax.naming.Name ) )
-                {
-                    throw new IllegalArgumentException( "names contains a wrong element." );
-                }
-            }
-            this.names = Collections.unmodifiableSet( new HashSet( names ) );
+            this.names = Collections.unmodifiableSet( new HashSet<javax.naming.Name>( names ) );
         }
 
 
         /**
          * Returns the set of all names.
          */
-        public Set getNames()
+        public Set<javax.naming.Name> getNames()
         {
             return names;
         }
@@ -190,24 +180,26 @@ public abstract class UserClass implements Serializable
         
         public void printToBuffer( StringBuffer buffer )
         {
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            boolean isFirst = true;
+            buffer.append( "{ " );
             
-            for ( Iterator it = names.iterator(); it.hasNext(); )
+            for ( javax.naming.Name name:names )
             {
-                javax.naming.Name name = ( javax.naming.Name ) it.next();
+                if ( isFirst )
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    buffer.append( ", " );
+                }
+                
                 buffer.append( '"' );
                 buffer.append( name.toString() );
                 buffer.append( '"' );
-                
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
-                }
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 
@@ -225,7 +217,7 @@ public abstract class UserClass implements Serializable
          * @param usernames
          *            the set of user DNs.
          */
-        public Name(Set usernames)
+        public Name( Set<javax.naming.Name> usernames )
         {
             super( usernames );
         }
@@ -239,8 +231,7 @@ public abstract class UserClass implements Serializable
         
         public void printToBuffer( StringBuffer buffer )
         {
-            buffer.append( "name" );
-            buffer.append( ' ' );
+            buffer.append( "name " );
             super.printToBuffer( buffer );
         }
     }
@@ -262,7 +253,7 @@ public abstract class UserClass implements Serializable
          * @param groupNames
          *            the set of group DNs.
          */
-        public UserGroup(Set groupNames)
+        public UserGroup( Set<javax.naming.Name> groupNames )
         {
             super( groupNames );
         }
@@ -276,8 +267,7 @@ public abstract class UserClass implements Serializable
         
         public void printToBuffer( StringBuffer buffer )
         {
-            buffer.append( "userGroup" );
-            buffer.append( ' ' );
+            buffer.append( "userGroup " );
             super.printToBuffer( buffer );
         }
     }
@@ -290,7 +280,7 @@ public abstract class UserClass implements Serializable
     {
         private static final long serialVersionUID = 3949337699049701332L;
 
-        protected final Collection subtreeSpecifications;
+        protected final Collection<SubtreeSpecification> subtreeSpecifications;
 
 
         /**
@@ -299,24 +289,16 @@ public abstract class UserClass implements Serializable
          * @param subtreeSpecs
          *            the collection of unrefined {@link SubtreeSpecification}s.
          */
-        public Subtree(Collection subtreeSpecs)
+        public Subtree( Collection<SubtreeSpecification> subtreeSpecs )
         {
-            for ( Iterator i = subtreeSpecs.iterator(); i.hasNext(); )
-            {
-                Object val = i.next();
-                if ( !( val instanceof SubtreeSpecification ) )
-                {
-                    throw new IllegalArgumentException( "subtreeSpecs contains a wrong element." );
-                }
-            }
-            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList( subtreeSpecs ) );
+            this.subtreeSpecifications = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>( subtreeSpecs ) );
         }
 
 
         /**
          * Returns the collection of unrefined {@link SubtreeSpecification}s.
          */
-        public Collection getSubtreeSpecifications()
+        public Collection<SubtreeSpecification> getSubtreeSpecifications()
         {
             return subtreeSpecifications;
         }
@@ -347,24 +329,24 @@ public abstract class UserClass implements Serializable
         
         public void printToBuffer( StringBuffer buffer )
         {
-            buffer.append( "subtree" );
-            buffer.append( ' ' );
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            boolean isFirst = true;
+            buffer.append( "subtree { " );
             
-            for ( Iterator it = subtreeSpecifications.iterator(); it.hasNext(); )
+            for ( SubtreeSpecification ss:subtreeSpecifications )
             {
-                SubtreeSpecification ss = ( SubtreeSpecification ) it.next();
-                ss.printToBuffer( buffer );
-                
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
+                if ( isFirst )
+                {
+                    isFirst = false;
                 }
+                else
+                {
+                    buffer.append( ", " );
+                }
+                
+                ss.printToBuffer( buffer );
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 }
