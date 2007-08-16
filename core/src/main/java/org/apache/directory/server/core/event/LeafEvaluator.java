@@ -238,7 +238,7 @@ public class LeafEvaluator implements Evaluator
         Comparator comparator = getComparator( node.getAttribute() );
 
         // get the attribute associated with the node
-        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( node.getAttribute() ) );
+        AttributeType type = attributeTypeRegistry.lookup( node.getAttribute() );
         Attribute attr = AttributeUtils.getAttribute( entry, type );
 
         // If we do not have the attribute just return false
@@ -248,7 +248,7 @@ public class LeafEvaluator implements Evaluator
         }
 
         // check if AVA value exists in attribute
-        if ( attr.contains( node.getValue() ) )
+        if ( AttributeUtils.containsValue( attr, node.getValue(), type ) )
         {
             return true;
         }
@@ -257,7 +257,7 @@ public class LeafEvaluator implements Evaluator
         Object filterValue = normalizer.normalize( node.getValue() );
 
         // check if the normalized value is present
-        if ( attr.contains( filterValue ) )
+        if ( AttributeUtils.containsValue( attr, filterValue, type ) )
         {
             return true;
         }
