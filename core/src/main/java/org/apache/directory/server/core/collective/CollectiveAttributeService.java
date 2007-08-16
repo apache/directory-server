@@ -133,13 +133,13 @@ public class CollectiveAttributeService extends BaseInterceptor
          * OID values in the exclusions set instead of regular names that
          * may have case variance.
          */
-        Attribute collectiveExclusions = entry.get( "collectiveExclusions" );
+        Attribute collectiveExclusions = entry.get( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT );
         Set<String> exclusions = new HashSet<String>();
         
         if ( collectiveExclusions != null )
         {
             if ( AttributeUtils.containsValueCaseIgnore( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID )
-                || collectiveExclusions.contains( EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES ) )
+                || AttributeUtils.containsValue( collectiveExclusions, EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES, attrTypeRegistry.lookup( SchemaConstants.COLLECTIVE_EXCLUSIONS_AT_OID ) ) )
             {
                 /*
                  * This entry does not allow any collective attributes
@@ -262,11 +262,13 @@ public class CollectiveAttributeService extends BaseInterceptor
     
     private Set getAllSuperTypes( AttributeType id ) throws NamingException
     {
-        Set allSuperTypes = new HashSet();
+        Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
+        
         while ( superType != null )
         {
             superType = superType.getSuperior();
+            
             if ( superType != null )
             {
                 allSuperTypes.add( superType );
