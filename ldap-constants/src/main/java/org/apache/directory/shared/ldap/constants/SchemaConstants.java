@@ -30,6 +30,10 @@ package org.apache.directory.shared.ldap.constants;
 public interface SchemaConstants
 {
     // ---- ObjectClasses -----------------------------------------------------
+	// Krb5Principal
+    String KRB5_PRINCIPAL_OC = "krb5Principal";
+    String KRB5_PRINCIPAL_OC_OID = "1.3.6.1.4.1.5322.10.2.1";
+    
     // Top
     String TOP_OC = "top";
     String TOP_OC_OID = "2.5.6.0";
@@ -154,6 +158,10 @@ public interface SchemaConstants
     // SubtreeSpecification
     String SUBTREE_SPECIFICATION_AT = "subtreeSpecification";
     String SUBTREE_SPECIFICATION_AT_OID = "2.5.18.6";
+
+    // CollectiveExclusions
+    String COLLECTIVE_EXCLUSIONS_AT = "collectiveExclusions";
+    String COLLECTIVE_EXCLUSIONS_AT_OID = "2.5.18.7";
 
     // SubschemaSubentry
     String SUBSCHEMA_SUBENTRY_AT = "subschemaSubentry";
