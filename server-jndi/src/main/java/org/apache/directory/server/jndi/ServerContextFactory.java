@@ -26,9 +26,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -57,12 +60,15 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.LockableAttributesImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.ExecutorThreadModel;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.SimpleByteBufferAllocator;
+import org.apache.mina.common.ThreadModel;
 import org.apache.mina.common.WriteFuture;
+import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
@@ -72,8 +78,8 @@ import org.apache.mina.transport.socket.nio.SocketSessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
-import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
+import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
+import edu.emory.mathcs.backport.java.util.concurrent.Executors;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 
@@ -90,117 +96,155 @@ public class ServerContextFactory extends CoreContextFactory
     private static final Logger log = LoggerFactory.getLogger( ServerContextFactory.class.getName() );
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
 
-    protected static IoAcceptor tcpAcceptor;
-    protected static IoAcceptor udpAcceptor;
-    protected static ThreadPoolExecutor threadPoolExecutor;
-    protected static ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "ApacheDS" );
-    
-    private static boolean ldapStarted;
-    private static boolean ldapsStarted;
-    private static KerberosServer tcpKdcServer;
-    private static KerberosServer udpKdcServer;
-    private static ChangePasswordServer tcpChangePasswordServer;
-    private static ChangePasswordServer udpChangePasswordServer;
-    private static NtpServer tcpNtpServer;
-    private static NtpServer udpNtpServer;
     private DirectoryService directoryService;
+    
+    private static final Map contexts = Collections.synchronizedMap(new IdentityHashMap());
+    
+    private static class DirectoryServiceContext 
+    {
+        protected IoAcceptor tcpAcceptor;
+        protected IoAcceptor udpAcceptor;
+        protected ExecutorService ioExecutor;
+        protected ExecutorService logicExecutor;
+        private boolean ldapStarted;
+        private boolean ldapsStarted;
+        private KerberosServer tcpKdcServer;
+        private KerberosServer udpKdcServer;
+        private ChangePasswordServer tcpChangePasswordServer;
+        private ChangePasswordServer udpChangePasswordServer;
+        private NtpServer tcpNtpServer;
+        private NtpServer udpNtpServer;
+    }
 
-
+    /**
+     * Initialize the SocketAcceptor so that the server can accept
+     * incomming requests.
+     * 
+     * We will start N threads, spreaded on the available CPUs.
+     */
     public void beforeStartup( DirectoryService service )
     {
-        int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
-        threadPoolExecutor = new ThreadPoolExecutor( maxThreads, maxThreads, 60, TimeUnit.SECONDS, 
-            new LinkedBlockingQueue() );
-        threadModel.setExecutor( threadPoolExecutor );
+        ByteBuffer.setAllocator(new SimpleByteBufferAllocator());
+        ByteBuffer.setUseDirectBuffers(false);
         
-        udpAcceptor = new DatagramAcceptor();
-        tcpAcceptor = new SocketAcceptor();
+        DirectoryServiceContext dsc = new DirectoryServiceContext();
+        contexts.put(service, dsc);
 
+        int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
+        dsc.ioExecutor = Executors.newCachedThreadPool();
+        dsc.logicExecutor = Executors.newFixedThreadPool( maxThreads );
+        dsc.udpAcceptor = new DatagramAcceptor();
+        dsc.udpAcceptor.getFilterChain().addLast("executor", new ExecutorFilter(dsc.logicExecutor));
+        dsc.tcpAcceptor = new SocketAcceptor(
+            Runtime.getRuntime().availableProcessors(), dsc.ioExecutor );
+        dsc.tcpAcceptor.getFilterChain().addLast("executor", new ExecutorFilter(dsc.logicExecutor));
         this.directoryService = service;
     }
 
 
     public void afterShutdown( DirectoryService service )
     {
-        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) 
-            service.getConfiguration().getStartupConfiguration();
+        ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration()
+            .getStartupConfiguration();
         
-        if ( ldapStarted )
+        DirectoryServiceContext dsc = ( DirectoryServiceContext ) contexts.remove(service);
+
+        if ( dsc.ldapStarted )
         {
-            stopLDAP0( cfg.getLdapPort() );
-            ldapStarted = false;
+            stopLDAP0( dsc, cfg.getLdapPort() );
+            dsc.ldapStarted = false;
         }
 
-        if ( ldapsStarted )
+        if ( dsc.ldapsStarted )
         {
-            stopLDAP0( cfg.getLdapsPort() );
-            ldapsStarted = false;
+            stopLDAP0( dsc, cfg.getLdapsPort() );
+            dsc.ldapsStarted = false;
         }
 
-        if ( tcpKdcServer != null )
+        if ( dsc.tcpKdcServer != null )
         {
-            tcpKdcServer.destroy();
+            dsc.tcpKdcServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of KRB5 Service (TCP) complete: " + tcpKdcServer );
+                log.info( "Unbind of KRB5 Service (TCP) complete: " + dsc.tcpKdcServer );
             }
-            tcpKdcServer = null;
+            dsc.tcpKdcServer = null;
         }
 
-        if ( udpKdcServer != null )
+        if ( dsc.udpKdcServer != null )
         {
-            udpKdcServer.destroy();
+            dsc.udpKdcServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of KRB5 Service (UDP) complete: " + udpKdcServer );
+                log.info( "Unbind of KRB5 Service (UDP) complete: " + dsc.udpKdcServer );
             }
-            udpKdcServer = null;
+            dsc.udpKdcServer = null;
         }
 
-        if ( tcpChangePasswordServer != null )
+        if ( dsc.tcpChangePasswordServer != null )
         {
-            tcpChangePasswordServer.destroy();
+            dsc.tcpChangePasswordServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of Change Password Service (TCP) complete: " + tcpChangePasswordServer );
+                log.info( "Unbind of Change Password Service (TCP) complete: " + dsc.tcpChangePasswordServer );
             }
-            tcpChangePasswordServer = null;
+            dsc.tcpChangePasswordServer = null;
         }
 
-        if ( udpChangePasswordServer != null )
+        if ( dsc.udpChangePasswordServer != null )
         {
-            udpChangePasswordServer.destroy();
+            dsc.udpChangePasswordServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of Change Password Service (UDP) complete: " + udpChangePasswordServer );
+                log.info( "Unbind of Change Password Service (UDP) complete: " + dsc.udpChangePasswordServer );
             }
-            udpChangePasswordServer = null;
+            dsc.udpChangePasswordServer = null;
         }
 
-        if ( tcpNtpServer != null )
+        if ( dsc.tcpNtpServer != null )
         {
-            tcpNtpServer.destroy();
+            dsc.tcpNtpServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of NTP Service (TCP) complete: " + tcpNtpServer );
+                log.info( "Unbind of NTP Service (TCP) complete: " + dsc.tcpNtpServer );
             }
-            tcpNtpServer = null;
+            dsc.tcpNtpServer = null;
         }
 
-        if ( udpNtpServer != null )
+        if ( dsc.udpNtpServer != null )
         {
-            udpNtpServer.destroy();
+            dsc.udpNtpServer.destroy();
             if ( log.isInfoEnabled() )
             {
-                log.info( "Unbind of NTP Service complete: " + udpNtpServer );
+                log.info( "Unbind of NTP Service (UDP) complete: " + dsc.udpNtpServer );
             }
-            udpNtpServer = null;
+            dsc.udpNtpServer = null;
+        }
+        
+        dsc.logicExecutor.shutdown();
+        for (;;) {
+            try {
+                if (dsc.logicExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+            }
+        }
+        dsc.ioExecutor.shutdown();
+        for (;;) {
+            try {
+                if (dsc.ioExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+            }
         }
     }
 
 
     public void afterStartup( DirectoryService service ) throws NamingException
     {
+        DirectoryServiceContext dsc = ( DirectoryServiceContext ) contexts.get(service);
         ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration()
             .getStartupConfiguration();
         Hashtable env = service.getConfiguration().getEnvironment();
@@ -209,11 +253,11 @@ public class ServerContextFactory extends CoreContextFactory
 
         if ( cfg.isEnableNetworking() )
         {
-            startLDAP( cfg, env );
-            startLDAPS( cfg, env );
-            startKerberos( cfg, env );
-            startChangePassword( cfg, env );
-            startNTP( cfg, env );
+            startLDAP( dsc, cfg, env );
+            startLDAPS( dsc, cfg, env );
+            startKerberos( dsc, cfg, env );
+            startChangePassword( dsc, cfg, env );
+            startNTP( dsc, cfg, env );
         }
     }
 
@@ -401,7 +445,7 @@ public class ServerContextFactory extends CoreContextFactory
      *
      * @throws NamingException if there are problems starting the LDAP provider
      */
-    private void startLDAP( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
+    private void startLDAP( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
     {
         // Skip if disabled
         int port = cfg.getLdapPort();
@@ -410,7 +454,7 @@ public class ServerContextFactory extends CoreContextFactory
             return;
         }
 
-        startLDAP0( cfg, env, port, new DefaultIoFilterChainBuilder() );
+        startLDAP0( dsc, cfg, env, port, new DefaultIoFilterChainBuilder() );
     }
 
 
@@ -419,7 +463,8 @@ public class ServerContextFactory extends CoreContextFactory
      *
      * @throws NamingException if there are problems starting the LDAPS provider
      */
-    private void startLDAPS( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
+    private void startLDAPS( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env ) 
+        throws NamingException
     {
         // Skip if disabled
         if ( !cfg.isEnableLdaps() )
@@ -435,7 +480,7 @@ public class ServerContextFactory extends CoreContextFactory
                 ServerContextFactory.class.getClassLoader() ).getMethod( "init", new Class[]
                 { ServerStartupConfiguration.class } ).invoke( null, new Object[]
                 { cfg } );
-            ldapsStarted = true;
+            dsc.ldapsStarted = true;
         }
         catch ( InvocationTargetException e )
         {
@@ -454,11 +499,12 @@ public class ServerContextFactory extends CoreContextFactory
             throw ( NamingException ) new NamingException( "Failed to load LDAPS initializer." ).initCause( e );
         }
 
-        startLDAP0( cfg, env, cfg.getLdapsPort(), chain );
+
+        startLDAP0( dsc, cfg, env, cfg.getLdapsPort(), chain );
     }
 
 
-    private void startLDAP0( ServerStartupConfiguration cfg, Hashtable env, int port,
+    private void startLDAP0( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env, int port,
         IoFilterChainBuilder chainBuilder ) throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
@@ -476,17 +522,18 @@ public class ServerContextFactory extends CoreContextFactory
 
         try
         {
-            // Disable the disconnection of the clients on unbind
             SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
+
+            // Disable the disconnection of the clients on unbind
             acceptorCfg.setDisconnectOnUnbind( false );
             acceptorCfg.setReuseAddress( true );
             acceptorCfg.setFilterChainBuilder( chainBuilder );
-            acceptorCfg.setThreadModel( threadModel );
+            acceptorCfg.setThreadModel( ThreadModel.MANUAL );
             
             ((SocketSessionConfig)(acceptorCfg.getSessionConfig())).setTcpNoDelay( true );
             
-            tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
-            ldapStarted = true;
+            dsc.tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
+            dsc.ldapStarted = true;
             
             if ( log.isInfoEnabled() )
             {
@@ -504,7 +551,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void startKerberos( ServerStartupConfiguration cfg, Hashtable env )
+    private void startKerberos( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env )
     {
         if ( cfg.isEnableKerberos() )
         {
@@ -514,16 +561,15 @@ public class ServerContextFactory extends CoreContextFactory
                 PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, this );
                 
                 DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-                udpConfig.setThreadModel( threadModel );
+                udpConfig.setThreadModel( ThreadModel.MANUAL );
 
                 SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
                 tcpConfig.setDisconnectOnUnbind( false );
                 tcpConfig.setReuseAddress( true );
-                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
-                tcpConfig.setThreadModel( threadModel );
+                tcpConfig.setThreadModel( ThreadModel.MANUAL );
 
-                tcpKdcServer = new KerberosServer( kdcConfiguration, tcpAcceptor, tcpConfig, kdcStore );
-                udpKdcServer = new KerberosServer( kdcConfiguration, udpAcceptor, udpConfig, kdcStore );
+                dsc.tcpKdcServer = new KerberosServer( kdcConfiguration, dsc.tcpAcceptor, tcpConfig, kdcStore );
+                dsc.udpKdcServer = new KerberosServer( kdcConfiguration, dsc.udpAcceptor, udpConfig, kdcStore );
             }
             catch ( Throwable t )
             {
@@ -533,7 +579,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void startChangePassword( ServerStartupConfiguration cfg, Hashtable env )
+    private void startChangePassword( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env )
     {
         if ( cfg.isEnableChangePassword() )
         {
@@ -544,17 +590,16 @@ public class ServerContextFactory extends CoreContextFactory
                 PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, this );
 
                 DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-                udpConfig.setThreadModel( threadModel );
+                udpConfig.setThreadModel( ThreadModel.MANUAL );
 
                 SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
                 tcpConfig.setDisconnectOnUnbind( false );
                 tcpConfig.setReuseAddress( true );
-                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
-                tcpConfig.setThreadModel( threadModel );
+                tcpConfig.setThreadModel( ThreadModel.MANUAL );
 
-                tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, tcpAcceptor, 
+                dsc.tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, dsc.tcpAcceptor, 
                     tcpConfig, store );
-                udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, udpAcceptor, 
+                dsc.udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration, dsc.udpAcceptor, 
                     udpConfig, store );
             }
             catch ( Throwable t )
@@ -565,7 +610,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void startNTP( ServerStartupConfiguration cfg, Hashtable env )
+    private void startNTP( DirectoryServiceContext dsc, ServerStartupConfiguration cfg, Hashtable env )
     {
         if ( cfg.isEnableNtp() )
         {
@@ -574,16 +619,15 @@ public class ServerContextFactory extends CoreContextFactory
                 NtpConfiguration ntpConfig = new NtpConfiguration( env, LoadStrategy.PROPS );
 
                 DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-                udpConfig.setThreadModel( threadModel );
+                udpConfig.setThreadModel( ThreadModel.MANUAL );
 
                 SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
                 tcpConfig.setDisconnectOnUnbind( false );
                 tcpConfig.setReuseAddress( true );
-                tcpConfig.setFilterChainBuilder( new DefaultIoFilterChainBuilder() );
-                tcpConfig.setThreadModel( threadModel );
+                tcpConfig.setThreadModel( ThreadModel.MANUAL );
 
-                tcpNtpServer = new NtpServer( ntpConfig, tcpAcceptor, tcpConfig );
-                udpNtpServer = new NtpServer( ntpConfig, udpAcceptor, udpConfig );
+                dsc.tcpNtpServer = new NtpServer( ntpConfig, dsc.tcpAcceptor, tcpConfig );
+                dsc.udpNtpServer = new NtpServer( ntpConfig, dsc.udpAcceptor, udpConfig );
             }
             catch ( Throwable t )
             {
@@ -593,7 +637,7 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    private void stopLDAP0( int port )
+    private void stopLDAP0( DirectoryServiceContext dsc, int port )
     {
         try
         {
@@ -608,7 +652,7 @@ public class ServerContextFactory extends CoreContextFactory
             List sessions = null;
             try
             {
-                sessions = new ArrayList( tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
+                sessions = new ArrayList( dsc.tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
             }
             catch ( IllegalArgumentException e )
             {
@@ -616,7 +660,7 @@ public class ServerContextFactory extends CoreContextFactory
                 return;
             }
 
-            tcpAcceptor.unbind( new InetSocketAddress( port ) );
+            dsc.tcpAcceptor.unbind( new InetSocketAddress( port ) );
             if ( log.isInfoEnabled() )
             {
                 log.info( "Unbind of an LDAP service (" + port + ") is complete." );
