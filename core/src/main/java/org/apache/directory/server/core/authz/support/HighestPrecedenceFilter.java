@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( Collection<ACITuple> tuples, OperationScope scope, PartitionNexusProxy proxy,
+    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                               Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
                               LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
         throws NamingException
@@ -54,8 +54,9 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         int maxPrecedence = -1;
 
         // Find the maximum precedence for all tuples.
-        for ( ACITuple tuple:tuples )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
+            ACITuple tuple = ( ACITuple ) i.next();
             if ( tuple.getPrecedence() > maxPrecedence )
             {
                 maxPrecedence = tuple.getPrecedence();
@@ -66,7 +67,6 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            
             if ( tuple.getPrecedence() != maxPrecedence )
             {
                 i.remove();

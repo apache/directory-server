@@ -36,9 +36,7 @@ import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RestrictedByFilter;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -52,12 +50,10 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  */
 public class RestrictedByFilterTest extends TestCase
 {
-    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
-    private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
-    private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
+    private static final Collection<ProtectedItem.RestrictedBy> PROTECTED_ITEMS = new ArrayList<ProtectedItem.RestrictedBy>();
     private static final Attributes ENTRY = new AttributesImpl();
 
     static
@@ -78,7 +74,7 @@ public class RestrictedByFilterTest extends TestCase
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -94,7 +90,7 @@ public class RestrictedByFilterTest extends TestCase
     {
         RestrictedByFilter filter = new RestrictedByFilter();
 
-        Assert.assertEquals( 0, filter.filter( AT_EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null ).size() );
     }
 
@@ -103,7 +99,7 @@ public class RestrictedByFilterTest extends TestCase
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, false, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -116,7 +112,7 @@ public class RestrictedByFilterTest extends TestCase
     {
         RestrictedByFilter filter = new RestrictedByFilter();
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, MO_EMPTY_SET, true, 0 ) );
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, "choice", "1", ENTRY, null ).size() );

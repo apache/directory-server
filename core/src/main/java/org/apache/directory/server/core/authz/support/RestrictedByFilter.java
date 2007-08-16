@@ -30,7 +30,6 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.RestrictedByItem;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -45,19 +44,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class RestrictedByFilter implements ACITupleFilter
 {
-    public Collection<ACITuple> filter( 
-            Collection<ACITuple> tuples, 
-            OperationScope scope, 
-            PartitionNexusProxy proxy,
-            Collection<LdapDN> userGroupNames, 
-            LdapDN userName, 
-            Attributes userEntry, 
-            AuthenticationLevel authenticationLevel,
-            LdapDN entryName, 
-            String attrId, 
-            Object attrValue, 
-            Attributes entry, 
-            Collection<MicroOperation> microOperations )
+    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
+                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
+                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -73,7 +62,6 @@ public class RestrictedByFilter implements ACITupleFilter
         for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
-            
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -91,8 +79,10 @@ public class RestrictedByFilter implements ACITupleFilter
 
     public boolean isRemovable( ACITuple tuple, String attrId, Object attrValue, Attributes entry )
     {
-        for ( ProtectedItem item:tuple.getProtectedItems() )
+        for ( Iterator i = tuple.getProtectedItems().iterator(); i.hasNext(); )
         {
+            ProtectedItem item = ( ProtectedItem ) i.next();
+            
             if ( item instanceof ProtectedItem.RestrictedBy )
             {
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
@@ -101,13 +91,11 @@ public class RestrictedByFilter implements ACITupleFilter
                 {
                     RestrictedByItem rbItem = ( RestrictedByItem ) k.next();
                 
-                    // TODO Fix DIRSEVER-832 
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )
                     {
                         Attribute attr = entry.get( rbItem.getValuesIn() );
                         
-                        // TODO Fix DIRSEVER-832
-                        if ( ( attr == null ) || !attr.contains( attrValue ) )
+                        if ( attr == null || !attr.contains( attrValue ) )
                         {
                             return true;
                         }

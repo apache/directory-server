@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -32,9 +33,6 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.authz.support.HighestPrecedenceFilter;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
-import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.aci.UserClass;
 
 
 /**
@@ -46,16 +44,14 @@ import org.apache.directory.shared.ldap.aci.UserClass;
  */
 public class HighestPrecedenceFilterTest extends TestCase
 {
-    private static final Collection<ProtectedItem> PI_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
-    private static final Collection<UserClass> UC_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
-    private static final Collection<ACITuple> AT_EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
-    private static final Set<MicroOperation> MO_EMPTY_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
+    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
 
     public void testZeroTuple() throws Exception
     {
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
-        Assert.assertEquals( 0, filter.filter( AT_EMPTY_COLLECTION, null, null, null, null, null, null, null, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, null, null, null, null, null, null, null, null, null,
             null, null ).size() );
     }
 
@@ -63,11 +59,9 @@ public class HighestPrecedenceFilterTest extends TestCase
     public void testOneTuple() throws Exception
     {
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
-        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true, 10 ) );
+        Collection tuples = new ArrayList();
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 10 ) );
         tuples = Collections.unmodifiableCollection( tuples );
-        
         Assert.assertEquals( tuples, filter.filter( tuples, null, null, null, null, null, null, null, null, null, null,
             null ) );
     }
@@ -77,21 +71,21 @@ public class HighestPrecedenceFilterTest extends TestCase
     {
         final int MAX_PRECEDENCE = 10;
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
-        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
-        
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        Collection tuples = new ArrayList();
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
             MAX_PRECEDENCE ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
             MAX_PRECEDENCE / 2 ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
             MAX_PRECEDENCE ) );
-        tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
+        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
             MAX_PRECEDENCE / 3 ) );
 
         tuples = filter.filter( tuples, null, null, null, null, null, null, null, null, null, null, null );
 
-        for ( ACITuple tuple:tuples )
+        for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
+            ACITuple tuple = ( ACITuple ) i.next();
             Assert.assertEquals( MAX_PRECEDENCE, tuple.getPrecedence() );
         }
     }
