@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -41,9 +42,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class HighestPrecedenceFilter implements ACITupleFilter
 {
-    public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
-                              Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+    public Collection<ACITuple> filter( 
+    		Collection<ACITuple> tuples, 
+    		OperationScope scope, 
+    		PartitionNexusProxy proxy,
+            Collection<LdapDN> userGroupNames, 
+            LdapDN userName, 
+            Attributes userEntry, 
+            AuthenticationLevel authenticationLevel,
+            LdapDN entryName, 
+            String attrId, 
+            Object attrValue, 
+            Attributes entry, 
+            Collection<MicroOperation> microOperations )
         throws NamingException
     {
         if ( tuples.size() <= 1 )
@@ -54,9 +65,8 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         int maxPrecedence = -1;
 
         // Find the maximum precedence for all tuples.
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( ACITuple tuple:tuples )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
             if ( tuple.getPrecedence() > maxPrecedence )
             {
                 maxPrecedence = tuple.getPrecedence();
@@ -67,6 +77,7 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         for ( Iterator i = tuples.iterator(); i.hasNext(); )
         {
             ACITuple tuple = ( ACITuple ) i.next();
+            
             if ( tuple.getPrecedence() != maxPrecedence )
             {
                 i.remove();

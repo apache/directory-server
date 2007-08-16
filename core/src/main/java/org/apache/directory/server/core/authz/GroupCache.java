@@ -470,7 +470,7 @@ public class GroupCache
             return true;
         }
         
-        Set members = groups.get( administratorsGroupDn.getNormName() );
+        Set<String> members = groups.get( administratorsGroupDn.getNormName() );
         
         if ( members == null )
         {

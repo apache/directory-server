@@ -95,7 +95,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
      */
     private boolean enabled = true;
     
-    private Set administrators = new HashSet(2);
+    private Set<String> administrators = new HashSet<String>(2);
     
     /** The normalizer mapping containing a relation between an OID and a normalizer */
     private Map<String, OidNormalizer> normalizerMapping;
