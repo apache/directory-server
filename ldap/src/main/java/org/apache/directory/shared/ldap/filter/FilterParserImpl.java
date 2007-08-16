@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import java.io.PipedOutputStream;
-import java.io.PipedInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -29,6 +28,7 @@ import org.apache.directory.shared.ldap.filter.AntlrFilterLexer;
 import org.apache.directory.shared.ldap.filter.AntlrFilterParser;
 import org.apache.directory.shared.ldap.filter.AntlrFilterValueLexer;
 import org.apache.directory.shared.ldap.filter.AntlrFilterValueParser;
+import org.apache.directory.shared.ldap.util.ParserPipedInputStream;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import antlr.LexerSharedInputState;
@@ -70,7 +70,7 @@ public class FilterParserImpl implements FilterParser
     {
         // build the pipe used to feed the parser data and reusing it
         this.parserPipe = new PipedOutputStream();
-        PipedInputStream pipeTail = new PipedInputStream();
+        ParserPipedInputStream pipeTail = new ParserPipedInputStream();
 
         try
         {
@@ -78,7 +78,7 @@ public class FilterParserImpl implements FilterParser
         }
         catch ( IOException e )
         {
-            // this never blows chuncks and if it does we report!
+            // this never blows chunks and if it does we report!
             throw new InternalError();
         }
 
