@@ -559,6 +559,7 @@ public class ServerContextFactory extends CoreContextFactory
             SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
             acceptorCfg.setDisconnectOnUnbind( false );
             acceptorCfg.setReuseAddress( true );
+            acceptorCfg.setFilterChainBuilder( chainBuilder );
             acceptorCfg.setThreadModel( ThreadModel.MANUAL );
 
             ( ( SocketSessionConfig ) ( acceptorCfg.getSessionConfig() ) ).setTcpNoDelay( true );
