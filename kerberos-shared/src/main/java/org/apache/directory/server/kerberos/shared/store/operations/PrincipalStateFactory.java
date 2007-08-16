@@ -126,9 +126,9 @@ public class PrincipalStateFactory implements DirStateFactory
                 oc.add( SchemaConstants.INET_ORG_PERSON_OC );
             }
 
-            if ( !oc.contains( "krb5Principal" ) )
+            if ( !oc.contains( SchemaConstants.KRB5_PRINCIPAL_OC ) )
             {
-                oc.add( "krb5Principal" );
+                oc.add( SchemaConstants.KRB5_PRINCIPAL_OC );
             }
 
             if ( !oc.contains( "krb5KDCEntry" ) )
