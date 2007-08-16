@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -40,13 +39,13 @@ public class ACITuple implements Serializable
 {
     private static final long serialVersionUID = 4353150626941232371L;
 
-    private final Collection userClasses;
+    private final Collection<UserClass> userClasses;
 
     private final AuthenticationLevel authenticationLevel;
 
-    private final Collection protectedItems;
+    private final Collection<ProtectedItem> protectedItems;
 
-    private final Set microOperations;
+    private final Set<MicroOperation> microOperations;
 
     private final boolean grant;
 
@@ -69,34 +68,14 @@ public class ACITuple implements Serializable
      * @param precedence
      *            the precedence of this tuple (<tt>0</tt>-<tt>255</tt>)
      */
-    public ACITuple(Collection userClasses, AuthenticationLevel authenticationLevel, Collection protectedItems,
-        Set microOperations, boolean grant, int precedence)
+    public ACITuple( 
+            Collection<UserClass> userClasses, 
+            AuthenticationLevel authenticationLevel, 
+            Collection<ProtectedItem> protectedItems,
+            Set<MicroOperation> microOperations, 
+            boolean grant, 
+            int precedence )
     {
-        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
-        {
-            if ( !( i.next() instanceof UserClass ) )
-            {
-                throw new IllegalArgumentException( "userClasses contains an element which is not a user classs." );
-            }
-        }
-
-        for ( Iterator i = protectedItems.iterator(); i.hasNext(); )
-        {
-            if ( !( i.next() instanceof ProtectedItem ) )
-            {
-                throw new IllegalArgumentException( "protectedItems contains an element which is not a protected item." );
-            }
-        }
-
-        for ( Iterator i = microOperations.iterator(); i.hasNext(); )
-        {
-            if ( !( i.next() instanceof MicroOperation ) )
-            {
-                throw new IllegalArgumentException(
-                    "microOperations contains an element which is not a micro operation." );
-            }
-        }
-
         if ( authenticationLevel == null )
         {
             throw new NullPointerException( "authenticationLevel" );
@@ -107,10 +86,10 @@ public class ACITuple implements Serializable
             throw new IllegalArgumentException( "precedence: " + precedence );
         }
 
-        this.userClasses = Collections.unmodifiableCollection( new ArrayList( userClasses ) );
+        this.userClasses = Collections.unmodifiableCollection( new ArrayList<UserClass>( userClasses ) );
         this.authenticationLevel = authenticationLevel;
-        this.protectedItems = Collections.unmodifiableCollection( new ArrayList( protectedItems ) );
-        this.microOperations = Collections.unmodifiableSet( new HashSet( microOperations ) );
+        this.protectedItems = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>( protectedItems ) );
+        this.microOperations = Collections.unmodifiableSet( new HashSet<MicroOperation>( microOperations ) );
         this.grant = grant;
         this.precedence = precedence;
     }
@@ -119,7 +98,7 @@ public class ACITuple implements Serializable
     /**
      * Returns the collection of {@link UserClass}es this tuple relates to.
      */
-    public Collection getUserClasses()
+    public Collection<UserClass> getUserClasses()
     {
         return userClasses;
     }
@@ -137,7 +116,7 @@ public class ACITuple implements Serializable
     /**
      * Returns the collection of {@link ProtectedItem}s this tuple relates.
      */
-    public Collection getProtectedItems()
+    public Collection<ProtectedItem> getProtectedItems()
     {
         return protectedItems;
     }
@@ -146,7 +125,7 @@ public class ACITuple implements Serializable
     /**
      * Returns the set of {@link MicroOperation}s this tuple relates.
      */
-    public Set getMicroOperations()
+    public Set<MicroOperation> getMicroOperations()
     {
         return microOperations;
     }
