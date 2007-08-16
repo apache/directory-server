@@ -112,8 +112,8 @@ public class TupleCache
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
         env = ( Hashtable ) factoryCfg.getEnvironment().clone();
-        initialize();
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
+        initialize();
     }
 
     
