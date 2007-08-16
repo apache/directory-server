@@ -592,11 +592,31 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         synchronized ( partitionLookupTree )
         {
-            partitions.put( partition.getSuffix().toString(), partition );
+        	LdapDN partitionSuffix = partition.getSuffix();
+        	
+        	if ( partitionSuffix == null )
+        	{
+        		throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
+        	}
+        	
+            partitions.put( partitionSuffix.toString(), partition );
             partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffix(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-            namingContexts.add( partition.getUpSuffix().getUpName() );
+            
+        	if ( partitionSuffix == null )
+        	{
+        		throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
+        	}
+        	
+        	LdapDN partitionUpSuffix = partition.getUpSuffix();
+
+        	if ( partitionUpSuffix == null )
+        	{
+        		throw new ConfigurationException( "The current partition does not have any user provided suffix: " + partition.getId() );
+        	}
+        	
+            namingContexts.add( partitionUpSuffix.getUpName() );
         }
     }
 
