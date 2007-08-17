@@ -39,6 +39,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
@@ -164,7 +165,12 @@ public abstract class AbstractServerTest extends TestCase
             
             for ( int ii = 0; ii < origAttribute.size(); ii++ )
             {
-                assertTrue( readAttribute.contains( origAttribute.get( ii ) ) );
+                if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
+                {
+                    log.error( "Failed to verify entry addition of {}. {} attribute in original " +
+                    		"entry missing from read entry.", entry.getDn(), id );
+                    throw new AssertionFailedError( "Failed to verify entry addition of " + entry.getDn()  );
+                }
             }
         }
     }

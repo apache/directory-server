@@ -1,13 +1,46 @@
-dn: ou=people,ou=system
+dn: ou=actors,ou=system
 objectClass: top
 objectClass: organizationalUnit
-ou: people
+ou: actors
 
-dn: uid=jblack,ou=people,ou=system
+dn: uid=jblack,ou=actors,ou=system
 objectClass: top
 objectClass: person
+objectClass: organizationalPerson
 objectClass: uidObject
 uid: jblack
+ou: comedy
+ou: adventure 
 cn: Jack Black
 sn: Black 
+
+dn: uid=bpitt,ou=actors,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: uidObject
+uid: bpitt
+ou: drama
+ou: adventure
+cn: Brad Pitt
+sn: Pitt
+
+dn: uid=gcloony,ou=actors,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: uidObject
+uid: gcloony
+ou: drama
+cn: Goerge Cloony
+sn: Cloony
+
+dn: uid=jnewbie,ou=actors,ou=system
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: uidObject
+uid: jnewbie
+cn: Joe Newbie
+sn: Newbie
 
