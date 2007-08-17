@@ -30,6 +30,7 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
+@SuppressWarnings("unchecked")
 public class ComparableComparator implements Comparator, Serializable
 {
     static final long serialVersionUID = -5295278271807198471L;
@@ -57,6 +58,11 @@ public class ComparableComparator implements Comparator, Serializable
             return -( ( Comparable ) o2 ).compareTo( o1 );
         }
 
-        return o1.hashCode() - o2.hashCode();
+        // before https://issues.apache.org/jira/browse/DIRSERVER-928 it was
+        // return o1.hashCode() - o2.hashCode();
+        
+        // now we will blow a stack trace if none of the objects are Comparable
+        throw new IllegalArgumentException( "None of the arguments are Comparable objects:\n" 
+            + "\targ1 = " + o1 + "\n\targ2 = " + o2 );
     }
 }
