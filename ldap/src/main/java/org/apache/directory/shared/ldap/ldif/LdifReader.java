@@ -150,7 +150,7 @@ import org.slf4j.LoggerFactory;
  *  single space before the continued value.
  * </pre>
  */
-public class LdifReader implements Iterator
+public class LdifReader implements Iterator<Entry>
 {
     /** A logger */
     private static final Logger log = LoggerFactory.getLogger( LdifReader.class );
@@ -882,13 +882,13 @@ public class LdifReader implements Iterator
      * @throws NamingException
      *             If anything goes wrong
      */
-    private void parseModRdn( Entry entry, Iterator iter ) throws NamingException
+    private void parseModRdn( Entry entry, Iterator<String> iter ) throws NamingException
     {
         // We must have two lines : one starting with "newrdn:" or "newrdn::",
         // and the second starting with "deleteoldrdn:"
         if ( iter.hasNext() )
         {
-            String line = (String) iter.next();
+            String line = iter.next();
             String lowerLine = line.toLowerCase();
 
             if ( lowerLine.startsWith( "newrdn::" ) || lowerLine.startsWith( "newrdn:" ) )
@@ -913,7 +913,7 @@ public class LdifReader implements Iterator
 
         if ( iter.hasNext() )
         {
-            String line = (String) iter.next();
+            String line = iter.next();
             String lowerLine = line.toLowerCase();
 
             if ( lowerLine.startsWith( "deleteoldrdn:" ) )
@@ -953,7 +953,7 @@ public class LdifReader implements Iterator
      * @param iter
      *            The lines
      */
-    private void parseModify( Entry entry, Iterator iter ) throws NamingException
+    private void parseModify( Entry entry, Iterator<String> iter ) throws NamingException
     {
         int state = MOD_SPEC;
         String modified = null;
@@ -964,7 +964,7 @@ public class LdifReader implements Iterator
 
         while ( iter.hasNext() )
         {
-            String line = (String) iter.next();
+            String line = iter.next();
             String lowerLine = line.toLowerCase();
 
             if ( lowerLine.startsWith( "-" ) )
@@ -1094,7 +1094,7 @@ public class LdifReader implements Iterator
      *            The associated control, if any
      * @return A modification entry
      */
-    private void parseChange( Entry entry, Iterator iter, int operation, Control control ) throws NamingException
+    private void parseChange( Entry entry, Iterator<String> iter, int operation, Control control ) throws NamingException
     {
         // The changetype and operation has already been parsed.
         entry.setChangeType( operation );
@@ -1110,7 +1110,7 @@ public class LdifReader implements Iterator
                 // We will iterate through all attribute/value pairs
                 while ( iter.hasNext() )
                 {
-                    String line = (String) iter.next();
+                    String line = iter.next();
                     String lowerLine = line.toLowerCase();
                     parseAttributeValue( entry, line, lowerLine );
                 }
@@ -1129,7 +1129,7 @@ public class LdifReader implements Iterator
                 // The next line should be the new superior
                 if ( iter.hasNext() )
                 {
-                    String line = (String) iter.next();
+                    String line = iter.next();
                     String lowerLine = line.toLowerCase();
 
                     if ( lowerLine.startsWith( "newsuperior:" ) )
@@ -1197,7 +1197,7 @@ public class LdifReader implements Iterator
         lines.remove( 0 );
 
         // Now, let's iterate through the other lines
-        Iterator iter = lines.iterator();
+        Iterator<String> iter = lines.iterator();
 
         // This flag is used to distinguish between an entry and a change
         int type = UNKNOWN;
@@ -1218,7 +1218,7 @@ public class LdifReader implements Iterator
         {
             // Each line could start either with an OID, an attribute type, with
             // "control:" or with "changetype:"
-            line = (String) iter.next();
+            line = iter.next();
             lowerLine = line.toLowerCase();
 
             // We have three cases :
@@ -1592,7 +1592,7 @@ public class LdifReader implements Iterator
      * 
      * @return the next LDIF as a String.
      */
-    public Object next() throws NoSuchElementException
+    public Entry next() throws NoSuchElementException
     {
         try
         {
@@ -1647,7 +1647,7 @@ public class LdifReader implements Iterator
     /**
      * @return An iterator on the file
      */
-    public Iterator iterator()
+    public Iterator<Entry> iterator()
     {
         return this;
     }
