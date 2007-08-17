@@ -107,6 +107,7 @@ public class NegationOperatorITest extends AbstractServerTest
         loadedEntries = super.loadTestLdif( true );
         ctx = getWiredContext();
         assertNotNull( ctx );
+        assertEquals( 5, loadedEntries.size() );
     }
 
 
@@ -135,6 +136,7 @@ public class NegationOperatorITest extends AbstractServerTest
         Set<SearchResult> results = getResults( "(!(ou=drama))" );
         assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
         assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 2, results.size() );
     }
 
     
@@ -152,6 +154,42 @@ public class NegationOperatorITest extends AbstractServerTest
         Set<SearchResult> results = getResults( "(!(ou=drama))" );
         assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
         assertTrue( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 2, results.size() );
+    }
+
+    
+    /**
+     * Tests to make sure a negated search for actors without ou
+     * with value 'drama' returns those that do not have the attribute
+     * and do not have a 'drama' value for ou if the attribute still
+     * exists.  This test does not build an index on ou for the system
+     * partition.
+     */
+    public void testSearchNotDramaNotNewbie() throws Exception
+    {
+        // jack black has ou but not drama, and joe newbie has no ou what so ever
+        Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
+        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+        assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 1, results.size() );
+    }
+
+    
+    /**
+     * Tests to make sure a negated search for actors without ou
+     * with value 'drama' returns those that do not have the attribute
+     * and do not have a 'drama' value for ou if the attribute still
+     * exists.  This test DOES build an index on ou for the system
+     * partition and should have failed if the bug in DIRSERVER-951
+     * was present and reproducable.
+     */
+    public void testSearchNotDramaNotNewbieIndexed() throws Exception
+    {
+        // jack black has ou but not drama, and joe newbie has no ou what so ever
+        Set<SearchResult> results = getResults( "(& (!(uid=jnewbie)) (!(ou=drama)) )" );
+        assertTrue( contains( "uid=jblack,ou=actors,ou=system", results ) );
+        assertFalse( contains( "uid=jnewbie,ou=actors,ou=system", results ) );
+        assertEquals( 1, results.size() );
     }
 
     
