@@ -23,13 +23,19 @@ package org.apache.directory.server.unit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.ConfigurationException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -44,6 +50,8 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -54,6 +62,10 @@ import org.apache.mina.util.AvailablePortFinder;
  */
 public abstract class AbstractServerTest extends TestCase
 {
+    private static final Logger log = LoggerFactory.getLogger( AbstractServerTest.class );
+    private static final List<Entry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<Entry>( 0 ) );
+    private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
+
     /** the context root for the system partition */
     protected LdapContext sysRoot;
 
@@ -63,6 +75,9 @@ public abstract class AbstractServerTest extends TestCase
     /** the context root for the schema */
     protected LdapContext schemaRoot;
 
+    /** flag that indicates whether or not the server has started */
+    private boolean serverOnline = false;
+    
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
@@ -70,7 +85,134 @@ public abstract class AbstractServerTest extends TestCase
 
     protected int port = -1;
 
+    
+    /**
+     * Tells subclasses whether or not the server is online.
+     *
+     * @return true if the server has started false otherwise.
+     */
+    public boolean isServerOnline()
+    {
+        return serverOnline;
+    }
+    
+    
+    /**
+     * If there is an LDIF file with the same name as the test class 
+     * but with the .ldif extension then it is read and the entries 
+     * it contains are added to the server.  It appears as though the
+     * administor adds these entries to the server.
+     *
+     * @param verifyEntries whether or not all entry additions are checked
+     * to see if they were in fact correctly added to the server
+     * @return a list of entries added to the server in the order they were added
+     * @throws NamingException
+     */
+    protected List<Entry> loadTestLdif( boolean verifyEntries ) throws NamingException
+    {
+        InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" );
+        if ( in == null )
+        {
+            return EMPTY_LIST;
+        }
+        
+        if ( ! serverOnline )
+        {
+            throw new ConfigurationException( "The server has not been started - cannot add entries." );
+        }
+        
+        LdifReader ldifReader = new LdifReader( in );
+        List<Entry> entries = new ArrayList<Entry>();
+        while ( ldifReader.hasNext() )
+        {
+            Entry entry = ldifReader.next();
+            rootDSE.createSubcontext( entry.getDn(), entry.getAttributes() );
+            
+            if ( verifyEntries )
+            {
+                verify( entry );
+                log.info( "Successfully verified addition of entry {}", entry.getDn() );
+            }
+            else
+            {
+                log.info( "Added entry {} without verification", entry.getDn() );
+            }
+            
+            entries.add( entry );
+        }
+        
+        return entries;
+    }
+    
 
+    /**
+     * Verifies that an entry exists in the directory with the 
+     * specified attributes.
+     *
+     * @param entry the entry to verify
+     * @throws NamingException if there are problems accessing the entry
+     */
+    protected void verify( Entry entry ) throws NamingException
+    {
+        Attributes readAttributes = rootDSE.getAttributes( entry.getDn() );
+        NamingEnumeration<String> readIds = entry.getAttributes().getIDs();
+        while ( readIds.hasMore() )
+        {
+            String id = readIds.next();
+            Attribute readAttribute = readAttributes.get( id );
+            Attribute origAttribute = entry.getAttributes().get( id );
+            
+            for ( int ii = 0; ii < origAttribute.size(); ii++ )
+            {
+                assertTrue( readAttribute.contains( origAttribute.get( ii ) ) );
+            }
+        }
+    }
+    
+
+    /**
+     * Common code to get an initial context via a simple bind to the 
+     * server over the wire using the SUN JNDI LDAP provider. Do not use 
+     * this method until after the setUp() method is called to start the
+     * server otherwise it will fail. 
+     *
+     * @return an LDAP context as the the administrator to the rootDSE
+     * @throws NamingException if the server cannot be contacted
+     */
+    protected LdapContext getWiredContext() throws NamingException
+    {
+        return getWiredContext( "uid=admin,ou=system", "secret" );
+    }
+    
+    
+    /**
+     * Common code to get an initial context via a simple bind to the 
+     * server over the wire using the SUN JNDI LDAP provider. Do not use 
+     * this method until after the setUp() method is called to start the
+     * server otherwise it will fail.
+     *
+     * @param bindPrincipalDn the DN of the principal to bind as
+     * @param password the password of the bind principal
+     * @return an LDAP context as the the administrator to the rootDSE
+     * @throws NamingException if the server cannot be contacted
+     */
+    protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws NamingException
+    {
+        if ( ! serverOnline )
+        {
+            throw new ConfigurationException( "The server is not online! Cannot connect to it." );
+        }
+        
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+        env.put( Context.SECURITY_PRINCIPAL, bindPrincipalDn );
+        env.put( Context.SECURITY_CREDENTIALS, password );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        return new InitialLdapContext( env, null );
+    }
+    
+    
     /**
      * Get's the initial context factory for the provider's ou=system context
      * root.
@@ -85,7 +227,17 @@ public abstract class AbstractServerTest extends TestCase
         port = AvailablePortFinder.getNextAvailable( 1024 );
         configuration.getLdapConfiguration().setIpPort( port );
         configuration.setShutdownHookEnabled( false );
-        setContexts( "uid=admin,ou=system", "secret" );
+        
+        try
+        {
+            setContexts( "uid=admin,ou=system", "secret" );
+            serverOnline = true;
+        }
+        catch( Exception e )
+        {
+            serverOnline = false;
+            throw e;
+        }
     }
 
 
@@ -166,6 +318,7 @@ public abstract class AbstractServerTest extends TestCase
         try
         {
             new InitialContext( env );
+            serverOnline = false;
         }
         catch ( Exception e )
         {
@@ -190,11 +343,11 @@ public abstract class AbstractServerTest extends TestCase
     {
         try
         {
-            Iterator iterator = new LdifReader( in );
+            Iterator<Entry> iterator = new LdifReader( in );
 
             while ( iterator.hasNext() )
             {
-                Entry entry = ( Entry ) iterator.next();
+                Entry entry = iterator.next();
                 LdapDN dn = new LdapDN( entry.getDn() );
                 rootDSE.createSubcontext( dn, entry.getAttributes() );
             }

@@ -1,0 +1,13 @@
+dn: ou=people,ou=system
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+dn: uid=jblack,ou=people,ou=system
+objectClass: top
+objectClass: person
+objectClass: uidObject
+uid: jblack
+cn: Jack Black
+sn: Black 
+
