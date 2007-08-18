@@ -35,14 +35,14 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexAssertionEnumeration implements NamingEnumeration
+public class IndexAssertionEnumeration implements NamingEnumeration<IndexRecord>
 {
     /** The prefetched candidate */
     private final IndexRecord prefetched = new IndexRecord();
     /** The returned candidate */
     private final IndexRecord candidate = new IndexRecord();
     /** The iteration cursor */
-    private final NamingEnumeration underlying;
+    private final NamingEnumeration<IndexRecord> underlying;
     /** LUT used to avoid returning duplicates */
     private final Map<Object,Object> candidates;
     /** */
@@ -57,7 +57,9 @@ public class IndexAssertionEnumeration implements NamingEnumeration
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-    public IndexAssertionEnumeration(NamingEnumeration underlying, IndexAssertion assertion) throws NamingException
+
+    public IndexAssertionEnumeration( NamingEnumeration<IndexRecord> underlying, IndexAssertion assertion ) 
+        throws NamingException
     {
         this.underlying = underlying;
         candidates = null;
@@ -67,8 +69,8 @@ public class IndexAssertionEnumeration implements NamingEnumeration
     }
 
 
-    public IndexAssertionEnumeration(NamingEnumeration underlying, IndexAssertion assertion, boolean enableDupCheck)
-        throws NamingException
+    public IndexAssertionEnumeration( NamingEnumeration<IndexRecord> underlying, IndexAssertion assertion, 
+        boolean enableDupCheck ) throws NamingException
     {
         this.underlying = underlying;
         candidates = new HashMap<Object,Object>();
@@ -85,7 +87,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public IndexRecord nextElement()
     {
         try
         {
@@ -114,7 +116,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next() throws NamingException
+    public IndexRecord next() throws NamingException
     {
         candidate.copy( prefetched );
         prefetch();
@@ -155,7 +157,7 @@ public class IndexAssertionEnumeration implements NamingEnumeration
          */
         while ( underlying.hasMore() )
         {
-            rec = ( IndexRecord ) underlying.next();
+            rec = underlying.next();
 
             // If value is valid then we set it as the next candidate to return
             if ( assertion.assertCandidate( rec ) )

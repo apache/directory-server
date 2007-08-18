@@ -38,7 +38,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NoDupsEnumeration implements NamingEnumeration
+public class NoDupsEnumeration implements NamingEnumeration<Tuple>
 {
     /** Temporary Tuple used to return results */
     private final Tuple returned = new Tuple();
@@ -56,10 +56,11 @@ public class NoDupsEnumeration implements NamingEnumeration
     // C O N S T R U C T O R
     // ------------------------------------------------------------------------
 
+    
     /**
      * Creates a cursor over a TupleBrowser where duplicates are not expected.
      */
-    public NoDupsEnumeration(TupleBrowser browser, boolean doAscendingScan) throws NamingException
+    public NoDupsEnumeration( TupleBrowser browser, boolean doAscendingScan ) throws NamingException
     {
         this.browser = browser;
         this.doAscendingScan = doAscendingScan;
@@ -71,12 +72,13 @@ public class NoDupsEnumeration implements NamingEnumeration
     // NamingEnumeration Interface Method Implementations
     // ------------------------------------------------------------------------
 
+    
     /**
      * Returns the same Tuple every time but with different key/value pairs.
      * 
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next() throws NamingException
+    public Tuple next() throws NamingException
     {
         // Load values into the Tuple to return
         returned.setKey( prefetched.getKey() );
@@ -93,7 +95,7 @@ public class NoDupsEnumeration implements NamingEnumeration
      * 
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public Tuple nextElement()
     {
         try
         {
@@ -137,10 +139,6 @@ public class NoDupsEnumeration implements NamingEnumeration
     }
 
 
-    // ------------------------------------------------------------------------
-    // Private/Package Friendly Methods
-    // ------------------------------------------------------------------------
-
     /**
      * Gets the direction of this NamingEnumeration.
      *
@@ -153,6 +151,11 @@ public class NoDupsEnumeration implements NamingEnumeration
     }
 
 
+    // ------------------------------------------------------------------------
+    // Private/Package Friendly Methods
+    // ------------------------------------------------------------------------
+
+    
     /**
      * Prefetches a value into prefetched over writing whatever values were 
      * contained in the Tuple.

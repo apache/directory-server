@@ -25,10 +25,9 @@ import javax.naming.NamingException;
 
 
 /**
- * A backend friendly wrapper around a JDBM BTree that transparent enables
- * duplicates when the BTree does not support them.
- * 
- * TODO Need to rewrite the Javadocs in this interface.
+ * A wrapper interface around a BTree (that does not support duplicate keys) which 
+ * transparently enables duplicate keys and translates underlying exceptions to
+ * NamingExceptions.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -92,6 +91,7 @@ public interface Table
     // Simple Table Key/Value Assertions 
     // ------------------------------------------------------------------------
 
+    
     /**
      * Checks to see if this table has a key: same as a get call with a check to
      * see if the returned value is null or not.
@@ -198,7 +198,7 @@ public interface Table
      * @param values the values supplied as an enumeration
      * @throws NamingException if something goes wrong
      */
-    Object put( Object key, NamingEnumeration values ) throws NamingException;
+    Object put( Object key, NamingEnumeration<? extends Object> values ) throws NamingException;
 
 
     /**
@@ -236,7 +236,7 @@ public interface Table
      * @throws NamingException if there is a failure to read or write to
      * the underlying Db
      */
-    Object remove( Object key, NamingEnumeration values ) throws NamingException;
+    Object remove( Object key, NamingEnumeration<? extends Object> values ) throws NamingException;
 
 
     /**
@@ -250,20 +250,21 @@ public interface Table
      * @param key the key to iterate over
      * @throws NamingException if the underlying browser could not be set
      */
-    NamingEnumeration listValues( Object key ) throws NamingException;
+    NamingEnumeration<Tuple> listValues( Object key ) throws NamingException;
 
 
     // ------------------------------------------------------------------------
-    // listTuple overloads
+    // listTuples overloads
     // ------------------------------------------------------------------------
 
+    
     /**
      * Sets a cursor to the first record in the Table and enables single
      * next steps across all records.
      *
      * @throws NamingException if the underlying cursor could not be set.
      */
-    NamingEnumeration listTuples() throws NamingException;
+    NamingEnumeration<Tuple> listTuples() throws NamingException;
 
 
     /**
@@ -274,7 +275,7 @@ public interface Table
      * @param key the key to iterate over
      * @throws NamingException if the underlying cursor could not be set
      */
-    NamingEnumeration listTuples( Object key ) throws NamingException;
+    NamingEnumeration<Tuple> listTuples( Object key ) throws NamingException;
 
 
     /**
@@ -289,7 +290,7 @@ public interface Table
      * iterates down over descending keys less than or equal to key argument
      * @throws NamingException if the underlying cursor could not be set
      */
-    NamingEnumeration listTuples( Object key, boolean isGreaterThan ) throws NamingException;
+    NamingEnumeration<Tuple> listTuples( Object key, boolean isGreaterThan ) throws NamingException;
 
 
     /**
@@ -314,7 +315,7 @@ public interface Table
      * this method is called over a cursor on a table that does not have sorted
      * duplicates enabled.
      */
-    NamingEnumeration listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException;
+    NamingEnumeration<Tuple> listTuples( Object key, Object val, boolean isGreaterThan ) throws NamingException;
 
 
     // ------------------------------------------------------------------------

@@ -37,10 +37,10 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class TupleEnumeration implements NamingEnumeration
+public class TupleEnumeration implements NamingEnumeration<Tuple>
 {
     private final Object key;
-    private final Iterator iterator;
+    private final Iterator<? extends Object> iterator;
     private final Tuple tuple = new Tuple();
 
 
@@ -50,7 +50,7 @@ public class TupleEnumeration implements NamingEnumeration
      * @param key the keys whose duplicate values are to be returned
      * @param iterator the underlying iterator this cursor uses
      */
-    public TupleEnumeration( Object key, Iterator iterator )
+    public TupleEnumeration( Object key, Iterator<? extends Object> iterator )
     {
         this.key = key;
         tuple.setKey( key );
@@ -63,7 +63,7 @@ public class TupleEnumeration implements NamingEnumeration
      *
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
+    public Tuple next()
     {
         tuple.setKey( key );
         tuple.setValue( iterator.next() );
@@ -76,7 +76,7 @@ public class TupleEnumeration implements NamingEnumeration
      *
      * @see javax.naming.NamingEnumeration#nextElement()
      */
-    public Object nextElement()
+    public Tuple nextElement()
     {
         tuple.setKey( key );
         tuple.setValue( iterator.next() );
