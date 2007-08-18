@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.operational;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -171,27 +173,34 @@ public class OperationalAttributeService extends BaseInterceptor
     public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
         throws NamingException
     {
-        nextInterceptor.modify( opContext );
+        // -------------------------------------------------------------------
+        // Add the operational attributes for the modifier first
+        // -------------------------------------------------------------------
 
-        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
-        {
-            return;
-        }
+        ModifyOperationContext context = ( ModifyOperationContext ) opContext;
+        List<ModificationItemImpl> modItemList = 
+            new ArrayList<ModificationItemImpl>( context.getModItems().length + 2 );
+        Collections.addAll( modItemList, context.getModItems() );
         
-        // add operational attributes after call in case the operation fails
-        Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
-        attributes.put( attribute );
-
+        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
+        
         attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
-        attributes.put( attribute );
-        
-        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
 
-        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), items );
-        nexus.modify( newModify );
+        // -------------------------------------------------------------------
+        // Make the modify() call happen
+        // -------------------------------------------------------------------
+
+        nextInterceptor.modify( opContext );
+
+        // Don't know why this was here! TODO Remove if no errors result
+//        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+//        {
+//            return;
+//        }
     }
 
 
