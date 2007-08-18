@@ -113,6 +113,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         if ( cfg instanceof ShutdownConfiguration )
         {
             service.shutdown();
+            return new DeadContext();
         }
         else if ( cfg instanceof SyncConfiguration )
         {
