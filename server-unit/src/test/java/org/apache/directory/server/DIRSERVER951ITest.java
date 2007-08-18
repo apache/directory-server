@@ -122,11 +122,10 @@ public class DIRSERVER951ITest extends AbstractServerTest
      */
     public void testSearchNotCN() throws Exception
     {
-        //NOTE: This test is disabled while waiting for a fix to DIRSERVER-951.  Uncomment to re-enable.
-//        Set<SearchResult> results = getResults( "(!(cn=test1))" );
-//        assertFalse( contains( "uid=test1,ou=test,ou=system", results ) );
-//        assertTrue( contains( "uid=test2,ou=test,ou=system", results ) );
-//        assertTrue( contains( "uid=testNoCN,ou=test,ou=system", results ) );
+        Set<SearchResult> results = getResults( "(!(cn=test1))" );
+        assertFalse( contains( "uid=test1,ou=test,ou=system", results ) );
+        assertTrue( contains( "uid=test2,ou=test,ou=system", results ) );
+        assertTrue( contains( "uid=testNoCN,ou=test,ou=system", results ) );
     }
 
     

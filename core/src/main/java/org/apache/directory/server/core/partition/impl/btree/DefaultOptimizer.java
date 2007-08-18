@@ -201,14 +201,9 @@ public class DefaultOptimizer implements Optimizer
 
 
     /**
-     * Negation counts are estimated in one of two ways depending on its 
-     * composition.  If the sole child of the negation is a leaf and an index
-     * exists for the attribute of the leaf then the count on the index is taken
-     * as the scan count.  If the child is a branch node then the count of the
-     * negation node is set to the total count of entries in the master table.
-     * This last resort tactic is used to get a rough estimate because it would 
-     * cost too much to get an exact estimate on the count of a negation on a
-     * branch node.
+     * A negation filter is always worst case since we will have to retrieve all
+     * entries from the master table then test each one against the negated
+     * child filter.  There is no way to use the indices.
      *
      * @param node the negation node
      * @return the scan count
@@ -216,25 +211,7 @@ public class DefaultOptimizer implements Optimizer
      */
     private Long getNegationScan( BranchNode node ) throws NamingException
     {
-        ExprNode onlyChild = node.getChildren().get( 0 );
-
-        annotate( onlyChild );
-
-        if ( onlyChild.isLeaf() && !( onlyChild instanceof ScopeNode ) && !( onlyChild instanceof AssertionNode )
-            && !( onlyChild instanceof PresenceNode ) )
-        {
-            LeafNode leaf = ( LeafNode ) onlyChild;
-            
-            if ( db.hasUserIndexOn( leaf.getAttribute() ) )
-            {
-                Index idx = db.getUserIndex( leaf.getAttribute() );
-                return Long.valueOf( idx.count() );
-            }
-            
-            return Long.valueOf( db.count() );
-        }
-
-        return Long.valueOf( db.count() );
+        return MAX;
     }
 
 

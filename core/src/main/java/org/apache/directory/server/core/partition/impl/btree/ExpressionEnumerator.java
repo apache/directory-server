@@ -184,31 +184,10 @@ public class ExpressionEnumerator implements Enumerator
      */
     private NamingEnumeration enumNeg( final BranchNode node ) throws NamingException
     {
-        Index idx = null;
-        NamingEnumeration childEnumeration = null;
+        NamingEnumeration baseEnumeration = null;
         NamingEnumeration enumeration = null;
-
-        // Iterates over entire set of index values
-        if ( node.getChild().isLeaf() )
-        {
-            LeafNode child = ( LeafNode ) node.getChild();
-            
-            if ( db.hasUserIndexOn( child.getAttribute() ) )
-            {
-                idx = db.getUserIndex( child.getAttribute() );
-                childEnumeration = idx.listIndices();
-            }
-            else
-            {
-                childEnumeration = db.getNdnIndex().listIndices();
-            }
-        }
-        // Iterates over the entire set of entries
-        else
-        {
-            idx = db.getNdnIndex();
-            childEnumeration = idx.listIndices();
-        }
+        
+        baseEnumeration = db.getNdnIndex().listIndices();
 
         IndexAssertion assertion = new IndexAssertion()
         {
@@ -221,7 +200,7 @@ public class ExpressionEnumerator implements Enumerator
             }
         };
 
-        enumeration = new IndexAssertionEnumeration( childEnumeration, assertion, true );
+        enumeration = new IndexAssertionEnumeration( baseEnumeration, assertion, true );
         return enumeration;
     }
 
