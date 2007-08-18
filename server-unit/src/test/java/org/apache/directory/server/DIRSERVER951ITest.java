@@ -118,7 +118,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
     /**
      * Tests to make sure a negated search for CN of "test1" returns
      * those entries that do not have the CN attribute or do not have
-     * an "A" value for CN if the attribute exists.
+     * a "test1" value for CN if the attribute exists.
      */
     public void testSearchNotCN() throws Exception
     {
