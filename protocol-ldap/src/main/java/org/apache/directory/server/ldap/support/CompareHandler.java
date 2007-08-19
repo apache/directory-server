@@ -29,7 +29,6 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
@@ -48,10 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CompareHandler implements MessageHandler
+public class CompareHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( CompareHandler.class );
-    private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -74,7 +72,9 @@ public class CompareHandler implements MessageHandler
             {
                 newCtx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            newCtx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            
+            // Inject controls into the context
+            setControls( newCtx, req );
 
             if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
             {

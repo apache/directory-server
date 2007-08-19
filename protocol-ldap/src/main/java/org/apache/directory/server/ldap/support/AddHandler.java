@@ -28,7 +28,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
@@ -47,10 +46,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddHandler implements MessageHandler
+public class AddHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( AddHandler.class );
-    private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -68,6 +66,7 @@ public class AddHandler implements MessageHandler
         try
         {
             LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+            
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
                 ctx.addToEnvironment( Context.REFERRAL, "ignore" );
@@ -76,7 +75,10 @@ public class AddHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            
+            // Inject controls into the context
+            setControls( ctx, req );
+
             ctx.createSubcontext( req.getEntry(), req.getAttributes() );
         }
         catch ( ReferralException e )

@@ -28,7 +28,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
@@ -48,10 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyDnHandler implements MessageHandler
+public class ModifyDnHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ModifyDnHandler.class );
-    private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -105,7 +103,9 @@ public class ModifyDnHandler implements MessageHandler
                     ctx.addToEnvironment( Context.REFERRAL, "throw" );
                 }
                 
-                ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
+                // Inject controls into the context
+                setControls( ctx, req );
+                
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
                 ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DELETE_RDN, deleteRDN );
 

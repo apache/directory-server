@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -41,7 +43,7 @@ import org.apache.mina.handler.demux.MessageHandler;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler implements MessageHandler
+public class ExtendedHandler extends LdapHandler implements MessageHandler
 {
     private Map<String, ExtendedOperationHandler> handlers = new HashMap<String, ExtendedOperationHandler>();
 
@@ -95,6 +97,9 @@ public class ExtendedHandler implements MessageHandler
         {
             try
             {
+            	SessionRegistry registry = SessionRegistry.getSingleton();
+                //LdapContext ldapContext = registry.getLdapContext( session, null, false);
+            	
                 handler.handleExtendedOperation( session, SessionRegistry.getSingleton(), req );
             }
             catch ( Exception e )

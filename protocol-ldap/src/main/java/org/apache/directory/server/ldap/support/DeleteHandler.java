@@ -27,7 +27,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
@@ -47,10 +46,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteHandler implements MessageHandler
+public class DeleteHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( DeleteHandler.class );
-    private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -71,7 +69,10 @@ public class DeleteHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
+            
+            // Inject controls into the context
+            setControls( ctx, req );
+
             ctx.destroySubcontext( req.getName() );
         }
         catch ( ReferralException e )

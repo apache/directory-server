@@ -27,7 +27,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -48,11 +47,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyHandler implements MessageHandler
+public class ModifyHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ModifyHandler.class );
-    private static final ModificationItemImpl[] EMPTY = new ModificationItemImpl[0];
-    private static Control[] EMPTY_CONTROLS = new Control[0];
 
     /** Speedup for logs */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
@@ -73,9 +70,29 @@ public class ModifyHandler implements MessageHandler
             {
                 ctx.addToEnvironment( Context.REFERRAL, "throw" );
             }
-            ctx.setRequestControls( req.getControls().values().toArray( EMPTY_CONTROLS ) );
-            Object[] mods = req.getModificationItems().toArray( EMPTY );
-            ctx.modifyAttributes( req.getName(), ( ModificationItemImpl[] ) mods );
+            
+            // Inject controls into the context
+            setControls( ctx, req );
+
+            // Process the modifications
+            if ( req.getModificationItems() != null )
+            {
+            	int nbItems = req.getModificationItems().size();
+            	
+            	if ( nbItems != 0 )
+            	{
+            		ModificationItemImpl[] mods = new ModificationItemImpl[nbItems];
+            		ctx.modifyAttributes( req.getName(), req.getModificationItems().toArray( mods ) );
+            	}
+            	else
+            	{
+            		 // What should we do if we don't have any modification ???
+            	}
+            }
+            else
+            {
+            	// What should we do if we don't have any modification ???
+            }
         }
         catch ( ReferralException e )
         {

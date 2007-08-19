@@ -30,7 +30,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -67,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler implements MessageHandler
+public class SearchHandler extends LdapHandler implements MessageHandler
 {
     //TM private static long cumul = 0L;
     //TM private static long count = 0;
@@ -159,7 +158,7 @@ public class SearchHandler implements MessageHandler
         SearchRequest req = ( SearchRequest ) request;
         NamingEnumeration list = null;
         String[] ids = null;
-        Collection retAttrs = new HashSet();
+        Collection<String> retAttrs = new HashSet<String>();
         retAttrs.addAll( req.getAttributes() );
 
         // add the search request to the registry of outstanding requests for this session
@@ -183,10 +182,12 @@ public class SearchHandler implements MessageHandler
             // ===============================================================
 
             boolean isRootDSESearch = isRootDSESearch( req );
+            
             // bypass checks to disallow anonymous binds for search on RootDSE with base obj scope
             if ( isRootDSESearch )
             {
                 LdapContext unknown = SessionRegistry.getSingleton().getLdapContextOnRootDSEAccess( session, null );
+                
                 if ( !( unknown instanceof ServerLdapContext ) )
                 {
                     ctx = ( ServerLdapContext ) unknown.lookup( "" );
@@ -200,6 +201,7 @@ public class SearchHandler implements MessageHandler
             else
             {
                 LdapContext unknown = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+                
                 if ( !( unknown instanceof ServerLdapContext ) )
                 {
                     ctx = ( ServerLdapContext ) unknown.lookup( "" );
@@ -208,10 +210,12 @@ public class SearchHandler implements MessageHandler
                 {
                     ctx = ( ServerLdapContext ) unknown;
                 }
-                Control[] controls = req.getControls().values().toArray( new Control[0] );
-                ctx.setRequestControls( controls );
+                
             }
             
+            // Inject controls into the context
+            setControls( ctx, req );
+
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases() );
             
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )

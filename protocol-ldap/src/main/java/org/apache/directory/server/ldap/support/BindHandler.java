@@ -29,6 +29,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
+import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindHandler implements MessageHandler
+public class BindHandler extends LdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( BindHandler.class );
 
@@ -66,7 +67,7 @@ public class BindHandler implements MessageHandler
     /** Definition of SIMPLE and STRONG authentication constants */
     private static final String SIMPLE_AUTHENTICATION_LEVEL = "simple";
         
-    private static final String STRONG_AUTHENTICATION_LEVEL = "strong";
+    //private static final String STRONG_AUTHENTICATION_LEVEL = "strong";
     
     /** An empty Contol array used to get back the controls if any */
     private static final Control[] EMPTY_CONTROL = new Control[0];
@@ -205,7 +206,7 @@ public class BindHandler implements MessageHandler
      * must have been allowed in the configuration, otherwise an error is thrown.
      * 
      */
-    private void handleSimpleAuth( IoSession session, BindRequest bindRequest )
+    private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
         LdapConfiguration config = ( LdapConfiguration ) session.getAttribute( LdapConfiguration.class.toString() );
         
@@ -230,6 +231,10 @@ public class BindHandler implements MessageHandler
         
         // Now, get the context
         LdapContext ctx = getLdapContext( session, bindRequest, env );
+        ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
+        
+        // Inject controls into the context
+        setControls( newCtx, bindRequest );
         
         // Test that we successfully got one. If not, an error has already been returned.
         if ( ctx != null )
@@ -252,6 +257,8 @@ public class BindHandler implements MessageHandler
 
         if ( log.isDebugEnabled() )
         {
+        	log.debug( "User {} is binding", bindRequest.getName() );
+        	
             if ( bindRequest.isSimple() )
             {
                 log.debug( "Using simple authentication." );
@@ -274,7 +281,7 @@ public class BindHandler implements MessageHandler
             session.write( bindRequest.getResultResponse() );
             return;
         }
-
+        
         // Deal with the two kinds of authen :
         // - if it's simple, handle it in this class for speed
         // - for sasl, we go through a chain right now (but it may change in the near future)
