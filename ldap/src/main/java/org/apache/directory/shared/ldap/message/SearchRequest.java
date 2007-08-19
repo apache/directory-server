@@ -212,7 +212,7 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the attributes to return for this request
      */
-    Collection getAttributes();
+    Collection<String> getAttributes();
 
 
     /**

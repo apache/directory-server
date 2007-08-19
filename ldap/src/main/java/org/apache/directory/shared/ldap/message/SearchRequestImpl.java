@@ -113,7 +113,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the collection of attributes to return for each entry
      */
-    public Collection getAttributes()
+    public Collection<String> getAttributes()
     {
         return Collections.unmodifiableCollection( attributes );
     }
