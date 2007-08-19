@@ -43,7 +43,7 @@ import org.apache.mina.handler.demux.MessageHandler;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler extends LdapHandler implements MessageHandler
+public class ExtendedHandler extends AbstractLdapHandler implements MessageHandler
 {
     private Map<String, ExtendedOperationHandler> handlers = new HashMap<String, ExtendedOperationHandler>();
 

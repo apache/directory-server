@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchHandler extends LdapHandler implements MessageHandler
+public class SearchHandler extends AbstractLdapHandler implements MessageHandler
 {
     //TM private static long cumul = 0L;
     //TM private static long count = 0;

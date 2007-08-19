@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class BindHandler extends LdapHandler implements MessageHandler
+public class BindHandler extends AbstractLdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( BindHandler.class );
 

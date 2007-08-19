@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyHandler extends LdapHandler implements MessageHandler
+public class ModifyHandler extends AbstractLdapHandler implements MessageHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ModifyHandler.class );
 

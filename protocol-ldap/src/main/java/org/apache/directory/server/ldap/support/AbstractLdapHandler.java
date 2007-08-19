@@ -33,7 +33,7 @@ import org.apache.mina.handler.demux.MessageHandler;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 541827 $
  */
-public abstract class LdapHandler implements MessageHandler
+public abstract class AbstractLdapHandler implements MessageHandler
 {
 	/**
 	 * Return an array containing the controls for this message.
