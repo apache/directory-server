@@ -525,6 +525,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         // see first if simple match without normalization succeeds
+        // TODO Fix DIRSERVER-832
         if ( attr.contains( ctx.getValue() ) )
         {
             return true;
