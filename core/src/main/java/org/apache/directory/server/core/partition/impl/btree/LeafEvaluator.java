@@ -302,7 +302,7 @@ public class LeafEvaluator implements Evaluator
 
         // get the attribute associated with the node 
         Attributes attrs = rec.getAttributes();
-        AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( node.getAttribute() ) );
+        AttributeType type = attributeTypeRegistry.lookup( node.getAttribute() );
         Attribute attr = AttributeUtils.getAttribute( attrs, type );
 
         // If we do not have the attribute just return false
@@ -311,17 +311,11 @@ public class LeafEvaluator implements Evaluator
             return false;
         }
 
-        // check if AVA value exists in attribute
-        if ( attr.contains( node.getValue() ) )
-        {
-            return true;
-        }
-
         // get the normalized AVA filter value
         Object filterValue = node.getValue();
 
         // check if the normalized value is present
-        if ( attr.contains( filterValue ) )
+        if ( AttributeUtils.containsValue(attr, node.getValue(), type ) )
         {
             return true;
         }
@@ -332,10 +326,12 @@ public class LeafEvaluator implements Evaluator
          * to determine if a match exists.
          */
         NamingEnumeration list = attr.getAll();
+        
         while ( list.hasMore() )
         {
             Object value = normalizer.normalize( list.next() );
 
+            // TODO Fix DIRSERVER-832
             if ( 0 == comparator.compare( value, filterValue ) )
             {
                 return true;
