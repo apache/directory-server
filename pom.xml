@@ -423,6 +423,7 @@
           <artifactId>dependency-maven-plugin</artifactId>
           <version>1.0</version>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -464,12 +465,6 @@
           </executions>
         </plugin>
 
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.1</version>
-        </plugin>
-
         <!-- remove when project version 8 is released -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -502,6 +497,12 @@
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.1</version>
         </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.3</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -516,32 +517,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
      
-      <plugin>
-        <inherited>false</inherited>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>site</phase>
-            <configuration>
-              <tasks>
-                <javadoc destdir="target/site/docs/api" 
-                         use="true" 
-                         windowtitle="ApacheDS" 
-                         packagenames="org.apache.directory.server.*">
-                  <sourcepath>
-                    <dirset dir="." includes="*/src/main/java"/>
-                  </sourcepath>
-                </javadoc>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- remove when project version 8 is released -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -553,6 +528,7 @@
 
   <reporting>
     <excludeDefaults>true</excludeDefaults>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -569,7 +545,16 @@
           </reportSet>
         </reportSets>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
     </plugins>
+
   </reporting>
 
 </project>
