@@ -130,6 +130,7 @@
           <version>2.0-beta-1</version>
         </plugin>
 
+        <!-- remove when project version 8 is released -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-remote-resources-plugin</artifactId>
@@ -150,6 +151,12 @@
           </executions>
         </plugin>
 
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.3</version>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -165,6 +172,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
+      <!-- remove when project version 8 is released -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-remote-resources-plugin</artifactId>
@@ -173,6 +181,36 @@
     </plugins>
 
   </build>
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>project-team</report>
+              <report>mailing-list</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+              <report>scm</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </reporting>
 
 </project>
 
