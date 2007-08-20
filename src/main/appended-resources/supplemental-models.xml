@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<supplementalDataModels>
+  <supplement>
+    <project>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <name>ANTLR Parser Generator</name>
+      <organization>
+        <name>ANTLR</name>
+        <url>http://www.antlr.org/</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>ANTLR 2 License (public domain)</name>
+          <url>http://www.antlr2.org/license.html</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+
+</supplementalDataModels>

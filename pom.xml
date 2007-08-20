@@ -130,6 +130,26 @@
           <version>2.0-beta-1</version>
         </plugin>
 
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-remote-resources-plugin</artifactId>
+          <version>1.0-alpha-5</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>process</goal>
+              </goals>
+              <configuration>
+                <resourceBundles>
+                  <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
+                </resourceBundles>
+                <!-- hack to share the same corrections among all modules -->
+                <appendedResourcesDirectory>${basedir}/../src/main/appended-resources</appendedResourcesDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -143,6 +163,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
       </plugin>
 
     </plugins>
