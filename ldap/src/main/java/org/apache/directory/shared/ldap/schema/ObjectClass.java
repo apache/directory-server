@@ -85,6 +85,30 @@ public interface ObjectClass extends SchemaObject
      * @return the ObjectClass type as an enum
      */
     ObjectClassTypeEnum getType();
+    
+    
+    /**
+     * Tells if the current ObjectClass is STRUCTURAL
+     * 
+     * @return <code>true</code> if the ObjectClass is STRUCTURAL
+     */
+    boolean isStructural();
+    
+
+    /**
+     * Tells if the current ObjectClass is ABSTRACT
+     * 
+     * @return <code>true</code> if the ObjectClass is ABSTRACT
+     */
+    boolean isAbstract();
+    
+
+    /**
+     * Tells if the current ObjectClass is AUXILIARY
+     * 
+     * @return <code>true</code> if the ObjectClass is AUXILIARY
+     */
+    boolean isAuxiliary();
 
 
     /**
