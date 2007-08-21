@@ -76,14 +76,14 @@ public class DefaultRegistries implements Registries
         normalizerRegistry = new DefaultNormalizerRegistry();
         comparatorRegistry = new DefaultComparatorRegistry();
         syntaxCheckerRegistry = new DefaultSyntaxCheckerRegistry();
-        syntaxRegistry = new DefaultSyntaxRegistry( getOidRegistry() );
-        matchingRuleRegistry = new DefaultMatchingRuleRegistry( getOidRegistry() );
-        attributeTypeRegistry = new DefaultAttributeTypeRegistry( getOidRegistry() );
-        objectClassRegistry = new DefaultObjectClassRegistry( getOidRegistry() );
-        ditContentRuleRegistry = new DefaultDitContentRuleRegistry( getOidRegistry() );
-        ditStructureRuleRegistry = new DefaultDitStructureRuleRegistry( getOidRegistry() );
+        syntaxRegistry = new DefaultSyntaxRegistry( oidRegistry );
+        matchingRuleRegistry = new DefaultMatchingRuleRegistry( oidRegistry );
+        attributeTypeRegistry = new DefaultAttributeTypeRegistry( oidRegistry );
+        objectClassRegistry = new DefaultObjectClassRegistry( oidRegistry );
+        ditContentRuleRegistry = new DefaultDitContentRuleRegistry( oidRegistry );
+        ditStructureRuleRegistry = new DefaultDitStructureRuleRegistry( oidRegistry );
         matchingRuleUseRegistry = new DefaultMatchingRuleUseRegistry();
-        nameFormRegistry = new DefaultNameFormRegistry( getOidRegistry() );
+        nameFormRegistry = new DefaultNameFormRegistry( oidRegistry );
     }
 
 
