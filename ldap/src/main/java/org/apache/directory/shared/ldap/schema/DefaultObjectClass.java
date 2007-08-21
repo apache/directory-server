@@ -51,13 +51,13 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     private ObjectClassTypeEnum type = ObjectClassTypeEnum.ABSTRACT;
 
     /** */
-    private ArrayList mayList;
+    private ArrayList<AttributeType> mayList;
 
     /** */
-    private ArrayList mustList;
+    private ArrayList<AttributeType> mustList;
 
     /** */
-    private ArrayList superClasses;
+    private ArrayList<ObjectClass> superClasses;
 
 
     // ------------------------------------------------------------------------
@@ -67,8 +67,7 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     /**
      * Creates an ObjectClassImpl instance with an OID.
      * 
-     * @param oid
-     *            the unique object identifier for this objectClass
+     * @param oid the unique object identifier for this objectClass
      */
     DefaultObjectClass(String oid)
     {
@@ -108,6 +107,24 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
     }
 
 
+    public boolean isStructural()
+    {
+    	return type == ObjectClassTypeEnum.STRUCTURAL;
+    }
+
+
+    public boolean isAbstract()
+    {
+    	return type == ObjectClassTypeEnum.ABSTRACT;
+    }
+
+    
+    public boolean isAuxiliary()
+    {
+    	return type == ObjectClassTypeEnum.AUXILIARY;
+    }
+
+    
     public AttributeType[] getMayList()
     {
         if ( mayList == null )
@@ -130,11 +147,11 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
      * @param mayList
      *            more AttributeTypes to add to the optional attribute list
      */
-    void addToMayList( List mayList )
+    void addToMayList( List<AttributeType> mayList )
     {
         if ( this.mayList == null )
         {
-            this.mayList = new ArrayList();
+            this.mayList = new ArrayList<AttributeType>();
         }
 
         this.mayList.addAll( mayList );
@@ -148,11 +165,11 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
      * @param mustList
      *            more AttributeTypes to add to the mandatory list
      */
-    void addToMustList( List mustList )
+    void addToMustList( List<AttributeType> mustList )
     {
         if ( this.mustList == null )
         {
-            this.mustList = new ArrayList();
+            this.mustList = new ArrayList<AttributeType>();
         }
 
         this.mustList.addAll( mustList );
@@ -165,11 +182,11 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
      * @param superClasses
      *            the list of super classes to add to this ObjectClass
      */
-    void addSuperClasses( List superClasses )
+    void addSuperClasses( List<ObjectClass> superClasses )
     {
         if ( this.superClasses == null )
         {
-            this.superClasses = new ArrayList();
+            this.superClasses = new ArrayList<ObjectClass>();
         }
 
         this.superClasses.addAll( superClasses );
