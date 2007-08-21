@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -50,7 +51,7 @@ public class DefaultOidRegistry implements OidRegistry
     private static final boolean IS_DEBUG = log.isDebugEnabled();
     
     /** Maps OID to a name or a list of names if more than one name exists */
-    private Map byOid = new HashMap();
+    private Map<String, List<String>> byOid = new HashMap<String, List<String>>();
     
     /** Maps several names to an OID */
     private Map<String,String> byName = new HashMap<String,String>();
@@ -65,7 +66,8 @@ public class DefaultOidRegistry implements OidRegistry
         {
             throw new NamingException( "name should not be empty" );
         }
-        /* If name is an OID than we return it back since inherently the
+        
+        /* If name is an OID then we return it back since inherently the
          * OID is another name for the object referred to by OID and the
          * caller does not know that the argument is an OID String.
          */
@@ -83,6 +85,7 @@ public class DefaultOidRegistry implements OidRegistry
             {
                 log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
+            
             return oid;
         }
 
@@ -94,22 +97,22 @@ public class DefaultOidRegistry implements OidRegistry
          * returned on a getNameSet.
          */
         String lowerCase = name.trim().toLowerCase();
-        if ( !name.equals( lowerCase ) && byName.containsKey( lowerCase ) )
+        
+        String oid = byName.get( lowerCase );
+        
+        if ( oid != null )
         {
-            String oid = byName.get( lowerCase );
-            
             if ( IS_DEBUG )
             {
                 log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
 
-            // We expect to see this version of the key again so we add it
-            byName.put( name, oid );
             return oid;
         }
 
         NamingException fault = new NamingException( "OID for name '" + name + "' was not "
             + "found within the OID registry" );
+        log.error( fault.getMessage() );
         throw fault;
     }
 
@@ -119,13 +122,14 @@ public class DefaultOidRegistry implements OidRegistry
      */
     public boolean hasOid( String name )
     {
-        if ( this.byName.containsKey( name ) || this.byOid.containsKey( name ) )
-        {
-            return true;
-        }
-
-        String normalized = name.toLowerCase();
-        return this.byName.containsKey( normalized ) || this.byOid.containsKey( normalized );
+    	if ( StringTools.isEmpty( name ) )
+    	{
+    		return false;
+    	}
+    	
+    	String normalized = name.trim().toLowerCase();
+    	
+        return byName.containsKey( normalized );
     }
 
 
@@ -134,7 +138,7 @@ public class DefaultOidRegistry implements OidRegistry
      */
     public String getPrimaryName( String oid ) throws NamingException
     {
-        Object value = byOid.get( oid );
+        List<String> value = byOid.get( oid );
 
         if ( null == value )
         {
@@ -142,17 +146,7 @@ public class DefaultOidRegistry implements OidRegistry
             throw fault;
         }
 
-        if ( value instanceof String )
-        {
-            if ( IS_DEBUG )
-            {
-                log.debug( "looked up primary name '" + value + "' with OID '" + oid + "'" );
-            }
-            
-            return ( String ) value;
-        }
-
-        String name = ( String ) ( ( List ) value ).get( 0 );
+        String name = value.get( 0 );
         
         if ( IS_DEBUG )
         {
@@ -168,24 +162,12 @@ public class DefaultOidRegistry implements OidRegistry
      */
     public List getNameSet( String oid ) throws NamingException
     {
-        Object value = byOid.get( oid );
+        List<String> value = byOid.get( oid );
 
         if ( null == value )
         {
             NamingException fault = new NamingException( "OID '" + oid + "' was not found within the OID registry" );
             throw fault;
-        }
-
-        if ( value instanceof String )
-        {
-            List list = Collections.singletonList( value );
-            
-            if ( IS_DEBUG )
-            {
-                log.debug( "looked up names '" + list + "' for OID '" + oid + "'" );
-            }
-            
-            return list;
         }
 
         if ( IS_DEBUG )
@@ -211,7 +193,7 @@ public class DefaultOidRegistry implements OidRegistry
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
-    public Map getOidByName()
+    public Map<String, String> getOidByName()
     {
         return byName;
     }
@@ -221,7 +203,7 @@ public class DefaultOidRegistry implements OidRegistry
      * Get the map of all the oids by their name
      * @return The Map that contains all the oids
      */
-    public Map getNameByOid()
+    public Map<String, List<String>> getNameByOid()
     {
         return byOid;
     }
@@ -231,25 +213,32 @@ public class DefaultOidRegistry implements OidRegistry
      * @see org.apache.directory.server.schema.registries.OidRegistry#register(String, String)
      */
     @SuppressWarnings("unchecked")
-    public void register( String name, String oid )
+    public void register( String name, String oid ) throws NamingException
     {
-        if ( !Character.isDigit( oid.charAt( 0 ) ) )
+        if ( !OID.isOID( oid ) )
         {
-            throw new RuntimeException( "Swap the parameter order: the oid " + "does not start with a digit!" );
+        	String message = "Swap the parameter order: the oid " + 
+    		"does not start with a digit, or is not an OID!";
+        	
+        	log.debug( message );
+            throw new NamingException( message );
+        }
+        
+        if ( StringTools.isEmpty( name ) )
+        {
+        	String message = "The name is empty";
+        	log.error( message );
+            throw new NamingException( message );
         }
 
         /*
          * Add the entry for the given name as is and its lowercased version if
          * the lower cased name is different from the given name name.  
          */
-        String lowerCase = name.toLowerCase();
-        if ( !lowerCase.equals( name ) )
-        {
-            byName.put( lowerCase, oid );
-        }
+        String lowerCase = name.trim().toLowerCase();
 
         // Put both the name and the oid as names
-        byName.put( name, oid );
+        byName.put( lowerCase, oid );
         byName.put( oid, oid );
 
         /*
@@ -262,45 +251,24 @@ public class DefaultOidRegistry implements OidRegistry
          *          Add new value to the list
          * 2). If we do not have a value then we just add it as a String
          */
-        Object value;
+        List<String> value = null;
+        
         if ( !byOid.containsKey( oid ) )
         {
-            value = name;
+            value = new ArrayList<String>( 1 );
+            value.add( lowerCase );
         }
         else
         {
-            ArrayList list;
             value = byOid.get( oid );
-
-            if ( value instanceof String )
+            
+            if ( value.contains( lowerCase ) )
             {
-                String existingName = ( String ) value;
-
-                // if the existing name is already there we don't readd it
-                if ( existingName.equalsIgnoreCase( name ) )
-                {
-                    return;
-                }
-
-                list = new ArrayList(2);
-                list.add( name );
-                list.add( value );
-                value = list;
+            	return;
             }
-            else if ( value instanceof ArrayList )
+            else
             {
-                list = ( ArrayList ) value;
-
-                for ( int ii = 0; ii < list.size(); ii++ )
-                {
-                    // One form or another of the name already exists in list
-                    if ( !name.equalsIgnoreCase( ( String ) list.get( ii ) ) )
-                    {
-                        return;
-                    }
-                }
-
-                list.add( name );
+            	value.add( lowerCase );
             }
         }
 
@@ -315,21 +283,19 @@ public class DefaultOidRegistry implements OidRegistry
 
     public void unregister( String numericOid ) throws NamingException
     {
-        byOid.remove( numericOid );
-        Iterator<String> names = byName.keySet().iterator();
-        List<String> namesToRemove = new ArrayList<String>(); 
-        while ( names.hasNext() )
-        {
-            String name = names.next();
-            if ( numericOid.equals( byName.get( name ) ) )
-            {
-                namesToRemove.add( name );
-            }
-        }
+    	// First, remove the <OID, names> from the byOID map
+        List<String> names = byOid.remove( numericOid );
         
-        for ( String name : namesToRemove )
+        // Then remove all the <name, OID> from the byName map
+        if ( names != null )
         {
-            byName.remove( name );
+        	for ( String name:names )
+        	{
+        		byName.remove( name );
+        	}
         }
+
+        // Last, remove the <OID, OID> from the byName map
+        byName.remove( numericOid );
     }
 }
