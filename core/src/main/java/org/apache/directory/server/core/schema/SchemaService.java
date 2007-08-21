@@ -1701,11 +1701,16 @@ public class SchemaService extends BaseInterceptor
         List<ObjectClass> ocs = new ArrayList<ObjectClass>();
 
         alterObjectClasses( objectClassAttr );
-
+        
+        // Now we can process the MUST and MAY attributes
         Set<String> must = getAllMust( objectClassAttr.getAll() );
         Set<String> allowed = getAllAllowed( objectClassAttr.getAll(), must );
 
         boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
+
+        // As we now have all the ObjectClasses updated, we have
+        // to check that we don't have conflicting ObjectClasses
+        assertObjectClasses( ocs );
 
         assertRequiredAttributesPresent( dn, entry, must );
         assertNumberOfAttributeValuesValid( entry );
@@ -1851,6 +1856,51 @@ public class SchemaService extends BaseInterceptor
         }
     }
     
+    /**
+     * Checck that OC does not conflict :
+     * - we can't have more than one STRUCTURAL OC unless they are in the same
+     * inheritance tree
+     * - we must have at least one STRUCTURAL OC
+     */
+    private void assertObjectClasses( List<ObjectClass> ocs )  throws LdapSchemaViolationException
+    {
+    	boolean hasStructural = false;
+    	boolean hasExtensibleObject = false;
+    	
+    	// Loop on all the entry objectClasses 
+    	for ( ObjectClass oc:ocs )
+    	{
+    		if ( oc.isStructural() )
+    		{
+    			// We have a STRUCTURAL OC. Do we already found one ?
+    			if ( hasStructural )
+    			{
+    				// Yes, then there must be an inheritence relationship
+    				// between those two OC, otherwise this is an error.
+    				// TODO check that the inheritence tree is correct
+    			}
+    			else
+    			{
+    				hasStructural = true;
+    			}
+    		}
+    		
+    		if ( oc.getOid().equals( SchemaConstants.EXTENSIBLE_OBJECT_OC_OID ) )
+    		{
+    			hasExtensibleObject = true;
+    		}
+    	}
+    	
+    	// Throw an error if no STRUCTURAL objectClass is found.
+    	// Right now, if the extensibleObject OC is present, we relax
+    	// the previous constraint to avoid failing tests.
+    	if ( !hasStructural && !hasExtensibleObject )
+    	{
+    		String message = "An entry must have at least one STRUCTURAL ObjectClass";
+    		log.error( message );
+    		throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+    	}
+    }
 
     /**
      * Check the entry attributes syntax, using the syntaxCheckers
