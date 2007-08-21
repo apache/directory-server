@@ -95,7 +95,7 @@ public interface OidRegistry
      * @param name the name to associate with the OID
      * @param oid the OID to add or associate a new name with
      */
-    void register( String name, String oid );
+    void register( String name, String oid ) throws NamingException;
 
 
     /**
