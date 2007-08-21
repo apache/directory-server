@@ -187,7 +187,7 @@ public class SchemaPartitionDao
     {
         LdapDN base = new LdapDN( "ou=schema" );
         base.normalize( attrRegistry.getNormalizerMapping() );
-        ExprNode filter = new SimpleNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), "metaSchema", AssertionEnum.EQUALITY );
+        ExprNode filter = new SimpleNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC, AssertionEnum.EQUALITY );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
