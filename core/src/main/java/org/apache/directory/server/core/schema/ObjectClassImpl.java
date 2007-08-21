@@ -45,7 +45,7 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
     
     private final Registries registries;
 
-    private ObjectClassTypeEnum objectClassTypeEnum;
+    private ObjectClassTypeEnum objectClassType;
     private ObjectClass[] superClasses;
     private AttributeType[] mayList = EMPTY_AT_ARRAY;
     private AttributeType[] mustList = EMPTY_AT_ARRAY;
@@ -180,12 +180,30 @@ class ObjectClassImpl extends AbstractSchemaObject implements MutableSchemaObjec
 
     public ObjectClassTypeEnum getType()
     {
-        return objectClassTypeEnum;
+        return objectClassType;
     }
     
     
-    void setType( ObjectClassTypeEnum objectClassTypeEnum )
+    public boolean isStructural()
     {
-        this.objectClassTypeEnum = objectClassTypeEnum;
+    	return objectClassType == ObjectClassTypeEnum.STRUCTURAL;
+    }
+
+
+    public boolean isAbstract()
+    {
+    	return objectClassType == ObjectClassTypeEnum.ABSTRACT;
+    }
+
+    
+    public boolean isAuxiliary()
+    {
+    	return objectClassType == ObjectClassTypeEnum.AUXILIARY;
+    }
+
+    
+    void setType( ObjectClassTypeEnum objectClassType )
+    {
+        this.objectClassType = objectClassType;
     }
 }
