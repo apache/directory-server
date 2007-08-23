@@ -34,7 +34,7 @@ import org.apache.directory.shared.ldap.codec.Control;
 import org.apache.directory.shared.ldap.codec.ControlDecoder;
 import org.apache.directory.shared.ldap.codec.LdapMessage;
 import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.ManageDsaITControlDecoder;
+import org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlDecoder;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;

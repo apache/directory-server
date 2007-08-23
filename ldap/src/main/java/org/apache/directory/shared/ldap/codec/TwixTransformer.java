@@ -79,6 +79,7 @@ import org.apache.directory.shared.ldap.message.AddResponseImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.BindResponseImpl;
+import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
 import org.apache.directory.shared.ldap.message.ControlImpl;
@@ -761,7 +762,14 @@ public class TwixTransformer implements TransformerSpi
                 org.apache.directory.shared.ldap.codec.Control twixControl = ( org.apache.directory.shared.ldap.codec.Control ) controls
                     .next();
 
-                if ( twixControl.getControlValue() instanceof PSearchControl )
+                if ( twixControl.getControlValue() instanceof 
+                    org.apache.directory.shared.ldap.codec.controls.CascadeControl )
+                {
+                    neutralControl = new CascadeControl();
+                    neutralControl.setCritical( twixControl.getCriticality() );
+                    neutralControl.setValue( twixControl.getEncodedValue() );
+                }
+                else if ( twixControl.getControlValue() instanceof PSearchControl )
                 {
                     PersistentSearchControl neutralPsearch = new PersistentSearchControl();
                     neutralControl = neutralPsearch;

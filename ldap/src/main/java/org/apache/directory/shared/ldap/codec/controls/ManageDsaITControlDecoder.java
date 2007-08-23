@@ -17,11 +17,12 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.codec;
+package org.apache.directory.shared.ldap.codec.controls;
 
 
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
+import org.apache.directory.shared.ldap.codec.ControlDecoder;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 
 
@@ -40,6 +41,6 @@ public class ManageDsaITControlDecoder implements ControlDecoder
 
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
-        return new org.apache.directory.shared.ldap.codec.ManageDsaITControl();
+        return new org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl();
     }
 }
