@@ -73,6 +73,7 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.message.ResultResponseRequest;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchRequestImpl;
+import org.apache.directory.shared.ldap.message.SubentriesControl;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -160,6 +161,7 @@ public class LdapProtocolProvider
         Set<Object> set = new HashSet<Object>();
         set.add( PersistentSearchControl.CONTROL_OID );
         set.add( EntryChangeControl.CONTROL_OID );
+        set.add( SubentriesControl.CONTROL_OID );
         set.add( ManageDsaITControl.CONTROL_OID );
         set.add( CascadeControl.CONTROL_OID );
         SUPPORTED_CONTROLS = Collections.unmodifiableSet( set );
