@@ -1037,16 +1037,16 @@ public class LdifReader implements Iterator<Entry>
                 // A standard AttributeType/AttributeValue pair
                 int colonIndex = line.indexOf( ':' );
 
-                String attributeType = lowerLine.substring( 0, colonIndex );
+                String attributeType = line.substring( 0, colonIndex );
 
-                if ( attributeType.equals( modified ) == false )
+                if ( attributeType.equalsIgnoreCase( modified ) == false )
                 {
                     log.error( "The modified attribute and the attribute value spec must be equal" );
                     throw new NamingException( "Bad modify attribute" );
                 }
 
                 // We should *not* have a DN twice
-                if ( attributeType.equals( "dn" ) )
+                if ( attributeType.equalsIgnoreCase( "dn" ) )
                 {
                     log.error( "An entry must not have two DNs" );
                     throw new NamingException( "A ldif entry should not have two DN" );
@@ -1055,7 +1055,7 @@ public class LdifReader implements Iterator<Entry>
                 Object attributeValue = parseValue( line, colonIndex );
 
                 // Update the entry
-                entry.addModificationItem( modification, attributeType, attributeValue );
+                entry.addModificationItem( modification, modified, attributeValue );
                 isEmptyValue = false;
 
                 state = ATTRVAL_SPEC_OR_SEP;

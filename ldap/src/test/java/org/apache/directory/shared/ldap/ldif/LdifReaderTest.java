@@ -205,7 +205,6 @@ public class LdifReaderTest extends TestCase
      * Spaces at the end of values should not be included into values.
      * 
      * @throws NamingException
-     * @throws ParsingException
      */
     public void testLdifParserEndSpaces() throws NamingException
     {
@@ -235,11 +234,54 @@ public class LdifReaderTest extends TestCase
 
     }
 
+    public void testLdifParserAddAttrCaseInsensitiveAttrId() throws NamingException
+    {
+        // test that mixed case attr ids work at all
+        String ldif =
+                "version:   1\n" +
+                "dn: dc=example,dc=com\n" +
+                "changetype: modify\n" +
+                "add: administrativeRole\n" +
+                "administrativeRole: accessControlSpecificArea";
+
+        testReaderAttrIdCaseInsensitive( ldif );
+        // test that attr id comparisons are case insensitive and that the version in the add: line is used.
+        // See DIRSERVER-1029 for some discussion.
+        ldif =
+                "version:   1\n" +
+                "dn: dc=example,dc=com\n" +
+                "changetype: modify\n" +
+                "add: administrativeRole\n" +
+                "administrativerole: accessControlSpecificArea";
+
+        testReaderAttrIdCaseInsensitive( ldif );
+    }
+
+    private void testReaderAttrIdCaseInsensitive( String ldif )
+            throws NamingException
+    {
+        LdifReader reader = new LdifReader();
+
+        List entries = reader.parseLdif( ldif );
+        assertNotNull( entries );
+
+        Entry entry = ( Entry ) entries.get( 0 );
+
+        assertTrue( entry.isChangeModify() );
+
+        assertEquals( "dc=example,dc=com", entry.getDn() );
+
+        List<ModificationItemImpl> mods = entry.getModificationItems( );
+        assertTrue( mods.size() == 1 );
+        Attribute attr = mods.get(0).getAttribute();
+        assertTrue( attr.getID().equals( "administrativeRole"));
+        assertEquals( attr.get(), "accessControlSpecificArea" );
+    }
+
     /**
      * Changes and entries should not be mixed
      * 
      * @throws NamingException
-     * @throws ParsingException
      */
     public void testLdifParserCombinedEntriesChanges() throws NamingException
     {
@@ -278,7 +320,6 @@ public class LdifReaderTest extends TestCase
      * Changes and entries should not be mixed
      * 
      * @throws NamingException
-     * @throws ParsingException
      */
     public void testLdifParserCombinedEntriesChanges2() throws NamingException
     {
@@ -316,7 +357,6 @@ public class LdifReaderTest extends TestCase
      * Changes and entries should not be mixed
      * 
      * @throws NamingException
-     * @throws ParsingException
      */
     public void testLdifParserCombinedChangesEntries() throws NamingException
     {
@@ -355,7 +395,6 @@ public class LdifReaderTest extends TestCase
      * Changes and entries should not be mixed
      * 
      * @throws NamingException
-     * @throws ParsingException
      */
     public void testLdifParserCombinedChangesEntries2() throws NamingException
     {
