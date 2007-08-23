@@ -108,11 +108,11 @@ public class KeyDerivationService extends BaseInterceptor
      * the special keyword 'randomKey', set random keys for the principal.  Set the key version number (kvno)
      * to '0'.
      */
-    public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
         LdapDN normName = addContext.getDn();
 
-        Attributes entry = ( ( AddOperationContext ) addContext ).getEntry();
+        Attributes entry = addContext.getEntry();
 
         if ( entry.get( "userPassword" ) != null && entry.get( KerberosAttribute.PRINCIPAL ) != null )
         {
@@ -171,9 +171,8 @@ public class KeyDerivationService extends BaseInterceptor
      * 
      * If the 'userPassword' is the special keyword 'randomKey', set random keys for the principal.
      */
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws NamingException
     {
-        ModifyOperationContext modContext = ( ModifyOperationContext ) opContext;
         ModifySubContext subContext = new ModifySubContext();
 
         detectPasswordModification( modContext, subContext );

@@ -204,7 +204,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryModified( OperationContext opContext, Attributes entry ) throws NamingException
+    public void subentryModified( ModifyOperationContext opContext, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {
@@ -212,7 +212,7 @@ public class TriggerSpecCache
         }
 
         LdapDN normName = opContext.getDn();
-        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
         

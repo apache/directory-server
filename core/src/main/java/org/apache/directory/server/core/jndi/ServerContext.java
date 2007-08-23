@@ -53,6 +53,7 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -628,7 +629,7 @@ public abstract class ServerContext implements EventContext
         
         if ( name.size() == 0 )
         {
-        	attributes = nexusProxy.getRootDSE( new LookupOperationContext( target ) );
+        	attributes = nexusProxy.getRootDSE( new GetRootDSEOperationContext( target ) );
         }
         else
         {

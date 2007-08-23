@@ -40,7 +40,9 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
@@ -247,10 +249,10 @@ public class TriggerService extends BaseInterceptor
         this.enabled = true; // TODO: Get this from the configuration if needed.
     }
 
-    public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
     	LdapDN name = addContext.getDn();
-    	Attributes entry = ((AddOperationContext)addContext).getEntry();
+    	Attributes entry = addContext.getEntry();
     	
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -283,7 +285,7 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
 
-    public void delete( NextInterceptor next, OperationContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws NamingException
     {
     	LdapDN name = deleteContext.getDn();
     	
@@ -316,7 +318,7 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -350,11 +352,11 @@ public class TriggerService extends BaseInterceptor
     }
     
 
-    public void rename( NextInterceptor next, OperationContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
         LdapDN name = renameContext.getDn();
-        String newRdn = ((RenameOperationContext)renameContext).getNewRdn();
-        boolean deleteOldRn = ((RenameOperationContext)renameContext).getDelOldDn();
+        String newRdn = renameContext.getNewRdn();
+        boolean deleteOldRn = renameContext.getDelOldDn();
         
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -396,12 +398,12 @@ public class TriggerService extends BaseInterceptor
         executeTriggers( afterTriggerSpecs, injector, callerRootCtx );
     }
     
-    public void moveAndRename( NextInterceptor next, OperationContext moveAndRenameContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext ) throws NamingException
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
-        LdapDN parent = ((MoveAndRenameOperationContext)moveAndRenameContext).getParent();
-        String newRn = ((MoveAndRenameOperationContext)moveAndRenameContext).getNewRdn();
-        boolean deleteOldRn = ((MoveAndRenameOperationContext)moveAndRenameContext).getDelOldDn();
+        LdapDN parent = moveAndRenameContext.getParent();
+        String newRn = moveAndRenameContext.getNewRdn();
+        boolean deleteOldRn = moveAndRenameContext.getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -472,7 +474,7 @@ public class TriggerService extends BaseInterceptor
     }
     
     
-    public void move( NextInterceptor next, OperationContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws NamingException
     {
         // Bypass trigger handling if the service is disabled.
         if ( !enabled )
@@ -482,7 +484,7 @@ public class TriggerService extends BaseInterceptor
         }
         
         LdapDN oriChildName = moveContext.getDn();
-        LdapDN newParentName = ((MoveOperationContext)moveContext).getParent();
+        LdapDN newParentName = moveContext.getParent();
         
         // Gather supplementary data.        
         Invocation invocation = InvocationStack.getInstance().peek();

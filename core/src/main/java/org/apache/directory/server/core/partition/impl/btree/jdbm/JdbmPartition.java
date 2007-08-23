@@ -31,11 +31,13 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
@@ -310,9 +312,9 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void add( OperationContext addContext ) throws NamingException
+    public final void add( AddOperationContext addContext ) throws NamingException
     {
-        store.add( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
+        store.add( addContext.getDn(), addContext.getEntry() );
     }
 
 
@@ -375,30 +377,27 @@ public class JdbmPartition extends BTreePartition
     }
 
     
-    public final void modify( OperationContext modifyContext ) throws NamingException
+    public final void modify( ModifyOperationContext modifyContext ) throws NamingException
     {
-    	ModifyOperationContext ctx = (ModifyOperationContext)modifyContext;
-        store.modify( ctx.getDn(), ctx.getModItems() );
+        store.modify( modifyContext.getDn(), modifyContext.getModItems() );
     }
 
-    public final void rename( OperationContext renameContext ) throws NamingException
+    public final void rename( RenameOperationContext renameContext ) throws NamingException
     {
-        RenameOperationContext ctx = (RenameOperationContext)renameContext;
-        store.rename( ctx.getDn(), ctx.getNewRdn(), ctx.getDelOldDn() );
-    }
-
-
-    public final void moveAndRename( OperationContext moveAndRenameContext ) throws NamingException
-    {
-        MoveAndRenameOperationContext ctx = (MoveAndRenameOperationContext)moveAndRenameContext;
-        store.move( ctx.getDn(), ctx.getParent(), ctx.getNewRdn(), ctx.getDelOldDn() );
+        store.rename( renameContext.getDn(), renameContext.getNewRdn(), renameContext.getDelOldDn() );
     }
 
 
-    public final void move( OperationContext moveContext ) throws NamingException
+    public final void moveAndRename( MoveAndRenameOperationContext moveAndRenameContext ) throws NamingException
     {
-        MoveOperationContext ctx = (MoveOperationContext)moveContext;
-        store.move( ctx.getDn(), ctx.getParent() );
+        store.move( moveAndRenameContext.getDn(), moveAndRenameContext.getParent(), 
+        		moveAndRenameContext.getNewRdn(), moveAndRenameContext.getDelOldDn() );
+    }
+
+
+    public final void move( MoveOperationContext moveContext ) throws NamingException
+    {
+        store.move( moveContext.getDn(), moveContext.getParent() );
     }
 
 
@@ -411,7 +410,7 @@ public class JdbmPartition extends BTreePartition
             ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
 
-    public final void bind( OperationContext bindContext ) throws NamingException
+    public final void bind( BindOperationContext bindContext ) throws NamingException
     {
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
@@ -421,7 +420,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void unbind( OperationContext unbindContext ) throws NamingException
+    public final void unbind( UnbindOperationContext unbindContext ) throws NamingException
     {
     }
 }

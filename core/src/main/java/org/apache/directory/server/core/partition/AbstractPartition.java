@@ -27,10 +27,12 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ReplaceOperationContext;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
@@ -183,11 +185,11 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(OperationContext)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(EntryOperationContext)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
-    public boolean hasEntry( OperationContext entryContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext entryContext ) throws NamingException
     {
         try
         {
@@ -201,19 +203,19 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])}
+     * This method calls {@link Partition#lookup(LookupOperationContext)}
      * with null <tt>attributeIds</tt> by default.  Please override
      * this method if there is more effective way for your implementation.
      */
-    public Attributes lookup( OperationContext lookupContext ) throws NamingException
+    public Attributes lookup( LookupOperationContext lookupContext ) throws NamingException
     {
         return null;
     }
 
 
     /**
-     * This method calls {@link Partition#move(OperationContext)} and
-     * {@link Partition#rename(OperationContext)} subsequently
+     * This method calls {@link Partition#move(MoveOperationContext)} and
+     * {@link Partition#rename(RenameOperationContext)} subsequently
      * by default.  Please override this method if there is more effactive
      * way for your implementation.
      */
@@ -221,7 +223,7 @@ public abstract class AbstractPartition implements Partition
     {
         LdapDN newName = ( LdapDN ) newParentName.clone();
         newName.add( newRdn );
-        replace( new MoveOperationContext( oldName, newParentName ) );
+        move( new MoveOperationContext( oldName, newParentName ) );
         rename( new RenameOperationContext( newName, newRdn, deleteOldRn ) );
     }
 
@@ -230,7 +232,7 @@ public abstract class AbstractPartition implements Partition
      * This method throws {@link OperationNotSupportedException} by default.
      * Please override this method to implement move operation.
      */
-    public void replace( OperationContext replaceContext ) throws NamingException
+    public void replace( ReplaceOperationContext replaceContext ) throws NamingException
     {
         throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }

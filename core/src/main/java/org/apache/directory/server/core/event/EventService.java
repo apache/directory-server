@@ -45,6 +45,7 @@ import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -234,11 +235,11 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
         super.add( next, opContext );
         LdapDN name = opContext.getDn();
-        Attributes entry = ((AddOperationContext)opContext).getEntry();
+        Attributes entry = opContext.getEntry();
         
         Set selecting = getSelectingSources( name, entry );
         
@@ -265,7 +266,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
@@ -322,13 +323,13 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         super.modify( next, opContext );
-        notifyOnModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems(), oriEntry );
+        notifyOnModify( opContext.getDn(), opContext.getModItems(), oriEntry );
     }
 
 
@@ -359,33 +360,33 @@ public class EventService extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
         super.rename( next, opContext );
         LdapDN newName = ( LdapDN ) opContext.getDn().clone();
         newName.remove( newName.size() - 1 );
-        newName.add( ((RenameOperationContext)opContext).getNewRdn() );
+        newName.add( opContext.getNewRdn() );
         newName.normalize( attributeRegistry.getNormalizerMapping() );
         notifyOnNameChange( opContext.getDn(), newName );
     }
 
 
-    public void moveAndRename( NextInterceptor next, OperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
         super.moveAndRename( next, opContext );
-        LdapDN newName = ( LdapDN ) ((MoveAndRenameOperationContext)opContext).getParent().clone();
-        newName.add( ((MoveAndRenameOperationContext)opContext).getNewRdn() );
+        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
+        newName.add( opContext.getNewRdn() );
         notifyOnNameChange( opContext.getDn(), newName );
     }
 
 
-    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
         super.move( next, opContext );
         LdapDN oriChildName = opContext.getDn();
         
-        LdapDN newName = ( LdapDN ) ((MoveOperationContext)opContext).getParent().clone();
+        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
         newName.add( oriChildName.get( oriChildName.size() - 1 ) );
         notifyOnNameChange( oriChildName, newName );
     }

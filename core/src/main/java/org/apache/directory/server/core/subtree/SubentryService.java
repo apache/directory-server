@@ -43,6 +43,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -226,7 +228,7 @@ public class SubentryService extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -241,11 +243,11 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        SearchControls searchCtls = opContext.getSearchControls();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
@@ -375,10 +377,10 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-    	Attributes entry = ((AddOperationContext)opContext).getEntry();
+    	Attributes entry = opContext.getEntry();
     	
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
 
@@ -549,7 +551,7 @@ public class SubentryService extends BaseInterceptor
     // Methods dealing subentry deletion
     // -----------------------------------------------------------------------
 
-    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
@@ -707,10 +709,10 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
         LdapDN name = opContext.getDn();
-        String newRdn = ((RenameOperationContext)opContext).getNewRdn();
+        String newRdn = opContext.getNewRdn();
         
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
@@ -784,11 +786,11 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, OperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
         LdapDN oriChildName = opContext.getDn();
-        LdapDN parent = ((MoveAndRenameOperationContext)opContext).getParent();
+        LdapDN parent = opContext.getParent();
         String newRn = ((RenameOperationContext)opContext).getNewRdn();
         
         
@@ -865,10 +867,10 @@ public class SubentryService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
         LdapDN oriChildName = opContext.getDn();
-        LdapDN newParentName = ((MoveOperationContext)opContext).getParent();
+        LdapDN newParentName = opContext.getParent();
         
         Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
         Attribute objectClasses = entry.get( SchemaConstants.OBJECT_CLASS_AT );
@@ -1014,10 +1016,10 @@ public class SubentryService extends BaseInterceptor
         return getSubentryTypes( attrs );
     }
 
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         LdapDN name = opContext.getDn();
-        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] mods = opContext.getModItems();
         
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attributes oldEntry = (Attributes) entry.clone();

@@ -162,9 +162,9 @@ public class OperationFactory
      * sets {@link Constants#ENTRY_DELETED} to "FALSE" to resurrect the
      * entry the modified attributes belong to.
      */
-    public Operation newModify( OperationContext opContext )
+    public Operation newModify( ModifyOperationContext opContext )
     {
-        ModificationItemImpl[] items = ((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] items = opContext.getModItems();
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();

@@ -41,6 +41,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
@@ -158,14 +159,14 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public NamingEnumeration<SearchResult> search( OperationContext opContext )
+        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
             throws NamingException
         {
             return new BogusEnumeration( count );
         }
 
 
-        public NamingEnumeration<SearchResult> search( OperationContext opContext, Collection bypass ) throws NamingException
+        public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection bypass ) throws NamingException
         {
             return new BogusEnumeration( count );
         }

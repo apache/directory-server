@@ -41,11 +41,11 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     private Attributes oldEntry;
     
     
-    public ModifyStoredProcedureParameterInjector( Invocation invocation, OperationContext opContext ) throws NamingException
+    public ModifyStoredProcedureParameterInjector( Invocation invocation, ModifyOperationContext opContext ) throws NamingException
     {
         super( invocation );
         modifiedEntryName = opContext.getDn();
-        modifications = ((ModifyOperationContext)opContext).getModItems();
+        modifications = opContext.getModItems();
         this.oldEntry = getEntry();
         Map<Class, MicroInjector> injectors = super.getInjectors();
         injectors.put( StoredProcedureParameter.Modify_OBJECT.class, $objectInjector );

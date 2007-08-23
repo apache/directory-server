@@ -44,6 +44,7 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -153,11 +154,11 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Adds extra operational attributes to the entry before it is added.
      */
-    public void add(NextInterceptor nextInterceptor, OperationContext opContext )
+    public void add(NextInterceptor nextInterceptor, AddOperationContext opContext )
         throws NamingException
     {
         String principal = getPrincipal().getName();
-        Attributes entry = ((AddOperationContext)opContext).getEntry();
+        Attributes entry = opContext.getEntry();
 
         Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
         attribute.add( principal );
@@ -170,17 +171,16 @@ public class OperationalAttributeService extends BaseInterceptor
         nextInterceptor.add( opContext );
     }
     
-    public void modify( NextInterceptor nextInterceptor, OperationContext opContext )
+    public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws NamingException
     {
         // -------------------------------------------------------------------
         // Add the operational attributes for the modifier first
         // -------------------------------------------------------------------
 
-        ModifyOperationContext context = ( ModifyOperationContext ) opContext;
         List<ModificationItemImpl> modItemList = 
-            new ArrayList<ModificationItemImpl>( context.getModItems().length + 2 );
-        Collections.addAll( modItemList, context.getModItems() );
+            new ArrayList<ModificationItemImpl>( opContext.getModItems().length + 2 );
+        Collections.addAll( modItemList, opContext.getModItems() );
         
         Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
@@ -195,16 +195,10 @@ public class OperationalAttributeService extends BaseInterceptor
         // -------------------------------------------------------------------
 
         nextInterceptor.modify( opContext );
-
-        // Don't know why this was here! TODO Remove if no errors result
-//        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
-//        {
-//            return;
-//        }
     }
 
 
-    public void rename( NextInterceptor nextInterceptor, OperationContext opContext )
+    public void rename( NextInterceptor nextInterceptor, RenameOperationContext opContext )
         throws NamingException
     {
         nextInterceptor.rename( opContext );
@@ -221,7 +215,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         LdapDN newDn = ( LdapDN ) opContext.getDn().clone();
         newDn.remove( opContext.getDn().size() - 1 );
-        newDn.add( ((RenameOperationContext)opContext).getNewRdn() );
+        newDn.add( opContext.getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
         ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
@@ -232,7 +226,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor nextInterceptor, MoveOperationContext opContext ) throws NamingException
     {
         nextInterceptor.move( opContext );
 
@@ -250,13 +244,13 @@ public class OperationalAttributeService extends BaseInterceptor
 
 
         ModifyOperationContext newModify = 
-            new ModifyOperationContext( ((MoveOperationContext)opContext).getParent(), items );
+            new ModifyOperationContext( opContext.getParent(), items );
         
         nexus.modify( newModify );
     }
 
 
-    public void moveAndRename( NextInterceptor nextInterceptor, OperationContext opContext )
+    public void moveAndRename( NextInterceptor nextInterceptor, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
         nextInterceptor.moveAndRename( opContext );
@@ -280,7 +274,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( opContext );
         
@@ -289,7 +283,7 @@ public class OperationalAttributeService extends BaseInterceptor
             return null;
         }
 
-        if ( ((LookupOperationContext)opContext).getAttrsId() == null )
+        if ( opContext.getAttrsId() == null )
         {
             filter( result );
         }
@@ -302,7 +296,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -310,11 +304,11 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration e = nextInterceptor.search( opContext );
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        SearchControls searchCtls = opContext.getSearchControls();
         
         if ( searchCtls.getReturningAttributes() != null )
         {
@@ -361,10 +355,10 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    private void filter( OperationContext lookupContext, Attributes entry ) throws NamingException
+    private void filter( LookupOperationContext lookupContext, Attributes entry ) throws NamingException
     {
-        LdapDN dn = ((LookupOperationContext)lookupContext).getDn();
-        List<String> ids = ((LookupOperationContext)lookupContext).getAttrsId();
+        LdapDN dn = lookupContext.getDn();
+        List<String> ids = lookupContext.getAttrsId();
         
         // still need to protect against returning op attrs when ids is null
         if ( ids == null )

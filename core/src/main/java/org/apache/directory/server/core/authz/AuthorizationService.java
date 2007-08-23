@@ -46,6 +46,10 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -392,14 +396,14 @@ public class AuthorizationService extends BaseInterceptor
      * -------------------------------------------------------------------------------
      */
 
-    public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
         
-        Attributes entry = ((AddOperationContext)addContext).getEntry();
+        Attributes entry = addContext.getEntry();
         LdapDN name = addContext.getDn();
 
         // bypass authz code if we are disabled
@@ -466,7 +470,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, OperationContext deleteContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws NamingException
     {
     	LdapDN name = deleteContext.getDn();
     	
@@ -508,7 +512,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -527,7 +531,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        ModificationItemImpl[] mods =((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] mods = opContext.getModItems();
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -608,7 +612,7 @@ public class AuthorizationService extends BaseInterceptor
         groupCache.groupModified( name, mods, entry );
     }
 
-    public boolean hasEntry( NextInterceptor next, OperationContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor next, EntryOperationContext entryContext ) throws NamingException
     {
         LdapDN name = entryContext.getDn();
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -693,7 +697,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor next, OperationContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor next, LookupOperationContext lookupContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
@@ -711,14 +715,14 @@ public class AuthorizationService extends BaseInterceptor
 
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes entry = proxy.lookup( lookupContext, PartitionNexusProxy.LOOKUP_BYPASS );
-        checkLookupAccess( principal, ((LookupOperationContext)lookupContext).getDn(), entry );
+        checkLookupAccess( principal, lookupContext.getDn(), entry );
         return next.lookup( lookupContext );
     }
 
-    public void rename( NextInterceptor next, OperationContext renameContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
         LdapDN name = renameContext.getDn();
-        String newRdn = ((RenameOperationContext)renameContext).getNewRdn();
+        String newRdn = renameContext.getNewRdn();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -764,7 +768,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, OperationContext moveAndRenameContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameContext )
         throws NamingException
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
@@ -842,10 +846,10 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public void move( NextInterceptor next, OperationContext moveContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext moveContext ) throws NamingException
     {
         LdapDN oriChildName = moveContext.getDn();
-        LdapDN newParentName = ((MoveOperationContext)moveContext).getParent();
+        LdapDN newParentName = moveContext.getParent();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -915,7 +919,7 @@ public class AuthorizationService extends BaseInterceptor
         groupCache.groupRenamed( oriChildName, newName );
     }
 
-    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
@@ -932,7 +936,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
@@ -941,7 +945,7 @@ public class AuthorizationService extends BaseInterceptor
         NamingEnumeration<SearchResult> e = next.search( opContext );
 
         boolean isSubschemaSubentryLookup = subschemaSubentryDn.equals( opContext.getDn().getNormName() );
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        SearchControls searchCtls = opContext.getSearchControls();
         boolean isRootDSELookup = opContext.getDn().size() == 0 && searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE;
 
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled || isRootDSELookup || isSubschemaSubentryLookup )
@@ -960,12 +964,11 @@ public class AuthorizationService extends BaseInterceptor
     }
     
 
-    public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
     {
-    	CompareOperationContext ctx = (CompareOperationContext)opContext;
-    	LdapDN name = ctx.getDn();
-    	String oid = ctx.getOid();
-    	Object value = ctx.getValue();
+    	LdapDN name = opContext.getDn();
+    	String oid = opContext.getOid();
+    	Object value = opContext.getValue();
     	
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -997,7 +1000,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
     {
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();

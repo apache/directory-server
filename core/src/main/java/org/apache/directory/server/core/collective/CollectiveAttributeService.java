@@ -38,6 +38,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
@@ -282,7 +283,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     // ------------------------------------------------------------------------
     // Interceptor Method Overrides
     // ------------------------------------------------------------------------
-    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( opContext );
         
@@ -291,22 +292,20 @@ public class CollectiveAttributeService extends BaseInterceptor
             return null;
         }
         
-        LookupOperationContext ctx = (LookupOperationContext)opContext;
-        
-        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) ) 
+        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) ) 
         {
-            addCollectiveAttributes( ctx.getDn(), result, new String[] { "*" } );
+            addCollectiveAttributes( opContext.getDn(), result, new String[] { "*" } );
         }
         else
         {
-            addCollectiveAttributes( ctx.getDn(), result, ctx.getAttrsIdArray() );
+            addCollectiveAttributes( opContext.getDn(), result, opContext.getAttrsIdArray() );
         }
 
         return result;
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -314,28 +313,28 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( 
-            e, ((SearchOperationContext)opContext).getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
+            e, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
     }
     
     // ------------------------------------------------------------------------
     // Partial Schema Checking
     // ------------------------------------------------------------------------
     
-    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), ((AddOperationContext)opContext).getEntry() );
+        collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
         super.add( next, opContext );
     }
 
 
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), ((ModifyOperationContext)opContext).getModItems() );
+        collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), opContext.getModItems() );
         super.modify( next, opContext );
     }
 }

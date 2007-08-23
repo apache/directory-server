@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.EmptyOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -93,7 +94,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
             PartitionNexus nexus = service.getConfiguration().getPartitionNexus();
-            Iterator list = nexus.listSuffixes( new EmptyOperationContext() );
+            Iterator list = nexus.listSuffixes( new ListSuffixOperationContext() );
             int launchedWindowCount = 0;
             
             while ( list.hasNext() )

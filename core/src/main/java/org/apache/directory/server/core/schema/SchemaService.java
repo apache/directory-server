@@ -48,6 +48,8 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
@@ -377,7 +379,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * 
      */
-    public NamingEnumeration list( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         NamingEnumeration e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -475,11 +477,11 @@ public class SchemaService extends BaseInterceptor
     /**
      * 
      */
-    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
-        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        SearchControls searchCtls = opContext.getSearchControls();
+        ExprNode filter = opContext.getFilter();
         
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
@@ -864,7 +866,7 @@ public class SchemaService extends BaseInterceptor
     /**
      * Search for an entry, using its DN. Binary attributes and ObjectClass attribute are removed.
      */
-    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext opContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext opContext ) throws NamingException
     {
         Attributes result = nextInterceptor.lookup( opContext );
         
@@ -1175,7 +1177,7 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
-    public void moveAndRename( NextInterceptor next, OperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
         LdapDN oriChildName = opContext.getDn();
@@ -1185,16 +1187,16 @@ public class SchemaService extends BaseInterceptor
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
             schemaManager.move( oriChildName, 
-                ((MoveAndRenameOperationContext)opContext).getParent(), 
-                ((MoveAndRenameOperationContext)opContext).getNewRdn(), 
-                ((MoveAndRenameOperationContext)opContext).getDelOldDn(), entry );
+                opContext.getParent(), 
+                opContext.getNewRdn(), 
+                opContext.getDelOldDn(), entry );
         }
         
         next.moveAndRename( opContext );
     }
 
 
-    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
         LdapDN oriChildName = opContext.getDn();
         
@@ -1202,18 +1204,18 @@ public class SchemaService extends BaseInterceptor
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.replace( oriChildName, ((MoveOperationContext)opContext).getParent(), entry );
+            schemaManager.replace( oriChildName, opContext.getParent(), entry );
         }
         
         next.move( opContext );
     }
     
 
-    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
         LdapDN name = opContext.getDn();
-        String newRdn = ((RenameOperationContext)opContext).getNewRdn();
-        boolean deleteOldRn = ((RenameOperationContext)opContext).getDelOldDn();
+        String newRdn = opContext.getNewRdn();
+        boolean deleteOldRn = opContext.getDelOldDn();
         
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
 
@@ -1228,11 +1230,11 @@ public class SchemaService extends BaseInterceptor
 
     private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };
     
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         Attributes entry = null; 
         LdapDN name = opContext.getDn();
-        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] mods = opContext.getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -1733,10 +1735,10 @@ public class SchemaService extends BaseInterceptor
     /**
      * Check that all the attributes exist in the schema for this entry.
      */
-    public void add( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
-        Attributes attrs = ((AddOperationContext)opContext).getEntry();
+        Attributes attrs = opContext.getEntry();
         
     	check( name, attrs );
 
@@ -1792,7 +1794,7 @@ public class SchemaService extends BaseInterceptor
     }
     
     
-    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );

@@ -64,11 +64,11 @@ public class PasswordPolicyService extends BaseInterceptor
      * Check added attributes for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void add( NextInterceptor next, OperationContext addContext ) throws NamingException
+    public void add( NextInterceptor next, AddOperationContext addContext ) throws NamingException
     {
         LdapDN normName = addContext.getDn();
 
-        Attributes entry = ( ( AddOperationContext ) addContext ).getEntry();
+        Attributes entry = addContext.getEntry();
 
         log.debug( "Adding the entry '{}' for DN '{}'.", AttributeUtils.toString( entry ), normName.getUpName() );
 
@@ -120,10 +120,9 @@ public class PasswordPolicyService extends BaseInterceptor
      * Check modification items for a 'userPassword'.  If a 'userPassword' is found, apply any
      * password policy checks.
      */
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext modContext ) throws NamingException
     {
-        LdapDN name = opContext.getDn();
-        ModifyOperationContext modContext = ( ModifyOperationContext ) opContext;
+        LdapDN name = modContext.getDn();
 
         ModificationItemImpl[] mods = modContext.getModItems();
 
@@ -187,7 +186,7 @@ public class PasswordPolicyService extends BaseInterceptor
             }
         }
 
-        next.modify( opContext );
+        next.modify( modContext );
     }
 
 

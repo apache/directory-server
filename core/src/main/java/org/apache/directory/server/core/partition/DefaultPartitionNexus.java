@@ -46,12 +46,25 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.tree.LeafNode;
@@ -503,22 +516,20 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ContextPartitionNexus Method Implementations
     // ------------------------------------------------------------------------
 
-    public boolean compare( OperationContext compareContext ) throws NamingException
+    public boolean compare( CompareOperationContext compareContext ) throws NamingException
     {
         Partition partition = getPartition( compareContext.getDn() );
         AttributeTypeRegistry registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         
-        CompareOperationContext ctx = (CompareOperationContext)compareContext;
-
         // complain if we do not recognize the attribute being compared
-        if ( !registry.hasAttributeType( ctx.getOid() ) )
+        if ( !registry.hasAttributeType( compareContext.getOid() ) )
         {
-            throw new LdapInvalidAttributeIdentifierException( ctx.getOid() + " not found within the attributeType registry" );
+            throw new LdapInvalidAttributeIdentifierException( compareContext.getOid() + " not found within the attributeType registry" );
         }
 
-        AttributeType attrType = registry.lookup( ctx.getOid() );
+        AttributeType attrType = registry.lookup( compareContext.getOid() );
         
-        Attribute attr = partition.lookup( new LookupOperationContext( ctx.getDn() ) ).get( attrType.getName() );
+        Attribute attr = partition.lookup( new LookupOperationContext( compareContext.getDn() ) ).get( attrType.getName() );
 
         // complain if the attribute being compared does not exist in the entry
         if ( attr == null )
@@ -528,7 +539,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         // see first if simple match without normalization succeeds
         // TODO Fix DIRSERVER-832
-        if ( attr.contains( ctx.getValue() ) )
+        if ( attr.contains( compareContext.getValue() ) )
         {
             return true;
         }
@@ -541,7 +552,7 @@ public class DefaultPartitionNexus extends PartitionNexus
          * through all values looking for a match.
          */
         Normalizer normalizer = attrType.getEquality().getNormalizer();
-        Object reqVal = normalizer.normalize( ctx.getValue() );
+        Object reqVal = normalizer.normalize( compareContext.getValue() );
 
         for ( int ii = 0; ii < attr.size(); ii++ )
         {
@@ -573,12 +584,10 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public synchronized void addContextPartition( OperationContext addContextPartitionContext ) throws NamingException
+    public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException
     {
-        AddContextPartitionOperationContext operationContext = 
-            ( AddContextPartitionOperationContext ) addContextPartitionContext;
-        PartitionConfiguration config = operationContext.getPartitionConfiguration();
-        Partition partition = operationContext.getPartition();
+        PartitionConfiguration config = opContext.getPartitionConfiguration();
+        Partition partition = opContext.getPartition();
 
         // Turn on default indices
         String key = config.getSuffix();
@@ -624,7 +633,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public synchronized void removeContextPartition( OperationContext removeContextPartition ) throws NamingException
+    public synchronized void removeContextPartition( RemoveContextPartitionOperationContext removeContextPartition ) throws NamingException
     {
         String key = removeContextPartition.getDn().getNormName();
         Partition partition = partitions.get( key );
@@ -674,9 +683,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getMatchedName( OperationContext )
+     * @see PartitionNexus#getMatchedName( GetMatchedNameOperationContext )
      */
-    public LdapDN getMatchedName ( OperationContext getMatchedNameContext ) throws NamingException
+    public LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws NamingException
     {
         LdapDN dn = ( LdapDN ) getMatchedNameContext.getDn().clone();
         
@@ -706,9 +715,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see PartitionNexus#getSuffix( OperationContext )
+     * @see PartitionNexus#getSuffix( GetSuffixOperationContext )
      */
-    public LdapDN getSuffix ( OperationContext getSuffixContext ) throws NamingException
+    public LdapDN getSuffix ( GetSuffixOperationContext getSuffixContext ) throws NamingException
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
         return backend.getSuffix();
@@ -716,15 +725,15 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see PartitionNexus#listSuffixes( OperationContext )
+     * @see PartitionNexus#listSuffixes( ListSuffixOperationContext )
      */
-    public Iterator listSuffixes ( OperationContext emptyContext ) throws NamingException
+    public Iterator listSuffixes ( ListSuffixOperationContext emptyContext ) throws NamingException
     {
         return Collections.unmodifiableSet( partitions.keySet() ).iterator();
     }
 
 
-    public Attributes getRootDSE( OperationContext getRootDSEContext )
+    public Attributes getRootDSE( GetRootDSEOperationContext getRootDSEContext )
     {
         return rootDSE;
     }
@@ -753,13 +762,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
     // DirectoryPartition Interface Method Implementations
     // ------------------------------------------------------------------------
-    public void bind( OperationContext bindContext ) throws NamingException
+    public void bind( BindOperationContext bindContext ) throws NamingException
     {
         Partition partition = getPartition( bindContext.getDn() );
         partition.bind( bindContext );
     }
 
-    public void unbind( OperationContext unbindContext ) throws NamingException
+    public void unbind( UnbindOperationContext unbindContext ) throws NamingException
     {
         Partition partition = getPartition( unbindContext.getDn() );
         partition.unbind( unbindContext );
@@ -767,9 +776,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#delete(org.apache.directory.shared.ldap.name.LdapDN)
+     * @see Partition#delete(DeleteOperationContext)
      */
-    public void delete( OperationContext deleteContext ) throws NamingException
+    public void delete( DeleteOperationContext deleteContext ) throws NamingException
     {
         Partition backend = getPartition( deleteContext.getDn() );
         backend.delete( deleteContext );
@@ -783,9 +792,9 @@ public class DefaultPartitionNexus extends PartitionNexus
      * here so backend implementors do not have to worry about performing these
      * kinds of checks.
      *
-     * @see Partition#add( OperationContext )
+     * @see Partition#add( AddOperationContext )
      */
-    public void add( OperationContext addContext ) throws NamingException
+    public void add( AddOperationContext addContext ) throws NamingException
     {
         Partition backend = getPartition( addContext.getDn() );
         backend.add( addContext );
@@ -793,9 +802,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#modify(org.apache.directory.shared.ldap.name.LdapDN,int,javax.naming.directory.Attributes)
+     * @see Partition#modifyModifyOperationContext)
      */
-    public void modify( OperationContext modifyContext ) throws NamingException
+    public void modify( ModifyOperationContext modifyContext ) throws NamingException
     {
         Partition backend = getPartition( modifyContext.getDn() );
         backend.modify( modifyContext );
@@ -803,9 +812,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#list(org.apache.directory.shared.ldap.name.LdapDN)
+     * @see Partition#list(ListOperationContext)
      */
-    public NamingEnumeration list( OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
@@ -815,12 +824,12 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)
      */
-    public NamingEnumeration<SearchResult> search( OperationContext opContext )
+    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
         LdapDN base = opContext.getDn();
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
-        ExprNode filter = ((SearchOperationContext)opContext).getFilter();
+        SearchControls searchCtls = opContext.getSearchControls();
+        ExprNode filter = opContext.getFilter();
         
         if ( base.size() == 0 )
         {
@@ -964,23 +973,22 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])
      */
-    public Attributes lookup( OperationContext opContext ) throws NamingException
+    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
     {
-        LookupOperationContext ctx = (LookupOperationContext)opContext;
-        LdapDN dn = ctx.getDn();
+        LdapDN dn = opContext.getDn();
         
         if ( dn.size() == 0 )
         {
             Attributes retval = new AttributesImpl();
             NamingEnumeration list = rootDSE.getIDs();
      
-            if ( ctx.getAttrsId() != null )
+            if ( opContext.getAttrsId() != null )
             {
                 while ( list.hasMore() )
                 {
                     String id = ( String ) list.next();
                     
-                    if ( ctx.getAttrsId().contains( id ) )
+                    if ( opContext.getAttrsId().contains( id ) )
                     {
                         Attribute attr = rootDSE.get( id );
                         retval.put( ( Attribute ) attr.clone() );
@@ -1002,14 +1010,14 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         Partition backend = getPartition( dn );
-        return backend.lookup( ctx );
+        return backend.lookup( opContext );
     }
 
 
     /**
-     * @see Partition#hasEntry(OperationContext)
+     * @see Partition#hasEntry(EntryOperationContext)
      */
-    public boolean hasEntry( OperationContext opContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext ) throws NamingException
     {
         LdapDN dn = opContext.getDn();
         
@@ -1029,9 +1037,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#rename(OperationContext)
+     * @see Partition#rename(RenameOperationContext)
      */
-    public void rename( OperationContext opContext ) throws NamingException
+    public void rename( RenameOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.rename( opContext );
@@ -1039,9 +1047,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#move(OperationContext)
+     * @see Partition#move(MoveOperationContext)
      */
-    public void move( OperationContext opContext ) throws NamingException
+    public void move( MoveOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.move( opContext );
@@ -1049,9 +1057,9 @@ public class DefaultPartitionNexus extends PartitionNexus
 
 
     /**
-     * @see Partition#moveAndRename( OperationContext )
+     * @see Partition#moveAndRename( MaveAndRenameOperationContext )
      */
-    public void moveAndRename( OperationContext opContext ) throws NamingException
+    public void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         backend.moveAndRename( opContext );

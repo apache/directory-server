@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.naming.NameNotFoundException;
@@ -58,8 +57,11 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
@@ -382,22 +384,22 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public void add( NextInterceptor nextInterceptor, OperationContext addContext ) throws NamingException
+    public void add( NextInterceptor nextInterceptor, AddOperationContext addContext ) throws NamingException
     {
-        Operation op = operationFactory.newAdd( addContext.getDn(), ((AddOperationContext)addContext).getEntry() );
+        Operation op = operationFactory.newAdd( addContext.getDn(), addContext.getEntry() );
         op.execute( nexus, store, attrRegistry );
     }
 
 
     @Override
-    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
         Operation op = operationFactory.newDelete( opContext.getDn() );
         op.execute( nexus, store, attrRegistry );
     }
 
 
-    public void modify( NextInterceptor next, OperationContext modifyContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext modifyContext ) throws NamingException
     {
         Operation op = operationFactory.newModify( modifyContext );
         op.execute( nexus, store, attrRegistry );
@@ -405,7 +407,7 @@ public class ReplicationService extends BaseInterceptor
     
     
     @Override
-    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
         MoveOperationContext moveOpContext = (MoveOperationContext) opContext;
         Operation op = operationFactory.newMove( moveOpContext.getDn(), moveOpContext.getParent() );
@@ -414,7 +416,7 @@ public class ReplicationService extends BaseInterceptor
     
     
     @Override
-    public void moveAndRename( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
     {
         MoveAndRenameOperationContext moveAndRenameOpContext = (MoveAndRenameOperationContext) opContext;
         Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(), moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(), moveAndRenameOpContext.getDelOldDn() );
@@ -423,15 +425,14 @@ public class ReplicationService extends BaseInterceptor
     
     
     @Override
-    public void rename( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void rename( NextInterceptor next, RenameOperationContext renameOpContext ) throws NamingException
     {
-        RenameOperationContext renameOpContext = (RenameOperationContext) opContext;
         Operation op = operationFactory.newModifyRn( renameOpContext.getDn(), renameOpContext.getNewRdn(), renameOpContext.getDelOldDn() );
         op.execute( nexus, store, attrRegistry );
     }
 
 
-    public boolean hasEntry( NextInterceptor nextInterceptor, OperationContext entryContext ) throws NamingException
+    public boolean hasEntry( NextInterceptor nextInterceptor, EntryOperationContext entryContext ) throws NamingException
     {
         // Ask others first.
         boolean hasEntry = nextInterceptor.hasEntry( entryContext );
@@ -456,15 +457,13 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
-    public Attributes lookup( NextInterceptor nextInterceptor, OperationContext lookupContext ) throws NamingException
+    public Attributes lookup( NextInterceptor nextInterceptor, LookupOperationContext lookupContext ) throws NamingException
     {
-        LookupOperationContext ctx = ((LookupOperationContext)lookupContext);
-        
-        if ( ctx.getAttrsId() != null )
+        if ( lookupContext.getAttrsId() != null )
         {
             boolean found = false;
             
-            String[] attrIds = ctx.getAttrsIdArray();
+            String[] attrIds = lookupContext.getAttrsIdArray();
             
             // Look for 'entryDeleted' attribute is in attrIds.
             for ( String attrId:attrIds )
@@ -482,18 +481,18 @@ public class ReplicationService extends BaseInterceptor
                 String[] newAttrIds = new String[attrIds.length + 1];
                 System.arraycopy( attrIds, 0, newAttrIds, 0, attrIds.length );
                 newAttrIds[attrIds.length] = Constants.ENTRY_DELETED;
-                ctx.setAttrsId( newAttrIds );
+                lookupContext.setAttrsId( newAttrIds );
             }
         }
         
         Attributes result = nextInterceptor.lookup( lookupContext );
-        ensureNotDeleted( ctx.getDn(), result );
+        ensureNotDeleted( lookupContext.getDn(), result );
         return result;
     }
 
 
     @Override
-    public NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
         NamingEnumeration e = next.search(
@@ -508,10 +507,9 @@ public class ReplicationService extends BaseInterceptor
 
 
     @Override
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
     {
-        SearchOperationContext searchOpContext = (SearchOperationContext) opContext;
-        SearchControls searchControls = searchOpContext.getSearchControls();
+        SearchControls searchControls = opContext.getSearchControls();
         
         if ( searchControls.getReturningAttributes() != null )
         {
@@ -523,7 +521,7 @@ public class ReplicationService extends BaseInterceptor
         }
         
         NamingEnumeration e = next.search( 
-            new SearchOperationContext( searchOpContext.getDn(), searchOpContext.getEnv(), searchOpContext.getFilter(), searchControls ) );
+            new SearchOperationContext( opContext.getDn(), opContext.getEnv(), opContext.getFilter(), searchControls ) );
         return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }

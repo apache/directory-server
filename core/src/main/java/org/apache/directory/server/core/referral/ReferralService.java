@@ -47,11 +47,14 @@ import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -267,13 +270,13 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void add(NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void add(NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        Attributes entry = ((AddOperationContext)opContext).getEntry();
+        Attributes entry = opContext.getEntry();
 
         // handle a normal add without following referrals
         if ( ( refval == null ) || refval.equals( IGNORE ) )
@@ -319,7 +322,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public boolean compare( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public boolean compare( NextInterceptor next, CompareOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
     	
@@ -360,7 +363,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void delete( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN name = opContext.getDn();
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -427,14 +430,14 @@ public class ReferralService extends BaseInterceptor
      * -----------------------------------------------------------------------
      */
 
-    public void move( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
         LdapDN oldName = opContext.getDn();
         
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-        LdapDN newName = ( LdapDN ) ((MoveOperationContext)opContext).getParent().clone();
+        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
         newName.add( oldName.get( oldName.size() - 1 ) );
 
         // handle a normal modify without following referrals
@@ -499,7 +502,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void moveAndRename( NextInterceptor next, OperationContext opContext )
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
         LdapDN oldName = opContext.getDn();
@@ -507,8 +510,8 @@ public class ReferralService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
-        LdapDN newName = ( LdapDN ) ((MoveAndRenameOperationContext)opContext).getParent().clone();
-        newName.add( ((MoveAndRenameOperationContext)opContext).getNewRdn() );
+        LdapDN newName = ( LdapDN ) opContext.getParent().clone();
+        newName.add( opContext.getNewRdn() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
@@ -568,7 +571,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void rename( NextInterceptor next, OperationContext opContext )
+    public void rename( NextInterceptor next, RenameOperationContext opContext )
         throws NamingException
     {
         LdapDN oldName = opContext.getDn();
@@ -579,7 +582,7 @@ public class ReferralService extends BaseInterceptor
         LdapDN newName = ( LdapDN ) oldName.clone();
         newName.remove( oldName.size() - 1 );
 
-        LdapDN newRdnName = new LdapDN( ((RenameOperationContext)opContext).getNewRdn() );
+        LdapDN newRdnName = new LdapDN( opContext.getNewRdn() );
         newRdnName.normalize( attrRegistry.getNormalizerMapping() );
         newName.add( newRdnName.toNormName() );
 
@@ -711,13 +714,13 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void modify( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        ModificationItemImpl[] mods = ((ModifyOperationContext)opContext).getModItems();
+        ModificationItemImpl[] mods = opContext.getModItems();
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
@@ -768,12 +771,12 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void addContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws NamingException
     {
         next.addContextPartition( opContext );
 
         // add referrals immediately after adding the new partition
-        Partition partition = ( ( AddContextPartitionOperationContext ) opContext ).getPartition();
+        Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffix();
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration list = invocation.getProxy().search( 
@@ -783,7 +786,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException
+    public void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws NamingException
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -851,7 +854,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext )
+    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext )
         throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -865,7 +868,7 @@ public class ReferralService extends BaseInterceptor
         }
         
         LdapDN base = opContext.getDn();
-        SearchControls controls = ((SearchOperationContext)opContext).getSearchControls();
+        SearchControls controls = opContext.getSearchControls();
         
 
         /**

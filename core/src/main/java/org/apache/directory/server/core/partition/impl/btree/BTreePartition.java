@@ -35,8 +35,15 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
@@ -403,7 +410,7 @@ public abstract class BTreePartition implements Partition
     // ContextPartition Interface Method Implementations
     // ------------------------------------------------------------------------
 
-    public void delete( OperationContext opContext ) throws NamingException
+    public void delete( DeleteOperationContext opContext ) throws NamingException
     {
     	LdapDN dn = opContext.getDn();
     	
@@ -427,15 +434,15 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public abstract void add( OperationContext opContext ) throws NamingException;
+    public abstract void add( AddOperationContext opContext ) throws NamingException;
 
 
-    public abstract void modify( OperationContext opContext ) throws NamingException;
+    public abstract void modify( ModifyOperationContext opContext ) throws NamingException;
 
 
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
     
-    public NamingEnumeration list( OperationContext opContext ) throws NamingException
+    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
     {
         SearchResultEnumeration list;
         list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
@@ -444,37 +451,35 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public NamingEnumeration<SearchResult> search( OperationContext opContext )
+    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
-        SearchControls searchCtls = ((SearchOperationContext)opContext).getSearchControls();
+        SearchControls searchCtls = opContext.getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
         NamingEnumeration underlying = null;
 
         underlying = searchEngine.search( 
             opContext.getDn(), 
-            ((SearchOperationContext)opContext).getEnv(), 
-            ((SearchOperationContext)opContext).getFilter(), 
+            opContext.getEnv(), 
+            opContext.getFilter(), 
             searchCtls );
 
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 
 
-    public Attributes lookup( OperationContext opContext ) throws NamingException
+    public Attributes lookup( LookupOperationContext opContext ) throws NamingException
     {
-        LookupOperationContext ctx = (LookupOperationContext)opContext;
-        
-        Attributes entry = lookup( getEntryId( ctx.getDn().getNormName() ) );
+        Attributes entry = lookup( getEntryId( opContext.getDn().getNormName() ) );
 
-        if ( ( ctx.getAttrsId() == null ) || ( ctx.getAttrsId().size() == 0 ) )
+        if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) )
         {
             return entry;
         }
 
         Attributes retval = new AttributesImpl();
 
-        for ( String attrId:ctx.getAttrsId() )
+        for ( String attrId:opContext.getAttrsId() )
         {
             Attribute attr = entry.get( attrId );
 
@@ -488,19 +493,19 @@ public abstract class BTreePartition implements Partition
     }
 
 
-    public boolean hasEntry( OperationContext opContext ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext ) throws NamingException
     {
         return null != getEntryId( opContext.getDn().getNormName() );
     }
 
 
-    public abstract void rename( OperationContext opContext ) throws NamingException;
+    public abstract void rename( RenameOperationContext opContext ) throws NamingException;
 
 
-    public abstract void move( OperationContext opContext ) throws NamingException;
+    public abstract void move( MoveOperationContext opContext ) throws NamingException;
 
 
-    public abstract void moveAndRename( OperationContext opContext )
+    public abstract void moveAndRename( MoveAndRenameOperationContext opContext )
         throws NamingException;
 
 

@@ -29,7 +29,26 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.BindOperationContext;
+import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
+import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListOperationContext;
+import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.OperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -115,115 +134,115 @@ public interface Interceptor
 
 
     /**
-     * Filters {@link PartitionNexus#getRootDSE( OperationContext )} call.
+     * Filters {@link PartitionNexus#getRootDSE( GetRootDSEOperationContext )} call.
      */
-    Attributes getRootDSE( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    Attributes getRootDSE( NextInterceptor next, GetRootDSEOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#getMatchedName( OperationContext )} call.
+     * Filters {@link PartitionNexus#getMatchedName( GetMatchedNameOperationContext )} call.
      */
-    LdapDN getMatchedName( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#getSuffix( OperationContext )} call.
+     * Filters {@link PartitionNexus#getSuffix( GetSuffixOperationContext )} call.
      */
-    LdapDN getSuffix ( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#listSuffixes( OperationContext )} call.
+     * Filters {@link PartitionNexus#listSuffixes( ListSuffixOperationContext )} call.
      */
-    Iterator listSuffixes( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    Iterator listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#addContextPartition( OperationContext )} call.
+     * Filters {@link PartitionNexus#addContextPartition( AddContextPartitionOperationContext )} call.
      */
-    void addContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void addContextPartition( NextInterceptor next, AddContextPartitionOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#removeContextPartition( OperationContext )} call.
+     * Filters {@link PartitionNexus#removeContextPartition( RemoveContextPartitionOperationContext )} call.
      */
-    void removeContextPartition( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void removeContextPartition( NextInterceptor next, RemoveContextPartitionOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link PartitionNexus#compare( OperationContext )} call.
+     * Filters {@link PartitionNexus#compare( CompareOperationContext )} call.
      */
-    boolean compare( NextInterceptor next, OperationContext opContext) throws NamingException;
+    boolean compare( NextInterceptor next, CompareOperationContext opContext) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#delete( OperationContext )} call.
+     * Filters {@link Partition#delete( DeleteOperationContext )} call.
      */
-    void delete( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#add( OperationContext )} call.
+     * Filters {@link Partition#add( AddOperationContext )} call.
      */
-    void add( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#modify( OperationContext )} call.
+     * Filters {@link Partition#modify( ModifyOperationContext )} call.
      */
-    void modify( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#list( OperationContext )} call.
+     * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    NamingEnumeration list( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#search( OperationContext )} call.
+     * Filters {@link Partition#search( SearchOperationContext )} call.
      */
-    NamingEnumeration<SearchResult> search( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#lookup( OperationContext )} call.
+     * Filters {@link Partition#lookup( LookupOperationContext )} call.
      */
-    Attributes lookup( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    Attributes lookup( NextInterceptor next, LookupOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#hasEntry( OperationContext )} call.
+     * Filters {@link Partition#hasEntry( EntryOperationContext )} call.
      */
-    boolean hasEntry( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    boolean hasEntry( NextInterceptor next, EntryOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#rename( OperationContext )} call.
+     * Filters {@link Partition#rename( RenameOperationContext )} call.
      */
-    void rename( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#move( OperationContext )} call.
+     * Filters {@link Partition#move( MoveOperationContext )} call.
      */
-    void move( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException;
 
 
     /**
-     * Filters {@link Partition#moveAndRename( OperationContext) } call.
+     * Filters {@link Partition#moveAndRename( MoveAndRenameOperationContext) } call.
      */
-    void moveAndRename( NextInterceptor next, OperationContext opContext )
+    void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException;
 
     /**
-     * Filters {@link Partition#bind( OperationContext )} call.
+     * Filters {@link Partition#bind( BindOperationContext )} call.
      */
-    void bind( NextInterceptor next, OperationContext opContext )
+    void bind( NextInterceptor next, BindOperationContext opContext )
         throws NamingException;
 
     /**
-     * Filters {@link Partition#unbind( OperationContext )} call.
+     * Filters {@link Partition#unbind( UnbindOperationContext )} call.
      */
-    void unbind( NextInterceptor next, OperationContext opContext ) throws NamingException;
+    void unbind( NextInterceptor next, UnbindOperationContext opContext ) throws NamingException;
 }
