@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -158,11 +157,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -327,11 +321,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -507,11 +496,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -652,11 +636,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -772,11 +751,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -913,11 +887,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -1053,11 +1022,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -1180,11 +1144,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -1254,11 +1213,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1295,11 +1249,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1379,11 +1328,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -1474,7 +1418,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad objectBase
      */
-    public void testDecodeSearchRequestGlobalBadObjectBase() throws NamingException
+    public void testDecodeSearchRequestGlobalBadObjectBase()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1588,11 +1532,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1600,7 +1539,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad scope
      */
-    public void testDecodeSearchRequestGlobalBadScope() throws NamingException
+    public void testDecodeSearchRequestGlobalBadScope()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1706,11 +1645,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1718,7 +1652,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad derefAlias
      */
-    public void testDecodeSearchRequestGlobalBadDerefAlias() throws NamingException
+    public void testDecodeSearchRequestGlobalBadDerefAlias()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1825,11 +1759,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1837,7 +1766,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad sizeLimit
      */
-    public void testDecodeSearchRequestGlobalBadSizeLimit() throws NamingException
+    public void testDecodeSearchRequestGlobalBadSizeLimit()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1944,11 +1873,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1956,7 +1880,7 @@ public class SearchRequestTest extends TestCase
     /**
      * Test the decoding of a SearchRequest with a bad timeLimit
      */
-    public void testDecodeSearchRequestGlobalBadTimeLimit() throws NamingException
+    public void testDecodeSearchRequestGlobalBadTimeLimit()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -2070,11 +1994,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2110,11 +2029,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2162,11 +2076,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2202,11 +2111,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2244,11 +2148,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2285,11 +2184,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2325,11 +2219,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2376,11 +2265,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2434,11 +2318,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -2521,11 +2400,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -2613,11 +2487,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -2688,11 +2557,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2733,11 +2597,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2780,11 +2639,6 @@ public class SearchRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -2824,11 +2678,6 @@ public class SearchRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -2887,11 +2736,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3004,11 +2848,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -3109,11 +2948,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3227,11 +3061,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3349,11 +3178,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3474,11 +3298,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3608,11 +3427,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3746,11 +3560,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -3892,11 +3701,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -4037,11 +3841,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -4191,11 +3990,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -4310,11 +4104,6 @@ public class SearchRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
         
@@ -4386,11 +4175,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
@@ -4499,11 +4283,6 @@ public class SearchRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );

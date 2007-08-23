@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.codec;
 
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.AbstractGrammar;
@@ -577,7 +576,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
             new GrammarTransition( LdapStatesEnum.VERSION_STATE, LdapStatesEnum.NAME_STATE, UniversalTag.OCTET_STRING_TAG, 
                 new GrammarAction( "Store Bind Name value" )
             {
-                public void action( IAsn1Container container ) throws DecoderException, InvalidNameException
+                public void action( IAsn1Container container ) throws DecoderException
                 {
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
                     LdapMessage ldapMessage = ldapMessageContainer.getLdapMessage();
@@ -1861,7 +1860,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
             new GrammarTransition( LdapStatesEnum.MESSAGE_ID_STATE, LdapStatesEnum.ADD_REQUEST_STATE, LdapConstants.ADD_REQUEST_TAG, 
                 new GrammarAction( "Init addRequest" )
             {
-                public void action( IAsn1Container container ) throws DecoderException, NamingException
+                public void action( IAsn1Container container ) throws DecoderException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
@@ -1993,7 +1992,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
             new GrammarTransition( LdapStatesEnum.ATTRIBUTE_STATE, LdapStatesEnum.TYPE_STATE, UniversalTag.OCTET_STRING_TAG, 
                 new GrammarAction( "Store attribute type" )
             {
-                public void action( IAsn1Container container ) throws DecoderException, NamingException
+                public void action( IAsn1Container container ) throws DecoderException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;
@@ -2654,7 +2653,7 @@ public class LdapMessageGrammar extends AbstractGrammar implements IGrammar
             new GrammarTransition( LdapStatesEnum.AVA_STATE, LdapStatesEnum.ATTRIBUTE_DESC_STATE, UniversalTag.OCTET_STRING_TAG, 
                 new GrammarAction( "Store attribute desc" )
             {
-                public void action( IAsn1Container container ) throws DecoderException, NamingException
+                public void action( IAsn1Container container ) throws DecoderException
                 {
 
                     LdapMessageContainer ldapMessageContainer = ( LdapMessageContainer ) container;

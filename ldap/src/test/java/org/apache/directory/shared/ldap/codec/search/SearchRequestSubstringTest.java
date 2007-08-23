@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
@@ -137,11 +136,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -258,11 +252,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -387,11 +376,6 @@ public class SearchRequestSubstringTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -508,11 +492,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -632,11 +611,6 @@ public class SearchRequestSubstringTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -754,11 +728,6 @@ public class SearchRequestSubstringTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -869,11 +838,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -993,11 +957,6 @@ public class SearchRequestSubstringTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -1114,11 +1073,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -1239,11 +1193,6 @@ public class SearchRequestSubstringTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchRequest sr = message.getSearchRequest();
@@ -1337,11 +1286,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1390,11 +1334,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1445,11 +1384,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1499,11 +1433,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1556,11 +1485,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1611,11 +1535,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1668,11 +1587,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1715,11 +1629,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -1764,11 +1673,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1812,11 +1716,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1859,11 +1758,6 @@ public class SearchRequestSubstringTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1905,11 +1799,6 @@ public class SearchRequestSubstringTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );

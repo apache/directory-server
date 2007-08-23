@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.modifyDn;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -53,7 +51,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a full ModifyDNRequest
      */
-    public void testDecodeModifyDNRequestSuccess() throws NamingException
+    public void testDecodeModifyDNRequestSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -126,7 +124,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a bad DN ModifyDNRequest
      */
-    public void testDecodeModifyDNRequestBadDN() throws NamingException
+    public void testDecodeModifyDNRequestBadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -169,11 +167,6 @@ public class ModifyDNRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -181,7 +174,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a bad RDN ModifyDNRequest
      */
-    public void testDecodeModifyDNRequestBadRDN() throws NamingException
+    public void testDecodeModifyDNRequestBadRDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -224,11 +217,6 @@ public class ModifyDNRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -236,7 +224,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a bad RDN ModifyDNRequest
      */
-    public void testDecodeModifyDNRequestBadNewSuperior() throws NamingException
+    public void testDecodeModifyDNRequestBadNewSuperior()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -279,11 +267,6 @@ public class ModifyDNRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyDnResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -291,7 +274,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a full ModifyDNRequest with controls
      */
-    public void testDecodeModifyDNRequestSuccessWithControls() throws NamingException
+    public void testDecodeModifyDNRequestSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -377,7 +360,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest without a superior
      */
-    public void testDecodeModifyDNRequestWithoutSuperior() throws NamingException
+    public void testDecodeModifyDNRequestWithoutSuperior()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -448,7 +431,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest without a superior with controls
      */
-    public void testDecodeModifyDNRequestWithoutSuperiorWithControls() throws NamingException
+    public void testDecodeModifyDNRequestWithoutSuperiorWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -533,7 +516,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest with an empty body
      */
-    public void testDecodeModifyDNRequestEmptyBody() throws NamingException
+    public void testDecodeModifyDNRequestEmptyBody()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -568,7 +551,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest with an empty entry
      */
-    public void testDecodeModifyDNRequestEmptyEntry() throws NamingException
+    public void testDecodeModifyDNRequestEmptyEntry()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -603,7 +586,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest with an empty newRdn
      */
-    public void testDecodeModifyDNRequestEmptyNewRdn() throws NamingException
+    public void testDecodeModifyDNRequestEmptyNewRdn()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -642,7 +625,7 @@ public class ModifyDNRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyDNRequest with an empty deleteOldRdn
      */
-    public void testDecodeModifyDNRequestEmptyDeleteOldRdnn() throws NamingException
+    public void testDecodeModifyDNRequestEmptyDeleteOldRdnn()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

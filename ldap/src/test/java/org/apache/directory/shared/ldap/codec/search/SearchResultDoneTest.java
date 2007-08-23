@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.search;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -86,11 +84,6 @@ public class SearchResultDoneTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -164,11 +157,6 @@ public class SearchResultDoneTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
         SearchResultDone searchResultDone = message.getSearchResultDone();
@@ -236,11 +224,6 @@ public class SearchResultDoneTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );

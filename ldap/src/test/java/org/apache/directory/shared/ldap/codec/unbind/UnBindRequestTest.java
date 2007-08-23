@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.unbind;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -73,11 +71,6 @@ public class UnBindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -138,11 +131,6 @@ public class UnBindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage ldapMessage = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -208,11 +196,6 @@ public class UnBindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );

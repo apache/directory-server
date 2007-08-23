@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -168,10 +166,6 @@ public class TwixDecoder implements ProviderDecoder
                 		
                 	}
                 }
-            }
-            catch ( NamingException lne )
-            {
-				// TODO : remove this useless catch                
             }
             catch ( DecoderException de )
             {

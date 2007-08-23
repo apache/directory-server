@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -104,11 +102,6 @@ public class BindRequestPerfTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest

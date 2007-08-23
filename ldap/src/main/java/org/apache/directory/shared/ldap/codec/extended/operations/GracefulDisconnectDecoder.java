@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -48,7 +46,7 @@ public class GracefulDisconnectDecoder extends Asn1Decoder
      * @return An GracefulDisconnect object
      * @throws DecoderException If the decoding failed
      */
-    public Asn1Object decode( byte[] stream ) throws DecoderException, NamingException
+    public Asn1Object decode( byte[] stream ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( stream );
         GracefulDisconnectContainer container = new GracefulDisconnectContainer();

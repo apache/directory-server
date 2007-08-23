@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -61,7 +59,7 @@ public class SubEntryControlDecoder extends Asn1Decoder implements ControlDecode
      * @throws DecoderException If the decoding found an error
      * @throws NamingException It will never be throw by this method
      */
-    public Asn1Object decode( byte[] controlBytes ) throws DecoderException, NamingException
+    public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
         ByteBuffer bb = ByteBuffer.wrap( controlBytes );
         SubEntryControlContainer container = new SubEntryControlContainer();

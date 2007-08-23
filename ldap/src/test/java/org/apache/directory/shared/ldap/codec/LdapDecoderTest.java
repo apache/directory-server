@@ -36,8 +36,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 
 /**
  * A global Ldap Decoder test
@@ -87,11 +85,6 @@ public class LdapDecoderTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         // Check the decoded PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -138,11 +131,6 @@ public class LdapDecoderTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         Assert.assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
@@ -191,11 +179,6 @@ public class LdapDecoderTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.VALUE_STATE_PENDING, ldapMessageContainer.getState() );
 
@@ -220,11 +203,6 @@ public class LdapDecoderTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( ldapMessageContainer.getState(), TLVStateEnum.PDU_DECODED );
@@ -283,11 +261,6 @@ public class LdapDecoderTest extends TestCase
             assertEquals( "The current Value length is above the expected length", de.getMessage() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "Should never reach this point.." );
     }
@@ -334,11 +307,6 @@ public class LdapDecoderTest extends TestCase
             assertEquals( "Bad transition !", de.getMessage() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "Should never reach this point." );
     }
@@ -384,11 +352,6 @@ public class LdapDecoderTest extends TestCase
             assertEquals( "Bad transition !", de.getMessage() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "Should never reach this point." );
     }
@@ -425,11 +388,6 @@ public class LdapDecoderTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         assertEquals( TLVStateEnum.LENGTH_STATE_PENDING, ldapMessageContainer.getState() );
 
@@ -451,11 +409,6 @@ public class LdapDecoderTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         assertEquals( TLVStateEnum.TAG_STATE_START, ldapMessageContainer.getState() );

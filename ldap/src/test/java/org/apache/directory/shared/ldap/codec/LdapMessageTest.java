@@ -33,9 +33,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
-
 /**
  * A global Ldap Decoder test
  * 
@@ -75,11 +72,6 @@ public class LdapMessageTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point !" );
     }
@@ -114,11 +106,6 @@ public class LdapMessageTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point !" );
@@ -155,11 +142,6 @@ public class LdapMessageTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point !" );
     }
@@ -195,11 +177,6 @@ public class LdapMessageTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point !" );
@@ -281,11 +258,6 @@ public class LdapMessageTest extends TestCase
                         break;
                 }
             }
-            catch ( NamingException ne )
-            {
-                ne.printStackTrace();
-                fail( ne.getMessage() );
-            }
 
             stream.clear();
         }
@@ -324,11 +296,6 @@ public class LdapMessageTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();

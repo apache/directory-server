@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.codec;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -48,5 +46,5 @@ public interface ControlDecoder
      * @return the decoded Asn1Object for the control
      * @throws DecoderException if anything goes wrong
      */
-    Asn1Object decode( byte[] controlBytes ) throws DecoderException, NamingException;
+    Asn1Object decode( byte[] controlBytes ) throws DecoderException;
 }

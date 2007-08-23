@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.del;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -89,11 +87,6 @@ public class DelResponseTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         // Check the decoded DelResponse PDU
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -154,11 +147,6 @@ public class DelResponseTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -209,11 +197,6 @@ public class DelResponseTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded DelResponse PDU

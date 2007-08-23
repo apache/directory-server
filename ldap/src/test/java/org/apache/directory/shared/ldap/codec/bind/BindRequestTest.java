@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.bind;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -106,11 +104,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -194,11 +187,6 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -273,11 +261,6 @@ public class BindRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -319,11 +302,6 @@ public class BindRequestTest extends TestCase
         {
             assertEquals( "Bad transition !", de.getMessage() );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "Should never reach this point." );
@@ -369,11 +347,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -451,11 +424,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -540,11 +508,6 @@ public class BindRequestTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         // Check the decoded BindRequest
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -608,11 +571,6 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -648,11 +606,6 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -690,11 +643,6 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -730,11 +678,6 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -773,11 +716,6 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -813,11 +751,6 @@ public class BindRequestTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -855,11 +788,6 @@ public class BindRequestTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -896,11 +824,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -969,11 +892,6 @@ public class BindRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_CREDENTIALS, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1013,11 +931,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -1088,11 +1001,6 @@ public class BindRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INAPPROPRIATEAUTHENTICATION, ((BindResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -1132,11 +1040,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -1209,11 +1112,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest
@@ -1293,11 +1191,6 @@ public class BindRequestTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded BindRequest

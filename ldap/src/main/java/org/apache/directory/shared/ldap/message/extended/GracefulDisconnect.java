@@ -24,8 +24,6 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -70,7 +68,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     private Referral replicatedContexts = new ReferralImpl();
 
 
-    public GracefulDisconnect(byte[] value) throws NamingException
+    public GracefulDisconnect(byte[] value) throws DecoderException
     {
         super( 0, EXTENSION_OID );
         this.value = value;
@@ -97,10 +95,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     }
 
 
-    private void decodeValue() throws NamingException
+    private void decodeValue() throws DecoderException
     {
         GracefulDisconnectDecoder decoder = new GracefulDisconnectDecoder();
         org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = null;
+
         try
         {
             codec = ( org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect ) decoder
@@ -117,7 +116,7 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         catch ( DecoderException e )
         {
             log.error( "Failed to decode response value", e );
-            throw new RuntimeException( e );
+            throw e;
         }
     }
 
@@ -191,10 +190,6 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             decoder.decode( bb, container );
         }
         catch ( DecoderException e )
-        {
-            log.error( "Failed while decoding response", e );
-        }
-        catch ( NamingException e )
         {
             log.error( "Failed while decoding response", e );
         }

@@ -221,11 +221,6 @@ public class ModifyRequestTest extends TestCase
             assertEquals( ResultCodeEnum.INVALID_DN_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -981,11 +976,6 @@ public class ModifyRequestTest extends TestCase
             assertTrue( response instanceof ModifyResponseImpl );
             assertEquals( ResultCodeEnum.INVALID_ATTRIBUTE_SYNTAX, ((ModifyResponseImpl)response).getLdapResult().getResultCode() );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
     }
 

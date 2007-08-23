@@ -36,8 +36,6 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 
 /**
  * A test for LdapResults. We will use a AddResponse message to test the
@@ -81,11 +79,6 @@ public class LdapResultTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -121,11 +114,6 @@ public class LdapResultTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -168,11 +156,6 @@ public class LdapResultTest extends TestCase
             {
                 fail( "We should never reach this point" );
             }
-            catch ( NamingException ne )
-            {
-                ne.printStackTrace();
-                fail( ne.getMessage() );
-            }
 
             stream.clear();
         }
@@ -212,11 +195,6 @@ public class LdapResultTest extends TestCase
             assertTrue( true );
             return;
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         fail( "We should not reach this point" );
     }
@@ -253,11 +231,6 @@ public class LdapResultTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
@@ -297,11 +270,6 @@ public class LdapResultTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded AddResponse
@@ -365,11 +333,6 @@ public class LdapResultTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded AddResponse
@@ -440,11 +403,6 @@ public class LdapResultTest extends TestCase
         {
             de.printStackTrace();
             fail( de.getMessage() );
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         // Check the decoded AddResponse
@@ -520,11 +478,6 @@ public class LdapResultTest extends TestCase
             de.printStackTrace();
             fail( de.getMessage() );
         }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
-        }
 
         // Check the decoded AddResponse
         LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
@@ -597,11 +550,6 @@ public class LdapResultTest extends TestCase
         {
             assertTrue( true );
             return;
-        }
-        catch ( NamingException ne )
-        {
-            ne.printStackTrace();
-            fail( ne.getMessage() );
         }
 
         fail( "We should not reach this point" );
