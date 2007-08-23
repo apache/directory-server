@@ -79,7 +79,7 @@ public class DbFileListing
 
         boolean userIndexMode = false;
         String line;
-        BufferedReader in = new BufferedReader( new InputStreamReader( getUniqueResourceAsStream( "DBFILES" ) ) );
+        BufferedReader in = new BufferedReader( new InputStreamReader( getUniqueResourceAsStream( "DBFILES", "bootstrap partition database file list.  Be sure there is exactly one bootstrap partition jar in your classpath." ) ) );
         try
         {
             while ( ( line = in.readLine() ) != null )
@@ -119,34 +119,29 @@ public class DbFileListing
      * is not unique across all the jars.
      *
      * @param resourceName the file name of the resource to load
+     * @param resourceDescription
      * @return the InputStream to read the contents of the resource
      * @throws IOException if there are problems reading or finding a unique copy of the resource
      */
-    public static InputStream getUniqueResourceAsStream( String resourceName ) throws IOException
+    public static InputStream getUniqueResourceAsStream( String resourceName, String resourceDescription ) throws IOException
     {
         resourceName = BASE_PATH + resourceName;
-        URL result = getUniqueResource( resourceName );      
+        URL result = getUniqueResource( resourceName, resourceDescription );
         return result.openStream();
     }
 
-    static URL getUniqueResource( String resourceName )
+    static URL getUniqueResource( String resourceName, String resourceDescription )
             throws IOException
     {
         Enumeration<URL> resources = DbFileListing.class.getClassLoader().getResources( resourceName );
         if ( !resources.hasMoreElements() )
         {
-            throw new IllegalStateException( "No resource named " + resourceName );
+            throw new UniqueResourceException( resourceName, resourceDescription );
         }
         URL result = resources.nextElement();
         if ( resources.hasMoreElements() )
         {
-            StringBuffer buffer = new StringBuffer( "More than one resource named: " ).append( resourceName );
-            buffer.append( result ).append( "\n" );
-            while ( resources.hasMoreElements() )
-            {
-                buffer.append( resources.nextElement() ).append( "\n" );
-            }
-            throw new IllegalStateException( buffer.toString() );
+            throw new UniqueResourceException( resourceName, result, resources, resourceDescription);
         }
         return result;
     }

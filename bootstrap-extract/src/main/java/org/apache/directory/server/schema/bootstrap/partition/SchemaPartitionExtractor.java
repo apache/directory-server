@@ -74,7 +74,7 @@ public class SchemaPartitionExtractor
     private void extract( String resource ) throws IOException
     {
         byte[] buf = new byte[512];
-        InputStream in = DbFileListing.getUniqueResourceAsStream( resource );
+        InputStream in = DbFileListing.getUniqueResourceAsStream( resource, "database file in bootstrap partition" );
 
         try
         {

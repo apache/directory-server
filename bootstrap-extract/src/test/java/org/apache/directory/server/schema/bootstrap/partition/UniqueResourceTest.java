@@ -33,11 +33,11 @@ public class UniqueResourceTest extends TestCase
         //look for META-INF/LICENSE.txt which should be in at least two jars
         try
         {
-            DbFileListing.getUniqueResource( "META-INF/LICENSE.txt" );
+            DbFileListing.getUniqueResource( "META-INF/LICENSE", "foo" );
             fail( "There are at least 2 license files on the classpath, this should have failed" );
-        } catch ( IllegalStateException e )
+        } catch ( UniqueResourceException e )
         {
-            //ignore
+            assertNotNull("There should be at least 2 LICENSE files on the classpath", e.getUrls());
         }
 
     }
