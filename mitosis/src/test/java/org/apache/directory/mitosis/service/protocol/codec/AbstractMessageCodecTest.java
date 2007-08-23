@@ -30,7 +30,8 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.apache.mina.filter.codec.support.SimpleProtocolEncoderOutput;
-import org.apache.mina.util.Queue;
+
+import sun.misc.Queue;
 
 
 public abstract class AbstractMessageCodecTest extends TestCase
@@ -72,7 +73,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
 
         };
         encoder.encode( null, message, encoderOut );
-        ByteBuffer buf = ( ByteBuffer ) encoderOut.getBufferQueue().pop();
+        ByteBuffer buf = ( ByteBuffer ) encoderOut.getBufferQueue().poll();
 
         buf.mark();
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );
@@ -81,7 +82,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
         ProtocolDecoderOutputImpl decoderOut = new ProtocolDecoderOutputImpl();
         decoder.decode( null, buf, decoderOut );
 
-        Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.pop() ) );
+        Assert.assertTrue( compare( message, ( BaseMessage ) decoderOut.messages.dequeue() ) );
     }
 
 
@@ -102,7 +103,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
 
         public void write( Object message )
         {
-            messages.push( message );
+            messages.enqueue( message );
         }
     }
 }
