@@ -190,6 +190,7 @@ public class SearchTest extends AbstractServerTest
     {
         ctx.unbind( RDN );
         ctx.close();
+    	
         ctx = null;
         super.tearDown();
     }
@@ -1021,6 +1022,23 @@ public class SearchTest extends AbstractServerTest
         catch ( NameNotFoundException nnfe )
         {
             assertTrue( true );
+        }
+    }
+    
+    public void testSearchInvalidDN() throws NamingException, Exception
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        try
+        {
+            ctx.search( "myBadDN", "(objectClass=*)", controls );
+            fail();
+        }
+        catch ( NamingException ne )
+        {
+        	assertTrue( true );
+        	ne.printStackTrace();
         }
     }
     
