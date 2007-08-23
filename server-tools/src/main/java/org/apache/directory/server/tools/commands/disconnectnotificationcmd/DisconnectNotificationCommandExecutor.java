@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingExceptionEvent;
@@ -41,6 +40,7 @@ import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
 import org.apache.directory.server.tools.util.Parameter;
+import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
@@ -313,12 +313,17 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
         {
             notifyOutputListener( "Recieved GracefulDisconnect: " + GracefulDisconnect.EXTENSION_OID );
             GracefulDisconnect gd = null;
-			try {
+			
+            try 
+			{
 				gd = new GracefulDisconnect( notification.getEncodedValue() );
-			} catch (NamingException e) {
+			} 
+            catch ( DecoderException de ) 
+            {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				de.printStackTrace();
 			}
+            
             notifyOutputListener( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             notifyOutputListener( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );
 
