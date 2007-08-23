@@ -57,7 +57,7 @@ public class LoginMessageEncoder extends BaseMessageEncoder
     }
 
 
-    public Set<Class> getMessageTypes()
+    public Set getMessageTypes()
     {
         Set<Class> set = new HashSet<Class>();
         set.add( LoginMessage.class );

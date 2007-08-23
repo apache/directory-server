@@ -46,7 +46,7 @@ public class LogEntryMessageEncoder extends BaseMessageEncoder
     }
 
 
-    public Set<Class> getMessageTypes()
+    public Set getMessageTypes()
     {
         Set<Class> set = new HashSet<Class>();
         set.add( LogEntryMessage.class );

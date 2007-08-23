@@ -40,7 +40,7 @@ public class LoginAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set<Class> getMessageTypes()
+    public Set getMessageTypes()
     {
         Set<Class> set = new HashSet<Class>();
         set.add( LoginAckMessage.class );

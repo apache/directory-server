@@ -35,7 +35,7 @@ public class LogEntryAckMessageEncoder extends ResponseMessageEncoder
     }
 
 
-    public Set<Class> getMessageTypes()
+    public Set getMessageTypes()
     {
         Set<Class> set = new HashSet<Class>();
         set.add( LogEntryAckMessage.class );
