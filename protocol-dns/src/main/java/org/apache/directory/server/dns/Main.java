@@ -20,6 +20,10 @@
 package org.apache.directory.server.dns;
 
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.RecordStoreStub;
 import org.apache.mina.common.ExecutorThreadModel;
@@ -29,10 +33,6 @@ import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import edu.emory.mathcs.backport.java.util.concurrent.LinkedBlockingQueue;
-import edu.emory.mathcs.backport.java.util.concurrent.ThreadPoolExecutor;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 
 /**
@@ -65,7 +65,7 @@ public class Main
     {
         int maxThreads = MAX_THREADS_DEFAULT;
         threadPoolExecutor = new ThreadPoolExecutor( maxThreads, maxThreads, 60, TimeUnit.SECONDS,
-            new LinkedBlockingQueue() );
+            new LinkedBlockingQueue<Runnable>() );
         threadModel.setExecutor( threadPoolExecutor );
 
         udpAcceptor = new DatagramAcceptor();
