@@ -31,6 +31,9 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -81,11 +84,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketSessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import edu.emory.mathcs.backport.java.util.concurrent.ExecutorService;
-import edu.emory.mathcs.backport.java.util.concurrent.Executors;
-import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
-
 
 /**
  * Adds additional bootstrapping for server socket listeners when firing
@@ -268,7 +266,7 @@ public class ServerContextFactory extends CoreContextFactory
         dsc.logicExecutor.shutdown();
         for (;;) {
             try {
-                if (dsc.logicExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)) {
+                if (dsc.logicExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS)) {
                     break;
                 }
             } catch (InterruptedException e) {
@@ -277,7 +275,7 @@ public class ServerContextFactory extends CoreContextFactory
         dsc.ioExecutor.shutdown();
         for (;;) {
             try {
-                if (dsc.ioExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS)) {
+                if (dsc.ioExecutor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS)) {
                     break;
                 }
             } catch (InterruptedException e) {
