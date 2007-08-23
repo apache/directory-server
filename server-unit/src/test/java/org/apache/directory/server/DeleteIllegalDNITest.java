@@ -56,16 +56,15 @@ public class DeleteIllegalDNITest extends AbstractServerTest
         } 
         catch ( InvalidNameException ine ) 
         {
-        	System.out.println( "INE Error : " + ine.getMessage() );
             // Expected.
         } 
         catch ( NamingException ne )
         {
-        	System.out.println( "NE Error : " + ne );
+        	fail();
         }
         catch( Exception e )
         {
-        	System.out.println( "E Error : " + e.getMessage() );
+        	fail();
         }
         
         try
@@ -76,19 +75,16 @@ public class DeleteIllegalDNITest extends AbstractServerTest
             
         	NamingEnumeration<SearchResult> result = ctx.search( "ou=system", "(objectClass=*)", controls );
 
-            while ( result.hasMore() ) 
-            {
-                SearchResult sr = result.next();
-            }
+            assertTrue( result.hasMore() ); 
         } 
         catch ( InvalidNameException ine ) 
         {
-        	ine.printStackTrace();
+        	fail();
             // Expected.
         } 
         catch ( NamingException ne )
         {
-        	ne.printStackTrace();
+        	fail();
         }
     }
 }

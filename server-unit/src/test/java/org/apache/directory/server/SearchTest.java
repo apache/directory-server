@@ -1038,7 +1038,6 @@ public class SearchTest extends AbstractServerTest
         catch ( NamingException ne )
         {
         	assertTrue( true );
-        	ne.printStackTrace();
         }
     }
     
