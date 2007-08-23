@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
+import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
@@ -151,7 +152,14 @@ public final class MessageDecoder implements ProviderDecoder
         {
             public void decodeOccurred( StatefulDecoder decoder, Object decoded )
             {
-                cb.decodeOccurred( decoder, transformer.transform( decoded ) );
+            	if ( decoded instanceof Asn1Object )
+            	{
+            		cb.decodeOccurred( decoder, transformer.transform( decoded ) );
+            	}
+            	else
+            	{
+            		cb.decodeOccurred( decoder, decoded );
+            	}
             }
         } );
     }
@@ -230,7 +238,8 @@ public final class MessageDecoder implements ProviderDecoder
             }
             else
             {
-                throw new MessageException( "decoder failture: " + e.getMessage() );
+            	// TODO : this is certainly not the way we should handle such an exception !
+            	throw new ResponseCarryingMessageException( e.getMessage() );
             }
         }
     }
