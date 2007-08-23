@@ -325,7 +325,7 @@ public class SchemaManager
     }
     
 
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean doCascadeDelete ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -400,8 +400,8 @@ public class SchemaManager
     }
 
 
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry ) 
-        throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, 
+        boolean doCascadeModify ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -428,7 +428,8 @@ public class SchemaManager
     }
 
 
-    public void modifyRn( LdapDN name, String newRdn, boolean deleteOldRn, Attributes entry ) throws NamingException
+    public void modifyRn( LdapDN name, String newRdn, boolean deleteOldRn, Attributes entry, boolean doCascadeModify ) 
+        throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -522,7 +523,7 @@ public class SchemaManager
      * @param targetSubentry the target subentry after being modified
      */
     public void modifySchemaSubentry( LdapDN name, ModificationItemImpl[] mods, Attributes subentry, 
-        Attributes targetSubentry ) throws NamingException 
+        Attributes targetSubentry, boolean doCascadeModify ) throws NamingException 
     {
         for ( ModificationItemImpl mod : mods )
         {
@@ -530,10 +531,10 @@ public class SchemaManager
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
-                    modifyAddOperation( opAttrOid, mod.getAttribute() );
+                    modifyAddOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break;
                 case( DirContext.REMOVE_ATTRIBUTE ):
-                    modifyRemoveOperation( opAttrOid, mod.getAttribute() );
+                    modifyRemoveOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break; 
                 case( DirContext.REPLACE_ATTRIBUTE ):
                     throw new LdapOperationNotSupportedException( 
@@ -566,7 +567,7 @@ public class SchemaManager
      * @param targetSubentry the target subentry after being modified
      */
     public void modifySchemaSubentry( LdapDN name, int modOp, Attributes mods, Attributes subentry, 
-        Attributes targetSubentry ) throws NamingException
+        Attributes targetSubentry, boolean doCascadeModify ) throws NamingException
     {
         NamingEnumeration<String> ids = mods.getIDs();
         switch ( modOp )
@@ -576,7 +577,8 @@ public class SchemaManager
                 {
                     String id = ids.next();
                     AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
-                    modifyAddOperation( opAttrAT.getOid(), AttributeUtils.getAttribute( mods, opAttrAT ) );
+                    modifyAddOperation( opAttrAT.getOid(), 
+                        AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
                 }
                 break;
             case( DirContext.REMOVE_ATTRIBUTE ):
@@ -584,7 +586,8 @@ public class SchemaManager
                 {
                     String id = ids.next();
                     AttributeType opAttrAT = globalRegistries.getAttributeTypeRegistry().lookup( id );
-                    modifyRemoveOperation( opAttrAT.getOid(), AttributeUtils.getAttribute( mods, opAttrAT ) );
+                    modifyRemoveOperation( opAttrAT.getOid(), 
+                        AttributeUtils.getAttribute( mods, opAttrAT ), doCascadeModify );
                 }
                 break;
             case( DirContext.REPLACE_ATTRIBUTE ):
@@ -620,7 +623,8 @@ public class SchemaManager
      * @throws NamingException if there are problems updating the registries and the 
      * schema partition
      */
-    private void modifyRemoveOperation( String opAttrOid, Attribute mods ) throws NamingException
+    private void modifyRemoveOperation( String opAttrOid, Attribute mods, boolean doCascadeModify ) 
+        throws NamingException
     {
         int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
         SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );
@@ -750,7 +754,7 @@ public class SchemaManager
      * @throws NamingException if there are problems updating the registries and the 
      * schema partition
      */
-    private void modifyAddOperation( String opAttrOid, Attribute mods ) throws NamingException
+    private void modifyAddOperation( String opAttrOid, Attribute mods, boolean doCascadeModify ) throws NamingException
     {
         int index = opAttr2handlerIndex.get( opAttrOid ).intValue();
         SchemaChangeHandler handler = opAttr2handlerMap.get( opAttrOid );

@@ -1219,7 +1219,8 @@ public class SchemaService extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry );
+            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
+            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry, false );
         }
         
         next.rename( opContext );
@@ -1531,11 +1532,13 @@ public class SchemaService extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modify( name, mods, entry, targetEntry );
+            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
+            schemaManager.modify( name, mods, entry, targetEntry, false );
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry );
+            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
+            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry, false );
             return;
         }
         
@@ -1796,7 +1799,8 @@ public class SchemaService extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.delete( name, entry );
+            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
+            schemaManager.delete( name, entry, false );
         }
         
         next.delete( opContext );

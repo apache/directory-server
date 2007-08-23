@@ -49,6 +49,7 @@ import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
+import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.Control;
@@ -160,6 +161,7 @@ public class LdapProtocolProvider
         set.add( PersistentSearchControl.CONTROL_OID );
         set.add( EntryChangeControl.CONTROL_OID );
         set.add( ManageDsaITControl.CONTROL_OID );
+        set.add( CascadeControl.CONTROL_OID );
         SUPPORTED_CONTROLS = Collections.unmodifiableSet( set );
     }
 

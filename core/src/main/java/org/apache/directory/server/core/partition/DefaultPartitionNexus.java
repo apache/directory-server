@@ -68,6 +68,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -177,6 +178,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         attr.add( EntryChangeControl.CONTROL_OID );
         attr.add( SubentriesControl.CONTROL_OID );
         attr.add( ManageDsaITControl.CONTROL_OID );
+        attr.add( CascadeControl.CONTROL_OID );
 
         attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         rootDSE.put( attr );
