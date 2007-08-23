@@ -28,9 +28,10 @@
       <artifactId>maven-project</artifactId>
     </dependency>
 
+    <!-- plugin needs a logging implementation -->
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
+      <artifactId>slf4j-log4j12</artifactId>
     </dependency>
 
     <dependency>

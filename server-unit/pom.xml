@@ -19,15 +19,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>provided</scope>
-    </dependency>  
-
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>  
--->
+    </dependency>
 
     <dependency>
       <groupId>ldapsdk</groupId>
@@ -52,7 +44,8 @@
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-core-unit</artifactId>
       <version>${pom.version}</version>
-    </dependency>  
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-bootstrap-partition</artifactId>

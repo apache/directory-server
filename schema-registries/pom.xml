@@ -16,14 +16,6 @@
   <packaging>jar</packaging>
 
   <dependencies>
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
     <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>apacheds-core-shared</artifactId>

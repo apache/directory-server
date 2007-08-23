@@ -16,14 +16,4 @@
   <name>ApacheDS Protocol Shared</name>
   <packaging>jar</packaging>
 
-<!--
-  <dependencies>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
--->
-
 </project>

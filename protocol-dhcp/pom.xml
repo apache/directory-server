@@ -17,20 +17,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
-    <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
     </dependency>

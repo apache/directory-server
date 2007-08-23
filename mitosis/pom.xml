@@ -82,11 +82,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
     </dependency>

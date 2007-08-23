@@ -15,14 +15,6 @@
   </description>
 
   <dependencies>
-<!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>nlog4j</artifactId>
-      <scope>provided</scope>
-    </dependency>
--->
-
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-schema-registries</artifactId>
