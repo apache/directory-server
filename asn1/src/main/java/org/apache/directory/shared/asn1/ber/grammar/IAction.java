@@ -20,8 +20,6 @@
 package org.apache.directory.shared.asn1.ber.grammar;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -45,5 +43,5 @@ public interface IAction
      * @throws DecoderException
      *             Thrown if something went wrong.
      */
-    public void action( IAsn1Container container ) throws DecoderException, NamingException;
+    public void action( IAsn1Container container ) throws DecoderException;
 }

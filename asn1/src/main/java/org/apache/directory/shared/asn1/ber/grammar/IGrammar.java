@@ -20,8 +20,6 @@
 package org.apache.directory.shared.asn1.ber.grammar;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 
@@ -45,7 +43,7 @@ public interface IGrammar
      * @throws DecoderException
      *             Thrown when an unrecoverable error occurs.
      */
-    void executeAction( IAsn1Container asn1Container ) throws DecoderException, NamingException;
+    void executeAction( IAsn1Container asn1Container ) throws DecoderException;
 
 
     /**

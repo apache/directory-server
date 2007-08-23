@@ -20,8 +20,6 @@
 package org.apache.directory.shared.asn1.ber.grammar;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
@@ -113,7 +111,7 @@ public abstract class AbstractGrammar implements IGrammar
      * @param container The Asn1Container
      * @throws DecoderException Thrown if anything went wrong
      */
-    public void executeAction( IAsn1Container container ) throws DecoderException, NamingException
+    public void executeAction( IAsn1Container container ) throws DecoderException
     {
 
         int currentState = container.getTransition();
