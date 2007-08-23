@@ -31,6 +31,7 @@ import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
+import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
 import org.apache.directory.shared.ldap.message.spi.ProviderException;
@@ -171,7 +172,13 @@ public class TwixDecoder implements ProviderDecoder
             }
             catch ( NamingException lne )
             {
-                
+				// TODO : remove this useless catch                
+            }
+            catch ( DecoderException de )
+            {
+            	buf.clear();
+            	ldapMessageContainer.clean();
+            	throw de;
             }
         }
     }
