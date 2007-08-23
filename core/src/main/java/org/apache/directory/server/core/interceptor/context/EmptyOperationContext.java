@@ -28,24 +28,17 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class EmptyOperationContext implements OperationContext
+public class EmptyOperationContext extends AbstractOperationContext
 {
     /**
      * Creates a new instance of EmptyOperationContext.
      */
     public EmptyOperationContext()
     {
-        super();
+        super( LdapDN.EMPTY_LDAPDN );
     }
     
-    /**
-     * @return The associated DN
-     */
-    public LdapDN getDn()
-    {
-        return LdapDN.EMPTY_LDAPDN;
-    }
-    
+
     /**
      * Set the context DN
      *
@@ -53,9 +46,16 @@ public class EmptyOperationContext implements OperationContext
      */
     public void setDn( LdapDN dn )
     {
-        // do nothing
+        if ( dn.equals( LdapDN.EMPTY_LDAPDN ) )
+        {
+            return;
+        }
+        
+        throw new UnsupportedOperationException( 
+            "Cannot set the empty operation context to anything other than the EmptyDN" );
     }
 
+    
     /**
      * @see Object#toString()
      */

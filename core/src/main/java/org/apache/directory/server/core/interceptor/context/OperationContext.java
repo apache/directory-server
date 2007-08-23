@@ -19,7 +19,11 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
+import javax.naming.ldap.Control;
+
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * This interface represent the context passed as an argument to each interceptor.
@@ -35,6 +39,7 @@ public interface OperationContext
      */
     LdapDN getDn();
     
+    
     /**
      * Set the context DN
      *
@@ -42,4 +47,55 @@ public interface OperationContext
      */
     void setDn( LdapDN dn );
 
+    
+    /**
+     * Adds a response control to this operation.
+     *
+     * @param responseControl the response control to add to this operation.
+     */
+    void addResponseControl( Control responseControl );
+    
+    
+    /** 
+     * Checks to see if a response control is present on this operation.
+     *
+     * @param numericOid the numeric OID of the control also known as it's type OID
+     * @return true if the control is associated with this operation, false otherwise
+     */
+    boolean hasResponseControl( String numericOid );
+    
+    
+    /**
+     * Gets a response control if present for this request.
+     * 
+     * @param numericOid the numeric OID of the control also known as it's type OID
+     * @return the control if present
+     */
+    Control getResponseControl( String numericOid );
+    
+    
+    /**
+     * Adds a request control to this operation.
+     *
+     * @param requestControl the request control to add to this operation.
+     */
+    void addRequestControl( Control requestControl );
+    
+    
+    /** 
+     * Checks to see if a request control is present on this request.
+     *
+     * @param numericOid the numeric OID of the control also known as it's type OID
+     * @return true if the control is associated with this operation, false otherwise
+     */
+    boolean hasRequestControl( String numericOid );
+    
+    
+    /**
+     * Gets a request control if present for this request.
+     * 
+     * @param numericOid the numeric OID of the control also known as it's type OID
+     * @return the control if present
+     */
+    Control getRequestControl( String numericOid );
 }

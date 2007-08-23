@@ -19,7 +19,13 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.naming.ldap.Control;
+
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * This abstract class stores common context elements, like the DN, which is used
@@ -28,10 +34,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AbstractOperationContext implements OperationContext
+public abstract class AbstractOperationContext implements OperationContext
 {
     /** The DN associated with the context */
     private LdapDN dn;
+    private Map<String, Control> requestControls = new HashMap<String, Control>(2);
+    private Map<String, Control> responseControls = new HashMap<String, Control>(2);
+    
     
     /**
      * 
@@ -42,6 +51,7 @@ public class AbstractOperationContext implements OperationContext
     {
     }
 
+    
     /**
      * 
      * Creates a new instance of AbstractOperationContext.
@@ -53,6 +63,7 @@ public class AbstractOperationContext implements OperationContext
         this.dn = dn;
     }
 
+    
     /**
      * @return The associated DN
      */
@@ -61,6 +72,7 @@ public class AbstractOperationContext implements OperationContext
         return dn;
     }
 
+    
     /**
      * Set the context DN
      *
@@ -69,5 +81,41 @@ public class AbstractOperationContext implements OperationContext
     public void setDn( LdapDN dn )
     {
         this.dn = dn;
+    }
+
+    
+    public void addRequestControl( Control requestControl )
+    {
+        requestControls.put( requestControl.getID(), requestControl );
+    }
+
+    
+    public Control getRequestControl( String numericOid )
+    {
+        return requestControls.get( numericOid );
+    }
+
+    
+    public boolean hasRequestControl( String numericOid )
+    {
+        return requestControls.containsKey( numericOid );
+    }
+
+
+    public void addResponseControl( Control responseControl )
+    {
+        responseControls.put( responseControl.getID(), responseControl );
+    }
+
+
+    public Control getResponseControl( String numericOid )
+    {
+        return responseControls.get( numericOid );
+    }
+
+
+    public boolean hasResponseControl( String numericOid )
+    {
+        return responseControls.containsKey( numericOid );
     }
 }
