@@ -25,6 +25,8 @@ import java.util.Comparator;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.DnComparator;
+import org.apache.directory.server.schema.NameAndOptionalUIDComparator;
+import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
@@ -66,6 +68,19 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
         }
     }
 
+    /**
+     * This caching NormalizingComparator would be a good thing to have,
+     * sadly we can't use it as the registries are not available here ...
+     * 
+     *  TODO Inject the AttributeType registry into the caching normalizer.
+     */
+    public static class NameAndOptionalUIDCachingNormalizingComparator extends NormalizingComparator
+    {
+        public NameAndOptionalUIDCachingNormalizingComparator()        
+        {
+            super( new CachingNormalizer( new NameAndOptionalUIDNormalizer() ), new NameAndOptionalUIDComparator() );
+        }
+    }
     
     public void produce( Registries registries, ProducerCallback cb ) throws NamingException
     {
@@ -196,7 +211,7 @@ public class SystemComparatorProducer extends AbstractBootstrapProducer
          ( 2.5.13.23 NAME 'uniqueMemberMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
          */
-        comparator = new DeepTrimCachingNormalizingComparator();
+        comparator = new NameAndOptionalUIDComparator();
         cb.schemaObjectProduced( this, "2.5.13.23", comparator );
 
         /*
