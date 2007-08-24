@@ -25,14 +25,14 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.Reader;                            
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class TestUtils
+public class KerberosTestUtils
 {
     public static char[] getControlDocument( String resource ) throws IOException
     {
