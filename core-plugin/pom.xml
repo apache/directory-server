@@ -28,7 +28,7 @@
   <packaging>maven-plugin</packaging>
 
   <description>
-    A collection of tools as plugins to manage various tasks associated with 
+    A collection of tools as plugins to manage various tasks associated with
     the directory server.
   </description>
 
@@ -69,30 +69,12 @@
           <grammars>openldap.g</grammars>
         </configuration>
         <executions>
-           <execution>
-              <goals>
-                 <goal>generate</goal>
-              </goals>
-           </execution>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
         </executions>
-      </plugin>
-       
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/Abstract*</exclude>
-          </excludes>
-        </configuration>
       </plugin>
     </plugins>
   </build>
