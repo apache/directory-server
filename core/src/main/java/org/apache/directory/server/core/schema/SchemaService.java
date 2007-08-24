@@ -78,6 +78,7 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ServerSearchResult;
@@ -1221,8 +1222,8 @@ public class SchemaService extends BaseInterceptor
 
         if ( name.startsWith( schemaBaseDN ) )
         {
-            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
-            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry, false );
+            schemaManager.modifyRn( name, newRdn, deleteOldRn, entry, 
+                opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         
         next.rename( opContext );
@@ -1534,13 +1535,13 @@ public class SchemaService extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
-            schemaManager.modify( name, mods, entry, targetEntry, false );
+            schemaManager.modify( name, mods, entry, targetEntry, 
+                opContext.hasRequestControl( CascadeControl.CONTROL_OID ));
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
-            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry, false );
+            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry, 
+                opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             return;
         }
         
@@ -1801,8 +1802,7 @@ public class SchemaService extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            // @TODO DIRSERVER-1030 make this conditional based on the presence of the CascadeControl
-            schemaManager.delete( name, entry, false );
+            schemaManager.delete( name, entry, opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         
         next.delete( opContext );

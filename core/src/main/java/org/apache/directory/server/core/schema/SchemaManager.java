@@ -124,7 +124,7 @@ public class SchemaManager
         "metaDITContentRule",
         "metaNameForm"
     };
-    private static final Collection SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
+    private static final Collection<String> SCHEMA_MODIFICATION_ATTRIBUTES_UPDATE_BYPASS;
 
     private final PartitionSchemaLoader loader;
     private final MetaSchemaHandler metaSchemaHandler;
