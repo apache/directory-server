@@ -46,7 +46,7 @@ install -m 755 ${image.basedir}/bin/%{name} $RPM_BUILD_ROOT%{adshome}/bin/%{name
 install -m 644 ${image.basedir}/lib/wrapper.jar $RPM_BUILD_ROOT%{adshome}/lib/wrapper.jar
 install -m 644 ${image.basedir}/lib/bootstrapper.jar $RPM_BUILD_ROOT%{adshome}/lib/bootstrapper.jar
 install -m 644 ${image.basedir}/lib/libwrapper.so $RPM_BUILD_ROOT%{adshome}/lib/libwrapper.so
-install -m 644 ${image.basedir}/lib/logger.jar $RPM_BUILD_ROOT%{adshome}/lib/logger.jar
+#install -m 644 ${image.basedir}/lib/logger.jar $RPM_BUILD_ROOT%{adshome}/lib/logger.jar
 install -m 644 ${image.basedir}/bin/apacheds-tools.jar $RPM_BUILD_ROOT%{adshome}/bin/apacheds-tools.jar
 install -m 755 ${image.basedir}/bin/apacheds-tools.sh $RPM_BUILD_ROOT%{adshome}/bin/apacheds-tools.sh
 install -m 600 ${image.basedir}/conf/server.xml $RPM_BUILD_ROOT%{adsdata}/default/conf/server.xml
@@ -96,7 +96,7 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}
 %{adshome}/lib/bootstrapper.jar
 %{adshome}/bin/apacheds-tools.jar
 %{adshome}/bin/apacheds-tools.sh
-%{adshome}/lib/logger.jar
+#%{adshome}/lib/logger.jar
 %config %{adsdata}/default/conf/log4j.properties
 %config %{adsdata}/default/conf/apacheds.conf
 %config %{adsdata}/default/conf/server.xml

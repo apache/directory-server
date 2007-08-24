@@ -18,7 +18,6 @@
       <excludes>
         <exclude>avalon-framework:avalon-framework</exclude>
         <exclude>logkit:logkit</exclude>
-        <exclude>log4j:log4j</exclude>
         <exclude>aopalliance:aopalliance</exclude>
         <exclude>jasperreports:jasperreports</exclude>
         <exclude>freemarker:freemarker</exclude>
