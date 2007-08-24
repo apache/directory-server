@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.DnNormalizer;
+import org.apache.directory.server.schema.NameAndOptionalUIDNormalizer;
 import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.schema.CachingNormalizer;
@@ -283,7 +284,7 @@ public class SystemNormalizerProducer extends AbstractBootstrapProducer
          ( 2.5.13.23 NAME 'uniqueMemberMatch'
          SYNTAX 1.3.6.1.4.1.1466.115.121.1.34 )
          */
-        normalizer = new CachingDeepTrimNormalizer();
+        normalizer = new NameAndOptionalUIDNormalizer();
         cb.schemaObjectProduced( this, "2.5.13.23", normalizer );
 
         /*
