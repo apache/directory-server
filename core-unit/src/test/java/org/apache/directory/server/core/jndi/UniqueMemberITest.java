@@ -20,18 +20,22 @@
 package org.apache.directory.server.core.jndi;
 
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**
@@ -99,7 +103,7 @@ public class UniqueMemberITest extends AbstractAdminTestCase
                 
                 while ( values.hasMoreElements() )
                 {
-                    String value = StringTools.toLowerCase( (String)values.nextElement() );
+                    String value = ( (String)values.nextElement() ).toLowerCase();
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
@@ -166,7 +170,7 @@ public class UniqueMemberITest extends AbstractAdminTestCase
                 
                 while ( values.hasMoreElements() )
                 {
-                    String value = StringTools.toLowerCase( (String)values.nextElement() );
+                    String value = ( (String)values.nextElement() ).toLowerCase();
                     assertTrue( expectedValues.contains( value ) );
                     expectedValues.remove( value );
                 }
@@ -237,5 +241,54 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         {
             assertTrue( true );
         }
+    }
+    
+    public void testSearchUniqueMemberFilter() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "groupOfUniqueNames" );
+        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
+        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey, dc=example, dc=org" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( dc);
+
+        String base = "cn=kevin Spacey";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName().toLowerCase(), result.getAttributes() );
+        }
+
+        /*
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        attrs = map.get( "cn=kevin spacey,ou=system" );
+        
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "uniqueMember" ) );
+        */
     }
 }
