@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>7</version>
+    <version>8</version>
   </parent>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-parent</artifactId>
@@ -110,33 +110,6 @@
     <pluginManagement>
       <plugins>
        
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.3</version>
-          <configuration>
-            <argLine>-Xmx1024m</argLine>
-          </configuration>
-        </plugin>
-        
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.0.2</version>
-          <configuration>
-            <source>1.5</source>
-            <target>1.5</target>
-            <optimize>true</optimize>
-            <showDeprecations>true</showDeprecations>
-            <encoding>ISO-8859-1</encoding>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-antrun-plugin</artifactId>
-         <version>1.1</version>
-        </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -144,55 +117,8 @@
           <version>2.0-beta-1</version>
         </plugin>
 
-        <!-- remove when project version 8 is released -->
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-remote-resources-plugin</artifactId>
-          <version>1.0-alpha-5</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>process</goal>
-              </goals>
-              <configuration>
-                <resourceBundles>
-                  <resourceBundle>org.apache:apache-jar-resource-bundle:1.0</resourceBundle>
-                </resourceBundles>
-                <!-- hack to share the same corrections among all modules -->
-                <appendedResourcesDirectory>${basedir}/../src/main/appended-resources</appendedResourcesDirectory>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.3</version>
-        </plugin>
-
       </plugins>
     </pluginManagement>
-
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-
-      <!-- remove when project version 8 is released -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-remote-resources-plugin</artifactId>
-      </plugin>
-
-    </plugins>
 
   </build>
   <reporting>
