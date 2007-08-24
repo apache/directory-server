@@ -61,20 +61,21 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
     
     
-    protected abstract void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException;
+    protected abstract void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) 
+        throws NamingException;
     
     
-    public final void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public final void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
-        modify( name, entry, targetEntry );
+        modify( name, entry, targetEntry, cascade );
     }
 
 
-    public final void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public final void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, 
+        Attributes targetEntry, boolean cascade ) throws NamingException
     {
-        modify( name, entry, targetEntry );
+        modify( name, entry, targetEntry, cascade );
     }
 
     

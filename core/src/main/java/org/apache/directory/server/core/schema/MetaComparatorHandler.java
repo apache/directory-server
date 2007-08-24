@@ -99,7 +99,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
     
     
-    private void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
+    private void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
         Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
@@ -140,17 +140,17 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
     
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
-        modify( name, entry, targetEntry );
+        modify( name, entry, targetEntry, cascade );
     }
 
 
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
-        modify( name, entry, targetEntry );
+        modify( name, entry, targetEntry, cascade );
     }
 
 
@@ -190,14 +190,14 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
-        delete( oid );
+        delete( oid, cascade );
     }
 
 
-    public void delete( String oid ) throws NamingException
+    public void delete( String oid, boolean cascade ) throws NamingException
     {
         if ( matchingRuleRegistry.hasMatchingRule( oid ) )
         {
@@ -214,7 +214,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -240,8 +240,8 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) 
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -275,7 +275,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );

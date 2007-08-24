@@ -1190,7 +1190,8 @@ public class SchemaService extends BaseInterceptor
             schemaManager.move( oriChildName, 
                 opContext.getParent(), 
                 opContext.getNewRdn(), 
-                opContext.getDelOldDn(), entry );
+                opContext.getDelOldDn(), entry,
+                opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         
         next.moveAndRename( opContext );
@@ -1205,7 +1206,8 @@ public class SchemaService extends BaseInterceptor
 
         if ( oriChildName.startsWith( schemaBaseDN ) )
         {
-            schemaManager.replace( oriChildName, opContext.getParent(), entry );
+            schemaManager.replace( oriChildName, opContext.getParent(), entry, 
+                opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
         }
         
         next.move( opContext );

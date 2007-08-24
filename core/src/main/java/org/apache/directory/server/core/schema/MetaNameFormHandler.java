@@ -45,10 +45,13 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, javax.naming.directory.Attributes)
+     * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(
+     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, 
+     * javax.naming.directory.Attributes)
      */
     @Override
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 
@@ -56,7 +59,8 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#add(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
+     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#add(
+     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
      */
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
@@ -66,9 +70,10 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#delete(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
+     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#delete(
+     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
      */
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 
@@ -76,10 +81,12 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, java.lang.String, boolean, javax.naming.directory.Attributes)
+     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
+     * org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, 
+     * java.lang.String, boolean, javax.naming.directory.Attributes)
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry )
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, 
+        boolean deleteOldRn, Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 
@@ -87,9 +94,12 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(org.apache.directory.shared.ldap.name.LdapDN, org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
+     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
+     * org.apache.directory.shared.ldap.name.LdapDN, 
+     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
      */
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, 
+        boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 
@@ -97,9 +107,10 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
 
 
     /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#rename(org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, java.lang.String)
+     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#rename(
+     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, java.lang.String)
      */
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 
@@ -112,7 +123,7 @@ public class MetaNameFormHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( NameForm nf ) throws NamingException
+    public void delete( NameForm nf, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

@@ -85,8 +85,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an Attributes object
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, 
+        Attributes targetEntry, boolean cascade ) throws NamingException
     {
         Attribute disabledInMods = AttributeUtils.getAttribute( mods, disabledAT );
         if ( disabledInMods != null )
@@ -123,8 +123,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an ModificationItem arry
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry )
-        throws NamingException
+    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, 
+        Attributes targetEntry, boolean cascade ) throws NamingException
     {
         Attribute disabledInEntry = AttributeUtils.getAttribute( entry, disabledAT );
         ModificationItemImpl disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
@@ -226,7 +226,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param name the dn of the metaSchema object being deleted
      * @param entry the attributes of the metaSchema object 
      */
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         Attribute cn = AttributeUtils.getAttribute( entry, cnAT );
         String schemaName = ( String ) cn.get();
@@ -256,7 +256,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
     {
         String rdnAttribute = NamespaceTools.getRdnAttribute( newRdn );
         String rdnAttributeOid = globalRegistries.getOidRegistry().getOid( rdnAttribute );
@@ -336,8 +336,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry )
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
             ResultCodeEnum.UNWILLING_TO_PERFORM );
@@ -348,7 +348,8 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * Moves are not allowed for metaSchema objects so this always throws an
      * UNWILLING_TO_PERFORM LdapException.
      */
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         throw new LdapOperationNotSupportedException( "Moving around schemas is not allowed.",
             ResultCodeEnum.UNWILLING_TO_PERFORM );

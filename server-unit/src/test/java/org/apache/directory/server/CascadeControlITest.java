@@ -81,26 +81,24 @@ public class CascadeControlITest extends AbstractServerTest
      * Tests the behavior of the server with a SearchRequest including
      * the CascadeControl.
      */
-    public void testCascadeControl()
+    public void testCascadeControl() throws NamingException
     {
+        LdapContext containerCtx = ( LdapContext ) ctx.lookup( "ou=attributeTypes, cn=apachemeta, ou=schema" );
+        
         try
         {
-            ctx.setRequestControls( new Control[]
-                { new CascadeControl() } );
+            containerCtx.setRequestControls( new Control[] { new CascadeControl() } );
         }
         catch ( NamingException e )
         {
             fail( e.getMessage() );
         }
 
-        Attribute attr = new AttributeImpl( "m-oid", "1.2.3.4.5.6.7.8.9.0" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-
-        String rdn = "m-oid=1.3.6.1.4.1.18060.0.4.0.2.1, ou=attributeTypes, cn=apachemeta, ou=schema";
+        String oldRdn = "m-oid=1.3.6.1.4.1.18060.0.4.0.2.1";
+        String newRdn = "m-oid=1.3.6.1.4.1.18060.0.4.0.2.1000";
         try
         {
-            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
-                { item } );
+            containerCtx.rename( oldRdn, newRdn );
         }
         catch ( NamingException e )
         {

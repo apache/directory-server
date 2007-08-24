@@ -335,7 +335,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.delete( name, entry );
+                handler.delete( name, entry, doCascadeDelete );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -343,7 +343,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.delete( name, entry );
+            metaSchemaHandler.delete( name, entry, doCascadeDelete );
             updateSchemaModificationAttributes();
             return;
         }
@@ -372,8 +372,8 @@ public class SchemaManager
     }
     
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) 
-        throws NamingException
+    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, 
+        Attributes targetEntry, boolean cascade ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -383,7 +383,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.modify( name, modOp, mods, entry, targetEntry );
+                handler.modify( name, modOp, mods, entry, targetEntry, cascade );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -391,7 +391,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.modify( name, modOp, mods, entry, targetEntry );
+            metaSchemaHandler.modify( name, modOp, mods, entry, targetEntry, cascade );
             updateSchemaModificationAttributes();
             return;
         }
@@ -411,7 +411,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.modify( name, mods, entry, targetEntry );
+                handler.modify( name, mods, entry, targetEntry, doCascadeModify );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -419,7 +419,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.modify( name, mods, entry, targetEntry );
+            metaSchemaHandler.modify( name, mods, entry, targetEntry, doCascadeModify );
             updateSchemaModificationAttributes();
             return;
         }
@@ -439,7 +439,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.rename( name, entry, newRdn );
+                handler.rename( name, entry, newRdn, doCascadeModify );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -447,7 +447,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.rename( name, entry, newRdn );
+            metaSchemaHandler.rename( name, entry, newRdn, doCascadeModify );
             updateSchemaModificationAttributes();
             return;
         }
@@ -456,7 +456,8 @@ public class SchemaManager
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, 
+        boolean cascade ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -467,7 +468,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.replace( oriChildName, newParentName, entry );
+                handler.replace( oriChildName, newParentName, entry, cascade );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -475,7 +476,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.replace( oriChildName, newParentName, entry );
+            metaSchemaHandler.replace( oriChildName, newParentName, entry, cascade );
             updateSchemaModificationAttributes();
             return;
         }
@@ -484,8 +485,8 @@ public class SchemaManager
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry )
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
         
@@ -495,7 +496,7 @@ public class SchemaManager
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
-                handler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+                handler.move( oriChildName, newParentName, newRn, deleteOldRn, entry, cascade );
                 updateSchemaModificationAttributes();
                 return;
             }
@@ -503,7 +504,7 @@ public class SchemaManager
 
         if ( AttributeUtils.containsValue( oc, MetaSchemaConstants.META_SCHEMA_OC, objectClassAT ) )
         {
-            metaSchemaHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry );
+            metaSchemaHandler.move( oriChildName, newParentName, newRn, deleteOldRn, entry, cascade );
             updateSchemaModificationAttributes();
             return;
         }
@@ -636,7 +637,7 @@ public class SchemaManager
                 
                 for ( ComparatorDescription comparatorDescription : comparatorDescriptions )
                 {
-                    comparatorHandler.delete( comparatorDescription.getNumericOid() );
+                    comparatorHandler.delete( comparatorDescription.getNumericOid(), doCascadeModify );
                     subentryModifier.delete( comparatorDescription );
                 }
                 break;
@@ -646,7 +647,7 @@ public class SchemaManager
                 
                 for ( NormalizerDescription normalizerDescription : normalizerDescriptions )
                 {
-                    normalizerHandler.delete( normalizerDescription.getNumericOid() );
+                    normalizerHandler.delete( normalizerDescription.getNumericOid(), doCascadeModify );
                     subentryModifier.delete( normalizerDescription );
                 }
                 break;
@@ -656,7 +657,7 @@ public class SchemaManager
                 
                 for ( SyntaxCheckerDescription syntaxCheckerDescription : syntaxCheckerDescriptions )
                 {
-                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid() );
+                    syntaxCheckerHandler.delete( syntaxCheckerDescription.getNumericOid(), doCascadeModify );
                     subentryModifier.delete( syntaxCheckerDescription );
                 }
                 break;
@@ -666,7 +667,7 @@ public class SchemaManager
                 
                 for ( Syntax syntax : syntaxes )
                 {
-                    syntaxHandler.delete( syntax );
+                    syntaxHandler.delete( syntax, doCascadeModify );
                     subentryModifier.deleteSchemaObject( syntax );
                 }
                 break;
@@ -676,7 +677,7 @@ public class SchemaManager
                 
                 for ( MatchingRule mr : mrs )
                 {
-                    matchingRuleHandler.delete( mr );
+                    matchingRuleHandler.delete( mr, doCascadeModify );
                     subentryModifier.deleteSchemaObject( mr );
                 }
                 break;
@@ -686,7 +687,7 @@ public class SchemaManager
                 
                 for ( AttributeType at : ats )
                 {
-                    atHandler.delete( at );
+                    atHandler.delete( at, doCascadeModify );
                     subentryModifier.deleteSchemaObject( at );
                 }
                 break;
@@ -696,7 +697,7 @@ public class SchemaManager
 
                 for ( ObjectClass oc : ocs )
                 {
-                    ocHandler.delete( oc );
+                    ocHandler.delete( oc, doCascadeModify );
                     subentryModifier.deleteSchemaObject( oc );
                 }
                 break;
@@ -706,7 +707,7 @@ public class SchemaManager
                 
                 for ( MatchingRuleUse mru : mrus )
                 {
-                    mruHandler.delete( mru );
+                    mruHandler.delete( mru, doCascadeModify );
                     subentryModifier.deleteSchemaObject( mru );
                 }
                 break;
@@ -716,7 +717,7 @@ public class SchemaManager
                 
                 for ( DITStructureRule dsr : dsrs )
                 {
-                    dsrHandler.delete( dsr );
+                    dsrHandler.delete( dsr, doCascadeModify );
                     subentryModifier.deleteSchemaObject( dsr );
                 }
                 break;
@@ -726,7 +727,7 @@ public class SchemaManager
                 
                 for ( DITContentRule dcr : dcrs )
                 {
-                    dcrHandler.delete( dcr );
+                    dcrHandler.delete( dcr, doCascadeModify );
                     subentryModifier.deleteSchemaObject( dcr );
                 }
                 break;
@@ -736,7 +737,7 @@ public class SchemaManager
                 
                 for ( NameForm nf : nfs )
                 {
-                    nfHandler.delete( nf );
+                    nfHandler.delete( nf, doCascadeModify );
                     subentryModifier.deleteSchemaObject( nf );
                 }
                 break;

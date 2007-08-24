@@ -41,8 +41,8 @@ public abstract class AbstractOperationContext implements OperationContext
 
     /** The DN associated with the context */
     private LdapDN dn;
-    private Map<String, Control> requestControls = new HashMap<String, Control>(2);
-    private Map<String, Control> responseControls = new HashMap<String, Control>(2);
+    private Map<String, Control> requestControls = new HashMap<String, Control>(4);
+    private Map<String, Control> responseControls = new HashMap<String, Control>(4);
     
     
     /**

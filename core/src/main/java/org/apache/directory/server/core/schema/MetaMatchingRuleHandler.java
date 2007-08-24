@@ -64,7 +64,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
         Schema schema = getSchema( name );
@@ -90,7 +91,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schemaName );
@@ -104,11 +105,11 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
         
-        delete( mr );
+        delete( mr, cascade );
     }
 
 
-    public void delete( MatchingRule mr ) throws NamingException
+    public void delete( MatchingRule mr, boolean cascade ) throws NamingException
     {
         Schema schema = loader.getSchema( mr.getSchema() );
         if ( ! schema.isDisabled() )
@@ -119,7 +120,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
     {
         Schema schema = getSchema( name );
         MatchingRule oldMr = factory.getMatchingRule( entry, targetRegistries, schema.getSchemaName() );
@@ -152,8 +153,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) 
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         Schema oldSchema = getSchema( oriChildName );
@@ -191,7 +192,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );

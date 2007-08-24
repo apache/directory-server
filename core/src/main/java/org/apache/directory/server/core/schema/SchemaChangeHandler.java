@@ -37,10 +37,13 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface SchemaChangeHandler
 {
     void add( LdapDN name, Attributes entry ) throws NamingException;
-    void delete( LdapDN name, Attributes entry ) throws NamingException;
-    void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException;
-    void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry ) throws NamingException;
-    void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry ) throws NamingException;
-    void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) throws NamingException;
-    void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) throws NamingException;
+    void delete( LdapDN name, Attributes entry, boolean cascaded ) throws NamingException;
+    void rename( LdapDN name, Attributes entry, String newRdn, boolean cascaded ) throws NamingException;
+    void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
+        throws NamingException;
+    void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
+        throws NamingException;
+    void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry, 
+        boolean cascaded ) throws NamingException;
+    void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascaded ) throws NamingException;
 }

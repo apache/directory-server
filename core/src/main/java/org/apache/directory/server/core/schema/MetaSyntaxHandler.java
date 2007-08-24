@@ -64,7 +64,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
     
-    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry ) throws NamingException
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
+        boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
         Schema schema = getSchema( name );
@@ -90,7 +91,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void delete( LdapDN name, Attributes entry ) throws NamingException
+    public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         String oid = getOid( entry );
         
@@ -107,11 +108,11 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         
         String schemaName = getSchemaName( name );
         Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
-        delete( syntax );
+        delete( syntax, cascade );
     }
 
 
-    public void delete( Syntax syntax ) throws NamingException
+    public void delete( Syntax syntax, boolean cascade ) throws NamingException
     {
         Schema schema = loader.getSchema( syntax.getSchema() );
         if ( ! schema.isDisabled() )
@@ -124,7 +125,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, String newRdn ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -160,8 +161,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry ) 
-        throws NamingException
+    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+        Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
         String oldOid = getOid( entry );
@@ -202,7 +203,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry ) 
+    public void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascade ) 
         throws NamingException
     {
         checkNewParent( newParentName );
