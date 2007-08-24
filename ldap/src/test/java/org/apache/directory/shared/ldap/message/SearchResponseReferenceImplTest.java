@@ -25,7 +25,8 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.Map;
 
-import org.apache.directory.shared.ldap.message.Control;
+import javax.naming.ldap.Control;
+
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.Referral;
@@ -142,6 +143,11 @@ public class SearchResponseReferenceImplTest extends TestCase
             public Object put( Object key, Object value )
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubentriesControl extends ControlImpl
+public class SubentriesControl extends AbstractMutableControlImpl
 {
     private static final long serialVersionUID = -2356861450876343999L;
 
@@ -82,7 +82,7 @@ public class SubentriesControl extends ControlImpl
     public SubentriesControl()
     {
         super();
-        setType( CONTROL_OID );
+        setID( CONTROL_OID );
     }
 
 
@@ -100,21 +100,17 @@ public class SubentriesControl extends ControlImpl
 
     public byte[] getEncodedValue()
     {
-        if ( getValue() == null )
+        SubEntryControl ctl = new SubEntryControl();
+        ctl.setVisibility( isVisible() );
+
+        try
         {
-            SubEntryControl ctl = new SubEntryControl();
-            ctl.setVisibility( isVisible() );
-
-            try
-            {
-                setValue( ctl.encode( null ).array() );
-            }
-            catch ( EncoderException e )
-            {
-                log.error( "Failed to encode SubentriesControl", e );
-            }
+            return ctl.encode( null ).array();
         }
-
-        return getValue();
+        catch ( EncoderException e )
+        {
+            log.error( "Failed to encode SubentriesControl", e );
+            throw new IllegalStateException( "Failed to encode control with encoder.", e );
+        }
     }
 }

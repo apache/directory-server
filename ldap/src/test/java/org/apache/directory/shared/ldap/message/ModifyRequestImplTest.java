@@ -24,9 +24,9 @@ import junit.framework.TestCase;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
@@ -375,6 +375,11 @@ public class ModifyRequestImplTest extends TestCase
             public ResultResponse getResultResponse()
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

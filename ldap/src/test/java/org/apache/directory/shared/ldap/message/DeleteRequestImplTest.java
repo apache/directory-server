@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -190,6 +190,11 @@ public class DeleteRequestImplTest extends TestCase
             public ResultResponse getResultResponse()
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

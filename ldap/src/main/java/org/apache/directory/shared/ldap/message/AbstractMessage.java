@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.naming.ldap.Control;
+
 
 
 /**
@@ -32,7 +34,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbstractMessage implements Message
+public abstract class AbstractMessage implements Message
 {
     static final long serialVersionUID = 7601738291101182094L;
 
@@ -57,7 +59,7 @@ public class AbstractMessage implements Message
      * @param type
      *            the type of the message
      */
-    protected AbstractMessage(final int id, final MessageTypeEnum type)
+    protected AbstractMessage( final int id, final MessageTypeEnum type )
     {
         this.id = id;
         this.type = type;
@@ -84,7 +86,7 @@ public class AbstractMessage implements Message
      * Gets the controls associated with this message mapped by OID.
      * 
      * @return Map of OID strings to Control object instances.
-     * @see Control
+     * @see MutableControl
      */
     public Map<String, Control> getControls()
     {
@@ -103,7 +105,7 @@ public class AbstractMessage implements Message
      */
     public void add( Control control ) throws MessageException
     {
-        controls.put( control.getType(), control );
+        controls.put( control.getID(), control );
     }
 
 
@@ -118,7 +120,7 @@ public class AbstractMessage implements Message
      */
     public void remove( Control control ) throws MessageException
     {
-        controls.remove( control.getType() );
+        controls.remove( control.getID() );
     }
 
 
@@ -237,4 +239,12 @@ public class AbstractMessage implements Message
         return hash;
     }
 
+
+    public void addAll( Control[] controls ) throws MessageException
+    {
+        for ( Control c : controls )
+        {
+            this.controls.put( c.getID(), c );
+        }
+    }
 }

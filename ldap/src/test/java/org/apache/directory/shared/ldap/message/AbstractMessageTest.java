@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.message;
 
 
 import org.apache.directory.shared.ldap.message.AbstractMessage;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 
 import junit.framework.TestCase;
@@ -120,7 +120,7 @@ public class AbstractMessageTest extends TestCase
         {
             private static final long serialVersionUID = 1L;
         };
-        msg0.add( new Control()
+        msg0.add( new MutableControl()
         {
             private static final long serialVersionUID = 1L;
 
@@ -131,7 +131,7 @@ public class AbstractMessageTest extends TestCase
             }
 
 
-            public void setType( String a_oid )
+            public void setID( String a_oid )
             {
             }
 

@@ -26,10 +26,10 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.MessageException;
 import org.apache.directory.shared.ldap.message.MessageTypeEnum;
 import org.apache.directory.shared.ldap.message.ResultResponse;
@@ -267,12 +267,12 @@ public class BindRequestImplTest extends TestCase
             }
 
 
-            public void add( Control a_control ) throws MessageException
+            public void add( Control control ) throws MessageException
             {
             }
 
 
-            public void remove( Control a_control ) throws MessageException
+            public void remove( Control control ) throws MessageException
             {
             }
 
@@ -309,6 +309,11 @@ public class BindRequestImplTest extends TestCase
             public ResultResponse getResultResponse()
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 437007 $
  */
-public class CascadeControl extends ControlImpl
+public class CascadeControl extends AbstractMutableControlImpl
 {
     private static final long serialVersionUID = -2356861450876343999L;
     public static final String CONTROL_OID = "1.3.6.1.4.1.18060.0.0.1";
@@ -37,7 +37,7 @@ public class CascadeControl extends ControlImpl
     public CascadeControl()
     {
         super();
-        setType( CONTROL_OID );
+        setID( CONTROL_OID );
     }
 
 

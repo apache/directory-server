@@ -82,7 +82,7 @@ import org.apache.directory.shared.ldap.message.BindResponseImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
 import org.apache.directory.shared.ldap.message.CompareResponseImpl;
-import org.apache.directory.shared.ldap.message.ControlImpl;
+import org.apache.directory.shared.ldap.message.AbstractMutableControlImpl;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.DeleteResponseImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
@@ -758,16 +758,15 @@ public class TwixTransformer implements TransformerSpi
 
             while ( controls.hasNext() )
             {
-                ControlImpl neutralControl = null;
-                org.apache.directory.shared.ldap.codec.Control twixControl = ( org.apache.directory.shared.ldap.codec.Control ) controls
-                    .next();
+                AbstractMutableControlImpl neutralControl = null;
+                final org.apache.directory.shared.ldap.codec.Control twixControl = 
+                    ( org.apache.directory.shared.ldap.codec.Control ) controls.next();
 
                 if ( twixControl.getControlValue() instanceof 
                     org.apache.directory.shared.ldap.codec.controls.CascadeControl )
                 {
                     neutralControl = new CascadeControl();
                     neutralControl.setCritical( twixControl.getCriticality() );
-                    neutralControl.setValue( twixControl.getEncodedValue() );
                 }
                 else if ( twixControl.getControlValue() instanceof PSearchControl )
                 {
@@ -778,7 +777,6 @@ public class TwixTransformer implements TransformerSpi
                     neutralPsearch.setChangesOnly( twixPsearch.isChangesOnly() );
                     neutralPsearch.setReturnECs( twixPsearch.isReturnECs() );
                     neutralPsearch.setCritical( twixControl.getCriticality() );
-                    neutralPsearch.setValue( twixControl.getEncodedValue() );
                 }
                 else if ( twixControl.getControlValue() instanceof SubEntryControl )
                 {
@@ -787,11 +785,10 @@ public class TwixTransformer implements TransformerSpi
                     neutralControl = neutralSubentriesControl;
                     neutralSubentriesControl.setVisibility( twixSubentriesControl.isVisible() );
                     neutralSubentriesControl.setCritical( twixControl.getCriticality() );
-                    neutralSubentriesControl.setValue( twixControl.getEncodedValue() );
                 }
                 else if ( twixControl.getControlValue() instanceof byte[] )
                 {
-                    neutralControl = new ControlImpl()
+                    neutralControl = new AbstractMutableControlImpl()
                     {
                         // Just to avoid a compilation warning !!!
                         public static final long serialVersionUID = 1L;
@@ -799,7 +796,7 @@ public class TwixTransformer implements TransformerSpi
 
                         public byte[] getEncodedValue()
                         {
-                            return null;
+                            return ( byte[] ) twixControl.getControlValue();
                         }
                     };
 
@@ -808,15 +805,11 @@ public class TwixTransformer implements TransformerSpi
                     neutralControl.setCritical( twixControl.getCriticality() );
 
                     // Twix : OID controlType -> Snickers : String m_oid
-                    neutralControl.setType( twixControl.getControlType() );
-
-                    // Twix : OctetString controlValue -> Snickers : byte []
-                    // m_value
-                    neutralControl.setValue( ( byte[] ) twixControl.getControlValue() );
+                    neutralControl.setID( twixControl.getControlType() );
                 }
                 else if ( twixControl.getControlValue() == null )
                 {
-                    neutralControl = new ControlImpl()
+                    neutralControl = new AbstractMutableControlImpl()
                     {
                         // Just to avoid a compilation warning !!!
                         public static final long serialVersionUID = 1L;
@@ -824,7 +817,7 @@ public class TwixTransformer implements TransformerSpi
 
                         public byte[] getEncodedValue()
                         {
-                            return null;
+                            return ( byte[] ) twixControl.getControlValue();
                         }
                     };
 
@@ -833,11 +826,7 @@ public class TwixTransformer implements TransformerSpi
                     neutralControl.setCritical( twixControl.getCriticality() );
 
                     // Twix : OID controlType -> Snickers : String m_oid
-                    neutralControl.setType( twixControl.getControlType() );
-
-                    // Twix : OctetString controlValue -> Snickers : byte []
-                    // m_value
-                    neutralControl.setValue( ( byte[] ) twixControl.getControlValue() );
+                    neutralControl.setID( twixControl.getControlType() );
                 }
                 
 

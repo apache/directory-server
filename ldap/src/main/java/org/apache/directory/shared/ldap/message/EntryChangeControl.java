@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.message;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EntryChangeControl extends ControlImpl
+public class EntryChangeControl extends AbstractMutableControlImpl
 {
     private static final long serialVersionUID = -2356861450876343999L;
 
@@ -94,7 +95,7 @@ public class EntryChangeControl extends ControlImpl
     public EntryChangeControl()
     {
         super();
-        setType( CONTROL_OID );
+        setID( CONTROL_OID );
     }
 
 
@@ -134,26 +135,22 @@ public class EntryChangeControl extends ControlImpl
     }
 
 
-    public byte[] getEncodedValue()
+    public byte[] getEncodedValue() 
     {
-        if ( getValue() == null )
+        // should call this codec or something
+        org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl ecc = new org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl();
+        ecc.setChangeNumber( changeNumber );
+        ecc.setChangeType( changeType );
+        ecc.setPreviousDn( previousDn );
+
+        try
         {
-            // should call this codec or something
-            org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl ecc = new org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl();
-            ecc.setChangeNumber( changeNumber );
-            ecc.setChangeType( changeType );
-            ecc.setPreviousDn( previousDn );
-
-            try
-            {
-                setValue( ecc.encode( null ).array() );
-            }
-            catch ( EncoderException e )
-            {
-                log.error( "Failed to encode psearch control", e );
-            }
+            return ecc.encode( null ).array();
         }
-
-        return getValue();
+        catch ( EncoderException e )
+        {
+            log.error( "Failed to encode psearch control", e );
+            throw new IllegalStateException( "Failed to encode control with encoder.", e );
+        }
     }
 }

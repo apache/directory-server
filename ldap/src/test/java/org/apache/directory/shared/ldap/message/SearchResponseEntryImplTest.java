@@ -27,8 +27,8 @@ import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -180,6 +180,11 @@ public class SearchResponseEntryImplTest extends TestCase
             public Object put( Object key, Object value )
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

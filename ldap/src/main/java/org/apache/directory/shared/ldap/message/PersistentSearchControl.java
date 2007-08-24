@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class PersistentSearchControl extends ControlImpl
+public class PersistentSearchControl extends AbstractMutableControlImpl
 {
     private static final long serialVersionUID = -2356861450876343999L;
 
@@ -72,7 +72,7 @@ public class PersistentSearchControl extends ControlImpl
     public PersistentSearchControl()
     {
         super();
-        setType( CONTROL_OID );
+        setID( CONTROL_OID );
     }
 
 
@@ -126,23 +126,19 @@ public class PersistentSearchControl extends ControlImpl
 
     public byte[] getEncodedValue()
     {
-        if ( getValue() == null )
+        PSearchControl psearchCtl = new PSearchControl();
+        psearchCtl.setChangesOnly( isChangesOnly() );
+        psearchCtl.setChangeTypes( getChangeTypes() );
+        psearchCtl.setReturnECs( isReturnECs() );
+
+        try
         {
-            PSearchControl psearchCtl = new PSearchControl();
-            psearchCtl.setChangesOnly( isChangesOnly() );
-            psearchCtl.setChangeTypes( getChangeTypes() );
-            psearchCtl.setReturnECs( isReturnECs() );
-
-            try
-            {
-                setValue( psearchCtl.encode( null ).array() );
-            }
-            catch ( EncoderException e )
-            {
-                log.error( "Failed to encode psearch control", e );
-            }
+            return psearchCtl.encode( null ).array();
         }
-
-        return getValue();
+        catch ( EncoderException e )
+        {
+            log.error( "Failed to encode psearch control", e );
+            throw new IllegalStateException( "Failed to encode control with encoder.", e );
+        }
     }
 }

@@ -31,7 +31,6 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -221,12 +220,12 @@ public class AddRequestImplTest extends TestCase
             }
 
 
-            public void add( Control control ) throws MessageException
+            public void add( javax.naming.ldap.Control control ) throws MessageException
             {
             }
 
 
-            public void remove( Control control ) throws MessageException
+            public void remove( javax.naming.ldap.Control control ) throws MessageException
             {
             }
 
@@ -268,6 +267,11 @@ public class AddRequestImplTest extends TestCase
             public ResultResponse getResultResponse()
             {
                 return null;
+            }
+
+
+            public void addAll( javax.naming.ldap.Control[] controls ) throws MessageException
+            {
             }
         };
 

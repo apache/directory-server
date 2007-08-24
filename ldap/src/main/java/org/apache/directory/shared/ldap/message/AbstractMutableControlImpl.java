@@ -26,13 +26,10 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class ControlImpl implements Control
+public abstract class AbstractMutableControlImpl implements MutableControl
 {
     /** Unique object identifier for this control */
     private String oid;
-
-    /** Control ASN.1 encoded parameters */
-    private byte[] value;
 
     /** Flag for control criticality */
     private boolean isCritical;
@@ -70,50 +67,14 @@ public abstract class ControlImpl implements Control
 
 
     /**
-     * Gets the OID of the Control to identify the control type.
-     * 
-     * @return the OID of this Control.
-     */
-    public String getType()
-    {
-        return this.oid;
-    }
-
-
-    /**
      * Sets the OID of the Control to identify the control type.
      * 
      * @param oid
      *            the OID of this Control.
      */
-    public void setType( String oid )
+    public void setID( String oid )
     {
         this.oid = oid;
-    }
-
-
-    /**
-     * Gets the ASN.1 BER encoded value of the control which would have its own
-     * custom ASN.1 defined structure based on the nature of the control.
-     * 
-     * @return ASN.1 BER encoded value as binary data.
-     */
-    public byte[] getValue()
-    {
-        return this.value;
-    }
-
-
-    /**
-     * Sets the ASN.1 BER encoded value of the control which would have its own
-     * custom ASN.1 defined structure based on the nature of the control.
-     * 
-     * @param value
-     *            ASN.1 BER encoded value as binary data.
-     */
-    public void setValue( byte[] value )
-    {
-        this.value = value;
     }
 
 

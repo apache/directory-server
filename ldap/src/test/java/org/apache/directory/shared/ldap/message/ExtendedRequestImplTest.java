@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.naming.NamingException;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedResponse;
 
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
 import org.apache.directory.shared.ldap.message.MessageException;
@@ -172,7 +172,7 @@ public class ExtendedRequestImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String,Control> getControls()
             {
                 return Collections.EMPTY_MAP;
             }
@@ -228,6 +228,11 @@ public class ExtendedRequestImplTest extends TestCase
                 throws NamingException
             {
                 return null;
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

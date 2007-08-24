@@ -20,6 +20,9 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import javax.naming.ldap.Control;
+
+
 /**
  * Protocol request and response altering control interface. Any number of
  * controls may be associated with a protocol message.
@@ -27,53 +30,15 @@ package org.apache.directory.shared.ldap.message;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Control extends javax.naming.ldap.Control
+public interface MutableControl extends Control
 {
-    /**
-     * Gets the OID of the Control to identify the control type.
-     * 
-     * @return the OID of this Control.
-     */
-    String getType();
-
-
     /**
      * Sets the OID of the Control to identify the control type.
      * 
      * @param oid
      *            the OID of this Control.
      */
-    void setType( String oid );
-
-
-    /**
-     * Gets the ASN.1 BER encoded value of the control which would have its own
-     * custom ASN.1 defined structure based on the nature of the control.
-     * 
-     * @return ASN.1 BER encoded value as binary data.
-     */
-    byte[] getValue();
-
-
-    /**
-     * Sets the ASN.1 BER encoded value of the control which would have its own
-     * custom ASN.1 defined structure based on the nature of the control.
-     * 
-     * @param value
-     *            ASN.1 BER encoded value as binary data.
-     */
-    void setValue( byte[] value );
-
-
-    /**
-     * Determines whether or not this control is critical for the correct
-     * operation of a request or response message. The default for this value
-     * should be false.
-     * 
-     * @return true if the control is critical false otherwise.
-     */
-    boolean isCritical();
-
+    void setID( String oid );
 
     /**
      * Sets the criticil flag which determines whether or not this control is

@@ -26,8 +26,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.Control;
 
-import org.apache.directory.shared.ldap.message.Control;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.ExtendedResponseImpl;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -207,6 +207,11 @@ public class ExtendedResponseImplTest extends TestCase
             public byte[] getEncodedValue()
             {
                 return getResponse();
+            }
+
+
+            public void addAll( Control[] controls ) throws MessageException
+            {
             }
         };
 

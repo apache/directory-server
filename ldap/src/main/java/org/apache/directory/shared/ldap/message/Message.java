@@ -22,6 +22,8 @@ package org.apache.directory.shared.ldap.message;
 
 import java.util.Map;
 
+import javax.naming.ldap.Control;
+
 
 /**
  * Root interface for all LDAP message type interfaces.
@@ -45,7 +47,7 @@ public interface Message
      * Gets the controls associated with this message mapped by OID.
      * 
      * @return Map of OID strings to Control object instances.
-     * @see Control
+     * @see MutableControl
      */
     Map<String, Control> getControls();
 
@@ -60,6 +62,15 @@ public interface Message
      *             not known etc.
      */
     void add( Control control ) throws MessageException;
+
+
+    /**
+     * Adds an array of controls to this Message.
+     * 
+     * @param controls the controls to add.
+     * @throws MessageException if controls cannot be added to this Message or they are not known etc.
+     */
+    void addAll( Control[] controls ) throws MessageException;
 
 
     /**
