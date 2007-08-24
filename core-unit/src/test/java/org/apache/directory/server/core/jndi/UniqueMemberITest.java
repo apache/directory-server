@@ -281,7 +281,6 @@ public class UniqueMemberITest extends AbstractAdminTestCase
             map.put( result.getName().toLowerCase(), result.getAttributes() );
         }
 
-        /*
         assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
         
         attrs = map.get( "cn=kevin spacey,ou=system" );
@@ -289,6 +288,133 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         assertNotNull( attrs.get( "objectClass" ) );
         assertNotNull( attrs.get( "cn" ) );
         assertNotNull( attrs.get( "uniqueMember" ) );
-        */
+    }
+
+    public void testSearchUniqueMemberFilterWithSpaces() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "groupOfUniqueNames" );
+        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
+        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( dc);
+
+        String base = "cn=kevin Spacey";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName().toLowerCase(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        attrs = map.get( "cn=kevin spacey,ou=system" );
+        
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "uniqueMember" ) );
+    }
+
+    public void testSearchUniqueMemberFilterWithBadDN() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "groupOfUniqueNames" );
+        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
+        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( dc);
+
+        String base = "cn=kevin Spacey";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+
+        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)", controls );
+        
+        assertFalse( list.hasMore() );
+    }
+
+    public void testSearchUniqueMemberFilterWithUID() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "groupOfUniqueNames" );
+        Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
+        Attribute dc = new AttributeImpl( "uniqueMember", "cn=kevin spacey,dc=example,dc=org#'010101'B" );
+        attrs.put( oc );
+        attrs.put( cn );
+        attrs.put( dc);
+
+        String base = "cn=kevin Spacey";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+        }
+        catch ( NamingException ne )
+        {
+            fail();
+        }
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );
+        
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName().toLowerCase(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        attrs = map.get( "cn=kevin spacey,ou=system" );
+        
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "cn" ) );
+        assertNotNull( attrs.get( "uniqueMember" ) );
     }
 }
