@@ -121,7 +121,7 @@ public class NameAndOptionalUIDSyntaxChecker extends AbstractSyntaxChecker
                 // except if the '#' is in first position
                 if ( sharpPos > 0 )
                 {
-                    return LdapDN.isValid( strValue.substring( 0, sharpPos -1 ) );
+                    return LdapDN.isValid( strValue.substring( 0, sharpPos ) );
                 }
                 else
                 {
