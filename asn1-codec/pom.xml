@@ -28,6 +28,7 @@
   <packaging>jar</packaging>
 
   <dependencies>
+    
     <dependency>
       <groupId>org.apache.directory.shared</groupId>
       <artifactId>shared-asn1</artifactId>
