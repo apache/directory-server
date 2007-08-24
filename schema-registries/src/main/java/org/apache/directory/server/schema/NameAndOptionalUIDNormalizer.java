@@ -38,7 +38,6 @@ public class NameAndOptionalUIDNormalizer implements Normalizer
 {
     private static final long serialVersionUID = 1L;
 
-    // @TODO use this later for seting up normalization
     private AttributeTypeRegistry attrRegistry;
     
     
@@ -90,7 +89,9 @@ public class NameAndOptionalUIDNormalizer implements Normalizer
                 
                 if ( sharpPos > 0 )
                 {
-                    LdapDN dn = new LdapDN( nameAndUid.substring( 0, sharpPos -1 ) );
+                    LdapDN dn = new LdapDN( nameAndUid.substring( 0, sharpPos ) );
+                    
+                    dn.normalize( attrRegistry.getNormalizerMapping() );
                     
                     return dn.getNormName() + '#' + uid;
                 }
