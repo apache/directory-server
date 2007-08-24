@@ -210,11 +210,10 @@ public class SearchHandler extends AbstractLdapHandler implements MessageHandler
                 {
                     ctx = ( ServerLdapContext ) unknown;
                 }
-                
             }
             
             // Inject controls into the context
-            setControls( ctx, req );
+            setRequestControls( ctx, req );
 
             ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases() );
             

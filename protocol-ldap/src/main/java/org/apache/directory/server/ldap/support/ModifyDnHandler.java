@@ -104,7 +104,7 @@ public class ModifyDnHandler extends AbstractLdapHandler implements MessageHandl
                 }
                 
                 // Inject controls into the context
-                setControls( ctx, req );
+                setRequestControls( ctx, req );
                 
                 String deleteRDN = String.valueOf( req.getDeleteOldRdn() );
                 ctx.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DELETE_RDN, deleteRDN );
@@ -136,6 +136,10 @@ public class ModifyDnHandler extends AbstractLdapHandler implements MessageHandl
                     newDn.add( req.getNewRdn() );
                     ctx.rename( req.getName(), newDn );
                 }
+
+                req.getResultResponse().addAll( ctx.getResponseControls() );
+                result.setResultCode( ResultCodeEnum.SUCCESS );
+                session.write( req.getResultResponse() );
             }
             catch ( ReferralException e )
             {
@@ -152,7 +156,6 @@ public class ModifyDnHandler extends AbstractLdapHandler implements MessageHandl
                 while ( e.skipReferral() );
                 
                 session.write( req.getResultResponse() );
-                return;
             }
             catch ( NamingException e )
             {
@@ -185,11 +188,7 @@ public class ModifyDnHandler extends AbstractLdapHandler implements MessageHandl
                 }
 
                 session.write( req.getResultResponse() );
-                return;
             }
-
-            result.setResultCode( ResultCodeEnum.SUCCESS );
-            session.write( req.getResultResponse() );
         }
     }
 }

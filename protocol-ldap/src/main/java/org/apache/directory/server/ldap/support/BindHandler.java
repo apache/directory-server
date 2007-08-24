@@ -36,7 +36,7 @@ import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -70,7 +70,7 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
     //private static final String STRONG_AUTHENTICATION_LEVEL = "strong";
     
     /** An empty Contol array used to get back the controls if any */
-    private static final Control[] EMPTY_CONTROL = new Control[0];
+    private static final MutableControl[] EMPTY_CONTROL = new MutableControl[0];
 
 
     /**
@@ -158,7 +158,7 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
             }
             else
             {
-                Control[] connCtls = bindRequest.getControls().values().toArray( EMPTY_CONTROL );
+                MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY_CONTROL );
                 ctx = new InitialLdapContext( env, connCtls );
             }
         }
@@ -234,7 +234,7 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
         ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
         
         // Inject controls into the context
-        setControls( newCtx, bindRequest );
+        setRequestControls( newCtx, bindRequest );
         
         // Test that we successfully got one. If not, an error has already been returned.
         if ( ctx != null )
@@ -242,7 +242,7 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
             SessionRegistry.getSingleton().setLdapContext( session, ctx );
             bindResult.setResultCode( ResultCodeEnum.SUCCESS );
             BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
-
+            response.addAll( newCtx.getResponseControls() );
             session.write( response );
             log.debug( "Returned SUCCESS message." );
         }
@@ -275,7 +275,6 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
         {
             log.error( "Bind error : Only LDAP v3 is supported." );
             LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
-
             bindResult.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
             bindResult.setErrorMessage( "Only LDAP v3 is supported." );
             session.write( bindRequest.getResultResponse() );

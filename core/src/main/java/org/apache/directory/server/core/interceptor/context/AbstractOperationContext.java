@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractOperationContext implements OperationContext
 {
+    private static final Control[] EMPTY_CONTROLS = new Control[0];
+
     /** The DN associated with the context */
     private LdapDN dn;
     private Map<String, Control> requestControls = new HashMap<String, Control>(2);
@@ -117,5 +120,37 @@ public abstract class AbstractOperationContext implements OperationContext
     public boolean hasResponseControl( String numericOid )
     {
         return responseControls.containsKey( numericOid );
+    }
+
+
+    public Control[] getResponseControls()
+    {
+        if ( responseControls.isEmpty() )
+        {
+            return EMPTY_CONTROLS;
+        }
+        
+        return responseControls.values().toArray( EMPTY_CONTROLS );
+    }
+
+
+    public boolean hasResponseControls()
+    {
+        return ! responseControls.isEmpty();
+    }
+
+
+    public int getResponseControlCount()
+    {
+        return responseControls.size();
+    }
+
+
+    public void addRequestControls( Control[] requestControls )
+    {
+        for ( Control c : requestControls )
+        {
+            this.requestControls.put( c.getID(), c );
+        }
     }
 }

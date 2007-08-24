@@ -36,6 +36,7 @@ import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
@@ -109,9 +110,7 @@ class SearchResponseIterator implements Iterator
                     SearchResponseEntry respEntry;
                     respEntry = new SearchResponseEntryImpl( req.getMessageId() );
                     respEntry.setAttributes( result.getAttributes() );
-                    
                     respEntry.setObjectName( result.getDn() );
-                    
                     prefetched = respEntry;
                 }
                 else
@@ -176,6 +175,21 @@ class SearchResponseIterator implements Iterator
     public Object next()
     {
         Object next = prefetched;
+        
+        try
+        {
+            if ( prefetched != null )
+            {
+                ( ( Message ) prefetched ).addAll( ctx.getResponseControls() );
+            }
+        }
+        catch ( NamingException e )
+        {
+            NoSuchElementException nsee = new NoSuchElementException();
+            nsee.initCause( e );
+            throw nsee;
+        }
+        
         SearchResult result = null;
 
         // if we're done we got nothing to give back
@@ -188,6 +202,18 @@ class SearchResponseIterator implements Iterator
         if ( respDone != null )
         {
             done = true;
+            
+            try
+            {
+                respDone.addAll( ctx.getResponseControls() );
+            }
+            catch ( NamingException e )
+            {
+                NoSuchElementException nsee = new NoSuchElementException();
+                nsee.initCause( e );
+                throw nsee;
+            }
+                
             return respDone;
         }
 

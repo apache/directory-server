@@ -74,7 +74,7 @@ public class CompareHandler extends AbstractLdapHandler implements MessageHandle
             }
             
             // Inject controls into the context
-            setControls( newCtx, req );
+            setRequestControls( newCtx, req );
 
             if ( newCtx.compare( req.getName(), req.getAttributeId(), req.getAssertionValue() ) )
             {
@@ -84,6 +84,10 @@ public class CompareHandler extends AbstractLdapHandler implements MessageHandle
             {
                 result.setResultCode( ResultCodeEnum.COMPARE_FALSE );
             }
+
+            result.setMatchedDn( req.getName() );
+            req.getResultResponse().addAll( newCtx.getResponseControls() );
+            session.write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
@@ -99,9 +103,7 @@ public class CompareHandler extends AbstractLdapHandler implements MessageHandle
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
             while ( e.skipReferral() );
-            
             session.write( req.getResultResponse() );
-            return;
         }
         catch ( Exception e )
         {
@@ -139,10 +141,6 @@ public class CompareHandler extends AbstractLdapHandler implements MessageHandle
             }
 
             session.write( req.getResultResponse() );
-            return;
         }
-
-        result.setMatchedDn( req.getName() );
-        session.write( req.getResultResponse() );
     }
 }

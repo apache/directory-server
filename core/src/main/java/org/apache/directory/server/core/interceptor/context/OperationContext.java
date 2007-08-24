@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
+import java.util.Iterator;
+
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -75,6 +77,30 @@ public interface OperationContext
     
     
     /**
+     * Gets all the response controls producted during this operation.
+     *
+     * @return an array over all the response controls 
+     */
+    Control[] getResponseControls();
+    
+    
+    /**
+     * Checks if any response controls have been generated for this operation.
+     *
+     * @return true if any response controls have been generated, false otherwise
+     */
+    boolean hasResponseControls();
+    
+    
+    /**
+     * Checks the number of response controls have been generated for this operation.
+     *
+     * @return the number of response controls that have been generated
+     */
+    int getResponseControlCount();
+    
+    
+    /**
      * Adds a request control to this operation.
      *
      * @param requestControl the request control to add to this operation.
@@ -98,4 +124,12 @@ public interface OperationContext
      * @return the control if present
      */
     Control getRequestControl( String numericOid );
+
+
+    /**
+     * Adds many request controls to this operation.
+     *
+     * @param requestControls the request controls to add to this operation.
+     */
+    void addRequestControls( Control[] requestControls );
 }

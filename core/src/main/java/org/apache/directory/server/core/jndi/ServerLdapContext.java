@@ -47,11 +47,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ServerLdapContext extends ServerDirContext implements LdapContext
 {
-    private static final Control[] EMPTY_CONTROLS = new Control[0];
-    private Control[] requestControls = EMPTY_CONTROLS;
-    private Control[] responseControls = EMPTY_CONTROLS;
-    private Control[] connectControls = EMPTY_CONTROLS;
-
     /** A reference to the RTeferralService interceptor */
     private transient ReferralService refService = null; 
     
@@ -173,7 +168,17 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public boolean compare( LdapDN name, String oid, Object value ) throws NamingException
     {
-        return super.getNexusProxy().compare( new CompareOperationContext( name, oid, value ) );
+        // make sure we add the request controls to operation
+        CompareOperationContext opCtx = new CompareOperationContext( name, oid, value );
+        opCtx.addRequestControls( requestControls );
+
+        // execute operation
+        boolean result = super.getNexusProxy().compare( opCtx );
+        
+        // extract the response controls from the operation and return
+        responseControls = getResponseControls();
+        requestControls = EMPTY_CONTROLS;
+        return result;
     }
 
 
@@ -187,18 +192,24 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      */
     public void ldapUnbind() throws NamingException
     {
-        Object dn = getEnvironment().get( Context.SECURITY_PRINCIPAL );
+        LdapDN principalDn = null;
+        Object principalDnValue = getEnvironment().get( Context.SECURITY_PRINCIPAL );
         
-        if ( dn instanceof LdapDN )
+        if ( principalDnValue instanceof LdapDN )
         {
-            super.getNexusProxy().unbind( new UnbindOperationContext( ( LdapDN ) dn ) );
+            principalDn = ( LdapDN ) principalDnValue;
         }
         else
         {
-            String bindDn = ( String ) dn;
-            
-            super.getNexusProxy().unbind( new UnbindOperationContext( new LdapDN( bindDn ) ) );
+            String bindDn = ( String ) principalDnValue;
+            principalDn = new LdapDN( bindDn );
         }
+
+        UnbindOperationContext opCtx = new UnbindOperationContext( principalDn );
+        opCtx.addRequestControls( requestControls );
+        super.getNexusProxy().unbind( opCtx );
+        responseControls = opCtx.getResponseControls();
+        requestControls = EMPTY_CONTROLS;
     }
 
 

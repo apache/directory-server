@@ -19,13 +19,15 @@
  */
 package org.apache.directory.server.ldap.support;
 
+
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.mina.handler.demux.MessageHandler;
+
 
 /**
  * An abstract class to handle common methods used by all the handlers
@@ -41,9 +43,9 @@ public abstract class AbstractLdapHandler implements MessageHandler
 	 * @param context The context in which we will store teh found controls
 	 * @param message The message for which we want to extract the controls
 	 */
-	protected void setControls( LdapContext context, Message message ) throws NamingException
+	protected void setRequestControls( LdapContext context, Message message ) throws NamingException
 	{
-		Control[] controls = null;
+		MutableControl[] controls = null;
 		
 		if ( message.getControls() != null )
 		{
@@ -51,7 +53,7 @@ public abstract class AbstractLdapHandler implements MessageHandler
 			
 			if ( nbControls != 0 )
 			{
-				controls = new Control[ nbControls ];
+				controls = new MutableControl[ nbControls ];
 				context.setRequestControls( message.getControls().values().toArray( controls ) );
 			}
 		}

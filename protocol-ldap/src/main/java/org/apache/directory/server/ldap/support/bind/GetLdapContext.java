@@ -31,7 +31,7 @@ import javax.naming.spi.InitialContextFactory;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -51,7 +51,7 @@ public class GetLdapContext implements IoHandlerCommand
 {
     private static final Logger log = LoggerFactory.getLogger( GetLdapContext.class );
 
-    private static final Control[] EMPTY = new Control[0];
+    private static final MutableControl[] EMPTY = new MutableControl[0];
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
@@ -78,12 +78,15 @@ public class GetLdapContext implements IoHandlerCommand
             }
             else
             {
-                Control[] connCtls = request.getControls().values().toArray( EMPTY );
+                MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
                 ctx = new InitialLdapContext( env, connCtls );
             }
 
             SessionRegistry.getSingleton().setLdapContext( session, ctx );
-
+            
+            // add the bind response controls 
+            request.getResultResponse().addAll( ctx.getResponseControls() );
+            
             next.execute( session, message );
         }
         catch ( NamingException e )

@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.message.BindRequestImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.CompareRequestImpl;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
 import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
 import org.apache.directory.shared.ldap.message.EntryChangeControl;
@@ -413,7 +413,7 @@ public class LdapProtocolProvider
                 Iterator controls = req.getControls().values().iterator();
                 while ( controls.hasNext() )
                 {
-                    Control control = ( Control ) controls.next();
+                    MutableControl control = ( MutableControl ) controls.next();
                     if ( control.isCritical() && !SUPPORTED_CONTROLS.contains( control.getID() ) )
                     {
                         ResultResponse resp = req.getResultResponse();

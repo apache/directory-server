@@ -71,9 +71,12 @@ public class DeleteHandler extends AbstractLdapHandler implements MessageHandler
             }
             
             // Inject controls into the context
-            setControls( ctx, req );
+            setRequestControls( ctx, req );
 
             ctx.destroySubcontext( req.getName() );
+            result.setResultCode( ResultCodeEnum.SUCCESS );
+            req.getResultResponse().addAll( ctx.getResponseControls() );
+            session.write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
@@ -89,7 +92,6 @@ public class DeleteHandler extends AbstractLdapHandler implements MessageHandler
             }
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
-            return;
         }
         catch ( NamingException e )
         {
@@ -120,10 +122,6 @@ public class DeleteHandler extends AbstractLdapHandler implements MessageHandler
             }
 
             session.write( req.getResultResponse() );
-            return;
         }
-
-        result.setResultCode( ResultCodeEnum.SUCCESS );
-        session.write( req.getResultResponse() );
     }
 }

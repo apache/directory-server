@@ -36,7 +36,7 @@ import javax.security.sasl.RealmCallback;
 
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -58,7 +58,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 {
     private static final Logger log = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
-    private static final Control[] EMPTY = new Control[0];
+    private static final MutableControl[] EMPTY = new MutableControl[0];
 
     private String username;
     private String realm;
@@ -211,7 +211,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             }
             else
             {
-                Control[] connCtls = request.getControls().values().toArray( EMPTY );
+                MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
                 ctx = new InitialLdapContext( env, connCtls );
             }
         }

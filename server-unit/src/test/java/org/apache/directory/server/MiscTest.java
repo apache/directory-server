@@ -30,7 +30,7 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.Control;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
@@ -371,7 +371,7 @@ public class MiscTest extends AbstractServerTest
 
     public void testFailureWithUnsupportedControl() throws Exception
     {
-        Control unsupported = new Control()
+        MutableControl unsupported = new MutableControl()
         {
             boolean isCritical = true;
             private static final long serialVersionUID = 1L;
@@ -383,7 +383,7 @@ public class MiscTest extends AbstractServerTest
             }
 
 
-            public void setType( String oid )
+            public void setID( String oid )
             {
             }
 
@@ -441,7 +441,7 @@ public class MiscTest extends AbstractServerTest
         user.put( oc );
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
-        ctx.setRequestControls( new Control[]
+        ctx.setRequestControls( new MutableControl[]
             { unsupported } );
 
         try

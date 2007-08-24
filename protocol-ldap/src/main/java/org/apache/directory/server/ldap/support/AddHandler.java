@@ -34,8 +34,10 @@ import org.apache.directory.shared.ldap.message.ReferralImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
+
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +79,11 @@ public class AddHandler extends AbstractLdapHandler implements MessageHandler
             }
             
             // Inject controls into the context
-            setControls( ctx, req );
-
+            setRequestControls( ctx, req );
             ctx.createSubcontext( req.getEntry(), req.getAttributes() );
+            result.setResultCode( ResultCodeEnum.SUCCESS );
+            req.getResultResponse().addAll( ctx.getResponseControls() );
+            session.write( req.getResultResponse() );
         }
         catch ( ReferralException e )
         {
@@ -95,7 +99,6 @@ public class AddHandler extends AbstractLdapHandler implements MessageHandler
             }
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
-            return;
         }
         catch ( NamingException e )
         {
@@ -128,10 +131,6 @@ public class AddHandler extends AbstractLdapHandler implements MessageHandler
             }
 
             session.write( req.getResultResponse() );
-            return;
         }
-
-        result.setResultCode( ResultCodeEnum.SUCCESS );
-        session.write( req.getResultResponse() );
     }
 }
