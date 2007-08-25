@@ -5,18 +5,18 @@ ou: test
 
 dn: uid=test1,ou=test,ou=system
 objectClass: top
-objectClass: extensibleObject
+objectClass: account
 uid: test1
-cn: test1
+ou: test1
 
 dn: uid=test2,ou=test,ou=system
 objectClass: top
-objectClass: extensibleObject
+objectClass: account
 uid: test2
-cn: test2
+ou: test2
 
-dn: uid=testNoCN,ou=test,ou=system
+dn: uid=testNoOU,ou=test,ou=system
 objectClass: top
-objectClass: extensibleObject
-uid: testNoCN
+objectClass: account
+uid: testNoOU
 
