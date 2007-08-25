@@ -133,12 +133,14 @@ public class ReferralService extends BaseInterceptor
         {
             return false;
         }
+        
         for ( int ii = 0; ii < attr.size(); ii++ )
         {
             if ( !( attr.get( ii ) instanceof String ) )
             {
                 continue;
             }
+            
             if ( value.equalsIgnoreCase( ( String ) attr.get( ii ) ) )
             {
                 return true;
@@ -151,11 +153,13 @@ public class ReferralService extends BaseInterceptor
     static boolean isReferral( Attributes entry ) throws NamingException
     {
         Attribute oc = entry.get( SchemaConstants.OBJECT_CLASS_AT );
+        
         if ( oc == null )
         {
             log.warn( "could not find objectClass attribute in entry: " + entry );
             return false;
         }
+        
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
             if ( SchemaConstants.REFERRAL_OC.equalsIgnoreCase( ( String ) oc.get( ii ) ) )
@@ -219,7 +223,7 @@ public class ReferralService extends BaseInterceptor
             if ( urlDn.equals( farthest ) )
             {
                 // according to the protocol there is no need for the dn since it is the same as this request
-                StringBuffer buf = new StringBuffer();
+            	StringBuilder buf = new StringBuilder();
                 buf.append( ldapUrl.getScheme() );
                 buf.append( ldapUrl.getHost() );
             
@@ -247,7 +251,8 @@ public class ReferralService extends BaseInterceptor
             }
 
             urlDn.addAll( extra );
-            StringBuffer buf = new StringBuffer();
+            
+            StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
             buf.append( ldapUrl.getHost() );
             
@@ -336,6 +341,7 @@ public class ReferralService extends BaseInterceptor
         if ( refval.equals( THROW ) )
         {
             LdapDN farthest = lut.getFarthestReferralAncestor( name );
+            
             if ( farthest == null )
             {
                 return next.compare( opContext );
@@ -454,6 +460,7 @@ public class ReferralService extends BaseInterceptor
         {
             LdapDN farthestSrc = lut.getFarthestReferralAncestor( oldName );
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName ); // note will not return newName so safe
+            
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
                 next.move( opContext );
@@ -525,6 +532,7 @@ public class ReferralService extends BaseInterceptor
         {
             LdapDN farthestSrc = lut.getFarthestReferralAncestor( oldName );
             LdapDN farthestDst = lut.getFarthestReferralAncestor( newName ); // safe to use - does not return newName
+            
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
                 next.moveAndRename( opContext );
@@ -673,6 +681,7 @@ public class ReferralService extends BaseInterceptor
                             lut.referralAdded( name );
                         }
                         break;
+                        
                     /* 
                      * if REMOVE op where refferal is removed from objectClass of a
                      * referral entry then we remove the referral from lut
@@ -683,6 +692,7 @@ public class ReferralService extends BaseInterceptor
                             lut.referralDeleted( name );
                         }
                         break;
+                        
                     /* 
                      * if REPLACE op on referral has new set of OC values which does 
                      * not contain a referral value then we remove the referral from 
@@ -701,6 +711,7 @@ public class ReferralService extends BaseInterceptor
                             lut.referralAdded( name );
                         }
                         break;
+                        
                     default:
                         throw new IllegalStateException( "undefined modification operation" );
                 }
@@ -730,6 +741,7 @@ public class ReferralService extends BaseInterceptor
         if ( refval.equals( THROW ) )
         {
             LdapDN farthest = lut.getFarthestReferralAncestor( name );
+            
             if ( farthest == null )
             {
                 next.modify( opContext );
@@ -943,6 +955,7 @@ public class ReferralService extends BaseInterceptor
     {
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
+        
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );
@@ -965,14 +978,16 @@ public class ReferralService extends BaseInterceptor
                 log.error( "Bad URL (" + val + ") for ref in " + base + ".  Reference will be ignored." );
             }
 
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
             buf.append( ldapUrl.getHost() );
+            
             if ( ldapUrl.getPort() > 0 )
             {
                 buf.append( ":" );
                 buf.append( ldapUrl.getPort() );
             }
+            
             buf.append( "/" );
             buf.append( LdapURL.urlEncode( ldapUrl.getDn().getUpName(), false ) );
             buf.append( "??" );
@@ -982,18 +997,22 @@ public class ReferralService extends BaseInterceptor
                 case ( SearchControls.SUBTREE_SCOPE  ):
                     buf.append( "sub" );
                     break;
+                    
                 case ( SearchControls.ONELEVEL_SCOPE  ):
                     buf.append( "one" );
                     break;
+                    
                 case ( SearchControls.OBJECT_SCOPE  ):
                     buf.append( "base" );
                     break;
+                    
                 default:
                     throw new IllegalStateException( "Unknown recognized search scope: " + scope );
             }
 
             list.add( buf.toString() );
         }
+        
         LdapReferralException lre = new LdapReferralException( list );
         throw lre;
     }
@@ -1004,6 +1023,7 @@ public class ReferralService extends BaseInterceptor
     {
         // handle referral here
         List<String> list = new ArrayList<String>( refs.size() );
+        
         for ( int ii = 0; ii < refs.size(); ii++ )
         {
             String val = ( String ) refs.get( ii );
@@ -1017,6 +1037,7 @@ public class ReferralService extends BaseInterceptor
 
             // parse the ref value and normalize the DN according to schema 
             LdapURL ldapUrl = new LdapURL();
+            
             try
             {
                 ldapUrl.parse( val.toCharArray() );
@@ -1030,20 +1051,24 @@ public class ReferralService extends BaseInterceptor
             urlDn.normalize( attrRegistry.getNormalizerMapping() );
             int diff = targetUpdn.size() - farthest.size();
             LdapDN extra = new LdapDN();
+            
             for ( int jj = 0; jj < diff; jj++ )
             {
                 extra.add( targetUpdn.get( farthest.size() + jj ) );
             }
 
             urlDn.addAll( extra );
-            StringBuffer buf = new StringBuffer();
+            
+            StringBuilder buf = new StringBuilder();
             buf.append( ldapUrl.getScheme() );
             buf.append( ldapUrl.getHost() );
+            
             if ( ldapUrl.getPort() > 0 )
             {
                 buf.append( ":" );
                 buf.append( ldapUrl.getPort() );
             }
+            
             buf.append( "/" );
             buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             buf.append( "??" );
@@ -1053,17 +1078,22 @@ public class ReferralService extends BaseInterceptor
                 case ( SearchControls.SUBTREE_SCOPE  ):
                     buf.append( "sub" );
                     break;
+                    
                 case ( SearchControls.ONELEVEL_SCOPE  ):
                     buf.append( "one" );
                     break;
+                    
                 case ( SearchControls.OBJECT_SCOPE  ):
                     buf.append( "base" );
                     break;
+                    
                 default:
                     throw new IllegalStateException( "Unknown recognized search scope: " + scope );
             }
+            
             list.add( buf.toString() );
         }
+        
         LdapReferralException lre = new LdapReferralException( list );
         throw lre;
     }
