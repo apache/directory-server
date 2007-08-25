@@ -34,6 +34,7 @@ import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.Message;
@@ -102,7 +103,7 @@ class SearchResponseIterator implements Iterator
                  * Now we have to build the prefetched object from the 'result'
                  * local variable for the following call to next()
                  */
-                Attribute ref = result.getAttributes().get( "ref" );
+                Attribute ref = result.getAttributes().get( SchemaConstants.REF_AT );
                 
                 if ( !ctx.isReferral( result.getDn() )
                     || req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
@@ -267,7 +268,7 @@ class SearchResponseIterator implements Iterator
          * Now we have to build the prefetched object from the 'result'
          * local variable for the following call to next()
          */
-        Attribute ref = result.getAttributes().get( "ref" );
+        Attribute ref = result.getAttributes().get( SchemaConstants.REF_AT );
         boolean isReferral = false;
 
         try
@@ -286,7 +287,7 @@ class SearchResponseIterator implements Iterator
             try
             {
                 ref = ctx.getAttributes( result.getName(), new String[]
-                    { "ref" } ).get( "ref" );
+                    { SchemaConstants.REF_AT } ).get( SchemaConstants.REF_AT );
             }
             catch ( NamingException e )
             {
