@@ -785,7 +785,7 @@ public class SchemaService extends BaseInterceptor
             minSetSize++;
         }
         
-        if ( setOids.contains( "ref" ) )
+        if ( setOids.contains( SchemaConstants.REF_AT ) )
         {
             minSetSize++;
         }
