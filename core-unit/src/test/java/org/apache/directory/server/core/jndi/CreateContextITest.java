@@ -253,7 +253,7 @@ public class CreateContextITest extends AbstractAdminTestCase
         Attributes attrs = new AttributesImpl( true );
         Attribute objclass = new AttributeImpl( "objectClass" );
         objclass.add( "top" );
-        objclass.add( "extensibleObject" );
+        objclass.add( "organizationalUnit" );
         attrs.put( objclass );
 
         Name relativeName = new CompositeName( "ou=services" );

@@ -26,6 +26,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -46,10 +47,16 @@ public class BinaryAttributeFilterITest extends AbstractAdminTestCase
     public void testBinaryExtension() throws NamingException
     {
         Attributes attributes = new AttributesImpl( true );
-        attributes.put( "objectClass", "top" );
-        attributes.put( "objectClass", "organizationalUnit" );
-        attributes.put( "objectClass", "extensibleObject" );
-        attributes.put( "ou", "testing" );
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "person" );
+        oc.add( "organizationalPerson" );
+        oc.add( "inetOrgPerson" );
+        attributes.put( oc );
+        
+        attributes.put( "ou", "test" );
+        attributes.put( "cn", "test" );
+        attributes.put( "sn", "test" );
+
         sysRoot.createSubcontext( "ou=test", attributes );
 
         // test without turning on the property

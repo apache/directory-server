@@ -94,6 +94,11 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
         Attributes classLoaderDefaultSearchContextConfig = new AttributesImpl();
         Attribute objectClass = new AttributeImpl( "objectClass" );
         objectClass.add( "top" );
+        objectClass.add( "javaContainer" );
+        
+        // We need to ad this extensibleObject OC in order to avoid an error
+        // with the classLoaderDefaultSearchContext AT used later (no OC contains
+        // this AT)
         objectClass.add( "extensibleObject" );
 
         // create custom config entry
