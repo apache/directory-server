@@ -35,7 +35,6 @@ import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.DateUtils;
@@ -78,21 +77,22 @@ public class DIRSERVER951ITest extends AbstractServerTest
         indexedAttrs.add( Oid.ONEALIAS );
         indexedAttrs.add( Oid.SUBALIAS );
         indexedAttrs.add( Oid.UPDN );
-        indexedAttrs.add( SchemaConstants.OBJECT_CLASS_AT );
-        indexedAttrs.add( SchemaConstants.CN_AT );
+        indexedAttrs.add( "objectClass" );
+        indexedAttrs.add( "ou" );
         systemCfg.setIndexedAttributes( indexedAttrs );
 
         // Add context entry for system partition
         Attributes systemEntry = new AttributesImpl();
-        Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-        objectClassAttr.add( SchemaConstants.TOP_OC );
-        objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-        objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        Attribute objectClassAttr = new AttributeImpl( "objectClass" );
+        objectClassAttr.add( "top" );
+        objectClassAttr.add( "account" );
+        //objectClassAttr.add( "extensibleObject" );
         systemEntry.put( objectClassAttr );
-        systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
-        systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-        systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-            NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
+        systemEntry.put( "creatorsName", "uid=admin,ou=system" );
+        systemEntry.put( "createTimestamp", DateUtils.getGeneralizedTime() );
+        systemEntry.put( NamespaceTools.getRdnAttribute( "ou=system" ),
+            NamespaceTools.getRdnValue( "ou=system" ) );
+        systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
         
         configuration.setSystemPartitionConfiguration( systemCfg );
@@ -116,16 +116,16 @@ public class DIRSERVER951ITest extends AbstractServerTest
     
 
     /**
-     * Tests to make sure a negated search for CN of "test1" returns
-     * those entries that do not have the CN attribute or do not have
-     * a "test1" value for CN if the attribute exists.
+     * Tests to make sure a negated search for OU of "test1" returns
+     * those entries that do not have the OU attribute or do not have
+     * a "test1" value for OU if the attribute exists.
      */
-    public void testSearchNotCN() throws Exception
+    public void testSearchNotOU() throws Exception
     {
-        Set<SearchResult> results = getResults( "(!(cn=test1))" );
+        Set<SearchResult> results = getResults( "(!(ou=test1))" );
         assertFalse( contains( "uid=test1,ou=test,ou=system", results ) );
         assertTrue( contains( "uid=test2,ou=test,ou=system", results ) );
-        assertTrue( contains( "uid=testNoCN,ou=test,ou=system", results ) );
+        assertTrue( contains( "uid=testNoOU,ou=test,ou=system", results ) );
     }
 
     
