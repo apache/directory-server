@@ -747,4 +747,25 @@ public class TestSchemaToLdif extends TestCase
 
         assertEquals( expected, transform( "testATUsageDsaOp" ) );
     }
+
+    public void testConvertMozillaATWithOidLen() throws ParserException, IOException
+    {
+        String expected =
+            HEADER + 
+            "dn: m-oid=1.3.6.1.4.1.13769.3.2, ou=attributeTypes, cn=testMozillaATWithOidLen, \n" +
+            " ou=schema\n" +
+            "objectclass: metaAttributeType\n" +
+            "objectclass: metaTop\n" +
+            "objectclass: top\n" +
+            "m-oid: 1.3.6.1.4.1.13769.3.2\n" +
+            "m-name: mozillaHomeStreet2\n" +
+            "m-equality: caseIgnoreMatch\n" +
+            "m-substr: caseIgnoreSubstringsMatch\n" +
+            "m-syntax: 1.3.6.1.4.1.1466.115.121.1.15\n" +
+            "m-length: 128\n" +
+            "m-singleValue: TRUE\n\n";
+
+        assertEquals( expected, transform( "testMozillaATWithOidLen" ) );
+    }
+
 }
