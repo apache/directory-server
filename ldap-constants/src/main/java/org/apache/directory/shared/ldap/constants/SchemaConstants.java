@@ -98,6 +98,9 @@ public interface SchemaConstants
     String INET_ORG_PERSON_OC = "inetOrgPerson";
     String INET_ORG_PERSON_OC_OID = "2.16.840.1.113730.3.2.2";
     
+    // Referral
+    String REFERRAL_OC = "referral";
+    String REFERRAL_OC_OID = "2.16.840.1.113730.3.2.6";
 
     // ExtensibleObject
     String EXTENSIBLE_OBJECT_OC = "extensibleObject";
