@@ -252,6 +252,10 @@ public interface SchemaConstants
     String SYNTAX_CHECKERS_AT = "syntaxCheckers";
     String SYNTAX_CHECKERS_AT_OID = "1.3.6.1.4.1.18060.0.4.1.2.34";
 
+    // Ref
+    String REF_AT = "ref";
+    String REF_AT_OID = "2.16.840.1.113730.3.1.34";
+    	
     // DisplayName
     String DISPLAY_NAME_AT = "displayName";
     String DISPLAY_NAME_AT_OID = "2.16.840.1.113730.3.1.241";
