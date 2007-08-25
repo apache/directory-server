@@ -52,7 +52,9 @@ public class DIRSERVER1013ITest extends AbstractReplicationServiceTestCase
         
         Attributes entry = new AttributesImpl( true );
         entry.put( "cn", "test" );
-        entry.put( "objectClass", "top" ).add( "extensibleObject" );
+        
+        // We add the 'room' OC to have at least a STRUCTURAL OC
+        entry.put( "objectClass", "top" ).add( "room" );
         ctxA.bind( "cn=test,ou=system", null, entry );
         
         Attributes attributes = ctxA.getAttributes( "cn=test,ou=system" );

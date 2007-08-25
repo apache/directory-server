@@ -75,8 +75,16 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 
         Attributes entryA = new AttributesImpl( true );
         entryA.put( "cn", "test" );
+        entryA.put( "sn", "test" );
         entryA.put( "ou", "A" );
-        entryA.put( "objectClass", "top" ).add( "extensibleObject" );
+        
+        Attribute oc = new AttributeImpl( "objectClass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "organizationalPerson" );
+
+        entryA.put( oc );
+        
         ctxA.bind( "cn=test,ou=system", null, entryA );
         
         // Ensure the second bind is undebatebly the second.
@@ -84,8 +92,9 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
 
         Attributes entryB = new AttributesImpl( true );
         entryB.put( "cn", "test" );
+        entryB.put( "sn", "test" );
         entryB.put( "ou", "B" );
-        entryB.put( "objectClass", "top" ).add( "extensibleObject" );
+        entryB.put( oc );
         ctxB.bind( "cn=test,ou=system", null, entryB );
 
         // Let both replicas replicate.  Note that a replica can only receive
@@ -111,7 +120,15 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
         
         Attributes entry = new AttributesImpl( true );
         entry.put( "cn", "test" );
-        entry.put( "objectClass", "top" ).add( "extensibleObject" );
+        entry.put( "sn", "test" );
+        
+        Attribute oc = new AttributeImpl( "objectClass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "organizationalPerson" );
+        
+        entry.put( oc );
+        
         ctxA.bind( dn, null, entry );
 
         replicationServices.get( "A" ).replicate();
