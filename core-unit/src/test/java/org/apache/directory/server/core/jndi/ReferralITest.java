@@ -1006,4 +1006,190 @@ public class ReferralITest extends AbstractAdminTestCase
 
         assertNull( results.get( "ou=users" ) );
     }
+
+    /**
+     * Checks that when injecting LDAP ref with an empty DN we get an exception
+     */
+    public void testAddWReferralWithEmptyDN() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "refWithEmptyDN" );
+
+        String base = "cn=refWithEmptyDN";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Checks that when injecting LDAP ref with attribuutes we get an exception
+     */
+    public void testAddWReferralWithAttrs() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithAttributes?cn" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "RefWithAttributes" );
+
+        String base = "cn=RefWithAttributes";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Checks that when injecting LDAP ref with a scope we get an exception
+     */
+    public void testAddWReferralWithScope() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithScope??sub" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "RefWithScope" );
+
+        String base = "cn=RefWithScope";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Checks that when injecting LDAP ref with a filter we get an exception
+     */
+    public void testAddWReferralWithFilters() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithFilter???(cn=*)" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "RefWithFilter" );
+
+        String base = "cn=RefWithFilter";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Checks that when injecting LDAP ref with an extension we get an exception
+     */
+    public void testAddWReferralWithExtension() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithExtension????x-extension=1.2.3.4" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "RefWithExtension" );
+
+        String base = "cn=RefWithExtension";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
+
+    /**
+     * Checks that when injecting LDAP ref with a critical extension we get an exception
+     */
+    public void testAddWReferralWithCriticalExtension() throws Exception
+    {
+        Attributes attrs = new AttributesImpl( true );
+
+        Attribute oc = new AttributeImpl( "ObjectClass", "top" );
+        oc.add( "extensibleObject" );
+        oc.add( "referral" );
+        attrs.put( oc );
+        
+        Attribute ref = new AttributeImpl( "ref", "ldap://localhost/cn=RefWithCriticalExtension????!x-extension=1.2.3.4" );
+        attrs.put( ref );
+
+        attrs.put( "cn", "RefWithCriticalExtension" );
+
+        String base = "cn=RefWithCriticalExtension";
+
+        //create subcontext
+        try
+        {
+            sysRoot.createSubcontext( base, attrs );
+            fail( "Should not reach this state" );
+        }
+        catch ( NamingException ne )
+        {
+            assertTrue( true );
+        }
+    }
 }
