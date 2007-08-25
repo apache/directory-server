@@ -54,7 +54,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -1873,7 +1872,6 @@ public class SchemaService extends BaseInterceptor
     private void assertObjectClasses( List<ObjectClass> ocs )  throws LdapSchemaViolationException
     {
     	boolean hasStructural = false;
-    	boolean hasExtensibleObject = false;
     	
     	// Loop on all the entry objectClasses 
     	for ( ObjectClass oc:ocs )
@@ -1892,17 +1890,10 @@ public class SchemaService extends BaseInterceptor
     				hasStructural = true;
     			}
     		}
-    		
-    		if ( oc.getOid().equals( SchemaConstants.EXTENSIBLE_OBJECT_OC_OID ) )
-    		{
-    			hasExtensibleObject = true;
-    		}
     	}
     	
     	// Throw an error if no STRUCTURAL objectClass is found.
-    	// Right now, if the extensibleObject OC is present, we relax
-    	// the previous constraint to avoid failing tests.
-    	if ( !hasStructural && !hasExtensibleObject )
+    	if ( !hasStructural )
     	{
     		String message = "An entry must have at least one STRUCTURAL ObjectClass";
     		log.error( message );
