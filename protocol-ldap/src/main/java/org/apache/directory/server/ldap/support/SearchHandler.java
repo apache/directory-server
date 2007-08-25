@@ -165,9 +165,9 @@ public class SearchHandler extends AbstractLdapHandler implements MessageHandler
         SessionRegistry.getSingleton().addOutstandingRequest( session, req );
 
         // check the attributes to see if a referral's ref attribute is included
-        if ( retAttrs.size() > 0 && !retAttrs.contains( "ref" ) )
+        if ( retAttrs.size() > 0 && !retAttrs.contains( SchemaConstants.REF_AT ) )
         {
-            retAttrs.add( "ref" );
+            retAttrs.add( SchemaConstants.REF_AT );
             ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
         else if ( retAttrs.size() > 0 )
