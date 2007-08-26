@@ -34,8 +34,8 @@ import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -54,14 +54,11 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MetaNormalizerHandler implements SchemaChangeHandler
+public class MetaNormalizerHandler extends AbstractSchemaChangeHandler
 {
-    private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
-    private final Registries targetRegistries;
     private final NormalizerRegistry normalizerRegistry;
     private final MatchingRuleRegistry matchingRuleRegistry;
-    private final AttributeType oidAT;
     private final AttributeType byteCodeAT;
     private final AttributeType descAT;
     private final AttributeType fqcnAT;
@@ -69,33 +66,16 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
 
     public MetaNormalizerHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
     {
-        this.targetRegistries = targetRegistries;
-        this.loader = loader;
+        super( targetRegistries, loader );
         this.normalizerRegistry = targetRegistries.getNormalizerRegistry();
         this.matchingRuleRegistry = targetRegistries.getMatchingRuleRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
-        this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
         this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
         this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
         this.fqcnAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
 
 
-    private Schema getSchema( LdapDN name ) throws NamingException
-    {
-        return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
-    }
-    
-    
-    private String getOid( Attributes entry ) throws NamingException
-    {
-        Attribute oid = AttributeUtils.getAttribute( entry, oidAT );
-        if ( oid == null )
-        {
-            return null;
-        }
-        return ( String ) oid.get();
-    }
     
     
     private NormalizerDescription getNormalizerDescription( String schemaName, Attributes entry ) throws NamingException
@@ -124,33 +104,19 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     }
     
     
-    private void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
     {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Normalizer normalizer = factory.getNormalizer( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
-            normalizerRegistry.unregister( oldOid );
+            normalizerRegistry.unregister( oid );
             NormalizerDescription normalizerDescription = getNormalizerDescription( schema.getSchemaName(), 
                 targetEntry );
             normalizerRegistry.register( normalizerDescription, normalizer );
         }
-    }
-
-
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, 
-        Attributes targetEntry, boolean cascade ) throws NamingException
-    {
-        modify( name, entry, targetEntry, cascade );
-    }
-
-
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, 
-        boolean cascade ) throws NamingException
-    {
-        modify( name, entry, targetEntry, cascade );
     }
 
 
@@ -159,6 +125,7 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
+        checkOidIsUniqueForNormalizer( entry );
         
         Normalizer normalizer = factory.getNormalizer( entry, targetRegistries );
         Schema schema = getSchema( name );
@@ -226,6 +193,8 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         }
 
         String oid = NamespaceTools.getRdnValue( newRdn );
+        checkOidIsUniqueForNormalizer( oid );
+        
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
@@ -255,7 +224,8 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
         }
 
         String oid = NamespaceTools.getRdnValue( newRn );
-
+        checkOidIsUniqueForNormalizer( oid );
+        
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
@@ -307,6 +277,28 @@ public class MetaNormalizerHandler implements SchemaChangeHandler
     }
 
     
+    private void checkOidIsUniqueForNormalizer( String oid ) throws NamingException
+    {
+        if ( super.targetRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+
+    private void checkOidIsUniqueForNormalizer( Attributes entry ) throws NamingException
+    {
+        String oid = getOid( entry );
+        
+        if ( super.targetRegistries.getNormalizerRegistry().hasNormalizer( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema normalizer is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+
     private void checkNewParent( LdapDN newParent ) throws NamingException
     {
         if ( newParent.size() != 3 )

@@ -68,13 +68,13 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) 
         throws NamingException
     {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Schema schema = getSchema( name );
         AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            attributeTypeRegistry.unregister( oldOid );
+            attributeTypeRegistry.unregister( oid );
             attributeTypeRegistry.register( at );
         }
     }
@@ -99,6 +99,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
+        checkOidIsUnique( entry );
         
         Schema schema = getSchema( name );
         AttributeType at = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
@@ -151,6 +152,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
+        checkOidIsUnique( newOid );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, schema.getSchemaName() );
 
@@ -188,6 +190,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        checkOidIsUnique( newOid );
         AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
         if ( ! oldSchema.isDisabled() )

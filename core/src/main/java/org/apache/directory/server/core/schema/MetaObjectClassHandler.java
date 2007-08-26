@@ -29,21 +29,15 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
-import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeUsageSyntaxChecker;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
@@ -58,8 +52,6 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 {
     private final SchemaPartitionDao dao;
     private final ObjectClassRegistry objectClassRegistry;
-    private final OidRegistry oidRegistry;
-    private final AttributeType m_oidAT;
 
 
     public MetaObjectClassHandler( Registries targetRegistries, PartitionSchemaLoader loader, SchemaPartitionDao dao ) 
@@ -69,21 +61,19 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         
         this.dao = dao;
         this.objectClassRegistry = targetRegistries.getObjectClassRegistry();
-        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT_OID );
-        this.oidRegistry = targetRegistries.getOidRegistry();
     }
 
 
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
         boolean cascade ) throws NamingException
     {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Schema schema = getSchema( name );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
         {
-            objectClassRegistry.unregister( oldOid );
+            objectClassRegistry.unregister( oid );
             objectClassRegistry.register( oc );
         }
     }
@@ -94,13 +84,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
-        String oid = ( String ) AttributeUtils.getAttribute( entry, m_oidAT ).get();
-        
-        if ( oidRegistry.hasOid( oid ) )
-        {
-            throw new LdapNamingException( "Oid " + oid + " for new objectClass is not unique.", 
-                ResultCodeEnum.OTHER );
-        }
+        checkOidIsUnique( entry );
         
         String schemaName = getSchemaName( name );
         ObjectClass oc = factory.getObjectClass( entry, targetRegistries, schemaName );
@@ -156,6 +140,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
+        checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
 
         if ( ! schema.isDisabled() )
@@ -191,6 +176,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
+        checkOidIsUnique( newOid );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, newSchema.getSchemaName() );
 

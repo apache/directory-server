@@ -31,7 +31,9 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
@@ -58,6 +60,40 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
         this.loader = loader;
         this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
         this.factory = new SchemaEntityFactory( targetRegistries );
+    }
+    
+    
+    protected void checkOidIsUnique( Attributes entry ) throws NamingException
+    {
+        String oid = getOid( entry );
+        
+        if ( targetRegistries.getOidRegistry().hasOid( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+    
+    protected void checkOidIsUnique( SchemaObject schemaObject ) throws NamingException
+    {
+        String oid = schemaObject.getOid();
+        
+        if ( targetRegistries.getOidRegistry().hasOid( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+    
+    
+    protected void checkOidIsUnique( String oid ) throws NamingException
+    {
+        if ( targetRegistries.getOidRegistry().hasOid( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
     }
     
     

@@ -35,8 +35,8 @@ import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -54,14 +54,11 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MetaComparatorHandler implements SchemaChangeHandler
+public class MetaComparatorHandler extends AbstractSchemaChangeHandler
 {
-    private final PartitionSchemaLoader loader;
     private final SchemaEntityFactory factory;
-    private final Registries targetRegistries;
     private final ComparatorRegistry comparatorRegistry;
     private final MatchingRuleRegistry matchingRuleRegistry;
-    private final AttributeType oidAT;
     private final AttributeType byteCodeAT;
     private final AttributeType descAT;
     private final AttributeType fqcnAT;
@@ -70,44 +67,25 @@ public class MetaComparatorHandler implements SchemaChangeHandler
 
     public MetaComparatorHandler( Registries targetRegistries, PartitionSchemaLoader loader ) throws NamingException
     {
-        this.targetRegistries = targetRegistries;
-        this.loader = loader;
+        super( targetRegistries, loader );
         this.comparatorRegistry = targetRegistries.getComparatorRegistry();
         this.matchingRuleRegistry = targetRegistries.getMatchingRuleRegistry();
         this.factory = new SchemaEntityFactory( targetRegistries );
-        this.oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT );
         this.byteCodeAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_BYTECODE_AT );
         this.descAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_DESCRIPTION_AT );
         this.fqcnAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_FQCN_AT );
     }
 
-
-    private String getOid( Attributes entry ) throws NamingException
+    
+    protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
     {
-        Attribute oid = AttributeUtils.getAttribute( entry, oidAT );
-        if ( oid == null )
-        {
-            return null;
-        }
-        return ( String ) oid.get();
-    }
-    
-    
-    private Schema getSchema( LdapDN name ) throws NamingException
-    {
-        return loader.getSchema( MetaSchemaUtils.getSchemaName( name ) );
-    }
-    
-    
-    private void modify( LdapDN name, Attributes entry, Attributes targetEntry, boolean cascade ) throws NamingException
-    {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Comparator comparator = factory.getComparator( targetEntry, targetRegistries );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
         {
-            comparatorRegistry.unregister( oldOid );
+            comparatorRegistry.unregister( oid );
             ComparatorDescription description = getComparatorDescription( schema.getSchemaName(), targetEntry );
             comparatorRegistry.register( description, comparator );
         }
@@ -140,25 +118,12 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
     
 
-    public void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, 
-        boolean cascade ) throws NamingException
-    {
-        modify( name, entry, targetEntry, cascade );
-    }
-
-
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, 
-        boolean cascade ) throws NamingException
-    {
-        modify( name, entry, targetEntry, cascade );
-    }
-
-
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
+        checkOidIsUniqueForComparator( entry );
         
         Comparator comparator = factory.getComparator( entry, targetRegistries );
         Schema schema = getSchema( name );
@@ -227,6 +192,7 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         }
 
         String oid = NamespaceTools.getRdnValue( newRdn );
+        checkOidIsUniqueForComparator( oid );
         Schema schema = getSchema( name );
         
         if ( ! schema.isDisabled() )
@@ -255,7 +221,8 @@ public class MetaComparatorHandler implements SchemaChangeHandler
         }
 
         String oid = NamespaceTools.getRdnValue( newRn );
-
+        checkOidIsUniqueForComparator( oid );
+        
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         
@@ -307,6 +274,28 @@ public class MetaComparatorHandler implements SchemaChangeHandler
     }
     
     
+    private void checkOidIsUniqueForComparator( String oid ) throws NamingException
+    {
+        if ( super.targetRegistries.getComparatorRegistry().hasComparator( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema comparator is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+
+    private void checkOidIsUniqueForComparator( Attributes entry ) throws NamingException
+    {
+        String oid = getOid( entry );
+        
+        if ( super.targetRegistries.getComparatorRegistry().hasComparator( oid ) )
+        {
+            throw new LdapNamingException( "Oid " + oid + " for new schema comparator is not unique.", 
+                ResultCodeEnum.OTHER );
+        }
+    }
+
+
     private void checkNewParent( LdapDN newParent ) throws NamingException
     {
         if ( newParent.size() != 3 )

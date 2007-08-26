@@ -67,13 +67,13 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
         boolean cascade ) throws NamingException
     {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Schema schema = getSchema( name );
         MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            matchingRuleRegistry.unregister( oldOid );
+            matchingRuleRegistry.unregister( oid );
             matchingRuleRegistry.register( mr );
         }
     }
@@ -84,6 +84,7 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
+        checkOidIsUnique( entry );
         
         String schemaName = getSchemaName( name );
         MatchingRule mr = factory.getMatchingRule( entry, targetRegistries, schemaName );
@@ -136,6 +137,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
 
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
+        checkOidIsUnique( newOid );
+        
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, schema.getSchemaName() );
 
@@ -172,6 +175,8 @@ public class MetaMatchingRuleHandler extends AbstractSchemaChangeHandler
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
+        checkOidIsUnique( newOid );
+        
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         MatchingRule mr = factory.getMatchingRule( targetEntry, targetRegistries, newSchema.getSchemaName() );
 

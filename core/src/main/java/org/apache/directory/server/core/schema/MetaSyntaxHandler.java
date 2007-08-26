@@ -67,13 +67,13 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
         boolean cascade ) throws NamingException
     {
-        String oldOid = getOid( entry );
+        String oid = getOid( entry );
         Schema schema = getSchema( name );
         Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
         if ( ! schema.isDisabled() )
         {
-            syntaxRegistry.unregister( oldOid );
+            syntaxRegistry.unregister( oid );
             syntaxRegistry.register( syntax );
         }
     }
@@ -84,6 +84,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         LdapDN parentDn = ( LdapDN ) name.clone();
         parentDn.remove( parentDn.size() - 1 );
         checkNewParent( parentDn );
+        checkOidIsUnique( entry );
         
         String schemaName = getSchemaName( name );
         Syntax syntax = factory.getSyntax( entry, targetRegistries, schemaName );
@@ -142,6 +143,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRdn );
+        checkOidIsUnique( newOid );
+        
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, schema.getSchemaName() );
         
@@ -181,6 +184,8 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         String newOid = NamespaceTools.getRdnValue( newRn );
+        checkOidIsUnique( newOid );
+        
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         Syntax syntax = factory.getSyntax( targetEntry, targetRegistries, newSchema.getSchemaName() );
 
@@ -208,7 +213,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     {
         checkNewParent( newParentName );
         String oid = getOid( entry );
-
+        
         Set<SearchResult> dependees = dao.listSyntaxDependents( oid );
         if ( dependees != null && dependees.size() > 0 )
         {
