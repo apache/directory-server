@@ -28,12 +28,10 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.codec.actions.ResultCodeAction;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -182,11 +180,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
 
@@ -227,11 +225,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> orgPersons = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=organizationalPerson)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=organizationalPerson)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             orgPersons.put( result.getName(), result.getAttributes() );
         }
 
@@ -265,11 +263,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> inetOrgPersons = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=inetOrgPerson)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=inetOrgPerson)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             inetOrgPersons.put( result.getName(), result.getAttributes() );
         }
 
@@ -295,11 +293,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -328,11 +326,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -389,11 +387,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "nameForms" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -432,11 +430,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -451,11 +449,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=top)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=top)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -498,11 +496,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=subSchema)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=subSchema)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -545,11 +543,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -564,11 +562,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration results = rootDSE.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
+        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             subSchemaEntry.put( result.getName(), result.getAttributes() );
         }
 
@@ -586,11 +584,12 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration results = sysRoot.search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
+        NamingEnumeration<SearchResult> results = 
+            sysRoot.search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
 
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
 
@@ -613,6 +612,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertTrue( seeAlso.contains( "cn=Bad E\u00e9k\u00e0,ou=people,o=sevenSeas" ) );
     }
 
+    
     /**
      * Doing a search with filtering attributes should work even if the attribute
      * is not valid 
@@ -625,11 +625,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "9.9.9" } );
 
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
 
@@ -658,6 +658,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertNull( ocs );
     }
 
+    
     /**
      * Check that if we request a Attribute which is not an AttributeType,
      * we still get a result
@@ -669,11 +670,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "2.5.6.6" } );
 
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
 
@@ -703,6 +704,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertNull( ocs );
     }
 
+    
     /**
      * Check that if we request a Attribute which is an ObjectClass.
      */
@@ -713,11 +715,11 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "person" } );
 
-        NamingEnumeration results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
-            SearchResult result = ( SearchResult ) results.next();
+            SearchResult result = results.next();
             persons.put( result.getName(), result.getAttributes() );
         }
 
