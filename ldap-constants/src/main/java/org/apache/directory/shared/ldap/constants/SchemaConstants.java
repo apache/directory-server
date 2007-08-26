@@ -262,6 +262,10 @@ public interface SchemaConstants
     // DisplayName
     String DISPLAY_NAME_AT = "displayName";
     String DISPLAY_NAME_AT_OID = "2.16.840.1.113730.3.1.241";
+    
+    // m-oid
+    String M_OID_AT = "m-oid";
+    String M_OID_AT_OID = "1.3.6.1.4.1.18060.0.4.0.2.1";
 
     // ---- Syntaxes -----------------------------------------------------
 
