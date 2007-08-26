@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 
 
 /**
@@ -49,6 +52,61 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     }
 
 
+    
+    /**
+     * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-904">DIRSERVER-904</a>.
+     */
+    public void testAddingTwoDifferentEntitiesWithSameOid() throws NamingException
+    {
+        String numberOfGunsAttrLdif = "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=attributeTypes,cn=other,ou=schema\n" +
+            "m-usage: USER_APPLICATIONS\n" +
+            "m-equality: integerOrderingMatch\n" +
+            "objectClass: metaAttributeType\n" +
+            "objectClass: metaTop\n" +
+            "objectClass: top\n" +
+            "m-name: numberOfGuns\n" +
+            "m-oid: 1.3.6.1.4.1.18060.0.4.1.2.999\n" +
+            "m-singleValue: TRUE\n" +
+            "m-description: Number of guns of a ship\n" +
+            "m-collective: FALSE\n" +
+            "m-obsolete: FALSE\n" +
+            "m-noUserModification: FALSE\n" +
+            "m-syntax: 1.3.6.1.4.1.1466.115.121.1.27\n";
+        String shipOCLdif = "dn: m-oid=1.3.6.1.4.1.18060.0.4.1.2.999,ou=objectClasses,cn=other,ou=schema\n" +
+            "objectClass: top\n" +
+            "objectClass: metaTop\n" +
+            "objectClass: metaObjectclass\n" +
+            "m-supObjectClass: top\n" +
+            "m-oid: 1.3.6.1.4.1.18060.0.4.1.2.999\n" +
+            "m-name: ship\n" +
+            "m-must: cn\n" +
+            "m-may: numberOfGuns\n" +
+            "m-may: description\n" +
+            "m-typeObjectClass: STRUCTURAL\n" +
+            "m-obsolete: FALSE\n" +
+            "m-description: A ship\n";
+
+        StringReader in = new StringReader( numberOfGunsAttrLdif + "\n\n" + shipOCLdif );
+        LdifReader ldifReader = new LdifReader( in );
+        Entry numberOfGunsAttrEntry = ldifReader.next();
+        Entry shipOCEntry = ldifReader.next();
+        assertFalse( ldifReader.hasNext() );
+        
+        // should be fine with unique OID
+        rootDSE.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
+         
+        // should blow chuncks using same OID
+        try
+        {
+            rootDSE.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
+            fail( "Should not be possible to create two schema entities with the same OID." );
+        }
+        catch( NamingException e )
+        {
+        }
+    }
+    
+    
     public void testFillInObjectClasses() throws NamingException
     {
         Attribute ocs = sysRoot.getAttributes( "cn=person0" ).get( "objectClass" );
