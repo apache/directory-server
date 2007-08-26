@@ -290,7 +290,7 @@
               </packagedFiles>
 
               <id>win32</id>
-              <nsisCompiler>/usr/local/share/nsis/makensis</nsisCompiler>
+              <nsisCompiler>/usr/local/nsis/makensis</nsisCompiler>
               <nsisConfigurationFile>src/main/installers/apacheds-server-win.nsi</nsisConfigurationFile>
               <finalName>
                 apacheds-server-${pom.version}-setup

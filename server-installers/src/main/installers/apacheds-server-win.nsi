@@ -40,10 +40,10 @@ InstType "Full"
 BrandingText "${AppName} - ${AppVersion}"
 XPStyle on
 
-!define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "../../../src/main/resources/welcome.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "../../../src/main/resources/both_header.bmp"
+!define MUI_COMPONENTSPAGE_SMALLDESC
+!define MUI_WELCOMEFINISHPAGE_BITMAP "../../../src/main/resources/welcome.bmp"
 !define iconfile "../../src/main/resources/adstree.ico"
 !define MUI_ICON ${iconfile}
 !define MUI_UNICON ${iconfile}
