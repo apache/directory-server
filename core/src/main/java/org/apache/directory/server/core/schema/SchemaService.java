@@ -1717,7 +1717,7 @@ public class SchemaService extends BaseInterceptor
 
         // As we now have all the ObjectClasses updated, we have
         // to check that we don't have conflicting ObjectClasses
-        assertObjectClasses( ocs );
+        assertObjectClasses( dn, ocs );
 
         assertRequiredAttributesPresent( dn, entry, must );
         assertNumberOfAttributeValuesValid( entry );
@@ -1869,35 +1869,70 @@ public class SchemaService extends BaseInterceptor
      * inheritance tree
      * - we must have at least one STRUCTURAL OC
      */
-    private void assertObjectClasses( List<ObjectClass> ocs )  throws LdapSchemaViolationException
+    private void assertObjectClasses( LdapDN dn, List<ObjectClass> ocs )  throws NamingException
     {
-    	boolean hasStructural = false;
+    	Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
     	
-    	// Loop on all the entry objectClasses 
+    	/*
+    	 * Since the number of ocs present in an entry is small it's not 
+    	 * so expensive to take two passes while determining correctness
+    	 * since it will result in clear simple code instead of a deep nasty
+    	 * for loop with nested loops.  Plus after the first pass we can
+    	 * quickly know if there are no structural object classes at all.
+    	 */
+    	
+    	// --------------------------------------------------------------------
+    	// Extract all structural objectClasses within the entry
+        // --------------------------------------------------------------------
+
     	for ( ObjectClass oc:ocs )
     	{
-    		if ( oc.isStructural() )
-    		{
-    			// We have a STRUCTURAL OC. Do we already found one ?
-    			if ( hasStructural )
-    			{
-    				// Yes, then there must be an inheritence relationship
-    				// between those two OC, otherwise this is an error.
-    				// TODO check that the inheritence tree is correct
-    			}
-    			else
-    			{
-    				hasStructural = true;
-    			}
-    		}
+    	    if ( oc.isStructural() )
+    	    {
+    	        structuralObjectClasses.add( oc );
+    	    }
     	}
     	
-    	// Throw an error if no STRUCTURAL objectClass is found.
-    	if ( !hasStructural )
+        // --------------------------------------------------------------------
+    	// Throw an error if no STRUCTURAL objectClass are found.
+        // --------------------------------------------------------------------
+
+    	if ( structuralObjectClasses.isEmpty() )
     	{
-    		String message = "An entry must have at least one STRUCTURAL ObjectClass";
+    		String message = "Entry " + dn + " does not contain a STRUCTURAL ObjectClass";
     		log.error( message );
     		throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
+    	}
+    	
+        // --------------------------------------------------------------------
+        // Put all structural object classes into new remaining container and
+    	// start removing any which are superiors of others in the set.  What
+    	// is left in the remaining set will be unrelated structural 
+    	/// objectClasses.  If there is more than one then we have a problem.
+        // --------------------------------------------------------------------
+    	
+    	Set<ObjectClass> remaining = new HashSet<ObjectClass>( structuralObjectClasses.size() );
+    	remaining.addAll( structuralObjectClasses );
+    	for ( ObjectClass oc: structuralObjectClasses )
+    	{
+    	    if ( oc.getSuperClasses() != null )
+    	    {
+    	        for ( ObjectClass superClass: oc.getSuperClasses() )
+    	        {
+    	            if ( superClass.isStructural() )
+    	            {
+    	                remaining.remove( superClass );
+    	            }
+    	        }
+    	    }
+    	}
+    	
+    	// Like the highlander there can only be one :).
+    	if ( remaining.size() > 1 )
+    	{
+            String message = "Entry " + dn + " contains more than one STRUCTURAL ObjectClass: " + remaining;
+            log.error( message );
+            throw new LdapSchemaViolationException( message, ResultCodeEnum.OBJECT_CLASS_VIOLATION );
     	}
     }
 

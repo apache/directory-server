@@ -30,6 +30,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -434,9 +435,8 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "alias" );
-        attr.add( "person" );
+        attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         attrs.put( attr );
-        attrs.put( "sn", "test" );
         attrs.put( "aliasedObjectName", "ou=users,ou=system" );
 
         sysRoot.createSubcontext( "cn=toanother", attrs );

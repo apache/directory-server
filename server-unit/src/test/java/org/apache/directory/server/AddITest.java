@@ -38,6 +38,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
@@ -388,24 +389,24 @@ public class AddITest extends AbstractServerTest
 
         // Create entry
         Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( "objectclass" );
-        entryOcls.add( "top" );
-        entryOcls.add( "organizationalUnit" );
+        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        entryOcls.add( SchemaConstants.TOP_OC );
+        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
-        entry.put( "ou", "favorite" );
+        entry.put( SchemaConstants.OU_AT, "favorite" );
         String entryRdn = "ou=favorite";
         ctx.createSubcontext( entryRdn, entry );
 
         // Create Alias
         String aliasedObjectName = entryRdn + "," + ctx.getNameInNamespace();
         Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( "objectclass" );
-        aliasOcls.add( "top" );
-        aliasOcls.add( "organizationalUnit" );
-        aliasOcls.add( "alias" );
+        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        aliasOcls.add( SchemaConstants.TOP_OC );
+        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        aliasOcls.add( SchemaConstants.ALIAS_OC );
         alias.put( aliasOcls );
-        alias.put( "ou", "bestFruit" );
-        alias.put( "aliasedObjectName", aliasedObjectName );
+        alias.put( SchemaConstants.OU_AT, "bestFruit" );
+        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
         String rdnAlias = "ou=bestFruit";
         ctx.createSubcontext( rdnAlias, alias );
 
@@ -425,34 +426,34 @@ public class AddITest extends AbstractServerTest
     {
         // Create container
         Attributes container = new AttributesImpl();
-        Attribute containerOcls = new AttributeImpl( "objectclass" );
-        containerOcls.add( "top" );
-        containerOcls.add( "organizationalUnit" );
+        Attribute containerOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        containerOcls.add( SchemaConstants.TOP_OC );
+        containerOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         container.put( containerOcls );
-        container.put( "ou", "Fruits" );
+        container.put( SchemaConstants.OU_AT, "Fruits" );
         String containerRdn = "ou=Fruits";
         DirContext containerCtx = ctx.createSubcontext( containerRdn, container );
 
         // Create entry
         Attributes entry = new AttributesImpl();
-        Attribute entryOcls = new AttributeImpl( "objectclass" );
-        entryOcls.add( "top" );
-        entryOcls.add( "organizationalUnit" );
+        Attribute entryOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        entryOcls.add( SchemaConstants.TOP_OC );
+        entryOcls.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( entryOcls );
-        entry.put( "ou", "favorite" );
+        entry.put( SchemaConstants.OU_AT, "favorite" );
         String entryRdn = "ou=favorite";
         containerCtx.createSubcontext( entryRdn, entry );
 
         // Create alias ou=bestFruit,ou=Fruits to entry ou=favorite,ou=Fruits
         String aliasedObjectName = entryRdn + "," + containerCtx.getNameInNamespace();
         Attributes alias = new AttributesImpl();
-        Attribute aliasOcls = new AttributeImpl( "objectclass" );
-        aliasOcls.add( "top" );
-        aliasOcls.add( "organizationalUnit" );
-        aliasOcls.add( "alias" );
+        Attribute aliasOcls = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+        aliasOcls.add( SchemaConstants.TOP_OC );
+        aliasOcls.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+        aliasOcls.add( SchemaConstants.ALIAS_OC );
         alias.put( aliasOcls );
-        alias.put( "ou", "bestFruit" );
-        alias.put( "aliasedObjectName", aliasedObjectName );
+        alias.put( SchemaConstants.OU_AT, "bestFruit" );
+        alias.put( SchemaConstants.ALIASED_OBJECT_NAME_AT, aliasedObjectName );
         String rdnAlias = "ou=bestFruit";
         containerCtx.createSubcontext( rdnAlias, alias );
 
@@ -461,12 +462,12 @@ public class AddITest extends AbstractServerTest
         controls.setDerefLinkFlag( true );
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "never" );
-        NamingEnumeration ne = containerCtx.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> ne = containerCtx.search( "", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
-        SearchResult sr = ( SearchResult ) ne.next();
+        SearchResult sr = ne.next();
         assertEquals( "ou=favorite", sr.getName() );
         assertTrue( ne.hasMore() );
-        sr = ( SearchResult ) ne.next();
+        sr = ne.next();
         assertEquals( "ou=bestFruit", sr.getName() );
         
         // search one level with dereferencing turned on
@@ -476,7 +477,7 @@ public class AddITest extends AbstractServerTest
         containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "always" );
         ne = containerCtx.search( "", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
-        sr = ( SearchResult ) ne.next();
+        sr = ne.next();
         assertEquals( "ou=favorite", sr.getName() );
         assertFalse( ne.hasMore() );
         
@@ -487,7 +488,7 @@ public class AddITest extends AbstractServerTest
         containerCtx.addToEnvironment( "java.naming.ldap.derefAliases", "always" );
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
-        sr = ( SearchResult ) ne.next();
+        sr = ne.next();
         assertEquals( "ldap://localhost:"+super.port+"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         

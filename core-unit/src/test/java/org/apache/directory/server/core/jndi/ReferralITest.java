@@ -40,9 +40,12 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.constants.CoreSchemaConstants;
+import org.apache.directory.server.constants.SystemSchemaConstants;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -832,7 +835,7 @@ public class ReferralITest extends AbstractAdminTestCase
         LdapContext userCtx = null;
         Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
-        referral.get( "objectClass" ).add( "organizationalUnit" );
+        referral.get( "objectClass" ).add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
         referral.put( "ou", "deep" );

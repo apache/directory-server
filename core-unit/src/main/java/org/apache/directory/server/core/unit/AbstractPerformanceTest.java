@@ -134,8 +134,6 @@ public class AbstractPerformanceTest extends AbstractTestCase
     
     protected void setUp() throws Exception
     {
-        super.setUp();
-        
         if ( ! isExternal )
         {
             // Add indices for ou, uid, and objectClass
@@ -158,9 +156,8 @@ public class AbstractPerformanceTest extends AbstractTestCase
             
             configuration.setShutdownHookEnabled( false );
             configuration.setPartitionConfigurations( Collections.singleton( ( PartitionConfiguration ) partConfig ) );
-            
-            doDelete( configuration.getWorkingDirectory() );
-            setContextRoots( username, password, configuration );
+
+            super.setUp();
             
             Hashtable<String, Object> env = new Hashtable<String, Object>( configuration.toJndiEnvironment() );
             env.put( Context.SECURITY_PRINCIPAL, username );
