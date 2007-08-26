@@ -28,12 +28,18 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.codec.actions.ResultCodeAction;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 
 
 /**
@@ -52,6 +58,48 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     }
 
 
+    /**
+     * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
+     */
+    public void testNoStructuralObjectClass() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( "uidObject" );
+        attrs.put( SchemaConstants.UID_AT, "invalid" );
+        
+        try
+        {
+            sysRoot.createSubcontext( "uid=invalid", attrs );
+        }
+        catch ( LdapSchemaViolationException e )
+        {
+            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
+        }
+    }
+    
+    
+    /**
+     * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
+     */
+    public void testMultipleStructuralObjectClasses() throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
+        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+        attrs.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.PERSON_OC );
+        attrs.put( SchemaConstants.OU_AT, "comedy" );
+        attrs.put( SchemaConstants.CN_AT, "Jack Black" );
+        attrs.put( SchemaConstants.SN_AT, "Black" );
+        
+        try
+        {
+            sysRoot.createSubcontext( "cn=Jack Black", attrs );
+        }
+        catch ( LdapSchemaViolationException e )
+        {
+            assertEquals( ResultCodeEnum.OBJECT_CLASS_VIOLATION, e.getResultCode() );
+        }
+    }
+    
     
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-904">DIRSERVER-904</a>.
