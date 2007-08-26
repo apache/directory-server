@@ -69,7 +69,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         
         this.dao = dao;
         this.objectClassRegistry = targetRegistries.getObjectClassRegistry();
-        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( SchemaConstants.M_OID_AT_OID );
+        this.m_oidAT = targetRegistries.getAttributeTypeRegistry().lookup( MetaSchemaConstants.M_OID_AT_OID );
         this.oidRegistry = targetRegistries.getOidRegistry();
     }
 
