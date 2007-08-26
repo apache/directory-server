@@ -231,15 +231,13 @@ public class BindHandler extends AbstractLdapHandler implements MessageHandler
         
         // Now, get the context
         LdapContext ctx = getLdapContext( session, bindRequest, env );
-        ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
-        
-        // Inject controls into the context
-        setRequestControls( newCtx, bindRequest );
         
         // Test that we successfully got one. If not, an error has already been returned.
         if ( ctx != null )
         {
-            SessionRegistry.getSingleton().setLdapContext( session, ctx );
+            ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
+            setRequestControls( newCtx, bindRequest );
+            SessionRegistry.getSingleton().setLdapContext( session, newCtx );
             bindResult.setResultCode( ResultCodeEnum.SUCCESS );
             BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
             response.addAll( newCtx.getResponseControls() );
