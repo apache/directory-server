@@ -114,7 +114,19 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagBase>https://svn.apache.org/repos/asf/directory/shared/releases</t
+agBase>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
+
 
   <reporting>
     <excludeDefaults>true</excludeDefaults>
