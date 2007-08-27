@@ -338,10 +338,8 @@
     <module>server-main</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
-
     <module>mitosis</module>
     <module>server-replication</module>
-
   </modules>
 
   <developers>
@@ -452,27 +450,22 @@
             </execution>
           </executions>
         </plugin>
-
       </plugins>
     </pluginManagement>
 
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagBase>https://svn.apache.org/repos/asf/directory/apacheds/releases</tagBase>
+        </configuration>
       </plugin>
-
-      <!--<plugin>-->
-        <!--<groupId>org.apache.maven.plugins</groupId>-->
-        <!--<artifactId>maven-compiler-plugin</artifactId>-->
-      <!--</plugin>-->
-
     </plugins>
   </build>
 
   <reporting>
     <excludeDefaults>true</excludeDefaults>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -498,7 +491,89 @@
         </configuration>
       </plugin>
     </plugins>
-
   </reporting>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <modules>
+        <module>bootstrap-extract</module>
+        <module>bootstrap-partition</module>
+        <module>bootstrap-plugin</module>
+        <module>schema-extras</module>
+        <module>schema-bootstrap</module>
+        <module>utils</module>
+        <module>schema-registries</module>
+        <module>jdbm-store</module>
+        <module>constants</module>
+        <module>btree-base</module>
+        <module>core</module>
+        <module>core-shared</module>
+        <module>core-plugin</module>
+        <module>core-unit</module>
+        <module>protocol-shared</module>
+        <module>protocol-ntp</module>
+        <module>protocol-ldap</module>
+        <module>protocol-kerberos</module>
+        <module>protocol-dhcp</module>
+        <module>protocol-dns</module>
+        <module>protocol-changepw</module>
+        <module>server-tools</module>
+
+        <!-- breaks the build on first try
+        <module>sar-plugin</module>
+        <module>server-sar</module>
+        -->
+
+        <module>server-xml</module>
+        <module>server-unit</module>
+        <module>server-main</module>
+        <module>server-jndi</module>
+        <module>kerberos-shared</module>
+        <module>mitosis</module>
+        <module>server-replication</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <!-- TODO delete version tag after upgrade to TLP pom 9 -->
+            <version>2.0.3</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
