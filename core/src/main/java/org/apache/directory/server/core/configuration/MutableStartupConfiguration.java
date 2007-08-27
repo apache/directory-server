@@ -24,6 +24,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.ldif.Entry;
+
 
 /**
  * A mutable version of {@link StartupConfiguration}.
@@ -96,13 +98,13 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setInterceptorConfigurations( List interceptorConfigurations )
+    public void setInterceptorConfigurations( List<InterceptorConfiguration> interceptorConfigurations )
     {
         super.setInterceptorConfigurations( interceptorConfigurations );
     }
 
 
-    public void setTestEntries( List testEntries )
+    public void setTestEntries( List<Entry> testEntries )
     {
         super.setTestEntries( testEntries );
     }

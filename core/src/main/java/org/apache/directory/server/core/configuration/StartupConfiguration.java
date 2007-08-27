@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.shared.ldap.ldif.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,12 +115,12 @@ public class StartupConfiguration extends Configuration
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
-    private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
-    private List interceptorConfigurations; // Set<InterceptorConfiguration>
+    private Set<AuthenticatorConfiguration> authenticatorConfigurations; 
+    private List<InterceptorConfiguration> interceptorConfigurations; 
     private PartitionConfiguration systemPartitionConfiguration; 
     private Set<? extends PartitionConfiguration> partitionConfigurations = 
         new HashSet<PartitionConfiguration>();
-    private List testEntries = new ArrayList(); // List<Attributes>
+    private List<Entry> testEntries = new ArrayList<Entry>(); 
 
 
     /**
@@ -236,9 +235,13 @@ public class StartupConfiguration extends Configuration
     /**
      * Returns {@link AuthenticatorConfiguration}s to use for authenticating clients.
      */
+    @SuppressWarnings("unchecked")
     public Set<AuthenticatorConfiguration> getAuthenticatorConfigurations()
     {
-        return ConfigurationUtil.getClonedSet( authenticatorConfigurations );
+        Set<AuthenticatorConfiguration> cloned = 
+            new HashSet<AuthenticatorConfiguration>( authenticatorConfigurations.size() );
+        cloned.addAll( authenticatorConfigurations );
+        return cloned;
     }
 
 
@@ -277,7 +280,9 @@ public class StartupConfiguration extends Configuration
      */
     public Set<PartitionConfiguration> getPartitionConfigurations()
     {
-        return ConfigurationUtil.getClonedSet( partitionConfigurations );
+        Set<PartitionConfiguration> cloned = new HashSet<PartitionConfiguration>();
+        cloned.addAll( partitionConfigurations );
+        return cloned;
     }
 
 
@@ -286,15 +291,13 @@ public class StartupConfiguration extends Configuration
      */
     protected void setPartitionConfigurations( Set<? extends PartitionConfiguration> contextParitionConfigurations )
     {
-        Set<? extends PartitionConfiguration> newSet = 
-            ( Set <? extends PartitionConfiguration> ) ConfigurationUtil
-            .getTypeSafeSet( contextParitionConfigurations, PartitionConfiguration.class );
-
+        Set<PartitionConfiguration> cloned = new HashSet<PartitionConfiguration>();
+        cloned.addAll( contextParitionConfigurations );
         Set<String> names = new HashSet<String>();
-        Iterator i = newSet.iterator();
+        Iterator<? extends PartitionConfiguration> i = cloned.iterator();
         while ( i.hasNext() )
         {
-            PartitionConfiguration cfg = ( PartitionConfiguration ) i.next();
+            PartitionConfiguration cfg = i.next();
             cfg.validate();
 
             String id = cfg.getId();
@@ -305,7 +308,7 @@ public class StartupConfiguration extends Configuration
             names.add( id );
         }
 
-        this.partitionConfigurations = newSet;
+        this.partitionConfigurations = cloned;
     }
 
 
@@ -348,24 +351,28 @@ public class StartupConfiguration extends Configuration
     /**
      * Returns interceptor chain.
      */
-    public List getInterceptorConfigurations()
+    @SuppressWarnings("unchecked")
+    public List<InterceptorConfiguration> getInterceptorConfigurations()
     {
-        return ConfigurationUtil.getClonedList( interceptorConfigurations );
+        List<InterceptorConfiguration> cloned = new ArrayList<InterceptorConfiguration>();
+        cloned.addAll( interceptorConfigurations );
+        return cloned;
     }
 
 
     /**
      * Sets interceptor chain.
      */
-    protected void setInterceptorConfigurations( List interceptorConfigurations )
+    protected void setInterceptorConfigurations( List<InterceptorConfiguration> interceptorConfigurations )
     {
-        List newList = ConfigurationUtil.getTypeSafeList( interceptorConfigurations, InterceptorConfiguration.class );
+        List<InterceptorConfiguration> cloned = new ArrayList<InterceptorConfiguration>();
+        cloned.addAll( interceptorConfigurations );
 
         Set<String> names = new HashSet<String>();
-        Iterator i = newList.iterator();
+        Iterator<InterceptorConfiguration> i = cloned.iterator();
         while ( i.hasNext() )
         {
-            InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
+            InterceptorConfiguration cfg = i.next();
             cfg.validate();
 
             String name = cfg.getName();
@@ -384,16 +391,11 @@ public class StartupConfiguration extends Configuration
      * Returns test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
-    public List getTestEntries()
+    public List<Entry> getTestEntries()
     {
-    	try
-    	{
-    		return ConfigurationUtil.getClonedAttributesList( testEntries );
-    	}
-    	catch ( CloneNotSupportedException cnse )
-    	{
-    		return null;
-    	}
+        List<Entry> cloned = new ArrayList<Entry>();
+        cloned.addAll( testEntries );
+        return cloned;
     }
 
 
@@ -401,19 +403,11 @@ public class StartupConfiguration extends Configuration
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
-    protected void setTestEntries( List testEntries )
+    protected void setTestEntries( List<Entry> testEntries )
     {
-    	try
-    	{
-	        testEntries = ConfigurationUtil.getClonedAttributesList( ConfigurationUtil.getTypeSafeList( testEntries,
-	            Entry.class ) );
-	
-	        this.testEntries = testEntries;
-    	}
-    	catch ( CloneNotSupportedException cnse )
-    	{
-    		this.testEntries = null;
-    	}
+        List<Entry> cloned = new ArrayList<Entry>();
+        cloned.addAll( testEntries );
+        this.testEntries = testEntries;
     }
 
 

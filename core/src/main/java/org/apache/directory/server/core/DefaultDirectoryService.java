@@ -742,7 +742,7 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
-    private void createTestEntries( Hashtable env ) throws NamingException
+    private void createTestEntries( Hashtable<String,Object> env ) throws NamingException
     {
         String principal = AbstractContextFactory.getPrincipal( env );
         byte[] credential = AbstractContextFactory.getCredential( env );

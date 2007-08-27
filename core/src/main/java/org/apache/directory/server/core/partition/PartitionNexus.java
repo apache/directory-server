@@ -257,7 +257,7 @@ public abstract class PartitionNexus implements Partition
      * @return Iteration over ContextPartition suffix names as Names.
      * @throws NamingException if there are any problems
      */
-    public abstract Iterator listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
+    public abstract Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -266,5 +266,5 @@ public abstract class PartitionNexus implements Partition
      * @param extensionOids a set of OID strings to add to the supportedExtension 
      * attribute in the RootDSE
      */
-    public abstract void registerSupportedExtensions( Set extensionOids );
+    public abstract void registerSupportedExtensions( Set<String> extensionOids );
 }

@@ -50,7 +50,7 @@ public class PartitionConfiguration
     private String id;
     private int cacheSize = -1;
     private String suffix;
-    private Set indexedAttributes; // Set<String> or <IndexConfiguration>
+    private Set<Object> indexedAttributes; // Set<String> or <IndexConfiguration>
     private Attributes contextEntry = new AttributesImpl( true );
     private String partitionClassName = DEFAULT_PARTITION_IMPLEMENTATION;
 
@@ -91,7 +91,9 @@ public class PartitionConfiguration
     @SuppressWarnings("unchecked")
     public Set<Object> getIndexedAttributes()
     {
-        return ConfigurationUtil.getClonedSet( indexedAttributes );
+        Set<Object> newSet = new HashSet<Object>();
+        newSet.addAll( indexedAttributes );
+        return newSet;
     }
 
 

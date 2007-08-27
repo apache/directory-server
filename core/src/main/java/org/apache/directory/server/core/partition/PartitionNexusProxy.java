@@ -62,7 +62,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -88,19 +87,19 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class PartitionNexusProxy extends PartitionNexus
 {
     /** safe to use set of bypass instructions to lookup raw entries */
-    public static final Collection LOOKUP_BYPASS;
+    public static final Collection<String> LOOKUP_BYPASS;
     
     /** safe to use set of bypass instructions to getMatchedDn */
-    public static final Collection GETMATCHEDDN_BYPASS;
+    public static final Collection<String> GETMATCHEDDN_BYPASS;
     
     /** safe to use set of bypass instructions to lookup raw entries excluding operational attributes */
-    public static final Collection LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
+    public static final Collection<String> LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS;
     
     /** Bypass String to use when ALL interceptors should be skipped */
     public static final String BYPASS_ALL = "*";
     
     /** Bypass String to use when ALL interceptors should be skipped */
-    public static final Collection BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
+    public static final Collection<String> BYPASS_ALL_COLLECTION = Collections.singleton( BYPASS_ALL );
     
     /** A static object to store the rootDSE entry with all the attributes */
     private static Attributes ROOT_DSE_ALL;
@@ -247,7 +246,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection bypass ) throws NamingException
+    public LdapDN getMatchedName( GetMatchedNameOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -271,7 +270,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection bypass ) throws NamingException
+    public LdapDN getSuffix( GetSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -288,13 +287,13 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Iterator listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
     {
-        return listSuffixes( opContext );
+        return listSuffixes( opContext, null );
     }
 
 
-    public Iterator listSuffixes( ListSuffixOperationContext opContext, Collection bypass ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -317,7 +316,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean compare( CompareOperationContext opContext, Collection bypass ) throws NamingException
+    public boolean compare( CompareOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -340,7 +339,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void delete( DeleteOperationContext opContext, Collection bypass ) throws NamingException
+    public void delete( DeleteOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -363,7 +362,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void add( AddOperationContext opContext, Collection bypass ) throws NamingException
+    public void add( AddOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -386,7 +385,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void modify( ModifyOperationContext opContext, Collection bypass ) throws NamingException
+    public void modify( ModifyOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -404,13 +403,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         return list( opContext, null );
     }
 
 
-    public NamingEnumeration list( ListOperationContext opContext, Collection bypass ) throws NamingException
+    public NamingEnumeration<SearchResult> list( ListOperationContext opContext, Collection<String> bypass ) 
+        throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -479,7 +479,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection bypass )
+    public NamingEnumeration<SearchResult> search( SearchOperationContext opContext, Collection<String> bypass )
         throws NamingException
     {
         ensureStarted();
@@ -509,7 +509,7 @@ public class PartitionNexusProxy extends PartitionNexus
     			{
     				if ( ROOT_DSE_NO_OPERATIONNAL == null )
     				{
-    					ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, ( Collection ) null );
+    					ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, ( Collection<String> ) null );
     				}
     			}
     			
@@ -521,7 +521,7 @@ public class PartitionNexusProxy extends PartitionNexus
     			{
     				if ( ROOT_DSE_ALL == null )
     				{
-    					ROOT_DSE_ALL = lookup( opContext, ( Collection ) null );
+    					ROOT_DSE_ALL = lookup( opContext, ( Collection<String> ) null );
     				}
     			}
     			
@@ -530,11 +530,11 @@ public class PartitionNexusProxy extends PartitionNexus
     			
     	}
     	
-        return lookup( opContext, ( Collection ) null );
+        return lookup( opContext, ( Collection<String> ) null );
     }
 
 
-    public Attributes lookup( LookupOperationContext opContext, Collection bypass ) throws NamingException
+    public Attributes lookup( LookupOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -556,7 +556,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public boolean hasEntry( EntryOperationContext opContext, Collection bypass ) throws NamingException
+    public boolean hasEntry( EntryOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -579,7 +579,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void rename( RenameOperationContext opContext, Collection bypass ) throws NamingException
+    public void rename( RenameOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -603,7 +603,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void move( MoveOperationContext opContext, Collection bypass ) throws NamingException
+    public void move( MoveOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -626,7 +626,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection bypass )
+    public void moveAndRename( MoveAndRenameOperationContext opContext, Collection<String> bypass )
         throws NamingException
     {
         ensureStarted();
@@ -651,7 +651,7 @@ public class PartitionNexusProxy extends PartitionNexus
      * @param bypass
      * @throws NamingException
      */
-    public void bind( BindOperationContext opContext, Collection bypass )
+    public void bind( BindOperationContext opContext, Collection<String> bypass )
         throws NamingException
     {
         ensureStarted();
@@ -671,7 +671,7 @@ public class PartitionNexusProxy extends PartitionNexus
         }
     }
 
-    public void unbind( UnbindOperationContext opContext, Collection bypass ) throws NamingException
+    public void unbind( UnbindOperationContext opContext, Collection<String> bypass ) throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -720,7 +720,8 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public Attributes getRootDSE( GetRootDSEOperationContext opContext, Collection bypass ) throws NamingException
+    public Attributes getRootDSE( GetRootDSEOperationContext opContext, Collection<String> bypass ) 
+        throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -742,7 +743,8 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection bypass ) throws NamingException
+    public void addContextPartition( AddContextPartitionOperationContext opContext, Collection<String> bypass ) 
+        throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -765,7 +767,8 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection bypass ) throws NamingException
+    public void removeContextPartition( RemoveContextPartitionOperationContext opContext, Collection<String> bypass ) 
+        throws NamingException
     {
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
@@ -791,7 +794,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void registerSupportedExtensions( Set extensionOids )
+    public void registerSupportedExtensions( Set<String> extensionOids )
     {
         configuration.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }

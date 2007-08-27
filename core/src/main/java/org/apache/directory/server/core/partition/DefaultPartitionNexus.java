@@ -61,7 +61,6 @@ import org.apache.directory.server.core.interceptor.context.ModifyOperationConte
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
@@ -250,12 +249,13 @@ public class DefaultPartitionNexus extends PartitionNexus
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
-        Iterator i = factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
+        Iterator<PartitionConfiguration> partitionConfigurations = 
+            factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
         try
         {
-            while ( i.hasNext() )
+            while ( partitionConfigurations.hasNext() )
             {
-                PartitionConfiguration c = ( PartitionConfiguration ) i.next();
+                PartitionConfiguration c = ( PartitionConfiguration ) partitionConfigurations.next();
                 AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( c );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
@@ -266,7 +266,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             if ( !initialized )
             {
-                i = initializedPartitions.iterator();
+                Iterator<Partition> i = initializedPartitions.iterator();
                 while ( i.hasNext() )
                 {
                     Partition partition = ( Partition ) i.next();
@@ -480,7 +480,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public void sync() throws NamingException
     {
         MultiException error = null;
-        Iterator list = this.partitions.values().iterator();
+        Iterator<Partition> list = this.partitions.values().iterator();
         
         while ( list.hasNext() )
         {
@@ -727,7 +727,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see PartitionNexus#listSuffixes( ListSuffixOperationContext )
      */
-    public Iterator listSuffixes ( ListSuffixOperationContext emptyContext ) throws NamingException
+    public Iterator<String> listSuffixes ( ListSuffixOperationContext emptyContext ) throws NamingException
     {
         return Collections.unmodifiableSet( partitions.keySet() ).iterator();
     }
@@ -814,7 +814,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     /**
      * @see Partition#list(ListOperationContext)
      */
-    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );
         return backend.list( opContext );
@@ -853,7 +853,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( ids == null || ids.length == 0 )
                 {
                     SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
-                    return new SingletonEnumeration( result );
+                    return new SingletonEnumeration<SearchResult>( result );
                 }
                 
                 // -----------------------------------------------------------
@@ -897,20 +897,20 @@ public class DefaultPartitionNexus extends PartitionNexus
                 if ( containsOneDotOne )
                 {
                     SearchResult result = new ServerSearchResult( "", null, new AttributesImpl(), false );
-                    return new SingletonEnumeration( result );
+                    return new SingletonEnumeration<SearchResult>( result );
                 }
                 
                 // return everything
                 if ( containsAsterisk && containsPlus )
                 {
                     SearchResult result = new ServerSearchResult( "", null, ( Attributes ) getRootDSE( null ).clone(), false );
-                    return new SingletonEnumeration( result );
+                    return new SingletonEnumeration<SearchResult>( result );
                 }
                 
                 Attributes attrs = new AttributesImpl();
                 if ( containsAsterisk )
                 {
-                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all user attribute
                         Attribute attr = ( Attribute ) ii.next();
@@ -928,7 +928,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
                 else if ( containsPlus )
                 {
-                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all operational attributes
                         Attribute attr = ( Attribute ) ii.next();
@@ -946,7 +946,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
                 else
                 {
-                    for ( NamingEnumeration ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
+                    for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                       // add user attributes specifically asked for
                         Attribute attr = ( Attribute ) ii.next();
@@ -959,7 +959,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 }
 
                 SearchResult result = new ServerSearchResult( "", null, attrs, false );
-                return new SingletonEnumeration( result );
+                return new SingletonEnumeration<SearchResult>( result );
             }
 
             throw new LdapNameNotFoundException();
@@ -980,13 +980,13 @@ public class DefaultPartitionNexus extends PartitionNexus
         if ( dn.size() == 0 )
         {
             Attributes retval = new AttributesImpl();
-            NamingEnumeration list = rootDSE.getIDs();
+            NamingEnumeration<String> list = rootDSE.getIDs();
      
             if ( opContext.getAttrsId() != null )
             {
                 while ( list.hasMore() )
                 {
-                    String id = ( String ) list.next();
+                    String id = list.next();
                     
                     if ( opContext.getAttrsId().contains( id ) )
                     {
@@ -999,8 +999,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             {
                 while ( list.hasMore() )
                 {
-                    String id = ( String ) list.next();
-                    
+                    String id = list.next();
                     Attribute attr = rootDSE.get( id );
                     retval.put( ( Attribute ) attr.clone() );
                 }
@@ -1119,7 +1118,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     // ------------------------------------------------------------------------
 
 
-    public void registerSupportedExtensions( Set extensionOids )
+    public void registerSupportedExtensions( Set<String> extensionOids )
     {
         Attribute supportedExtension = rootDSE.get( "supportedExtension" );
         if ( supportedExtension == null )
@@ -1127,7 +1126,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             supportedExtension = new AttributeImpl( "supportedExtension" );
             rootDSE.put( supportedExtension );
         }
-        for ( Iterator oids = extensionOids.iterator(); oids.hasNext(); )
+        for ( Iterator<String> oids = extensionOids.iterator(); oids.hasNext(); )
         {
             supportedExtension.add( oids.next() );
         }

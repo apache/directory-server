@@ -44,7 +44,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -154,7 +153,7 @@ public interface Interceptor
     /**
      * Filters {@link PartitionNexus#listSuffixes( ListSuffixOperationContext )} call.
      */
-    Iterator listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException;
+    Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -196,7 +195,7 @@ public interface Interceptor
     /**
      * Filters {@link Partition#list( ListOperationContext )} call.
      */
-    NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException;
+    NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException;
 
 
     /**

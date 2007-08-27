@@ -33,7 +33,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.apache.commons.collections.MultiHashMap;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.LdifComposer;
 import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
@@ -74,13 +73,15 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
     /**
      * Returns LDIF string of {@link Attributes} object.
      */
+    @SuppressWarnings("deprecation")
     public String getAsText()
     {
         LdifComposer composer = new LdifComposerImpl();
         MultiMap map = new MultiMap()
         {
             // FIXME Stop forking commons-collections.
-            private final MultiHashMap map = new MultiHashMap();
+            private final org.apache.commons.collections.MultiHashMap map = 
+                new org.apache.commons.collections.MultiHashMap();
 
             public Object remove( Object arg0, Object arg1 )
             {
@@ -112,7 +113,8 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                 return map.remove( arg0 );
             }
 
-            public Collection values()
+            @SuppressWarnings("unchecked")
+            public Collection<Object> values()
             {
                 return map.values();
             }
@@ -127,6 +129,7 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                 return map.containsKey( key );
             }
 
+            @SuppressWarnings("unchecked")
             public void putAll( Map arg0 )
             {
                 map.putAll( arg0 );
@@ -137,12 +140,12 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
                 map.clear();
             }
 
-            public Set keySet()
+            public Set<?> keySet()
             {
                 return map.keySet();
             }
 
-            public Set entrySet()
+            public Set<?> entrySet()
             {
                 return map.entrySet();
             }
@@ -151,11 +154,11 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
         Attributes attrs = (Attributes) getValue();
         try
         {
-            NamingEnumeration e = attrs.getAll();
+            NamingEnumeration<? extends Attribute> e = attrs.getAll();
             while ( e.hasMore() )
             {
-                Attribute attr = (Attribute) e.next();
-                NamingEnumeration e2 = attr.getAll();
+                Attribute attr = e.next();
+                NamingEnumeration<? extends Object> e2 = attr.getAll();
                 while ( e2.hasMoreElements() )
                 {
                     Object value = e2.next();

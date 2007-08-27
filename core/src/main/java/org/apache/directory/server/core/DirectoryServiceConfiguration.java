@@ -61,7 +61,7 @@ public interface DirectoryServiceConfiguration
     /**
      * Returns the initial context environment of the {@link DirectoryService}.
      */
-    Hashtable getEnvironment();
+    Hashtable<String,Object> getEnvironment();
 
 
     /**

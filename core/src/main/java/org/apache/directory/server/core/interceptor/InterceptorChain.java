@@ -50,7 +50,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -119,7 +118,7 @@ public class InterceptorChain
         }
 
 
-        public Iterator listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+        public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
         {
             return nexus.listSuffixes( opContext );
         }
@@ -143,7 +142,7 @@ public class InterceptorChain
         }
 
 
-        public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+        public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
         {
             return nexus.list( opContext );
         }
@@ -243,7 +242,7 @@ public class InterceptorChain
         FINAL_INTERCEPTOR.init( factoryCfg, null );
 
         // And register and initialize all interceptors
-        ListIterator i = factoryCfg.getStartupConfiguration().getInterceptorConfigurations().listIterator();
+        ListIterator<InterceptorConfiguration> i = factoryCfg.getStartupConfiguration().getInterceptorConfigurations().listIterator();
         Interceptor interceptor = null;
         try
         {
@@ -327,7 +326,7 @@ public class InterceptorChain
     /**
      * Returns the list of all registered interceptors.
      */
-    public synchronized List getAll()
+    public synchronized List<Interceptor> getAll()
     {
         List<Interceptor> result = new ArrayList<Interceptor>();
         Entry e = head;
@@ -431,7 +430,7 @@ public class InterceptorChain
     private Interceptor getInterceptorInstance( InterceptorConfiguration interceptorConfiguration ) 
         throws NamingException
     {
-        Class interceptorClass = null;
+        Class<?> interceptorClass = null;
         Interceptor interceptor = null;
         
         // Load the interceptor class and if we cannot find it blow a config exception
@@ -655,7 +654,7 @@ public class InterceptorChain
     }
 
 
-    public Iterator listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -847,7 +846,7 @@ public class InterceptorChain
     }*/
 
 
-    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
@@ -1156,7 +1155,7 @@ public class InterceptorChain
                 }
 
 
-                public Iterator listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
+                public Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
@@ -1237,7 +1236,7 @@ public class InterceptorChain
                 }
 
                 
-                public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
+                public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
                     Interceptor interceptor = next.interceptor;
