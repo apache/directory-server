@@ -21,15 +21,15 @@ APP_LONG_NAME="Apache Directory Server - $INSTANCE"
 
 
 # Wrapper
-WRAPPER_CMD="/opt/@app@-@app.version@/bin/apacheds"
-WRAPPER_CONF="/opt/@app@-@app.version@/conf/apacheds.conf"
+WRAPPER_CMD="/opt/@app@-@app.version@/bin/@app@"
+WRAPPER_CONF="/opt/@app@-@app.version@/conf/@app@.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.
 PRIORITY=
 
 # Location of the pid file.
-PIDDIR="/var/run/apacheds/$INSTANCE"
+PIDDIR="/var/run/@app@/$INSTANCE"
 
 # If uncommented, causes the Wrapper to be shutdown using an anchor file.
 #  When launched with the 'start' command, it will also ignore all INT and
@@ -525,11 +525,22 @@ dump() {
     fi
 }
 
+list() {
+  echo "Available instances..."
+  for instance in $INSTANCE_HOME/* ; do
+	echo "	" `basename $instance`;
+  done
+}
+
 # Make sure they entered an instance name
-if [ "x"$2 = "x" ]
+if [[ ( "x"$2 = "x" ) && $1 == "start" || $1 == "stop" || $1 == "status" || $1 == "dump" ]]
 then
-    usage
-    exit 1
+	usage
+	echo
+	echo "Please enter an instance name to $1..."
+	echo
+	list
+	exit 1
 fi
 
 case "$1" in
@@ -563,6 +574,9 @@ case "$1" in
     'dump')
         checkUser "" $1 $INSTANCE
         dump
+        ;;
+    'list')
+        list
         ;;
 
     *)
