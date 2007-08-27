@@ -184,7 +184,7 @@ public class Entry implements Cloneable
                 ModificationItemImpl item = modificationItems.get( attr.getID() );
                 Attribute attribute = item.getAttribute();
 
-                Enumeration attrs = attr.getAll();
+                Enumeration<?> attrs = attr.getAll();
 
                 while ( attrs.hasMoreElements() )
                 {
@@ -495,7 +495,7 @@ public class Entry implements Cloneable
     /**
      * Clone method
      */
-    public Object clone() throws CloneNotSupportedException
+    public Entry clone() throws CloneNotSupportedException
     {
         Entry clone = (Entry) super.clone();
 
@@ -538,13 +538,13 @@ public class Entry implements Cloneable
         
         try
         {
-            for ( NamingEnumeration attrs = attributeList.getAll(); attrs.hasMoreElements(); )
+            for ( NamingEnumeration<? extends Attribute> attrs = attributeList.getAll(); attrs.hasMoreElements(); )
             {
-                Attribute attribute = (Attribute) attrs.nextElement();
+                Attribute attribute = attrs.nextElement();
     
                 sb.append( "        ").append( attribute.getID() ).append( ":\n" );
     
-                for ( NamingEnumeration values = attribute.getAll(); values.hasMoreElements(); )
+                for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
                 {
                     Object value = values.nextElement();
                     
@@ -601,7 +601,7 @@ public class Entry implements Cloneable
             {
                 try
                 {
-                    for ( NamingEnumeration values = attribute.getAll(); values.hasMoreElements(); )
+                    for ( NamingEnumeration<?> values = attribute.getAll(); values.hasMoreElements(); )
                     {
                         Object value = values.nextElement();
     

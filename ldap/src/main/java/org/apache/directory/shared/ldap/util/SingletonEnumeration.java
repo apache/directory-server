@@ -31,10 +31,10 @@ import java.util.NoSuchElementException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class SingletonEnumeration implements NamingEnumeration
+public class SingletonEnumeration<T> implements NamingEnumeration<T>
 {
     /** The singleton element to return */
-    private final Object m_element;
+    private final T m_element;
 
     /** Can we return a element */
     private boolean m_hasMore = true;
@@ -46,7 +46,7 @@ public class SingletonEnumeration implements NamingEnumeration
      * @param a_element
      *            TODO
      */
-    public SingletonEnumeration(final Object a_element)
+    public SingletonEnumeration(final T a_element)
     {
         m_element = a_element;
     }
@@ -75,7 +75,7 @@ public class SingletonEnumeration implements NamingEnumeration
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next()
+    public T next()
     {
         if ( m_hasMore )
         {
@@ -99,7 +99,7 @@ public class SingletonEnumeration implements NamingEnumeration
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public T nextElement()
     {
         return next();
     }
