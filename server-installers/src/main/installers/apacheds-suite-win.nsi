@@ -2,6 +2,7 @@
 !define AppVersion "${app.version}"
 !define OutFile "${app.final.name}"
 !define ShortName "${app}"
+!define SourceDir "${app.base.dir}/src"
 !define JRE_VERSION "1.5.0"
 !define Vendor "Apache Software Foundation"
 !define Project "Apache Directory"
@@ -43,10 +44,10 @@ BrandingText "${AppName} - ${AppVersion}"
 XPStyle on
 
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "../../../src/main/resources/both_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SourceDir}/main/resources/both_header.bmp"
 !define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "../../../src/main/resources/welcome.bmp"
-!define iconfile "../../src/main/resources/adstree.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}/main/resources/welcome.bmp"
+!define iconfile "${SourceDir}/main/resources/adstree.ico"
 !define MUI_ICON ${iconfile}
 !define MUI_UNICON ${iconfile}
 
