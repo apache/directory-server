@@ -91,14 +91,15 @@
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>tanukisoft</groupId>
+      <artifactId>wrapper</artifactId>
       <scope>runtime</scope>
     </dependency>
 
     <dependency>
-      <groupId>commons-daemon</groupId>
-      <artifactId>commons-daemon</artifactId>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -268,7 +269,7 @@
                     <filtered>false</filtered>
                   </packagedFile>
                 </packagedFiles>
-                <id>apacheds-rpm</id>
+                <id>apacheds-i386-rpm</id>
                 <rpmSpecificationFile>src/main/installers/apacheds-rpm.spec</rpmSpecificationFile>
                 <!--<rpmTopDir>${user.home}/rpmbuild</rpmTopDir>-->
                 <finalName>
@@ -281,8 +282,56 @@
                 <scriptFile>src/main/installers/apacheds-init</scriptFile>
                 <!--<bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>-->
               </rpmTarget>
+              <rpmTarget>
+                <packagedFiles>
+                  <packagedFile>
+                    <source>rpm-apacheds-tools.sh</source>
+                    <destinationPath>bin/apacheds-tools.sh</destinationPath>
+                    <installationBundleId>Binaries</installationBundleId>
+                    <executable>true</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-fhs.conf</source>
+                    <destinationPath>conf/apacheds.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-sysconfig.conf</source>
+                    <destinationPath>conf/apacheds-sysconfig.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>true</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>apacheds-default.conf</source>
+                    <destinationPath>conf/apacheds-default.conf</destinationPath>
+                    <executable>false</executable>
+                    <filtered>false</filtered>
+                  </packagedFile>
+                  <packagedFile>
+                    <source>../resources/adstree.ico</source>
+                    <destinationPath>logo.ico</destinationPath>
+                    <executable>false</executable>
+                    <filtered>false</filtered>
+                  </packagedFile>
+                </packagedFiles>
+                <id>apacheds-x86_64-rpm</id>
+                <rpmSpecificationFile>src/main/installers/apacheds-rpm.spec</rpmSpecificationFile>
+                <!--<rpmTopDir>${user.home}/rpmbuild</rpmTopDir>-->
+                <finalName>
+                  apacheds-server-${pom.version}-x86_64.rpm
+                </finalName>
+                <osName>Linux</osName>
+                <osFamily>unix</osFamily>
+                <osArch>x86_64</osArch>
+                <daemonFramework>tanuki</daemonFramework>
+                <scriptFile>src/main/installers/apacheds-init</scriptFile>
+                <!--<bootstrapperConfigurationFile>../../daemon/plugin/src/main/resources/org/apache/directory/daemon/installers/wrapper/conf/apacheds.conf</bootstrapperConfigurationFile>-->
+              </rpmTarget>
           </rpmTargets>
 
+<!--
           <nsisTargets>
             <nsisTarget>
               <packagedFiles>
@@ -318,6 +367,7 @@
               <osArch>x86</osArch>
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
+-->
 <!--
             <nsisTarget>
               <packagedFiles>
@@ -354,7 +404,7 @@
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
 -->
-          </nsisTargets>
+          <!--</nsisTargets>-->
 
         </configuration>
         <executions>
