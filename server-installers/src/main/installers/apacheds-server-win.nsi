@@ -46,8 +46,8 @@ XPStyle on
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}/main/resources/welcome.bmp"
 !define iconfile "${SourceDir}/main/resources/adstree.ico"
-!define MUI_ICON ${iconfile}
-!define MUI_UNICON ${iconfile}
+!define MUI_ICON "${iconfile}"
+!define MUI_UNICON "${iconfile}"
 
 ;--------------------------------
 ;Pages
