@@ -239,6 +239,13 @@
         <artifactId>ldapsdk</artifactId>
         <version>4.1</version>
       </dependency>
+
+      <dependency>
+        <groupId>tanukisoft</groupId>
+        <artifactId>wrapper</artifactId>
+        <version>3.2.3</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
