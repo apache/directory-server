@@ -42,10 +42,10 @@ BrandingText "${AppName} - ${AppVersion}"
 XPStyle on
 
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${SourceDir}/main/resources/both_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SourceDir}\main\resources\both_header.bmp"
 !define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}/main/resources/welcome.bmp"
-!define iconfile "${SourceDir}/main/resources/adstree.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}\main\resources\welcome.bmp"
+!define iconfile "${SourceDir}\main\resources\adstree.ico"
 !define MUI_ICON "${iconfile}"
 !define MUI_UNICON "${iconfile}"
 
