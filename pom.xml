@@ -338,6 +338,7 @@
     <module>server-main</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
+    <!--module>kerberos-unit</module-->
     <module>mitosis</module>
     <module>server-replication</module>
   </modules>
@@ -547,7 +548,7 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
+	  <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <!-- TODO delete version tag after upgrade to TLP pom 9 -->
             <version>2.0.3</version>
