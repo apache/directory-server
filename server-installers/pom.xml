@@ -331,7 +331,6 @@
               </rpmTarget>
           </rpmTargets>
 
-<!--
           <nsisTargets>
             <nsisTarget>
               <packagedFiles>
@@ -367,7 +366,6 @@
               <osArch>x86</osArch>
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
--->
 <!--
             <nsisTarget>
               <packagedFiles>
@@ -404,7 +402,7 @@
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
 -->
-          <!--</nsisTargets>-->
+          </nsisTargets>
 
         </configuration>
         <executions>
