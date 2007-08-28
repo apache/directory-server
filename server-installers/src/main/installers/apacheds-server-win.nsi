@@ -2,7 +2,7 @@
 !define AppVersion "${app.version}"
 !define OutFile "${app.final.name}"
 !define ShortName "${app}"
-!define SourceDir "${app.base.dir}/src"
+!define SourceDir "${app.base.dir}\src"
 !define JRE_VERSION "1.5.0"
 !define Vendor "Apache Software Foundation"
 !define Project "Apache Directory"
@@ -54,7 +54,7 @@ XPStyle on
 
   ; License page
   !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE "win32/LICENSE"
+  !insertmacro MUI_PAGE_LICENSE "win32\LICENSE"
 
   ; This page checks for JRE. It displays a dialog based on JRE.ini if it needs to install JRE
   ; Otherwise you won't see it.
@@ -195,9 +195,9 @@ Section "Example Instance" SecInstanceFiles
 
     ;I am hand picking the files for now, but we could simplify this by creating a template for new instances
     SetOutPath "$INSTANCE_HOME_DIR\default\conf"
-    File "conf/log4j.properties"
-    File /oname=apacheds.conf "conf/apacheds-default.conf"
-    File "conf/server.xml"
+    File "conf\log4j.properties"
+    File /oname=apacheds.conf "conf\apacheds-default.conf"
+    File "conf\server.xml"
 
     Push "$INSTANCE_HOME_DIR\default\conf"
     Push "*.*"
