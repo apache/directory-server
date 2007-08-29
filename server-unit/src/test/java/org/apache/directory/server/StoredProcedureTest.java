@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -34,8 +35,9 @@ import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.sp.JavaStoredProcedureUtils;
+import org.apache.directory.shared.ldap.sp.BaseJavaStoredProcUtils;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 
 
@@ -46,6 +48,7 @@ import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 public class StoredProcedureTest extends AbstractServerTest
 {
     private LdapContext ctx = null;
+    private LdapContext spCtx = null;
 
     
     public void setUp() throws Exception
@@ -67,6 +70,11 @@ public class StoredProcedureTest extends AbstractServerTest
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
+        
+        Attributes spContainer = new AttributesImpl( "objectClass", "top", true );
+        spContainer.get( "objectClass" ).add( "organizationalUnit" );
+        spContainer.put( "ou", "Stored Procedures" );
+        spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
 
 
@@ -81,11 +89,11 @@ public class StoredProcedureTest extends AbstractServerTest
 
     public void testExecuteProcedureWithReturnValue() throws NamingException
     {
-        String procedureName = HelloWorldProcedure.class.getName() + ".sayHello";
+        String procedureName = HelloWorldProcedure.class.getName() + ":sayHello";
         
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
         
-        Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
+        Object response = BaseJavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
         assertEquals( "Hello World!", response );
     }
@@ -93,11 +101,11 @@ public class StoredProcedureTest extends AbstractServerTest
 
     public void testExecuteProcedureWithParametersAndReturnValue() throws NamingException, IOException
     {
-        String procedureName = HelloWorldProcedure.class.getName() + ".sayHelloTo";
+        String procedureName = HelloWorldProcedure.class.getName() + ":sayHelloTo";
         
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, HelloWorldProcedure.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
         
-        Object response = JavaStoredProcedureUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
+        Object response = BaseJavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
         
         assertEquals( "Hello Ersin!", response );
     }
@@ -127,13 +135,13 @@ public class StoredProcedureTest extends AbstractServerTest
         
         injectEntries( ldif );
         
-        JavaStoredProcedureUtils.loadStoredProcedureClass( ctx, DITUtilitiesSP.class );
+        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
         
-        String spName = DITUtilitiesSP.class.getName() + ".deleteSubtree";
+        String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
                                          new LdapDN( "ou=People" ) };
         
-        JavaStoredProcedureUtils.callStoredProcedure( ctx, spName, params );
+        BaseJavaStoredProcUtils.callStoredProcedure( ctx, spName, params );
         
         try
         {

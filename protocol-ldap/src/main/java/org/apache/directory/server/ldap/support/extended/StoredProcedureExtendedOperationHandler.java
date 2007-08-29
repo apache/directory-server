@@ -22,15 +22,25 @@
 package org.apache.directory.server.ldap.support.extended;
 
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.sp.StoredProcEngine;
+import org.apache.directory.server.core.sp.StoredProcEngineConfig;
+import org.apache.directory.server.core.sp.StoredProcExecutionManager;
+import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.LdapProtocolProvider;
 import org.apache.directory.server.ldap.SessionRegistry;
@@ -39,10 +49,13 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureContainer;
 import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedureDecoder;
+import org.apache.directory.shared.ldap.codec.extended.operations.StoredProcedure.StoredProcedureParameter;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
+import org.apache.directory.shared.ldap.sp.LdapContextParameter;
+import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.IoSession;
 
 
@@ -52,42 +65,61 @@ import org.apache.mina.common.IoSession;
  */
 public class StoredProcedureExtendedOperationHandler implements ExtendedOperationHandler
 {
+    private StoredProcExecutionManager manager;
+    private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
+    public StoredProcedureExtendedOperationHandler()
+    {
+        super();
+        //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
+        StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
+        List<StoredProcEngineConfig> spEngineConfigs = new ArrayList<StoredProcEngineConfig>();
+        //spEngineConfigs.add( javaxScriptSPEngineConfig );
+        spEngineConfigs.add( javaSPEngineConfig );
+        String spContainer = "ou=Stored Procedures,ou=system";
+        this.manager = new StoredProcExecutionManager( spContainer, spEngineConfigs );
+    }
+
     public void handleExtendedOperation( IoSession session, SessionRegistry registry, ExtendedRequest req ) throws Exception
     {
         Control[] connCtls = req.getControls().values().toArray( new Control[ req.getControls().size() ] );
         LdapContext ldapContext = registry.getLdapContext( session, connCtls, false);
-        ServerLdapContext serverLdapContext;
+        ServerLdapContext ctx;
         
         if ( ldapContext instanceof ServerLdapContext )
         {
-            serverLdapContext = ( ServerLdapContext ) ldapContext;
+            ctx = ( ServerLdapContext ) ldapContext;
         }
         else
         {
-            serverLdapContext = ( ServerLdapContext ) ldapContext.lookup( "" );
+            ctx = ( ServerLdapContext ) ldapContext.lookup( "" );
         }
         
         StoredProcedure spBean = decodeBean( req.getPayload() );
         
-        LanguageSpecificStoredProceureExtendedOperationHandler handler = null;
+        String procedure = StringTools.utf8ToString( spBean.getProcedure() );
+        Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
+        StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
-        byte[] responseStream = null;
-        
-        /**
-         * TODO This part may be replaced by a better handler determiner.
-         */
-        if ( spBean.getLanguage().equalsIgnoreCase( "Java" ) )
+        List valueList = new ArrayList( spBean.getParameters().size() );
+        Iterator<StoredProcedureParameter> it = spBean.getParameters().iterator();
+        while ( it.hasNext() )
         {
-            handler = new JavaStoredProcedureExtendedOperationHandler();
-            responseStream = handler.handleStoredProcedureExtendedOperation( serverLdapContext, spBean );
+            StoredProcedureParameter pPojo = it.next();
+            byte[] serializedValue = pPojo.getValue();
+            Object value = SerializationUtils.deserialize( serializedValue );
+            if ( value.getClass().equals( LdapContextParameter.class ) )
+            {
+                String paramCtx = ( ( LdapContextParameter ) value ).getValue();
+                value = ctx.lookup( paramCtx );
+            }
+            valueList.add( value );
         }
+        Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         
-        /**
-         * FIXME: We may have issues sending SP result back to the client.
-         */
+        Object response = engine.invokeProcedure( ctx, procedure, values );
         
-        ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( responseStream );
-        
+        byte[] serializedResponse = SerializationUtils.serialize( ( Serializable ) response );
+        ( ( ExtendedResponse )( req.getResultResponse() ) ).setResponse( serializedResponse );
         session.write( req.getResultResponse() );
         
     }
