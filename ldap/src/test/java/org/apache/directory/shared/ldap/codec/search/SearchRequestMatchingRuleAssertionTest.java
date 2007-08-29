@@ -383,12 +383,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 
         Attributes attributes = sr.getAttributes();
 
-        assertEquals( 1, attributes.size() );
-
-        for ( int i = 0; i < attributes.size(); i++ )
-        {
-            assertNotNull( attributes.get( "*" ) );
-        }
+        assertEquals( 0, attributes.size() );
     }
 
 
@@ -670,11 +665,6 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
 
         Attributes attributes = sr.getAttributes();
 
-        assertEquals( 1, attributes.size() );
-
-        for ( int i = 0; i < attributes.size(); i++ )
-        {
-            assertNull( attributes.get( "" ) );
-        }
+        assertEquals( 0, attributes.size() );
     }
 }

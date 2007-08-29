@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.codec.actions;
 
 
+import javax.naming.directory.Attributes;
+
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;
@@ -62,20 +64,11 @@ public class AttributeDescAction extends GrammarAction
         TLV tlv = ldapMessageContainer.getCurrentTLV();
         String attributeDescription = null;
 
-        byte[] value = null;
-
-        if ( tlv.getLength() == 0 )
+        if ( tlv.getLength() != 0 )
         {
-            value = new byte[]
-                { '*' };
+            attributeDescription = StringTools.utf8ToString( tlv.getValue().getData() );
+            searchRequest.addAttribute( attributeDescription );
         }
-        else
-        {
-            value = tlv.getValue().getData();
-        }
-
-        attributeDescription = StringTools.utf8ToString( value );
-        searchRequest.addAttribute( attributeDescription );
 
         // We can have an END transition
         ldapMessageContainer.grammarEndAllowed( true );

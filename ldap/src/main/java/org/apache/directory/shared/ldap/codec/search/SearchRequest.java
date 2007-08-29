@@ -412,7 +412,7 @@ public class SearchRequest extends LdapMessage
                 
                 // We have a special case with PresentFilter, which has not been 
                 // pushed on the stack, so we need to get its parent's parent
-                if ( localFilter instanceof Filter )
+                if ( localFilter instanceof PresentFilter )
                 {
                     filterParent = filterParent.getParent();
                 }

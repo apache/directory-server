@@ -679,6 +679,172 @@ public class SearchRequestTest extends TestCase
         }
     }
 
+    /**
+     * Test the decoding of a SearchRequest with an empty attribute. The search
+     * filter is : (objectclass=*)
+     */
+    public void testDecodeSearchRequestOneEmptyAttribute()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x3F );
+        stream.put( new byte[]
+            { 0x30, 0x3D,                // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x03,        // messageID MessageID
+                0x63, 0x38,              // CHOICE { ..., searchRequest SearchRequest, ...
+                                         // SearchRequest ::= APPLICATION[3] SEQUENCE {
+                  0x04, 0x12,            // baseObject LDAPDN,
+                    'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 
+                  0x0A, 0x01, 0x00,      // scope ENUMERATED {
+                                         // baseObject (0),
+                                         // singleLevel (1),
+                                         // wholeSubtree (2) },
+                  0x0A, 0x01, 0x03,      // derefAliases ENUMERATED {
+                                         // neverDerefAliases (0),
+                                         // derefInSearching (1),
+                                         // derefFindingBaseObj (2),
+                                         // derefAlways (3) },
+                                         // sizeLimit INTEGER (0 .. maxInt), (infinite)
+                  0x02, 0x01, 0x00,      // timeLimit INTEGER (0 .. maxInt), (infinite)
+                  0x02, 0x01, 0x00, 
+                  0x01, 0x01,0x00,       // typesOnly
+                                         // BOOLEAN,
+                                         // (FALSE)
+                                         // filter Filter,
+                                         // Filter ::= CHOICE {
+                  ( byte ) 0x87, 0x0B,   // present [7] AttributeDescription,
+                    'o', 'b', 'j', 'e', 'c', 't', 'C', 'l', 'a', 's', 's',
+                                         // attributes AttributeDescriptionList }
+                  0x30, 0x06,            // AttributeDescriptionList ::= SEQUENCE OF
+                                         // AttributeDescription
+                    0x04, 0x02,          // Request for sn
+                      's', 'n', 
+                    0x04, 0x00           // Empty attribute
+            } );
+
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequest sr = message.getSearchRequest();
+
+        assertEquals( 3, message.getMessageId() );
+        assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
+        assertEquals( ScopeEnum.BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( false, sr.isTypesOnly() );
+
+        // (objectClass = *)
+        PresentFilter presentFilter = ( PresentFilter ) sr.getFilter();
+        assertNotNull( presentFilter );
+        assertEquals( "objectClass", presentFilter.getAttributeDescription() );
+
+        // The attributes
+        Attributes attributes = sr.getAttributes();
+
+        assertEquals( 1, attributes.size() );
+    }
+
+    /**
+     * Test the decoding of a SearchRequest with a star and an attribute. The search
+     * filter is : (objectclass=*)
+     */
+    public void testDecodeSearchRequestWithStarAndAttr()
+    {
+        Asn1Decoder ldapDecoder = new LdapDecoder();
+
+        ByteBuffer stream = ByteBuffer.allocate( 0x40 );
+        stream.put( new byte[]
+            { 0x30, 0x3E,                // LDAPMessage ::=SEQUENCE {
+                0x02, 0x01, 0x03,        // messageID MessageID
+                0x63, 0x39,              // CHOICE { ..., searchRequest SearchRequest, ...
+                                         // SearchRequest ::= APPLICATION[3] SEQUENCE {
+                  0x04, 0x12,            // baseObject LDAPDN,
+                    'o', 'u', '=', 'u', 's', 'e', 'r', 's', ',', 'o', 'u', '=', 's', 'y', 's', 't', 'e', 'm', 
+                  0x0A, 0x01, 0x00,      // scope ENUMERATED {
+                                         // baseObject (0),
+                                         // singleLevel (1),
+                                         // wholeSubtree (2) },
+                  0x0A, 0x01, 0x03,      // derefAliases ENUMERATED {
+                                         // neverDerefAliases (0),
+                                         // derefInSearching (1),
+                                         // derefFindingBaseObj (2),
+                                         // derefAlways (3) },
+                                         // sizeLimit INTEGER (0 .. maxInt), (infinite)
+                  0x02, 0x01, 0x00,      // timeLimit INTEGER (0 .. maxInt), (infinite)
+                  0x02, 0x01, 0x00, 
+                  0x01, 0x01,0x00,       // typesOnly
+                                         // BOOLEAN,
+                                         // (FALSE)
+                                         // filter Filter,
+                                         // Filter ::= CHOICE {
+                  ( byte ) 0x87, 0x0B,   // present [7] AttributeDescription,
+                    'o', 'b', 'j', 'e', 'c', 't', 'C', 'l', 'a', 's', 's',
+                                         // attributes AttributeDescriptionList }
+                  0x30, 0x07,            // AttributeDescriptionList ::= SEQUENCE OF
+                                         // AttributeDescription
+                    0x04, 0x02,          // Request for sn
+                      's', 'n', 
+                    0x04, 0x01, '*'      // * attribute
+            } );
+
+        stream.flip();
+
+        // Allocate a BindRequest Container
+        IAsn1Container ldapMessageContainer = new LdapMessageContainer();
+
+        try
+        {
+            ldapDecoder.decode( stream, ldapMessageContainer );
+        }
+        catch ( DecoderException de )
+        {
+            de.printStackTrace();
+            fail( de.getMessage() );
+        }
+
+        assertEquals( TLVStateEnum.PDU_DECODED, ldapMessageContainer.getState() );
+        
+        LdapMessage message = ( ( LdapMessageContainer ) ldapMessageContainer ).getLdapMessage();
+        SearchRequest sr = message.getSearchRequest();
+
+        assertEquals( 3, message.getMessageId() );
+        assertEquals( "ou=users,ou=system", sr.getBaseObject().toString() );
+        assertEquals( ScopeEnum.BASE_OBJECT, sr.getScope() );
+        assertEquals( LdapConstants.DEREF_ALWAYS, sr.getDerefAliases() );
+        assertEquals( 0, sr.getSizeLimit() );
+        assertEquals( 0, sr.getTimeLimit() );
+        assertEquals( false, sr.isTypesOnly() );
+
+        // (objectClass = *)
+        PresentFilter presentFilter = ( PresentFilter ) sr.getFilter();
+        assertNotNull( presentFilter );
+        assertEquals( "objectClass", presentFilter.getAttributeDescription() );
+
+        // The attributes
+        Attributes attributes = sr.getAttributes();
+
+        assertEquals( 2, attributes.size() );
+        assertNotNull( attributes.get( "sn" ) );
+        assertNotNull( attributes.get( "*" ) );
+    }        
+
 
     /**
      * Tests an search request decode with a simple equality match filter.
@@ -2459,14 +2625,26 @@ public class SearchRequestTest extends TestCase
     public void testDecodeSearchRequestEmptyGreaterOrEqualEmptyAttrValueEmpty()
     {
         byte[] asn1BER = new byte[]
-            { 0x30, 0x43, 0x02, 0x01, 0x04, // messageID
-                0x63, 0x3E, 0x04, 0x1F, // baseObject LDAPDN,
-                'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
-                'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 0x0A, 0x01, 0x01, 0x0A, 0x01, 0x03, 0x02, 0x01,
-                0x00, 0x02, 0x01, 0x00, 0x01, 0x01, ( byte ) 0xFF, ( byte ) 0xA5, 0x08, 0x04, 0x04, 't', 'e', 's', 't',
-                0x04, 0x00, 0x30, 0x02, // AttributeDescriptionList ::= SEQUENCE
-                                        // OF AttributeDescription
-                0x04, 0x00 };
+            { 
+            0x30, 0x43, 
+              0x02, 0x01, 0x04, // messageID
+              0x63, 0x3E, 
+                0x04, 0x1F,     // baseObject LDAPDN,
+                  'u', 'i', 'd', '=', 'a', 'k', 'a', 'r', 'a', 's', 'u', 'l', 'u', ',', 'd', 'c', '=', 'e', 'x', 'a',
+                  'm', 'p', 'l', 'e', ',', 'd', 'c', '=', 'c', 'o', 'm', 
+                0x0A, 0x01, 0x01, 
+                0x0A, 0x01, 0x03, 
+                0x02, 0x01, 0x00, 
+                0x02, 0x01, 0x00, 
+                0x01, 0x01, (byte) 0xFF, 
+                (byte) 0xA5, 0x08, 
+                0x04, 0x04, 
+                  't', 'e', 's', 't',
+                0x04, 0x00, 
+                0x30, 0x02,     // AttributeDescriptionList ::= SEQUENCE
+                                // OF AttributeDescription
+                  0x04, 0x00 
+            };
 
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -2512,12 +2690,7 @@ public class SearchRequestTest extends TestCase
 
         Attributes attributes = sr.getAttributes();
 
-        assertEquals( 1, attributes.size() );
-
-        for ( int i = 0; i < attributes.size(); i++ )
-        {
-            assertNotNull( attributes.get( "*" ) );
-        }
+        assertEquals( 0, attributes.size() );
     }
 
 
