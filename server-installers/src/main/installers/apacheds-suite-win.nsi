@@ -99,7 +99,7 @@ XPStyle on
     Var JAVA_HOME_DIR
     !define MUI_DIRECTORYPAGE_VARIABLE          $JAVA_HOME_DIR  ;selected by user
     !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Java JDK Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the Java JDK home directory that you would like to use for running the installed applications."
+    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the Java home directory that you would like to use for running the installed applications."
     !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
 
 
