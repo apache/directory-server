@@ -222,6 +222,83 @@ public class SearchITest extends AbstractAdminTestCase
         assertNull( attrs.get( "creatorsName" ) );
     }
 
+    public void testSearchUserAttrAndOpAttr() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "*", "creatorsName" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        Attributes attrs = map.get( "ou=testing01,ou=system" );
+        
+        assertNotNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "ou" ) );
+        assertNotNull( attrs.get( "creatorsName" ) );
+        assertNull( attrs.get( "createTimestamp" ) );
+    }
+
+    public void testSearchUserAttrAndNoAttr() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "1.1", "ou" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        Attributes attrs = map.get( "ou=testing01,ou=system" );
+        
+        assertNull( attrs.get( "objectClass" ) );
+        assertNotNull( attrs.get( "ou" ) );
+        assertNull( attrs.get( "creatorsName" ) );
+        assertNull( attrs.get( "createTimestamp" ) );
+    }
+
+    public void testSearchNoAttr() throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        controls.setDerefLinkFlag( false );
+        controls.setReturningAttributes( new String[] { "1.1" } );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        HashMap<String, Attributes> map = new HashMap<String, Attributes>();
+
+        NamingEnumeration list = sysRoot.search( "", "(ou=testing01)", controls );
+        while ( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            map.put( result.getName(), result.getAttributes() );
+        }
+
+        assertEquals( "Expected number of results returned was incorrect!", 1, map.size() );
+        
+        Attributes attrs = map.get( "ou=testing01,ou=system" );
+        
+        assertNull( attrs.get( "objectClass" ) );
+        assertNull( attrs.get( "ou" ) );
+        assertNull( attrs.get( "creatorsName" ) );
+        assertNull( attrs.get( "createTimestamp" ) );
+    }
 
     public void testSearchAllAttr() throws NamingException
     {
