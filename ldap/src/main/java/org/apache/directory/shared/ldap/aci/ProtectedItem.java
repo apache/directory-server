@@ -225,37 +225,24 @@ public abstract class ProtectedItem implements Serializable
      */
     private abstract static class AttributeTypeProtectedItem extends ProtectedItem
     {
-        protected final Collection attributeTypes;
+        protected final Collection<String> attributeTypes;
 
 
         /**
          * Creates a new instance.
          * 
-         * @param attributeTypes
-         *            the collection of attirbute IDs
+         * @param attributeTypes the collection of attirbute IDs
          */
-        protected AttributeTypeProtectedItem(Collection attributeTypes)
+        protected AttributeTypeProtectedItem( Collection<String> attributeTypes )
         {
-            Collection tmp = new ArrayList();
-            for ( Iterator i = attributeTypes.iterator(); i.hasNext(); )
-            {
-                Object val = i.next();
-                if ( !String.class.isAssignableFrom( val.getClass() ) )
-                {
-                    throw new IllegalArgumentException( "attributeTypes contains an element which is not a string." );
-                }
-
-                tmp.add( ( ( String ) val ).toLowerCase() );
-            }
-
-            this.attributeTypes = Collections.unmodifiableCollection( tmp );
+            this.attributeTypes = Collections.unmodifiableCollection( attributeTypes );
         }
 
 
         /**
          * Returns an iterator of all attribute IDs.
          */
-        public Iterator iterator()
+        public Iterator<String> iterator()
         {
             return attributeTypes.iterator();
         }
@@ -288,7 +275,7 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( '{' );
             buffer.append( ' ' );
             
-            for ( Iterator it = attributeTypes.iterator(); it.hasNext(); )
+            for ( Iterator<String> it = attributeTypes.iterator(); it.hasNext(); )
             {
                 String attributeType = ( String ) it.next();
                 buffer.append( attributeType );
@@ -319,7 +306,7 @@ public abstract class ProtectedItem implements Serializable
          * @param attributeTypes
          *            the collection of attribute IDs.
          */
-        public AttributeType(Collection attributeTypes)
+        public AttributeType( Collection<String> attributeTypes )
         {
             super( attributeTypes );
         }
@@ -353,7 +340,7 @@ public abstract class ProtectedItem implements Serializable
          * @param attributeTypes
          *            the collection of attribute IDs.
          */
-        public AllAttributeValues(Collection attributeTypes)
+        public AllAttributeValues( Collection<String> attributeTypes )
         {
             super( attributeTypes );
         }
@@ -389,10 +376,9 @@ public abstract class ProtectedItem implements Serializable
         /**
          * Creates a new instance.
          * 
-         * @param attributeTypes
-         *            the collection of attribute IDs.
+         * @param attributeTypes the collection of attribute IDs.
          */
-        public SelfValue(Collection attributeTypes)
+        public SelfValue( Collection<String> attributeTypes )
         {
             super( attributeTypes );
         }
@@ -418,8 +404,7 @@ public abstract class ProtectedItem implements Serializable
     public static class AttributeValue extends ProtectedItem
     {
         private static final long serialVersionUID = -258318397837951363L;
-
-        private final Collection attributes;
+        private final Collection<Attribute> attributes;
 
 
         /**
@@ -428,23 +413,16 @@ public abstract class ProtectedItem implements Serializable
          * @param attributes
          *            the collection of {@link Attribute}s.
          */
-        public AttributeValue(Collection attributes)
+        public AttributeValue( Collection<Attribute> attributes )
         {
-            for ( Iterator i = attributes.iterator(); i.hasNext(); )
-            {
-                if ( !Attribute.class.isAssignableFrom( i.next().getClass() ) )
-                {
-                    throw new IllegalArgumentException( "attributeTypes contains an element which is not an attribute." );
-                }
-            }
-            this.attributes = Collections.unmodifiableCollection( new ArrayList( attributes ) );
+            this.attributes = Collections.unmodifiableCollection( attributes );
         }
 
 
         /**
          * Returns an iterator of all {@link Attribute}s.
          */
-        public Iterator iterator()
+        public Iterator<Attribute> iterator()
         {
             return attributes.iterator();
         }
@@ -481,9 +459,9 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( '{' );
             buffer.append( ' ' );
             
-            for ( Iterator it = attributes.iterator(); it.hasNext(); )
+            for ( Iterator<Attribute> it = attributes.iterator(); it.hasNext(); )
             {
-                Attribute attribute = ( Attribute ) it.next();
+                Attribute attribute = it.next();
                 buffer.append( attribute.getID() );
                 buffer.append( '=' );
                 try
@@ -519,7 +497,7 @@ public abstract class ProtectedItem implements Serializable
     {
         private static final long serialVersionUID = 5261651541488944572L;
 
-        private final Collection items;
+        private final Collection<ProtectedItem.MaxValueCountItem> items;
 
 
         /**
@@ -528,9 +506,9 @@ public abstract class ProtectedItem implements Serializable
          * @param items
          *            the collection of {@link MaxValueCountItem}s.
          */
-        public MaxValueCount(Collection items)
+        public MaxValueCount( Collection<MaxValueCountItem> items )
         {
-            for ( Iterator i = items.iterator(); i.hasNext(); )
+            for ( Iterator<MaxValueCountItem> i = items.iterator(); i.hasNext(); )
             {
                 if ( !MaxValueCountItem.class.isAssignableFrom( i.next().getClass() ) )
                 {
@@ -538,14 +516,14 @@ public abstract class ProtectedItem implements Serializable
                 }
             }
 
-            this.items = Collections.unmodifiableCollection( new ArrayList( items ) );
+            this.items = Collections.unmodifiableCollection( new ArrayList<MaxValueCountItem>( items ) );
         }
 
 
         /**
          * Returns an iterator of all {@link MaxValueCountItem}s.
          */
-        public Iterator iterator()
+        public Iterator<MaxValueCountItem> iterator()
         {
             return items.iterator();
         }
@@ -582,9 +560,9 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( '{' );
             buffer.append( ' ' );
             
-            for ( Iterator it = items.iterator(); it.hasNext(); )
+            for ( Iterator<MaxValueCountItem> it = items.iterator(); it.hasNext(); )
             {
-                MaxValueCountItem item = ( MaxValueCountItem ) it.next();
+                MaxValueCountItem item = it.next();
                 item.printToBuffer( buffer );
                 
                 if(it.hasNext()) {
@@ -751,34 +729,24 @@ public abstract class ProtectedItem implements Serializable
     public static class RestrictedBy extends ProtectedItem
     {
         private static final long serialVersionUID = -8157637446588058799L;
-
-        private final Collection items;
+        private final Collection<RestrictedByItem> items;
 
 
         /**
          * Creates a new instance.
          * 
-         * @param items
-         *            the collection of {@link RestrictedByItem}s.
+         * @param items the collection of {@link RestrictedByItem}s.
          */
-        public RestrictedBy(Collection items)
+        public RestrictedBy( Collection<RestrictedByItem> items)
         {
-            for ( Iterator i = items.iterator(); i.hasNext(); )
-            {
-                if ( !RestrictedByItem.class.isAssignableFrom( i.next().getClass() ) )
-                {
-                    throw new IllegalArgumentException( "RestrictedBy items contains a wrong element." );
-                }
-            }
-
-            this.items = Collections.unmodifiableCollection( new ArrayList( items ) );
+            this.items = Collections.unmodifiableCollection( items );
         }
 
 
         /**
          * Returns an iterator of all {@link RestrictedByItem}s.
          */
-        public Iterator iterator()
+        public Iterator<RestrictedByItem> iterator()
         {
             return items.iterator();
         }
@@ -815,9 +783,9 @@ public abstract class ProtectedItem implements Serializable
             buffer.append( '{' );
             buffer.append( ' ' );
             
-            for ( Iterator it = items.iterator(); it.hasNext(); )
+            for ( Iterator<RestrictedByItem> it = items.iterator(); it.hasNext(); )
             {
-                RestrictedByItem item = ( RestrictedByItem ) it.next();
+                RestrictedByItem item = it.next();
                 item.printToBuffer( buffer );
                 
                 if(it.hasNext()) {
