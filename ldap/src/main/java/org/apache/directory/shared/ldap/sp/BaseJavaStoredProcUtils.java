@@ -24,14 +24,18 @@ package org.apache.directory.shared.ldap.sp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
+import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse;
 
 /**
  * A utility class for working with Java Stored Procedures at the base level.
@@ -101,6 +105,54 @@ public class BaseJavaStoredProcUtils
         attributes.put( "javaByteCode", buf );
         
         ctx.createSubcontext( "storedProcUnitName=" + fullClassName , attributes );
+    }
+    
+    public static Object callStoredProcedure( LdapContext ctx, String procedureName, Object[] arguments ) throws NamingException
+    {
+        String language = "Java";
+        
+        Object responseObject;
+        try
+        {
+            /**
+             * Create a new stored procedure execution request.
+             */
+            StoredProcedureRequest req = new StoredProcedureRequest( 0, procedureName, language );
+            
+            /**
+             * For each argument UTF-8-encode the type name
+             * and Java-serialize the value
+             * and add them to the request as a parameter object.
+             */
+            for ( int i = 0; i < arguments.length; i++ )
+            {
+                byte[] type;
+                byte[] value;
+                type = arguments[i].getClass().getName().getBytes( "UTF-8" );
+                value = SerializationUtils.serialize( ( Serializable ) arguments[i] );
+                req.addParameter( type, value );
+            }
+            
+            /**
+             * Call the stored procedure via the extended operation
+             * and get back its return value.
+             */
+            StoredProcedureResponse resp = ( StoredProcedureResponse ) ctx.extendedOperation( req );
+            
+            /**
+             * Restore a Java object from the return value.
+             */
+            byte[] responseStream = resp.getEncodedValue();
+            responseObject = SerializationUtils.deserialize( responseStream );
+        }
+        catch ( Exception e )
+        {
+            NamingException ne = new NamingException();
+            ne.setRootCause( e );
+            throw ne;
+        }
+        
+        return responseObject;
     }
     
 }

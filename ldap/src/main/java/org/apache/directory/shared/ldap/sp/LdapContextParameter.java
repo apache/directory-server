@@ -20,6 +20,8 @@
 
 package org.apache.directory.shared.ldap.sp;
 
+import java.io.Serializable;
+
 
 
 /**
@@ -28,8 +30,10 @@ package org.apache.directory.shared.ldap.sp;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class LdapContextParameter
+public class LdapContextParameter implements Serializable
 {
+    private static final long serialVersionUID = -8703671542595407603L;
+    
     private String name;
 
     public LdapContextParameter( String name )
@@ -37,12 +41,7 @@ public class LdapContextParameter
         this.name = name;
     }
     
-    public String getType()
-    {
-        return "$ldapContext";
-    }
-    
-    public Object getValue()
+    public String getValue()
     {
         return name;
     }
