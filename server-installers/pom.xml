@@ -130,7 +130,6 @@
 
   <build>
     <plugins>
-<!--
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
@@ -139,12 +138,12 @@
             <configuration>
               <tasks>
                 <mkdir dir="target/images"/>
-                <get src="http://builds.organicelement.com/repository/download/bt4/.lastSuccessful/ApacheDirectoryStudio_Windows.zip"
+                <get src="http://builds.organicelement.com/repository/download/bt4/.lastSuccessful/ApacheDirectoryStudio_Windows.zip?guest=1"
                      verbose="on" usetimestamp="true"
-                     dest="target/ApacheDirectoryStudio.zip"
+                     dest="ApacheDirectoryStudio.zip"
                 />
-                <touch file="target/ApacheDirectoryStudio.zip"/>
-                <unzip src="target/ApacheDirectoryStudio.zip" dest="target/images/win32" overwrite="false" />
+                <touch file="ApacheDirectoryStudio.zip"/>
+                <unzip src="ApacheDirectoryStudio.zip" dest="target/images/win32" overwrite="false" />
               </tasks>
             </configuration>
             <goals>
@@ -153,7 +152,6 @@
           </execution>
         </executions>
       </plugin>
--->
       <plugin>
         <groupId>org.apache.directory.daemon</groupId>
         <artifactId>daemon-plugin</artifactId>
@@ -347,8 +345,8 @@
                   <filtered>true</filtered>
                 </packagedFile>
                 <packagedFile>
-                  <source>../resources/adstree.ico</source>
-                  <destinationPath>server.ico</destinationPath>
+                  <source>../resources/server-installer.ico</source>
+                  <destinationPath>server-installer.ico</destinationPath>
                   <executable>false</executable>
                   <filtered>false</filtered>
                 </packagedFile>
@@ -366,7 +364,6 @@
               <osArch>x86</osArch>
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
-<!--
             <nsisTarget>
               <packagedFiles>
                 <packagedFile>
@@ -382,15 +379,15 @@
                   <filtered>true</filtered>
                 </packagedFile>
                 <packagedFile>
-                  <source>../resources/adstree.ico</source>
-                  <destinationPath>server.ico</destinationPath>
+                  <source>../resources/suite-installer.ico</source>
+                  <destinationPath>suite-installer.ico</destinationPath>
                   <executable>false</executable>
                   <filtered>false</filtered>
                 </packagedFile>
               </packagedFiles>
 
               <id>win32</id>
-              <nsisCompiler>/usr/local/share/nsis/makensis</nsisCompiler>
+              <nsisCompiler>/usr/local/nsis/makensis</nsisCompiler>
               <nsisConfigurationFile>src/main/installers/apacheds-suite-win.nsi</nsisConfigurationFile>
               <finalName>
                 apacheds-suite-${pom.version}-setup
@@ -401,7 +398,6 @@
               <osArch>x86</osArch>
               <daemonFramework>tanuki</daemonFramework>
             </nsisTarget>
--->
           </nsisTargets>
 
         </configuration>

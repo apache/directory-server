@@ -2,7 +2,7 @@
 !define AppVersion "${app.version}"
 !define OutFile "${app.final.name}"
 !define ShortName "${app}"
-!define SourceDir "${app.base.dir}/src"
+!define SourceDir "${app.base.dir}\src"
 !define JRE_VERSION "1.5.0"
 !define Vendor "Apache Software Foundation"
 !define Project "Apache Directory"
@@ -44,10 +44,10 @@ BrandingText "${AppName} - ${AppVersion}"
 XPStyle on
 
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${SourceDir}\main\resources\both_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SourceDir}\main\resources\header_suite.bmp"
 !define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}\main\resources\welcome.bmp"
-!define iconfile "${SourceDir}\main\resources\adstree.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}\main\resources\welcome_suite.bmp"
+!define iconfile "${SourceDir}\main\resources\suite-installer.ico"
 !define MUI_ICON "${iconfile}"
 !define MUI_UNICON "${iconfile}"
 
@@ -241,9 +241,16 @@ Section "Application Files" SecStudioFiles
 SectionEnd
 Section "Example Connections" SecStudioConnections
   SectionIn 1 3
-  IfFileExists "$PROFILE\.ApacheDirectoryStudio\.metadata\.plugins\org.apache.directory.studio.ldapbrowser.core\connections.xml" End 0
+
+  #.metadata\.plugins\org.apache.directory.studio.connection.core
+  #.metadata\.plugins\org.apache.directory.studio.ldapbrowser.core
+  IfFileExists "$PROFILE\.ApacheDirectoryStudio\.metadata\.plugins\org.apache.directory.studio.ldapbrowser.core\browserconnections.xml" End 0
   SetOutPath "$PROFILE\.ApacheDirectoryStudio\.metadata\.plugins\org.apache.directory.studio.ldapbrowser.core"
-  File "..\..\..\src\main\resources\connections.xml"
+  File "${SourceDir}\main\resources\browserconnections.xml"
+
+  IfFileExists "$PROFILE\.ApacheDirectoryStudio\.metadata\.plugins\org.apache.directory.studio.connection.core\connections.xml" End 0
+  SetOutPath "$PROFILE\.ApacheDirectoryStudio\.metadata\.plugins\org.apache.directory.studio.connection.core"
+  File "${SourceDir}\main\resources\connections.xml"
 End:
 
 SectionEnd
@@ -395,10 +402,10 @@ Function DetectJRE
   Push $3	; $3 and $4 are used for checking the major/minor version of java
   Push $4
   ;MessageBox MB_OK "Detecting JRE"
-  ReadRegStr $1 HKLM "SOFTWARE\JavaSoft\Java Development Kit" "CurrentVersion"
+  ReadRegStr $1 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment" "CurrentVersion"
   ;MessageBox MB_OK "Read : $1"
   StrCmp $1 "" DetectTry2
-  ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Development Kit\$1" "JavaHome"
+  ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
   ;MessageBox MB_OK "Read 3: $2"
   StrCmp $2 "" DetectTry2
   Goto GetJRE

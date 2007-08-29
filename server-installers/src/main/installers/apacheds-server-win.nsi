@@ -42,10 +42,10 @@ BrandingText "${AppName} - ${AppVersion}"
 XPStyle on
 
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${SourceDir}\main\resources\both_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SourceDir}\main\resources\header_server.bmp"
 !define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}\main\resources\welcome.bmp"
-!define iconfile "${SourceDir}\main\resources\adstree.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${SourceDir}\main\resources\welcome_server.bmp"
+!define iconfile "${SourceDir}\main\resources\server-installer.ico"
 !define MUI_ICON "${iconfile}"
 !define MUI_UNICON "${iconfile}"
 
@@ -355,10 +355,10 @@ Function DetectJRE
   Push $3	; $3 and $4 are used for checking the major/minor version of java
   Push $4
   ;MessageBox MB_OK "Detecting JRE"
-  ReadRegStr $1 HKLM "SOFTWARE\JavaSoft\Java Development Kit" "CurrentVersion"
+  ReadRegStr $1 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment" "CurrentVersion"
   ;MessageBox MB_OK "Read : $1"
   StrCmp $1 "" DetectTry2
-  ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Development Kit\$1" "JavaHome"
+  ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
   ;MessageBox MB_OK "Read 3: $2"
   StrCmp $2 "" DetectTry2
   Goto GetJRE
