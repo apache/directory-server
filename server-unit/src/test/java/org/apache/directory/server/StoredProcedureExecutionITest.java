@@ -37,7 +37,7 @@ import org.apache.directory.server.ldap.support.extended.StoredProcedureExtended
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.sp.BaseJavaStoredProcUtils;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
 
 
@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.sp.LdapContextParameter;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class StoredProcedureTest extends AbstractServerTest
+public class StoredProcedureExecutionITest extends AbstractServerTest
 {
     private LdapContext ctx = null;
     private LdapContext spCtx = null;
@@ -91,9 +91,9 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHello";
         
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
         
-        Object response = BaseJavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
+        Object response = JavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { } );
         
         assertEquals( "Hello World!", response );
     }
@@ -103,9 +103,9 @@ public class StoredProcedureTest extends AbstractServerTest
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHelloTo";
         
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, HelloWorldProcedure.class );
         
-        Object response = BaseJavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
+        Object response = JavaStoredProcUtils.callStoredProcedure( ctx, procedureName, new Object[] { "Ersin" } );
         
         assertEquals( "Hello Ersin!", response );
     }
@@ -135,13 +135,13 @@ public class StoredProcedureTest extends AbstractServerTest
         
         injectEntries( ldif );
         
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, DITUtilitiesSP.class );
         
         String spName = DITUtilitiesSP.class.getName() + ":deleteSubtree";
         Object[] params = new Object[] { new LdapContextParameter( "ou=system" ),
                                          new LdapDN( "ou=People" ) };
         
-        BaseJavaStoredProcUtils.callStoredProcedure( ctx, spName, params );
+        JavaStoredProcUtils.callStoredProcedure( ctx, spName, params );
         
         try
         {

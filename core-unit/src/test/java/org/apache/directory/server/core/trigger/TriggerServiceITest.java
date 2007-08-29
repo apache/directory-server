@@ -27,7 +27,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.sp.BaseJavaStoredProcUtils;
+import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
@@ -84,7 +84,7 @@ public class TriggerServiceITest extends AbstractAdminTestCase
         injectEntries( ldif );
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
         // Create the Entry Trigger Specification.
         TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
@@ -108,7 +108,7 @@ public class TriggerServiceITest extends AbstractAdminTestCase
     public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws NamingException
     {
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
         // Create a container for backing up deleted entries.
         String ldif  = 
@@ -182,7 +182,7 @@ public class TriggerServiceITest extends AbstractAdminTestCase
             "cn: teachers\n";
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
-        BaseJavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
+        JavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
 
         // Inject the ldif file into the server
         injectEntries( ldif );
