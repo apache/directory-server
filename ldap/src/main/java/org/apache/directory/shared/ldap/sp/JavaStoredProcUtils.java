@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.message.extended.StoredProcedureResponse
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class BaseJavaStoredProcUtils
+public class JavaStoredProcUtils
 {
 
     
