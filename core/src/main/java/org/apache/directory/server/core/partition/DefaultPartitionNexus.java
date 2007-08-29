@@ -865,18 +865,20 @@ public class DefaultPartitionNexus extends PartitionNexus
                 boolean containsAsterisk = false;
                 boolean containsPlus = false;
                 boolean containsOneDotOne = false;
-                for ( int ii = 0; ii < ids.length; ii++ )
+                
+                for ( String id:ids )
                 {
-                    String id = ids[ii].trim();
-                    if ( id.equals( "*" ) )
+                    String idTrimmed = id.trim();
+                    
+                    if ( idTrimmed.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
                     {
                         containsAsterisk = true;
                     }
-                    else if ( id.equals( "+" ) )
+                    else if ( idTrimmed.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                     {
                         containsPlus = true;
                     }
-                    else if ( id.equals( "1.1" ) )
+                    else if ( idTrimmed.equals( SchemaConstants.NO_ATTRIBUTE ) )
                     {
                         containsOneDotOne = true;
                     }
@@ -884,11 +886,11 @@ public class DefaultPartitionNexus extends PartitionNexus
                     {
                         try
                         {
-                            realIds.add( oidRegistry.getOid( id ) );
+                            realIds.add( oidRegistry.getOid( idTrimmed ) );
                         }
                         catch ( NamingException e )
                         {
-                            realIds.add( id );
+                            realIds.add( idTrimmed );
                         }
                     }
                 }

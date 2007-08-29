@@ -68,6 +68,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
@@ -515,7 +516,7 @@ public class PartitionNexusProxy extends PartitionNexus
     			
         		return ROOT_DSE_NO_OPERATIONNAL;
     		}
-    		else if ( ( attrs.size() == 1 ) && ( attrs.contains( "+" ) ) )
+    		else if ( ( attrs.size() == 1 ) && ( attrs.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) ) )
     		{
     			synchronized( ROOT_DSE_ALL_MUTEX )
     			{

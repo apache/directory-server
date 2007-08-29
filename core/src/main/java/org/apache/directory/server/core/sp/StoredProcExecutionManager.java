@@ -32,6 +32,8 @@ import javax.naming.directory.SearchResult;
 
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+
 /**
  * A Factory type class which holds a registry of supported {@link StoredProcEngineConfig}s. A container reference
  * as the base for Stored Procedure storage on the DIT is also handled by this class.
@@ -71,7 +73,7 @@ public class StoredProcExecutionManager
     public Attributes findStoredProcUnit( LdapContext rootDSE, String fullSPName ) throws NamingException
     {
         SearchControls controls = new SearchControls();
-        controls.setReturningAttributes( new String[] { "*" } );
+        controls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String filter = "(storedProcUnitName=" + spUnitName + ")";

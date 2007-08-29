@@ -165,7 +165,7 @@ public class CollectiveAttributeService extends BaseInterceptor
          */
         if ( retAttrs == null )
         {
-            retAttrs = new String[] { "*" };
+            retAttrs = SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY;
         }
         
         /*
@@ -211,15 +211,18 @@ public class CollectiveAttributeService extends BaseInterceptor
                 
                 Set allSuperTypes = getAllSuperTypes( attrType );
                 Iterator it = retIdsSet.iterator();
+                
                 while ( it.hasNext() )
                 {
                     String retId = ( String ) it.next();
-                    if ( retId.equals( "*" ) || retId.equals( "+" ) )
+                    
+                    if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                     {
                         continue;
                     }
                     
                     AttributeType retType = attrTypeRegistry.lookup( retId );
+                    
                     if ( allSuperTypes.contains( retType ) )
                     {
                         retIdsSet.add( attrId );
@@ -231,7 +234,7 @@ public class CollectiveAttributeService extends BaseInterceptor
                  * If not all attributes or this collective attribute requested specifically
                  * then bypass the inclusion process.
                  */
-                if ( !( retIdsSet.contains( "*" ) || retIdsSet.contains( attrId ) ) )
+                if ( !( retIdsSet.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || retIdsSet.contains( attrId ) ) )
                 {
                     continue;
                 }
@@ -294,7 +297,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         
         if ( ( opContext.getAttrsId() == null ) || ( opContext.getAttrsId().size() == 0 ) ) 
         {
-            addCollectiveAttributes( opContext.getDn(), result, new String[] { "*" } );
+            addCollectiveAttributes( opContext.getDn(), result, SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
         }
         else
         {

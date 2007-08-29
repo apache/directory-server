@@ -29,6 +29,7 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
@@ -126,7 +127,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             // add all listed attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                if ( attrIds[ii].equals( "+" ) )
+                if ( attrIds[ii].equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                 {
                     continue;
                 }
@@ -163,7 +164,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             // add all listed operational attributes
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                if ( attrIds[ii].equals( "*" ) )
+                if ( attrIds[ii].equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
                 {
                     continue;
                 }
@@ -199,7 +200,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
             
             for ( int ii = 0; ii < attrIds.length; ii++ )
             {
-                if ( "1.1".equals( attrIds[ii] ) )
+                if ( SchemaConstants.NO_ATTRIBUTE.equals( attrIds[ii] ) )
                 {
                     break;
                 }
@@ -249,7 +250,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 
         for ( int ii = ids.length - 1; ii >= 0; ii-- )
         {
-            if ( ids[ii].trim().equals( "*" ) )
+            if ( ids[ii].trim().equals( SchemaConstants.ALL_USER_ATTRIBUTES ) )
             {
                 return true;
             }
@@ -268,7 +269,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
 
         for ( int ii = ids.length - 1; ii >= 0; ii-- )
         {
-            if ( ids[ii].trim().equals( "+" ) )
+            if ( ids[ii].trim().equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
             {
                 return true;
             }

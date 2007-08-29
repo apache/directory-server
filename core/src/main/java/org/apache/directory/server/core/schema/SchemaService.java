@@ -403,21 +403,36 @@ public class SchemaService extends BaseInterceptor
 
         if ( ( attributes == null ) || ( attributes.length == 0 ) )
         {
+            // We have no attributes, that means "*" (all users attributes)
+            searchCtls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
             return;
         }
         
         Map<String, String> filteredAttrs = new HashMap<String, String>(); 
+        boolean hasNoAttribute = false;
+        boolean hasAttributes = false;
         
         for ( String attribute:attributes )
         {
             // Skip special attributes
-            if ( ( "*".equals( attribute ) ) || ( "+".equals( attribute ) ) || ( "1.1".equals( attribute ) ) )
+            if ( ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( attribute ) ) || 
+                ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( attribute ) ) || 
+                ( SchemaConstants.NO_ATTRIBUTE.equals( attribute ) ) )
             {
                 if ( !filteredAttrs.containsKey( attribute ) )
                 {
                     filteredAttrs.put( attribute, attribute );
                 }
 
+                if ( SchemaConstants.NO_ATTRIBUTE.equals( attribute ) )
+                {
+                    hasNoAttribute = true;
+                }
+                else
+                {
+                    hasAttributes = true;
+                }
+                
                 continue;
             }
             
@@ -438,11 +453,19 @@ public class SchemaService extends BaseInterceptor
 		                }
 	                }
             	}
+                
+                hasAttributes = true;
             }
             catch ( NamingException ne )
             {
                 /* Do nothing, the attribute does not exist */
             }
+        }
+        
+        // Treat a special case : if we have an attribute and "1.1", then discard "1.1"
+        if ( hasAttributes && hasNoAttribute )
+        {
+            filteredAttrs.remove( SchemaConstants.NO_ATTRIBUTE );
         }
         
         // If we still have the same attribute number, then we can just get out the method
@@ -454,9 +477,9 @@ public class SchemaService extends BaseInterceptor
         // Deal with the special case where the attribute list is now empty
         if (  filteredAttrs.size() == 0 )
         {
-        	// We just have to pass the special 1.1 ayttribute,
+        	// We just have to pass the special 1.1 attribute,
         	// as we don't want to return any attribute
-        	searchCtls.setReturningAttributes( new String[]{ "1.1" } );
+        	searchCtls.setReturningAttributes( SchemaConstants.NO_ATTRIBUTE_ARRAY );
         	return;
         }
         
@@ -597,12 +620,11 @@ public class SchemaService extends BaseInterceptor
         {
             // Check whether the set contains a plus, and use it below to include all
             // operational attributes.  Due to RFC 3673, and issue DIREVE-228 in JIRA
-            if ( "+".equals( id ) )
+            if ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( id ) )
             {
-                // set.add( "+" );
                 returnAllOperationalAttributes = true;
             }
-            else if ( "*".equals(  id ) )
+            else if ( SchemaConstants.ALL_USER_ATTRIBUTES.equals(  id ) )
             {
                 setOids.add( id );
             }
@@ -791,7 +813,7 @@ public class SchemaService extends BaseInterceptor
         }
 
         // add the objectClass attribute
-        if ( setOids.contains( "*" ) || 
+        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
              setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) || 
              setOids.size() == minSetSize )
         {
@@ -804,7 +826,7 @@ public class SchemaService extends BaseInterceptor
         }
 
         // add the cn attribute as required for the RDN
-        if ( setOids.contains( "*" ) || 
+        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
              setOids.contains( SchemaConstants.CN_AT_OID ) || 
              setOids.size() == minSetSize )
         {
@@ -1230,7 +1252,7 @@ public class SchemaService extends BaseInterceptor
         next.rename( opContext );
     }
 
-    private final static String[] schemaSubentryReturnAttributes = new String[] { "+", "*" };
+    private final static String[] schemaSubentryReturnAttributes = new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
     
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {

@@ -452,7 +452,7 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
-                { "+", "*" } );
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration subentries = 
                 nexus.search( 
@@ -579,7 +579,7 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
-                { "+", "*" } );
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration subentries = 
                 nexus.search( 
@@ -741,7 +741,7 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration subentries = 
                 nexus.search( 
                     new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
@@ -822,7 +822,7 @@ public class SubentryService extends BaseInterceptor
             ExprNode filter = new PresenceNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ) );
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            controls.setReturningAttributes( new String[] { "+", "*" } );
+            controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration subentries = 
                 nexus.search( 
                     new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
@@ -897,7 +897,7 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
-                { "+", "*" } );
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration subentries = 
                 nexus.search( 
                     new SearchOperationContext( baseDn, factoryCfg.getEnvironment(), filter, controls ) );
@@ -1064,7 +1064,7 @@ public class SubentryService extends BaseInterceptor
             SearchControls controls = new SearchControls();
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[]
-                { "+", "*" } );
+                { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration subentries = 
                 nexus.search( 
                     new SearchOperationContext( oldBaseDn, factoryCfg.getEnvironment(), filter, controls ) );
