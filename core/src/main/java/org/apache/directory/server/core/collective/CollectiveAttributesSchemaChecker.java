@@ -79,12 +79,12 @@ public class CollectiveAttributesSchemaChecker
     public void checkModify( LdapDN normName, int modOp, Attributes mods ) throws NamingException
     {
         ModificationItemImpl[] modsAsArray = new ModificationItemImpl[ mods.size() ];
-        NamingEnumeration allAttrs = mods.getAll();
+        NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
         int i = 0;
         
         while ( allAttrs.hasMoreElements() )
         {
-            Attribute attr = ( Attribute ) allAttrs.nextElement();
+            Attribute attr = allAttrs.nextElement();
             modsAsArray[i] = new ModificationItemImpl( modOp, attr );
             i++;
         }
@@ -138,11 +138,11 @@ public class CollectiveAttributesSchemaChecker
     
     private boolean containsAnyCollectiveAttributes( Attributes entry ) throws NamingException
     {
-        NamingEnumeration allIDs = entry.getIDs();
+        NamingEnumeration<String> allIDs = entry.getIDs();
         
         while ( allIDs.hasMoreElements() )
         {
-            String attrTypeStr = ( String ) allIDs.nextElement();
+            String attrTypeStr = allIDs.nextElement();
             AttributeType attrType = attrTypeRegistry.lookup( attrTypeStr );
             
             if ( attrType.isCollective() )

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -192,9 +191,8 @@ public class ACDFEngine
         aciTuples = new ArrayList<ACITuple>( aciTuples );
 
         // Filter unrelated and invalid tuples
-        for ( int i = 0; i < filters.length; i++ )
+        for ( ACITupleFilter filter : filters )
         {
-            ACITupleFilter filter = filters[i];
             aciTuples = filter.filter( aciTuples, scope, proxy, userGroupNames, userName, userEntry,
                 authenticationLevel, entryName, attrId, attrValue, entry, microOperations );
         }
@@ -207,9 +205,8 @@ public class ACDFEngine
 
         // Grant access if and only if one or more tuples remain and
         // all grant access. Otherwise deny access.
-        for ( Iterator i = aciTuples.iterator(); i.hasNext(); )
+        for ( ACITuple tuple : aciTuples )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
             if ( !tuple.isGrant() )
             {
                 return false;

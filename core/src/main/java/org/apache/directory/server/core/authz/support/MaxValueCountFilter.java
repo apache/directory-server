@@ -70,17 +70,17 @@ public class MaxValueCountFilter implements ACITupleFilter
             return tuples;
         }
 
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
+            ACITuple tuple = i.next();
             if ( !tuple.isGrant() )
             {
                 continue;
             }
 
-            for ( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
-                ProtectedItem item = ( ProtectedItem ) j.next();
+                ProtectedItem item = j.next();
                 if ( item instanceof ProtectedItem.MaxValueCount )
                 {
                     ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
@@ -99,9 +99,9 @@ public class MaxValueCountFilter implements ACITupleFilter
 
     private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Attributes entry )
     {
-        for ( Iterator k = mvc.iterator(); k.hasNext(); )
+        for ( Iterator<ProtectedItem.MaxValueCountItem> k = mvc.iterator(); k.hasNext(); )
         {
-            MaxValueCountItem mvcItem = ( MaxValueCountItem ) k.next();
+            MaxValueCountItem mvcItem = k.next();
             if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
             {
                 Attribute attr = entry.get( attrId );

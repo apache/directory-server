@@ -41,7 +41,6 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -188,11 +187,11 @@ public class CollectiveAttributeService extends BaseInterceptor
             String subentryDnStr = ( String ) caSubentries.get( ii );
             LdapDN subentryDn = new LdapDN( subentryDnStr );
             Attributes subentry = nexus.lookup( new LookupOperationContext( subentryDn ) );
-            NamingEnumeration attrIds = subentry.getIDs();
+            NamingEnumeration<String> attrIds = subentry.getIDs();
             
             while ( attrIds.hasMore() )
             {
-                String attrId = ( String ) attrIds.next();
+                String attrId = attrIds.next();
                 AttributeType attrType = attrTypeRegistry.lookup( attrId );
 
                 if ( !attrType.isCollective() )
@@ -209,12 +208,12 @@ public class CollectiveAttributeService extends BaseInterceptor
                     continue;
                 }
                 
-                Set allSuperTypes = getAllSuperTypes( attrType );
-                Iterator it = retIdsSet.iterator();
+                Set<AttributeType> allSuperTypes = getAllSuperTypes( attrType );
+                Iterator<String> it = retIdsSet.iterator();
                 
                 while ( it.hasNext() )
                 {
-                    String retId = ( String ) it.next();
+                    String retId = it.next();
                     
                     if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                     {
@@ -264,7 +263,7 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
     
     
-    private Set getAllSuperTypes( AttributeType id ) throws NamingException
+    private Set<AttributeType> getAllSuperTypes( AttributeType id ) throws NamingException
     {
         Set<AttributeType> allSuperTypes = new HashSet<AttributeType>();
         AttributeType superType = id;
@@ -308,9 +307,9 @@ public class CollectiveAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
     }

@@ -75,7 +75,7 @@ public class GroupCache
     private final PartitionNexus nexus;
     
     /** the env to use for searching */
-    private final Hashtable env;
+    private final Hashtable<?,?> env;
 
     /** Stores a reference to the AttributeType registry */ 
     private AttributeTypeRegistry attributeTypeRegistry;
@@ -105,7 +105,7 @@ public class GroupCache
     {
     	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         nexus = factoryCfg.getPartitionNexus();
-        env = ( Hashtable ) factoryCfg.getEnvironment().clone();
+        env = ( Hashtable<?,?> ) factoryCfg.getEnvironment().clone();
         attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         
         memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID ); 
@@ -135,11 +135,11 @@ public class GroupCache
         filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_NAMES_OC, AssertionEnum.EQUALITY ) );
         filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC, AssertionEnum.EQUALITY ) );
 
-        Iterator suffixes = nexus.listSuffixes( null );
+        Iterator<String> suffixes = nexus.listSuffixes( null );
         
         while ( suffixes.hasNext() )
         {
-            String suffix = ( String ) suffixes.next();
+            String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -255,7 +255,7 @@ public class GroupCache
      * @param members the set of member values
      * @throws NamingException if there are problems accessing the attr values
      */
-    private void removeMembers( Set memberSet, Attribute members ) throws NamingException
+    private void removeMembers( Set<String> memberSet, Attribute members ) throws NamingException
     {
         for ( int ii = 0; ii < members.size(); ii++ )
         {

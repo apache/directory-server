@@ -54,7 +54,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -149,7 +148,7 @@ public class AuthenticationService extends BaseInterceptor
                     "configuration." );
         }
         
-        Class authenticatorClass;
+        Class<?> authenticatorClass;
         try
         {
             authenticatorClass = Class.forName( cfg.getAuthenticatorClassName() );
@@ -214,7 +213,7 @@ public class AuthenticationService extends BaseInterceptor
      */
     private void unregister( Authenticator authenticator )
     {
-        Collection authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
+        Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
 
         if ( authenticatorList == null )
         {
@@ -329,7 +328,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -341,7 +340,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {

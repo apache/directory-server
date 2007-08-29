@@ -76,10 +76,10 @@ public class TupleCache
     private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
 
     /** cloned startup environment properties we use for subentry searching */
-    private final Hashtable env;
+    private final Hashtable<?,?> env;
     
     /** a map of strings to ACITuple collections */
-    private final Map<String,List> tuples = new HashMap<String,List>();
+    private final Map<String,List<ACITuple>> tuples = new HashMap<String,List<ACITuple>>();
     
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
@@ -111,7 +111,7 @@ public class TupleCache
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
-        env = ( Hashtable ) factoryCfg.getEnvironment().clone();
+        env = ( Hashtable<?,?> ) factoryCfg.getEnvironment().clone();
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
         initialize();
     }
@@ -130,11 +130,11 @@ public class TupleCache
         // search all naming contexts for access control subentenries
         // generate ACITuple Arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes( null );
+        Iterator<String> suffixes = nexus.listSuffixes( null );
         
         while ( suffixes.hasNext() )
         {
-            String suffix = ( String ) suffixes.next();
+            String suffix = suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
             ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();

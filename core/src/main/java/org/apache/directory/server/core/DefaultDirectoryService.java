@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -753,13 +754,13 @@ class DefaultDirectoryService extends DirectoryService
         ServerLdapContext ctx = ( ServerLdapContext ) 
             getJndiContext( principalDn, principal, credential, authentication, "" );
 
-        Iterator i = startupConfiguration.getTestEntries().iterator();
+        Iterator<Entry> i = startupConfiguration.getTestEntries().iterator();
         
         while ( i.hasNext() )
         {
         	try
         	{
-	        	Entry entry =  (Entry)( ( Entry ) i.next() ).clone();
+	        	Entry entry =  i.next().clone();
 	            Attributes attributes = entry.getAttributes();
 	            String dn = entry.getDn();
 
@@ -810,11 +811,11 @@ class DefaultDirectoryService extends DirectoryService
         loader.loadWithDependencies( bootstrapSchemas, registries );
 
         // run referential integrity tests
-        java.util.List errors = registries.checkRefInteg();
+        List<Throwable> errors = registries.checkRefInteg();
         if ( !errors.isEmpty() )
         {
             NamingException e = new NamingException();
-            e.setRootCause( ( Throwable ) errors.get( 0 ) );
+            e.setRootCause( errors.get( 0 ) );
             throw e;
         }
         
@@ -900,7 +901,7 @@ class DefaultDirectoryService extends DirectoryService
         
         for ( PartitionConfiguration pconf : pcs )
         {
-            Iterator indices = pconf.getIndexedAttributes().iterator();
+            Iterator<Object> indices = pconf.getIndexedAttributes().iterator();
             while ( indices.hasNext() )
             {
                 Object indexedAttr = indices.next();

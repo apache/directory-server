@@ -54,7 +54,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -425,7 +424,7 @@ public class AuthorizationService extends BaseInterceptor
         // perform checks below here for all non-admin users
         SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( name, entry );
-        NamingEnumeration attrList = entry.getAll();
+        NamingEnumeration<? extends Attribute> attrList = entry.getAll();
         
         while ( attrList.hasMore() )
         {
@@ -447,7 +446,7 @@ public class AuthorizationService extends BaseInterceptor
             ADD_PERMS, tuples, subentryAttrs );
 
         // now we must check if attribute type and value scope permission is granted
-        NamingEnumeration attributeList = entry.getAll();
+        NamingEnumeration<? extends Attribute> attributeList = entry.getAll();
         
         while ( attributeList.hasMore() )
         {
@@ -684,7 +683,7 @@ public class AuthorizationService extends BaseInterceptor
             LOOKUP_PERMS, tuples, entry );
 
         // check that we have read access to every attribute type and value
-        NamingEnumeration attributeList = entry.getAll();
+        NamingEnumeration<? extends Attribute> attributeList = entry.getAll();
         while ( attributeList.hasMore() )
         {
             Attribute attr = ( Attribute ) attributeList.next();
@@ -824,7 +823,7 @@ public class AuthorizationService extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
-        NamingEnumeration attrList = importedEntry.getAll();
+        NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )
         {
@@ -899,7 +898,7 @@ public class AuthorizationService extends BaseInterceptor
         // and access control subentry operational attributes.
         SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
-        NamingEnumeration attrList = importedEntry.getAll();
+        NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )
         {
@@ -919,12 +918,13 @@ public class AuthorizationService extends BaseInterceptor
         groupCache.groupRenamed( oriChildName, newName );
     }
 
-    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    
+    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapPrincipal user = ctx.getPrincipal();
-        NamingEnumeration e = next.list( opContext );
+        NamingEnumeration<SearchResult> e = next.list( opContext );
         
         if ( isPrincipalAnAdministrator( user.getJndiName() ) || !enabled )
         {
@@ -1077,12 +1077,12 @@ public class AuthorizationService extends BaseInterceptor
          * not allowed are removed from the attribute.  If the attribute has no more
          * values remaining then the entire attribute is removed.
          */
-        NamingEnumeration idList = result.getAttributes().getIDs();
+        NamingEnumeration<String> idList = result.getAttributes().getIDs();
 
         while ( idList.hasMore() )
         {
             // if attribute type scope access is not allowed then remove the attribute and continue
-            String id = ( String ) idList.next();
+            String id = idList.next();
             Attribute attr = result.getAttributes().get( id );
         
             if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()

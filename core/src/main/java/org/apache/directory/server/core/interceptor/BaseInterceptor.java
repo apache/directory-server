@@ -47,7 +47,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -150,13 +149,15 @@ public abstract class BaseInterceptor implements Interceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor next, ListOperationContext opContext ) 
+        throws NamingException
     {
         return next.list( opContext );
     }
 
 
-    public Iterator listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) 
+        throws NamingException
     {
         return next.listSuffixes( opContext );
     }

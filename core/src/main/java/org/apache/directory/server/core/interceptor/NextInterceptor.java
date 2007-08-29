@@ -42,13 +42,13 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
 
 /**
  * Represents the next {@link Interceptor} in the interceptor chain.
@@ -87,7 +87,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#listSuffixes( NextInterceptor, ListSuffixOperationContext )}.
      */
-    Iterator listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
+    Iterator<String> listSuffixes( ListSuffixOperationContext opContext ) throws NamingException;
 
 
     /**
@@ -122,7 +122,7 @@ public interface NextInterceptor
     /**
      * Calls the next interceptor's {@link Interceptor#list( NextInterceptor, ListOperationContext )}.
      */
-    NamingEnumeration list( ListOperationContext opContext ) throws NamingException;
+    NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException;
 
 
     /**

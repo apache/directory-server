@@ -73,7 +73,7 @@ public interface Registries
 
     SyntaxRegistry getSyntaxRegistry();
 
-    List checkRefInteg();
+    List<Throwable> checkRefInteg();
 
     Schema getSchema( String schemaName );
 

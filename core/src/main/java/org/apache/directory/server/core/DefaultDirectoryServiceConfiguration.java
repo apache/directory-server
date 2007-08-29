@@ -68,7 +68,7 @@ class DefaultDirectoryServiceConfiguration implements DirectoryServiceConfigurat
     }
 
 
-    public Hashtable getEnvironment()
+    public Hashtable<String,Object> getEnvironment()
     {
         return parent.getEnvironment();
     }

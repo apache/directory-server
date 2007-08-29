@@ -63,9 +63,9 @@ public class MicroOperationFilter implements ACITupleFilter
             return tuples;
         }
 
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
+            ACITuple tuple = i.next();
 
             /*
              * The ACITuple must contain all the MicroOperations specified within the

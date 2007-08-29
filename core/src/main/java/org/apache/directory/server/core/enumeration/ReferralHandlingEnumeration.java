@@ -56,7 +56,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
 {
     private final Logger log = LoggerFactory.getLogger( ReferralHandlingEnumeration.class );
     private final List<SearchResult> referrals = new ArrayList<SearchResult>();
-    private final NamingEnumeration underlying;
+    private final NamingEnumeration<SearchResult> underlying;
     private final ReferralLut lut;
     private final PartitionNexus nexus;
     private final boolean doThrow;
@@ -69,8 +69,8 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
      */
     private Map<String, OidNormalizer> normalizerMap;
 
-    public ReferralHandlingEnumeration( NamingEnumeration underlying, ReferralLut lut, AttributeTypeRegistry registry,
-        PartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
+    public ReferralHandlingEnumeration( NamingEnumeration<SearchResult> underlying, ReferralLut lut, 
+        AttributeTypeRegistry registry, PartitionNexus nexus, int scope, boolean doThrow ) throws NamingException
     {
     	normalizerMap = registry.getNormalizerMapping();
         this.underlying = underlying;

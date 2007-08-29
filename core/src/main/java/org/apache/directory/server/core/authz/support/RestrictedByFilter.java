@@ -70,10 +70,9 @@ public class RestrictedByFilter implements ACITupleFilter
             return tuples;
         }
 
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> ii = tuples.iterator() ; ii.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
-            
+            ACITuple tuple = ii.next();
             if ( !tuple.isGrant() )
             {
                 continue;
@@ -81,7 +80,7 @@ public class RestrictedByFilter implements ACITupleFilter
 
             if ( isRemovable( tuple, attrId, attrValue, entry ) )
             {
-                i.remove();
+                ii.remove();
             }
         }
 
@@ -91,13 +90,13 @@ public class RestrictedByFilter implements ACITupleFilter
 
     public boolean isRemovable( ACITuple tuple, String attrId, Object attrValue, Attributes entry )
     {
-        for ( ProtectedItem item:tuple.getProtectedItems() )
+        for ( ProtectedItem item : tuple.getProtectedItems() )
         {
             if ( item instanceof ProtectedItem.RestrictedBy )
             {
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
             
-                for ( Iterator k = rb.iterator(); k.hasNext(); )
+                for ( Iterator<RestrictedByItem> k = rb.iterator(); k.hasNext(); )
                 {
                     RestrictedByItem rbItem = ( RestrictedByItem ) k.next();
                 
@@ -118,5 +117,4 @@ public class RestrictedByFilter implements ACITupleFilter
 
         return false;
     }
-
 }

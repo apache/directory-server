@@ -98,7 +98,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Define the interceptors we should *not* go through when we will have to request the backend
      * about a userPassword.
      */
-    private static final Collection USERLOOKUP_BYPASS;
+    private static final Collection<String> USERLOOKUP_BYPASS;
     static
     {
         Set<String> c = new HashSet<String>();

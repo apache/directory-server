@@ -76,15 +76,15 @@ public class RelatedUserClassFilter implements ACITupleFilter
             return tuples;
         }
 
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> ii = tuples.iterator(); ii.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
+            ACITuple tuple = ii.next();
             if ( tuple.isGrant() )
             {
                 if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
                     || authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) < 0 )
                 {
-                    i.remove();
+                    ii.remove();
                 }
             }
             else
@@ -93,7 +93,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
                 if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
                     && authenticationLevel.compareTo( tuple.getAuthenticationLevel() ) >= 0 )
                 {
-                    i.remove();
+                    ii.remove();
                 }
             }
         }
@@ -102,12 +102,11 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection userGroupNames, LdapDN userName, Attributes userEntry, LdapDN entryName,
-        Collection userClasses ) throws NamingException
+    private boolean isRelated( Collection<LdapDN> userGroupNames, LdapDN userName, Attributes userEntry, 
+        LdapDN entryName, Collection<UserClass> userClasses ) throws NamingException
     {
-        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
+        for ( UserClass userClass : userClasses )
         {
-            UserClass userClass = ( UserClass ) i.next();
             if ( userClass == UserClass.ALL_USERS )
             {
                 return true;
@@ -130,9 +129,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if ( userClass instanceof UserClass.UserGroup )
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
-                for ( Iterator j = userGroupNames.iterator(); j.hasNext(); )
+                for ( LdapDN userGroupName : userGroupNames )
                 {
-                    LdapDN userGroupName = ( LdapDN ) j.next();
                     if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {
                         return true;
@@ -160,9 +158,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
     private boolean matchUserClassSubtree( LdapDN userName, Attributes userEntry, UserClass.Subtree subtree )
         throws NamingException
     {
-        for ( Iterator i = subtree.getSubtreeSpecifications().iterator(); i.hasNext(); )
+        for ( SubtreeSpecification subtreeSpec : subtree.getSubtreeSpecifications() )
         {
-            SubtreeSpecification subtreeSpec = ( SubtreeSpecification ) i.next();
             if ( subtreeEvaluator.evaluate( subtreeSpec, ROOTDSE_NAME, userName, userEntry ) )
             {
                 return true;

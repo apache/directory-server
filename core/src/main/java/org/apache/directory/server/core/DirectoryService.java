@@ -91,7 +91,8 @@ public abstract class DirectoryService
      * 
      * @throws NamingException if failed to start up
      */
-    public abstract void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException;
+    public abstract void startup( DirectoryServiceListener listener, Hashtable<String,Object> environment ) 
+        throws NamingException;
 
 
     /**

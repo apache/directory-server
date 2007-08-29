@@ -47,7 +47,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -528,9 +527,9 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {

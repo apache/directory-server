@@ -50,7 +50,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -69,6 +68,7 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class EventService extends BaseInterceptor
     private static Logger log = LoggerFactory.getLogger( EventService.class );
     
     private PartitionNexus nexus;
-    private Map sources = new HashMap();
+    private Map<NamingListener, Object> sources = new HashMap<NamingListener, Object>();
     private Evaluator evaluator = null;
     private AttributeTypeRegistry attributeRegistry;
     private NormalizingVisitor visitor;
@@ -187,14 +187,14 @@ public class EventService extends BaseInterceptor
         }
         else if ( obj instanceof EventSourceRecord )
         {
-            List list = new ArrayList();
+            List<Object> list = new ArrayList<Object>();
             list.add( obj );
             list.add( rec );
             sources.put( namingListener, list );
         }
         else if ( obj instanceof List )
         {
-            List list = ( List ) obj;
+            List<Object> list = ( List ) obj;
             list.add( rec );
         }
     }

@@ -74,9 +74,9 @@ public class HighestPrecedenceFilter implements ACITupleFilter
         }
 
         // Remove all tuples whose precedences are not the maximum one.
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
+            ACITuple tuple = i.next();
             
             if ( tuple.getPrecedence() != maxPrecedence )
             {

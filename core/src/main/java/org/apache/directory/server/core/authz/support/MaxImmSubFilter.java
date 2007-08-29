@@ -98,17 +98,17 @@ public class MaxImmSubFilter implements ACITupleFilter
 
         int immSubCount = -1;
 
-        for ( Iterator i = tuples.iterator(); i.hasNext(); )
+        for ( Iterator<ACITuple> i = tuples.iterator(); i.hasNext(); )
         {
-            ACITuple tuple = ( ACITuple ) i.next();
+            ACITuple tuple = i.next();
             if ( !tuple.isGrant() )
             {
                 continue;
             }
 
-            for ( Iterator j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
             {
-                ProtectedItem item = ( ProtectedItem ) j.next();
+                ProtectedItem item = j.next();
                 if ( item instanceof ProtectedItem.MaxImmSub )
                 {
                     if ( immSubCount < 0 )
@@ -129,7 +129,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         return tuples;
     }
 
-    public static final Collection SEARCH_BYPASS;
+    public static final Collection<String> SEARCH_BYPASS;
     static
     {
         Collection<String> c = new HashSet<String>();
@@ -153,8 +153,8 @@ public class MaxImmSubFilter implements ACITupleFilter
         try
         {
             e = proxy.search( 
-                new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ), new HashMap(), childrenFilter, childrenSearchControls ),
-                SEARCH_BYPASS );
+                new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ), 
+                    new HashMap<String,Object>(), childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )
             {

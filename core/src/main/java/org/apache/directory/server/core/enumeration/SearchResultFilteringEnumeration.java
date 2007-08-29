@@ -53,16 +53,16 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchResultFilteringEnumeration implements NamingEnumeration, AbandonListener
+public class SearchResultFilteringEnumeration implements NamingEnumeration<SearchResult>, AbandonListener
 {
     /** the logger used by this class */
     private static final Logger log = LoggerFactory.getLogger( SearchResultFilteringEnumeration.class );
 
     /** the list of filters to be applied */
-    private final List filters;
+    private final List<SearchResultFilter> filters;
     
     /** the underlying decorated enumeration */
-    private final NamingEnumeration decorated;
+    private final NamingEnumeration<SearchResult> decorated;
 
     /** the first accepted search result that is prefetched */
     private SearchResult prefetched;
@@ -98,12 +98,12 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
+    public SearchResultFilteringEnumeration( NamingEnumeration<SearchResult> decorated, SearchControls searchControls,
         Invocation invocation, SearchResultFilter filter, String name ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;
-        this.filters = new ArrayList();
+        this.filters = new ArrayList<SearchResultFilter>();
         this.filters.add( filter );
         this.decorated = decorated;
         this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
@@ -128,12 +128,12 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      * creating this enumeration
      * @param invocation the invocation representing the seach that created this enumeration
      */
-    public SearchResultFilteringEnumeration( NamingEnumeration decorated, SearchControls searchControls,
-        Invocation invocation, List filters, String name ) throws NamingException
+    public SearchResultFilteringEnumeration( NamingEnumeration<SearchResult> decorated, SearchControls searchControls,
+        Invocation invocation, List<SearchResultFilter> filters, String name ) throws NamingException
     {
         this.searchControls = searchControls;
         this.invocation = invocation;
-        this.filters = new ArrayList();
+        this.filters = new ArrayList<SearchResultFilter>();
         this.filters.addAll( filters );
         this.decorated = decorated;
         this.applyObjectFactories = invocation.getCaller().getEnvironment().containsKey( Context.OBJECT_FACTORIES );
@@ -186,7 +186,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
      *
      * @return the result of {@link Collections#unmodifiableList(List)}
      */
-    public List getFilters()
+    public List<SearchResultFilter> getFilters()
     {
         return Collections.unmodifiableList( filters );
     }
@@ -209,7 +209,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
     }
 
 
-    public Object next() throws NamingException
+    public SearchResult next() throws NamingException
     {
         SearchResult retVal = this.prefetched;
         prefetch();
@@ -227,7 +227,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
     }
 
 
-    public Object nextElement()
+    public SearchResult nextElement()
     {
         SearchResult retVal = this.prefetched;
 
@@ -248,6 +248,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
     // Private utility methods
     // ------------------------------------------------------------------------
 
+    
     private void applyObjectFactories( SearchResult result ) throws NamingException
     {
         // if already populated or no factories are available just return
@@ -257,7 +258,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration, Aban
         }
 
         DirContext ctx = ( DirContext ) invocation.getCaller();
-        Hashtable env = ctx.getEnvironment();
+        Hashtable<?,?> env = ctx.getEnvironment();
         Attributes attrs = result.getAttributes();
         Name name = new LdapDN( result.getName() );
         

@@ -21,11 +21,13 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -54,7 +56,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     /** the attributes to return */
     private final String[] attrIds;
     /** underlying enumeration over IndexRecords */
-    private final NamingEnumeration underlying;
+    private final NamingEnumeration<IndexRecord> underlying;
 
     private boolean attrIdsHasStar = false;
     private boolean attrIdsHasPlus = false;
@@ -68,7 +70,7 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
      * @param attrIds the returned attributes
      * @param underlying the enumeration over IndexRecords
      */
-    public BTreeSearchResultEnumeration(String[] attrIds, NamingEnumeration underlying, BTreePartition db,
+    public BTreeSearchResultEnumeration(String[] attrIds, NamingEnumeration<IndexRecord> underlying, BTreePartition db,
         AttributeTypeRegistry registry)
     {
         this.partition = db;
@@ -101,9 +103,9 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     /**
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next() throws NamingException
+    public SearchResult next() throws NamingException
     {
-        IndexRecord rec = ( IndexRecord ) underlying.next();
+        IndexRecord rec = underlying.next();
         Attributes entry;
         String name = partition.getEntryUpdn( (Long)rec.getEntryId() );
 
@@ -291,8 +293,18 @@ public class BTreeSearchResultEnumeration implements SearchResultEnumeration
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public SearchResult nextElement()
     {
-        return underlying.nextElement();
+        try
+        {
+            return next();
+        }
+        catch ( NamingException e )
+        {
+            NoSuchElementException nsee = 
+                new NoSuchElementException( "Encountered NamingException on underlying enumeration." );
+            nsee.initCause( e );
+            throw nsee;
+        }
     }
 }
