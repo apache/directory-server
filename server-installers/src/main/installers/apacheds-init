@@ -552,7 +552,7 @@ list() {
 }
 
 # Make sure they entered an instance name
-if [[ ( "x"$2 = "x" ) && $1 == "start" || $1 == "stop" || $1 == "status" || $1 == "dump" ]]
+if [[ ( $2 == "" ) && ( $1 == "start" || $1 == "stop" || $1 == "status" || $1 == "dump" ) ]]
 then
 	usage
 	echo
