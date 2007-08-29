@@ -29,6 +29,16 @@ package org.apache.directory.shared.ldap.constants;
  */
 public interface SchemaConstants
 {
+    // Special attributes 1.1 , * and + for search operations
+    String NO_ATTRIBUTE = "1.1";
+    String[] NO_ATTRIBUTE_ARRAY = new String[]{ NO_ATTRIBUTE };
+    
+    String ALL_USER_ATTRIBUTES = "*";
+    String[] ALL_USER_ATTRIBUTES_ARRAY = new String[]{ ALL_USER_ATTRIBUTES };
+    
+    String ALL_OPERATIONAL_ATTRIBUTES = "+";
+    String[] ALL_OPERATIONAL_ATTRIBUTES_ARRAY = new String[]{ ALL_OPERATIONAL_ATTRIBUTES };
+    
     // ---- ObjectClasses -----------------------------------------------------
 	// Krb5Principal
     String KRB5_PRINCIPAL_OC = "krb5Principal";
