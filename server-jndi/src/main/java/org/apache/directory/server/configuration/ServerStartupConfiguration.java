@@ -97,7 +97,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
         }
         else
         {
-            return new File( getWorkingDirectory() , ldifDirectory.toString() );
+            return new File( getWorkingDirectory().getParent() , ldifDirectory.toString() );
         }
     }
 
