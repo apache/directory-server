@@ -1,61 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<java version="1.6.0_02" class="java.beans.XMLDecoder">
-  <array class="java.lang.Object" length="1">
-    <void index="0">
-      <object class="org.apache.directory.studio.connection.core.ConnectionParameter">
-        <void property="authMethod">
-          <object class="org.apache.directory.studio.connection.core.ConnectionParameter$AuthenticationMethod" method="valueOf">
-            <string>SIMPLE</string>
-          </object>
-        </void>
-        <void property="bindPassword">
-          <string>secret</string>
-        </void>
-        <void property="bindPrincipal">
-          <string>uid=admin,ou=system</string>
-        </void>
-        <void property="encryptionMethod">
-          <object class="org.apache.directory.studio.connection.core.ConnectionParameter$EncryptionMethod" method="valueOf">
-            <string>NONE</string>
-          </object>
-        </void>
-        <void property="extendedProperties">
-          <void method="put">
-            <string>ldapbrowser.aliasesDereferencingMethod</string>
-            <string>0</string>
-          </void>
-          <void method="put">
-            <string>ldapbrowser.timeLimit</string>
-            <string>0</string>
-          </void>
-          <void method="put">
-            <string>ldapbrowser.fetchBaseDns</string>
-            <string>true</string>
-          </void>
-          <void method="put">
-            <string>ldapbrowser.referralsHandlingMethod</string>
-            <string>0</string>
-          </void>
-          <void method="put">
-            <string>ldapbrowser.countLimit</string>
-            <string>0</string>
-          </void>
-          <void method="put">
-            <string>ldapbrowser.baseDn</string>
-            <string></string>
-          </void>
-        </void>
-        <void property="host">
-          <string>localhost</string>
-        </void>
-        <void property="name">
-          <string>Example</string>
-        </void>
-        <void property="port">
-          <int>10389</int>
-        </void>
-      </object>
-    </void>
-  </array>
-</java>
-
+<connections>
+   <connection id="-8431166513633174058" name="Example" host="localhost" port="10389" encryptionMethod="NONE" authMethod="SIMPLE" bindPrincipal="uid=admin,ou=system" bindPassword="secret">
+      <extendedProperties>
+         <extendedProperty key="ldapbrowser.aliasesDereferencingMethod" value="0"/>
+         <extendedProperty key="ldapbrowser.timeLimit" value="0"/>
+         <extendedProperty key="ldapbrowser.fetchBaseDns" value="true"/>
+         <extendedProperty key="ldapbrowser.referralsHandlingMethod" value="0"/>
+         <extendedProperty key="ldapbrowser.countLimit" value="0"/>
+         <extendedProperty key="ldapbrowser.baseDn" value=""/>
+      </extendedProperties>
+   </connection>
+</connections>
