@@ -75,7 +75,7 @@ XPStyle on
 
   ; License page
   !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE "win32\LICENSE"
+  !insertmacro MUI_PAGE_LICENSE "suite-win32\LICENSE"
 
   ; This page checks for JRE. It displays a dialog based on JRE.ini if it needs to install JRE
   ; Otherwise you won't see it.
@@ -129,7 +129,7 @@ XPStyle on
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
 
-!cd win32
+!cd suite-win32
 
 
 ;--------------------------------

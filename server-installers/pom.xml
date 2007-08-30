@@ -143,7 +143,8 @@
                      dest="ApacheDirectoryStudio.zip"
                 />
                 <touch file="ApacheDirectoryStudio.zip"/>
-                <unzip src="ApacheDirectoryStudio.zip" dest="target/images/win32" overwrite="false" />
+                <unzip src="ApacheDirectoryStudio.zip" dest="target/images/suite-win32" overwrite="false" />
+                <unzip src="ApacheDirectoryStudio.zip" dest="target/images/studio-win32" overwrite="false" />
               </tasks>
             </configuration>
             <goals>
@@ -358,7 +359,7 @@
                 </packagedFile>
               </packagedFiles>
 
-              <id>win32</id>
+              <id>server-win32</id>
               <nsisCompiler>/usr/local/nsis/makensis</nsisCompiler>
               <nsisConfigurationFile>src/main/installers/apacheds-server-win.nsi</nsisConfigurationFile>
               <finalName>
@@ -398,11 +399,33 @@
                 </packagedFile>
               </packagedFiles>
 
-              <id>win32</id>
+              <id>suite-win32</id>
               <nsisCompiler>/usr/local/nsis/makensis</nsisCompiler>
               <nsisConfigurationFile>src/main/installers/apacheds-suite-win.nsi</nsisConfigurationFile>
               <finalName>
                 apacheds-suite-${pom.version}-setup
+              </finalName>
+              <osName>Windows XP</osName>
+              <osFamily>windows</osFamily>
+              <osVersion>5.1</osVersion>
+              <osArch>x86</osArch>
+              <daemonFramework>tanuki</daemonFramework>
+            </nsisTarget>
+            <nsisTarget>
+              <packagedFiles>
+                <packagedFile>
+                  <source>../resources/suite-installer.ico</source>
+                  <destinationPath>studio-installer.ico</destinationPath>
+                  <executable>false</executable>
+                  <filtered>false</filtered>
+                </packagedFile>
+              </packagedFiles>
+
+              <id>studio-win32</id>
+              <nsisCompiler>/usr/local/nsis/makensis</nsisCompiler>
+              <nsisConfigurationFile>src/main/installers/apacheds-studio-win.nsi</nsisConfigurationFile>
+              <finalName>
+                apacheds-studio-${pom.version}-setup
               </finalName>
               <osName>Windows XP</osName>
               <osFamily>windows</osFamily>
