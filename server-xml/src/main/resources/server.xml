@@ -135,11 +135,10 @@
     <!-- ldifDirectory property can point to a relative file, directory or  -->
     <!-- can point to an absolute path to either using the URL path         -->
     <!-- notation: i.e. file:///Users/jack/apacheds/ldifs                   -->
-    <!--
+
     <property name="ldifDirectory">
-      <value>example.ldif</value>
+      <value>ldif</value>
     </property>
-    -->
 
     <!-- Entries will optionally be filtered using LdifLoadFilters in the   -->
     <!-- order specified.                                                   -->

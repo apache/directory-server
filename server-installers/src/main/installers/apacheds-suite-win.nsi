@@ -232,6 +232,12 @@ Section "Example Instance" SecInstanceFiles
     Push "*.*"
     Call ConvertFiles
 
+    SetOutPath "$INSTANCE_HOME_DIR\default\ldif"
+    File "conf\example.ldif"
+
+    Push "$INSTANCE_HOME_DIR\default\ldif"
+    Push "*.*"
+    Call ConvertFiles
 
 
     Push "default"
@@ -314,6 +320,7 @@ Function CreateInstanceDirs
     CreateDirectory "$INSTANCE_HOME_DIR\$0\log"
     CreateDirectory "$INSTANCE_HOME_DIR\$0\conf"
     CreateDirectory "$INSTANCE_HOME_DIR\$0\partitions"
+    CreateDirectory "$INSTANCE_HOME_DIR\$0\ldif"
     ; the run dir seems to be irrelevant on Windows, but the InstallationLayout.verifyInstallation() method requires it
     CreateDirectory "$INSTANCE_HOME_DIR\$0\run"
     Pop $0

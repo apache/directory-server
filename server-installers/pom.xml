@@ -350,6 +350,12 @@
                   <executable>false</executable>
                   <filtered>false</filtered>
                 </packagedFile>
+                <packagedFile>
+                  <source>../resources/example.ldif</source>
+                  <destinationPath>conf/example.ldif</destinationPath>
+                  <executable>false</executable>
+                  <filtered>false</filtered>
+                </packagedFile>
               </packagedFiles>
 
               <id>win32</id>
@@ -381,6 +387,12 @@
                 <packagedFile>
                   <source>../resources/suite-installer.ico</source>
                   <destinationPath>suite-installer.ico</destinationPath>
+                  <executable>false</executable>
+                  <filtered>false</filtered>
+                </packagedFile>
+                <packagedFile>
+                  <source>../resources/example.ldif</source>
+                  <destinationPath>conf/example.ldif</destinationPath>
                   <executable>false</executable>
                   <filtered>false</filtered>
                 </packagedFile>

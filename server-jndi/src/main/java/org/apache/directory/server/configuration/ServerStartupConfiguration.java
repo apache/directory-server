@@ -91,7 +91,11 @@ public class ServerStartupConfiguration extends StartupConfiguration
 
     public File getLdifDirectory()
     {
-        if ( ldifDirectory.isAbsolute() )
+        if ( ldifDirectory == null )
+        {
+            return null;
+        }
+        else if ( ldifDirectory.isAbsolute() )
         {
             return this.ldifDirectory;
         }
