@@ -106,7 +106,7 @@ XPStyle on
     !define MUI_PAGE_CUSTOMFUNCTION_PRE PreInstanceDir
     !define MUI_DIRECTORYPAGE_VARIABLE          $INSTANCE_HOME_DIR  ;selected by user
     !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Server Instances Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like instance data to be stored.\n\nThis directory will be the home location for new instances."  ; GUI page title
+    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like instance data to be stored.$\n$\nThis directory will be the home location for new instances."  ; GUI page title
     !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
 
     Var STUDIO_HOME_DIR
@@ -191,11 +191,11 @@ Section "Application Files" SecServerFiles
 
   ;Store install folder
   WriteRegStr HKLM "SOFTWARE\${Vendor}\${Project}\Server" "InstallDir" $SERVER_HOME_DIR
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayName" "${Suite} - (remove only)"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoModify" "1"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoRepair" "1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite" "DisplayName" "${Project} Suite - (remove only)"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite" "NoModify" "1"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite" "NoRepair" "1"
 
   # Probably need to filter the file here (put in instance home)
 
@@ -259,9 +259,6 @@ Section "Application Files" SecStudioFiles
   CreateShortCut "$SMPROGRAMS\Apache Directory Suite\Studio\Studio.lnk" "$STUDIO_HOME_DIR\Apache Directory Studio.exe" "" "$STUDIO_HOME_DIR\Apache Directory Studio.exe" 0
 
   # Probably need to filter the file here (put in instance home)
-
-  ;Create uninstaller
-  ;WriteUninstaller "$STUDIO_HOME_DIR\Uninstall.exe"
 
 SectionEnd
 Section "Example Connections" SecStudioConnections
@@ -329,14 +326,14 @@ FunctionEnd
 Function RegisterInstance
     Pop $0
     Pop $1
-    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -i "$SERVER_HOME_DIR\conf\${ShortName}.conf" "set.INSTANCE_HOME=$0" "set.INSTANCE=$1" "set.APACHEDS_HOME=$SERVER_HOME_DIR" '
+    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -i "$SERVER_HOME_DIR\conf\apacheds.conf" "set.INSTANCE_HOME=$0" "set.INSTANCE=$1" "set.APACHEDS_HOME=$SERVER_HOME_DIR" '
     Pop $1
     Pop $0
 FunctionEnd
 
 Function un.RegisterInstance
     Pop $0
-    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -r "$SERVER_HOME_DIR\conf\${ShortName}.conf" "set.INSTANCE=$0"'
+    nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" -r "$SERVER_HOME_DIR\conf\apacheds.conf" "set.INSTANCE=$0"'
     Pop $0
 FunctionEnd
 
@@ -347,7 +344,7 @@ Function .onInstSuccess
   ; Start the server
   MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to start the default directory instance?" IDYES startService IDNO End
 startService:  
-  nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" --start "$SERVER_HOME_DIR\conf\${ShortName}.conf" "set.INSTANCE_HOME=$INSTANCE_HOME_DIR" "set.INSTANCE=default" "set.APACHEDS_HOME=$SERVER_HOME_DIR"'
+  nsExec::ExecToLog '"$SERVER_HOME_DIR\bin\${ShortName}" --start "$SERVER_HOME_DIR\conf\apacheds.conf" "set.INSTANCE_HOME=$INSTANCE_HOME_DIR" "set.INSTANCE=default" "set.APACHEDS_HOME=$SERVER_HOME_DIR"'
   
 End:
 FunctionEnd
@@ -502,7 +499,7 @@ Section "Uninstall"
   Call un.RegisterInstance
 
   ; remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Suite"
   DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${Project}"
 
   ; remove shortcuts, if any.

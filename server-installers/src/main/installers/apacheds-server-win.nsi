@@ -104,7 +104,7 @@ XPStyle on
     !define MUI_PAGE_CUSTOMFUNCTION_PRE PreInstanceDir
     !define MUI_DIRECTORYPAGE_VARIABLE          $INSTANCE_HOME_DIR  ;selected by user
     !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Server Instances Home Directory"     ;descriptive text
-    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like instance data to be stored.\n\nThis directory will be the home location for new instances."  ; GUI page title
+    !define MUI_DIRECTORYPAGE_TEXT_TOP          "Select the directory where you would like instance data to be stored.$\n$\nThis directory will be the home location for new instances."  ; GUI page title
     !insertmacro MUI_PAGE_DIRECTORY  ; this pops-up the GUI page
 
     Var JAVA_HOME_DIR
@@ -181,11 +181,11 @@ Section "Application Files" SecServerFiles
 
   ;Store install folder
   WriteRegStr HKLM "SOFTWARE\${Vendor}\${Project}\Server" "InstallDir" $SERVER_HOME_DIR
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayName" "${Suite} - (remove only)"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoModify" "1"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoRepair" "1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server" "DisplayName" "${Project} Server - (remove only)"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server" "DisplayIcon" "$SERVER_HOME_DIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server" "UninstallString" '"$SERVER_HOME_DIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server" "NoModify" "1"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server" "NoRepair" "1"
 
   # Probably need to filter the file here (put in instance home)
 
@@ -202,7 +202,7 @@ Section "Application Files" SecServerFiles
     !insertmacro CreateInternetShortcut "$SMPROGRAMS\Apache Directory Suite\Server\Developers Guide" \
       "http://directory.apache.org/apacheds/1.5/apacheds-v15-developers-guide.html"
 
-    CreateShortCut "$SMPROGRAMS\Apache Directory Suite\Uninstall.lnk" "$SERVER_HOME_DIR\uninstall.exe" "" "$SERVER_HOME_DIR\uninstall.exe" 0
+    CreateShortCut "$SMPROGRAMS\Apache Directory Suite\Server\Uninstall.lnk" "$SERVER_HOME_DIR\uninstall.exe" "" "$SERVER_HOME_DIR\uninstall.exe" 0
 
 SectionEnd
 
@@ -222,7 +222,12 @@ Section "Example Instance" SecInstanceFiles
     Push "*.*"
     Call ConvertFiles
 
+    SetOutPath "$INSTANCE_HOME_DIR\default\ldif"
+    File "conf\example.ldif"
 
+    Push "$INSTANCE_HOME_DIR\default\ldif"
+    Push "*.*"
+    Call ConvertFiles
 
     Push "default"
     Push "$INSTANCE_HOME_DIR"
@@ -445,11 +450,11 @@ Section "Uninstall"
   Call un.RegisterInstance
 
   ; remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}"
-  DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${Project}"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Server"
+  DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${Project}\Server"
 
   ; remove shortcuts, if any.
-  RMDir /r "$SMPROGRAMS\Apache Directory Suite"
+  RMDir /r "$SMPROGRAMS\Apache Directory Suite\Server"
 
   ; remove files in root, then all dirs created by the installer.... leave user added or instance dirs.
   Delete "$SERVER_HOME_DIR\*"

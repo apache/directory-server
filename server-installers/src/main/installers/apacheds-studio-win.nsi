@@ -25,7 +25,6 @@
 !define JRE_VERSION "1.5.0"
 !define Vendor "Apache Software Foundation"
 !define Project "Apache Directory"
-!define Suite "Apache Directory Suite"
 
 !define JAVA_URL "http://java.sun.com/javase/downloads/index_jdk5.jsp"
 
@@ -140,11 +139,11 @@ Section "Application Files" SecStudioFiles
 
   ;Store install folder
   WriteRegStr HKLM "SOFTWARE\${Vendor}\${Project}\Studio" "InstallDir" $STUDIO_HOME_DIR
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayName" "${Studio} - (remove only)"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "DisplayIcon" "$STUDIO_HOME_DIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "UninstallString" '"$STUDIO_HOME_DIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoModify" "1"
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}" "NoRepair" "1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio" "DisplayName" "${AppName} - (remove only)"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio" "DisplayIcon" "$STUDIO_HOME_DIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio" "UninstallString" '"$STUDIO_HOME_DIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio" "NoModify" "1"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio" "NoRepair" "1"
 
   ;Create uninstaller
   WriteUninstaller "$STUDIO_HOME_DIR\Uninstall.exe"
@@ -197,11 +196,11 @@ Section "Uninstall"
   ReadRegStr $STUDIO_HOME_DIR HKLM "SOFTWARE\${Vendor}\${Project}\Studio" "InstallDir"
 
   ; remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project}"
-  DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${Project}"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${Project} Studio"
+  DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${Project}\Studio"
 
   ; remove shortcuts, if any.
-  RMDir /r "$SMPROGRAMS\Apache Directory Suite"
+  RMDir /r "$SMPROGRAMS\Apache Directory Suite\Studio"
 
   ; remove files in root, then all dirs created by the installer.... leave user added or instance dirs.
   RMDir /r "$STUDIO_HOME_DIR"  ;Studio install dir
