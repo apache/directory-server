@@ -1,0 +1,183 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#  
+#    http://www.apache.org/licenses/LICENSE-2.0
+#  
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License. 
+#  
+#
+#
+#   EXAMPLE.COM is freely and reserved for testing according to this RFC:
+#
+#   http://www.rfc-editor.org/rfc/rfc2606.txt
+#
+#
+
+dn: ou=Users, dc=example, dc=com
+objectclass: top
+objectclass: organizationalunit
+ou: Users
+
+dn: ou=Groups, dc=example, dc=com
+objectclass: top
+objectclass: organizationalunit
+ou: Groups
+
+dn: cn=superUsers, ou=Groups, dc=example, dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: superUsers
+uniqueMember: uid=admin, ou=system
+
+dn: cn=userAdmins, ou=Groups, dc=example, dc=com
+objectClass: top
+objectClass: groupOfUniqueNames
+cn: userAdmin
+uniqueMember: uid=admin, ou=system
+
+# ----------------------------------------------------------------------------
+# Users
+# ----------------------------------------------------------------------------
+
+dn: uid=mplanck, ou=Users, dc=example,dc=com
+cn: Max Planck
+sn: Planck
+givenName: Max
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: inetOrgPerson
+ou: Users
+uid: mplanck
+mail: mplanck@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 666
+userPassword: secret
+
+dn: uid=aeinstein, ou=Users, dc=example,dc=com
+cn: Albert Einstein
+sn: Einstein
+givenName: Albert
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: inetOrgPerson
+ou: Users
+uid: aeinstein
+mail: aeinstein@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 666
+userPassword: secret
+
+dn: uid=nbohr, ou=Users, dc=example,dc=com
+cn: Neils Bohr
+sn: Bohr
+givenName: Neils
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: extensibleObject
+objectClass: inetOrgPerson
+ou: Users
+uid: nbohr
+mail: nbohr@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 666
+userPassword: secret
+
+dn: uid=mborn, ou=Users, dc=example,dc=com
+cn: Max Born
+sn: Born
+givenName: Max
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+ou: Users
+uid: mborn
+mail: mborn@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 667
+userPassword: secret
+
+dn: uid=wpauli, ou=Users, dc=example,dc=com
+cn: Wolfgang Pauli
+sn: Pauli
+givenName: Wolfgang
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+ou: Users
+uid: wpauli
+mail: wpauli@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 667
+userPassword: secret
+
+dn: uid=mcurie, ou=Users, dc=example,dc=com
+cn: Marie Curie
+sn: Curie
+givenName: Marie
+objectClass: top
+objectClass: uidObject
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+ou: Users
+uid: mcurie
+mail: mcurie@example.com
+telephoneNumber: +1 904 982 6882
+facsimileTelephoneNumber: +1 904 982 6883
+roomNumber: 667
+
+# ----------------------------------------------------------------------------
+# Sample External Users 
+# ----------------------------------------------------------------------------
+
+dn: uid=pdirac, ou=Users, dc=example,dc=com
+objectClass: top
+objectClass: uidObject
+objectClass: extensibleObject
+objectClass: referral
+uid: pdirac
+ref: ldap://ad.example.com/uid=pdirac, ou=Users, dc=example,dc=com
+
+dn: uid=efermi, ou=Users, dc=example,dc=com
+objectClass: top
+objectClass: uidObject
+objectClass: extensibleObject
+objectClass: referral
+uid: efermi
+ref: ldap://openldap.example.com/uid=efermi, ou=Users, dc=example,dc=com
+
+dn: uid=rfeynman, ou=Users, dc=example,dc=com
+objectClass: top
+objectClass: uidObject
+objectClass: extensibleObject
+objectClass: referral
+uid: rfeynman
+ref: ldap://apacheds.example.com/uid=rfeynman, ou=Users, dc=example,dc=com
