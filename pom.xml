@@ -342,7 +342,6 @@
 
     <module>server-xml</module>
     <module>server-unit</module>
-    <module>server-main</module>
     <module>server-jndi</module>
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
@@ -535,7 +534,6 @@
 
         <module>server-xml</module>
         <module>server-unit</module>
-        <module>server-main</module>
         <module>server-jndi</module>
         <module>kerberos-shared</module>
         <module>mitosis</module>
