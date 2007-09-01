@@ -27,7 +27,7 @@
 
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-parent</artifactId>
-  <version>1.5.1</version>
+  <version>1.5.2-SNAPSHOT</version>
   <name>ApacheDS</name>
   <packaging>pom</packaging>
 
@@ -431,9 +431,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/releases/1.5.1</connection>
-    <url>http://svn.apache.org/repos/asf/directory/apacheds/releases/1.5.1</url>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/releases/1.5.1</developerConnection>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk</connection>
+    <url>http://svn.apache.org/repos/asf/directory/apacheds/trunk</url>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
   </scm>
 
   <build>

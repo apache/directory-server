@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.server</groupId>
     <artifactId>apacheds-parent</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2-SNAPSHOT</version>
   </parent>
   <artifactId>apacheds-schema-registries</artifactId>
   <name>ApacheDS Schema Registries</name>
