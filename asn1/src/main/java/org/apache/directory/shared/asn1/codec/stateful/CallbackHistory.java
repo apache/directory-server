@@ -35,7 +35,7 @@ import java.util.LinkedList;
 public class CallbackHistory implements DecoderCallback, EncoderCallback
 {
     /** history of decoded objects in cronological order */
-    private final LinkedList history;
+    private final LinkedList<Object> history;
 
     /** the length of callback history stored */
     private final int length;
@@ -63,7 +63,7 @@ public class CallbackHistory implements DecoderCallback, EncoderCallback
     public CallbackHistory(int length)
     {
         this.length = length;
-        history = new LinkedList();
+        history = new LinkedList<Object>();
     }
 
 

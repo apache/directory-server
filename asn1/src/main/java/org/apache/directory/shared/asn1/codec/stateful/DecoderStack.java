@@ -42,7 +42,7 @@ public class DecoderStack extends AbstractStatefulDecoder
     private final DecoderCallback topcb;
 
     /** a stack of StatefulDecoders */
-    private Stack decoders = new Stack();
+    private Stack<StatefulDecoder> decoders = new Stack<StatefulDecoder>();
 
 
     /**
