@@ -36,7 +36,7 @@ public class UserPermission extends Permission
 {
     private static final long serialVersionUID = 3940100745409337694L;
 
-    private final Collection protectedItems;
+    private final Collection<ProtectedItem> protectedItems;
 
 
     /**
@@ -50,18 +50,9 @@ public class UserPermission extends Permission
      * @param protectedItems
      *            the collection of {@link ProtectedItem}s
      */
-    public UserPermission(int precedence, Collection grantsAndDenials, Collection protectedItems)
+    public UserPermission( int precedence, Collection<GrantAndDenial> grantsAndDenials, Collection<ProtectedItem> protectedItems )
     {
         super( precedence, grantsAndDenials );
-
-        for ( Iterator i = protectedItems.iterator(); i.hasNext(); )
-        {
-            Object val = i.next();
-            if ( !( val instanceof ProtectedItem ) )
-            {
-                throw new IllegalArgumentException( "protectedItems contains a wrong element." );
-            }
-        }
 
         this.protectedItems = Collections.unmodifiableCollection( protectedItems );
     }
@@ -70,7 +61,7 @@ public class UserPermission extends Permission
     /**
      * Returns the collection of {@link ProtectedItem}s.
      */
-    public Collection getProtectedItems()
+    public Collection<ProtectedItem> getProtectedItems()
     {
         return protectedItems;
     }

@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.codec.actions;
 
 
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.grammar.GrammarAction;
 import org.apache.directory.shared.asn1.ber.tlv.TLV;

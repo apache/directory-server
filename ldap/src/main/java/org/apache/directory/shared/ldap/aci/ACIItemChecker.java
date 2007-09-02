@@ -23,9 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.Map;
-
-import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;

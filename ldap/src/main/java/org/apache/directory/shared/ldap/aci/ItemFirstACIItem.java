@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -38,9 +37,9 @@ public class ItemFirstACIItem extends ACIItem
 {
     private static final long serialVersionUID = -8199453391060356463L;
 
-    private final Collection protectedItems;
+    private final Collection<ProtectedItem> protectedItems;
 
-    private final Collection itemPermissions;
+    private final Collection<ItemPermission> itemPermissions;
 
 
     /**
@@ -58,37 +57,20 @@ public class ItemFirstACIItem extends ACIItem
      *            the collection of {@link ItemPermission}s each
      *            <tt>protectedItems</tt> will have
      */
-    public ItemFirstACIItem(String identificationTag, int precedence, AuthenticationLevel authenticationLevel,
-        Collection protectedItems, Collection itemPermissions)
+    public ItemFirstACIItem( String identificationTag, int precedence, AuthenticationLevel authenticationLevel,
+        Collection<ProtectedItem> protectedItems, Collection<ItemPermission> itemPermissions )
     {
         super( identificationTag, precedence, authenticationLevel );
 
-        for ( Iterator i = protectedItems.iterator(); i.hasNext(); )
-        {
-            if ( !ProtectedItem.class.isAssignableFrom( i.next().getClass() ) )
-            {
-                throw new IllegalArgumentException( "protectedItems contains an element which is not a protected item." );
-            }
-        }
-
-        for ( Iterator i = itemPermissions.iterator(); i.hasNext(); )
-        {
-            if ( !ItemPermission.class.isAssignableFrom( i.next().getClass() ) )
-            {
-                throw new IllegalArgumentException(
-                    "itemPermissions contains an element which is not an item permission." );
-            }
-        }
-
-        this.protectedItems = Collections.unmodifiableCollection( new ArrayList( protectedItems ) );
-        this.itemPermissions = Collections.unmodifiableCollection( new ArrayList( itemPermissions ) );
+        this.protectedItems = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>( protectedItems ) );
+        this.itemPermissions = Collections.unmodifiableCollection( new ArrayList<ItemPermission>( itemPermissions ) );
     }
 
 
     /**
      * Returns the collection of {@link ProtectedItem}s.
      */
-    public Collection getProtectedItems()
+    public Collection<ProtectedItem> getProtectedItems()
     {
         return protectedItems;
     }
@@ -97,7 +79,7 @@ public class ItemFirstACIItem extends ACIItem
     /**
      * Returns the collection of {@link ItemPermission}s.
      */
-    public Collection getItemPermissions()
+    public Collection<ItemPermission> getItemPermissions()
     {
         return itemPermissions;
     }
@@ -111,14 +93,14 @@ public class ItemFirstACIItem extends ACIItem
     }
 
 
-    public Collection toTuples()
+    public Collection<ACITuple> toTuples()
     {
-        Collection tuples = new ArrayList();
-        for ( Iterator i = itemPermissions.iterator(); i.hasNext(); )
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        
+        for ( ItemPermission itemPermission:itemPermissions )
         {
-            ItemPermission itemPermission = ( ItemPermission ) i.next();
-            Set grants = itemPermission.getGrants();
-            Set denials = itemPermission.getDenials();
+            Set<GrantAndDenial> grants = itemPermission.getGrants();
+            Set<GrantAndDenial> denials = itemPermission.getDenials();
             int precedence = itemPermission.getPrecedence() >= 0 ? itemPermission.getPrecedence() : this
                 .getPrecedence();
 
@@ -145,85 +127,59 @@ public class ItemFirstACIItem extends ACIItem
      */
     public void printToBuffer( StringBuffer buffer )
     {
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        
         // identificationTag
-        buffer.append( "identificationTag" );
-        buffer.append( ' ' );
-        buffer.append( '"' );
+        buffer.append( "{ identificationTag \"" );
         buffer.append( getIdentificationTag() );
-        buffer.append( '"' );
-        buffer.append( ',' );
-        buffer.append( ' ' );
-        
+
         // precedence
-        buffer.append( "precedence" );
-        buffer.append( ' ' );
+        buffer.append( "\", precedence " );
         buffer.append( getPrecedence() );
-        buffer.append( ',' );
-        buffer.append( ' ' );
         
         // authenticationLevel
-        buffer.append( "authenticationLevel" );
-        buffer.append( ' ' );
+        buffer.append( ", authenticationLevel " );
         buffer.append( getAuthenticationLevel().getName() );
-        buffer.append( ',' );
-        buffer.append( ' ' );
         
         // itemOrUserFirst
-        buffer.append( "itemOrUserFirst" );
-        buffer.append( ' ' );
-        buffer.append( "itemFirst" );
-        buffer.append( ':' );
-        buffer.append( ' ' );
-        
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( ", itemOrUserFirst itemFirst: { " );
         
         // protectedItems
-        buffer.append( "protectedItems" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        for ( Iterator it = protectedItems.iterator(); it.hasNext(); )
+        buffer.append( "protectedItems { " );
+        
+        boolean isFirst = true;
+
+        for ( ProtectedItem item:protectedItems )
         {
-            ProtectedItem item =  ( ProtectedItem ) it.next();
             item.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
-        
-        buffer.append( ',' );
-        buffer.append( ' ' );
-        
+
         // itemPermissions
-        buffer.append( "itemPermissions" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        for ( Iterator it = itemPermissions.iterator(); it.hasNext(); )
+        buffer.append( " }, itemPermissions { " );
+
+        isFirst = true;
+        
+        for ( ItemPermission permission:itemPermissions )
         {
-            ItemPermission permission = ( ItemPermission ) it.next();
             permission.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
-        
-        buffer.append( ' ' );
-        buffer.append( '}' );
-        
-        buffer.append( ' ' );
-        buffer.append( '}' );
+
+        buffer.append( " } } }" );
     }
 }

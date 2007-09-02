@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -123,13 +122,15 @@ public abstract class ACIItem implements Serializable
      * Converts a set of {@link GrantAndDenial}s into a set of
      * {@link MicroOperation}s and returns it.
      */
-    protected static Set toMicroOperations( Set grantsAndDenials )
+    protected static Set<MicroOperation> toMicroOperations( Set<GrantAndDenial> grantsAndDenials )
     {
         Set<MicroOperation> microOps = new HashSet<MicroOperation>();
-        for ( Iterator j = grantsAndDenials.iterator(); j.hasNext(); )
+        
+        for ( GrantAndDenial grantAndDenial:grantsAndDenials )
         {
-            microOps.add( ( ( GrantAndDenial ) j.next() ).getMicroOperation() );
+            microOps.add( grantAndDenial.getMicroOperation() );
         }
+        
         return microOps;
     }
 }

@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -38,11 +37,11 @@ public abstract class Permission implements Serializable
 {
     private final int precedence;
 
-    private final Set grantsAndDenials;
+    private final Set<GrantAndDenial> grantsAndDenials;
 
-    private final Set grants;
+    private final Set<GrantAndDenial> grants;
 
-    private final Set denials;
+    private final Set<GrantAndDenial> denials;
 
 
     /**
@@ -54,7 +53,7 @@ public abstract class Permission implements Serializable
      * @param grantsAndDenials
      *            the set of {@link GrantAndDenial}s
      */
-    protected Permission(int precedence, Collection grantsAndDenials)
+    protected Permission(int precedence, Collection<GrantAndDenial> grantsAndDenials)
     {
         if ( precedence < 0 || precedence > 255 )
         {
@@ -63,18 +62,12 @@ public abstract class Permission implements Serializable
 
         this.precedence = precedence;
 
-        Set tmpGrantsAndDenials = new HashSet();
-        Set tmpGrants = new HashSet();
-        Set tmpDenials = new HashSet();
-        for ( Iterator i = grantsAndDenials.iterator(); i.hasNext(); )
+        Set<GrantAndDenial> tmpGrantsAndDenials = new HashSet<GrantAndDenial>();
+        Set<GrantAndDenial> tmpGrants = new HashSet<GrantAndDenial>();
+        Set<GrantAndDenial> tmpDenials = new HashSet<GrantAndDenial>();
+        
+        for ( GrantAndDenial gad:grantsAndDenials )
         {
-            Object val = i.next();
-            if ( !( val instanceof GrantAndDenial ) )
-            {
-                throw new IllegalArgumentException( "grantsAndDenials contains a wrong element." );
-            }
-
-            GrantAndDenial gad = ( GrantAndDenial ) val;
             if ( gad.isGrant() )
             {
                 tmpGrants.add( gad );
@@ -83,6 +76,7 @@ public abstract class Permission implements Serializable
             {
                 tmpDenials.add( gad );
             }
+
             tmpGrantsAndDenials.add( gad );
         }
 
@@ -104,7 +98,7 @@ public abstract class Permission implements Serializable
     /**
      * Returns the set of {@link GrantAndDenial}s.
      */
-    public Set getGrantsAndDenials()
+    public Set<GrantAndDenial> getGrantsAndDenials()
     {
         return grantsAndDenials;
     }
@@ -113,7 +107,7 @@ public abstract class Permission implements Serializable
     /**
      * Returns the set of grants only.
      */
-    public Set getGrants()
+    public Set<GrantAndDenial> getGrants()
     {
         return grants;
     }
@@ -122,7 +116,7 @@ public abstract class Permission implements Serializable
     /**
      * Returns the set of denials only.
      */
-    public Set getDenials()
+    public Set<GrantAndDenial> getDenials()
     {
         return denials;
     }

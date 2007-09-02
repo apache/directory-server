@@ -42,7 +42,7 @@ public class NormalizingComparator implements Comparator
     private Normalizer normalizer;
 
     /** the underlying comparator to use for comparisons */
-    private Comparator comparator;
+    private Comparator<Object> comparator;
 
 
     /**
@@ -51,7 +51,7 @@ public class NormalizingComparator implements Comparator
      * @param normalizer the Normalizer to normalize values with before comparing
      * @param comparator the underlying comparator to use for comparisons
      */
-    public NormalizingComparator( Normalizer normalizer, Comparator comparator )
+    public NormalizingComparator( Normalizer normalizer, Comparator<Object> comparator )
     {
         this.normalizer = normalizer;
         this.comparator = comparator;

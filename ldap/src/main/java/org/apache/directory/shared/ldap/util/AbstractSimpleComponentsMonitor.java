@@ -29,13 +29,13 @@ import java.util.List;
 
 public abstract class AbstractSimpleComponentsMonitor implements ComponentsMonitor
 {
-    private List components;
+    private List<String> components;
 
 
     public AbstractSimpleComponentsMonitor(String[] components)
     {
         // register components
-        this.components = new LinkedList( Arrays.asList( components ) );
+        this.components = new LinkedList<String>( Arrays.asList( components ) );
     }
 
 

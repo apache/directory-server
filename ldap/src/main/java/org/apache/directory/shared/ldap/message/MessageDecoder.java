@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.message;
 
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -54,9 +53,11 @@ public final class MessageDecoder implements ProviderDecoder
     private static final Logger log = LoggerFactory.getLogger( MessageDecoder.class );
 
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
+    
+    private final static Set<String> EMPTY_SET_STRING = new HashSet<String>();
 
     /** Environment parameters stored here */
-    private final Hashtable env;
+    private final Hashtable<String, Object> env;
 
     /** the ASN.1 provider */
     private final Provider provider;
@@ -80,9 +81,9 @@ public final class MessageDecoder implements ProviderDecoder
      * @throws MessageException
      *             if there is a problem creating this decoder.
      */
-    public MessageDecoder(final Hashtable env) throws MessageException
+    public MessageDecoder(final Hashtable<String, Object> env) throws MessageException
     {
-        this.env = ( Hashtable ) env.clone();
+        this.env = ( Hashtable<String, Object> ) env.clone();
         
         // We need to get the encoder class name
         Hashtable providerEnv = Provider.getEnvironment();
@@ -103,7 +104,7 @@ public final class MessageDecoder implements ProviderDecoder
                     log.warn( "Null value for " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
                 }
                 
-                binaries = Collections.EMPTY_SET;
+                binaries = EMPTY_SET_STRING;
             }
             else if ( val instanceof String )
             {
@@ -125,7 +126,7 @@ public final class MessageDecoder implements ProviderDecoder
             else if ( val instanceof Collection )
             {
                 binaries = new HashSet<String>();
-                binaries.addAll( ( Set ) val );
+                binaries.addAll( ( Set<String> ) val );
             } // complain if it's something else
             else
             {
@@ -134,7 +135,8 @@ public final class MessageDecoder implements ProviderDecoder
                     log.warn( "Unrecognized value for " + BINARY_KEY
                         + " key in environment.  Using empty set for binaries." );
                 }
-                binaries = Collections.EMPTY_SET;
+                
+                binaries = EMPTY_SET_STRING;
             }
         }
         else
@@ -143,7 +145,7 @@ public final class MessageDecoder implements ProviderDecoder
             {
                 log.warn( "Could not find " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
             }
-            binaries = Collections.EMPTY_SET;
+            binaries = EMPTY_SET_STRING;
         }
 
         this.decoder = this.provider.getDecoder( binaries );

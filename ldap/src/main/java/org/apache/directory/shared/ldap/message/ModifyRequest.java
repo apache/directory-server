@@ -25,6 +25,7 @@ import java.util.Collection;
 import javax.naming.directory.ModificationItem;
 
 
+
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -142,7 +143,7 @@ public interface ModifyRequest extends SingleReplyRequest, AbandonableRequest
      * @param mod
      *            a ModificationItem to add.
      */
-    void addModification( ModificationItemImpl mod );
+    void addModification( ModificationItem mod );
 
 
     /**
@@ -152,5 +153,5 @@ public interface ModifyRequest extends SingleReplyRequest, AbandonableRequest
      * @param mod
      *            a ModificationItem to remove.
      */
-    void removeModification( ModificationItemImpl mod );
+    void removeModification( ModificationItem mod );
 }

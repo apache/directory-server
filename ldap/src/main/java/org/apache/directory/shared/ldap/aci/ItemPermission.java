@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 
 
 /**
@@ -37,7 +36,7 @@ public class ItemPermission extends Permission
 {
     private static final long serialVersionUID = 3940100745409337694L;
 
-    private final Collection userClasses;
+    private final Collection<UserClass> userClasses;
 
 
     /**
@@ -51,27 +50,18 @@ public class ItemPermission extends Permission
      * @param userClasses
      *            the collection of {@link UserClass}es
      */
-    public ItemPermission(int precedence, Collection grantsAndDenials, Collection userClasses)
+    public ItemPermission( int precedence, Collection<GrantAndDenial> grantsAndDenials, Collection<UserClass> userClasses )
     {
         super( precedence, grantsAndDenials );
 
-        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
-        {
-            Object val = i.next();
-            if ( !( val instanceof UserClass ) )
-            {
-                throw new IllegalArgumentException( "userClasses contains a wrong element." );
-            }
-        }
-
-        this.userClasses = Collections.unmodifiableCollection( new ArrayList( userClasses ) );
+        this.userClasses = Collections.unmodifiableCollection( new ArrayList<UserClass>( userClasses ) );
     }
 
 
     /**
      * Returns the collection of {@link UserClass}es.
      */
-    public Collection getUserClasses()
+    public Collection<UserClass> getUserClasses()
     {
         return userClasses;
     }
@@ -91,56 +81,51 @@ public class ItemPermission extends Permission
      */
     public void printToBuffer( StringBuffer buffer )
     {
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
         {
-            buffer.append( "precedence" );
-            buffer.append( ' ' );
+            buffer.append( "precedence " );
             buffer.append( getPrecedence() );
-            buffer.append( ',' );
-            buffer.append( ' ' );
+            buffer.append( ", " );
         }
         
-        buffer.append( "userClasses" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        for ( Iterator it = userClasses.iterator(); it.hasNext(); )
+        buffer.append( "userClasses { " );
+        
+        boolean isFirst = true;
+        
+        for ( UserClass userClass:userClasses )
         {
-            UserClass userClass = ( UserClass ) it.next();
             userClass.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( isFirst ) 
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
         
-        buffer.append( ',' );
-        buffer.append( ' ' );
+        buffer.append( " }, grantsAndDenials { " );
         
-        buffer.append( "grantsAndDenials" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        for ( Iterator it = getGrantsAndDenials().iterator(); it.hasNext(); )
+        isFirst = true;
+        
+        for ( GrantAndDenial grantAndDenial:getGrantsAndDenials() )
         {
-            GrantAndDenial grantAndDenial = ( GrantAndDenial ) it.next();
             grantAndDenial.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
         
-        buffer.append( ' ' );
-        buffer.append( '}' );
+        buffer.append( " } }" );
     }
 }

@@ -25,12 +25,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -55,7 +57,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
     private LdapDN name;
 
     /** Sequence of modifications or PDU's <b>modification</b> seqence field */
-    private ArrayList mods = new ArrayList();
+    private List<ModificationItem> mods = new ArrayList<ModificationItem>();
 
     private ModifyResponse response;
 
@@ -88,7 +90,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @return an immutatble Collection of ModificationItem instances.
      * @see <{javax.naming.directory.ModificationItem}>
      */
-    public Collection getModificationItems()
+    public Collection<ModificationItem> getModificationItems()
     {
         return Collections.unmodifiableCollection( mods );
     }
@@ -126,7 +128,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @param mod
      *            a ModificationItem to add.
      */
-    public void addModification( ModificationItemImpl mod )
+    public void addModification( ModificationItem mod )
     {
         mods.add( mod );
     }
@@ -139,7 +141,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
      * @param mod
      *            a ModificationItem to remove.
      */
-    public void removeModification( ModificationItemImpl mod )
+    public void removeModification( ModificationItem mod )
     {
         mods.remove( mod );
     }
@@ -222,7 +224,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             return false;
         }
 
-        Iterator list = req.getModificationItems().iterator();
+        Iterator<ModificationItem> list = req.getModificationItems().iterator();
 
         for ( int ii = 0; ii < mods.size(); ii++ )
         {
@@ -271,7 +273,7 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
             Attribute attr0 = item0.getAttribute();
             Attribute attr1 = item1.getAttribute();
 
-            Set attrHash0 = new HashSet();
+            Set<Object> attrHash0 = new HashSet<Object>();
 
             NamingEnumeration iter0 = attr0.getAll();
 

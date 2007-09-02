@@ -38,9 +38,9 @@ public class UserFirstACIItem extends ACIItem
 {
     private static final long serialVersionUID = 5587483838404246148L;
 
-    private final Collection userClasses;
+    private final Collection<UserClass> userClasses;
 
-    private final Collection userPermissions;
+    private final Collection<UserPermission> userPermissions;
 
 
     /**
@@ -59,36 +59,19 @@ public class UserFirstACIItem extends ACIItem
      *            <tt>protectedItems</tt> will have
      */
     public UserFirstACIItem(String identificationTag, int precedence, AuthenticationLevel authenticationLevel,
-        Collection userClasses, Collection userPermissions)
+        Collection<UserClass> userClasses, Collection<UserPermission> userPermissions)
     {
         super( identificationTag, precedence, authenticationLevel );
 
-        for ( Iterator i = userClasses.iterator(); i.hasNext(); )
-        {
-            if ( !UserClass.class.isAssignableFrom( i.next().getClass() ) )
-            {
-                throw new IllegalArgumentException( "userClasses contains an element which is not a user class." );
-            }
-        }
-
-        for ( Iterator i = userPermissions.iterator(); i.hasNext(); )
-        {
-            if ( !UserPermission.class.isAssignableFrom( i.next().getClass() ) )
-            {
-                throw new IllegalArgumentException(
-                    "userPermissions contains an element which is not a user permission." );
-            }
-        }
-
-        this.userClasses = Collections.unmodifiableCollection( new ArrayList( userClasses ) );
-        this.userPermissions = Collections.unmodifiableCollection( new ArrayList( userPermissions ) );
+        this.userClasses = Collections.unmodifiableCollection( new ArrayList<UserClass>( userClasses ) );
+        this.userPermissions = Collections.unmodifiableCollection( new ArrayList<UserPermission>( userPermissions ) );
     }
 
 
     /**
      * Returns the set of {@link UserClass}es.
      */
-    public Collection getUserClasses()
+    public Collection<UserClass> getUserClasses()
     {
         return userClasses;
     }
@@ -97,7 +80,7 @@ public class UserFirstACIItem extends ACIItem
     /**
      * Returns the set of {@link UserPermission}s.
      */
-    public Collection getUserPermission()
+    public Collection<UserPermission> getUserPermission()
     {
         return userPermissions;
     }
@@ -111,14 +94,14 @@ public class UserFirstACIItem extends ACIItem
     }
 
 
-    public Collection toTuples()
+    public Collection<ACITuple> toTuples()
     {
-        Collection tuples = new ArrayList();
-        for ( Iterator i = userPermissions.iterator(); i.hasNext(); )
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+
+        for ( UserPermission userPermission:userPermissions )
         {
-            UserPermission userPermission = ( UserPermission ) i.next();
-            Set grants = userPermission.getGrants();
-            Set denials = userPermission.getDenials();
+            Set<GrantAndDenial> grants = userPermission.getGrants();
+            Set<GrantAndDenial> denials = userPermission.getDenials();
             int precedence = userPermission.getPrecedence() >= 0 ? userPermission.getPrecedence() : this
                 .getPrecedence();
 

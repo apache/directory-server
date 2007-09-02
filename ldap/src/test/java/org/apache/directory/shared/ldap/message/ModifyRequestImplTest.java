@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.message.AbandonListener;
@@ -250,9 +251,9 @@ public class ModifyRequestImplTest extends TestCase
     {
         ModifyRequest req0 = new ModifyRequest()
         {
-            public Collection getModificationItems()
+            public Collection<ModificationItem> getModificationItems()
             {
-                List<ModificationItemImpl> list = new ArrayList<ModificationItemImpl>();
+                List<ModificationItem> list = new ArrayList<ModificationItem>();
                 AttributeImpl attr = new AttributeImpl( "attr0" );
                 attr.add( "val0" );
                 attr.add( "val1" );
@@ -275,12 +276,12 @@ public class ModifyRequestImplTest extends TestCase
             }
 
 
-            public void addModification( ModificationItemImpl a_mod )
+            public void addModification( ModificationItem mod )
             {
             }
 
 
-            public void removeModification( ModificationItemImpl a_mod )
+            public void removeModification( ModificationItem mod )
             {
             }
 

@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.message;
 
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
