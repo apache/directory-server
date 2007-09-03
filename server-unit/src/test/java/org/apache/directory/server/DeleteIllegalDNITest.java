@@ -50,7 +50,7 @@ public class DeleteIllegalDNITest extends AbstractServerTest
         
         try 
         {
-            NamingEnumeration<SearchResult> result = ctx.search( "myBadDN", "(objectClass=*)", controls );
+            ctx.search( "myBadDN", "(objectClass=*)", controls );
 
             fail(); // We should get an exception here
         } 

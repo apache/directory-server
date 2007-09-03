@@ -23,16 +23,12 @@ package org.apache.directory.server;
 import java.util.Hashtable;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.CascadeControl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
