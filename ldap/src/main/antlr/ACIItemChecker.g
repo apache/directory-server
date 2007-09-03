@@ -24,37 +24,8 @@ header
 package org.apache.directory.shared.ldap.aci;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Enumeration;
-
-import javax.naming.directory.Attribute;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import javax.naming.NamingException;
-
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
-import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
-import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
-import org.apache.directory.shared.ldap.util.ComponentsMonitor;
-import org.apache.directory.shared.ldap.util.MandatoryAndOptionalComponentsMonitor;
-import org.apache.directory.shared.ldap.util.MandatoryComponentsMonitor;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
-import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
-import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
-import org.apache.directory.shared.ldap.name.LdapDN;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 }
 
 

@@ -25,14 +25,10 @@ package org.apache.directory.shared.ldap.aci;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Enumeration;
-
-import javax.naming.directory.Attribute;
-import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -116,8 +112,8 @@ tokens
     private boolean isItemFirstACIItem;
     
     // shared global data needed to avoid extensive pass/return stuff
-    private Set m_protectedItems;
-    private Map m_protectedItemsMap;
+    private Set<ProtectedItem> m_protectedItems;
+    private Map<String, ProtectedItem> m_protectedItemsMap;
     private Set m_userClasses;
     private Map m_userClassesMap;
     private Set m_itemPermissions;
@@ -395,7 +391,7 @@ protectedItems
             )?
         CLOSE_CURLY
     {
-        m_protectedItems = new HashSet( m_protectedItemsMap.values() );
+        m_protectedItems = new HashSet<ProtectedItem>( m_protectedItemsMap.values() );
     }
     ;
     exception
