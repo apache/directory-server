@@ -21,10 +21,10 @@ package org.apache.directory.server.schema.bootstrap;
 
 
 import javax.naming.NamingException;
-import org.apache.directory.server.schema.registries.*;
+
+import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AbstractSyntax;
-import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.JavaByteSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.JavaIntegerSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.JavaLongSyntaxChecker;
