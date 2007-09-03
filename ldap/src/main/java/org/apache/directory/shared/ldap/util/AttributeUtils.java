@@ -51,7 +51,7 @@ public class AttributeUtils
      * @return the Attribute that is removed
      * @throws NamingException if there are problems accessing the attribute
      */
-    public static Attribute removeAttribute( AttributeType type, Attributes entry ) throws NamingException
+    public static Attribute removeAttribute( AttributeType type, Attributes entry )
     {
         Attribute attr = entry.get( type.getOid() );
         if ( attr == null )

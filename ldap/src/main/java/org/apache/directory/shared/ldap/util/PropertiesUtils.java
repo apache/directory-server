@@ -26,15 +26,10 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.naming.directory.Attributes;
 import javax.naming.NamingException;
@@ -554,131 +549,6 @@ public class PropertiesUtils
 
 
     /**
-     * Fills a set with the space delimited values of a property. If values is
-     * null a new Set is created and returned.
-     * 
-     * @param props
-     *            the properties to get the property values from
-     * @param key
-     *            the key of the multivalued property
-     * @param values
-     *            the values to populate
-     * @return the values set so it can be filled then used
-     */
-    public static Set fill( Properties props, String key, Set values )
-    {
-        if ( values == null )
-        {
-            values = new HashSet();
-        }
-        return ( Set ) fillCollection( props, key, values, " " );
-    }
-
-
-    /**
-     * Fills a set with the delimited values of a property. If values is null a
-     * new Set is created and returned.
-     * 
-     * @param props
-     *            the properties to get the property values from
-     * @param key
-     *            the key of the multivalued property
-     * @param values
-     *            the values to populate
-     * @param delimiter
-     *            the delimiter string to split the property with
-     * @return the values set so it can be filled then used
-     */
-    public static Set fill( Properties props, String key, Set values, String delimiter )
-    {
-        if ( values == null )
-        {
-            values = new HashSet();
-        }
-        return ( Set ) fillCollection( props, key, values, delimiter );
-    }
-
-
-    /**
-     * Fills a list with the space delimited values of a property. The list
-     * maintains the order of values in the multivalued property. If values is
-     * null a new List is created and returned.
-     * 
-     * @param props
-     *            the properties to get the property values from
-     * @param key
-     *            the key of the multivalued property
-     * @param values
-     *            the values to populate
-     * @return the values list so it can be filled then used
-     */
-    public static List fill( Properties props, String key, List values )
-    {
-        if ( values == null )
-        {
-            values = new ArrayList();
-        }
-        return ( List ) fillCollection( props, key, values, " " );
-    }
-
-
-    /**
-     * Fills a list with the space delimited values of a property. The list
-     * maintains the order of values in the multivalued property. If values is
-     * null a new List is created and returned.
-     * 
-     * @param props
-     *            the properties to get the property values from
-     * @param key
-     *            the key of the multivalued property
-     * @param values
-     *            the values to populate
-     * @param delimiter
-     *            the delimiter string to split the property with
-     * @return the values list so it can be filled then used
-     */
-    public static List fill( Properties props, String key, List values, String delimiter )
-    {
-        if ( values == null )
-        {
-            values = new ArrayList();
-        }
-        return ( List ) fillCollection( props, key, values, delimiter );
-    }
-
-
-    /**
-     * Fills a collection with the delimited values of a property.
-     * 
-     * @param props
-     *            the properties to get the property values from
-     * @param key
-     *            the key of the multivalued property
-     * @param values
-     *            the values to populate
-     * @param delimiter
-     *            the delimiter string to split the property with
-     * @return the values collection so it can be filled then used
-     */
-    public static Collection fillCollection( Properties props, String key, Collection values, String delimiter )
-    {
-        if ( props == null || !props.containsKey( key ) || props.getProperty( key ) == null )
-        {
-            return values;
-        }
-
-        String[] items = props.getProperty( key ).trim().split( delimiter );
-        
-        for ( int ii = 0; ii < items.length; ii++ )
-        {
-            values.add( items[ii] );
-        }
-
-        return values;
-    }
-
-
-    /**
      * Creates, fills and returns an Attributes instance using the LDIF encoded
      * within the property value. The LDIF should use '*' (asterisk) characters
      * as line delimiters within the property value. These are replaced with
@@ -707,7 +577,7 @@ public class PropertiesUtils
         
         LdifReader ldifReader = new LdifReader( new StringReader( ldif ) );
         
-        Entry entry = (Entry)ldifReader.next();
+        Entry entry = ldifReader.next();
         
         if ( entry != null )
         {

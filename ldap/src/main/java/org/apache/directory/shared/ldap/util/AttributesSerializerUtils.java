@@ -44,7 +44,7 @@ public class AttributesSerializerUtils
     /**
      * @see jdbm.helper.Serializer#deserialize(byte[])
      */
-    public static final Object deserialize( byte[] buf ) throws IOException
+    public static final Object deserialize( byte[] buf )
     {
         if ( buf.length == 0 )
         {
