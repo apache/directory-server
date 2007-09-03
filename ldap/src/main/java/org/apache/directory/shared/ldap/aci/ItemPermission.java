@@ -96,8 +96,6 @@ public class ItemPermission extends Permission
         
         for ( UserClass userClass:userClasses )
         {
-            userClass.printToBuffer( buffer );
-            
             if ( isFirst ) 
             {
                 isFirst = false;
@@ -106,6 +104,8 @@ public class ItemPermission extends Permission
             {
                 buffer.append( ", " );
             }
+
+            userClass.printToBuffer( buffer );
         }
         
         buffer.append( " }, grantsAndDenials { " );
@@ -114,8 +114,6 @@ public class ItemPermission extends Permission
         
         for ( GrantAndDenial grantAndDenial:getGrantsAndDenials() )
         {
-            grantAndDenial.printToBuffer( buffer );
-            
             if ( isFirst )
             {
                 isFirst = false;
@@ -124,6 +122,8 @@ public class ItemPermission extends Permission
             {
                 buffer.append( ", " );
             }
+
+            grantAndDenial.printToBuffer( buffer );
         }
         
         buffer.append( " } }" );

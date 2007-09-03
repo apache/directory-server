@@ -1218,7 +1218,6 @@ public class LdapURL
                 
                 for ( String attribute:attributes )
                 {
-
                     if ( isFirst )
                     {
                         isFirst = false;

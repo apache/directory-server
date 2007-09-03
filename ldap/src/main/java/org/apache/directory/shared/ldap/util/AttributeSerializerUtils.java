@@ -94,7 +94,7 @@ public class AttributeSerializerUtils
      * 
      * @see jdbm.helper.Serializer#deserialize(byte[])
      */
-    public static final Object deserialize( byte[] buf ) throws IOException
+    public static final Object deserialize( byte[] buf )
     {
         String id = readString( buf );
         AttributeImpl attr = new AttributeImpl( id );
@@ -131,7 +131,7 @@ public class AttributeSerializerUtils
      * 
      * @see jdbm.helper.Serializer#deserialize(byte[])
      */
-    public static final DeserializedAttribute deserialize( byte[] buf, int offset ) throws IOException
+    public static final DeserializedAttribute deserialize( byte[] buf, int offset )
     {
         final String id = readString( buf, offset );
         final AttributeImpl attr = new AttributeImpl( id );

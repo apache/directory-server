@@ -272,22 +272,24 @@ public abstract class ProtectedItem implements Serializable
         
         public void printToBuffer( StringBuffer buffer )
         {
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            buffer.append( "{ " );
+            boolean isFirst = true;
             
-            for ( Iterator<String> it = attributeTypes.iterator(); it.hasNext(); )
+            for ( String attributeType:attributeTypes )
             {
-                String attributeType = ( String ) it.next();
-                buffer.append( attributeType );
-                
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
+                if ( isFirst ) 
+                {
+                    isFirst = false;
                 }
+                else
+                {
+                    buffer.append( ", " );
+                }
+
+                buffer.append( attributeType );
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 

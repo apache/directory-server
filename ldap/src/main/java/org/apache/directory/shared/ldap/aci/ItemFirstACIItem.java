@@ -149,8 +149,6 @@ public class ItemFirstACIItem extends ACIItem
 
         for ( ProtectedItem item:protectedItems )
         {
-            item.printToBuffer( buffer );
-            
             if ( isFirst )
             {
                 isFirst = false;
@@ -159,6 +157,8 @@ public class ItemFirstACIItem extends ACIItem
             {
                 buffer.append( ", " );
             }
+
+            item.printToBuffer( buffer );
         }
 
         // itemPermissions
@@ -168,8 +168,6 @@ public class ItemFirstACIItem extends ACIItem
         
         for ( ItemPermission permission:itemPermissions )
         {
-            permission.printToBuffer( buffer );
-            
             if ( isFirst )
             {
                 isFirst = false;
@@ -178,6 +176,8 @@ public class ItemFirstACIItem extends ACIItem
             {
                 buffer.append( ", " );
             }
+
+            permission.printToBuffer( buffer );
         }
 
         buffer.append( " } } }" );
