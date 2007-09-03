@@ -86,7 +86,7 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
             return EMPTY_OCLASS_ARR;
         }
 
-        return ( ObjectClass[] ) superClasses.toArray( EMPTY_OCLASS_ARR );
+        return superClasses.toArray( EMPTY_OCLASS_ARR );
     }
 
 
@@ -103,7 +103,7 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
             return EMPTY_ATYPE_ARR;
         }
 
-        return ( AttributeType[] ) mustList.toArray( EMPTY_ATYPE_ARR );
+        return mustList.toArray( EMPTY_ATYPE_ARR );
     }
 
 
@@ -132,7 +132,7 @@ public class DefaultObjectClass extends AbstractSchemaObject implements ObjectCl
             return EMPTY_ATYPE_ARR;
         }
 
-        return ( AttributeType[] ) mayList.toArray( EMPTY_ATYPE_ARR );
+        return mayList.toArray( EMPTY_ATYPE_ARR );
     }
 
 
