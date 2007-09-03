@@ -27,10 +27,11 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class UniqueResourceException extends RuntimeException
 {
+    public static final long serialVersionUID = 1L;
 
     private final String resourceName;
     private final List<URL> urls;
