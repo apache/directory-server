@@ -740,7 +740,7 @@ public class JdbmStore
     }
 
 
-    public Iterator getSystemIndices()
+    public Iterator<String> getSystemIndices()
     {
         return sysIndices.keySet().iterator();
     }
