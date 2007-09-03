@@ -2,23 +2,23 @@ Manifest-Version: 1.0
 Main-Class: org.apache.directory.server.tools.ApachedsTools
 Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar 
  ../lib/antlr-2.7.6.jar 
- ../lib/apacheds-kerberos-shared-1.5.1.jar 
- ../lib/apacheds-protocol-changepw-1.5.1.jar 
- ../lib/apacheds-protocol-shared-1.5.1.jar 
- ../lib/apacheds-protocol-kerberos-1.5.1.jar 
- ../lib/apacheds-protocol-ldap-1.5.1.jar 
- ../lib/apacheds-protocol-ntp-1.5.1.jar 
- ../lib/apacheds-protocol-dns-1.5.1.jar 
- ../lib/apacheds-core-1.5.1.jar 
- ../lib/apacheds-core-shared-1.5.1.jar 
- ../lib/apacheds-jdbm-store-1.5.1.jar 
- ../lib/apacheds-btree-base-1.5.1.jar 
- ../lib/apacheds-server-jndi-1.5.1.jar 
- ../lib/apacheds-server-main-1.5.1.jar 
- ../lib/apacheds-schema-registries-1.5.1.jar 
- ../lib/apacheds-schema-bootstrap-1.5.1.jar 
- ../lib/apacheds-bootstrap-partition-1.5.1.jar 
- ../lib/apacheds-bootstrap-extract-1.5.1.jar 
+ ../lib/apacheds-kerberos-shared-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-changepw-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-shared-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-kerberos-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ldap-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-ntp-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-protocol-dns-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-core-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-core-shared-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-jdbm-store-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-btree-base-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-server-jndi-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-server-main-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-schema-registries-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-schema-bootstrap-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-bootstrap-partition-1.5.1-SNAPSHOT.jar 
+ ../lib/apacheds-bootstrap-extract-1.5.1-SNAPSHOT.jar 
  ../lib/commons-collections-3.2.jar 
  ../lib/commons-lang-2.3.jar 
  ../lib/jcl104-over-slf4j-1.4.0.jar
@@ -27,10 +27,10 @@ Class-Path: ../lib/logger.jar ../lib/daemon.jar ../lib/bootstrapper.jar
  ../lib/commons-cli-1.0.jar 
  ../lib/jdbm-1.0.jar 
  ../lib/mina-core-1.0.3.jar 
- ../lib/shared-asn1-codec-0.9.7.jar 
+ ../lib/shared-asn1-codec-0.9.8-SNAPSHOT.jar 
  ../lib/mina-filter-ssl-1.0.3.jar 
- ../lib/shared-asn1-0.9.7.jar 
- ../lib/shared-ldap-0.9.7.jar 
+ ../lib/shared-asn1-0.9.8-SNAPSHOT.jar 
+ ../lib/shared-ldap-0.9.8-SNAPSHOT.jar 
  ../lib/antlr-2.7.7.jar 
  ../lib/spring-beans-1.2.9.jar 
  ../lib/spring-context-1.2.9.jar 
