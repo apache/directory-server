@@ -44,6 +44,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -332,8 +333,6 @@ public class ServerContextFactory extends CoreContextFactory
 
     private final static String WINDOWSFILE_ATTR = "windowsFilePath";
     private final static String UNIXFILE_ATTR = "unixFilePath";
-    private final static String WINDOWSFILE_OC = "windowsFile";
-    private final static String UNIXFILE_OC = "unixFile";
 
     private String buildProtectedFileEntry( File ldif )
     {
@@ -353,7 +352,7 @@ public class ServerContextFactory extends CoreContextFactory
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
 		String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;    
-        String oc = File.separatorChar == '\\' ? WINDOWSFILE_OC : UNIXFILE_OC;
+        String oc = File.separatorChar == '\\' ? ApacheSchemaConstants.WINDOWS_FILE_OC : ApacheSchemaConstants.UNIX_FILE_OC;
 
         Attributes entry = new AttributesImpl( rdnAttr, getCanonical( ldif ), true );
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
