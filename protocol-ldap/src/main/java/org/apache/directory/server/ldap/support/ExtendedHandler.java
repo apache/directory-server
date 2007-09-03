@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -97,9 +95,6 @@ public class ExtendedHandler extends AbstractLdapHandler implements MessageHandl
         {
             try
             {
-            	SessionRegistry registry = SessionRegistry.getSingleton();
-                //LdapContext ldapContext = registry.getLdapContext( session, null, false);
-            	
                 handler.handleExtendedOperation( session, SessionRegistry.getSingleton(), req );
             }
             catch ( Exception e )

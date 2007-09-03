@@ -33,7 +33,6 @@ import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.interceptor.context.EmptyOperationContext;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.Partition;
