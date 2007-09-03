@@ -675,7 +675,7 @@ public class SchemaUtils
      * @throws NamingException if there are problems accessing the objects
      * associated with the attribute type.
      */
-    public static StringBuffer render( AttributeTypeDescription atd ) throws NamingException
+    public static StringBuffer render( AttributeTypeDescription atd )
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( atd.getNumericOid() );

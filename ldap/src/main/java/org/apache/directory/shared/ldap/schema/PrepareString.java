@@ -4647,7 +4647,7 @@ public class PrepareString
      * @param array The numeric char array
      * @return The modified numeric StringBuilder
      */
-    private static String insignifiantCharNumericString( String str ) throws InvalidCharacterException
+    private static String insignifiantCharNumericString( String str )
     {
         if ( StringTools.isEmpty( str ) )
         {
