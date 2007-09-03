@@ -153,7 +153,7 @@ public class IndexEnumeration implements NamingEnumeration<IndexRecord>
     {
         while ( underlying.hasMore() )
         {
-            Tuple tuple = ( Tuple ) underlying.next();
+            Tuple tuple = underlying.next();
 
             if ( swapKeyVal )
             {
