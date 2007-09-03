@@ -28,6 +28,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
@@ -74,7 +75,7 @@ public class LdapClassLoader extends ClassLoader
         
         BranchNode filter = new BranchNode( AssertionEnum.AND );
         filter.addNode( new SimpleNode( "fullyQualifiedJavaClassName", name, AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, "javaClass", AssertionEnum.EQUALITY ) );
+        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.JAVA_CLASS_OC, AssertionEnum.EQUALITY ) );
         
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

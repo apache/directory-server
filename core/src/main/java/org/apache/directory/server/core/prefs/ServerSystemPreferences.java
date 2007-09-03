@@ -39,6 +39,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -194,7 +195,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         Attributes attrs = new AttributesImpl();
         Attribute attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
         attr.add( SchemaConstants.TOP_OC );
-        attr.add( "prefNode" );
+        attr.add( ApacheSchemaConstants.PREF_NODE_OC );
         attr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
         attrs.put( attr );
         attr = new AttributeImpl( "prefNodeName" );

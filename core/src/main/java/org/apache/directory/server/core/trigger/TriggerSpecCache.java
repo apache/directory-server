@@ -37,6 +37,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -68,8 +69,6 @@ public class TriggerSpecCache
 {
     /** the attribute id for prescriptive trigger: prescriptiveTrigger */
     private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
-    /** the object class for trigger subentries: triggerExecutionSubentry */
-    private static final String TRIGGER_SUBENTRY_OC = "triggerExecutionSubentry";
 
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerSpecCache.class );
@@ -118,7 +117,7 @@ public class TriggerSpecCache
         {
             String suffix = ( String ) suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
-            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, TRIGGER_SUBENTRY_OC, AssertionEnum.EQUALITY );
+            ExprNode filter = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC, AssertionEnum.EQUALITY );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = 

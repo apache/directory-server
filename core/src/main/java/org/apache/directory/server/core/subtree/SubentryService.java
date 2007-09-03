@@ -36,6 +36,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -199,7 +200,7 @@ public class SubentryService extends BaseInterceptor
                 ResultCodeEnum.OBJECT_CLASS_VIOLATION );
         }
         
-        if ( AttributeUtils.containsValueCaseIgnore( oc, "accessControlSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC ) )
         {
             types |= Subentry.ACCESS_CONTROL_SUBENTRY;
         }
@@ -214,7 +215,7 @@ public class SubentryService extends BaseInterceptor
             types |= Subentry.COLLECTIVE_SUBENTRY;
         }
         
-        if ( AttributeUtils.containsValueCaseIgnore( oc, "triggerExecutionSubentry" ) )
+        if ( AttributeUtils.containsValueCaseIgnore( oc, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC ) )
         {
             types |= Subentry.TRIGGER_SUBENTRY;
         }
@@ -1088,7 +1089,7 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
 
     private ModificationItemImpl[] getOperationalModsForReplace( Name oldName, Name newName, Subentry subentry,
-        Attributes entry ) throws NamingException
+        Attributes entry )
     {
         List<ModificationItemImpl> modList = new ArrayList<ModificationItemImpl>();
         
@@ -1170,7 +1171,6 @@ public class SubentryService extends BaseInterceptor
      * @throws NamingException if there are problems accessing attributes
      */
     private Attributes getSubentryOperatationalAttributes( Name name, Subentry subentry )
-        throws NamingException
     {
         Attributes operational = new AttributesImpl();
         

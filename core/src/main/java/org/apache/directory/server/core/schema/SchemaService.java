@@ -821,7 +821,7 @@ public class SchemaService extends BaseInterceptor
             attr.add( SchemaConstants.TOP_OC );
             attr.add( "subschema" );
             attr.add( SchemaConstants.SUBENTRY_OC );
-            attr.add( "apacheSubschema" );
+            attr.add( ApacheSchemaConstants.APACHE_SUBSCHEMA_OC );
             attrs.put( attr );
         }
 
