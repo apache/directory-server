@@ -67,6 +67,7 @@ public class JavaStoredProcUtils
         File file = new File( url.getFile() );
         int size = ( int ) file.length();
         byte[] buf = new byte[size];
+        
         try
         {
             in.read( buf );
