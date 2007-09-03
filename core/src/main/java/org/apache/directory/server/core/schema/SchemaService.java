@@ -797,17 +797,17 @@ public class SchemaService extends BaseInterceptor
         
         int minSetSize = 0;
         
-        if ( setOids.contains( "+" ) )
+        if ( setOids.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
         {
             minSetSize++;
         }
         
-        if ( setOids.contains( "*" ) )
+        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) )
         {
             minSetSize++;
         }
         
-        if ( setOids.contains( SchemaConstants.REF_AT ) )
+        if ( setOids.contains( SchemaConstants.REF_AT_OID ) )
         {
             minSetSize++;
         }
@@ -842,7 +842,7 @@ public class SchemaService extends BaseInterceptor
 
         Attributes modificationAttributes = nexus.lookup( new LookupOperationContext( schemaModificationAttributesDN ) );
         
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATE_TIMESTAMP_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATE_TIMESTAMP_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
             AttributeType createTimestampAT = registries.
@@ -852,14 +852,14 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATORS_NAME_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATORS_NAME_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
             attr.add( PartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
         
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFY_TIMESTAMP_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFY_TIMESTAMP_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
             AttributeType schemaModifyTimestampAT = registries.
@@ -870,7 +870,7 @@ public class SchemaService extends BaseInterceptor
             attrs.put( attr );
         }
 
-        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFIERS_NAME_AT ) )
+        if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFIERS_NAME_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
             AttributeType schemaModifiersNameAT = registries.
