@@ -28,10 +28,74 @@ package org.apache.directory.server.constants;
  */
 public interface ApacheSchemaConstants
 {
-    String SCHEMA_MODIFIERS_NAME_AT = "schemaModifiersName";
-    String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
-    String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
-
-    String SCHEMA_MODIFICATION_ATTRIBUTES_OC = "schemaModificationAttributes";
     String SCHEMA_NAME = "apache";
+
+    // ---- ObjectClasses -----------------------------------------------------
+    // ApacheCatalogEntry
+    String APACHE_CATALOG_ENTRY_OC                  = "apacheCatalogEntry";
+    String APACHE_CATALOG_ENTRY_OC_OID              = "1.3.6.1.4.1.18060.0.4.1.3.5";
+
+    // apacheFactoryConfiguration
+    String APACHE_FACTORY_CONFIGURATION_OC          = "apacheFactoryConfiguration";
+    String APACHE_FACTORY_CONFIGURATION_OC_OID      = "1.3.6.1.4.1.18060.0.4.1.3.4";
+
+    // ApacheServiceConfiguration
+    String APACHE_SERVICE_CONFIGURATION_OC          = "apacheServiceConfiguration";
+    String APACHE_SERVICE_CONFIGURATION_OC_OID      = "1.3.6.1.4.1.18060.0.4.1.3.3";
+
+    // ApacheSubschema
+    String APACHE_SUBSCHEMA_OC                      = "apacheSubschema";
+    String APACHE_SUBSCHEMA_OC_OID                  = "1.3.6.1.4.1.18060.0.4.1.3.9";
+
+    // JavaClass
+    String JAVA_CLASS_OC                            = "javaClass";
+    String JAVA_CLASS_OC_OID                        = "1.3.6.1.4.1.18060.0.4.1.3.8";
+
+    // JavaStoredProcUnit
+    String JAVA_STORED_PROC_UNIT_OC                 = "javaStoredProcUnit";
+    String JAVA_STORED_PROC_UNIT_OC_OID             = "1.3.6.1.4.1.18060.0.4.1.5.5";
+
+    // JavaxScriptStoredProcUnit
+    String JAVAX_SCRIPT_STORED_PROC_UNIT_OC         = "javaxScriptStoredProcUnit";
+    String JAVAX_SCRIPT_STORED_PROC_UNIT_OC_OID     = "1.3.6.1.4.1.18060.0.4.1.5.8";
+
+    // PrefNode
+    String PREF_NODE_OC                             = "prefNode";
+    String PREF_NODE_OC_OID                         = "1.3.6.1.4.1.18060.0.4.1.3.1";
+
+    // SchemaModificationAttributes
+    String SCHEMA_MODIFICATION_ATTRIBUTES_OC        = "schemaModificationAttributes";
+    String SCHEMA_MODIFICATION_ATTRIBUTES_OC_OID    = "1.3.6.1.4.1.18060.0.4.1.3.10";
+
+    // StoredProcUnit
+    String STORED_PROC_UNIT_OC                      = "storedProcUnit";
+    String STORED_PROC_UNIT_OC_OID                  = "1.3.6.1.4.1.18060.0.4.1.5.3";
+
+    // TriggerExecutionSubentry
+    String TRIGGER_EXECUTION_SUBENTRY_OC            = "triggerExecutionSubentry";
+    String TRIGGER_EXECUTION_SUBENTRY_OC_OID        = "1.3.6.1.4.1.18060.0.4.1.2.28";
+
+    // UnixFile
+    String UNIX_FILE_OC                             = "unixFile";
+    String UNIX_FILE_OC_OID                         = "1.3.6.1.4.1.18060.0.4.1.3.7";
+
+    // WindowsFile
+    String WINDOWS_FILE_OC                          = "windowsFile";
+    String WINDOWS_FILE_OC_OID                      = "1.3.6.1.4.1.18060.0.4.1.3.6";
+
+
+    
+    
+    
+    // SchemaModifiersName
+    String SCHEMA_MODIFIERS_NAME_AT         = "schemaModifiersName";
+    String SCHEMA_MODIFIERS_NAME_AT_OID     = "";
+    
+    // SchemaModifyTimestamp
+    String SCHEMA_MODIFY_TIMESTAMP_AT = "schemaModifyTimestamp";
+    String SCHEMA_MODIFY_TIMESTAMP_AT_OID = "";
+    
+    // SubschemaSubentryName
+    String SUBSCHEMA_SUBENTRY_NAME_AT = "subschemaSubentryName";
+    String SUBSCHEMA_SUBENTRY_NAME_AT_OID = "";
 }
