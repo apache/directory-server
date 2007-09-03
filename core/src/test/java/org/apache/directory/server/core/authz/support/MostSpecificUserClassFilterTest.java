@@ -48,11 +48,11 @@ public class MostSpecificUserClassFilterTest extends TestCase
     private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
     private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
 
-    private static final List TUPLES_A = new ArrayList();
-    private static final List TUPLES_B = new ArrayList();
-    private static final List TUPLES_C = new ArrayList();
-    private static final List TUPLES_D = new ArrayList();
-    private static final List TUPLES_E = new ArrayList();
+    private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_C = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_D = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_E = new ArrayList<ACITuple>();
 
     static
     {
@@ -118,8 +118,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        List tuples = new ArrayList( TUPLES_A );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_A );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 2, tuples.size() );
@@ -132,8 +132,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        List tuples = new ArrayList( TUPLES_B );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_B );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 1, tuples.size() );
@@ -145,8 +145,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        List tuples = new ArrayList( TUPLES_C );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_C );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 1, tuples.size() );
@@ -158,8 +158,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        List tuples = new ArrayList( TUPLES_D );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_D );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 1, tuples.size() );
