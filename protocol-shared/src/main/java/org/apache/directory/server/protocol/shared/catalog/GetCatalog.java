@@ -32,6 +32,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 
 
@@ -44,7 +45,7 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
 public class GetCatalog implements ContextOperation
 {
     private static final long serialVersionUID = -6657995003127926278L;
-    private static final String ENTRY = "apacheCatalogEntry";
+    private static final String ENTRY = ApacheSchemaConstants.APACHE_CATALOG_ENTRY_OC;
     private static final String ENTRY_NAME = "apacheCatalogEntryName";
     private static final String ENTRY_BASEDN = "apacheCatalogEntryBaseDn";
 

@@ -42,7 +42,6 @@ public abstract class ServiceConfiguration
     /** The default MINA buffer size. */
     public static final int DEFAULT_BUFFER_SIZE = 1024;
 
-    protected static final String APACHE_SERVICE_CONFIGURATION = "apacheServiceConfiguration";
     protected static final String SERVICE_PID = "service.pid";
     protected static final String SERVICE_FACTORYPID = "service.factoryPid";
 
