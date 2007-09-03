@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import java.util.Iterator;
-
 import javax.naming.ldap.Control;
 
 import org.apache.directory.shared.ldap.name.LdapDN;

@@ -49,7 +49,6 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.OperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -228,9 +227,9 @@ public class SubentryService extends BaseInterceptor
     // Methods/Code dealing with Subentry Visibility
     // -----------------------------------------------------------------------
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
 
         if ( !isSubentryVisible( invocation ) )
@@ -245,7 +244,7 @@ public class SubentryService extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.search( opContext );
+        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         SearchControls searchCtls = opContext.getSearchControls();
 
@@ -946,43 +945,6 @@ public class SubentryService extends BaseInterceptor
     // -----------------------------------------------------------------------
 
     
-    private int getSubentryTypes( Attributes subentry, int modOp, Attributes mods ) throws NamingException
-    {
-        if ( mods.get( SchemaConstants.OBJECT_CLASS_AT ) == null )
-        {
-            return getSubentryTypes( subentry );
-        }
-        
-        // ok user is modifying (replacing) the objectClasses of a subentry so
-        // endstate of objectClasses is contained in the mods attibutes
-        if ( modOp == DirContext.REPLACE_ATTRIBUTE )
-        {
-            return getSubentryTypes( mods );
-        }
-        
-        Attribute ocChanges = mods.get( SchemaConstants.OBJECT_CLASS_AT );
-        Attribute ocFinalState = ( Attribute ) subentry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
-        if ( modOp == DirContext.ADD_ATTRIBUTE )
-        {
-            for ( int ii = 0; ii < ocChanges.size(); ii++ )
-            {
-                ocFinalState.add( ocChanges.get( ii ) );
-            }
-        }
-        else // remove operation
-        {
-            for ( int ii = 0; ii < ocChanges.size(); ii++ )
-            {
-                ocFinalState.remove( ocChanges.get( ii ) );
-            }
-        }
-        
-        Attributes attrs = new AttributesImpl();
-        attrs.put( ocFinalState );
-        return getSubentryTypes( attrs );
-    }
-    
-
     private int getSubentryTypes( Attributes entry, ModificationItemImpl[] mods ) throws NamingException
     {
         Attribute ocFinalState = ( Attribute ) entry.get( SchemaConstants.OBJECT_CLASS_AT ).clone();
