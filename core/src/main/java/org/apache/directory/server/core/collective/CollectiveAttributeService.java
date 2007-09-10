@@ -309,18 +309,20 @@ public class CollectiveAttributeService extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
+        
+        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List collective Filter" );
     }
 
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
+        
         return new SearchResultFilteringEnumeration( 
-            e, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
+            result, opContext.getSearchControls(), invocation, SEARCH_FILTER, "Search collective Filter" );
     }
     
     // ------------------------------------------------------------------------
@@ -330,13 +332,17 @@ public class CollectiveAttributeService extends BaseInterceptor
     public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
-        super.add( next, opContext );
+        
+        next.add( opContext );
+        //super.add( next, opContext );
     }
 
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), opContext.getModItems() );
-        super.modify( next, opContext );
+
+        next.modify( opContext );
+        //super.modify( next, opContext );
     }
 }

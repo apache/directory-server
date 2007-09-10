@@ -379,11 +379,11 @@ public class SchemaService extends BaseInterceptor
     /**
      * 
      */
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, binaryAttributeFilter, "List Schema Filter" );
+        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, binaryAttributeFilter, "List Schema Filter" );
     }
 
     /**
@@ -514,16 +514,16 @@ public class SchemaService extends BaseInterceptor
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
         if ( !subschemaSubentryDnNorm.equals( base.toNormName() ) )
         {
-            NamingEnumeration e = nextInterceptor.search( opContext );
+            NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
             
             Invocation invocation = InvocationStack.getInstance().peek();
 
             if ( searchCtls.getReturningAttributes() != null )
             {
-                return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, topFilter, "Search Schema Filter top" );
+                return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, topFilter, "Search Schema Filter top" );
             }
 
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, filters, "Search Schema Filter" );
+            return new SearchResultFilteringEnumeration( result, searchCtls, invocation, filters, "Search Schema Filter" );
         }
 
         // The user was searching into the subSchemaSubEntry
@@ -556,7 +556,7 @@ public class SchemaService extends BaseInterceptor
                 }
                 else
                 {
-                    return new EmptyEnumeration();
+                    return new EmptyEnumeration<SearchResult>();
                 }
                 
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
@@ -570,11 +570,11 @@ public class SchemaService extends BaseInterceptor
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
                     SearchResult result = new ServerSearchResult( base.toString(), null, attrs );
-                    return new SingletonEnumeration( result );
+                    return new SingletonEnumeration<SearchResult>( result );
                 }
                 else
                 {
-                    return new EmptyEnumeration();
+                    return new EmptyEnumeration<SearchResult>();
                 }
             }
             else if ( filter instanceof PresenceNode )
@@ -587,13 +587,13 @@ public class SchemaService extends BaseInterceptor
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );
                     SearchResult result = new ServerSearchResult( base.toString(), null, attrs, false );
-                    return new SingletonEnumeration( result );
+                    return new SingletonEnumeration<SearchResult>( result );
                 }
             }
         }
 
         // In any case not handled previously, just return an empty result
-        return new EmptyEnumeration();
+        return new EmptyEnumeration<SearchResult>();
     }
 
 

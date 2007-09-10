@@ -1070,7 +1070,6 @@ public class InterceptorChain
                     return next;
                 }
 
-
                 public boolean compare( CompareOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1090,7 +1089,6 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
-
 
                 public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
                 {

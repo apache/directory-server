@@ -176,6 +176,7 @@ public class NormalizationService extends BaseInterceptor
         if ( filter.isLeaf() )
         {
             LeafNode ln = ( LeafNode ) filter;
+            
             if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
             {
                 StringBuffer buf = new StringBuffer();
@@ -183,11 +184,12 @@ public class NormalizationService extends BaseInterceptor
                 buf.append( ln.getAttribute() );
                 buf.append( "' not evaluted at all.  Returning empty enumeration." );
                 log.warn( buf.toString() );
-                return new EmptyEnumeration();
+                return new EmptyEnumeration<SearchResult>();
             }
         }
 
         boolean isFailure = true;
+        
         while ( isFailure && ( filter != null ) )
         {
             try
@@ -195,6 +197,7 @@ public class NormalizationService extends BaseInterceptor
                 if ( filter.isLeaf() )
                 {
                     LeafNode ln = ( LeafNode ) filter;
+                    
                     if ( !attributeRegistry.hasAttributeType( ln.getAttribute() ) )
                     {
                         StringBuffer buf = new StringBuffer();
@@ -202,7 +205,7 @@ public class NormalizationService extends BaseInterceptor
                         buf.append( ln.getAttribute() );
                         buf.append( "' not evaluted at all.  Returning empty enumeration." );
                         log.warn( buf.toString() );
-                        return new EmptyEnumeration();
+                        return new EmptyEnumeration<SearchResult>();
                     }
                 }
 
@@ -212,6 +215,7 @@ public class NormalizationService extends BaseInterceptor
             catch( UndefinedFilterAttributeException e )
             {
                 isFailure = true;
+                
                 if ( log.isWarnEnabled() )
                 {
                     log.warn( "An undefined attribute was found within the supplied search filter.  " +
@@ -221,16 +225,17 @@ public class NormalizationService extends BaseInterceptor
                 // we can only get here if the filter is a branch node with only leaves
                 // note that in this case the undefined node will not be removed.
                 BranchNode bnode = ( BranchNode ) filter;
+                
                 if ( bnode.isNegation() )
                 {
-                    return new EmptyEnumeration();
+                    return new EmptyEnumeration<SearchResult>();
                 }
                 
                 bnode.getChildren().remove( e.getUndefinedFilterNode() );
                 
                 if ( bnode.getOperator() == AssertionEnum.AND )
                 {
-                    return new EmptyEnumeration();
+                    return new EmptyEnumeration<SearchResult>();
                 }
                 
                 if ( bnode.getChildren().size() < 2 )
@@ -250,7 +255,7 @@ public class NormalizationService extends BaseInterceptor
             {
                 log.warn( "Undefined branchnode filter without child nodes not " +
                         "evaluted at all.  Returning empty enumeration." );
-                return new EmptyEnumeration();
+                return new EmptyEnumeration<SearchResult>();
             }
 
             // now for AND & OR nodes with a single child left replace them with their child
@@ -272,6 +277,7 @@ public class NormalizationService extends BaseInterceptor
         else
         {
             LeafNode leaf = ( LeafNode ) filter;
+            
             if ( attributeRegistry.hasDescendants( leaf.getAttribute() ) )
             {
                 // create new OR node and add the filter leaf to it 
@@ -356,7 +362,7 @@ public class NormalizationService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         LdapDN.normalize( opContext.getDn(), attrNormalizers );
         return nextInterceptor.list( opContext );

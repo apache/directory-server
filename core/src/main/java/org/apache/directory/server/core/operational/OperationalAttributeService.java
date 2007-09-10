@@ -268,7 +268,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
         ModifyOperationContext newModify = 
             new ModifyOperationContext( 
-        		((MoveAndRenameOperationContext)opContext).getParent(), items );
+        		opContext.getParent(), items );
         nexus.modify( newModify );
     }
 
@@ -295,31 +295,32 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public NamingEnumeration list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
+        
+        return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation, SEARCH_FILTER, "List Operational Filter" );
     }
 
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration e = nextInterceptor.search( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
         SearchControls searchCtls = opContext.getSearchControls();
         
         if ( searchCtls.getReturningAttributes() != null )
         {
             if ( isDenormalizeOpAttrsEnabled )
             {
-                return new SearchResultFilteringEnumeration( e, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
+                return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
             }
                 
-            return e;
+            return result;
         }
 
-        return new SearchResultFilteringEnumeration( e, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
+        return new SearchResultFilteringEnumeration( result, searchCtls, invocation, SEARCH_FILTER , "Search Operational Filter");
     }
 
 
@@ -350,6 +351,7 @@ public class OperationalAttributeService extends BaseInterceptor
                 attributes.remove( attrId );
             }
         }
+        
         return true;
     }
 
@@ -466,6 +468,7 @@ public class OperationalAttributeService extends BaseInterceptor
 
             // below we only process multi-valued rdns
             StringBuffer buf = new StringBuffer();
+        
             for ( Iterator jj = rdn.iterator(); jj.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) jj.next();
@@ -476,6 +479,7 @@ public class OperationalAttributeService extends BaseInterceptor
                     buf.append( '+' );
                 }
             }
+            
             newDn.add( new Rdn(buf.toString()) );
         }
         

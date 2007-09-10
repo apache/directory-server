@@ -33,6 +33,7 @@ import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -73,12 +74,12 @@ public class PasswordPolicyService extends BaseInterceptor
 
         Object attr = null;
 
-        if ( entry.get( "userPassword" ) != null )
+        if ( entry.get( SchemaConstants.USER_PASSWORD_AT ) != null )
         {
             String userPassword = "";
             String username = "";
 
-            attr = entry.get( "userPassword" ).get();
+            attr = entry.get( SchemaConstants.USER_PASSWORD_AT ).get();
 
             if ( attr instanceof String )
             {
@@ -101,9 +102,9 @@ public class PasswordPolicyService extends BaseInterceptor
                 userPassword = string;
             }
 
-            if ( entry.get( "cn" ) != null )
+            if ( entry.get( SchemaConstants.CN_AT ) != null )
             {
-                attr = entry.get( "cn" ).get();
+                attr = entry.get( SchemaConstants.CN_AT ).get();
                 username = ( String ) attr;
             }
 
@@ -127,28 +128,30 @@ public class PasswordPolicyService extends BaseInterceptor
 
         String operation = null;
 
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItemImpl mod:mods )
         {
             if ( log.isDebugEnabled() )
             {
-            	switch ( mods[ii].getModificationOp() )
+            	switch ( mod.getModificationOp() )
 	            {
 	                case DirContext.ADD_ATTRIBUTE:
 	                    operation = "Adding";
 	                    break;
+	                    
 	                case DirContext.REMOVE_ATTRIBUTE:
 	                    operation = "Removing";
 	                    break;
+	                    
 	                case DirContext.REPLACE_ATTRIBUTE:
 	                    operation = "Replacing";
 	                    break;
 	            }
             }
 
-            Attribute attr = mods[ii].getAttribute();
+            Attribute attr = mod.getAttribute();
             String id = attr.getID();
 
-            if ( id.equalsIgnoreCase( "userPassword" ) )
+            if ( id.equalsIgnoreCase( SchemaConstants.USER_PASSWORD_AT ) )
             {
                 Object userPassword = attr.get();
 
@@ -181,7 +184,7 @@ public class PasswordPolicyService extends BaseInterceptor
 
             if ( log.isDebugEnabled() )
             {
-            	log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mods[ii].getAttribute() );
+            	log.debug( operation + " for entry '" + name.getUpName() + "' the attribute " + mod.getAttribute() );
             }
         }
 
@@ -243,27 +246,27 @@ public class PasswordPolicyService extends BaseInterceptor
 
         char[] characters = password.toCharArray();
 
-        for ( int ii = 0; ii < characters.length; ii++ )
+        for ( char character:characters )
         {
-            if ( Character.isLowerCase( characters[ii] ) )
+            if ( Character.isLowerCase( character ) )
             {
                 lowercase = 1;
             }
             else
             {
-                if ( Character.isUpperCase( characters[ii] ) )
+                if ( Character.isUpperCase( character ) )
                 {
                     uppercase = 1;
                 }
                 else
                 {
-                    if ( Character.isDigit( characters[ii] ) )
+                    if ( Character.isDigit( character ) )
                     {
                         digit = 1;
                     }
                     else
                     {
-                        if ( !Character.isLetterOrDigit( characters[ii] ) )
+                        if ( !Character.isLetterOrDigit( character ) )
                         {
                             nonAlphaNumeric = 1;
                         }

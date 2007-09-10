@@ -620,6 +620,7 @@ public class ReferralService extends BaseInterceptor
         if ( refval == null || refval.equals( IGNORE ) )
         {
             next.moveAndRename( opContext );
+            
             if ( lut.isReferral( oldName ) )
             {
                 lut.referralChanged( oldName, newName );
@@ -635,6 +636,7 @@ public class ReferralService extends BaseInterceptor
             if ( farthestSrc == null && farthestDst == null && !lut.isReferral( newName ) )
             {
                 next.moveAndRename( opContext );
+                
                 if ( lut.isReferral( oldName ) )
                 {
                     lut.referralChanged( oldName, newName );

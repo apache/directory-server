@@ -237,8 +237,10 @@ public class EventService extends BaseInterceptor
 
     public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
-        super.add( next, opContext );
-        LdapDN name = opContext.getDn();
+    	next.add( opContext );
+        //super.add( next, opContext );
+        
+    	LdapDN name = opContext.getDn();
         Attributes entry = opContext.getEntry();
         
         Set selecting = getSelectingSources( name, entry );
@@ -270,7 +272,10 @@ public class EventService extends BaseInterceptor
     {
     	LdapDN name = opContext.getDn();
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
-        super.delete( next, opContext );
+
+        next.delete( opContext );
+        //super.delete( next, opContext );
+        
         Set selecting = getSelectingSources( name, entry );
         
         if ( selecting.isEmpty() )
@@ -328,7 +333,10 @@ public class EventService extends BaseInterceptor
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
-        super.modify( next, opContext );
+        
+    	next.modify( opContext );
+        //super.modify( next, opContext );
+
         notifyOnModify( opContext.getDn(), opContext.getModItems(), oriEntry );
     }
 
@@ -362,8 +370,10 @@ public class EventService extends BaseInterceptor
 
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
-        super.rename( next, opContext );
-        LdapDN newName = ( LdapDN ) opContext.getDn().clone();
+    	next.rename( opContext );
+        //super.rename( next, opContext );
+        
+    	LdapDN newName = ( LdapDN ) opContext.getDn().clone();
         newName.remove( newName.size() - 1 );
         newName.add( opContext.getNewRdn() );
         newName.normalize( attributeRegistry.getNormalizerMapping() );
@@ -374,7 +384,9 @@ public class EventService extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
         throws NamingException
     {
-        super.moveAndRename( next, opContext );
+    	next.moveAndRename( opContext );
+        //super.moveAndRename( next, opContext );
+
         LdapDN newName = ( LdapDN ) opContext.getParent().clone();
         newName.add( opContext.getNewRdn() );
         notifyOnNameChange( opContext.getDn(), newName );
@@ -383,7 +395,9 @@ public class EventService extends BaseInterceptor
 
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
-        super.move( next, opContext );
+    	next.move( opContext );
+        //super.move( next, opContext );
+
         LdapDN oriChildName = opContext.getDn();
         
         LdapDN newName = ( LdapDN ) opContext.getParent().clone();
@@ -399,14 +413,17 @@ public class EventService extends BaseInterceptor
             return Collections.EMPTY_SET;
         }
 
-        Set selecting = new HashSet();
+        Set<Object> selecting = new HashSet<Object>();
         Iterator list = sources.values().iterator();
+        
         while ( list.hasNext() )
         {
             Object obj = list.next();
+        
             if ( obj instanceof EventSourceRecord )
             {
                 EventSourceRecord rec = ( EventSourceRecord ) obj;
+            
                 if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
                 {
                     selecting.add( obj );

@@ -491,22 +491,23 @@ public class ReplicationService extends BaseInterceptor
 
 
     @Override
-    public NamingEnumeration list( NextInterceptor next, ListOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
-        NamingEnumeration e = next.search(
-            new SearchOperationContext( 
-                opContext.getDn(), ctx.getEnvironment(),
-                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
-                new SearchControls() ) );
 
-        return new SearchResultFilteringEnumeration( e, new SearchControls(), InvocationStack.getInstance().peek(),
+    	NamingEnumeration<SearchResult> result = nextInterceptor.search(
+	            new SearchOperationContext( 
+	                opContext.getDn(), ctx.getEnvironment(),
+	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
+	                new SearchControls() ) );
+
+        return new SearchResultFilteringEnumeration( result, new SearchControls(), InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "List replication filter" );
     }
 
 
     @Override
-    public NamingEnumeration<SearchResult> search( NextInterceptor next, SearchOperationContext opContext ) throws NamingException
+    public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         SearchControls searchControls = opContext.getSearchControls();
         
@@ -519,9 +520,9 @@ public class ReplicationService extends BaseInterceptor
             searchControls.setReturningAttributes( newAttrIds );
         }
         
-        NamingEnumeration e = next.search( 
+    	NamingEnumeration<SearchResult> result = nextInterceptor.search( 
             new SearchOperationContext( opContext.getDn(), opContext.getEnv(), opContext.getFilter(), searchControls ) );
-        return new SearchResultFilteringEnumeration( e, searchControls, InvocationStack.getInstance().peek(),
+        return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }
 

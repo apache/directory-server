@@ -230,39 +230,39 @@ public class SubentryService extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
 
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, new SearchControls(), invocation,
+            return new SearchResultFilteringEnumeration( result, new SearchControls(), invocation,
                 new HideSubentriesFilter(), "List Subentry filter" );
         }
 
-        return e;
+        return result;
     }
 
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.search( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         SearchControls searchCtls = opContext.getSearchControls();
 
         // object scope searches by default return subentries
         if ( searchCtls.getSearchScope() == SearchControls.OBJECT_SCOPE )
         {
-            return e;
+            return result;
         }
 
         // for subtree and one level scope we filter
         if ( !isSubentryVisible( invocation ) )
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideSubentriesFilter(), "Search Subentry filter hide subentries" );
+            return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideSubentriesFilter(), "Search Subentry filter hide subentries" );
         }
         else
         {
-            return new SearchResultFilteringEnumeration( e, searchCtls, invocation, new HideEntriesFilter(), "Search Subentry filter hide entries");
+            return new SearchResultFilteringEnumeration( result, searchCtls, invocation, new HideEntriesFilter(), "Search Subentry filter hide entries");
         }
     }
 

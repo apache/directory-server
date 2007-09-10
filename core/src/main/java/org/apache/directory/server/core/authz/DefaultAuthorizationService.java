@@ -515,6 +515,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
+
         return new SearchResultFilteringEnumeration( e, opContext.getSearchControls(), invocation, 
             new SearchResultFilter()
         {
@@ -529,16 +530,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
-        NamingEnumeration<SearchResult> e = nextInterceptor.list( opContext );
+        NamingEnumeration<SearchResult> result = nextInterceptor.list( opContext );
         
         if ( !enabled )
         {
-            return e;
+            return result;
         }
 
         Invocation invocation = InvocationStack.getInstance().peek();
         
-        return new SearchResultFilteringEnumeration( e, null, invocation, new SearchResultFilter()
+        return new SearchResultFilteringEnumeration( result, null, invocation, new SearchResultFilter()
         {
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException

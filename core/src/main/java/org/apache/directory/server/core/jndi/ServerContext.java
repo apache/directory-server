@@ -675,14 +675,20 @@ public abstract class ServerContext implements EventContext
             return;
         }
 
+        if ( obj instanceof Attributes ) 
+        {
+			Attributes attributes = (Attributes)obj;
+			
+			LdapDN target = buildTarget( name );
+			doAddOperation( target, attributes );
+		}
         // Check for Referenceable
-        if ( obj instanceof Referenceable )
+        else if ( obj instanceof Referenceable )
         {
             throw new NamingException( "Do not know how to store Referenceables yet!" );
         }
-
         // Store different formats
-        if ( obj instanceof Reference )
+        else if ( obj instanceof Reference )
         {
             // Store as ref and add outAttrs
             throw new NamingException( "Do not know how to store References yet!" );
@@ -691,9 +697,11 @@ public abstract class ServerContext implements EventContext
         {
             // Serialize and add outAttrs
             Attributes attributes = new AttributesImpl();
+            
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
                 NamingEnumeration list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
