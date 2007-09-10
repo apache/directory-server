@@ -34,7 +34,7 @@ import javax.naming.NamingEnumeration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class EmptyEnumeration implements NamingEnumeration
+public class EmptyEnumeration<T> implements NamingEnumeration<T>
 {
 
     /**
@@ -61,7 +61,7 @@ public class EmptyEnumeration implements NamingEnumeration
      * 
      * @see javax.naming.NamingEnumeration#next()
      */
-    public Object next() throws NamingException
+    public T next() throws NamingException
     {
         throw new NoSuchElementException();
     }
@@ -83,7 +83,7 @@ public class EmptyEnumeration implements NamingEnumeration
      * 
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public T nextElement()
     {
         throw new NoSuchElementException();
     }
