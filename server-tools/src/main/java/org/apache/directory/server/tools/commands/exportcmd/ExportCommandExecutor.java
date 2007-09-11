@@ -320,7 +320,8 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
             notifyOutputListener( "Base DN: " + baseDN );
             notifyOutputListener( "Authentication: " + auth );
         }
-        Hashtable env = new Hashtable();
+        
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, password );
         env.put( Context.SECURITY_AUTHENTICATION, auth );
@@ -354,10 +355,10 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
 
     private void processParameters( Parameter[] params )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < params.length; i++ )
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        for ( Parameter parameter:params )
         {
-            Parameter parameter = params[i];
             parameters.put( parameter.getName(), parameter.getValue() );
         }
 
@@ -396,7 +397,7 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
                 ApplicationContext factory = null;
                 URL configUrl;
 
-                configUrl = getLayout().getConfigurationFile().toURL();
+                configUrl = getLayout().getConfigurationFile().toURI().toURL();
                 factory = new FileSystemXmlApplicationContext( configUrl.toString() );
                 setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
             }
@@ -566,15 +567,16 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
 
     private void processListeners( ListenerParameter[] listeners )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < listeners.length; i++ )
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        for ( ListenerParameter parameter:listeners )
         {
-            ListenerParameter parameter = listeners[i];
             parameters.put( parameter.getName(), parameter.getListener() );
         }
 
         // OutputListener param
         ToolCommandListener outputListener = ( ToolCommandListener ) parameters.get( OUTPUTLISTENER_PARAMETER );
+
         if ( outputListener != null )
         {
             this.outputListener = outputListener;
@@ -582,6 +584,7 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
 
         // ErrorListener param
         ToolCommandListener errorListener = ( ToolCommandListener ) parameters.get( ERRORLISTENER_PARAMETER );
+        
         if ( errorListener != null )
         {
             this.errorListener = errorListener;
