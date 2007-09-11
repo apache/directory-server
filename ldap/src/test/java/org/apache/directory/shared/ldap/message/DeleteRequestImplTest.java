@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import junit.framework.TestCase;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
@@ -45,7 +45,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class DeleteRequestImplTest extends TestCase
 {
-    /**
+	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+
+	/**
      * Tests the same object referrence for equality.
      */
     public void testEqualsSameObj()
@@ -137,18 +139,18 @@ public class DeleteRequestImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String, Control> getControls()
             {
-                return Collections.EMPTY_MAP;
+                return EMPTY_CONTROL_MAP;
             }
 
 
-            public void add( Control a_control ) throws MessageException
+            public void add( Control control ) throws MessageException
             {
             }
 
 
-            public void remove( Control a_control ) throws MessageException
+            public void remove( Control control ) throws MessageException
             {
             }
 
@@ -159,13 +161,13 @@ public class DeleteRequestImplTest extends TestCase
             }
 
 
-            public Object get( Object a_key )
+            public Object get( Object key )
             {
                 return null;
             }
 
 
-            public Object put( Object a_key, Object a_value )
+            public Object put( Object key, Object value )
             {
                 return null;
             }

@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import junit.framework.TestCase;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
@@ -47,7 +47,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ExtendedResponseImplTest extends TestCase
 {
-    /**
+	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+
+	/**
      * Creates and populates a ExtendedResponseImpl stub for testing purposes.
      * 
      * @return a populated ExtendedResponseImpl stub
@@ -164,9 +166,9 @@ public class ExtendedResponseImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String, Control> getControls()
             {
-                return Collections.EMPTY_MAP;
+                return EMPTY_CONTROL_MAP;
             }
 
 

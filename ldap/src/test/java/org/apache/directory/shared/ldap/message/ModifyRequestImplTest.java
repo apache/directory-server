@@ -37,8 +37,8 @@ import org.apache.directory.shared.ldap.message.ResultResponse;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +51,9 @@ import java.util.Map;
  */
 public class ModifyRequestImplTest extends TestCase
 {
-    /**
+	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+
+	/**
      * Builds a ModifyRequest for testing purposes.
      * 
      * @return the ModifyRequest to use for tests
@@ -323,9 +325,9 @@ public class ModifyRequestImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String, Control> getControls()
             {
-                return Collections.EMPTY_MAP;
+                return EMPTY_CONTROL_MAP;
             }
 
 

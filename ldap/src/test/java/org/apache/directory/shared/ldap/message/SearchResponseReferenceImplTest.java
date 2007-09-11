@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import junit.framework.TestCase;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.ldap.Control;
@@ -43,7 +43,9 @@ import org.apache.directory.shared.ldap.message.SearchResponseReferenceImpl;
  */
 public class SearchResponseReferenceImplTest extends TestCase
 {
-    /**
+	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+
+	/**
      * Creates a baseline referral to test with and adds it to the supplied
      * response object.
      * 
@@ -112,9 +114,9 @@ public class SearchResponseReferenceImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String, Control> getControls()
             {
-                return Collections.EMPTY_MAP;
+                return EMPTY_CONTROL_MAP;
             }
 
 

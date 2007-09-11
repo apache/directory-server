@@ -22,12 +22,13 @@ package org.apache.directory.shared.ldap.message;
 
 import junit.framework.TestCase;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attributes;
 
+import javax.naming.ldap.Control;
 import org.apache.directory.shared.ldap.message.AbandonListener;
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
@@ -47,6 +48,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class AddRequestImplTest extends TestCase
 {
+	private static final Map<String, Control> EMPTY_CONTROL_MAP = new HashMap<String, Control>();
+	
     /**
      * Creates and populates a AttributeImpl with a specific id.
      * 
@@ -214,9 +217,9 @@ public class AddRequestImplTest extends TestCase
             }
 
 
-            public Map getControls()
+            public Map<String, Control> getControls()
             {
-                return Collections.EMPTY_MAP;
+                return EMPTY_CONTROL_MAP;
             }
 
 

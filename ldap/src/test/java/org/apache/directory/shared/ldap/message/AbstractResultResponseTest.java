@@ -188,28 +188,11 @@ public class AbstractResultResponseTest extends TestCase
             private static final long serialVersionUID = 1L;
 
 
-            public String getType()
-            {
-                return null;
-            }
-
-
             public void setID( String a_oid )
             {
             }
 
-
-            public byte[] getValue()
-            {
-                return new byte[0];
-            }
-
-
-            public void setValue( byte[] a_value )
-            {
-            }
-
-
+            
             public boolean isCritical()
             {
                 return false;

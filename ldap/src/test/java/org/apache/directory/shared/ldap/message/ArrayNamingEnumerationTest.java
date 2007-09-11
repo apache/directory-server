@@ -20,7 +20,11 @@
 package org.apache.directory.shared.ldap.message;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
+
+import javax.naming.ldap.Control;
 
 import junit.framework.TestCase;
 
@@ -36,7 +40,7 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  */
 public class ArrayNamingEnumerationTest extends TestCase
 {
-    /**
+	/**
      * Tests ArrayNamingEnumeration using an null array.
      */
     public void testUsingNullArray()
