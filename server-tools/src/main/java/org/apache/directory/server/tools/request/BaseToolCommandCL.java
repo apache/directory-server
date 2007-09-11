@@ -38,7 +38,7 @@ import org.apache.directory.server.tools.util.Parameter;
 public abstract class BaseToolCommandCL extends BaseToolCommand implements ToolCommandCL
 {
     /** The List of parameters that will be filled when parsing the command line */
-    protected List parameters;
+    protected List<Parameter> parameters;
 
 
     /**
@@ -49,7 +49,7 @@ public abstract class BaseToolCommandCL extends BaseToolCommand implements ToolC
     {
         super( name );
 
-        parameters = new ArrayList();
+        parameters = new ArrayList<Parameter>();
     }
 
 
