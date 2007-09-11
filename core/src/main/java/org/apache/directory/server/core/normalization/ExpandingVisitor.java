@@ -82,14 +82,15 @@ public class ExpandingVisitor implements FilterVisitor
         // children that are branch nodes are recursively visited
         // --------------------------------------------------------------------
         
-        final List children = bnode.getChildren();
-        final int limit = children.size();
-        for ( int ii = 0; ii < limit; ii++ )
+        final List<ExprNode> children = bnode.getChildren();
+        int childNumber = 0;
+        
+        for ( ExprNode child:children )
         {
-            ExprNode child = ( ExprNode ) children.get( ii );
             if ( child instanceof LeafNode )
             {
                 LeafNode leaf = ( LeafNode ) child;
+                
                 try
                 {
                     if ( attrRegistry.hasDescendants( leaf.getAttribute() ) )
@@ -99,10 +100,11 @@ public class ExpandingVisitor implements FilterVisitor
                         // replace the old leaf with the new OR branch node
                         BranchNode orNode = new BranchNode( AssertionEnum.OR );
                         orNode.getChildren().add( leaf );
-                        children.set( ii, orNode );
+                        children.set( childNumber++, orNode );
                         
                         // iterate through descendants adding them to the orNode
                         Iterator descendants = attrRegistry.descendants( leaf.getAttribute() );
+                        
                         while ( descendants.hasNext() )
                         {
                             LeafNode newLeaf = null;

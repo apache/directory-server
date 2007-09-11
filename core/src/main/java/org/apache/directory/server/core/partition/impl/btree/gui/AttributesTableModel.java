@@ -44,9 +44,9 @@ public class AttributesTableModel extends AbstractTableModel
     public static final String VAL_COL = "Values";
 
     /** list of attribute ids */
-    private final transient ArrayList keyList;
+    private final transient ArrayList<Object> keyList;
     /** list of attribute values */
-    private final transient ArrayList valList;
+    private final transient ArrayList<Object> valList;
 
     /** the attributes for the entry */
     private final Attributes entry;
@@ -82,8 +82,8 @@ public class AttributesTableModel extends AbstractTableModel
             rowCount = rowCount + entry.get( attrId ).size();
         }
 
-        keyList = new ArrayList( rowCount );
-        valList = new ArrayList( rowCount );
+        keyList = new ArrayList<Object>( rowCount );
+        valList = new ArrayList<Object>( rowCount );
 
         list = this.entry.getIDs();
         while ( list.hasMoreElements() )
@@ -193,7 +193,7 @@ public class AttributesTableModel extends AbstractTableModel
      */
     public void setValue( Object val, int row, int col )
     {
-        ArrayList list = null;
+        ArrayList<Object> list = null;
 
         if ( col > 1 || col < 0 )
         {

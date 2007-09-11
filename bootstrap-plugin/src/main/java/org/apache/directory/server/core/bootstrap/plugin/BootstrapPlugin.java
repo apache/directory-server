@@ -726,7 +726,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             try
             {
-                urls[i++] = new File( classpathElement ).toURL();
+                urls[i++] = new File( classpathElement ).toURI().toURL();
             } 
             catch ( MalformedURLException e )
             {

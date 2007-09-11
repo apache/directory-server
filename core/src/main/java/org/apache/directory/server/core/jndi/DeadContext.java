@@ -25,6 +25,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.Name;
+import javax.naming.NameClassPair;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -34,6 +35,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
@@ -43,6 +45,8 @@ import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+
+import javax.naming.Binding;
 
 
 /**
@@ -173,13 +177,13 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration search( String name, Attributes matchingAttributes ) throws NamingException
+    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, Attributes matchingAttributes ) throws NamingException
+    public NamingEnumeration<SearchResult> search( Name name, Attributes matchingAttributes ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
@@ -233,40 +237,40 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration search( String name, Attributes matchingAttributes, String[] attributesToReturn )
+    public NamingEnumeration<SearchResult> search( String name, Attributes matchingAttributes, String[] attributesToReturn )
         throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, Attributes matchingAttributes, String[] attributesToReturn )
+    public NamingEnumeration<SearchResult> search( Name name, Attributes matchingAttributes, String[] attributesToReturn )
         throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( String name, String filter, SearchControls cons ) throws NamingException
+    public NamingEnumeration<SearchResult> search( String name, String filter, SearchControls cons ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, String filter, SearchControls cons ) throws NamingException
+    public NamingEnumeration<SearchResult> search( Name name, String filter, SearchControls cons ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
+    public NamingEnumeration<SearchResult> search( String name, String filterExpr, Object[] filterArgs, SearchControls cons )
         throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
+    public NamingEnumeration<SearchResult> search( Name name, String filterExpr, Object[] filterArgs, SearchControls cons )
         throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
@@ -297,7 +301,7 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public Hashtable getEnvironment() throws NamingException
+    public Hashtable<String,Object>  getEnvironment() throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
@@ -405,25 +409,25 @@ public class DeadContext implements LdapContext, EventDirContext
     }
 
 
-    public NamingEnumeration list( String name ) throws NamingException
+    public NamingEnumeration<NameClassPair> list( String name ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration listBindings( String name ) throws NamingException
+    public NamingEnumeration<Binding> listBindings( String name ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration list( Name name ) throws NamingException
+    public NamingEnumeration<NameClassPair> list( Name name ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }
 
 
-    public NamingEnumeration listBindings( Name name ) throws NamingException
+    public NamingEnumeration<Binding> listBindings( Name name ) throws NamingException
     {
         throw new LdapServiceUnavailableException( EXCEPTION_MSG, ResultCodeEnum.UNAVAILABLE );
     }

@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.naming.directory.Attribute;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -34,7 +36,9 @@ import org.apache.directory.server.core.authz.support.MostSpecificProtectedItemF
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 
 
@@ -46,47 +50,67 @@ import org.apache.directory.shared.ldap.filter.PresenceNode;
  */
 public class MostSpecificProtectedItemFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
-
-    private static final List TUPLES_A = new ArrayList();
-    private static final List TUPLES_B = new ArrayList();
-    private static final List TUPLES_C = new ArrayList();
-    private static final List TUPLES_D = new ArrayList();
-    private static final List TUPLES_E = new ArrayList();
+    private static final Collection<String> EMPTY_STRING_COLLECTION = Collections.unmodifiableCollection( new ArrayList<String>() );
+    
+    private static final Collection<Attribute> EMPTY_ATTRIBUTE_COLLECTION =
+    	Collections.unmodifiableCollection( new ArrayList<Attribute>() );
+    
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION =
+    	Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+    
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION =
+    	Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION =
+    	Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET =
+    	 Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    
+    private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_C = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_D = new ArrayList<ACITuple>();
+    private static final List<ACITuple> TUPLES_E = new ArrayList<ACITuple>();
 
     static
     {
-        Collection attributeType = new ArrayList();
-        Collection allAttributeValues = new ArrayList();
-        Collection selfValue = new ArrayList();
-        Collection attributeValue = new ArrayList();
-        Collection rangeOfValues = new ArrayList();
-        Collection allUserAttributeTypes = new ArrayList();
-        Collection allUserAttributeTypesAndValues = new ArrayList();
+        Collection<ProtectedItem> attributeType = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> allAttributeValues = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> selfValue = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> attributeValue = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> rangeOfValues = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> allUserAttributeTypes = new ArrayList<ProtectedItem>();
+        Collection<ProtectedItem> allUserAttributeTypesAndValues = new ArrayList<ProtectedItem>();
 
-        attributeType.add( new ProtectedItem.AttributeType( EMPTY_COLLECTION ) );
-        allAttributeValues.add( new ProtectedItem.AllAttributeValues( EMPTY_COLLECTION ) );
-        selfValue.add( new ProtectedItem.SelfValue( EMPTY_COLLECTION ) );
-        attributeValue.add( new ProtectedItem.AttributeValue( EMPTY_COLLECTION ) );
+        attributeType.add( new ProtectedItem.AttributeType( EMPTY_STRING_COLLECTION ) );
+        allAttributeValues.add( new ProtectedItem.AllAttributeValues( EMPTY_STRING_COLLECTION ) );
+        selfValue.add( new ProtectedItem.SelfValue( EMPTY_STRING_COLLECTION ) );
+        attributeValue.add( new ProtectedItem.AttributeValue( EMPTY_ATTRIBUTE_COLLECTION ) );
         rangeOfValues.add( new ProtectedItem.RangeOfValues( new PresenceNode( "objectClass" ) ) );
         allUserAttributeTypes.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
         allUserAttributeTypesAndValues.add( ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
 
-        ACITuple attributeTypeTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeType,
-            EMPTY_SET, true, 0 );
-        ACITuple allAttributeValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
-            allAttributeValues, EMPTY_SET, true, 0 );
-        ACITuple selfValueTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, selfValue, EMPTY_SET, true,
-            0 );
-        ACITuple attributeValueTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, attributeValue,
-            EMPTY_SET, true, 0 );
-        ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
-            EMPTY_SET, true, 0 );
-        ACITuple allUserAttributeTypesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
-            allUserAttributeTypes, EMPTY_SET, true, 0 );
-        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE,
-            allUserAttributeTypesAndValues, EMPTY_SET, true, 0 );
+        ACITuple attributeTypeTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, attributeType,
+            EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple allAttributeValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            allAttributeValues, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple selfValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, selfValue, 
+        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple attributeValueTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, attributeValue,
+        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple rangeOfValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, rangeOfValues,
+        		EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple allUserAttributeTypesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            allUserAttributeTypes, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        
+        ACITuple allUserAttributeTypesAndValuesTuple = new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE,
+            allUserAttributeTypesAndValues, EMPTY_MICRO_OPERATION_SET, true, 0 );
 
         TUPLES_A.add( attributeTypeTuple );
         TUPLES_A.add( allAttributeValuesTuple );
@@ -123,11 +147,11 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null ).size() );
 
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, false, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, null, null, null, null ).size() );
@@ -138,8 +162,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        List tuples = new ArrayList( TUPLES_A );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_A );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 4, tuples.size() );
@@ -154,8 +178,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        List tuples = new ArrayList( TUPLES_B );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_B );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 3, tuples.size() );
@@ -169,8 +193,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        List tuples = new ArrayList( TUPLES_C );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_C );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 2, tuples.size() );
@@ -183,8 +207,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        List tuples = new ArrayList( TUPLES_D );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_D );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 1, tuples.size() );
@@ -196,8 +220,8 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
     {
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
-        List tuples = new ArrayList( TUPLES_E );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_E );
+        tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 2, tuples.size() );
