@@ -150,7 +150,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
     }
 
 
-    private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException, NamingException
+    private LdapMessage readResponse( ByteBuffer bb ) throws IOException, DecoderException
     {
 
         LdapMessage messageResp = null;
@@ -606,7 +606,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * @throws DecoderException
      * @throws IOException
      */
-    private void unbind( int messageId ) throws InvalidNameException, EncoderException, DecoderException, IOException
+    private void unbind( int messageId ) throws EncoderException, IOException
     {
         UnBindRequest unbindRequest = new UnBindRequest();
         LdapMessage message = new LdapMessage();
@@ -627,15 +627,16 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
     private void processParameters( Parameter[] params )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < params.length; i++ )
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        for (Parameter parameter:params )
         {
-            Parameter parameter = params[i];
             parameters.put( parameter.getName(), parameter.getValue() );
         }
 
         // Quiet param
         Boolean quietParam = ( Boolean ) parameters.get( QUIET_PARAMETER );
+        
         if ( quietParam != null )
         {
             setQuietEnabled( quietParam.booleanValue() );
@@ -643,6 +644,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Debug param
         Boolean debugParam = ( Boolean ) parameters.get( DEBUG_PARAMETER );
+        
         if ( debugParam != null )
         {
             setDebugEnabled( debugParam.booleanValue() );
@@ -650,6 +652,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Verbose param
         Boolean verboseParam = ( Boolean ) parameters.get( VERBOSE_PARAMETER );
+        
         if ( verboseParam != null )
         {
             setVerboseEnabled( verboseParam.booleanValue() );
@@ -657,6 +660,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Install-path param
         String installPathParam = ( String ) parameters.get( INSTALLPATH_PARAMETER );
+        
         if ( installPathParam != null )
         {
             try
@@ -682,6 +686,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Host param
         String hostParam = ( String ) parameters.get( HOST_PARAMETER );
+        
         if ( hostParam != null )
         {
             host = hostParam;
@@ -698,6 +703,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Port param
         Integer portParam = ( Integer ) parameters.get( PORT_PARAMETER );
+        
         if ( portParam != null )
         {
             port = portParam.intValue();
@@ -723,6 +729,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // User param
         String userParam = ( String ) parameters.get( USER_PARAMETER );
+        
         if ( userParam != null )
         {
             user = userParam;
@@ -739,6 +746,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Password param
         String passwordParam = ( String ) parameters.get( PASSWORD_PARAMETER );
+        
         if ( passwordParam != null )
         {
             password = passwordParam;
@@ -755,6 +763,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Auth param
         String authParam = ( String ) parameters.get( AUTH_PARAMETER );
+        
         if ( authParam != null )
         {
             auth = authParam;
@@ -771,6 +780,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // LdifFile param
         File ldifFileParam = ( File ) parameters.get( FILE_PARAMETER );
+        
         if ( ldifFileParam != null )
         {
             ldifFile = ldifFileParam;
@@ -778,6 +788,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
         // Ignore-Errors param
         Boolean ignoreErrorsParam = ( Boolean ) parameters.get( IGNOREERRORS_PARAMETER );
+        
         if ( ignoreErrorsParam != null )
         {
             ignoreErrors = ignoreErrorsParam.booleanValue();
@@ -1041,44 +1052,48 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      */
     private void processListeners( ListenerParameter[] listeners )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < listeners.length; i++ )
+        Map<String, ToolCommandListener> parameters = new HashMap<String, ToolCommandListener>();
+        
+        for ( ListenerParameter parameter:listeners )
         {
-            ListenerParameter parameter = listeners[i];
             parameters.put( parameter.getName(), parameter.getListener() );
         }
 
         // OutputListener param
-        ToolCommandListener outputListener = ( ToolCommandListener ) parameters.get( OUTPUTLISTENER_PARAMETER );
+        ToolCommandListener outputListener = parameters.get( OUTPUTLISTENER_PARAMETER );
+        
         if ( outputListener != null )
         {
             this.outputListener = outputListener;
         }
 
         // ErrorListener param
-        ToolCommandListener errorListener = ( ToolCommandListener ) parameters.get( ERRORLISTENER_PARAMETER );
+        ToolCommandListener errorListener = parameters.get( ERRORLISTENER_PARAMETER );
+        
         if ( errorListener != null )
         {
             this.errorListener = errorListener;
         }
 
         // ExceptionListener param
-        ToolCommandListener exceptionListener = ( ToolCommandListener ) parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        ToolCommandListener exceptionListener = parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        
         if ( exceptionListener != null )
         {
             this.exceptionListener = exceptionListener;
         }
 
         // EntryAddedListener param
-        ToolCommandListener entryAddedListener = ( ToolCommandListener ) parameters.get( ENTRYADDEDLISTENER_PARAMETER );
+        ToolCommandListener entryAddedListener = parameters.get( ENTRYADDEDLISTENER_PARAMETER );
+        
         if ( entryAddedListener != null )
         {
             this.entryAddedListener = entryAddedListener;
         }
 
         // EntryAddFailedListener param
-        ToolCommandListener entryAddFailedListener = ( ToolCommandListener ) parameters
-            .get( ENTRYADDFAILEDLISTENER_PARAMETER );
+        ToolCommandListener entryAddFailedListener = parameters.get( ENTRYADDFAILEDLISTENER_PARAMETER );
+        
         if ( entryAddFailedListener != null )
         {
             this.entryAddFailedListener = entryAddFailedListener;

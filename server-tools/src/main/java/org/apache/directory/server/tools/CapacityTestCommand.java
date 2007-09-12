@@ -53,15 +53,15 @@ public class CapacityTestCommand extends BaseToolCommand
     public static final String PORT_RANGE = "(" + AvailablePortFinder.MIN_PORT_NUMBER + ", "
         + AvailablePortFinder.MAX_PORT_NUMBER + ")";
 
-    private int port = 10389;
-    private String host = "localhost";
-    private String password = "secret";
-    private String baseDn = "ou=users,dc=example,dc=com";
+    private static final String baseDn = "ou=users,dc=example,dc=com";
     
     
     public CapacityTestCommand()
     {
         super( "capacity" );
+        port = DEFAULT_PORT;
+        host = DEFAULT_HOST;
+        password = DEFAULT_PASSWORD;
     }
 
 
@@ -89,7 +89,7 @@ public class CapacityTestCommand extends BaseToolCommand
             out.println( "password = " + password );
         }
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );

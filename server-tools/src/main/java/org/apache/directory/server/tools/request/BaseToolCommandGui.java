@@ -36,14 +36,14 @@ import org.apache.directory.server.tools.util.Parameter;
  */
 public abstract class BaseToolCommandGui extends BaseToolCommand implements ToolCommandGui
 {
-    protected List parameters;
+    protected List<Parameter> parameters;
 
 
     public BaseToolCommandGui( String name )
     {
         super( name );
 
-        parameters = new ArrayList();
+        parameters = new ArrayList<Parameter>();
     }
 
 
@@ -55,6 +55,6 @@ public abstract class BaseToolCommandGui extends BaseToolCommand implements Tool
         processParams( params );
 
         ToolCommandExecutorStub toolCommandExecutorStub = getStub();
-        toolCommandExecutorStub.execute( ( Parameter[] ) parameters.toArray( new Parameter[0] ), listeners );
+        toolCommandExecutorStub.execute( parameters.toArray( new Parameter[0] ), listeners );
     }
 }

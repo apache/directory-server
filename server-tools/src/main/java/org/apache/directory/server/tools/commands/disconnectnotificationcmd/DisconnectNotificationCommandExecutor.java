@@ -117,7 +117,7 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
 
     private void execute() throws Exception
     {
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
         env.put( "java.naming.security.principal", bindDN );
@@ -139,7 +139,8 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
 
     private void processParameters( Parameter[] params )
     {
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
         for ( int i = 0; i < params.length; i++ )
         {
             Parameter parameter = params[i];
@@ -269,29 +270,32 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
 
     private void processListeners( ListenerParameter[] listeners )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < listeners.length; i++ )
+        Map<String, ToolCommandListener> parameters = new HashMap<String, ToolCommandListener>();
+        
+        for ( ListenerParameter parameter:listeners )
         {
-            ListenerParameter parameter = listeners[i];
             parameters.put( parameter.getName(), parameter.getListener() );
         }
 
         // OutputListener param
-        ToolCommandListener outputListener = ( ToolCommandListener ) parameters.get( OUTPUTLISTENER_PARAMETER );
+        ToolCommandListener outputListener = parameters.get( OUTPUTLISTENER_PARAMETER );
+        
         if ( outputListener != null )
         {
             this.outputListener = outputListener;
         }
 
         // ErrorListener param
-        ToolCommandListener errorListener = ( ToolCommandListener ) parameters.get( ERRORLISTENER_PARAMETER );
+        ToolCommandListener errorListener = parameters.get( ERRORLISTENER_PARAMETER );
+        
         if ( errorListener != null )
         {
             this.errorListener = errorListener;
         }
 
         // ExceptionListener param
-        ToolCommandListener exceptionListener = ( ToolCommandListener ) parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        ToolCommandListener exceptionListener = parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        
         if ( exceptionListener != null )
         {
             this.exceptionListener = exceptionListener;

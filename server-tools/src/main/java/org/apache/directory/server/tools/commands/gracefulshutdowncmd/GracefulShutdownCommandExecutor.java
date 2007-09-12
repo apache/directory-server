@@ -128,7 +128,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
             notifyOutputListener( "timeOffline = " + timeOffline );
         }
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
@@ -174,15 +174,16 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
     private void processParameters( Parameter[] params )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < params.length; i++ )
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        for ( Parameter parameter:params )
         {
-            Parameter parameter = params[i];
             parameters.put( parameter.getName(), parameter.getValue() );
         }
 
         // Quiet param
         Boolean quietParam = ( Boolean ) parameters.get( QUIET_PARAMETER );
+        
         if ( quietParam != null )
         {
             setQuietEnabled( quietParam.booleanValue() );
@@ -190,6 +191,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Debug param
         Boolean debugParam = ( Boolean ) parameters.get( DEBUG_PARAMETER );
+        
         if ( debugParam != null )
         {
             setDebugEnabled( debugParam.booleanValue() );
@@ -197,6 +199,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Verbose param
         Boolean verboseParam = ( Boolean ) parameters.get( VERBOSE_PARAMETER );
+        
         if ( verboseParam != null )
         {
             setVerboseEnabled( verboseParam.booleanValue() );
@@ -204,6 +207,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Install-path param
         String installPathParam = ( String ) parameters.get( INSTALLPATH_PARAMETER );
+        
         if ( installPathParam != null )
         {
             try
@@ -229,6 +233,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Host param
         String hostParam = ( String ) parameters.get( HOST_PARAMETER );
+        
         if ( hostParam != null )
         {
             host = hostParam;
@@ -245,6 +250,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Port param
         Integer portParam = ( Integer ) parameters.get( PORT_PARAMETER );
+        
         if ( portParam != null )
         {
             port = portParam.intValue();
@@ -270,6 +276,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Password param
         String passwordParam = ( String ) parameters.get( PASSWORD_PARAMETER );
+        
         if ( passwordParam != null )
         {
             password = passwordParam;
@@ -286,6 +293,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Delay param
         Integer delayParam = ( Integer ) parameters.get( DELAY_PARAMETER );
+        
         if ( delayParam != null )
         {
             delay = delayParam.intValue();
@@ -302,6 +310,7 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
         // Time-Offline param
         Integer timeOfflineParam = ( Integer ) parameters.get( TIMEOFFLINE_PARAMETER );
+        
         if ( timeOfflineParam != null )
         {
             timeOffline = timeOfflineParam.intValue();
@@ -320,29 +329,32 @@ public class GracefulShutdownCommandExecutor extends BaseToolCommandExecutor
 
     private void processListeners( ListenerParameter[] listeners )
     {
-        Map parameters = new HashMap();
-        for ( int i = 0; i < listeners.length; i++ )
+        Map<String, ToolCommandListener> parameters = new HashMap<String, ToolCommandListener>();
+        
+        for ( ListenerParameter parameter:listeners )
         {
-            ListenerParameter parameter = listeners[i];
             parameters.put( parameter.getName(), parameter.getListener() );
         }
 
         // OutputListener param
-        ToolCommandListener outputListener = ( ToolCommandListener ) parameters.get( OUTPUTLISTENER_PARAMETER );
+        ToolCommandListener outputListener = parameters.get( OUTPUTLISTENER_PARAMETER );
+
         if ( outputListener != null )
         {
             this.outputListener = outputListener;
         }
 
         // ErrorListener param
-        ToolCommandListener errorListener = ( ToolCommandListener ) parameters.get( ERRORLISTENER_PARAMETER );
+        ToolCommandListener errorListener = parameters.get( ERRORLISTENER_PARAMETER );
+        
         if ( errorListener != null )
         {
             this.errorListener = errorListener;
         }
 
         // ExceptionListener param
-        ToolCommandListener exceptionListener = ( ToolCommandListener ) parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        ToolCommandListener exceptionListener = parameters.get( EXCEPTIONLISTENER_PARAMETER );
+        
         if ( exceptionListener != null )
         {
             this.exceptionListener = exceptionListener;

@@ -233,7 +233,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         
         DirectoryServiceConfiguration dsc = new DirectoryServiceConfiguration()
         {
-            public Hashtable getEnvironment()
+            public Hashtable<String, Object> getEnvironment()
             {
                 return null;
             }

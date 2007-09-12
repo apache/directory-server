@@ -21,7 +21,6 @@ package org.apache.directory.server.tools.request;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.directory.server.tools.BaseToolCommand;
@@ -38,7 +37,7 @@ import org.apache.directory.server.tools.util.Parameter;
 public abstract class BaseToolCommandCL extends BaseToolCommand implements ToolCommandCL
 {
     /** The List of parameters that will be filled when parsing the command line */
-    protected List<Parameter> parameters;
+    protected ArrayList<Parameter> parameters;
 
 
     /**
@@ -64,6 +63,6 @@ public abstract class BaseToolCommandCL extends BaseToolCommand implements ToolC
         processOptions( cmd );
 
         ToolCommandExecutorStub toolCommandExecutorStub = getStub();
-        toolCommandExecutorStub.execute( ( Parameter[] ) parameters.toArray( new Parameter[0] ), listeners );
+        toolCommandExecutorStub.execute( parameters.toArray( new Parameter[0] ), listeners );
     }
 }

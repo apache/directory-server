@@ -42,7 +42,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.commons.collections.MultiHashMap;
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
@@ -167,85 +167,84 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
         LdifComposer composer = new LdifComposerImpl();
         MultiMap map = new MultiMap()
         {
-            // FIXME Stop forking commons-collections.
-            private final MultiHashMap map = new MultiHashMap();
+            private final MultiValueMap mvmap = new MultiValueMap();
 
 
             public Object remove( Object arg0, Object arg1 )
             {
-                return map.remove( arg0, arg1 );
+                return mvmap.remove( arg0, arg1 );
             }
 
 
             public int size()
             {
-                return map.size();
+                return mvmap.size();
             }
 
 
             public Object get( Object arg0 )
             {
-                return map.get( arg0 );
+                return mvmap.get( arg0 );
             }
 
 
             public boolean containsValue( Object arg0 )
             {
-                return map.containsValue( arg0 );
+                return mvmap.containsValue( arg0 );
             }
 
 
             public Object put( Object arg0, Object arg1 )
             {
-                return map.put( arg0, arg1 );
+                return mvmap.put( arg0, arg1 );
             }
 
 
             public Object remove( Object arg0 )
             {
-                return map.remove( arg0 );
+                return mvmap.remove( arg0 );
             }
 
 
             public Collection values()
             {
-                return map.values();
+                return mvmap.values();
             }
 
 
             public boolean isEmpty()
             {
-                return map.isEmpty();
+                return mvmap.isEmpty();
             }
 
 
             public boolean containsKey( Object key )
             {
-                return map.containsKey( key );
+                return mvmap.containsKey( key );
             }
 
 
             public void putAll( Map arg0 )
             {
-                map.putAll( arg0 );
+                mvmap.putAll( arg0 );
             }
 
 
             public void clear()
             {
-                map.clear();
+                mvmap.clear();
             }
 
 
             public Set keySet()
             {
-                return map.keySet();
+                return mvmap.keySet();
             }
 
 
             public Set entrySet()
             {
-                return map.entrySet();
+                return mvmap.entrySet();
             }
         };
 

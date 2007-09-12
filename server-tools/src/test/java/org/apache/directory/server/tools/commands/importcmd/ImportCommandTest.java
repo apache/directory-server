@@ -22,7 +22,6 @@ package org.apache.directory.server.tools.commands.importcmd;
 
 import java.io.File;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import javax.naming.NamingEnumeration;

@@ -55,9 +55,9 @@ import org.apache.directory.server.tools.request.BaseToolCommandCL;
  */
 public class BaseCommand
 {
-    private Map commands = new HashMap();
+    private Map<String, ToolCommand> commands = new HashMap<String, ToolCommand>();
 
-    private List commandsOrdered = new ArrayList();
+    private List<String> commandsOrdered = new ArrayList<String>();
 
     private Options global = new Options();
 
@@ -345,7 +345,7 @@ public class BaseCommand
     }
 
 
-    public void setCommands( Map commands )
+    public void setCommands( Map<String, ToolCommand> commands )
     {
         this.commands = commands;
     }

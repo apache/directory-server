@@ -82,7 +82,7 @@ public class GracefulShutdownCommandTest extends AbstractTestCase
             // Checking if the server is down with a simple bind
 
             // Set up the environment for creating the initial context
-            Hashtable env = new Hashtable();
+            Hashtable<String, Object> env = new Hashtable<String, Object>();
             env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
             env.put( Context.PROVIDER_URL, "ldap://" + host + ":" + port );
 
