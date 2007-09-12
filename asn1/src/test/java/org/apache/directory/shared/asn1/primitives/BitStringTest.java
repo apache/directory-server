@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.primitives.BitString;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 
 
 /**
@@ -43,7 +44,7 @@ public class BitStringTest extends TestCase
     public void testBitStringNull()
     {
 
-        BitString bitString = new BitString();
+        BitString bitString = new BitString( 1 );
 
         bitString.setData( null );
 
@@ -52,7 +53,7 @@ public class BitStringTest extends TestCase
             bitString.getBit( 0 );
             Assert.fail( "Should not reach this point ..." );
         }
-        catch ( DecoderException de )
+        catch ( IndexOutOfBoundsException ioobe )
         {
             Assert.assertTrue( true );
         }
@@ -65,7 +66,7 @@ public class BitStringTest extends TestCase
     public void testBitStringEmpty()
     {
 
-        BitString bitString = new BitString();
+        BitString bitString = new BitString( 1 );
 
         bitString.setData( new byte[]
             {} );
@@ -75,7 +76,7 @@ public class BitStringTest extends TestCase
             bitString.getBit( 0 );
             Assert.fail( "Should not reach this point ..." );
         }
-        catch ( DecoderException de )
+        catch ( IndexOutOfBoundsException ioobe )
         {
             Assert.assertTrue( true );
         }
@@ -175,5 +176,85 @@ public class BitStringTest extends TestCase
         {
             Assert.assertEquals( true, bitString128.getBit( i ) );
         }
+    }
+    
+    public void testBitStringSet()
+    {
+        BitString bitString = new BitString( 32 );
+
+        byte[] bytes = new byte[]
+            { (byte)0xAA, 0x11, (byte)0x88, (byte)0xFE };
+        
+        int[] bits = new int[]
+            {
+                1, 0, 1, 0 ,   1, 0, 1, 0,
+                0, 0, 0, 1,    0, 0, 0, 1,
+                1, 0, 0, 0,    1, 0, 0, 0,
+                1, 1, 1, 1,    1, 1, 1, 0
+            };
+
+        for ( int i = 0; i < bits.length; i++ )
+        {
+            if ( bits[i] == 1 )
+            {
+                bitString.setBit( i );
+            }
+        }
+        
+        assertEquals( Asn1StringUtils.dumpBytes( bytes ), Asn1StringUtils.dumpBytes( bitString.getData() ) );
+    }
+
+    public void testBitStringSetBit()
+    {
+        BitString bitString = new BitString( 32 );
+
+        int[] bits = new int[]
+            {
+                1, 0, 1, 0 ,   1, 0, 1, 0,
+                0, 0, 0, 1,    0, 0, 0, 1,
+                1, 0, 0, 0,    1, 0, 0, 0,
+                1, 1, 1, 1,    1, 1, 1, 0
+            };
+
+        for ( int i = 0; i < bits.length; i++ )
+        {
+            if ( bits[i] == 1 )
+            {
+                bitString.setBit( i );
+            }
+        }
+        
+        bitString.setBit( 9 );
+        byte[] bytesModified = new byte[]
+            { (byte)0xAA, 0x51, (byte)0x88, (byte)0xFE };
+                            
+        assertEquals( Asn1StringUtils.dumpBytes( bytesModified ), Asn1StringUtils.dumpBytes( bitString.getData() ) );
+    }
+
+    public void testBitStringClearBit()
+    {
+        BitString bitString = new BitString( 32 );
+
+        int[] bits = new int[]
+            {
+                1, 0, 1, 0 ,   1, 0, 1, 0,
+                0, 0, 0, 1,    0, 0, 0, 1,
+                1, 0, 0, 0,    1, 0, 0, 0,
+                1, 1, 1, 1,    1, 1, 1, 0
+            };
+
+        for ( int i = 0; i < bits.length; i++ )
+        {
+            if ( bits[i] == 1 )
+            {
+                bitString.setBit( i );
+            }
+        }
+        
+        bitString.clearBit( 11 );
+        byte[] bytesModified = new byte[]
+            { (byte)0xAA, 0x01, (byte)0x88, (byte)0xFE };
+                            
+        assertEquals( Asn1StringUtils.dumpBytes( bytesModified ), Asn1StringUtils.dumpBytes( bitString.getData() ) );
     }
 }

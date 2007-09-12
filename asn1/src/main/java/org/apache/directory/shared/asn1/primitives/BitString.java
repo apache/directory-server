@@ -22,8 +22,6 @@ package org.apache.directory.shared.asn1.primitives;
 
 import java.io.Serializable;
 
-import org.apache.directory.shared.asn1.codec.DecoderException;
-
 
 /**
  * Implement the Bit String primitive type. A BitString is internally stored as
@@ -39,7 +37,7 @@ public class BitString implements Serializable
     // -----------------------------------------------------------------
 
     /** A null MutableString */
-    public static final BitString EMPTY_STRING = new BitString();
+    public static final BitString EMPTY_STRING = new BitString( 1 );
 
     /**
      * A flag to mark the OctetString as Streamed (for OctetString larger than
@@ -48,8 +46,8 @@ public class BitString implements Serializable
     // TODO implement the streaming...
     public static final boolean STREAMED = true;
 
-    /** The default length of an BitString */
-    private static final int DEFAULT_LENGTH = 8;
+    /** The default length of a BitString */
+    private static final int DEFAULT_LENGTH = 1024;
 
     // ~ Instance fields
     // ----------------------------------------------------------------------------
@@ -71,36 +69,39 @@ public class BitString implements Serializable
 
 
     // ~ Constructors
-    // -------------------------------------------------------------------------------
-
+    // -------------------------------------------------------------------------------*
     /**
-     * Creates a BitString, with a default length.
+     * A private constructor used to initialized the empty BitString
      */
-    public BitString()
+    private BitString()
     {
-        bytes = new byte[DEFAULT_LENGTH];
-        nbBytes = 0;
-        isStreamed = false;
-        nbUnusedBits = 0;
         nbBits = 0;
+        nbBytes = 0;
+        nbUnusedBits = 8;
+        isStreamed = false;
+        bytes = new byte[]{};
     }
-
-
+    
     /**
      * Creates a BitString with a specific length (length is the number of
-     * bytes).
+     * bits).
      * 
-     * @param length
-     *            The BitString length (it's a number of bits)
+     * @param length The BitString length (it's a number of bits)
      */
-    public BitString(int length)
+    public BitString( int length ) 
     {
+        if ( length <= 0 )
+        {
+            // This is not allowed
+            throw new IndexOutOfBoundsException( "Null or negative length are not allowed" );
+        }
+        
         nbBits = length;
 
         // As we store values in bytes, we must divide the length by 8
         nbBytes = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
 
-        nbUnusedBits = length % 8;
+        nbUnusedBits = ( 8 - length % 8 ) % 8;
 
         if ( nbBytes > DEFAULT_LENGTH )
         {
@@ -126,8 +127,14 @@ public class BitString implements Serializable
      * @param isStreamed
      *            Tells if the BitString must be streamed or not
      */
-    public BitString(int length, boolean isStreamed)
+    public BitString( int length, boolean isStreamed )
     {
+        if ( length <= 0 )
+        {
+            // This is not allowed
+            throw new IndexOutOfBoundsException( "Null or negative length are not allowed" );
+        }
+        
         nbBits = length;
         this.isStreamed = isStreamed;
         nbBytes = ( length / 8 ) + ( ( ( length % 8 ) != 0 ) ? 1 : 0 );
@@ -150,11 +157,10 @@ public class BitString implements Serializable
     /**
      * Creates a BitString with a value.
      * 
-     * @param bytes
-     *            The value to store. The first byte contains the number of
-     *            unused bits
+     * @param bytes The value to store. The first byte contains the number of
+     * unused bits
      */
-    public BitString(byte[] bytes)
+    public BitString( byte[] bytes )
     {
         nbBytes = bytes.length - 1;
 
@@ -183,10 +189,8 @@ public class BitString implements Serializable
     /**
      * Set the value into the bytes.
      * 
-     * @param bytes
-     *            The bytes to copy
-     * @param nbBytes
-     *            Number of bytes to copy
+     * @param bytes The bytes to copy
+     * @param nbBytes Number of bytes to copy
      */
     private void setBytes( byte[] bytes, int nbBytes )
     {
@@ -207,8 +211,7 @@ public class BitString implements Serializable
      * Set a new BitString in the BitString. It will replace the old BitString,
      * and reset the current length with the new one.
      * 
-     * @param bytes
-     *            The string to store
+     * @param bytes The string to store
      */
     public void setData( byte[] bytes )
     {
@@ -255,25 +258,73 @@ public class BitString implements Serializable
         return ( byte ) nbUnusedBits;
     }
 
-
     /**
-     * Get the bit stored into the BitString at a specific position? The
-     * position start at 0, which is on the left : With '1001 000x', where x is
-     * an unused bit, ^ ^ ^^ | | || | | |+---- getBit(7) -> DecoderException | |
-     * +----- getBit(6) = 0 | +---------- getBit(2) = 0 +------------ getBit(0) =
-     * 1
+     * Set a bit at a specified position. 
+     * The bits are stored from left to right.
+     * For instance, if we have 10 bits, then they are coded as b0 b1 b2 b3 b4 b5 b6 b7 - b8 b9 x x x x x x
      * 
-     * @param pos
-     *            The position of the requested bit.
+     * @param pos The bit to set
+     */
+    public void setBit( int pos )
+    {
+        if ( ( pos < 0 ) || ( pos > nbBits ) )
+        {
+            throw new IndexOutOfBoundsException( "Bad bit number : out of bound" );
+        }
+        
+        int posInt = pos / 8;
+
+        int bitNumber = 7 - ( pos % 8 );
+        bytes[posInt] |= ( 1 << bitNumber );
+    }
+    
+    /**
+     * Clear a bit at a specified position. 
+     * The bits are stored from left to right.
+     * For instance, if we have 10 bits, then they are coded 
+     * as b0 b1 b2 b3 b4 b5 b6 b7 - b8 b9 x x x x x x
+     * 
+     * @param pos The bit to clear
+     */
+    public void clearBit( int pos )
+    {
+        if ( ( pos < 0 ) || ( pos > nbBits ) )
+        {
+            throw new IndexOutOfBoundsException( "Bad bit number : out of bound" );
+        }
+        
+        int posInt = pos / 8;
+
+        int bitNumber = 7 - ( pos % 8 );
+        bytes[posInt] &= ~( 1 << bitNumber );
+    }
+    
+    /**
+     * Get the bit stored into the BitString at a specific position. 
+     * The bits are stored from left to right.
+     * For instance, if we have 10 bits, then they are coded as b0 b1 b2 b3 b4 b5 b6 b7 - b8 b9 x x x x x x
+     * 
+     * With '1001 000x', where x is an unused bit, 
+     *       ^ ^    ^^ 
+     *       | |    || 
+     *       | |    |+---- getBit(7) IndexOutOfBoundException  
+     *       | |    +----- getBit(6) = 0 
+     *       | +---------- getBit(2) = 0 
+     *       +------------ getBit(0) = 1
+     *       
+     * getBit(7) -> IndexOutOfBoundsException
+     * 
+     * @param pos The position of the requested bit.  
+     * 
      * @return <code>true</code> if the bit is set, <code>false</code>
      *         otherwise
      */
-    public boolean getBit( int pos ) throws DecoderException
+    public boolean getBit( int pos )
     {
 
         if ( pos > nbBits )
         {
-            throw new DecoderException( "Cannot get a bit at position " + pos + " when the BitString contains only "
+            throw new IndexOutOfBoundsException( "Cannot get a bit at position " + pos + " when the BitString contains only "
                 + nbBits + " ints" );
         }
 
@@ -282,6 +333,14 @@ public class BitString implements Serializable
         int bitNumber = 7 - ( pos % 8 );
         int res = bytes[posInt] & ( 1 << bitNumber );
         return res != 0;
+    }
+    
+    /**
+     * @return The number of bytes used to encode this BitString
+     */
+    public int size()
+    {
+        return nbBytes;
     }
 
 
@@ -295,25 +354,17 @@ public class BitString implements Serializable
 
         StringBuffer sb = new StringBuffer();
 
-        try
+        for ( int i = 0; i < nbBits; i++ )
         {
 
-            for ( int i = 0; i < nbBits; i++ )
+            if ( getBit( i ) )
             {
-
-                if ( getBit( i ) )
-                {
-                    sb.append( '1' );
-                }
-                else
-                {
-                    sb.append( '0' );
-                }
+                sb.append( '1' );
             }
-        }
-        catch ( DecoderException de )
-        {
-            return "Invalid BitString";
+            else
+            {
+                sb.append( '0' );
+            }
         }
 
         return sb.toString();
