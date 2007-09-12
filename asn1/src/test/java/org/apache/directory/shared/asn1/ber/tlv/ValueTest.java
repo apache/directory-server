@@ -21,8 +21,12 @@ package org.apache.directory.shared.asn1.ber.tlv;
 
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.tlv.Value;
+import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.asn1.primitives.BitString;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.asn1.util.IntegerDecoder;
 
 import junit.framework.Assert;
@@ -282,4 +286,25 @@ public class ValueTest extends TestCase
         bb[0] = 0x00;
         assertEquals( 0x01, vv[0] );
     }
+
+    
+    public void testEncodeBitString()
+    {
+        BitString bs = new BitString( 10 );
+        bs.setBit( 9 );
+        
+        ByteBuffer buffer = ByteBuffer.allocate( 5 );
+        
+        try
+        {
+            Value.encode( buffer, bs );
+        }
+        catch ( EncoderException ee )
+        {
+            
+        }
+        
+        assertEquals( "0x03 0x03 0x06 0x00 0x40 ", Asn1StringUtils.dumpBytes( buffer.array() )  );
+    }
 }
+

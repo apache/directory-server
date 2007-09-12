@@ -310,6 +310,8 @@ public class UniversalTag
 
     public static final byte INTEGER_TAG = 0x02;
 
+    public static final byte BIT_STRING_TAG = 0x03;
+
     public static final byte OCTET_STRING_TAG = 0x04;
 
     public static final byte ENUMERATED_TAG = 0x0A;
@@ -317,6 +319,8 @@ public class UniversalTag
     public static final byte UTF8_STRING_TAG = 0x0C;
 
     public static final byte GENERALIZED_TIME_TAG = 0x18;
+
+    public static final byte GENERALIZED_STRING_TAG = 0x1B;
 
     public static final byte SEQUENCE_TAG = 0x30;
 

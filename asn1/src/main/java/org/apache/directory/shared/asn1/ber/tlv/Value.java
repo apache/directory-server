@@ -22,6 +22,7 @@ package org.apache.directory.shared.asn1.ber.tlv;
 
 import org.apache.directory.shared.asn1.ber.tlv.UniversalTag;
 import org.apache.directory.shared.asn1.codec.EncoderException;
+import org.apache.directory.shared.asn1.primitives.BitString;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 
@@ -358,6 +359,39 @@ public class Value implements Cloneable, Serializable
             {
                 buffer.put( value );
             }
+        }
+        catch ( BufferOverflowException boe )
+        {
+            throw new EncoderException( "The PDU buffer size is too small !" );
+        }
+
+        return;
+    }
+
+    /**
+     * Encode a BIT STRING value
+     * 
+     * @param buffer The PDU in which the value will be put
+     * @param bitString The BitString to be encoded.
+     */
+    public static void encode( ByteBuffer buffer, BitString bitString ) throws EncoderException
+    {
+        if ( buffer == null )
+        {
+            throw new EncoderException( "Cannot put a PDU in a null buffer !" );
+        }
+
+        try
+        {
+            buffer.put( UniversalTag.BIT_STRING_TAG );
+            
+            // The BitString length. We add one byte for the unused number 
+            // of bits
+            int length = bitString.size() + 1;
+            
+            buffer.put( TLV.getBytes( length ) );
+            buffer.put( bitString.getUnusedBits() );
+            buffer.put( bitString.getData() );
         }
         catch ( BufferOverflowException boe )
         {
