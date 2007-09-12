@@ -92,7 +92,7 @@ public class KerberosServer
      * @param newConfig
      * @return <code>True</true> if the configuration is different.
      */
-    public boolean isDifferent( Dictionary newConfig )
+    public boolean isDifferent( Dictionary<String, Object> newConfig )
     {
         return config.isDifferent( newConfig );
     }

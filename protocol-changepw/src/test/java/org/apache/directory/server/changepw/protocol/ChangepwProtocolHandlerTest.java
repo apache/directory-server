@@ -26,7 +26,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -35,7 +34,6 @@ import junit.framework.TestCase;
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.changepw.io.ChangePasswordDataEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
-import org.apache.directory.server.changepw.messages.ChangePasswordReply;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
@@ -81,8 +79,9 @@ import org.apache.mina.common.support.BaseIoSession;
 public class ChangepwProtocolHandlerTest extends TestCase
 {
     /** The Change Password SUCCESS result code. */
-    private static final byte[] SUCCESS = new byte[]
-        { ( byte ) 0x00, ( byte ) 0x00 };
+	// Never used...
+    //private static final byte[] SUCCESS = new byte[]
+    //    { ( byte ) 0x00, ( byte ) 0x00 };
 
     private ChangePasswordConfiguration config;
     private PrincipalStore store;
@@ -187,7 +186,9 @@ public class ChangepwProtocolHandlerTest extends TestCase
         //processChangePasswordReply( reply, serviceTicket.getSessionKey(), subSessionKey );
     }
 
-
+    /**
+     * TODO : Check if this method is important or not. It was called in
+     * the testInitialFlagRequired() method above, but this call has been commented
     private void processChangePasswordReply( ChangePasswordReply reply, EncryptionKey sessionKey,
         EncryptionKey subSessionKey ) throws Exception
     {
@@ -212,6 +213,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
 
         assertTrue( "Password change returned SUCCESS (0x00 0x00).", Arrays.equals( SUCCESS, resultCode ) );
     }
+     */
 
 
     public void testSetPassword() throws Exception

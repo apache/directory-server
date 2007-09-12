@@ -84,7 +84,7 @@ public class NtpServer
      * @param newConfig
      * @return Whether configuration being proposed as new is really different.
      */
-    public boolean isDifferent( Dictionary newConfig )
+    public boolean isDifferent( Dictionary<String, Object> newConfig )
     {
         return config.isDifferent( newConfig );
     }
