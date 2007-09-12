@@ -49,16 +49,16 @@ import org.apache.mina.common.IoSession;
 public class SessionRegistry
 {
     /** the singleton for this registry */
-    private static SessionRegistry s_singleton;
+    private static SessionRegistry singleton;
 
     /** the set of client contexts */
-    private final Map contexts = new HashMap();
+    private final Map<IoSession, LdapContext> contexts = new HashMap<IoSession, LdapContext>();
 
     /** outstanding requests for a session */
-    private final Map requests = new HashMap();
+    private final Map<IoSession, Map<Integer, Request>> requests = new HashMap<IoSession, Map<Integer, Request>>();
 
     /** the properties associated with this SessionRegistry */
-    private Hashtable env;
+    private Hashtable<String, Object> env;
 
     /** the configuration associated with this SessionRegistry */
     private LdapConfiguration cfg;
@@ -72,18 +72,18 @@ public class SessionRegistry
      */
     public static SessionRegistry getSingleton()
     {
-        if ( s_singleton == null )
+        if ( singleton == null )
         {
-            s_singleton = new SessionRegistry( new LdapConfiguration(), new Hashtable() );
+            singleton = new SessionRegistry( new LdapConfiguration(), new Hashtable<String, Object>() );
         }
 
-        return s_singleton;
+        return singleton;
     }
 
 
     static void releaseSingleton()
     {
-        s_singleton = null;
+        singleton = null;
     }
 
 
@@ -92,11 +92,11 @@ public class SessionRegistry
      *
      * @param env the properties associated with this SessionRegistry
      */
-    SessionRegistry( LdapConfiguration cfg, Hashtable env )
+    SessionRegistry( LdapConfiguration cfg, Hashtable<String, Object> env )
     {
-        if ( s_singleton == null )
+        if ( singleton == null )
         {
-            s_singleton = this;
+            singleton = this;
         }
         else
         {
@@ -105,7 +105,7 @@ public class SessionRegistry
 
         if ( env == null )
         {
-            this.env = new Hashtable();
+            this.env = new Hashtable<String, Object>();
             this.env.put( Context.PROVIDER_URL, "" );
             this.env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
         }
@@ -149,13 +149,15 @@ public class SessionRegistry
         // pull out the map of requests by id
         synchronized ( requests )
         {
-            Map reqmap = ( Map ) requests.get( session );
+            Map<Integer, Request> reqmap = requests.get( session );
+            
             if ( reqmap == null )
             {
-                reqmap = new HashMap();
+                reqmap = new HashMap<Integer, Request>();
                 requests.put( session, reqmap );
             }
-            reqmap.put( new Integer( req.getMessageId() ), req );
+            
+            reqmap.put( req.getMessageId(), req );
         }
     }
 
@@ -185,10 +187,14 @@ public class SessionRegistry
         // pull out the map of requests by id
         synchronized ( requests )
         {
-            Map reqmap = ( Map ) requests.get( session );
+            Map<Integer, Request> reqmap = requests.get( session );
+            
             if ( reqmap == null )
+            {
                 return null;
-            return ( Request ) reqmap.remove( id );
+            }
+            
+            return reqmap.remove( id );
         }
     }
 
@@ -199,14 +205,17 @@ public class SessionRegistry
      * @param session the session to get outstanding requests for
      * @return a map by message id as an Integer to Request objects
      */
-    public Map getOutstandingRequests( IoSession session )
+    public Map<Integer, Request> getOutstandingRequests( IoSession session )
     {
-        Map reqmap = ( Map ) requests.get( session );
+        Map<Integer, Request> reqmap = requests.get( session );
+        
         if ( reqmap == null )
         {
             return Collections.EMPTY_MAP;
         }
-        return new HashMap( reqmap );
+        
+        // Copy the maps
+        return new HashMap<Integer, Request>( reqmap );
     }
 
 
@@ -232,21 +241,27 @@ public class SessionRegistry
      */
     public Request getOutstandingRequest( IoSession session, Integer id )
     {
-        Map reqmap = ( Map ) requests.get( session );
+        Map<Integer, Request> reqmap = requests.get( session );
+        
         if ( reqmap == null )
+        {
             return null;
-        return ( Request ) reqmap.get( id );
+        }
+        
+        return reqmap.get( id );
     }
 
 
     public IoSession[] getSessions()
     {
         IoSession[] sessions;
+        
         synchronized ( contexts )
         {
             sessions = new IoSession[contexts.size()];
-            sessions = ( IoSession[] ) contexts.keySet().toArray( sessions );
+            sessions = contexts.keySet().toArray( sessions );
         }
+        
         return sessions;
     }
 
@@ -273,7 +288,7 @@ public class SessionRegistry
 
         synchronized ( contexts )
         {
-            ctx = ( LdapContext ) contexts.get( session );
+            ctx = contexts.get( session );
         }
 
         // there is no context so its an implicit bind, no bind operation is being performed
@@ -298,7 +313,7 @@ public class SessionRegistry
             }
             else
             {
-                Hashtable cloned = ( Hashtable ) env.clone();
+                Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
                 cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
@@ -309,6 +324,7 @@ public class SessionRegistry
         else if ( ctx != null && allowAnonymous )
         {
             ServerLdapContext slc = null;
+            
             if ( !( ctx instanceof ServerLdapContext ) )
             {
                 slc = ( ServerLdapContext ) ctx.lookup( "" );
@@ -317,6 +333,7 @@ public class SessionRegistry
             {
                 slc = ( ServerLdapContext ) ctx;
             }
+            
             boolean isAnonymousUser = slc.getPrincipal().getName().trim().equals( "" );
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
@@ -346,7 +363,7 @@ public class SessionRegistry
 
         synchronized ( contexts )
         {
-            ctx = ( LdapContext ) contexts.get( session );
+            ctx = contexts.get( session );
         }
 
         if ( ctx == null )
@@ -364,7 +381,7 @@ public class SessionRegistry
             }
             else
             {
-                Hashtable cloned = ( Hashtable ) env.clone();
+                Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
                 cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
@@ -403,10 +420,11 @@ public class SessionRegistry
             contexts.remove( session );
         }
 
-        Map reqmap = null;
+        Map<Integer, Request> reqmap = null;
+        
         synchronized ( requests )
         {
-            reqmap = ( Map ) requests.remove( session );
+            reqmap = requests.remove( session );
         }
 
         if ( reqmap == null || reqmap.isEmpty() )
@@ -414,10 +432,11 @@ public class SessionRegistry
             return;
         }
 
-        Iterator list = reqmap.values().iterator();
+        Iterator<Request> list = reqmap.values().iterator();
+        
         while ( list.hasNext() )
         {
-            Object request = list.next();
+            Request request = list.next();
 
             if ( request instanceof AbandonableRequest )
             {
