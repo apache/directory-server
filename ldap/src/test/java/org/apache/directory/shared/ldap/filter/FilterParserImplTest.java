@@ -61,7 +61,7 @@ public class FilterParserImplTest extends TestCase
      * Tests to avoid deadlocks for invalid filters. 
      * 
      */
-    public void testInvalidFilters() throws IOException, ParseException
+    public void testInvalidFilters() 
     {
         try
         {
@@ -240,7 +240,7 @@ public class FilterParserImplTest extends TestCase
     }
 
 
-    public void testBadEqualsFilter() throws IOException, ParseException
+    public void testBadEqualsFilter() throws IOException
     {
         try
         {
@@ -298,7 +298,7 @@ public class FilterParserImplTest extends TestCase
     }
 
 
-    public void testExtensibleFilterForm1OptionOnRule() throws IOException, ParseException
+    public void testExtensibleFilterForm1OptionOnRule()
     {
         try
         {
@@ -347,7 +347,7 @@ public class FilterParserImplTest extends TestCase
     }
 
 
-    public void testExtensibleFilterForm2OptionOnRule() throws IOException, ParseException
+    public void testExtensibleFilterForm2OptionOnRule()
     {
         try
         {

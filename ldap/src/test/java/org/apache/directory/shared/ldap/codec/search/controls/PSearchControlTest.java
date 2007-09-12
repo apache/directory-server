@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
@@ -71,7 +69,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl with combined changes types
      */
-    public void testDecodeModifyDNRequestSuccessChangeTypesAddModDN() throws NamingException
+    public void testDecodeModifyDNRequestSuccessChangeTypesAddModDN()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -106,7 +104,7 @@ public class PSearchControlTest extends TestCase
      * Test the decoding of a PSearchControl with a changes types which
      * value is 0
      */
-    public void testDecodeModifyDNRequestSuccessChangeTypes0() throws NamingException
+    public void testDecodeModifyDNRequestSuccessChangeTypes0()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -135,7 +133,7 @@ public class PSearchControlTest extends TestCase
      * Test the decoding of a PSearchControl with a changes types which
      * value is above 15
      */
-    public void testDecodeModifyDNRequestSuccessChangeTypes22() throws NamingException
+    public void testDecodeModifyDNRequestSuccessChangeTypes22()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -163,7 +161,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl with a null sequence
      */
-    public void testDecodeModifyDNRequestSuccessNullSequence() throws NamingException
+    public void testDecodeModifyDNRequestSuccessNullSequence()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
@@ -188,7 +186,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without changeTypes
      */
-    public void testDecodeModifyDNRequestSuccessWithoutChangeTypes() throws NamingException
+    public void testDecodeModifyDNRequestSuccessWithoutChangeTypes()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
@@ -215,7 +213,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without changeOnly
      */
-    public void testDecodeModifyDNRequestSuccessWithoutChangesOnly() throws NamingException
+    public void testDecodeModifyDNRequestSuccessWithoutChangesOnly()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
@@ -242,7 +240,7 @@ public class PSearchControlTest extends TestCase
     /**
      * Test the decoding of a PSearchControl without returnECs
      */
-    public void testDecodeModifyDNRequestSuccessWithoutReturnECs() throws NamingException
+    public void testDecodeModifyDNRequestSuccessWithoutReturnECs()
     {
         Asn1Decoder decoder = new PSearchControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );

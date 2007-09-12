@@ -48,7 +48,7 @@ public class LdapUrlTest extends TestCase
     /**
      * Test a null LdapURL
      */
-    public void testLdapUrlNull() throws LdapURLEncodingException
+    public void testLdapUrlNull()
     {
         Assert.assertEquals( "ldap:///", new LdapURL().toString() );
     }
@@ -85,7 +85,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad port
      */
-    public void testLdapDNBadPort() throws LdapURLEncodingException
+    public void testLdapDNBadPort()
     {
         try
         {
@@ -104,7 +104,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad port 2
      */
-    public void testLdapDNBadPort2() throws LdapURLEncodingException
+    public void testLdapDNBadPort2()
     {
         try
         {
@@ -123,7 +123,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad port 3
      */
-    public void testLdapDNBadPort3() throws LdapURLEncodingException
+    public void testLdapDNBadPort3()
     {
         try
         {
@@ -142,7 +142,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad port 4
      */
-    public void testLdapDNBadPort4() throws LdapURLEncodingException
+    public void testLdapDNBadPort4()
     {
         try
         {
@@ -170,7 +170,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 2
      */
-    public void testLdapDNBadHost2() throws LdapURLEncodingException
+    public void testLdapDNBadHost2()
     {
         try
         {
@@ -189,7 +189,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 3
      */
-    public void testLdapDNBadHost3() throws LdapURLEncodingException
+    public void testLdapDNBadHost3()
     {
         try
         {
@@ -208,7 +208,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 4
      */
-    public void testLdapDNBadHost4() throws LdapURLEncodingException
+    public void testLdapDNBadHost4()
     {
         try
         {
@@ -227,7 +227,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 5
      */
-    public void testLdapDNBadHost5() throws LdapURLEncodingException
+    public void testLdapDNBadHost5()
     {
         try
         {
@@ -246,7 +246,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 6
      */
-    public void testLdapDNBadHost6() throws LdapURLEncodingException
+    public void testLdapDNBadHost6()
     {
         try
         {
@@ -265,7 +265,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad host 7
      */
-    public void testLdapDNBadHost7() throws LdapURLEncodingException
+    public void testLdapDNBadHost7()
     {
         try
         {
@@ -302,7 +302,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad IP host 1
      */
-    public void testLdapDNBadHostIP1() throws LdapURLEncodingException
+    public void testLdapDNBadHostIP1()
     {
         try
         {
@@ -321,7 +321,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad IP host 2
      */
-    public void testLdapDNBadHostIP2() throws LdapURLEncodingException
+    public void testLdapDNBadHostIP2()
     {
         try
         {
@@ -340,7 +340,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad IP host 3
      */
-    public void testLdapDNBadHostIP3() throws LdapURLEncodingException
+    public void testLdapDNBadHostIP3()
     {
         try
         {
@@ -359,7 +359,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with a bad IP host 4
      */
-    public void testLdapDNBadHostIP4() throws LdapURLEncodingException
+    public void testLdapDNBadHostIP4()
     {
         try
         {
@@ -417,7 +417,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with an invalid DN
      */
-    public void testLdapDNInvalidDN() throws LdapURLEncodingException
+    public void testLdapDNInvalidDN()
     {
         try
         {
@@ -434,7 +434,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with an invalid DN 2
      */
-    public void testLdapDNInvalidDN2() throws LdapURLEncodingException
+    public void testLdapDNInvalidDN2()
     {
         try
         {
@@ -481,7 +481,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with invalid attributes
      */
-    public void testLdapInvalideAttributes() throws LdapURLEncodingException
+    public void testLdapInvalideAttributes()
     {
         try
         {
@@ -498,7 +498,7 @@ public class LdapUrlTest extends TestCase
     /**
      * test a LdapURL with attributes but no DN
      */
-    public void testLdapNoDNAttributes() throws LdapURLEncodingException
+    public void testLdapNoDNAttributes()
     {
         try
         {

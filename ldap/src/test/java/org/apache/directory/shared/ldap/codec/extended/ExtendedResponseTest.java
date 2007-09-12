@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.extended;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -50,7 +48,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a full ExtendedResponse
      */
-    public void testDecodeExtendedResponseSuccess() throws NamingException
+    public void testDecodeExtendedResponseSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -125,7 +123,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a full ExtendedResponse with controls
      */
-    public void testDecodeExtendedResponseSuccessWithControls() throws NamingException
+    public void testDecodeExtendedResponseSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -219,7 +217,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a ExtendedRequest with no name
      */
-    public void testDecodeExtendedRequestNoName() throws NamingException
+    public void testDecodeExtendedRequestNoName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -290,7 +288,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of a ExtendedRequest with no name and a control
      */
-    public void testDecodeExtendedRequestNoNameWithControls() throws NamingException
+    public void testDecodeExtendedRequestNoNameWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -372,7 +370,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an empty ExtendedResponse
      */
-    public void testDecodeExtendedResponseEmpty() throws NamingException
+    public void testDecodeExtendedResponseEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -406,7 +404,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with an empty ResponseName
      */
-    public void testDecodeExtendedResponseEmptyResponseName() throws NamingException
+    public void testDecodeExtendedResponseEmptyResponseName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -449,7 +447,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with a bad responseName
      */
-    public void testDecodeExtendedResponseBadOIDResponseName() throws NamingException
+    public void testDecodeExtendedResponseBadOIDResponseName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -492,7 +490,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with no response
      */
-    public void testDecodeExtendedResponseNoResponse() throws NamingException
+    public void testDecodeExtendedResponseNoResponse()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -565,7 +563,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with no response with controls
      */
-    public void testDecodeExtendedResponseNoResponseWithControls() throws NamingException
+    public void testDecodeExtendedResponseNoResponseWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -650,7 +648,7 @@ public class ExtendedResponseTest extends TestCase
     /**
      * Test the decoding of an ExtendedResponse with an empty response
      */
-    public void testDecodeExtendedResponseEmptyResponse() throws NamingException
+    public void testDecodeExtendedResponseEmptyResponse()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -725,7 +723,7 @@ public class ExtendedResponseTest extends TestCase
      * Test the decoding of an ExtendedResponse with an empty response with
      * controls
      */
-    public void testDecodeExtendedResponseEmptyResponseWithControls() throws NamingException
+    public void testDecodeExtendedResponseEmptyResponseWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

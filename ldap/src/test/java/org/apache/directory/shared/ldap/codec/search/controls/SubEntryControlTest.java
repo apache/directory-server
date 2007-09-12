@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -45,7 +43,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a SubEntryControl with a true visibility
      */
-    public void testDecodeSubEntryVisibilityTrue() throws NamingException
+    public void testDecodeSubEntryVisibilityTrue()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
@@ -73,7 +71,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a SubEntryControl with a false visibility
      */
-    public void testDecodeSubEntryVisibilityFalse() throws NamingException
+    public void testDecodeSubEntryVisibilityFalse()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );
@@ -101,7 +99,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a SubEntryControl with an empty visibility
      */
-    public void testDecodeSubEntryEmptyVisibility() throws NamingException
+    public void testDecodeSubEntryEmptyVisibility()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
@@ -131,7 +129,7 @@ public class SubEntryControlTest extends TestCase
     /**
      * Test the decoding of a bad SubEntryControl
      */
-    public void testDecodeSubEntryBad() throws NamingException
+    public void testDecodeSubEntryBad()
     {
         Asn1Decoder decoder = new SubEntryControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x03 );

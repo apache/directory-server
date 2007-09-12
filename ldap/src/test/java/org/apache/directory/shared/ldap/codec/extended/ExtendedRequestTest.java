@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.extended;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -49,7 +47,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a full ExtendedRequest
      */
-    public void testDecodeExtendedRequestSuccess() throws NamingException
+    public void testDecodeExtendedRequestSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -115,7 +113,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a full ExtendedRequest with controls
      */
-    public void testDecodeExtendedRequestWithControls() throws NamingException
+    public void testDecodeExtendedRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -196,7 +194,7 @@ public class ExtendedRequestTest extends TestCase
      * Test the decoding of a full ExtendedRequest with no value and with
      * controls
      */
-    public void testDecodeExtendedRequestNoValueWithControls() throws NamingException
+    public void testDecodeExtendedRequestNoValueWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -276,7 +274,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty ExtendedRequest
      */
-    public void testDecodeExtendedRequestEmpty() throws NamingException
+    public void testDecodeExtendedRequestEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -311,7 +309,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty OID
      */
-    public void testDecodeEmptyOID() throws NamingException
+    public void testDecodeEmptyOID()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -346,7 +344,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a bad name 
      */
-    public void testDecodeExtendedBadRequestName() throws NamingException
+    public void testDecodeExtendedBadRequestName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -383,7 +381,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of a name only ExtendedRequest
      */
-    public void testDecodeExtendedRequestName() throws NamingException
+    public void testDecodeExtendedRequestName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -447,7 +445,7 @@ public class ExtendedRequestTest extends TestCase
     /**
      * Test the decoding of an empty name ExtendedRequest
      */
-    public void testDecodeExtendedRequestEmptyName() throws NamingException
+    public void testDecodeExtendedRequestEmptyName()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.search.controls;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
@@ -47,7 +45,7 @@ public class EntryChangeControlTest extends TestCase
     /**
      * Test the decoding of a EntryChangeControl
      */
-    public void testDecodeEntryChangeControlSuccess() throws NamingException
+    public void testDecodeEntryChangeControlSuccess()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
@@ -83,7 +81,7 @@ public class EntryChangeControlTest extends TestCase
     /**
      * Test the decoding of a EntryChangeControl with a add and a change number
      */
-    public void testDecodeEntryChangeControlWithADDAndChangeNumber() throws NamingException
+    public void testDecodeEntryChangeControlWithADDAndChangeNumber()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
@@ -120,7 +118,7 @@ public class EntryChangeControlTest extends TestCase
      * Test the decoding of a EntryChangeControl with a add so we should not
      * have a PreviousDN
      */
-    public void testDecodeEntryChangeControlWithADDAndPreviousDNBad() throws NamingException
+    public void testDecodeEntryChangeControlWithADDAndPreviousDNBad()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0D );
@@ -157,7 +155,7 @@ public class EntryChangeControlTest extends TestCase
     /**
      * Test the decoding of a EntryChangeControl with a add and nothing else
      */
-    public void testDecodeEntryChangeControlWithADD() throws NamingException
+    public void testDecodeEntryChangeControlWithADD()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
@@ -194,7 +192,7 @@ public class EntryChangeControlTest extends TestCase
      * Test the decoding of a EntryChangeControl with a worng changeType and
      * nothing else
      */
-    public void testDecodeEntryChangeControlWithWrongChangeType() throws NamingException
+    public void testDecodeEntryChangeControlWithWrongChangeType()
     {
         Asn1Decoder decoder = new EntryChangeControlDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );

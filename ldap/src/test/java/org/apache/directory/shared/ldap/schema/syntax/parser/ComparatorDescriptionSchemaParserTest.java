@@ -99,7 +99,7 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testFull() throws ParseException
+    public void testFull()
     {
     }
 
@@ -119,7 +119,7 @@ public class ComparatorDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testRequiredElements() throws ParseException
+    public void testRequiredElements()
     {
     }
 

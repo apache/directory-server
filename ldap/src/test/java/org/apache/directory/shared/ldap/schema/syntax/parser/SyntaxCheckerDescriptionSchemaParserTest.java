@@ -104,7 +104,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testFull() throws ParseException
+    public void testFull()
     {
         // TODO
     }
@@ -126,7 +126,7 @@ public class SyntaxCheckerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testRequiredElements() throws ParseException
+    public void testRequiredElements()
     {
         // TODO
     }

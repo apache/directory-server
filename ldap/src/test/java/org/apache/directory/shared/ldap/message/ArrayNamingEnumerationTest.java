@@ -20,11 +20,7 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
-
-import javax.naming.ldap.Control;
 
 import junit.framework.TestCase;
 
@@ -45,7 +41,7 @@ public class ArrayNamingEnumerationTest extends TestCase
      */
     public void testUsingNullArray()
     {
-        ArrayNamingEnumeration list = new ArrayNamingEnumeration( null );
+        ArrayNamingEnumeration<Object> list = new ArrayNamingEnumeration<Object>( null );
         assertFalse( list.hasMore() );
 
         try
@@ -65,7 +61,7 @@ public class ArrayNamingEnumerationTest extends TestCase
      */
     public void testUsingEmptyArray()
     {
-        ArrayNamingEnumeration list = new ArrayNamingEnumeration( ArrayUtils.EMPTY_STRING_ARRAY );
+        ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( ArrayUtils.EMPTY_STRING_ARRAY );
         assertFalse( list.hasMore() );
 
         try
@@ -85,8 +81,7 @@ public class ArrayNamingEnumerationTest extends TestCase
      */
     public void testUsingSingleElementArray()
     {
-        ArrayNamingEnumeration list;
-        list = new ArrayNamingEnumeration( new String[]
+        ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( new String[]
             { "foo" } );
         assertTrue( list.hasMore() );
         assertEquals( "foo", list.next() );
@@ -108,8 +103,7 @@ public class ArrayNamingEnumerationTest extends TestCase
      */
     public void testUsingTwoElementArray()
     {
-        ArrayNamingEnumeration list;
-        list = new ArrayNamingEnumeration( new String[]
+        ArrayNamingEnumeration<String> list = new ArrayNamingEnumeration<String>( new String[]
             { "foo", "bar" } );
         assertTrue( list.hasMore() );
         assertEquals( "foo", list.next() );

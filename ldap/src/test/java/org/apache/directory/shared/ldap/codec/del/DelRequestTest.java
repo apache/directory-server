@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.del;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -53,7 +51,7 @@ public class DelRequestTest extends TestCase
     /**
      * Test the decoding of a full DelRequest
      */
-    public void testDecodeDelRequestSuccess() throws NamingException
+    public void testDecodeDelRequestSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -116,7 +114,7 @@ public class DelRequestTest extends TestCase
     /**
      * Test the decoding of a full DelRequest
      */
-    public void testDecodeDelRequestBadDN() throws NamingException
+    public void testDecodeDelRequestBadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -158,7 +156,7 @@ public class DelRequestTest extends TestCase
     /**
      * Test the decoding of an empty DelRequest
      */
-    public void testDecodeDelRequestEmpty() throws NamingException
+    public void testDecodeDelRequestEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -194,7 +192,7 @@ public class DelRequestTest extends TestCase
     /**
      * Test the decoding of a full DelRequest with controls
      */
-    public void testDecodeDelRequestSuccessWithControls() throws NamingException
+    public void testDecodeDelRequestSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

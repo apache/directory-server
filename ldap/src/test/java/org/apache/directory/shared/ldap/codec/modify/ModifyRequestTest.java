@@ -590,7 +590,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty body
      */
-    public void testDecodeModifyRequestEmptyBody() throws NamingException
+    public void testDecodeModifyRequestEmptyBody()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -624,7 +624,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty object
      */
-    public void testDecodeModifyRequestEmptyObject() throws NamingException
+    public void testDecodeModifyRequestEmptyObject()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -659,7 +659,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an object and nothing else
      */
-    public void testDecodeModifyRequestObjectAlone() throws NamingException
+    public void testDecodeModifyRequestObjectAlone()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -696,7 +696,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty modification
      */
-    public void testDecodeModifyRequestEmptyModification() throws NamingException
+    public void testDecodeModifyRequestEmptyModification()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -734,7 +734,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an empty operation
      */
-    public void testDecodeModifyRequestEmptyOperation() throws NamingException
+    public void testDecodeModifyRequestEmptyOperation()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -773,7 +773,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an wrong empty operation
      */
-    public void testDecodeModifyRequestWrongOperationEmpty() throws NamingException
+    public void testDecodeModifyRequestWrongOperationEmpty()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -813,7 +813,7 @@ public class ModifyRequestTest extends TestCase
     /**
      * Test the decoding of a ModifyRequest with an wrong operation
      */
-    public void testDecodeModifyRequestWrongOperation() throws NamingException
+    public void testDecodeModifyRequestWrongOperation()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -854,7 +854,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and nothing
      * more
      */
-    public void testDecodeModifyRequestAddOperationEnd() throws NamingException
+    public void testDecodeModifyRequestAddOperationEnd()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -895,7 +895,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and an empty
      * modification
      */
-    public void testDecodeModifyRequestAddOperationEmptyModification() throws NamingException
+    public void testDecodeModifyRequestAddOperationEmptyModification()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -984,7 +984,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and no vals
      */
-    public void testDecodeModifyRequestAddOperationModificationTypeNoVals() throws NamingException
+    public void testDecodeModifyRequestAddOperationModificationTypeNoVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1027,7 +1027,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and an empty vals
      */
-    public void testDecodeModifyRequestAddOperationModificationTypeEmptyVals() throws NamingException
+    public void testDecodeModifyRequestAddOperationModificationTypeEmptyVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -1107,7 +1107,7 @@ public class ModifyRequestTest extends TestCase
      * Test the decoding of a ModifyRequest with an add operation, and a
      * modification with a type and an empty vals wuth controls
      */
-    public void testDecodeModifyRequestAddOperationModificationTypeEmptyValsWithControls() throws NamingException
+    public void testDecodeModifyRequestAddOperationModificationTypeEmptyValsWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

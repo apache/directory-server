@@ -179,7 +179,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null body
      */
-    public void testDecodeAddRequestNullBody() throws NamingException
+    public void testDecodeAddRequestNullBody()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -215,7 +215,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null entry
      */
-    public void testDecodeAddRequestNullEntry() throws NamingException
+    public void testDecodeAddRequestNullEntry()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -273,7 +273,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest
      */
-    public void testDecodeAddRequestbadDN() throws NamingException
+    public void testDecodeAddRequestbadDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -333,7 +333,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a null attributeList
      */
-    public void testDecodeAddRequestNullAttributes() throws NamingException
+    public void testDecodeAddRequestNullAttributes()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -376,7 +376,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
-    public void testDecodeAddRequestNullAttributeList() throws NamingException
+    public void testDecodeAddRequestNullAttributeList()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -420,7 +420,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
-    public void testDecodeAddRequestNullType() throws NamingException
+    public void testDecodeAddRequestNullType()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -468,7 +468,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
-    public void testDecodeAddRequestNoVals() throws NamingException
+    public void testDecodeAddRequestNoVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -513,7 +513,7 @@ public class AddRequestTest extends TestCase
     /**
      * Test the decoding of a AddRequest with a empty attributeList
      */
-    public void testDecodeAddRequestNullVals() throws NamingException
+    public void testDecodeAddRequestNullVals()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

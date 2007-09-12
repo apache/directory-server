@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -46,7 +44,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown
      */
-    public void testDecodeGracefulShutdownSuccess() throws NamingException
+    public void testDecodeGracefulShutdownSuccess()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
@@ -100,7 +98,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a timeOffline only
      */
-    public void testDecodeGracefulShutdownTimeOffline() throws NamingException
+    public void testDecodeGracefulShutdownTimeOffline()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
@@ -151,7 +149,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay only
      */
-    public void testDecodeGracefulShutdownDelay() throws NamingException
+    public void testDecodeGracefulShutdownDelay()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
@@ -203,7 +201,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a empty GracefulShutdown
      */
-    public void testDecodeGracefulShutdownEmpty() throws NamingException
+    public void testDecodeGracefulShutdownEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
@@ -253,7 +251,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay above 128
      */
-    public void testDecodeGracefulShutdownDelayHigh() throws NamingException
+    public void testDecodeGracefulShutdownDelayHigh()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x06 );
@@ -306,7 +304,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay equals 32767
      */
-    public void testDecodeGracefulShutdownDelay32767() throws NamingException
+    public void testDecodeGracefulShutdownDelay32767()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x06 );
@@ -359,7 +357,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay above 32768
      */
-    public void testDecodeGracefulShutdownDelay32768() throws NamingException
+    public void testDecodeGracefulShutdownDelay32768()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x07 );
@@ -416,7 +414,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a timeOffline off limit
      */
-    public void testDecodeGracefulShutdownTimeOfflineOffLimit() throws NamingException
+    public void testDecodeGracefulShutdownTimeOfflineOffLimit()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x06 );
@@ -446,7 +444,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with a delay off limit
      */
-    public void testDecodeGracefulShutdownDelayOffLimit() throws NamingException
+    public void testDecodeGracefulShutdownDelayOffLimit()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -479,7 +477,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with an empty TimeOffline
      */
-    public void testDecodeGracefulShutdownTimeOfflineEmpty() throws NamingException
+    public void testDecodeGracefulShutdownTimeOfflineEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -508,7 +506,7 @@ public class GracefulShutdownTest extends TestCase
     /**
      * Test the decoding of a GracefulShutdown with an empty delay
      */
-    public void testDecodeGracefulShutdownDelayEmpty() throws NamingException
+    public void testDecodeGracefulShutdownDelayEmpty()
     {
         Asn1Decoder decoder = new LdapDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );

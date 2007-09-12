@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.compare;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -54,7 +52,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of a full CompareRequest
      */
-    public void testDecodeCompareRequestSuccess() throws NamingException
+    public void testDecodeCompareRequestSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -127,7 +125,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty CompareRequest
      */
-    public void testDecodeCompareRequestEmptyRequest() throws NamingException
+    public void testDecodeCompareRequestEmptyRequest()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -162,7 +160,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty entry CompareRequest
      */
-    public void testDecodeCompareRequestEmptyEntry() throws NamingException
+    public void testDecodeCompareRequestEmptyEntry()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -204,7 +202,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty ava
      */
-    public void testDecodeCompareRequestEmptyAVA() throws NamingException
+    public void testDecodeCompareRequestEmptyAVA()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -244,7 +242,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty ava
      */
-    public void testDecodeCompareRequestInvalidDN() throws NamingException
+    public void testDecodeCompareRequestInvalidDN()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -289,7 +287,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty attributeDesc ava
      */
-    public void testDecodeCompareRequestEmptyAttributeDesc() throws NamingException
+    public void testDecodeCompareRequestEmptyAttributeDesc()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -335,7 +333,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an empty attributeValue ava
      */
-    public void testDecodeCompareRequestEmptyAttributeValue() throws NamingException
+    public void testDecodeCompareRequestEmptyAttributeValue()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -408,7 +406,7 @@ public class CompareRequestTest extends TestCase
     /**
      * Test the decoding of an compare request with controls
      */
-    public void testDecodeCompareRequestWithControls() throws NamingException
+    public void testDecodeCompareRequestWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 

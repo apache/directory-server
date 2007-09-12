@@ -99,7 +99,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
     }
 
 
-    public void testFull() throws ParseException
+    public void testFull()
     {
     }
 
@@ -119,7 +119,7 @@ public class NormalizerDescriptionSchemaParserTest extends TestCase
      * 
      * @throws ParseException
      */
-    public void testRequiredElements() throws ParseException
+    public void testRequiredElements()
     {
     }
 

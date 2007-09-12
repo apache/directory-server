@@ -283,7 +283,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
-    public void testLdifParserCombinedEntriesChanges() throws NamingException
+    public void testLdifParserCombinedEntriesChanges()
     {
         String ldif = 
             "version:   1\n" + 
@@ -321,7 +321,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
-    public void testLdifParserCombinedEntriesChanges2() throws NamingException
+    public void testLdifParserCombinedEntriesChanges2()
     {
         String ldif = 
             "version:   1\n" + 
@@ -358,7 +358,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
-    public void testLdifParserCombinedChangesEntries() throws NamingException
+    public void testLdifParserCombinedChangesEntries()
     {
         String ldif = 
             "version:   1\n" + 
@@ -396,7 +396,7 @@ public class LdifReaderTest extends TestCase
      * 
      * @throws NamingException
      */
-    public void testLdifParserCombinedChangesEntries2() throws NamingException
+    public void testLdifParserCombinedChangesEntries2()
     {
         String ldif = 
             "version:   1\n" + 
@@ -1077,7 +1077,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
-    public void testLdifParserRFC2849Sample5WithSizeLimit() throws NamingException, Exception
+    public void testLdifParserRFC2849Sample5WithSizeLimit() throws Exception
     {
         String ldif = 
             "version: 1\n" + 
@@ -1415,7 +1415,7 @@ public class LdifReaderTest extends TestCase
         assertEquals( "control-value", StringTools.utf8ToString( control.getEncodedValue() ) );
     }
 
-    public void testLdifParserRFC2849Sample7NoOid() throws NamingException, Exception
+    public void testLdifParserRFC2849Sample7NoOid() throws Exception
     {
         String ldif = 
             "version: 1\n" + 
@@ -1440,7 +1440,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
-    public void testLdifParserRFC2849Sample7BadOid() throws NamingException, Exception
+    public void testLdifParserRFC2849Sample7BadOid() throws Exception
     {
         String ldif = 
             "version: 1\n" + 
@@ -1465,7 +1465,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
-    public void testLdifParserChangeModifyMultiAttrs() throws NamingException, Exception
+    public void testLdifParserChangeModifyMultiAttrs() throws Exception
     {
         String ldif = 
             "version: 1\n" + 

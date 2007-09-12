@@ -97,7 +97,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests the same object referrence for equality.
      */
-    public void testEqualsSameObj() throws InvalidNameException
+    public void testEqualsSameObj()
     {
         ModifyRequestImpl req = getRequest();
         assertTrue( req.equals( req ) );
@@ -107,7 +107,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Tests for equality using exact copies.
      */
-    public void testEqualsExactCopy() throws InvalidNameException
+    public void testEqualsExactCopy()
     {
         ModifyRequestImpl req0 = getRequest();
         ModifyRequestImpl req1 = getRequest();
@@ -150,7 +150,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods ops are different.
      */
-    public void testNotEqualDiffModOps() throws InvalidNameException
+    public void testNotEqualDiffModOps()
     {
         ModifyRequestImpl req0 = getRequest();
         AttributeImpl attr = new AttributeImpl( "attr3" );
@@ -176,7 +176,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the number of mods are different.
      */
-    public void testNotEqualDiffModCount() throws InvalidNameException
+    public void testNotEqualDiffModCount()
     {
         ModifyRequestImpl req0 = getRequest();
         AttributeImpl attr = new AttributeImpl( "attr3" );
@@ -196,7 +196,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute Id's are different.
      */
-    public void testNotEqualDiffModIds() throws InvalidNameException
+    public void testNotEqualDiffModIds()
     {
         ModifyRequestImpl req0 = getRequest();
         AttributeImpl attr = new AttributeImpl( "attr3" );
@@ -222,7 +222,7 @@ public class ModifyRequestImplTest extends TestCase
     /**
      * Test for inequality when only the mods attribute values are different.
      */
-    public void testNotEqualDiffModValues() throws InvalidNameException
+    public void testNotEqualDiffModValues()
     {
         ModifyRequestImpl req0 = getRequest();
         AttributeImpl attr = new AttributeImpl( "attr3" );

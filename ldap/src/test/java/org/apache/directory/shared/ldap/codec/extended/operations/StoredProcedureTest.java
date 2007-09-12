@@ -23,8 +23,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -43,7 +41,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class StoredProcedureTest extends TestCase
 {
-    public void testDecodeStoredProcedureNParams() throws NamingException
+    public void testDecodeStoredProcedureNParams()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
 
@@ -122,7 +120,7 @@ public class StoredProcedureTest extends TestCase
         }
     }
 
-    public void testDecodeStoredProcedureNoParam() throws NamingException
+    public void testDecodeStoredProcedureNoParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
 
@@ -177,7 +175,7 @@ public class StoredProcedureTest extends TestCase
         }
     }
 
-    public void testDecodeStoredProcedureOneParam() throws NamingException
+    public void testDecodeStoredProcedureOneParam()
     {
         Asn1Decoder storedProcedureDecoder = new StoredProcedureDecoder();
 

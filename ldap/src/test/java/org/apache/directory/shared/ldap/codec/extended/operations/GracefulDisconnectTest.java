@@ -22,8 +22,6 @@ package org.apache.directory.shared.ldap.codec.extended.operations;
 
 import java.nio.ByteBuffer;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
@@ -46,7 +44,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect
      */
-    public void testDecodeGracefulDisconnectSuccess() throws NamingException
+    public void testDecodeGracefulDisconnectSuccess()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer stream = ByteBuffer.allocate( 0x70 );
@@ -110,7 +108,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline only
      */
-    public void testDecodeGracefulDisconnectTimeOffline() throws NamingException
+    public void testDecodeGracefulDisconnectTimeOffline()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
@@ -162,7 +160,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a delay only
      */
-    public void testDecodeGracefulDisconnectDelay() throws NamingException
+    public void testDecodeGracefulDisconnectDelay()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x05 );
@@ -215,7 +213,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline and a delay
      */
-    public void testDecodeGracefulDisconnectTimeOfflineDelay() throws NamingException
+    public void testDecodeGracefulDisconnectTimeOfflineDelay()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x08 );
@@ -269,7 +267,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with replicatedContexts only
      */
-    public void testDecodeGracefulDisconnectReplicatedContextsOnly() throws NamingException
+    public void testDecodeGracefulDisconnectReplicatedContextsOnly()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer stream = ByteBuffer.allocate( 0x6A );
@@ -333,7 +331,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a empty GracefulDisconnect
      */
-    public void testDecodeGracefulDisconnectEmpty() throws NamingException
+    public void testDecodeGracefulDisconnectEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x02 );
@@ -386,7 +384,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a timeOffline off limit
      */
-    public void testDecodeGracefulDisconnectTimeOfflineOffLimit() throws NamingException
+    public void testDecodeGracefulDisconnectTimeOfflineOffLimit()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -416,7 +414,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with a delay off limit
      */
-    public void testDecodeGracefulDisconnectDelayOffLimit() throws NamingException
+    public void testDecodeGracefulDisconnectDelayOffLimit()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -449,7 +447,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with an empty TimeOffline
      */
-    public void testDecodeGracefulDisconnectTimeOfflineEmpty() throws NamingException
+    public void testDecodeGracefulDisconnectTimeOfflineEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -478,7 +476,7 @@ public class GracefulDisconnectTest extends TestCase
     /**
      * Test the decoding of a GracefulDisconnect with an empty delay
      */
-    public void testDecodeGracefulDisconnectDelayEmpty() throws NamingException
+    public void testDecodeGracefulDisconnectDelayEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x0b );
@@ -508,7 +506,7 @@ public class GracefulDisconnectTest extends TestCase
      * Test the decoding of a GracefulDisconnect with an empty replicated
      * contexts
      */
-    public void testDecodeGracefulDisconnectReplicatedContextsEmpty() throws NamingException
+    public void testDecodeGracefulDisconnectReplicatedContextsEmpty()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x04 );
@@ -538,7 +536,7 @@ public class GracefulDisconnectTest extends TestCase
      * Test the decoding of a GracefulDisconnect with an invalid replicated
      * context
      */
-    public void testDecodeGracefulDisconnectReplicatedContextsInvalid() throws NamingException
+    public void testDecodeGracefulDisconnectReplicatedContextsInvalid()
     {
         Asn1Decoder decoder = new GracefulDisconnectDecoder();
         ByteBuffer bb = ByteBuffer.allocate( 0x06 );

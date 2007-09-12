@@ -370,7 +370,7 @@ public class LdapDNTest extends TestCase
    /**
     * test a simple DN with a comma at the end
     */
-   public void testLdapDNComaAtEnd() throws InvalidNameException
+   public void testLdapDNComaAtEnd()
    {
        assertFalse( LdapDN.isValid( "a = b,"  ) );
        assertFalse( LdapDN.isValid( "a = b, "  ) );

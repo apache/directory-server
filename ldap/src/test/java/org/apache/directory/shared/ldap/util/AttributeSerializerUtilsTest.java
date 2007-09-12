@@ -192,13 +192,12 @@ public class AttributeSerializerUtilsTest extends TestCase
     public void testFullCycleNonBinaryAttribute() throws IOException
     {
         AttributeImpl attr = new AttributeImpl( "testing" );
-        AttributeSerializerUtils serializer = new AttributeSerializerUtils();
         attr.add( "value0" );
         attr.add( "val1" );
         attr.add( "anything over here!" );
         
-        byte[] serialized = serializer.serialize( attr );
-        Attribute deserialized = ( Attribute ) serializer.deserialize( serialized );
+        byte[] serialized = AttributeSerializerUtils.serialize( attr );
+        Attribute deserialized = ( Attribute ) AttributeSerializerUtils.deserialize( serialized );
         assertEquals( attr, deserialized );
     }
 
@@ -206,7 +205,6 @@ public class AttributeSerializerUtilsTest extends TestCase
     public void testFullCycleBinaryAttribute() throws IOException, NamingException
     {
         AttributeImpl attr = new AttributeImpl( "testing" );
-        AttributeSerializerUtils serializer = new AttributeSerializerUtils();
         byte[] ba0 = new byte[2];
         ba0[0] = 7;
         ba0[1] = 23;
@@ -217,8 +215,8 @@ public class AttributeSerializerUtilsTest extends TestCase
         ba1[2] = 67;
         attr.add( ba1 );
         
-        byte[] serialized = serializer.serialize( attr );
-        Attribute deserialized = ( Attribute ) serializer.deserialize( serialized );
+        byte[] serialized = AttributeSerializerUtils.serialize( attr );
+        Attribute deserialized = ( Attribute ) AttributeSerializerUtils.deserialize( serialized );
         ArrayUtils.isEquals( ba0, deserialized.get() );
         ArrayUtils.isEquals( ba1, deserialized.get( 1 ) );
     }
@@ -231,13 +229,12 @@ public class AttributeSerializerUtilsTest extends TestCase
         for ( int ii = 0; ii < limit; ii++ )
         {
             AttributeImpl attr = new AttributeImpl( "testing" );
-            AttributeSerializerUtils serializer = new AttributeSerializerUtils();
             attr.add( "value0" );
             attr.add( "val1" );
             attr.add( "anything over here!" );
             
-            byte[] serialized = serializer.serialize( attr );
-            serializer.deserialize( serialized );
+            byte[] serialized = AttributeSerializerUtils.serialize( attr );
+            AttributeSerializerUtils.deserialize( serialized );
         }
         
         System.out.println( limit + " attributes with 3 values each were serialized and deserialized in " 

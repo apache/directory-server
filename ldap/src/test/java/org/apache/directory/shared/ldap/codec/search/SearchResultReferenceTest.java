@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
@@ -54,7 +52,7 @@ public class SearchResultReferenceTest extends TestCase
     /**
      * Test the decoding of a SearchResultReference
      */
-    public void testDecodeSearchResultReferenceSuccess() throws NamingException
+    public void testDecodeSearchResultReferenceSuccess()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -177,7 +175,7 @@ public class SearchResultReferenceTest extends TestCase
     /**
      * Test the decoding of a SearchResultReference with controls
      */
-    public void testDecodeSearchResultReferenceSuccessWithControls() throws NamingException
+    public void testDecodeSearchResultReferenceSuccessWithControls()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -322,7 +320,7 @@ public class SearchResultReferenceTest extends TestCase
     /**
      * Test the decoding of a SearchResultReference with no reference
      */
-    public void testDecodeSearchResultReferenceNoReference() throws NamingException
+    public void testDecodeSearchResultReferenceNoReference()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
@@ -361,7 +359,7 @@ public class SearchResultReferenceTest extends TestCase
     /**
      * Test the decoding of a SearchResultReference with one reference
      */
-    public void testDecodeSearchResultReferenceOneReference() throws NamingException
+    public void testDecodeSearchResultReferenceOneReference()
     {
         Asn1Decoder ldapDecoder = new LdapDecoder();
 
