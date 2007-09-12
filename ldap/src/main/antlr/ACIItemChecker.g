@@ -24,7 +24,6 @@ header
 package org.apache.directory.shared.ldap.aci;
 
 
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 }
 
@@ -69,10 +68,6 @@ tokens
 // ----------------------------------------------------------------------------
 
 {
-    // subordinate parser instances
-    private final FilterParserImpl filterParser = new FilterParserImpl();
-    
-    private boolean isNormalizing = false;
     NameComponentNormalizer normalizer;
     
     /**
@@ -92,25 +87,6 @@ tokens
     public void setNormalizer(NameComponentNormalizer normalizer)
     {
         this.normalizer = normalizer;
-        this.isNormalizing = true;
-    }
-
-    private int token2Integer( Token token ) throws RecognitionException
-    {
-        int i = 0;
-        
-        try
-        {
-            i = Integer.parseInt( token.getText());
-        }
-        catch ( NumberFormatException e )
-        {
-            throw new RecognitionException( "Value of INTEGER token " +
-                                            token.getText() +
-                                            " cannot be converted to an Integer" );
-        }
-        
-        return i;
     }
 }
 

@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -53,7 +54,7 @@ public class ACIItemParser
     /**
      * Creates a ACIItem parser.
      */
-    public ACIItemParser( Map oidsMap )
+    public ACIItemParser( Map<String, OidNormalizer> oidsMap )
     {
         this.lexer = new ReusableAntlrACIItemLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrACIItemParser( lexer );
@@ -67,7 +68,7 @@ public class ACIItemParser
     /**
      * Creates a normalizing ACIItem parser.
      */
-    public ACIItemParser(NameComponentNormalizer normalizer, Map oidsMap )
+    public ACIItemParser(NameComponentNormalizer normalizer, Map<String, OidNormalizer> oidsMap )
     {
         this.lexer = new ReusableAntlrACIItemLexer( new StringReader( "" ) );
         this.parser = new ReusableAntlrACIItemParser( lexer );

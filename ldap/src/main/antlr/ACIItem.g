@@ -24,11 +24,15 @@ header
 package org.apache.directory.shared.ldap.aci;
 
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Enumeration;
+
+import javax.naming.directory.Attribute;
+import javax.naming.Name;
 
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
@@ -48,6 +52,7 @@ import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,30 +105,29 @@ tokens
     // subordinate parser instances
     private final FilterParserImpl filterParser = new FilterParserImpl();
     
-    private boolean isNormalizing = false;
     NameComponentNormalizer normalizer;
     
     // nonshared global data needed to avoid extensive pass/return stuff
     // these are only used by three first order components
-    private String m_identificationTag;
-    private AuthenticationLevel m_authenticationLevel;
-    private int m_aciPrecedence;
+    private String identificationTag;
+    private AuthenticationLevel authenticationLevel;
+    private int aciPrecedence;
     
     private boolean isItemFirstACIItem;
     
     // shared global data needed to avoid extensive pass/return stuff
-    private Set<ProtectedItem> m_protectedItems;
-    private Map<String, ProtectedItem> m_protectedItemsMap;
-    private Set m_userClasses;
-    private Map m_userClassesMap;
-    private Set m_itemPermissions;
-    private int m_precedence;
-    private Set m_grantsAndDenials;
-    private Set m_userPermissions;
-    private Map oidsMap;
+    private Set<ProtectedItem> protectedItems;
+    private Map<String, ProtectedItem> protectedItemsMap;
+    private Set<UserClass> userClasses;
+    private Map<String, UserClass> userClassesMap;
+    private Set<ItemPermission> itemPermissions;
+    private int precedence;
+    private Set<GrantAndDenial> grantsAndDenials;
+    private Set<UserPermission> userPermissions;
+    private Map<String, OidNormalizer> oidsMap;
     
-    private Set chopBeforeExclusions;
-    private Set chopAfterExclusions;
+    private Set<Name> chopBeforeExclusions;
+    private Set<Name> chopAfterExclusions;
     private SubtreeSpecificationModifier ssModifier = null;
     
     private ComponentsMonitor mainACIItemComponentsMonitor;
@@ -139,7 +143,7 @@ tokens
      *
      * @return the DnParser to be used for parsing Names
      */
-    public void init( Map oidsMap )
+    public void init( Map<String, OidNormalizer> oidsMap )
     {
     	this.oidsMap = oidsMap;
     }
@@ -150,7 +154,6 @@ tokens
     public void setNormalizer(NameComponentNormalizer normalizer)
     {
         this.normalizer = normalizer;
-        this.isNormalizing = true;
     }
 
     private int token2Integer( Token token ) throws RecognitionException
@@ -186,10 +189,10 @@ wrapperEntryPoint returns [ ACIItem l_ACIItem ]
     ( SP )* l_ACIItem=theACIItem ( SP )* EOF
     ;
 
-theACIItem returns [ ACIItem l_ACIItem ]
+theACIItem returns [ ACIItem ACIItem ]
 {
     log.debug( "entered theACIItem()" );
-    l_ACIItem = null;
+    ACIItem = null;
     mainACIItemComponentsMonitor = new MandatoryComponentsMonitor( 
             new String [] { "identificationTag", "precedence", "authenticationLevel", "itemOrUserFirst" } );
 }
@@ -207,21 +210,21 @@ theACIItem returns [ ACIItem l_ACIItem ]
         
         if ( isItemFirstACIItem )
         {
-            l_ACIItem = new ItemFirstACIItem(
-                    m_identificationTag,
-                    m_precedence,
-                    m_authenticationLevel,
-                    m_protectedItems,
-                    m_itemPermissions );
+            ACIItem = new ItemFirstACIItem(
+                    identificationTag,
+                    precedence,
+                    authenticationLevel,
+                    protectedItems,
+                    itemPermissions );
         }
         else
         {
-            l_ACIItem = new UserFirstACIItem(
-                    m_identificationTag,
-                    m_aciPrecedence,
-                    m_authenticationLevel,
-                    m_userClasses,
-                    m_userPermissions );
+            ACIItem = new UserFirstACIItem(
+                    identificationTag,
+                    aciPrecedence,
+                    authenticationLevel,
+                    userClasses,
+                    userPermissions );
         }
         
     }
@@ -262,7 +265,7 @@ aci_identificationTag
     :
     ID_identificationTag ( SP )+ token:SAFEUTF8STRING
     {
-        m_identificationTag = token.getText();
+        identificationTag = token.getText();
     }
     ;
 
@@ -273,7 +276,7 @@ aci_precedence
     :
     precedence
     {
-        m_aciPrecedence = m_precedence;
+        aciPrecedence = precedence;
     }
     ;
 
@@ -284,10 +287,11 @@ precedence
     :
     ID_precedence ( SP )+ token:INTEGER
     {
-        m_precedence = token2Integer( token );
-        if( m_precedence < 0 || m_precedence > 255 )
+        precedence = token2Integer( token );
+        
+        if ( ( precedence < 0 ) || ( precedence > 255 ) )
         {
-            throw new RecognitionException( "Expecting INTEGER token having an Integer value between 0 and 255, found " + m_precedence );
+            throw new RecognitionException( "Expecting INTEGER token having an Integer value between 0 and 255, found " + precedence );
         }
     }
     ;
@@ -307,17 +311,17 @@ authenticationLevel
     :
     ID_none
     {
-        m_authenticationLevel = AuthenticationLevel.NONE;
+        authenticationLevel = AuthenticationLevel.NONE;
     }
     |
     ID_simple
     {
-        m_authenticationLevel = AuthenticationLevel.SIMPLE;
+        authenticationLevel = AuthenticationLevel.SIMPLE;
     }
     |
     ID_strong
     {
-        m_authenticationLevel = AuthenticationLevel.STRONG;
+        authenticationLevel = AuthenticationLevel.STRONG;
     }
     ;
 
@@ -380,7 +384,7 @@ userFirst
 protectedItems
 {
     log.debug( "entered protectedItems()" );
-    m_protectedItemsMap = new NoDuplicateKeysMap();
+    protectedItemsMap = new NoDuplicateKeysMap();
 }
     :
     ID_protectedItems ( SP )*
@@ -391,7 +395,7 @@ protectedItems
             )?
         CLOSE_CURLY
     {
-        m_protectedItems = new HashSet<ProtectedItem>( m_protectedItemsMap.values() );
+        protectedItems = new HashSet<ProtectedItem>( protectedItemsMap.values() );
     }
     ;
     exception
@@ -426,7 +430,7 @@ entry
     :
     ID_entry
     {
-        m_protectedItemsMap.put( "entry", ProtectedItem.ENTRY );
+        protectedItemsMap.put( "entry", ProtectedItem.ENTRY );
     }
     ;
 
@@ -437,31 +441,31 @@ allUserAttributeTypes
     :
     ID_allUserAttributeTypes
     {
-        m_protectedItemsMap.put( "allUserAttributeTypes", ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
+        protectedItemsMap.put( "allUserAttributeTypes", ProtectedItem.ALL_USER_ATTRIBUTE_TYPES );
     }
     ;
 
 attributeType
 {
     log.debug( "entered attributeType()" );
-    Set l_attributeTypeSet = null;
+    Set<String> attributeTypeSet = null;
 }
     :
-    ID_attributeType ( SP )+ l_attributeTypeSet=attributeTypeSet
+    ID_attributeType ( SP )+ attributeTypeSet=attributeTypeSet
     {
-        m_protectedItemsMap.put( "attributeType", new ProtectedItem.AttributeType( l_attributeTypeSet ) );
+        protectedItemsMap.put( "attributeType", new ProtectedItem.AttributeType(attributeTypeSet ) );
     }
     ;
 
 allAttributeValues
 {
     log.debug( "entered allAttributeValues()" );
-    Set l_attributeTypeSet = null;
+    Set<String> attributeTypeSet = null;
 }
     :
-    ID_allAttributeValues ( SP )+ l_attributeTypeSet=attributeTypeSet
+    ID_allAttributeValues ( SP )+ attributeTypeSet=attributeTypeSet
     {
-        m_protectedItemsMap.put( "allAttributeValues", new ProtectedItem.AllAttributeValues( l_attributeTypeSet ) );
+        protectedItemsMap.put( "allAttributeValues", new ProtectedItem.AllAttributeValues( attributeTypeSet ) );
     }
     ;
 
@@ -472,7 +476,7 @@ allUserAttributeTypesAndValues
     :
     ID_allUserAttributeTypesAndValues
     {
-        m_protectedItemsMap.put( "allUserAttributeTypesAndValues", ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
+        protectedItemsMap.put( "allUserAttributeTypesAndValues", ProtectedItem.ALL_USER_ATTRIBUTE_TYPES_AND_VALUES );
     }
     ;
 
@@ -482,7 +486,7 @@ attributeValue
     String attributeTypeAndValue = null;
     String attributeType = null;
     String attributeValue = null;
-    Set attributeSet = new HashSet();
+    Set<Attribute> attributeSet = new HashSet<Attribute>();
 }
     :
     token:ATTRIBUTE_VALUE_CANDIDATE // ate the identifier for subordinate dn parser workaround
@@ -490,11 +494,14 @@ attributeValue
         // A Dn can be considered as a set of attributeTypeAndValues
         // So, parse the set as a Dn and extract each attributeTypeAndValue
         LdapDN attributeTypeAndValueSetAsDn = new LdapDN( token.getText() );
+        
         if ( oidsMap != null )
         {        
             attributeTypeAndValueSetAsDn.normalize( oidsMap );
         }
+        
         Enumeration attributeTypeAndValueSet = attributeTypeAndValueSetAsDn.getAll();
+        
         while ( attributeTypeAndValueSet.hasMoreElements() )
         {
             attributeTypeAndValue = ( String ) attributeTypeAndValueSet.nextElement();
@@ -503,7 +510,8 @@ attributeValue
             attributeSet.add( new AttributeImpl( attributeType, attributeValue ) );
             log.debug( "An attributeTypeAndValue from the set: " + attributeType + "=" +  attributeValue);
         }
-        m_protectedItemsMap.put( "attributeValue", new ProtectedItem.AttributeValue( attributeSet ) );
+        
+        protectedItemsMap.put( "attributeValue", new ProtectedItem.AttributeValue( attributeSet ) );
     }
     ;
     exception
@@ -515,12 +523,12 @@ attributeValue
 selfValue
 {
     log.debug( "entered selfValue()" );
-    Set l_attributeTypeSet = null;
+    Set<String> attributeTypeSet = null;
 }
     :
-    ID_selfValue ( SP )+ l_attributeTypeSet=attributeTypeSet
+    ID_selfValue ( SP )+ attributeTypeSet=attributeTypeSet
     {
-        m_protectedItemsMap.put( "sefValue", new ProtectedItem.SelfValue( l_attributeTypeSet ) );
+        protectedItemsMap.put( "sefValue", new ProtectedItem.SelfValue( attributeTypeSet ) );
     }
     ;
 
@@ -531,7 +539,7 @@ rangeOfValues
     :
     token:RANGE_OF_VALUES_CANDIDATE
     {
-        m_protectedItemsMap.put( "rangeOfValues",
+        protectedItemsMap.put( "rangeOfValues",
                 new ProtectedItem.RangeOfValues(
                         filterParser.parse( token.getText() ) ) );
         log.debug( "filterParser parsed " + token.getText() );
@@ -546,48 +554,48 @@ rangeOfValues
 maxValueCount
 {
     log.debug( "entered maxValueCount()" );
-    ProtectedItem.MaxValueCountItem l_maxValueCount = null;
-    Set maxValueCountSet = new HashSet();
+    ProtectedItem.MaxValueCountItem maxValueCount = null;
+    Set<ProtectedItem.MaxValueCountItem> maxValueCountSet = new HashSet<ProtectedItem.MaxValueCountItem>();
 }
     :
     ID_maxValueCount ( SP )+
     OPEN_CURLY ( SP )*
-        l_maxValueCount=aMaxValueCount ( SP )*
+        maxValueCount=aMaxValueCount ( SP )*
         {
-            maxValueCountSet.add( l_maxValueCount );
+            maxValueCountSet.add( maxValueCount );
         }
-            ( SEP ( SP )* l_maxValueCount=aMaxValueCount ( SP )*
+            ( SEP ( SP )* maxValueCount=aMaxValueCount ( SP )*
             {
-                maxValueCountSet.add( l_maxValueCount );
+                maxValueCountSet.add( maxValueCount );
             }
             )*
     CLOSE_CURLY
     {
-        m_protectedItemsMap.put( "maxValueCount", new ProtectedItem.MaxValueCount( maxValueCountSet ) );
+        protectedItemsMap.put( "maxValueCount", new ProtectedItem.MaxValueCount( maxValueCountSet ) );
     }
     ;
 
-aMaxValueCount returns [ ProtectedItem.MaxValueCountItem l_maxValueCount ]
+aMaxValueCount returns [ ProtectedItem.MaxValueCountItem maxValueCount ]
 {
     log.debug( "entered aMaxValueCount()" );
-    l_maxValueCount = null;
-    String l_oid = null;
+    maxValueCount = null;
+    String oid = null;
     Token token = null;
 }
     :
     OPEN_CURLY ( SP )*
         (
-          ID_type ( SP )+ l_oid=oid ( SP )* SEP ( SP )*
+          ID_type ( SP )+ oid=oid ( SP )* SEP ( SP )*
           ID_maxCount ( SP )+ token1:INTEGER
           { token = token1; }
         | // relaxing
           ID_maxCount ( SP )+ token2:INTEGER ( SP )* SEP ( SP )*
-          ID_type ( SP )+ l_oid=oid
+          ID_type ( SP )+ oid=oid
           { token = token2; }
         )
     ( SP )* CLOSE_CURLY
     {
-        l_maxValueCount = new ProtectedItem.MaxValueCountItem( l_oid, token2Integer( token ) );
+        maxValueCount = new ProtectedItem.MaxValueCountItem( oid, token2Integer( token ) );
     }
     ;
 
@@ -599,7 +607,7 @@ maxImmSub
     ID_maxImmSub ( SP )+ token:INTEGER
     {
         
-        m_protectedItemsMap.put( "maxImmSub",
+        protectedItemsMap.put( "maxImmSub",
                 new ProtectedItem.MaxImmSub(
                         token2Integer( token ) ) );
     }
@@ -608,33 +616,33 @@ maxImmSub
 restrictedBy
 {
     log.debug( "entered restrictedBy()" );
-    ProtectedItem.RestrictedByItem l_restrictedValue = null;
-    Set l_restrictedBy = new HashSet();
+    ProtectedItem.RestrictedByItem restrictedValue = null;
+    Set<ProtectedItem.RestrictedByItem> restrictedBy = new HashSet<ProtectedItem.RestrictedByItem>();
 }
     :
     ID_restrictedBy ( SP )+
         OPEN_CURLY ( SP )*
-            l_restrictedValue=restrictedValue ( SP )*
+            restrictedValue=restrictedValue ( SP )*
             {
-                l_restrictedBy.add( l_restrictedValue );
+                restrictedBy.add( restrictedValue );
             }
-                    ( SEP ( SP )* l_restrictedValue=restrictedValue ( SP )*
+                    ( SEP ( SP )* restrictedValue=restrictedValue ( SP )*
                     {
-                        l_restrictedBy.add( l_restrictedValue );
+                        restrictedBy.add( restrictedValue );
                     }
                     )*
         CLOSE_CURLY
     {
-        m_protectedItemsMap.put( "restrictedBy", new ProtectedItem.RestrictedBy( l_restrictedBy ) );
+        protectedItemsMap.put( "restrictedBy", new ProtectedItem.RestrictedBy( restrictedBy ) );
     }
     ;
 
-restrictedValue returns [ ProtectedItem.RestrictedByItem l_restrictedValue ]
+restrictedValue returns [ ProtectedItem.RestrictedByItem restrictedValue ]
 {
     log.debug( "entered restrictedValue()" );
     String typeOid = null;
     String valuesInOid = null;
-    l_restrictedValue = null;
+    restrictedValue = null;
 }
     :
     OPEN_CURLY ( SP )*
@@ -647,25 +655,25 @@ restrictedValue returns [ ProtectedItem.RestrictedByItem l_restrictedValue ]
         )
     ( SP )* CLOSE_CURLY
     {
-        l_restrictedValue = new ProtectedItem.RestrictedByItem( typeOid, valuesInOid );
+        restrictedValue = new ProtectedItem.RestrictedByItem( typeOid, valuesInOid );
     }
     ;
 
-attributeTypeSet returns [ Set l_attributeTypeSet ]
+attributeTypeSet returns [ Set<String> attributeTypeSet ]
 {
     log.debug( "entered attributeTypeSet()" );
-    String l_oid = null;
-    l_attributeTypeSet = new HashSet();
+    String oid = null;
+    attributeTypeSet = new HashSet<String>();
 }
     :
     OPEN_CURLY ( SP )*
-        l_oid=oid ( SP )*
+        oid=oid ( SP )*
         {
-            l_attributeTypeSet.add( l_oid );
+            attributeTypeSet.add( oid );
         }
-            ( SEP ( SP )* l_oid=oid ( SP )*
+            ( SEP ( SP )* oid=oid ( SP )*
             {
-                l_attributeTypeSet.add( l_oid );
+                attributeTypeSet.add( oid );
             }
             )*
     CLOSE_CURLY
@@ -674,41 +682,41 @@ attributeTypeSet returns [ Set l_attributeTypeSet ]
 classes
 {
     log.debug( "entered classes()" );
-    ExprNode l_classes = null;
+    ExprNode classes = null;
 }
     :
-    ID_classes ( SP )+ l_classes=refinement
+    ID_classes ( SP )+ classes=refinement
     {
-        m_protectedItemsMap.put( "classes", new ProtectedItem.Classes( l_classes ) );
+        protectedItemsMap.put( "classes", new ProtectedItem.Classes( classes ) );
     }
     ;
 
 itemPermissions
 {
     log.debug( "entered itemPermissions()" );
-    m_itemPermissions = new HashSet();
-    ItemPermission l_itemPermission = null;
+    itemPermissions = new HashSet<ItemPermission>();
+    ItemPermission itemPermission = null;
 }
     :
     ID_itemPermissions ( SP )+
         OPEN_CURLY ( SP )*
-            ( l_itemPermission=itemPermission ( SP )*
+            ( itemPermission=itemPermission ( SP )*
               {
-                  m_itemPermissions.add( l_itemPermission );
+                  itemPermissions.add( itemPermission );
               }
-                ( SEP ( SP )* l_itemPermission=itemPermission ( SP )*
+                ( SEP ( SP )* itemPermission=itemPermission ( SP )*
                   {
-                      m_itemPermissions.add( l_itemPermission );
+                      itemPermissions.add( itemPermission );
                   }
                 )*
             )?
         CLOSE_CURLY
     ;
 
-itemPermission returns [ ItemPermission l_itemPermission ]
+itemPermission returns [ ItemPermission itemPermission ]
 {
     log.debug( "entered itemPermission()" );
-    l_itemPermission = null;
+    itemPermission = null;
     itemPermissionComponentsMonitor = new MandatoryAndOptionalComponentsMonitor( 
             new String [] { "userClasses", "grantsAndDenials" }, new String [] { "precedence" } );
 }
@@ -724,7 +732,7 @@ itemPermission returns [ ItemPermission l_itemPermission ]
                     + itemPermissionComponentsMonitor.getRemainingComponents() );
         }
         
-        l_itemPermission = new ItemPermission( m_precedence, m_grantsAndDenials, m_userClasses );
+        itemPermission = new ItemPermission( precedence, grantsAndDenials, userClasses );
     }
     ;
 
@@ -752,24 +760,24 @@ anyItemPermission
 grantsAndDenials
 {
     log.debug( "entered grantsAndDenials()" );
-    m_grantsAndDenials = new HashSet();
-    GrantAndDenial l_grantAndDenial = null;
+    grantsAndDenials = new HashSet<GrantAndDenial>();
+    GrantAndDenial grantAndDenial = null;
 }
     :
     ID_grantsAndDenials ( SP )+
     OPEN_CURLY ( SP )*
-        ( l_grantAndDenial = grantAndDenial ( SP )*
+        ( grantAndDenial = grantAndDenial ( SP )*
           {
-              if ( !m_grantsAndDenials.add( l_grantAndDenial ))
+              if ( !grantsAndDenials.add( grantAndDenial ))
               {
-                  throw new RecognitionException( "Duplicated GrantAndDenial bit: " + l_grantAndDenial );
+                  throw new RecognitionException( "Duplicated GrantAndDenial bit: " + grantAndDenial );
               }
           }
-            ( SEP ( SP )* l_grantAndDenial = grantAndDenial ( SP )*
+            ( SEP ( SP )* grantAndDenial = grantAndDenial ( SP )*
               {
-                  if ( !m_grantsAndDenials.add( l_grantAndDenial ))
+                  if ( !grantsAndDenials.add( grantAndDenial ))
                   {
-                      throw new RecognitionException( "Duplicated GrantAndDenial bit: " + l_grantAndDenial );
+                      throw new RecognitionException( "Duplicated GrantAndDenial bit: " + grantAndDenial );
                   }
               }
             )*
@@ -818,7 +826,7 @@ grantAndDenial returns [ GrantAndDenial l_grantAndDenial ]
 userClasses
 {
     log.debug( "entered userClasses()" );
-    m_userClassesMap = new NoDuplicateKeysMap();
+    userClassesMap = new NoDuplicateKeysMap();
 }
     :
     ID_userClasses ( SP )+
@@ -829,7 +837,7 @@ userClasses
         )?
     CLOSE_CURLY
     {
-        m_userClasses  = new HashSet( m_userClassesMap.values() );
+        userClasses  = new HashSet<UserClass>( userClassesMap.values() );
     }
     ;
     exception
@@ -857,7 +865,7 @@ allUsers
     :
     ID_allUsers
     {
-        m_userClassesMap.put( "allUsers", UserClass.ALL_USERS );
+        userClassesMap.put( "allUsers", UserClass.ALL_USERS );
     }
     ;
 
@@ -868,105 +876,105 @@ thisEntry
     :
     ID_thisEntry
     {
-        m_userClassesMap.put( "thisEntry", UserClass.THIS_ENTRY );
+        userClassesMap.put( "thisEntry", UserClass.THIS_ENTRY );
     }
     ;
 
 name
 {
     log.debug( "entered name()" );
-    Set l_name = new HashSet();
-    LdapDN l_distinguishedName = null;
+    Set<Name> names = new HashSet<Name>();
+    LdapDN distinguishedName = null;
 }
     :
     ID_name ( SP )+ 
         OPEN_CURLY ( SP )*
-            l_distinguishedName=distinguishedName ( SP )*
+            distinguishedName=distinguishedName ( SP )*
             {
-                l_name.add( l_distinguishedName );
+                names.add( distinguishedName );
             }
-                ( SEP ( SP )* l_distinguishedName=distinguishedName ( SP )*
+                ( SEP ( SP )* distinguishedName=distinguishedName ( SP )*
                 {
-                    l_name.add( l_distinguishedName );
+                    names.add( distinguishedName );
                 } )*
         CLOSE_CURLY
     {
-        m_userClassesMap.put( "name", new UserClass.Name( l_name ) );
+        userClassesMap.put( "name", new UserClass.Name( names ) );
     }
     ;
 
 userGroup
 {
     log.debug( "entered userGroup()" );
-    Set l_userGroup = new HashSet();
-    LdapDN l_distinguishedName = null;
+    Set<Name> userGroup = new HashSet<Name>();
+    LdapDN distinguishedName = null;
 }
     :
     ID_userGroup ( SP )+ 
         OPEN_CURLY ( SP )*
-            l_distinguishedName=distinguishedName ( SP )*
+            distinguishedName=distinguishedName ( SP )*
             {
-                l_userGroup.add( l_distinguishedName );
+                userGroup.add( distinguishedName );
             }
-                ( SEP ( SP )* l_distinguishedName=distinguishedName ( SP )*
+                ( SEP ( SP )* distinguishedName=distinguishedName ( SP )*
                 {
-                    l_userGroup.add( l_distinguishedName );
+                    userGroup.add( distinguishedName );
                 } )*
         CLOSE_CURLY
     {
-        m_userClassesMap.put( "userGroup", new UserClass.UserGroup( l_userGroup ) );
+        userClassesMap.put( "userGroup", new UserClass.UserGroup( userGroup ) );
     }
     ;
 
 subtree
 {
     log.debug( "entered subtree()" );
-    Set l_subtree = new HashSet();
-    SubtreeSpecification l_subtreeSpecification = null;    
+    Set<SubtreeSpecification> subtrees = new HashSet<SubtreeSpecification>();
+    SubtreeSpecification subtreeSpecification = null;    
 }
     :
     ID_subtree ( SP )+
         OPEN_CURLY ( SP )*
-            l_subtreeSpecification=subtreeSpecification ( SP )*
+            subtreeSpecification=subtreeSpecification ( SP )*
             {
-                l_subtree.add( l_subtreeSpecification );
+                subtrees.add( subtreeSpecification );
             }
-                ( SEP ( SP )* l_subtreeSpecification=subtreeSpecification ( SP )*
+                ( SEP ( SP )* subtreeSpecification=subtreeSpecification ( SP )*
                 {
-                    l_subtree.add( l_subtreeSpecification );
+                    subtrees.add( subtreeSpecification );
                 } )*
         CLOSE_CURLY
     {
-        m_userClassesMap.put( "subtree", new UserClass.Subtree( l_subtree ) );
+        userClassesMap.put( "subtree", new UserClass.Subtree( subtrees ) );
     }
     ;
 
 userPermissions
 {
     log.debug( "entered userPermissions()" );
-    m_userPermissions = new HashSet();
-    UserPermission l_userPermission = null;
+    userPermissions = new HashSet<UserPermission>();
+    UserPermission userPermission = null;
 }
     :
     ID_userPermissions ( SP )+
         OPEN_CURLY ( SP )*
-            ( l_userPermission=userPermission ( SP )*
+            ( userPermission=userPermission ( SP )*
               {
-                  m_userPermissions.add( l_userPermission );
+                  userPermissions.add( userPermission );
               }
-                ( SEP ( SP )* l_userPermission=userPermission ( SP )*
+                ( SEP ( SP )* userPermission=userPermission ( SP )*
                   {
-                      m_userPermissions.add( l_userPermission );
+                      userPermissions.add( userPermission );
                   }
                 )*
             )?
         CLOSE_CURLY
     ;
 
-userPermission returns [ UserPermission l_userPermission ]
+userPermission returns [ UserPermission userPermission ]
 {
     log.debug( "entered userPermission()" );
-    l_userPermission = null;
+    userPermission = null;
     userPermissionComponentsMonitor = new MandatoryAndOptionalComponentsMonitor( 
              new String [] { "protectedItems", "grantsAndDenials" }, new String [] { "precedence" } );
 }
@@ -982,7 +990,7 @@ userPermission returns [ UserPermission l_userPermission ]
                      + userPermissionComponentsMonitor.getRemainingComponents() );
          }
          
-         l_userPermission = new UserPermission( m_aciPrecedence, m_grantsAndDenials, m_protectedItems );
+         userPermission = new UserPermission( aciPrecedence, grantsAndDenials, protectedItems );
      }
      ;
 
@@ -1014,8 +1022,8 @@ subtreeSpecification returns [SubtreeSpecification ss]
     // in case something is left from the last parse
     ss = null;
     ssModifier = new SubtreeSpecificationModifier();
-    chopBeforeExclusions = new HashSet();
-    chopAfterExclusions = new HashSet();
+    chopBeforeExclusions = new HashSet<Name>();
+    chopAfterExclusions = new HashSet<Name>();
     subtreeSpecificationComponentsMonitor = new OptionalComponentsMonitor( 
             new String [] { "base", "specificExclusions", "minimum", "maximum" } );
 }
@@ -1211,12 +1219,12 @@ item returns [ LeafNode node ]
 {
     log.debug( "entered item()" );
     node = null;
-    String l_oid = null;
+    String oid = null;
 }
     :
-    ID_item ( SP )* COLON ( SP )* l_oid=oid
+    ID_item ( SP )* COLON ( SP )* oid=oid
     {
-        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , l_oid , AssertionEnum.EQUALITY );
+        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , oid , AssertionEnum.EQUALITY );
     }
     ;
 
@@ -1224,7 +1232,7 @@ and returns [ BranchNode node ]
 {
     log.debug( "entered and()" );
     node = null;
-    ArrayList children = null; 
+    List<ExprNode> children = null; 
 }
     :
     ID_and ( SP )* COLON ( SP )* children=refinements
@@ -1237,7 +1245,7 @@ or returns [ BranchNode node ]
 {
     log.debug( "entered or()" );
     node = null;
-    ArrayList children = null; 
+    List<ExprNode> children = null; 
 }
     :
     ID_or ( SP )* COLON ( SP )* children=refinements
@@ -1250,7 +1258,7 @@ not returns [ BranchNode node ]
 {
     log.debug( "entered not()" );
     node = null;
-    ArrayList children = null;
+    List<ExprNode> children = null;
 }
     :
     ID_not ( SP )* COLON ( SP )* children=refinements
@@ -1259,12 +1267,12 @@ not returns [ BranchNode node ]
     }
     ;
 
-refinements returns [ ArrayList children ]
+refinements returns [ List<ExprNode> children ]
 {
     log.debug( "entered refinements()" );
     children = null;
     ExprNode child = null;
-    ArrayList tempChildren = new ArrayList();
+    List<ExprNode> tempChildren = new ArrayList<ExprNode>();
 }
     :
     OPEN_CURLY ( SP )*
