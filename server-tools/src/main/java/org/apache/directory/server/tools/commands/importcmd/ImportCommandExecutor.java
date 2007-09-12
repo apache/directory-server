@@ -673,7 +673,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                 ApplicationContext factory = null;
                 URL configUrl;
 
-                configUrl = getLayout().getConfigurationFile().toURL();
+                configUrl = getLayout().getConfigurationFile().toURI().toURL();
                 factory = new FileSystemXmlApplicationContext( configUrl.toString() );
                 setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
             }
