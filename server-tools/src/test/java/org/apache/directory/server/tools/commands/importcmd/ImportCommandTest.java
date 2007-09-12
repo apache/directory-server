@@ -755,7 +755,7 @@ public class ImportCommandTest extends AbstractTestCase
     }
 
 
-    public void testRFC2849Sample3() throws UnsupportedEncodingException
+    public void testRFC2849Sample3()
     {
         // Checking if server had been launched
         if ( !bindSuccessful )
