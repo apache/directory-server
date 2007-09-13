@@ -90,7 +90,7 @@ public class PrincipalNameEncoder
 
         while ( it.hasNext() )
         {
-            vector.add( DERGeneralString.valueOf( ( String ) it.next() ) );
+            vector.add( DERGeneralString.valueOf( it.next() ) );
         }
 
         return vector;
@@ -113,7 +113,7 @@ public class PrincipalNameEncoder
 
         while ( it.hasNext() )
         {
-            vector.add( DERGeneralString.valueOf( ( String ) it.next() ) );
+            vector.add( DERGeneralString.valueOf( it.next() ) );
         }
 
         return vector;
