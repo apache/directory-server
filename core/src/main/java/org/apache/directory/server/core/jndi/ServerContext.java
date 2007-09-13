@@ -103,7 +103,7 @@ public abstract class ServerContext implements EventContext
     private final PartitionNexus nexusProxy;
 
     /** The cloned environment used by this Context */
-    private final Hashtable env;
+    private final Hashtable<String, Object> env;
 
     /** The distinguished name of this Context */
     private final LdapDN dn;
@@ -142,7 +142,7 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
-    protected ServerContext(DirectoryService service, Hashtable env) throws NamingException
+    protected ServerContext(DirectoryService service, Hashtable<String, Object> env) throws NamingException
     {
         this.service = service;
 
@@ -150,7 +150,7 @@ public abstract class ServerContext implements EventContext
         this.nexusProxy = new PartitionNexusProxy( this, service );
 
         DirectoryServiceConfiguration cfg = service.getConfiguration();
-        this.env = ( Hashtable ) cfg.getEnvironment().clone();
+        this.env = ( Hashtable<String, Object> ) cfg.getEnvironment().clone();
         this.env.putAll( env );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
@@ -282,7 +282,7 @@ public abstract class ServerContext implements EventContext
         
         // do not reset request controls since this is not an external 
         // operation and not do bother setting the response controls either
-        return nexusProxy.getRootDSE( ( GetRootDSEOperationContext ) opCtx );
+        return nexusProxy.getRootDSE( opCtx );
     }
     
     
@@ -522,7 +522,7 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#getEnvironment()
      */
-    public Hashtable getEnvironment()
+    public Hashtable<String, Object> getEnvironment()
     {
         return env;
     }
@@ -638,7 +638,7 @@ public abstract class ServerContext implements EventContext
     }
 
     
-    private void injectRdnAttributeValues( LdapDN target, Attributes attributes ) throws NamingException
+    private void injectRdnAttributeValues( LdapDN target, Attributes attributes )
     {
         // Add all the RDN attributes and their values to this entry
         Rdn rdn = target.getRdn( target.size() - 1 );

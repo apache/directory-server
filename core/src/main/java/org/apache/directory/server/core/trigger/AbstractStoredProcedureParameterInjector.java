@@ -42,7 +42,7 @@ public abstract class AbstractStoredProcedureParameterInjector implements Stored
     private Invocation invocation;
     private Map<Class, MicroInjector> injectors;
     
-    public AbstractStoredProcedureParameterInjector( Invocation invocation ) throws NamingException
+    public AbstractStoredProcedureParameterInjector( Invocation invocation )
     {
         this.invocation = invocation;
         injectors = new HashMap<Class, MicroInjector>();

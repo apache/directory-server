@@ -34,7 +34,7 @@ public class AddStoredProcedureParameterInjector extends AbstractStoredProcedure
     private LdapDN addedEntryName;
     private Attributes addedEntry;
     
-    public AddStoredProcedureParameterInjector( Invocation invocation, LdapDN addedEntryName, Attributes addedEntry ) throws NamingException
+    public AddStoredProcedureParameterInjector( Invocation invocation, LdapDN addedEntryName, Attributes addedEntry )
     {
         super( invocation );
         this.addedEntryName = addedEntryName;

@@ -428,7 +428,7 @@ public class AuthorizationService extends BaseInterceptor
         
         while ( attrList.hasMore() )
         {
-            subentryAttrs.put( ( Attribute ) attrList.next() );
+            subentryAttrs.put( attrList.next() );
         }
 
         // Assemble all the information required to make an access control decision
@@ -450,7 +450,7 @@ public class AuthorizationService extends BaseInterceptor
         
         while ( attributeList.hasMore() )
         {
-            Attribute attr = ( Attribute ) attributeList.next();
+            Attribute attr = attributeList.next();
         
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
@@ -686,7 +686,7 @@ public class AuthorizationService extends BaseInterceptor
         NamingEnumeration<? extends Attribute> attributeList = entry.getAll();
         while ( attributeList.hasMore() )
         {
-            Attribute attr = ( Attribute ) attributeList.next();
+            Attribute attr = attributeList.next();
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, attr
@@ -771,8 +771,8 @@ public class AuthorizationService extends BaseInterceptor
         throws NamingException
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
-        LdapDN newParentName = ((MoveAndRenameOperationContext)moveAndRenameContext).getParent();
-        String newRn = ((MoveAndRenameOperationContext)moveAndRenameContext).getNewRdn();
+        LdapDN newParentName = moveAndRenameContext.getParent();
+        String newRn = moveAndRenameContext.getNewRdn();
         
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
@@ -827,7 +827,7 @@ public class AuthorizationService extends BaseInterceptor
         
         while ( attrList.hasMore() )
         {
-            subentryAttrs.put( ( Attribute ) attrList.next() );
+            subentryAttrs.put( attrList.next() );
         }
         
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
@@ -902,7 +902,7 @@ public class AuthorizationService extends BaseInterceptor
         
         while ( attrList.hasMore() )
         {
-            subentryAttrs.put( ( Attribute ) attrList.next() );
+            subentryAttrs.put( attrList.next() );
         }
         
         Collection<ACITuple> destTuples = new HashSet<ACITuple>();
@@ -958,7 +958,7 @@ public class AuthorizationService extends BaseInterceptor
     }
 
     
-    public final boolean isPrincipalAnAdministrator( LdapDN principalDn ) throws NamingException
+    public final boolean isPrincipalAnAdministrator( LdapDN principalDn )
     {
         return groupCache.isPrincipalAnAdministrator( principalDn );
     }

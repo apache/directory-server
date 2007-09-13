@@ -40,7 +40,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
     private LdapDN newDN;
 
 	public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
-        LdapDN oldRDN, LdapDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN) throws NamingException
+        LdapDN oldRDN, LdapDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
     {
         super( invocation );
         this.deleteOldRn = deleteOldRn;

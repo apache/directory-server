@@ -300,7 +300,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
         outer: while ( decorated.hasMore() )
         {
             boolean accepted = true;
-            tmp = ( SearchResult ) decorated.next();
+            tmp = decorated.next();
 
             // don't waste using a for loop if we got 0 or 1 element
             if ( filters.isEmpty() )
@@ -311,7 +311,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
             }
             else if ( filters.size() == 1 )
             {
-                accepted = ( ( SearchResultFilter ) filters.get( 0 ) ).accept( invocation, tmp, searchControls );
+                accepted = filters.get( 0 ).accept( invocation, tmp, searchControls );
                 if ( accepted )
                 {
                     this.prefetched = tmp;
@@ -325,7 +325,7 @@ public class SearchResultFilteringEnumeration implements NamingEnumeration<Searc
             // apply all filters shorting their application on result denials
             for ( int ii = 0; ii < filters.size(); ii++ )
             {
-                SearchResultFilter filter = ( SearchResultFilter ) filters.get( ii );
+                SearchResultFilter filter = filters.get( ii );
                 accepted &= filter.accept( invocation, tmp, searchControls );
 
                 if ( !accepted )

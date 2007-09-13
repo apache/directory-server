@@ -86,7 +86,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
     {
         while ( underlying.hasMore() )
         {
-            SearchResult result = ( SearchResult ) underlying.next();
+            SearchResult result = underlying.next();
             LdapDN dn = new LdapDN( result.getName() );
             dn.normalize( normalizerMap );
             
@@ -101,7 +101,7 @@ public class ReferralHandlingEnumeration implements NamingEnumeration<SearchResu
         }
 
         refIndex++;
-        prefetched = ( SearchResult ) referrals.get( refIndex );
+        prefetched = referrals.get( refIndex );
         if ( doThrow )
         {
             doReferralExceptionOnSearchBase();

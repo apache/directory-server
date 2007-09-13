@@ -98,7 +98,7 @@ public class RestrictedByFilter implements ACITupleFilter
             
                 for ( Iterator<RestrictedByItem> k = rb.iterator(); k.hasNext(); )
                 {
-                    RestrictedByItem rbItem = ( RestrictedByItem ) k.next();
+                    RestrictedByItem rbItem = k.next();
                 
                     // TODO Fix DIRSEVER-832 
                     if ( attrId.equalsIgnoreCase( rbItem.getAttributeType() ) )

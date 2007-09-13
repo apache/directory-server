@@ -255,7 +255,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         {
             while ( partitionConfigurations.hasNext() )
             {
-                PartitionConfiguration c = ( PartitionConfiguration ) partitionConfigurations.next();
+                PartitionConfiguration c = partitionConfigurations.next();
                 AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( c );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
@@ -269,7 +269,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                 Iterator<Partition> i = initializedPartitions.iterator();
                 while ( i.hasNext() )
                 {
-                    Partition partition = ( Partition ) i.next();
+                    Partition partition = i.next();
                     i.remove();
                     try
                     {
@@ -484,7 +484,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         while ( list.hasNext() )
         {
-            Partition partition = ( Partition ) list.next();
+            Partition partition = list.next();
 
             try
             {
@@ -915,7 +915,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all user attribute
-                        Attribute attr = ( Attribute ) ii.next();
+                        Attribute attr = ii.next();
                         AttributeType type = attrRegistry.lookup( attr.getID() );
                         if ( type.getUsage() == UsageEnum.USER_APPLICATIONS )
                         {
@@ -933,7 +933,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                         // add all operational attributes
-                        Attribute attr = ( Attribute ) ii.next();
+                        Attribute attr = ii.next();
                         AttributeType type = attrRegistry.lookup( attr.getID() );
                         if ( type.getUsage() != UsageEnum.USER_APPLICATIONS )
                         {
@@ -951,7 +951,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     for ( NamingEnumeration<? extends Attribute> ii = getRootDSE( null ).getAll(); ii.hasMore(); /**/ )
                     {
                       // add user attributes specifically asked for
-                        Attribute attr = ( Attribute ) ii.next();
+                        Attribute attr = ii.next();
                         AttributeType type = attrRegistry.lookup( attr.getID() );
                         if ( realIds.contains( type.getOid() ) )
                         {

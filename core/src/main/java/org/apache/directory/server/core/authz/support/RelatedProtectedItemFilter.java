@@ -212,7 +212,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
                 for ( Iterator<MaxValueCountItem> j = mvc.iterator(); j.hasNext(); )
                 {
-                    MaxValueCountItem mvcItem = ( MaxValueCountItem ) j.next();
+                    MaxValueCountItem mvcItem = j.next();
                     if ( oid.equals( oidRegistry.getOid( mvcItem.getAttributeType() ) ) )
                     {
                         return true;
@@ -237,7 +237,7 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
                 ProtectedItem.RestrictedBy rb = ( ProtectedItem.RestrictedBy ) item;
                 for ( Iterator<RestrictedByItem> j = rb.iterator(); j.hasNext(); )
                 {
-                    RestrictedByItem rbItem = ( RestrictedByItem ) j.next();
+                    RestrictedByItem rbItem = j.next();
                     if ( oid.equals( oidRegistry.getOid( rbItem.getAttributeType() ) ) )
                     {
                         return true;

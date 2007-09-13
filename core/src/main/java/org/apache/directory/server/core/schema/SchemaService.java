@@ -397,7 +397,7 @@ public class SchemaService extends BaseInterceptor
      *
      * @param searchCtls The SearchControls we will filter
      */
-    private void filterAttributesToReturn( SearchControls searchCtls ) throws NamingException
+    private void filterAttributesToReturn( SearchControls searchCtls )
     {
         String[] attributes = searchCtls.getReturningAttributes();
 

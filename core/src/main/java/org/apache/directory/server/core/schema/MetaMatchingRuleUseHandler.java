@@ -114,13 +114,13 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( MatchingRuleUse mru ) throws NamingException
+    public void add( MatchingRuleUse mru )
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( MatchingRuleUse mru, boolean cascade ) throws NamingException
+    public void delete( MatchingRuleUse mru, boolean cascade )
     {
         // TODO Auto-generated method stub
     }

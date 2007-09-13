@@ -72,7 +72,7 @@ public class LeafEvaluator implements Evaluator
      * @param substringEvaluator
      */
     public LeafEvaluator( OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
-        SubstringEvaluator substringEvaluator ) throws NamingException
+        SubstringEvaluator substringEvaluator )
     {
         this.oidRegistry = oidRegistry;
         this.attributeTypeRegistry = attributeTypeRegistry;

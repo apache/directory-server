@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ScopeEvaluator implements Evaluator
 {
-    public ScopeEvaluator() throws NamingException
+    public ScopeEvaluator()
     {
     }
 

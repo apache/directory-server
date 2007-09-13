@@ -119,13 +119,13 @@ public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void add( DITStructureRule dsr ) throws NamingException
+    public void add( DITStructureRule dsr )
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( DITStructureRule dsr, boolean cascade ) throws NamingException
+    public void delete( DITStructureRule dsr, boolean cascade )
     {
         // TODO Auto-generated method stub
     }

@@ -272,7 +272,7 @@ public class SchemaManager
     }
     
     
-    public Registries getRegistries( LdapDN dn ) throws NamingException
+    public Registries getRegistries( LdapDN dn )
     {
         throw new NotImplementedException();
     }

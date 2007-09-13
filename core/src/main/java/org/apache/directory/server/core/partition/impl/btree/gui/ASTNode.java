@@ -98,7 +98,7 @@ public class ASTNode implements TreeNode
 
     public TreeNode getChildAt( int childIndex )
     {
-        return ( TreeNode ) children.get( childIndex );
+        return children.get( childIndex );
     }
 
 

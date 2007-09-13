@@ -83,7 +83,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param env the environment used for this context
      * @throws NamingException if something goes wrong
      */
-    public ServerDirContext(DirectoryService service, Hashtable env) throws NamingException
+    public ServerDirContext(DirectoryService service, Hashtable<String, Object> env) throws NamingException
     {
         super( service, env );
     }

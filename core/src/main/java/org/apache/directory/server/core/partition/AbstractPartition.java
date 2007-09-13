@@ -96,7 +96,7 @@ public abstract class AbstractPartition implements Partition
     /**
      * Override this method to put your initialization code.
      */
-    protected void doInit() throws NamingException
+    protected void doInit()
     {
     }
 

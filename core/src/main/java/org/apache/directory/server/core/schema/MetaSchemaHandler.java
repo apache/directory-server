@@ -417,7 +417,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
 
 
-    private final String getSchemaName( LdapDN schema ) throws NamingException
+    private final String getSchemaName( LdapDN schema )
     {
         return ( String ) schema.getRdn().getValue();
     }

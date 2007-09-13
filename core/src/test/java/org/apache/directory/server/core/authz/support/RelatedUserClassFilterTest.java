@@ -62,15 +62,8 @@ public class RelatedUserClassFilterTest extends TestCase
 
     static
     {
-        try
-        {
-            SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DummyAttributeTypeRegistry(true) );
-            filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
-        }
-        catch ( NamingException e )
-        {
-            throw new Error();
-        }
+        SUBTREE_EVALUATOR = new SubtreeEvaluator( new DummyOidRegistry(), new DummyAttributeTypeRegistry(true) );
+        filter = new RelatedUserClassFilter( SUBTREE_EVALUATOR );
         
         try
         {

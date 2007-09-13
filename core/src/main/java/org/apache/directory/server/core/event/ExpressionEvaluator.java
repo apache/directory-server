@@ -68,7 +68,6 @@ public class ExpressionEvaluator implements Evaluator
      * @param attributeTypeRegistry the attribtype reg used for value comparison
      */
     public ExpressionEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry)
-        throws NamingException
     {
         SubstringEvaluator substringEvaluator = null;
         substringEvaluator = new SubstringEvaluator( oidRegistry, attributeTypeRegistry );

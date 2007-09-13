@@ -374,19 +374,19 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     }
 
 
-    private void loadDitStructureRules( Schema schema, Registries targetRegistries ) throws NamingException
+    private void loadDitStructureRules( Schema schema, Registries targetRegistries )
     {
         // TODO Auto-generated method stub
     }
 
 
-    private void loadNameForms( Schema schema, Registries targetRegistries ) throws NamingException
+    private void loadNameForms( Schema schema, Registries targetRegistries )
     {
         // TODO Auto-generated method stub
     }
 
 
-    private void loadDitContentRules( Schema schema, Registries targetRegistries ) throws NamingException
+    private void loadDitContentRules( Schema schema, Registries targetRegistries )
     {
         // TODO Auto-generated method stub
     }

@@ -146,10 +146,11 @@ public class TriggerSpecCache
     }
 
 
-    private boolean hasPrescriptiveTrigger( Attributes entry ) throws NamingException
+    private boolean hasPrescriptiveTrigger( Attributes entry )
     {
         // only do something if the entry contains prescriptiveTrigger
-        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );        
+        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );       
+        
         if ( triggerSpec == null )
         {
             return false;
@@ -191,7 +192,7 @@ public class TriggerSpecCache
     }
 
 
-    public void subentryDeleted( LdapDN normName, Attributes entry ) throws NamingException
+    public void subentryDeleted( LdapDN normName, Attributes entry )
     {
         if ( !hasPrescriptiveTrigger( entry ) )
         {

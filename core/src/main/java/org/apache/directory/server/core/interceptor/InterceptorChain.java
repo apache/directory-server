@@ -248,7 +248,7 @@ public class InterceptorChain
         {
             while ( i.hasNext() )
             {
-                InterceptorConfiguration cfg = ( InterceptorConfiguration ) i.next();
+                InterceptorConfiguration cfg = i.next();
 
                 if ( IS_DEBUG )
                 {

@@ -36,7 +36,7 @@ public class LdapJavaStoredProcClassLoader extends ClassLoader
     private Attribute javaByteCodeAttr;
 
 
-    public LdapJavaStoredProcClassLoader( Attribute javaByteCodeAttr ) throws NamingException
+    public LdapJavaStoredProcClassLoader( Attribute javaByteCodeAttr )
     {
         // Critical call to super class constructor. Required for true plumbing of class loaders.
         super( LdapJavaStoredProcClassLoader.class.getClassLoader() );

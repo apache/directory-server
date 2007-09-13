@@ -56,7 +56,7 @@ public class SubtreeEvaluator
      * @param attrRegistry registry to be looked up
      * @throws NamingException 
      */
-    public SubtreeEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry) throws NamingException
+    public SubtreeEvaluator(OidRegistry oidRegistry, AttributeTypeRegistry attrRegistry)
     {
         evaluator = new ExpressionEvaluator(oidRegistry, attrRegistry );
     }

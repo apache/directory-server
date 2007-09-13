@@ -91,7 +91,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     {
         //TM long t0 = System.nanoTime();
         Configuration cfg = Configuration.toConfiguration( env );
-        env = ( Hashtable ) env.clone();
+        env = ( Hashtable<String, Object> ) env.clone();
         
         LdapDN principalDn = null;
         if ( env.containsKey( Context.SECURITY_PRINCIPAL ) )
@@ -158,7 +158,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     }
 
 
-    public static String getProviderUrl( Hashtable env )
+    public static String getProviderUrl( Hashtable<String, Object> env )
     {
         String providerUrl;
         Object value;
@@ -175,7 +175,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     }
 
 
-    public static String getAuthentication( Hashtable env )
+    public static String getAuthentication( Hashtable<String, Object> env )
     {
         String authentication;
         Object value = env.get( Context.SECURITY_AUTHENTICATION );
@@ -194,7 +194,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     }
 
 
-    public static byte[] getCredential( Hashtable env ) throws ConfigurationException
+    public static byte[] getCredential( Hashtable<String, Object> env ) throws ConfigurationException
     {
         byte[] credential;
         Object value = env.get( Context.SECURITY_CREDENTIALS );
