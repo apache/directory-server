@@ -59,7 +59,7 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any system indices fail
      * @see org.apache.directory.server.core.partition.impl.btree.Enumerator#enumerate(ExprNode)
      */
-    public NamingEnumeration enumerate( ExprNode node ) throws NamingException
+    public NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException
     {
         final ScopeNode snode = ( ScopeNode ) node;
         final Long id = db.getEntryId( snode.getBaseDn() );
@@ -70,11 +70,14 @@ public class ScopeEnumerator implements Enumerator
                 final IndexRecord record = new IndexRecord();
                 record.setEntryId( id );
                 record.setIndexKey( snode.getBaseDn() );
-                return new SingletonEnumeration( record );
+                return new SingletonEnumeration<IndexRecord>( record );
+                
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 return enumerateChildren( snode.getBaseDn(), snode.getDerefAliases().isDerefInSearching() );
+            
             case ( SearchControls.SUBTREE_SCOPE  ):
                 return enumerateDescendants( snode );
+            
             default:
                 throw new NamingException( "Unrecognized search scope!" );
         }
@@ -92,11 +95,11 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration enumerateChildren( String dn, boolean deref ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumerateChildren( String dn, boolean deref ) throws NamingException
     {
         Index idx = db.getHierarchyIndex();
         final Long id = db.getEntryId( dn );
-        final NamingEnumeration children = idx.listIndices( id );
+        final NamingEnumeration<IndexRecord> children = idx.listIndices( id );
 
         /*
          * If alias dereferencing is not enabled while searching then we just
@@ -142,7 +145,7 @@ public class ScopeEnumerator implements Enumerator
      * @throws NamingException if any failures occur while accessing system
      * indices.
      */
-    private NamingEnumeration enumerateDescendants( final ScopeNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumerateDescendants( final ScopeNode node ) throws NamingException
     {
         Index idx = null;
 
@@ -154,7 +157,7 @@ public class ScopeEnumerator implements Enumerator
         {
             // Gets a NamingEnumeration over all elements
             idx = db.getNdnIndex();
-            NamingEnumeration underlying = idx.listIndices();
+            NamingEnumeration<IndexRecord> underlying = idx.listIndices();
             return new IndexAssertionEnumeration( underlying, new AssertDescendant( node ) );
         }
 
@@ -169,7 +172,7 @@ public class ScopeEnumerator implements Enumerator
 
         // Gets a NamingEnumeration over all elements
         idx = db.getNdnIndex();
-        NamingEnumeration underlying = idx.listIndices();
+        NamingEnumeration<IndexRecord> underlying = idx.listIndices();
         return new IndexAssertionEnumeration( underlying, assertion );
     }
 

@@ -59,9 +59,8 @@ public class AttributesSerializerTest extends TestCase
         
         attrs.put( attr0 );
         attrs.put( attr1 );
-        AttributesSerializerUtils serializer = new AttributesSerializerUtils();
-        byte[] buf = serializer.serialize( attrs );
-        AttributesImpl deserialized = ( AttributesImpl ) serializer.deserialize( buf );
+        byte[] buf = AttributesSerializerUtils.serialize( attrs );
+        AttributesImpl deserialized = ( AttributesImpl ) AttributesSerializerUtils.deserialize( buf );
 
         AttributeImpl attrDeserialized0 = ( AttributeImpl ) deserialized.get( "attr0" );
         assertEquals( "value0", attrDeserialized0.get() );

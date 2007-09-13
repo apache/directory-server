@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.naming.NamingEnumeration;
@@ -115,7 +116,7 @@ public class PartitionFrame extends JFrame
     // Non Swing Stuff
     private BTreePartition partition = null;
     private boolean doCleanUp = false;
-    private HashMap nodes = new HashMap();
+    private Map<Long, EntryNode> nodes = null;
     private EntryNode root = null;
     private SearchEngine eng = null;
 
@@ -646,7 +647,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        Hashtable env = new Hashtable();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
 
         env.put( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.DEREF_ALWAYS );
 
@@ -707,9 +708,9 @@ public class PartitionFrame extends JFrame
 
     public void selectTreeNode( Long id )
     {
-        Stack stack = new Stack();
+        Stack<TreeNode> stack = new Stack<TreeNode>();
         Object[] comps = null;
-        TreeNode parent = ( EntryNode ) nodes.get( id );
+        TreeNode parent = nodes.get( id );
 
         while ( parent != null && ( parent != parent.getParent() ) )
         {
@@ -868,7 +869,7 @@ public class PartitionFrame extends JFrame
     private void load() throws NamingException
     {
         // boolean doFiltered = false;
-        nodes = new HashMap();
+        nodes = new HashMap<Long, EntryNode>();
 
         Attributes suffix = partition.getSuffixEntry();
         Long id = partition.getEntryId( partition.getSuffix().toString() );

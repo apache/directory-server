@@ -23,8 +23,9 @@ package org.apache.directory.server.core.partition.impl.btree.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -49,23 +50,23 @@ public class EntryNode implements TreeNode
     private final BTreePartition partition;
     private final EntryNode parent;
     private final Attributes entry;
-    private final ArrayList children;
+    private final ArrayList<TreeNode> children;
     private final Long id;
 
 
-    public EntryNode(Long id, EntryNode parent, BTreePartition partition, Attributes entry, HashMap map)
+    public EntryNode(Long id, EntryNode parent, BTreePartition partition, Attributes entry, Map<Long, EntryNode> map)
     {
         this( id, parent, partition, entry, map, null, null );
     }
 
 
-    public EntryNode(Long id, EntryNode parent, BTreePartition db, Attributes entry, HashMap map,
-        ExprNode exprNode, SearchEngine engine)
+    public EntryNode( Long id, EntryNode parent, BTreePartition db, Attributes entry, Map<Long, EntryNode> map,
+        ExprNode exprNode, SearchEngine engine )
     {
         this.partition = db;
         this.id = id;
         this.entry = entry;
-        this.children = new ArrayList();
+        children = new ArrayList<TreeNode>();
 
         if ( parent == null )
         {
@@ -78,8 +79,9 @@ public class EntryNode implements TreeNode
 
         try
         {
-            ArrayList records = new ArrayList();
+            List<IndexRecord> records = new ArrayList<IndexRecord>();
             NamingEnumeration childList = db.list( id );
+            
             while ( childList.hasMore() )
             {
                 IndexRecord old = ( IndexRecord ) childList.next();
@@ -87,6 +89,7 @@ public class EntryNode implements TreeNode
                 newRec.copy( old );
                 records.add( newRec );
             }
+            
             childList.close();
 
             Iterator list = records.iterator();

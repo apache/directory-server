@@ -24,7 +24,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,7 @@ public class TupleCache
     private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
 
     /** cloned startup environment properties we use for subentry searching */
-    private final Hashtable<?,?> env;
+    private final Map<?, ?> env;
     
     /** a map of strings to ACITuple collections */
     private final Map<String,List<ACITuple>> tuples = new HashMap<String,List<ACITuple>>();
@@ -111,7 +110,7 @@ public class TupleCache
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
-        env = ( Hashtable<?,?> ) factoryCfg.getEnvironment().clone();
+        env = ( Map<?, ?> ) factoryCfg.getEnvironment().clone();
         prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
         initialize();
     }

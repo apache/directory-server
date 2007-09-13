@@ -80,9 +80,9 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the 
      * @throws NamingException if database access fails
      */
-    public NamingEnumeration enumerate( ExprNode node ) throws NamingException
+    public NamingEnumeration<IndexRecord> enumerate( ExprNode node ) throws NamingException
     {
-        NamingEnumeration list = null;
+    	NamingEnumeration<IndexRecord> list = null;
 
         if ( node instanceof ScopeNode )
         {
@@ -162,7 +162,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node the disjunction expression branch node
      */
-    private NamingEnumeration enumDisj( BranchNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumDisj( BranchNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
         NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
@@ -182,10 +182,10 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node a negation expression branch node
      */
-    private NamingEnumeration enumNeg( final BranchNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumNeg( final BranchNode node ) throws NamingException
     {
-        NamingEnumeration baseEnumeration = null;
-        NamingEnumeration enumeration = null;
+    	NamingEnumeration<IndexRecord> baseEnumeration = null;
+    	NamingEnumeration<IndexRecord> enumeration = null;
         
         baseEnumeration = db.getNdnIndex().listIndices();
 
@@ -210,7 +210,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node a conjunction expression branch node
      */
-    private NamingEnumeration enumConj( final BranchNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumConj( final BranchNode node ) throws NamingException
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -223,6 +223,7 @@ public class ExpressionEnumerator implements Enumerator
          * expression.
          */
         final List<ExprNode> children = node.getChildren();
+        
         for ( int ii = 0; ii < children.size(); ii++ )
         {
             ExprNode child = children.get( ii );
@@ -261,7 +262,7 @@ public class ExpressionEnumerator implements Enumerator
         };
 
         // Do recursive call to build child enumeration then wrap and return
-        NamingEnumeration underlying = enumerate( minChild );
+        NamingEnumeration<IndexRecord> underlying = enumerate( minChild );
         IndexAssertionEnumeration iae;
         iae = new IndexAssertionEnumeration( underlying, assertion );
         return iae;
@@ -276,7 +277,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumPresence( final PresenceNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumPresence( final PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -297,7 +298,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumGreater( final SimpleNode node, final boolean isGreater ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumGreater( final SimpleNode node, final boolean isGreater ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -325,7 +326,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration enumEquality( final SimpleNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumEquality( final SimpleNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -345,9 +346,10 @@ public class ExpressionEnumerator implements Enumerator
      * @return the enumeration over all perspective candidates satisfying expr
      * @throws NamingException if db access failures result
      */
-    private NamingEnumeration nonIndexedScan( final LeafNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> nonIndexedScan( final LeafNode node ) throws NamingException
     {
-        NamingEnumeration underlying = db.getNdnIndex().listIndices();
+    	NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+    	
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( IndexRecord record ) throws NamingException

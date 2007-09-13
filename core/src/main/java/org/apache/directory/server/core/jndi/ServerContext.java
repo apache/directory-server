@@ -41,6 +41,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
 import javax.naming.event.NamingListener;
 import javax.naming.ldap.Control;
@@ -109,7 +110,7 @@ public abstract class ServerContext implements EventContext
     private final LdapDN dn;
 
     /** The set of registered NamingListeners */
-    private final Set listeners = new HashSet();
+    private final Set<NamingListener> listeners = new HashSet<NamingListener>();
 
     /** The Principal associated with this context */
     private LdapPrincipal principal;
@@ -142,6 +143,7 @@ public abstract class ServerContext implements EventContext
      * @throws NamingException if the environment parameters are not set 
      * correctly.
      */
+    @SuppressWarnings(value={"unchecked"})
     protected ServerContext(DirectoryService service, Hashtable<String, Object> env) throws NamingException
     {
         this.service = service;
@@ -174,12 +176,13 @@ public abstract class ServerContext implements EventContext
      * @param principal the directory user principal that is propagated
      * @param dn the distinguished name of this context
      */
+    @SuppressWarnings(value={"unchecked"})
     protected ServerContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
     {
         this.service = service;
         this.dn = ( LdapDN ) dn.clone();
 
-        this.env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
+        this.env = ( Hashtable<String, Object> ) service.getConfiguration().getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.nexusProxy = new PartitionNexusProxy( this, service );
 
@@ -237,7 +240,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected NamingEnumeration doSearchOperation( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls ) 
+    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls ) 
         throws NamingException
     {
         // setup the op context and populate with request controls
@@ -245,7 +248,7 @@ public abstract class ServerContext implements EventContext
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
-        NamingEnumeration results = nexusProxy.search( opCtx );
+        NamingEnumeration<SearchResult> results = nexusProxy.search( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -982,6 +985,7 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#list(java.lang.String)
      */
+    @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration list( String name ) throws NamingException
     {
         return list( new LdapDN( name ) );
@@ -991,6 +995,7 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#list(javax.naming.Name)
      */
+    @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration list( Name name ) throws NamingException
     {
         return doListOperation( buildTarget( name ) );
@@ -1000,6 +1005,7 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#listBindings(java.lang.String)
      */
+    @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration listBindings( String name ) throws NamingException
     {
         return listBindings( new LdapDN( name ) );
@@ -1009,6 +1015,7 @@ public abstract class ServerContext implements EventContext
     /**
      * @see javax.naming.Context#listBindings(javax.naming.Name)
      */
+    @SuppressWarnings(value={"unchecked"})
     public NamingEnumeration listBindings( Name name ) throws NamingException
     {
         // Conduct a special one level search at base for all objects
@@ -1120,7 +1127,7 @@ public abstract class ServerContext implements EventContext
      *
      * @return the set of listeners used for tracking registered name listeners.
      */
-    protected Set getListeners()
+    protected Set<NamingListener> getListeners()
     {
         return listeners;
     }

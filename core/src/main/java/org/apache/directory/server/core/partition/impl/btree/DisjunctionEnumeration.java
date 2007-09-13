@@ -37,12 +37,12 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DisjunctionEnumeration implements NamingEnumeration
+public class DisjunctionEnumeration implements NamingEnumeration<IndexRecord>
 {
     /** The underlying child enumerations */
     private final NamingEnumeration[] children;
     /** LUT used to avoid returning duplicates */
-    private final Map candidates = new HashMap();
+    private final Map<Object, Object> candidates = new HashMap<Object, Object>();
     /** Index of current cursor used */
     private int index = 0;
     /** Candidate to return */
@@ -65,7 +65,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
      * @param children array of child NamingInstances
      * @throws NamingException if something goes wrong
      */
-    public DisjunctionEnumeration(NamingEnumeration[] children) throws NamingException
+    public DisjunctionEnumeration( NamingEnumeration[] children ) throws NamingException
     {
         this.children = children;
 
@@ -104,7 +104,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
     /**
      * @see java.util.Enumeration#nextElement()
      */
-    public Object nextElement()
+    public IndexRecord nextElement()
     {
         try
         {
@@ -139,7 +139,7 @@ public class DisjunctionEnumeration implements NamingEnumeration
      * @return a candidate element
      * @throws NamingException if an error occurs
      */
-    public Object next() throws NamingException
+    public IndexRecord next() throws NamingException
     {
         // Store the last prefetched candidate to return in candidate
         candidate.copy( prefetched );

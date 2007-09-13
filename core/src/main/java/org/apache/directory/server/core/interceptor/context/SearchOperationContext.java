@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class SearchOperationContext extends AbstractOperationContext
 {
     /** The search environment type */
-    private Map env;
+    private Map<?, ?> env;
     
     /** The filter */
     private ExprNode filter;
@@ -59,7 +59,7 @@ public class SearchOperationContext extends AbstractOperationContext
      * Creates a new instance of SearchOperationContext.
      *
      */
-    public SearchOperationContext( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls )
+    public SearchOperationContext( LdapDN dn, Map<?, ?> env, ExprNode filter, SearchControls searchControls )
     {
         super( dn );
         this.env = env;
@@ -67,12 +67,12 @@ public class SearchOperationContext extends AbstractOperationContext
         this.searchControls = searchControls;
     }
 
-    public Map getEnv()
+    public Map<?, ?> getEnv()
     {
         return env;
     }
 
-    public void setEnv( Map env )
+    public void setEnv( Map<String, Object> env )
     {
         this.env = env;
     }

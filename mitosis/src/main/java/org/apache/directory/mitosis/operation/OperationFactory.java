@@ -80,7 +80,7 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 public class OperationFactory
 {
     private final ReplicaId replicaId;
-    private final Map environment;
+    private final Map<String, Object> environment;
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;

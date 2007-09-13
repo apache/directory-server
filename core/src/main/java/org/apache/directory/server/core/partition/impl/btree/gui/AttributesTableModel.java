@@ -148,7 +148,7 @@ public class AttributesTableModel extends AbstractTableModel
     /**
      * @see AbstractTableModel#getColumnClass(int)
      */
-    public Class getColumnClass( int c )
+    public Class<String> getColumnClass( int c )
     {
         return String.class;
     }

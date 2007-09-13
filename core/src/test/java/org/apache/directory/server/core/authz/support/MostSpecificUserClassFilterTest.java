@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.naming.Name;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -34,7 +36,10 @@ import org.apache.directory.server.core.authz.support.MostSpecificUserClassFilte
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
 
 /**
@@ -45,8 +50,12 @@ import org.apache.directory.shared.ldap.aci.UserClass;
  */
 public class MostSpecificUserClassFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+    private static final Set<Name> EMPTY_NAME_SET = Collections.unmodifiableSet( new HashSet<Name>() );
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<SubtreeSpecification> EMPTY_SUBTREE_SPECIFICATION_COLLECTION = Collections.unmodifiableCollection( new ArrayList<SubtreeSpecification>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
 
     private static final List<ACITuple> TUPLES_A = new ArrayList<ACITuple>();
     private static final List<ACITuple> TUPLES_B = new ArrayList<ACITuple>();
@@ -56,25 +65,23 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
     static
     {
-        Collection name = new ArrayList();
-        Collection thisEntry = new ArrayList();
-        Collection userGroup = new ArrayList();
-        Collection subtree = new ArrayList();
-        Collection allUsers = new ArrayList();
+        Collection<UserClass> name = new ArrayList<UserClass>();
+        Collection<UserClass> thisEntry = new ArrayList<UserClass>();
+        Collection<UserClass> userGroup = new ArrayList<UserClass>();
+        Collection<UserClass> subtree = new ArrayList<UserClass>();
+        Collection<UserClass> allUsers = new ArrayList<UserClass>();
 
-        name.add( new UserClass.Name( EMPTY_SET ) );
+        name.add( new UserClass.Name( EMPTY_NAME_SET ) );
         thisEntry.add( UserClass.THIS_ENTRY );
-        userGroup.add( new UserClass.UserGroup( EMPTY_SET ) );
-        subtree.add( new UserClass.Subtree( EMPTY_COLLECTION ) );
+        userGroup.add( new UserClass.UserGroup( EMPTY_NAME_SET ) );
+        subtree.add( new UserClass.Subtree( EMPTY_SUBTREE_SPECIFICATION_COLLECTION ) );
         allUsers.add( UserClass.ALL_USERS );
 
-        ACITuple nameTuple = new ACITuple( name, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 );
-        ACITuple thisEntryTuple = new ACITuple( thisEntry, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
-            0 );
-        ACITuple userGroupTuple = new ACITuple( userGroup, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true,
-            0 );
-        ACITuple subtreeTuple = new ACITuple( subtree, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 );
-        ACITuple allUsersTuple = new ACITuple( allUsers, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 );
+        ACITuple nameTuple = new ACITuple( name, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple thisEntryTuple = new ACITuple( thisEntry, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple userGroupTuple = new ACITuple( userGroup, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple subtreeTuple = new ACITuple( subtree, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
+        ACITuple allUsersTuple = new ACITuple( allUsers, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 );
 
         TUPLES_A.add( nameTuple );
         TUPLES_A.add( thisEntryTuple );
@@ -103,11 +110,11 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null ).size() );
 
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, false, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, null, null, null, null ).size() );
@@ -171,8 +178,8 @@ public class MostSpecificUserClassFilterTest extends TestCase
     {
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
-        List tuples = new ArrayList( TUPLES_E );
-        tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
+        List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_E );
+        tuples = (List<ACITuple>)filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
             null, null );
 
         Assert.assertEquals( 2, tuples.size() );

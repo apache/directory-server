@@ -22,7 +22,6 @@ package org.apache.directory.server.core.authz;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class GroupCache
     private final PartitionNexus nexus;
     
     /** the env to use for searching */
-    private final Hashtable<?,?> env;
+    private final Map<?, ?> env;
 
     /** Stores a reference to the AttributeType registry */ 
     private AttributeTypeRegistry attributeTypeRegistry;
@@ -105,7 +104,7 @@ public class GroupCache
     {
     	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         nexus = factoryCfg.getPartitionNexus();
-        env = ( Hashtable<?,?> ) factoryCfg.getEnvironment().clone();
+        env = ( Map<?, ?> ) factoryCfg.getEnvironment().clone();
         attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         
         memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID ); 

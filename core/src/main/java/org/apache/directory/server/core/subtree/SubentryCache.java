@@ -35,24 +35,24 @@ import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
  */
 public class SubentryCache
 {
-    private final Map name2subentry = new HashMap();
+    private final Map<String, Subentry> name2subentry = new HashMap<String, Subentry>();
     
     
     final Subentry getSubentry( String normalizedName )
     {
-        return ( Subentry ) name2subentry.get( normalizedName );
+        return name2subentry.get( normalizedName );
     }
     
     
     final Subentry removeSubentry( String normalizedName )
     {
-        return ( Subentry ) name2subentry.remove( normalizedName );
+        return  name2subentry.remove( normalizedName );
     }
     
     
     final Subentry setSubentry( String normalizedName, SubtreeSpecification ss, int types )
     {
-        Subentry old = ( Subentry ) name2subentry.get( normalizedName );
+        Subentry old = name2subentry.get( normalizedName );
         Subentry subentry = new Subentry();
         subentry.setSubtreeSpecification( ss );
         subentry.setTypes( types );
@@ -67,7 +67,7 @@ public class SubentryCache
     }
     
     
-    final Iterator nameIterator()
+    final Iterator<String> nameIterator()
     {
         return name2subentry.keySet().iterator();
     }

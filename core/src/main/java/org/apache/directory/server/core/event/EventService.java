@@ -194,7 +194,7 @@ public class EventService extends BaseInterceptor
         }
         else if ( obj instanceof List )
         {
-            List<Object> list = ( List ) obj;
+            List<Object> list = (List<Object>)obj;
             list.add( rec );
         }
     }

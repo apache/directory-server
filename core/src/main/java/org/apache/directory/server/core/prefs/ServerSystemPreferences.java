@@ -36,6 +36,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
@@ -71,10 +72,10 @@ public class ServerSystemPreferences extends AbstractPreferences
     private LdapContext ctx;
 
     /** the changes (ModificationItems) representing cached alterations to preferences */
-    private ArrayList changes = new ArrayList( 3 );
+    private ArrayList<ModificationItem> changes = new ArrayList<ModificationItem>( 3 );
 
     /** maps changes based on key: key->list of mods (on same key) */
-    private HashMap keyToChange = new HashMap( 3 );
+    private HashMap<String, List<ModificationItem>> keyToChange = new HashMap<String, List<ModificationItem>>( 3 );
 
 
     /**
@@ -89,7 +90,7 @@ public class ServerSystemPreferences extends AbstractPreferences
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
         cfg.setAllowAnonymousAccess( true );
 
-        Hashtable env = new Hashtable( cfg.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>( cfg.toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 
@@ -111,7 +112,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             throw new ServerSystemPreferenceException( "Cannot close child preferences." );
         }
 
-        Hashtable env = new Hashtable( new ShutdownConfiguration().toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>( new ShutdownConfiguration().toJndiEnvironment() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 
@@ -284,12 +285,13 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected String[] childrenNamesSpi() throws BackingStoreException
     {
-        ArrayList children = new ArrayList();
+        List<String> children = new ArrayList<String>();
         NamingEnumeration list = null;
 
         try
         {
             list = ctx.list( "" );
+            
             while ( list.hasMore() )
             {
                 NameClassPair ncp = ( NameClassPair ) list.next();
@@ -309,19 +311,22 @@ public class ServerSystemPreferences extends AbstractPreferences
     protected String[] keysSpi() throws BackingStoreException
     {
         Attributes attrs = null;
-        ArrayList keys = new ArrayList();
+        List<String> keys = new ArrayList<String>();
 
         try
         {
             attrs = ctx.getAttributes( "" );
             NamingEnumeration ids = attrs.getIDs();
+            
             while ( ids.hasMore() )
             {
                 String id = ( String ) ids.next();
+                
                 if ( id.equals( SchemaConstants.OBJECT_CLASS_AT ) || id.equals( "prefNodeName" ) )
                 {
                     continue;
                 }
+                
                 keys.add( id );
             }
         }
@@ -345,15 +350,16 @@ public class ServerSystemPreferences extends AbstractPreferences
     private void addDelta( ModificationItemImpl mi )
     {
         String key = mi.getAttribute().getID();
-        List deltas = null;
+        List<ModificationItem> deltas = null;
         changes.add( mi );
+        
         if ( keyToChange.containsKey( key ) )
         {
-            deltas = ( List ) keyToChange.get( key );
+            deltas = ( List<ModificationItem> ) keyToChange.get( key );
         }
         else
         {
-            deltas = new ArrayList();
+            deltas = new ArrayList<ModificationItem>();
         }
 
         deltas.add( mi );

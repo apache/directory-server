@@ -184,6 +184,7 @@ public class SchemaService extends BaseInterceptor
      * 
      * @throws NamingException
      */
+    @SuppressWarnings(value={"unchecked"})
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
         if ( IS_DEBUG )

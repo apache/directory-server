@@ -73,7 +73,7 @@ public class SubstringEnumerator implements Enumerator
      * @see Enumerator#enumerate(
      * org.apache.directory.shared.ldap.filter.ExprNode)
      */
-    public NamingEnumeration enumerate( final ExprNode node ) throws NamingException
+    public NamingEnumeration<IndexRecord> enumerate( final ExprNode node ) throws NamingException
     {
         Pattern regex = null;
         Index idx = null;
@@ -123,7 +123,8 @@ public class SubstringEnumerator implements Enumerator
          * underlying enumeration.  An evaluator in an assertion is used to 
          * constrain the result set.
          */
-        NamingEnumeration underlying = db.getNdnIndex().listIndices();
+        NamingEnumeration<IndexRecord> underlying = db.getNdnIndex().listIndices();
+        
         IndexAssertion assertion = new IndexAssertion()
         {
             public boolean assertCandidate( final IndexRecord record ) throws NamingException

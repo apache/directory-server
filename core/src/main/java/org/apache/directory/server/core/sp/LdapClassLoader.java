@@ -106,7 +106,7 @@ public class LdapClassLoader extends ClassLoader
         return classBytes;
     }
     
-    public Class findClass( String name ) throws ClassNotFoundException
+    public Class<?> findClass( String name ) throws ClassNotFoundException
     {
         byte[] classBytes = null;
 

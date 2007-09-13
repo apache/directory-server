@@ -58,7 +58,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * @param env the JNDI environment parameters
      * @throws NamingException the context cannot be created
      */
-    public ServerLdapContext( DirectoryService service, Hashtable env ) throws NamingException
+    public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         super( service, env );
         refService = (( ReferralService )service.getConfiguration()

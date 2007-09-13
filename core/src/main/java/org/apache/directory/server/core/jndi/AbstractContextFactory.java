@@ -87,10 +87,12 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
     }
 
 
+    @SuppressWarnings(value={"unchecked"})
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         //TM long t0 = System.nanoTime();
         Configuration cfg = Configuration.toConfiguration( env );
+        
         env = ( Hashtable<String, Object> ) env.clone();
         
         LdapDN principalDn = null;
