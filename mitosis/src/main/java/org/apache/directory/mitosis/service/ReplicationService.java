@@ -408,7 +408,7 @@ public class ReplicationService extends BaseInterceptor
     @Override
     public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
     {
-        MoveOperationContext moveOpContext = (MoveOperationContext) opContext;
+        MoveOperationContext moveOpContext = opContext;
         Operation op = operationFactory.newMove( moveOpContext.getDn(), moveOpContext.getParent() );
         op.execute( nexus, store, attrRegistry );
     }
@@ -417,7 +417,7 @@ public class ReplicationService extends BaseInterceptor
     @Override
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
     {
-        MoveAndRenameOperationContext moveAndRenameOpContext = (MoveAndRenameOperationContext) opContext;
+        MoveAndRenameOperationContext moveAndRenameOpContext = opContext;
         Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(), moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(), moveAndRenameOpContext.getDelOldDn() );
         op.execute( nexus, store, attrRegistry );
     }

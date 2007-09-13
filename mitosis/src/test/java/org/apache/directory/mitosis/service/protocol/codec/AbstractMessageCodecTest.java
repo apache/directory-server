@@ -73,7 +73,7 @@ public abstract class AbstractMessageCodecTest extends TestCase
 
         };
         encoder.encode( null, message, encoderOut );
-        ByteBuffer buf = ( ByteBuffer ) encoderOut.getBufferQueue().poll();
+        ByteBuffer buf = encoderOut.getBufferQueue().poll();
 
         buf.mark();
         Assert.assertTrue( decoder.decodable( null, buf ) == MessageDecoder.OK );

@@ -57,6 +57,7 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.util.SessionLog;
@@ -363,7 +364,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
             SessionLog.info( ctx.getSession(), "Sending entries under '" + contextName + '\'' );
 
-            Map mapping = ctx.getServiceConfiguration().getRegistries().getAttributeTypeRegistry()
+            Map<String, OidNormalizer> mapping = ctx.getServiceConfiguration().getRegistries().getAttributeTypeRegistry()
                 .getNormalizerMapping();
             contextName.normalize( mapping );
             sendAllEntries( ctx, contextName );
