@@ -170,7 +170,7 @@ public class LdifFileLoader
 
             while ( ldifIterator.hasNext() )
             {
-                Entry entry = ( Entry ) ldifIterator.next();
+                Entry entry = ldifIterator.next();
 
                 String dn = entry.getDn();
 
