@@ -75,7 +75,7 @@ public class DecoderStack extends AbstractStatefulDecoder
 
         if ( !decoders.isEmpty() )
         {
-            StatefulDecoder top = ( StatefulDecoder ) decoders.peek();
+            StatefulDecoder top = decoders.peek();
             ChainingCallback chaining = new ChainingCallback( top, decoder );
             top.setCallback( chaining );
         }
@@ -98,12 +98,12 @@ public class DecoderStack extends AbstractStatefulDecoder
             return this;
         }
 
-        StatefulDecoder popped = ( StatefulDecoder ) decoders.pop();
+        StatefulDecoder popped = decoders.pop();
         popped.setCallback( null );
 
         if ( !decoders.isEmpty() )
         {
-            StatefulDecoder top = ( StatefulDecoder ) decoders.peek();
+            StatefulDecoder top = decoders.peek();
             top.setCallback( this.topcb );
         }
 
@@ -128,7 +128,7 @@ public class DecoderStack extends AbstractStatefulDecoder
             return;
         }
 
-        ( ( StatefulDecoder ) decoders.get( 0 ) ).decode( encoded );
+        decoders.get( 0 ).decode( encoded );
     }
 
 
