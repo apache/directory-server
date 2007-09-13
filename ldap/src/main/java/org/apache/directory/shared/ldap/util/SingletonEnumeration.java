@@ -34,21 +34,21 @@ import java.util.NoSuchElementException;
 public class SingletonEnumeration<T> implements NamingEnumeration<T>
 {
     /** The singleton element to return */
-    private final T m_element;
+    private final T element;
 
     /** Can we return a element */
-    private boolean m_hasMore = true;
+    private boolean hasMore = true;
 
 
     /**
      * Creates a NamingEnumeration over a single element.
      * 
-     * @param a_element
+     * @param element
      *            TODO
      */
-    public SingletonEnumeration(final T a_element)
+    public SingletonEnumeration(final T element)
     {
-        m_element = a_element;
+        this.element = element;
     }
 
 
@@ -59,7 +59,7 @@ public class SingletonEnumeration<T> implements NamingEnumeration<T>
      */
     public void close()
     {
-        m_hasMore = false;
+        hasMore = false;
     }
 
 
@@ -68,7 +68,7 @@ public class SingletonEnumeration<T> implements NamingEnumeration<T>
      */
     public boolean hasMore()
     {
-        return m_hasMore;
+        return hasMore;
     }
 
 
@@ -77,10 +77,10 @@ public class SingletonEnumeration<T> implements NamingEnumeration<T>
      */
     public T next()
     {
-        if ( m_hasMore )
+        if ( hasMore )
         {
-            m_hasMore = false;
-            return m_element;
+            hasMore = false;
+            return element;
         }
 
         throw new NoSuchElementException();
@@ -92,7 +92,7 @@ public class SingletonEnumeration<T> implements NamingEnumeration<T>
      */
     public boolean hasMoreElements()
     {
-        return m_hasMore;
+        return hasMore;
     }
 
 
