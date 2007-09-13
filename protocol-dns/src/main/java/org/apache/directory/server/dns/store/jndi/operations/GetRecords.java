@@ -206,7 +206,7 @@ public class GetRecords implements DnsOperation
 
         while ( ids.hasMore() )
         {
-            String id = ( String ) ids.next();
+            String id = ids.next();
             modifier.put( id, ( String ) attrs.get( id ).get() );
         }
 

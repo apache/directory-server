@@ -92,7 +92,7 @@ public class MultiBaseSearch implements SearchStrategy
         try
         {
             DirContext ctx = ( DirContext ) factory.getInitialContext( env );
-            return ( Set<ResourceRecord> ) execute( ctx, new GetRecords( question ) );
+            return execute( ctx, new GetRecords( question ) );
         }
         catch ( LdapNameNotFoundException lnnfe )
         {

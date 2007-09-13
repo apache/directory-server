@@ -143,7 +143,7 @@ public class DnsMessageDecoder
 
     private Map<String, Object> decode( ByteBuffer byteBuffer, RecordType type, short length ) throws IOException
     {
-        RecordDecoder recordDecoder = ( RecordDecoder ) DEFAULT_DECODERS.get( type );
+        RecordDecoder recordDecoder = DEFAULT_DECODERS.get( type );
 
         if ( recordDecoder == null )
         {

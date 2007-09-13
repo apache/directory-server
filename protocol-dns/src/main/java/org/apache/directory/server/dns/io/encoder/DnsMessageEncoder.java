@@ -162,7 +162,7 @@ public class DnsMessageEncoder
     {
         RecordType type = record.getRecordType();
 
-        RecordEncoder encoder = ( RecordEncoder ) DEFAULT_ENCODERS.get( type );
+        RecordEncoder encoder = DEFAULT_ENCODERS.get( type );
 
         if ( encoder == null )
         {
