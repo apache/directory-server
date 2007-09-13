@@ -82,7 +82,6 @@ import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketSessionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -414,7 +413,8 @@ public class ServerContextFactory extends CoreContextFactory
         }
 
         // get an initial context to the rootDSE for creating the LDIF entries
-        Hashtable env = ( Hashtable ) service.getConfiguration().getEnvironment().clone();
+        @SuppressWarnings(value={"unchecked"})
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) service.getConfiguration().getEnvironment().clone();
         env.put( Context.PROVIDER_URL, "" );
         DirContext root = ( DirContext ) this.getInitialContext( env );
 
@@ -474,6 +474,7 @@ public class ServerContextFactory extends CoreContextFactory
         for ( int ii = 0; ii < ldifFiles.length; ii++ )
         {
             Attributes fileEntry = getLdifFileEntry( root, ldifFiles[ii] );
+            
             if ( fileEntry != null )
             {
                 String time = ( String ) fileEntry.get( SchemaConstants.CREATE_TIMESTAMP_AT ).get();
@@ -481,9 +482,11 @@ public class ServerContextFactory extends CoreContextFactory
                     + "' skipped.  It has already been loaded on " + time + "." );
                 continue;
             }
+            
             LdifFileLoader loader = new LdifFileLoader( root, ldifFiles[ii], cfg.getLdifFilters() );
             int count = loader.execute();
             log.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFiles[ii] ) + "'" );
+            
             if ( fileEntry == null )
             {
                 addFileEntry( root, ldifFiles[ii] );
@@ -560,7 +563,7 @@ public class ServerContextFactory extends CoreContextFactory
             acceptorCfg.setFilterChainBuilder( chainBuilder );
             acceptorCfg.setThreadModel( ThreadModel.MANUAL );
 
-            ( ( SocketSessionConfig ) ( acceptorCfg.getSessionConfig() ) ).setTcpNoDelay( true );
+            acceptorCfg.getSessionConfig().setTcpNoDelay( true );
 
             dsc.tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
             dsc.ldapStarted = true;
@@ -705,17 +708,17 @@ public class ServerContextFactory extends CoreContextFactory
         {
             // we should unbind the service before we begin sending the notice 
             // of disconnect so new connections are not formed while we process
-            List writeFutures = new ArrayList();
+            List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
 
             // If the socket has already been unbound as with a successful 
             // GracefulShutdownRequest then this will complain that the service
             // is not bound - this is ok because the GracefulShutdown has already
             // sent notices to to the existing active sessions
-            List sessions = null;
+            List<IoSession> sessions = null;
         
             try
             {
-                sessions = new ArrayList( dsc.tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
+                sessions = new ArrayList<IoSession>( dsc.tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
             }
             catch ( IllegalArgumentException e )
             {
@@ -734,21 +737,19 @@ public class ServerContextFactory extends CoreContextFactory
             // Send Notification of Disconnection messages to all connected clients.
             if ( sessions != null )
             {
-                for ( Iterator i = sessions.iterator(); i.hasNext(); )
+                for ( IoSession session:sessions )
                 {
-                    IoSession session = ( IoSession ) i.next();
                     writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
                 }
             }
 
             // And close the connections when the NoDs are sent.
-            Iterator sessionIt = sessions.iterator();
+            Iterator<IoSession> sessionIt = sessions.iterator();
             
-            for ( Iterator i = writeFutures.iterator(); i.hasNext(); )
+            for ( WriteFuture future:writeFutures )
             {
-                WriteFuture future = ( WriteFuture ) i.next();
                 future.join( 1000 );
-                ( ( IoSession ) sessionIt.next() ).close();
+                sessionIt.next().close();
             }
         }
         catch ( Exception e )

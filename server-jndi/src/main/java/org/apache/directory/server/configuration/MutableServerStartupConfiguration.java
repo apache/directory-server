@@ -25,11 +25,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
+import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ntp.NtpConfiguration;
+import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
+import org.apache.directory.shared.ldap.ldif.Entry;
 
 
 /**
@@ -112,7 +116,7 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setAuthenticatorConfigurations( Set arg0 )
+    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> arg0 )
     {
         super.setAuthenticatorConfigurations( arg0 );
     }
@@ -124,13 +128,13 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setInterceptorConfigurations( List arg0 )
+    public void setInterceptorConfigurations( List<InterceptorConfiguration> arg0 )
     {
         super.setInterceptorConfigurations( arg0 );
     }
 
 
-    public void setTestEntries( List arg0 )
+    public void setTestEntries( List<Entry> arg0 )
     {
         super.setTestEntries( arg0 );
     }
@@ -148,7 +152,7 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setLdifFilters( List ldifFilters )
+    public void setLdifFilters( List<LdifLoadFilter> ldifFilters )
     {
         super.setLdifFilters( ldifFilters );
     }

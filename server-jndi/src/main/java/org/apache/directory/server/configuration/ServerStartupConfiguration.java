@@ -50,7 +50,7 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private boolean enableNetworking = true;
 
     private File ldifDirectory = null;
-    private final List ldifFilters = new ArrayList();
+    private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
     private KdcConfiguration kdcConfiguration = new KdcConfiguration();
     private LdapConfiguration ldapConfiguration = new LdapConfiguration();
@@ -112,23 +112,14 @@ public class ServerStartupConfiguration extends StartupConfiguration
     }
 
 
-    public List getLdifFilters()
+    public List<LdifLoadFilter> getLdifFilters()
     {
-        return new ArrayList( ldifFilters );
+        return new ArrayList<LdifLoadFilter>( ldifFilters );
     }
 
 
-    protected void setLdifFilters( List filters )
+    protected void setLdifFilters( List<LdifLoadFilter> filters )
     {
-        for ( int ii = 0; ii < filters.size(); ii++ )
-        {
-            if ( !( filters.get( ii ) instanceof LdifLoadFilter ) )
-            {
-                throw new IllegalArgumentException(
-                    "The specified filter collection contains an element which is not an LdifLoadFilter." );
-            }
-        }
-
         this.ldifFilters.clear();
         this.ldifFilters.addAll( filters );
     }
