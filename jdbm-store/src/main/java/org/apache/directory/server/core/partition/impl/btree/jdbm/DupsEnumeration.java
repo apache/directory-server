@@ -202,7 +202,7 @@ public class DupsEnumeration implements NamingEnumeration
              */
             if ( underlying.hasMore() )
             {
-                duplicates = ( Tuple ) underlying.next();
+                duplicates = underlying.next();
                 
                 Object values = duplicates.getValue();
                 
