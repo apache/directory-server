@@ -20,7 +20,6 @@
 package org.apache.directory.server;
 
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -99,7 +98,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     }
     
 
-    public void testExecuteProcedureWithParametersAndReturnValue() throws NamingException, IOException
+    public void testExecuteProcedureWithParametersAndReturnValue() throws NamingException
     {
         String procedureName = HelloWorldProcedure.class.getName() + ":sayHelloTo";
         
