@@ -26,6 +26,7 @@ package org.apache.directory.shared.ldap.subtree;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -33,12 +34,12 @@ import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.AbstractExprNode;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -84,19 +85,19 @@ options
     
     private NormalizerMappingResolver resolver;
     
-    private Set chopBeforeExclusions = null;
-    private Set chopAfterExclusions = null;
+    private Set<LdapDN> chopBeforeExclusions = null;
+    private Set<LdapDN> chopAfterExclusions = null;
 
     private SubtreeSpecificationModifier ssModifier = null;
     
-    private Map oidsMap;
+    private Map<String, OidNormalizer> oidsMap;
     
     private ComponentsMonitor subtreeSpecificationComponentsMonitor = null;
 
     /**
      * Does nothing.
      */
-    public void init( Map oidsMap )
+    public void init( Map<String, OidNormalizer> oidsMap )
     {
     	this.oidsMap = oidsMap;
     }
@@ -160,8 +161,8 @@ subtreeSpecification returns [SubtreeSpecification ss]
     ssModifier = new SubtreeSpecificationModifier();
     subtreeSpecificationComponentsMonitor = new OptionalComponentsMonitor( 
             new String [] { "base", "specificExclusions", "minimum", "maximum", "specificationFilter" } );
-    chopBeforeExclusions = new HashSet();
-    chopAfterExclusions = new HashSet();
+    chopBeforeExclusions = new HashSet<LdapDN>();
+    chopAfterExclusions = new HashSet<LdapDN>();
     // always create a new filter parser in case we may have some statefulness problems with it
     filterParser = new FilterParserImpl();
 }
@@ -316,7 +317,7 @@ ss_specificationFilter
     ;
     
     
-filter returns [ ExprNode filterExpr = null; ]
+filter returns [ ExprNode filterExpr = null ]
 {
 	log.debug( "entered filter()" );
 }
@@ -338,10 +339,12 @@ distinguishedName returns [ LdapDN name ]
     token:SAFEUTF8STRING
     {
         name = new LdapDN( token.getText() );
+        
         if ( isNormalizing() )
         {
         	name.normalize( oidsMap );
         }
+        
         log.debug( "recognized a DistinguishedName: " + token.getText() );
     }
     ;
@@ -391,12 +394,12 @@ item returns [ LeafNode node ]
 {
     log.debug( "entered item()" );
     node = null;
-    String l_oid = null;
+    String oid = null;
 }
     :
-    ID_item ( SP )* COLON ( SP )* l_oid=oid
+    ID_item ( SP )* COLON ( SP )* oid=oid
     {
-        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , l_oid , AssertionEnum.EQUALITY );
+        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , oid , AssertionEnum.EQUALITY );
     }
     ;
 
@@ -404,7 +407,7 @@ and returns [ BranchNode node ]
 {
     log.debug( "entered and()" );
     node = null;
-    ArrayList children = null; 
+    List<ExprNode> children = null; 
 }
     :
     ID_and ( SP )* COLON ( SP )* children=refinements
@@ -417,7 +420,7 @@ or returns [ BranchNode node ]
 {
     log.debug( "entered or()" );
     node = null;
-    ArrayList children = null; 
+    List<ExprNode> children = null; 
 }
     :
     ID_or ( SP )* COLON ( SP )* children=refinements
@@ -430,7 +433,7 @@ not returns [ BranchNode node ]
 {
     log.debug( "entered not()" );
     node = null;
-    ArrayList children = null;
+    List<ExprNode> children = null;
 }
     :
     ID_not ( SP )* COLON ( SP )* children=refinements
@@ -439,12 +442,12 @@ not returns [ BranchNode node ]
     }
     ;
 
-refinements returns [ ArrayList children ]
+refinements returns [ List<ExprNode> children ]
 {
     log.debug( "entered refinements()" );
     children = null;
     ExprNode child = null;
-    ArrayList tempChildren = new ArrayList();
+    List<ExprNode> tempChildren = new ArrayList<ExprNode>();
 }
     :
     OPEN_CURLY ( SP )*

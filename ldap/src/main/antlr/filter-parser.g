@@ -25,8 +25,11 @@ header {
 package org.apache.directory.shared.ldap.filter;
 
 
-import antlr.*;
+import antlr.TokenStreamSelector;
+
+import java.util.List;
 import java.util.ArrayList;
+
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.directory.shared.ldap.filter.AssertionEnum;
 }
@@ -113,20 +116,6 @@ options
     {
         this.monitor = monitor;
     }
-
-
-    /**
-     * Monitors FilterParser events where it matches a production.
-     *
-     * @param production the name of the production matched
-     */
-    private void matchedProduction( String production )
-    {
-        if ( this.monitor != null )
-        {
-            this.monitor.matchedProduction( production );
-        }
-    }
 }
 
 // ----------------------------------------------------------------------------
@@ -171,7 +160,7 @@ and returns [BranchNode node]
 {
     node = null;
     ExprNode child;
-    ArrayList children = new ArrayList();
+    List<ExprNode> children = new ArrayList<ExprNode>();
 }
     :
     AMPERSTAND child=filter
@@ -196,7 +185,7 @@ or returns [BranchNode node]
 {
     node = null;
     ExprNode child;
-    ArrayList children = new ArrayList();
+    List<ExprNode> children = new ArrayList<ExprNode>();
 }
     :
     VERTBAR child=filter

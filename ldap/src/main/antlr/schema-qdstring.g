@@ -20,7 +20,8 @@ header {
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import java.util.* ;
+import java.util.ArrayList;
+import java.util.List;
 
 }
 

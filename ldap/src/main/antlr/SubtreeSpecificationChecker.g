@@ -23,13 +23,7 @@ header
 
 package org.apache.directory.shared.ldap.subtree;
 
-import java.util.Set;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.ArrayList;
-
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;

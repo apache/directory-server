@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
@@ -55,7 +56,7 @@ public class SubtreeSpecificationParser
     /**
      * Creates a subtree specification parser.
      */
-    public SubtreeSpecificationParser( Map oidsMap )
+    public SubtreeSpecificationParser( Map<String, OidNormalizer> oidsMap )
     {
         StringReader in = new StringReader( "" ); // place holder for the
                                                     // first input
@@ -70,7 +71,7 @@ public class SubtreeSpecificationParser
     /**
      * Creates a normalizing subtree specification parser.
      */
-    public SubtreeSpecificationParser( NormalizerMappingResolver resolver, Map oidsMap  )
+    public SubtreeSpecificationParser( NormalizerMappingResolver resolver, Map<String, OidNormalizer> oidsMap  )
     {
         StringReader in = new StringReader( "" ); // place holder for the
                                                     // first input

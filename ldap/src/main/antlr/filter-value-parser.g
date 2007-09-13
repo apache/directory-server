@@ -24,9 +24,11 @@ header {
  */
 package org.apache.directory.shared.ldap.filter;
 
+import antlr.TokenStreamSelector;
 
-import antlr.*;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+
 }
 
 
@@ -103,20 +105,6 @@ options
     {
         this.monitor = monitor;
     }
-
-
-    /**
-     * Monitors FilterParser events where it matches a production.
-     *
-     * @param production the name of the production matched
-     */
-    private void matchedProduction( String production )
-    {
-        if ( this.monitor != null )
-        {
-            this.monitor.matchedProduction( production );
-        }
-    }
 }
 
 
@@ -177,7 +165,7 @@ substring [String attribute] returns [LeafNode node]
     node = null;
     String initial = null;
     String fin = null;
-    ArrayList any = new ArrayList();
+    List<String> any = new ArrayList<String>();
 }
     :
     (

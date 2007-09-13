@@ -1692,7 +1692,7 @@ public class LdifReader implements Iterator<Entry>
         // When done, get the entries one by one.
         while ( hasNext() )
         {
-            Entry entry = (Entry) next();
+            Entry entry = next();
 
             if ( error != null )
             {

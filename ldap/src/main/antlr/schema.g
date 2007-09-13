@@ -20,8 +20,12 @@ header {
  */
 package org.apache.directory.shared.ldap.schema.syntax;
 
-import java.io.* ;
-import java.util.* ;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 

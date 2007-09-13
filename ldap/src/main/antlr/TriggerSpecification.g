@@ -23,7 +23,6 @@ header
 
 package org.apache.directory.shared.ldap.trigger;
 
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +72,6 @@ options
     private static final Logger log = LoggerFactory.getLogger( AntlrTriggerSpecificationParser.class );
     
     private NormalizerMappingResolver resolver;
-    private boolean isNormalizing = false;
     
     private ActionTime triggerActionTime;
     
@@ -98,7 +96,6 @@ options
     public void setNormalizerMappingResolver( NormalizerMappingResolver resolver )
     {
         this.resolver = resolver;
-        this.isNormalizing = true;
     }
 }
 
