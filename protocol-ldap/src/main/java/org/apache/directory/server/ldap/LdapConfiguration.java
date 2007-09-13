@@ -264,7 +264,7 @@ public class LdapConfiguration extends ServiceConfiguration
      *
      * @return A collection of {@link ExtendedOperationHandler}s.
      */
-    public Collection getExtendedOperationHandlers()
+    public Collection<ExtendedOperationHandler> getExtendedOperationHandlers()
     {
         return new ArrayList<ExtendedOperationHandler>( extendedOperationHandlers );
     }

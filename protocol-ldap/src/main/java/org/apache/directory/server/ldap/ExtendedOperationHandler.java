@@ -49,7 +49,7 @@ public interface ExtendedOperationHandler
      * 
      * @return the OIDs supported by this handler.
      */
-    Set getExtensionOids();
+    Set<String> getExtensionOids();
 
 
     /**

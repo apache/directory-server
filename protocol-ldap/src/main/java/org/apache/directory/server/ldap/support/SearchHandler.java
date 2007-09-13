@@ -168,11 +168,11 @@ public class SearchHandler extends AbstractLdapHandler implements MessageHandler
         if ( retAttrs.size() > 0 && !retAttrs.contains( SchemaConstants.REF_AT ) )
         {
             retAttrs.add( SchemaConstants.REF_AT );
-            ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
+            ids = retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
         else if ( retAttrs.size() > 0 )
         {
-            ids = ( String[] ) retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
+            ids = retAttrs.toArray( ArrayUtils.EMPTY_STRING_ARRAY );
         }
 
         try
