@@ -160,7 +160,7 @@ public class DefaultOidRegistry implements OidRegistry
     /**
      * @see org.apache.directory.server.schema.registries.OidRegistry#getNameSet(java.lang.String)
      */
-    public List getNameSet( String oid ) throws NamingException
+    public List<String> getNameSet( String oid ) throws NamingException
     {
         List<String> value = byOid.get( oid );
 
@@ -175,7 +175,7 @@ public class DefaultOidRegistry implements OidRegistry
             log.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
         }
         
-        return ( List ) value;
+        return value;
     }
 
 

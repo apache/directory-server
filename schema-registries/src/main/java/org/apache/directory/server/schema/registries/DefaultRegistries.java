@@ -176,7 +176,7 @@ public class DefaultRegistries implements Registries
      *
      * @return a list of exceptions encountered while resolving entities
      */
-    public List checkRefInteg()
+    public List<Throwable> checkRefInteg()
     {
         ArrayList<Throwable> errors = new ArrayList<Throwable>();
 
