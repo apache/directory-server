@@ -71,7 +71,7 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueExcep
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -566,7 +566,7 @@ public class SchemaService extends BaseInterceptor
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
                     && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || 
                         objectClassOid.equals( SchemaConstants.SUBSCHEMA_OC_OID ) )
-                    && ( node.getAssertionType() == AssertionEnum.EQUALITY ) )
+                    && ( node instanceof EqualityNode ) )
                 {
                     // call.setBypass( true );
                     Attributes attrs = getSubschemaEntry( searchCtls.getReturningAttributes() );

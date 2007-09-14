@@ -59,10 +59,11 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -156,9 +157,9 @@ public class EventService extends BaseInterceptor
             }
 
             // Now for AND & OR nodes with a single child left replace them with their child
-            if ( child.getChildren().size() == 1 && child.getOperator() != AssertionEnum.NOT )
+            if ( child.getChildren().size() == 1 && ! ( child instanceof NotNode ) )
             {
-                filter = child.getChild();
+                filter = child.getFirstChild();
             }
         }
         
@@ -168,7 +169,7 @@ public class EventService extends BaseInterceptor
         
         if ( filter != null )
         {
-            BranchNode and = new BranchNode( AssertionEnum.AND );
+            BranchNode and = new AndNode();
             and.addNode( scope );
             and.addNode( filter );
             filter = and;

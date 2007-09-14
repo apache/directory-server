@@ -69,7 +69,7 @@ public class SubstringEvaluator implements Evaluator
     public boolean evaluate( ExprNode node, String dn, Attributes entry ) throws NamingException
     {
         Pattern regex = null;
-        SubstringNode snode = ( SubstringNode ) node;
+        SubstringNode snode = (SubstringNode)node;
         String oid = oidRegistry.getOid( snode.getAttribute() );
         AttributeType type = attributeTypeRegistry.lookup( oid );
         Normalizer normalizer = type.getSubstr().getNormalizer();

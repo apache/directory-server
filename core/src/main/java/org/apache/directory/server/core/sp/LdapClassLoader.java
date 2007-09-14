@@ -31,9 +31,9 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import org.slf4j.Logger;
@@ -73,9 +73,9 @@ public class LdapClassLoader extends ClassLoader
         NamingEnumeration javaClassEntries = null;
         byte[] classBytes = null;
         
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( "fullyQualifiedJavaClassName", name, AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.JAVA_CLASS_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode( );
+        filter.addNode( new EqualityNode( "fullyQualifiedJavaClassName", name ) );
+        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.JAVA_CLASS_OC ) );
         
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );

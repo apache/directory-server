@@ -52,13 +52,18 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -165,7 +170,6 @@ public class NormalizationService extends BaseInterceptor
         nextInterceptor.moveAndRename( opContext );
     }
 
-
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
@@ -210,6 +214,7 @@ public class NormalizationService extends BaseInterceptor
                 }
 
                 filter.accept( normVisitor );
+                
                 isFailure = false;
             }
             catch( UndefinedFilterAttributeException e )
@@ -226,21 +231,21 @@ public class NormalizationService extends BaseInterceptor
                 // note that in this case the undefined node will not be removed.
                 BranchNode bnode = ( BranchNode ) filter;
                 
-                if ( bnode.isNegation() )
+                if ( bnode instanceof NotNode )
                 {
                     return new EmptyEnumeration<SearchResult>();
                 }
                 
                 bnode.getChildren().remove( e.getUndefinedFilterNode() );
                 
-                if ( bnode.getOperator() == AssertionEnum.AND )
+                if ( bnode instanceof AndNode )
                 {
                     return new EmptyEnumeration<SearchResult>();
                 }
                 
                 if ( bnode.getChildren().size() < 2 )
                 {
-                    filter = bnode.getChild();
+                    filter = bnode.getFirstChild();
                 }
             }
         }
@@ -259,9 +264,9 @@ public class NormalizationService extends BaseInterceptor
             }
 
             // now for AND & OR nodes with a single child left replace them with their child
-            if ( child.getChildren().size() == 1 && child.getOperator() != AssertionEnum.NOT )
+            if ( child.getChildren().size() == 1 && ! ( child instanceof NotNode ) )
             {
-                filter = child.getChild();
+                filter = child.getFirstChild();
             }
         }
         
@@ -282,7 +287,7 @@ public class NormalizationService extends BaseInterceptor
             {
                 // create new OR node and add the filter leaf to it 
                 // and set filter to this new branch node
-                BranchNode bnode = new BranchNode( AssertionEnum.OR );
+                BranchNode bnode = new OrNode();
                 bnode.getChildren().add( filter );
                 filter = bnode;
                 
@@ -294,55 +299,111 @@ public class NormalizationService extends BaseInterceptor
                     LeafNode newLeaf = null;
                     AttributeType descendant = ( AttributeType ) descendants.next();
                     
-                    switch( leaf.getAssertionType() )
+                    if ( leaf instanceof PresenceNode )
                     {
-                        case EXTENSIBLE :
-                            ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
-                            newLeaf = new ExtensibleNode( descendant.getOid(), 
-                                extensibleNode.getValue(), 
-                                extensibleNode.getMatchingRuleId(), 
-                                extensibleNode.dnAttributes() );
-                            break;
-                            
-                        case PRESENCE :
-                            newLeaf = new PresenceNode( descendant.getOid() );
-                            break;
-                            
-                        case SUBSTRING :
-                            SubstringNode substringNode = ( SubstringNode ) leaf;
-                            newLeaf = new SubstringNode( descendant.getOid(), 
-                                substringNode.getInitial(), 
-                                substringNode.getFinal() );
-                            break;
-                            
-                        case APPROXIMATE :
-                        case EQUALITY :
-                        case GREATEREQ :
-                        case LESSEQ :
-                            SimpleNode simpleNode = ( SimpleNode ) leaf;
-                            if ( simpleNode.getValue() instanceof String )
-                            {
-                                newLeaf = new SimpleNode( descendant.getOid(), 
-                                    ( String ) simpleNode.getValue(), 
-                                    simpleNode.getAssertionType() );
-                            }
-                            else if ( simpleNode.getValue() instanceof byte[] )
-                            {
-                                newLeaf = new SimpleNode( descendant.getOid(), 
-                                    ( byte[] ) simpleNode.getValue(), 
-                                    simpleNode.getAssertionType() );
-                            }
-                            else
-                            {
-                                newLeaf = new SimpleNode( descendant.getOid(), 
-                                    simpleNode.getValue().toString(), 
-                                    simpleNode.getAssertionType() );
-                            }
-                            break;
-                            
-                        default:
-                            throw new IllegalStateException( "Unknown assertion type: " 
-                                + leaf.getAssertionType() );
+                    	newLeaf = new PresenceNode( descendant.getOid() );
+                    } 
+                    else if ( leaf instanceof EqualityNode )
+                    {
+                    	EqualityNode equalityNode = ( EqualityNode ) leaf;
+                    	
+                        if ( equalityNode.getValue() instanceof String )
+                        {
+                            newLeaf = new EqualityNode( descendant.getOid(), 
+                                ( String ) equalityNode.getValue() );
+                        }
+                        else if ( equalityNode.getValue() instanceof byte[] )
+                        {
+                            newLeaf = new EqualityNode( descendant.getOid(), 
+                                ( byte[] ) equalityNode.getValue() );
+                        }
+                        else
+                        {
+                            newLeaf = new EqualityNode( descendant.getOid(), 
+                            		equalityNode.getValue().toString() );
+                        }
+                    }
+                    else if ( leaf instanceof GreaterEqNode )
+                    {
+                    	GreaterEqNode greaterEqNode = ( GreaterEqNode ) leaf;
+                    	
+                        if ( greaterEqNode.getValue() instanceof String )
+                        {
+                            newLeaf = new GreaterEqNode( descendant.getOid(), 
+                                ( String ) greaterEqNode.getValue() );
+                        }
+                        else if ( greaterEqNode.getValue() instanceof byte[] )
+                        {
+                            newLeaf = new GreaterEqNode( descendant.getOid(), 
+                                ( byte[] ) greaterEqNode.getValue() );
+                        }
+                        else
+                        {
+                            newLeaf = new GreaterEqNode( descendant.getOid(), 
+                            		greaterEqNode.getValue().toString() );
+                        }
+                    }
+                    else if ( leaf instanceof LessEqNode )
+                    {
+                    	LessEqNode lessEqNode = ( LessEqNode ) leaf;
+                    	
+                        if ( lessEqNode.getValue() instanceof String )
+                        {
+                            newLeaf = new LessEqNode( descendant.getOid(), 
+                                ( String ) lessEqNode.getValue() );
+                        }
+                        else if ( lessEqNode.getValue() instanceof byte[] )
+                        {
+                            newLeaf = new LessEqNode( descendant.getOid(), 
+                                ( byte[] ) lessEqNode.getValue() );
+                        }
+                        else
+                        {
+                            newLeaf = new LessEqNode( descendant.getOid(), 
+                            		lessEqNode.getValue().toString() );
+                        }
+                    }
+                    else if ( leaf instanceof ApproximateNode )
+                    {
+                    	ApproximateNode approximateNode = ( ApproximateNode ) leaf;
+                    	
+                        if ( approximateNode.getValue() instanceof String )
+                        {
+                            newLeaf = new ApproximateNode( descendant.getOid(), 
+                                ( String ) approximateNode.getValue()  );
+                        }
+                        else if ( approximateNode.getValue() instanceof byte[] )
+                        {
+                            newLeaf = new ApproximateNode( descendant.getOid(), 
+                                ( byte[] ) approximateNode.getValue()  );
+                        }
+                        else
+                        {
+                            newLeaf = new ApproximateNode( descendant.getOid(), 
+                            		approximateNode.getValue().toString() );
+                        }
+                    }
+                    else if ( leaf instanceof SubstringNode )
+                    {
+                        SubstringNode substringNode = ( SubstringNode ) leaf;
+                        
+                        newLeaf = new SubstringNode( descendant.getOid(), 
+                            substringNode.getInitial(), 
+                            substringNode.getFinal() );
+                    }
+                    else if ( leaf instanceof ExtensibleNode )
+                    {
+                        ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
+                        
+                        newLeaf = new ExtensibleNode( descendant.getOid(), 
+                            extensibleNode.getValue(), 
+                            extensibleNode.getMatchingRuleId(), 
+                            extensibleNode.dnAttributes() );
+                    	
+                    }
+                    else
+                    {
+                        throw new IllegalStateException( "Unknown assertion type: " + leaf );
                     }
                     
                     bnode.getChildren().add( newLeaf );

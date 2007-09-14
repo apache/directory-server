@@ -27,13 +27,22 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.AssertionNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 
 
 /**
@@ -96,60 +105,59 @@ public class ExpressionEnumerator implements Enumerator
         {
             LeafNode leaf = ( LeafNode ) node;
 
-            switch ( leaf.getAssertionType() )
+            if ( node instanceof PresenceNode )
             {
-                case APPROXIMATE :
-                    list = enumEquality( ( SimpleNode ) node );
-                    break;
-                    
-                case EQUALITY :
-                    list = enumEquality( ( SimpleNode ) node );
-                    break;
-                    
-                case EXTENSIBLE :
-                    // N O T   I M P L E M E N T E D   Y E T !
-                    throw new NotImplementedException();
-                
-                case GREATEREQ :
-                    list = enumGreater( ( SimpleNode ) node, true );
-                    break;
-                    
-                case LESSEQ :
-                    list = enumGreater( ( SimpleNode ) node, false );
-                    break;
-                    
-                case PRESENCE :
-                    list = enumPresence( ( PresenceNode ) node );
-                    break;
-                    
-                case SUBSTRING :
-                    list = substringEnumerator.enumerate( leaf );
-                    break;
-                    
-                default:
-                    throw new IllegalArgumentException( "Unknown leaf assertion" );
+                list = enumPresence( ( PresenceNode ) node );
+            }
+            else if ( node instanceof EqualityNode )
+            {
+                list = enumEquality( ( EqualityNode ) node );
+            }
+            else if ( node instanceof GreaterEqNode )
+            {
+                list = enumGreaterOrLesser( ( SimpleNode ) node, SimpleNode.EVAL_GREATER );
+            }
+            else if ( node instanceof LessEqNode )
+            {
+                list = enumGreaterOrLesser( ( SimpleNode ) node, SimpleNode.EVAL_LESSER );
+            }
+            else if ( node instanceof SubstringNode )
+            {
+                list = substringEnumerator.enumerate( leaf );
+            }
+            else if ( node instanceof ExtensibleNode )
+            {
+                // N O T   I M P L E M E N T E D   Y E T !
+                throw new NotImplementedException();
+            }
+            else if ( node instanceof ApproximateNode )
+            {
+                list = enumEquality( ( EqualityNode ) node );
+            }
+            else
+            {
+                throw new IllegalArgumentException( "Unknown leaf assertion" );
             }
         }
         else
         {
             BranchNode branch = ( BranchNode ) node;
 
-            switch ( branch.getOperator() )
+            if ( node instanceof AndNode )
             {
-                case AND :
-                    list = enumConj( branch );
-                    break;
-                    
-                case NOT :
-                    list = enumNeg( branch );
-                    break;
-                    
-                case OR :
-                    list = enumDisj( branch );
-                    break;
-                    
-                default:
-                    throw new IllegalArgumentException( "Unknown branch logical operator" );
+                list = enumConj( (AndNode)branch );
+            }
+            else if ( node instanceof OrNode )
+            {
+                list = enumDisj( (OrNode)branch );
+            }
+            else if ( node instanceof NotNode )
+            {
+                list = enumNeg( (NotNode)branch );
+            }
+            else
+            {
+                throw new IllegalArgumentException( "Unknown branch logical operator" );
             }
         }
 
@@ -162,7 +170,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node the disjunction expression branch node
      */
-    private NamingEnumeration<IndexRecord> enumDisj( BranchNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumDisj( OrNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
         NamingEnumeration[] childEnumerations = new NamingEnumeration[children.size()];
@@ -196,7 +204,7 @@ public class ExpressionEnumerator implements Enumerator
                 // NOTICE THE ! HERE
                 // The candidate is valid if it does not pass assertion. A
                 // candidate that passes assertion is therefore invalid.
-                return !evaluator.evaluate( node.getChild(), rec );
+                return !evaluator.evaluate( node.getFirstChild(), rec );
             }
         };
 
@@ -210,7 +218,7 @@ public class ExpressionEnumerator implements Enumerator
      *
      * @param node a conjunction expression branch node
      */
-    private NamingEnumeration<IndexRecord> enumConj( final BranchNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumConj( final AndNode node ) throws NamingException
     {
         int minIndex = 0;
         long minValue = Long.MAX_VALUE;
@@ -298,20 +306,13 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration<IndexRecord> enumGreater( final SimpleNode node, final boolean isGreater ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumGreaterOrLesser( final SimpleNode node, final boolean isGreaterOrLesser ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
             Index idx = db.getUserIndex( node.getAttribute() );
 
-            if ( isGreater )
-            {
-                return idx.listIndices( node.getValue(), true );
-            }
-            else
-            {
-                return idx.listIndices( node.getValue(), false );
-            }
+            return idx.listIndices( node.getValue(), isGreaterOrLesser );
         }
 
         return nonIndexedScan( node );
@@ -326,7 +327,7 @@ public class ExpressionEnumerator implements Enumerator
      * @return an enumeration over the index records matching the AVA
      * @throws NamingException if there is a failure while accessing the db
      */
-    private NamingEnumeration<IndexRecord> enumEquality( final SimpleNode node ) throws NamingException
+    private NamingEnumeration<IndexRecord> enumEquality( final EqualityNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {

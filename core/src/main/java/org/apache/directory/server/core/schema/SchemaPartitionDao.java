@@ -45,11 +45,13 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -187,7 +189,7 @@ public class SchemaPartitionDao
     {
         LdapDN base = new LdapDN( "ou=schema" );
         base.normalize( attrRegistry.getNormalizerMapping() );
-        ExprNode filter = new SimpleNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC, AssertionEnum.EQUALITY );
+        ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
@@ -212,17 +214,16 @@ public class SchemaPartitionDao
     
     public boolean hasMatchingRule( String oid ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_MATCHING_RULE_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_MATCHING_RULE_OC ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
         }
         else
         {
-            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
         }
         
         SearchControls searchControls = new SearchControls();
@@ -256,17 +257,16 @@ public class SchemaPartitionDao
     
     public boolean hasAttributeType( String oid ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID,  MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
         }
         else
         {
-            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
         }
         
         SearchControls searchControls = new SearchControls();
@@ -300,17 +300,16 @@ public class SchemaPartitionDao
     
     public boolean hasObjectClass( String oid ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_OBJECT_CLASS_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_OBJECT_CLASS_OC ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
         }
         else
         {
-            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
         }
         
         SearchControls searchControls = new SearchControls();
@@ -344,17 +343,16 @@ public class SchemaPartitionDao
     
     public boolean hasSyntax( String oid ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SYNTAX_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_OC ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
         }
         else
         {
-            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
         }
         
         SearchControls searchControls = new SearchControls();
@@ -388,17 +386,16 @@ public class SchemaPartitionDao
     
     public boolean hasSyntaxChecker( String oid ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SYNTAX_CHECKER_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) );
 
         if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
         {
-            filter.addNode( new SimpleNode( M_OID_OID, oid, AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
         }
         else
         {
-            filter.addNode( new SimpleNode( M_NAME_OID, oid.toLowerCase(), AssertionEnum.EQUALITY ) );
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
         }
         
         SearchControls searchControls = new SearchControls();
@@ -488,9 +485,9 @@ public class SchemaPartitionDao
      */
     public SearchResult find( String entityName ) throws NamingException
     {
-        BranchNode filter = new BranchNode( AssertionEnum.OR );
-        SimpleNode nameAVA = new SimpleNode( M_NAME_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
-        SimpleNode oidAVA = new SimpleNode( M_OID_OID, entityName.toLowerCase(), AssertionEnum.EQUALITY );
+        BranchNode filter = new OrNode();
+        SimpleNode nameAVA = new EqualityNode( M_NAME_OID, entityName.toLowerCase() );
+        SimpleNode oidAVA = new EqualityNode( M_OID_OID, entityName.toLowerCase() );
         filter.addNode( nameAVA );
         filter.addNode( oidAVA );
         SearchControls searchControls = new SearchControls();
@@ -597,18 +594,17 @@ public class SchemaPartitionDao
     public Set<SearchResult> listSyntaxDependents( String numericOid ) throws NamingException
     {
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
         // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
-        BranchNode or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
         
         filter.addNode( or );
-        filter.addNode( new SimpleNode( M_SYNTAX_OID, 
-            numericOid.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new EqualityNode( M_SYNTAX_OID, numericOid.toLowerCase() ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -638,25 +634,24 @@ public class SchemaPartitionDao
     public Set<SearchResult> listMatchingRuleDependents( MatchingRule mr ) throws NamingException
     {
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
         // ( objectClass = metaAttributeType )
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
         
-        BranchNode or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( M_ORDERING_OID, mr.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_SUBSTRING_OID, mr.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_EQUALITY_OID, mr.getOid(), AssertionEnum.EQUALITY ) );
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( M_ORDERING_OID, mr.getOid() ) );
+        or.addNode( new EqualityNode( M_SUBSTRING_OID, mr.getOid() ) );
+        or.addNode( new EqualityNode( M_EQUALITY_OID, mr.getOid() ) );
         filter.addNode( or );
 
         if ( mr.getNames() != null || mr.getNames().length > 0 )
         {
             for ( String name : mr.getNames() )
             {
-                or.addNode( new SimpleNode( M_ORDERING_OID, name.toLowerCase(), AssertionEnum.EQUALITY ) );
-                or.addNode( new SimpleNode( M_SUBSTRING_OID, name.toLowerCase(), AssertionEnum.EQUALITY ) );
-                or.addNode( new SimpleNode( M_EQUALITY_OID, name.toLowerCase(), AssertionEnum.EQUALITY ) );
+                or.addNode( new EqualityNode( M_ORDERING_OID, name.toLowerCase() ) );
+                or.addNode( new EqualityNode( M_SUBSTRING_OID, name.toLowerCase() ) );
+                or.addNode( new EqualityNode( M_EQUALITY_OID, name.toLowerCase() ) );
             }
         }
 
@@ -689,7 +684,7 @@ public class SchemaPartitionDao
     {
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
         // (& (m-oid=*) (m-name=*) )
         filter.addNode( new PresenceNode( M_OID_OID ) );
@@ -720,21 +715,21 @@ public class SchemaPartitionDao
          */
         
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
         // ( objectClass = metaAttributeType )
-        BranchNode or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
         filter.addNode( or );
 
         
-        or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( M_MAY_OID, at.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_MUST_OID, at.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid(), AssertionEnum.EQUALITY ) );
+        or = new OrNode();
+        or.addNode( new EqualityNode( M_MAY_OID, at.getOid() ) );
+        or.addNode( new EqualityNode( M_MUST_OID, at.getOid() ) );
+        or.addNode( new EqualityNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid() ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();
@@ -778,12 +773,12 @@ public class SchemaPartitionDao
          */
         
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( M_DEPENDENCIES_OID, 
-            schemaName.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase() ) );
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -820,12 +815,12 @@ public class SchemaPartitionDao
     public Set<SearchResult> listEnabledSchemaDependents( String schemaName ) throws NamingException
     {
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
-        filter.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( M_DEPENDENCIES_OID, 
-            schemaName.toLowerCase(), AssertionEnum.EQUALITY ) );
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase() ) );
         
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -889,22 +884,22 @@ public class SchemaPartitionDao
          */
         
         Set<SearchResult> set = new HashSet<SearchResult>( );
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         
-        BranchNode or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_NAME_FORM_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( OBJECTCLASS_OID, 
-            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase(), AssertionEnum.EQUALITY ) );
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_NAME_FORM_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) );
         filter.addNode( or );
 
         
-        or = new BranchNode( AssertionEnum.OR );
-        or.addNode( new SimpleNode( M_AUX_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_OC_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
-        or.addNode( new SimpleNode( M_SUP_OBJECT_CLASS_OID, oc.getOid(), AssertionEnum.EQUALITY ) );
+        or = new OrNode();
+        or.addNode( new EqualityNode( M_AUX_OID, oc.getOid() ) );
+        or.addNode( new EqualityNode( M_OC_OID, oc.getOid() ) );
+        or.addNode( new EqualityNode( M_SUP_OBJECT_CLASS_OID, oc.getOid() ) );
         filter.addNode( or );
 
         SearchControls searchControls = new SearchControls();

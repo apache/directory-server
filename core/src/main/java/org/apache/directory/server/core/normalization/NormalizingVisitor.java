@@ -21,11 +21,12 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterVisitor;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -206,14 +207,15 @@ public class NormalizingVisitor implements FilterVisitor
                         // remove the child at ii
                         bnode.getChildren().remove( child );
                         
-                        if ( bnode.getOperator() != AssertionEnum.AND )
-                        {
-                            bnode.set( "undefined", Boolean.TRUE );
-                        }
-                        else
+                        if ( bnode instanceof AndNode )
                         {
                             bnode.set( "undefined", Boolean.FALSE );
                         }
+                        else
+                        {
+                            bnode.set( "undefined", Boolean.TRUE );
+                        }
+
                         ii--; // decrement so we can evaluate next child which has shifted to ii
                         continue;
                     }
@@ -230,14 +232,16 @@ public class NormalizingVisitor implements FilterVisitor
                 catch( UndefinedFilterAttributeException e )
                 {
                     bnode.getChildren().remove( ii );
-                    if ( bnode.getOperator() != AssertionEnum.AND )
-                    {
-                        bnode.set( "undefined", Boolean.TRUE );
-                    }
-                    else
+                    
+                    if ( bnode instanceof AndNode )
                     {
                         bnode.set( "undefined", Boolean.FALSE );
                     }
+                    else
+                    {
+                        bnode.set( "undefined", Boolean.TRUE );
+                    }
+
                     ii--;
                     continue;
                 }
@@ -266,16 +270,16 @@ public class NormalizingVisitor implements FilterVisitor
                     
                     // now for AND & OR nodes with a single child left replace them
                     // with their child at the same index they AND/OR node was in
-                    if ( child.getChildren().size() == 1 && child.getOperator() != AssertionEnum.NOT )
+                    if ( child.getChildren().size() == 1 && ! ( child instanceof NotNode ) )
                     {
                         bnode.getChildren().remove( child );
                         if ( ii >= bnode.getChildren().size() )
                         {
-                            bnode.getChildren().add( child.getChild() );
+                            bnode.getChildren().add( child.getFirstChild() );
                         }
                         else
                         {
-                            bnode.getChildren().add( ii, child.getChild() );
+                            bnode.getChildren().add( ii, child.getFirstChild() );
                         }
                     }
                 }

@@ -21,13 +21,15 @@ package org.apache.directory.server.core.subtree;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import java.util.Iterator;
 
 
 /**
@@ -73,46 +75,44 @@ public class RefinementEvaluator
 
         BranchNode bnode = ( BranchNode ) node;
 
-        switch ( bnode.getOperator() )
+        if ( node instanceof OrNode )
         {
-            case OR :
-                Iterator children = bnode.getChildren().iterator();
-
-                while ( children.hasNext() )
+            for ( ExprNode child:bnode.getChildren() )
+            {
+                if ( evaluate( child, objectClasses ) )
                 {
-                    ExprNode child = ( ExprNode ) children.next();
-
-                    if ( evaluate( child, objectClasses ) )
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+            }
 
-                return false;
-                
-            case AND :
-                children = bnode.getChildren().iterator();
-                while ( children.hasNext() )
+            return false;
+        }
+        else if ( node instanceof AndNode )
+        {
+            for ( ExprNode child:bnode.getChildren() )
+            {
+                if ( !evaluate( child, objectClasses ) )
                 {
-                    ExprNode child = ( ExprNode ) children.next();
-
-                    if ( !evaluate( child, objectClasses ) )
-                    {
-                        return false;
-                    }
+                    return false;
                 }
+            }
 
-                return true;
-                
-            case NOT :
-                if ( null != bnode.getChild() )
-                {
-                    return !evaluate( bnode.getChild(), objectClasses );
-                }
+            return true;
+        	
+        }
+        else if ( node instanceof NotNode )
+        {
+            if ( null != bnode.getFirstChild() )
+            {
+                return !evaluate( bnode.getFirstChild(), objectClasses );
+            }
 
-                throw new IllegalArgumentException( "Negation has no child: " + node );
-            default:
-                throw new IllegalArgumentException( "Unrecognized branch node operator: " + bnode.getOperator() );
+            throw new IllegalArgumentException( "Negation has no child: " + node );
+        	
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unrecognized branch node operator: " + bnode );
         }
     }
 }

@@ -25,13 +25,22 @@ import java.util.List;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.AssertionNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 
 
 /**
@@ -42,11 +51,8 @@ import org.apache.directory.shared.ldap.filter.SimpleNode;
  */
 public class DefaultOptimizer implements Optimizer
 {
-    /** the maximum size for a count Integer.MAX_VALUE as a BigInteger */
-    private static final Long MAX = Long.MAX_VALUE;
     /** the database this optimizer operates on */
     private BTreePartition db;
-
 
     /**
      * Creates an optimizer on a database.
@@ -70,7 +76,7 @@ public class DefaultOptimizer implements Optimizer
     public void annotate( ExprNode node ) throws NamingException
     {
         // Start off with the worst case unless scan count says otherwise.
-        Long count = MAX;
+        long count = Long.MAX_VALUE;
 
         /* --------------------------------------------------------------------
          *                 H A N D L E   L E A F   N O D E S          
@@ -101,40 +107,40 @@ public class DefaultOptimizer implements Optimizer
         {
             LeafNode leaf = ( LeafNode ) node;
 
-            switch ( leaf.getAssertionType() )
+            if ( node instanceof PresenceNode )
             {
-                case APPROXIMATE :
-                    /** Feature not implemented so we just use equality matching */
-                    count = getEqualityScan( ( SimpleNode ) leaf );
-                    break;
-                    
-                case EQUALITY :
-                    count = getEqualityScan( ( SimpleNode ) leaf );
-                    break;
-                    
-                case EXTENSIBLE :
-                    /** Cannot really say so we presume the total index count */
-                    count = getFullScan( leaf );
-                    break;
-                    
-                case GREATEREQ :
-                    count = getGreaterLessScan( ( SimpleNode ) leaf, true );
-                    break;
-                    
-                case LESSEQ :
-                    count = getGreaterLessScan( ( SimpleNode ) leaf, false );
-                    break;
-                case PRESENCE :
-                    count = getPresenceScan( ( PresenceNode ) leaf );
-                    break;
-                    
-                case SUBSTRING :
-                    /** Cannot really say so we presume the total index count */
-                    count = getFullScan( leaf );
-                    break;
-                    
-                default:
-                    throw new IllegalArgumentException( "Unrecognized leaf node" );
+                count = getPresenceScan( ( PresenceNode ) leaf );
+            }
+            else if ( node instanceof EqualityNode )
+            {
+                count = getEqualityScan( ( EqualityNode ) leaf );
+            }
+            else if ( node instanceof GreaterEqNode )
+            {
+                count = getGreaterLessScan( ( GreaterEqNode ) leaf, SimpleNode.EVAL_GREATER );
+            }
+            else if ( node instanceof LessEqNode )
+            {
+                count = getGreaterLessScan( ( SimpleNode ) leaf, SimpleNode.EVAL_LESSER );
+            }
+            else if ( node instanceof SubstringNode )
+            {
+                /** Cannot really say so we presume the total index count */
+                count = getFullScan( leaf );
+            }
+            else if ( node instanceof ExtensibleNode )
+            {
+                /** Cannot really say so we presume the total index count */
+                count = getFullScan( leaf );
+            }
+            else if ( node instanceof ApproximateNode )
+            {
+                /** Feature not implemented so we just use equality matching */
+                count = getEqualityScan( ( ApproximateNode ) leaf );
+            }
+            else
+            {
+                throw new IllegalArgumentException( "Unrecognized leaf node" );
             }
         }
         // --------------------------------------------------------------------
@@ -142,31 +148,28 @@ public class DefaultOptimizer implements Optimizer
         // --------------------------------------------------------------------
         else
         {
-            BranchNode bnode = ( BranchNode ) node;
-
-            switch ( bnode.getOperator() )
+            if ( node instanceof AndNode )
             {
-                case AND :
-                    count = getConjunctionScan( bnode );
-                    break;
-                    
-                case NOT :
-                    count = getNegationScan( bnode );
-                    break;
-                    
-                case OR :
-                    count = getDisjunctionScan( bnode );
-                    break;
-                    
-                default:
-                    throw new IllegalArgumentException( "Unrecognized branch node type" );
+            	count = getConjunctionScan( (AndNode)node );
+            }
+            else if ( node instanceof OrNode )
+            {
+            	count = getDisjunctionScan( (OrNode)node );
+            }
+            else if ( node instanceof NotNode )
+            {
+            	count = getNegationScan( (NotNode)node );
+            }
+            else
+            {
+            	throw new IllegalArgumentException( "Unrecognized branch node type" );
             }
         }
 
         // Protect against overflow when counting.
-        if ( count.compareTo( 0L ) < 0 )
+        if ( count < 0L )
         {
-            count = MAX;
+            count = Long.MAX_VALUE;
         }
 
         node.set( "count", count );
@@ -184,9 +187,9 @@ public class DefaultOptimizer implements Optimizer
      * @return the calculated scan count
      * @throws NamingException if there is an error
      */
-    private Long getConjunctionScan( BranchNode node ) throws NamingException
+    private long getConjunctionScan( BranchNode node ) throws NamingException
     {
-        Long count = MAX;
+        long count = Long.MAX_VALUE;
         List<ExprNode> children = node.getChildren();
 
         for ( int ii = 0; ii < children.size(); ii++ )
@@ -209,9 +212,9 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count
      * @throws NamingException if there is an error
      */
-    private Long getNegationScan( BranchNode node ) throws NamingException
+    private long getNegationScan( BranchNode node ) throws NamingException
     {
-        return MAX;
+        return Long.MAX_VALUE;
     }
 
 
@@ -224,10 +227,10 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count on the OR node
      * @throws NamingException if there is an error
      */
-    private Long getDisjunctionScan( BranchNode node ) throws NamingException
+    private long getDisjunctionScan( BranchNode node ) throws NamingException
     {
         List<ExprNode> children = node.getChildren();
-        Long total = 0L;
+        long total = 0L;
 
         for ( int ii = 0; ii < children.size(); ii++ )
         {
@@ -236,12 +239,6 @@ public class DefaultOptimizer implements Optimizer
             total += ( Long ) child.get( "count" );
         }
         
-        // we don't want values bigger than Integer.MAX_VALUE
-        if ( total.compareTo( MAX ) > 0 )
-        {
-            total = MAX;
-        }
-
         return total;
     }
 
@@ -254,7 +251,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case
      * @throws NamingException if there is an error accessing an index
      */
-    private Long getEqualityScan( SimpleNode node ) throws NamingException
+    private long getEqualityScan( SimpleNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -263,7 +260,7 @@ public class DefaultOptimizer implements Optimizer
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
-        return MAX;
+        return Long.MAX_VALUE;
     }
 
 
@@ -276,7 +273,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count of all nodes satisfying the AVA
      * @throws NamingException if there is an error accessing an index
      */
-    private Long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws NamingException
+    private long getGreaterLessScan( SimpleNode node, boolean isGreaterThan ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -286,7 +283,7 @@ public class DefaultOptimizer implements Optimizer
         }
 
         // count for non-indexed attribute is unknown so we presume da worst
-        return MAX;
+        return Long.MAX_VALUE;
     }
 
 
@@ -299,7 +296,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the worst case full scan count
      * @throws NamingException if there is an error access database indices
      */
-    private Long getFullScan( LeafNode node ) throws NamingException
+    private long getFullScan( LeafNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -308,7 +305,7 @@ public class DefaultOptimizer implements Optimizer
             return Long.valueOf( count );
         }
 
-        return MAX;
+        return Long.MAX_VALUE;
     }
 
 
@@ -320,7 +317,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the number of entries matched for the presence of an attribute
      * @throws NamingException if errors result
      */
-    private Long getPresenceScan( PresenceNode node ) throws NamingException
+    private long getPresenceScan( PresenceNode node ) throws NamingException
     {
         if ( db.hasUserIndexOn( node.getAttribute() ) )
         {
@@ -329,7 +326,7 @@ public class DefaultOptimizer implements Optimizer
             return Long.valueOf( count );
         }
 
-        return MAX;
+        return Long.MAX_VALUE;
     }
 
 
@@ -340,7 +337,7 @@ public class DefaultOptimizer implements Optimizer
      * @return the scan count for scope
      * @throws NamingException if any errors result
      */
-    private Long getScopeScan( ScopeNode node ) throws NamingException
+    private long getScopeScan( ScopeNode node ) throws NamingException
     {
         switch ( node.getScope() )
         {
@@ -348,7 +345,7 @@ public class DefaultOptimizer implements Optimizer
                 return 1L;
             
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                Long id = db.getEntryId( node.getBaseDn() );
+                long id = db.getEntryId( node.getBaseDn() );
                 return Long.valueOf( db.getChildCount( id ) );
                 
             case ( SearchControls.SUBTREE_SCOPE  ):

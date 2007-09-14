@@ -32,9 +32,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -130,9 +130,9 @@ public class GroupCache
         // search all naming contexts for static groups and generate
         // normalized sets of members to cache within the map
 
-        BranchNode filter = new BranchNode( AssertionEnum.OR );
-        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_NAMES_OC, AssertionEnum.EQUALITY ) );
-        filter.addNode( new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC, AssertionEnum.EQUALITY ) );
+        BranchNode filter = new OrNode();
+        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_NAMES_OC ) );
+        filter.addNode( new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC) );
 
         Iterator<String> suffixes = nexus.listSuffixes( null );
         

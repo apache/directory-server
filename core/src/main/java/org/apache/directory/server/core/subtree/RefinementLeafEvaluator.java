@@ -22,7 +22,7 @@ package org.apache.directory.server.core.subtree;
 
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -72,9 +72,9 @@ public class RefinementLeafEvaluator
         {
             throw new IllegalArgumentException( "node cannot be null" );
         }
-        if ( node.getAssertionType() != AssertionEnum.EQUALITY )
+        if ( !( node instanceof EqualityNode ) )
         {
-            throw new NamingException( "Unrecognized assertion type for refinement node: " + node.getAssertionType() );
+            throw new NamingException( "Unrecognized assertion type for refinement node: " + node );
         }
         if ( !node.getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
         {

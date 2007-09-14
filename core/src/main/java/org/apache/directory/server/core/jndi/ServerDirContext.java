@@ -48,8 +48,9 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
@@ -558,11 +559,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 
                 if ( value instanceof byte[] )
                 {
-                    node = new SimpleNode( attr.getID(), ( byte [] ) value, AssertionEnum.EQUALITY );
+                    node = new EqualityNode( attr.getID(), ( byte [] ) value );
                 }
                 else 
                 {
-                    node = new SimpleNode( attr.getID(), ( String ) value, AssertionEnum.EQUALITY );
+                    node = new EqualityNode( attr.getID(), ( String ) value );
                 }
 
                 return doSearchOperation( target, getEnvironment(), node, ctls );
@@ -575,7 +576,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
          */
         Attribute attr;
         SimpleNode node;
-        BranchNode filter = new BranchNode( AssertionEnum.AND );
+        BranchNode filter = new AndNode();
         NamingEnumeration list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
@@ -605,7 +606,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 // Add simpel AVA node if its value is a String 
                 if ( val instanceof String )
                 {
-                    node = new SimpleNode( attr.getID(), ( String ) val, AssertionEnum.EQUALITY );
+                    node = new EqualityNode( attr.getID(), ( String ) val );
                     filter.addNode( node );
                 }
             }

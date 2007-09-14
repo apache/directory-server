@@ -30,11 +30,16 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -68,7 +73,6 @@ public class LeafEvaluator implements Evaluator
     private SubstringEvaluator substringEvaluator;
     /** ScopeNode evaluator we depend on */
     private ScopeEvaluator scopeEvaluator;
-
 
     /**
      * Creates a leaf expression node evaluator.
@@ -111,33 +115,39 @@ public class LeafEvaluator implements Evaluator
             return scopeEvaluator.evaluate( node, record );
         }
 
-        switch ( ( ( LeafNode ) node ).getAssertionType() )
+        if ( node instanceof PresenceNode )
         {
-            case APPROXIMATE :
-                return evalEquality( ( SimpleNode ) node, record );
-            
-            case EQUALITY :
-                return evalEquality( ( SimpleNode ) node, record );
-            
-            case EXTENSIBLE :
-                throw new NotImplementedException();
-            
-            case GREATEREQ :
-                return evalGreater( ( SimpleNode ) node, record, true );
-            
-            case LESSEQ :
-                return evalGreater( ( SimpleNode ) node, record, false );
-            
-            case PRESENCE :
-                String attrId = ( ( PresenceNode ) node ).getAttribute();
-                return evalPresence( attrId, record );
-                
-            case SUBSTRING :
-                return substringEvaluator.evaluate( node, record );
-            
-            default:
-                throw new NamingException( "Unrecognized leaf node type: " + ( ( LeafNode ) node ).getAssertionType() );
+            String attrId = ( ( PresenceNode ) node ).getAttribute();
+            return evalPresence( attrId, record );
         }
+        else if ( node instanceof EqualityNode )
+        {
+            return evalEquality( ( EqualityNode ) node, record );
+        }
+        else if ( node instanceof GreaterEqNode )
+        {
+        	return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_GREATER );
+        }
+        else if ( node instanceof LessEqNode )
+        {
+        	return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_LESSER );
+        }
+        else if ( node instanceof SubstringNode )
+        {
+            return substringEvaluator.evaluate( node, record );
+        }
+        else if ( node instanceof ExtensibleNode )
+        {
+        	throw new NotImplementedException();
+        }
+        else if ( node instanceof ApproximateNode )
+        {
+        	return evalEquality( ( ApproximateNode ) node, record );
+        }
+        else
+        {
+        	throw new NamingException( "Unrecognized leaf node type: " + node );
+    	}        
     }
 
 
@@ -152,7 +162,7 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
      */
-    private boolean evalGreater( SimpleNode node, IndexRecord record, boolean isGreater ) throws NamingException
+    private boolean evalGreaterOrLesser( SimpleNode node, IndexRecord record, boolean isGreaterOrLesser ) throws NamingException
     {
         String attrId = node.getAttribute();
         Long id = (Long)record.getEntryId();
@@ -161,7 +171,7 @@ public class LeafEvaluator implements Evaluator
         {
             Index idx = db.getUserIndex( attrId );
 
-            if ( isGreater )
+            if ( isGreaterOrLesser = SimpleNode.EVAL_GREATER )
             {
                 return idx.hasValue( node.getValue(), id, true );
             }
@@ -198,7 +208,7 @@ public class LeafEvaluator implements Evaluator
          * Cheaper to not check isGreater in one loop - better to separate
          * out into two loops which you choose to execute based on isGreater
          */
-        if ( isGreater )
+        if ( isGreaterOrLesser == SimpleNode.EVAL_GREATER )
         {
             while ( list.hasMore() )
             {

@@ -85,7 +85,7 @@ public interface SearchEngine
      * @return enumeration over SearchResults
      * @throws NamingException if the search fails
      */
-    NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( Name base, Map<?, ?> env, ExprNode filter, SearchControls searchCtls ) throws NamingException;
 
 
     /**

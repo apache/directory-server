@@ -70,9 +70,8 @@ import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -868,7 +867,7 @@ public class ReferralService extends BaseInterceptor
 
     static ExprNode getReferralFilter()
     {
-        return new SimpleNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC, AssertionEnum.EQUALITY );
+        return new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.REFERRAL_OC );
     }
 
 
