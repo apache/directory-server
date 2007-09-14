@@ -44,14 +44,10 @@ public class ExtensibleNode extends LeafNode
     /**
      * Creates a new ExtensibleNode object.
      * 
-     * @param attribute
-     *            the attribute used for the extensible assertion
-     * @param value
-     *            the value to match for
-     * @param matchingRuleId
-     *            the OID of the matching rule
-     * @param dnAttributes
-     *            the dn attributes
+     * @param attribute the attribute used for the extensible assertion
+     * @param value the value to match for
+     * @param matchingRuleId the OID of the matching rule
+     * @param dnAttributes the dn attributes
      */
     public ExtensibleNode(String attribute, String value, String matchingRuleId, boolean dnAttributes)
     {
@@ -62,18 +58,14 @@ public class ExtensibleNode extends LeafNode
     /**
      * Creates a new ExtensibleNode object.
      * 
-     * @param attribute
-     *            the attribute used for the extensible assertion
-     * @param value
-     *            the value to match for
-     * @param matchingRuleId
-     *            the OID of the matching rule
-     * @param dnAttributes
-     *            the dn attributes
+     * @param attribute the attribute used for the extensible assertion
+     * @param value the value to match for
+     * @param matchingRuleId the OID of the matching rule
+     * @param dnAttributes the dn attributes
      */
     public ExtensibleNode(String attribute, byte[] value, String matchingRuleId, boolean dnAttributes)
     {
-        super( attribute, AssertionEnum.EXTENSIBLE );
+        super( attribute );
 
         this.value = value;
         this.matchingRuleId = matchingRuleId;
@@ -116,9 +108,9 @@ public class ExtensibleNode extends LeafNode
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     *      java.lang.StringBuffer)
+     *      java.lang.StringBuilder)
      */
-    public StringBuffer printToBuffer( StringBuffer buf )
+    public StringBuilder printToBuffer( StringBuilder buf )
     {
         buf.append( '(' ).append( getAttribute() );
         buf.append( "-" );
@@ -126,9 +118,9 @@ public class ExtensibleNode extends LeafNode
         buf.append( "-EXTENSIBLE-" );
         buf.append( this.matchingRuleId );
         buf.append( "-" );
-        buf.append( StringTools.utf8ToString( this.value ) );
+        buf.append( StringTools.utf8ToString( value ) );
         buf.append( "/" );
-        buf.append( StringTools.dumpBytes( this.value ) );
+        buf.append( StringTools.dumpBytes( value ) );
         buf.append( ')' );
 
         if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
@@ -147,9 +139,9 @@ public class ExtensibleNode extends LeafNode
 
     
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
-    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "ExtensibleNode can't be part of a refinement" );
     }
@@ -160,7 +152,7 @@ public class ExtensibleNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
+    	StringBuilder buf = new StringBuilder();
         printToBuffer( buf );
 
         return ( buf.toString() );

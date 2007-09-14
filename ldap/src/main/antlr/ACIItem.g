@@ -34,12 +34,14 @@ import java.util.Enumeration;
 import javax.naming.directory.Attribute;
 import javax.naming.Name;
 
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -1224,7 +1226,7 @@ item returns [ LeafNode node ]
     :
     ID_item ( SP )* COLON ( SP )* oid=oid
     {
-        node = new SimpleNode( SchemaConstants.OBJECT_CLASS_AT , oid , AssertionEnum.EQUALITY );
+        node = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT , oid );
     }
     ;
 
@@ -1237,7 +1239,7 @@ and returns [ BranchNode node ]
     :
     ID_and ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AssertionEnum.AND , children );
+        node = new AndNode( children );
     }
     ;
 
@@ -1250,7 +1252,7 @@ or returns [ BranchNode node ]
     :
     ID_or ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AssertionEnum.OR , children );
+        node = new OrNode( children );
     }
     ;
 
@@ -1263,7 +1265,7 @@ not returns [ BranchNode node ]
     :
     ID_not ( SP )* COLON ( SP )* children=refinements
     {
-        node = new BranchNode( AssertionEnum.NOT , children );
+        node = new NotNode( children );
     }
     ;
 

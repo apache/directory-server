@@ -126,87 +126,56 @@ public class UserFirstACIItem extends ACIItem
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
-        buffer.append( '{' );
-        buffer.append( ' ' );
-        
         // identificationTag
-        buffer.append( "identificationTag" );
-        buffer.append( ' ' );
-        buffer.append( '"' );
+        buffer.append( "{ identificationTag \"" );
         buffer.append( getIdentificationTag() );
-        buffer.append( '"' );
-        buffer.append( ',' );
-        buffer.append( ' ' );
+        buffer.append( "\", " );
         
         // precedence
-        buffer.append( "precedence" );
-        buffer.append( ' ' );
+        buffer.append( "precedence " );
         buffer.append( getPrecedence() );
-        buffer.append( ',' );
-        buffer.append( ' ' );
+        buffer.append( ", " );
         
         // authenticationLevel
-        buffer.append( "authenticationLevel" );
-        buffer.append( ' ' );
+        buffer.append( "authenticationLevel " );
         buffer.append( getAuthenticationLevel().getName() );
-        buffer.append( ',' );
-        buffer.append( ' ' );
+        buffer.append( ", " );
         
         // itemOrUserFirst
-        buffer.append( "itemOrUserFirst" );
-        buffer.append( ' ' );
-        buffer.append( "userFirst" );
-        buffer.append( ':' );
-        buffer.append( ' ' );
-        
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "itemOrUserFirst userFirst: { " );
         
         // protectedItems
-        buffer.append( "userClasses" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "userClasses { " );
+
         for ( Iterator it = userClasses.iterator(); it.hasNext(); )
         {
             UserClass userClass =  ( UserClass ) it.next();
             userClass.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( it.hasNext() ) 
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
-        
-        buffer.append( ',' );
-        buffer.append( ' ' );
+
+        buffer.append( " }, " );
         
         // itemPermissions
-        buffer.append( "userPermissions" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "userPermissions { " );
+
         for ( Iterator it = userPermissions.iterator(); it.hasNext(); )
         {
             UserPermission permission = ( UserPermission ) it.next();
             permission.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( it.hasNext() ) 
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
         
-        buffer.append( ' ' );
-        buffer.append( '}' );
-        
-        buffer.append( ' ' );
-        buffer.append( '}' );
+        buffer.append( " } } }" );
     }
 }

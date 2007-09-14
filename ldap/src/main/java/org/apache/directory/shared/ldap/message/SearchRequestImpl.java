@@ -443,7 +443,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         req.getFilter().accept( visitor );
         filter.accept( visitor );
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         filter.printToBuffer( buf );
         String myFilterString = buf.toString();
 
@@ -459,7 +459,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      */
     public String toString()
     {
-        StringBuffer    sb = new StringBuffer();
+        StringBuilder    sb = new StringBuilder();
 
         sb.append( "    SearchRequest\n" );
         sb.append( "        baseDn : '" ).append( baseDn ).append( "'\n" );

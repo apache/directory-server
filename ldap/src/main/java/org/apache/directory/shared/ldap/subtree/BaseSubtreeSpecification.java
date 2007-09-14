@@ -246,7 +246,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
         buffer.append( '{' );
 
@@ -346,7 +346,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 // Must use a tempBuffer here because the 
                 // exception could occur after some characters
                 // were added to the buffer.
-                StringBuffer tempBuffer = new StringBuffer();
+            	StringBuilder tempBuffer = new StringBuilder();
                 refinement.printRefinementToBuffer( tempBuffer );
                 buffer.append( tempBuffer );
             }

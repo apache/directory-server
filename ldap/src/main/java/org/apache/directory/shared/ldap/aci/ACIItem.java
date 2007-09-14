@@ -115,7 +115,7 @@ public abstract class ACIItem implements Serializable
      *
      * @param buffer the string buffer
      */
-    public abstract void printToBuffer( StringBuffer buffer );
+    public abstract void printToBuffer( StringBuilder buffer );
 
     
     /**

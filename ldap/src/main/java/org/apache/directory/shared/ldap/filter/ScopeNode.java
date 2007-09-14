@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 
 
 /**
- * Node used not to represent an published assertion but an assertion on the
+ * Node used not to represent a published assertion but an assertion on the
  * scope of the search.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -49,16 +49,13 @@ public class ScopeNode extends AbstractExprNode
     /**
      * Creates a new ScopeNode object.
      * 
-     * @param derefAliases
-     *            the alias dereferencing mode
-     * @param baseDn
-     *            the search base
-     * @param scope
-     *            the search scope
+     * @param derefAliases the alias dereferencing mode
+     * @param baseDn the search base
+     * @param scope the search scope
      */
     public ScopeNode(DerefAliasesEnum derefAliases, String baseDn, int scope)
     {
-        super( AssertionEnum.SCOPE );
+        super();
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = derefAliases;
@@ -68,20 +65,17 @@ public class ScopeNode extends AbstractExprNode
     /**
      * Creates a new ScopeNode object.
      * 
-     * @param env
-     *            the JNDI environment from which to extract the alias
+     * @param env the JNDI environment from which to extract the alias
      *            dereferencing mode
-     * @param baseDn
-     *            the search base
-     * @param scope
-     *            the search scope
+     * @param baseDn the search base
+     * @param scope the search scope
      */
     public ScopeNode( Map<String, DerefAliasesEnum> env, String baseDn, int scope )
     {
-        super( AssertionEnum.SCOPE );
+        super();
         this.scope = scope;
         this.baseDn = baseDn;
-        this.derefAliases = DerefAliasesEnum.getEnum( env );
+        derefAliases = DerefAliasesEnum.getEnum( env );
     }
 
 
@@ -106,7 +100,7 @@ public class ScopeNode extends AbstractExprNode
      */
     public int getScope()
     {
-        return this.scope;
+        return scope;
     }
 
 
@@ -117,7 +111,7 @@ public class ScopeNode extends AbstractExprNode
      */
     public String getBaseDn()
     {
-        return this.baseDn;
+        return baseDn;
     }
 
 
@@ -128,16 +122,16 @@ public class ScopeNode extends AbstractExprNode
      */
     public DerefAliasesEnum getDerefAliases()
     {
-        return this.derefAliases;
+        return derefAliases;
     }
 
 
     /**
-     * @see ExprNode#printToBuffer(StringBuffer)
+     * @see ExprNode#printToBuffer(StringBuilder)
      */
-    public StringBuffer printToBuffer( StringBuffer buf )
+    public StringBuilder printToBuffer( StringBuilder buf )
     {
-        switch ( this.scope )
+        switch ( scope )
         {
             case ( SearchControls.OBJECT_SCOPE  ):
                 buf.append( "OBJECT_SCOPE" );
@@ -170,9 +164,9 @@ public class ScopeNode extends AbstractExprNode
     
     
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
-    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "ScopeNode can't be part of a refinement" );
     }

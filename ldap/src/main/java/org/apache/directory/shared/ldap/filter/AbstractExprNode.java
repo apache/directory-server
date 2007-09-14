@@ -33,21 +33,13 @@ import java.util.HashMap;
 public abstract class AbstractExprNode implements ExprNode
 {
     /** The map of annotations */
-    private Map<String, Object> annotations;
-
-    /** node type set to enumation of constants */
-    private final AssertionEnum assertionType;
-
+    protected Map<String, Object> annotations;
 
     /**
-     * Creates an node by setting abstract node type.
-     * 
-     * @param type
-     *            the type of this leaf node
+     * Creates a node by setting abstract node type.
      */
-    protected AbstractExprNode( AssertionEnum type)
+    protected AbstractExprNode()
     {
-        assertionType = type;
     }
 
 
@@ -85,125 +77,8 @@ public abstract class AbstractExprNode implements ExprNode
      * 
      * @return the annotation map.
      */
-    protected Map getAnnotations()
+    protected Map<String, Object> getAnnotations()
     {
         return annotations;
-    }
-
-
-    /**
-     * Gets the assertion type of this leaf node.
-     * 
-     * @return the assertion or node type
-     */
-    public AssertionEnum getAssertionType()
-    {
-        return assertionType;
-    }
-
-
-    /**
-     * Returns the filter operator string associated with an assertion type.
-     * 
-     * @param assertionType
-     *            the assertion type value
-     * @return the string representation
-     * TODO Refactor these classes to use an enumeration type
-     */
-    public static final String getOperationString( AssertionEnum assertionType )
-    {
-        String opstr = null;
-
-        switch ( assertionType )
-        {
-            case APPROXIMATE :
-                opstr = "~=";
-
-                break;
-
-            case EQUALITY :
-                opstr = "=";
-
-                break;
-
-            case EXTENSIBLE :
-                opstr = "extensible";
-
-                break;
-
-            case GREATEREQ :
-                opstr = ">=";
-
-                break;
-
-            case LESSEQ :
-                opstr = "<=";
-
-                break;
-
-            case PRESENCE :
-                opstr = "=*";
-
-                break;
-
-            case SUBSTRING :
-                opstr = "=";
-
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Attribute value assertion type is undefined." );
-        }
-
-        return opstr;
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object other )
-    {
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( ( other == null ) || ( other.getClass() != this.getClass() ) )
-        {
-            return false;
-        }
-
-        AbstractExprNode otherExprNode = ( AbstractExprNode ) other;
-
-        if ( otherExprNode.getAssertionType() != assertionType )
-        {
-            return false;
-        }
-
-        Map otherAnnotations = otherExprNode.annotations;
-
-        if ( otherAnnotations == annotations )
-        {
-            return true;
-        }
-
-        // return true if both are non-null and equals() is true
-
-        return ( ( null != annotations ) && ( null != otherAnnotations ) && 
-        		annotations.equals( otherAnnotations ) );
-    }
-    
-    /**
-     * @see Object#hashCode()
-     */
-    public int hashCode()
-    {
-        int hash = 7;
-        hash = hash*31 + ( assertionType == null ? 0 : assertionType.hashCode() );
-        hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
-        return hash;
     }
 }

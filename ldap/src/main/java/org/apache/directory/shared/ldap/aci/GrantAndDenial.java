@@ -180,7 +180,7 @@ public class GrantAndDenial
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
         buffer.append( getName() );
     }

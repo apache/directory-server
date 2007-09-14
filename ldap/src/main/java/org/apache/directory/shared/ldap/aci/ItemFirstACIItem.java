@@ -125,7 +125,7 @@ public class ItemFirstACIItem extends ACIItem
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
         // identificationTag
         buffer.append( "{ identificationTag \"" );

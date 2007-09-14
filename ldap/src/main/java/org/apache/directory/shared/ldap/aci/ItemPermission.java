@@ -79,7 +79,7 @@ public class ItemPermission extends Permission
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
         buffer.append( "{ " );
 

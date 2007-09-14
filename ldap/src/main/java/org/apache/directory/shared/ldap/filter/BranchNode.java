@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.filter;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -32,102 +31,39 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BranchNode extends AbstractExprNode
+public abstract class BranchNode extends AbstractExprNode
 {
-    /** logical operator for this branch node */
-    private final AssertionEnum operator;
-
     /** child node list for this branch node */
-    private List<ExprNode> children = null;
+    protected List<ExprNode> children = null;
 
 
     /**
      * Creates a BranchNode using a logical operator and a list of children.
      * 
-     * @param operator
-     *            the logical operator to use for this branch node.
-     * @param childList
-     *            the child nodes under this branch node.
+     * @param childList the child nodes under this branch node.
      */
-    public BranchNode( AssertionEnum operator, List<ExprNode> childList)
+    public BranchNode( List<ExprNode> children)
     {
-        super( operator );
+        super();
 
-        if ( null == childList )
+        if ( null == children )
         {
-            children = new ArrayList<ExprNode>( 2 );
+            this.children = new ArrayList<ExprNode>( 2 );
         }
         else
         {
-            children = childList;
-        }
-
-        this.operator = operator;
-
-        switch ( operator )
-        {
-            case AND :
-            case NOT :
-            case OR :
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Logical operator argument in constructor is undefined." );
+            this.children = children;
         }
     }
 
 
     /**
      * Creates a BranchNode using a logical operator.
-     * 
-     * @param operator
-     *            the logical operator to use for this branch node.
      */
-    public BranchNode( AssertionEnum operator)
+    public BranchNode()
     {
-        this( operator, null );
+        this( null );
     }
-
-
-    /**
-     * Adds a child node to this branch node if it allows it. Some branch nodes
-     * like the negation node does not allow more than one child. An attempt to
-     * add more than one node to a negation branch node will result in an
-     * IllegalStateException.
-     * 
-     * @param node
-     *            the child expression to add to this branch node
-     */
-    public void addNode( ExprNode node )
-    {
-        if ( ( AssertionEnum.NOT == operator ) && ( children.size() >= 1 ) )
-        {
-            throw new IllegalStateException( "Cannot add more than one element" + " to a negation node." );
-        }
-
-        children.add( node );
-    }
-
-
-    /**
-     * Adds a child node to this branch node if it allows it at the head rather
-     * than the tail. Some branch nodes like the negation node does not allow
-     * more than one child. An attempt to add more than one node to a negation
-     * branch node will result in an IllegalStateException.
-     * 
-     * @param node
-     *            the child expression to add to this branch node
-     */
-    public void addNodeToHead( ExprNode node )
-    {
-        if ( ( AssertionEnum.NOT == operator ) && ( children.size() >= 1 ) )
-        {
-            throw new IllegalStateException( "Cannot add more than one element" + " to a negation node." );
-        }
-
-        children.add( 0, node );
-    }
-
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#isLeaf()
@@ -139,6 +75,28 @@ public class BranchNode extends AbstractExprNode
     }
 
 
+    /**
+     * Adds a child node to this branch node node
+     * 
+     * @param node the child expression to add to this branch node
+     */
+    public void addNode( ExprNode node )
+    {
+        children.add( node );
+    }
+
+
+    /**
+     * Adds a child node to this branch node at the head rather than the tail. 
+     * 
+     * @param node the child expression to add to this branch node
+     */
+    public void addNodeToHead( ExprNode node )
+    {
+        children.add( 0, node );
+    }
+
+    
     /**
      * Gets the children below this BranchNode. We purposefully do not clone the
      * array list so that backends can sort the order of children using their
@@ -154,13 +112,23 @@ public class BranchNode extends AbstractExprNode
 
 
     /**
+     * Sets the list of children under this node.
+     * 
+     * @param list the list of children to set.
+     */
+    void setChildren( List<ExprNode> list )
+    {
+        children = list;
+    }
+    
+    /**
      * Convenience method that gets the first child in the children array. Its
      * very useful for NOT nodes since they only have one child by avoiding code
      * that looks like: <code> ( ExprNode ) m_children.get( 0 ) </code>
      * 
      * @return the first child
      */
-    public ExprNode getChild()
+    public ExprNode getFirstChild()
     {
         if ( children.size() > 0 )
         {
@@ -168,214 +136,6 @@ public class BranchNode extends AbstractExprNode
         }
 
         return null;
-    }
-
-
-    /**
-     * Sets the list of children under this node.
-     * 
-     * @param list
-     *            the list of children to set.
-     */
-    void setChildren( List<ExprNode> list )
-    {
-        children = list;
-    }
-
-
-    /**
-     * Gets the operator for this branch node.
-     * 
-     * @return the operator constant.
-     */
-    public AssertionEnum getOperator()
-    {
-        return operator;
-    }
-
-
-    /**
-     * Tests whether or not this node is a disjunction (a OR'ed branch).
-     * 
-     * @return true if the operation is a OR, false otherwise.
-     */
-    public boolean isDisjunction()
-    {
-        return AssertionEnum.OR == operator;
-    }
-
-
-    /**
-     * Tests whether or not this node is a conjunction (a AND'ed branch).
-     * 
-     * @return true if the operation is a AND, false otherwise.
-     */
-    public boolean isConjunction()
-    {
-        return AssertionEnum.AND == operator;
-    }
-
-
-    /**
-     * Tests whether or not this node is a negation (a NOT'ed branch).
-     * 
-     * @return true if the operation is a NOT, false otherwise.
-     */
-    public boolean isNegation()
-    {
-        return AssertionEnum.NOT == operator;
-    }
-
-
-    /**
-     * Recursively prints the String representation of this node and all its
-     * descendents to a buffer.
-     * 
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
-     */
-    public StringBuffer printToBuffer( StringBuffer buf )
-    {
-        buf.append( '(' );
-
-        switch ( operator )
-        {
-            case AND :
-                buf.append( "& " );
-                break;
-                
-            case NOT :
-                buf.append( "! " );
-                break;
-                
-            case OR :
-                buf.append( "| " );
-                break;
-                
-            default:
-                buf.append( "UNKNOWN" );
-        }
-
-        for ( ExprNode node:children )
-        {
-        	node.printToBuffer( buf );
-        }
-        
-        buf.append( ')' );
-        
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-    
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
-     */
-    public StringBuffer printRefinementToBuffer( StringBuffer buf ) throws UnsupportedOperationException
-    {
-        
-        
-        switch ( operator )
-        {
-            case AND :
-                buf.append( "and" );
-                break;
-            case OR :
-                buf.append( "or" );
-                break;
-            case NOT :
-                buf.append( "not" );
-                break;
-        }
-        
-        
-        buf.append( ':' );
-        buf.append( ' ' );
-        buf.append( '{' );
-        
-        for ( Iterator<ExprNode> it = children.iterator(); it.hasNext(); )
-        {
-            ExprNode node = it.next();
-            node.printRefinementToBuffer( buf );
-            
-            if(it.hasNext())
-            {
-                buf.append( ',' );
-                buf.append( ' ' );
-            }
-        }
-        
-        buf.append( '}' );
-        
-        return buf;
-    }
-
-    /**
-     * Gets a human readable representation for the operators: AND for '&', OR
-     * for '|' and NOT for '!'.
-     * 
-     * @param operator
-     *            the operator constant.
-     * @return one of the strings AND, OR, or NOT.
-     */
-    public static String getOperatorString( AssertionEnum operator )
-    {
-        String opstr = null;
-
-        switch ( operator )
-        {
-            case AND :
-                opstr = "AND";
-                break;
-                
-            case NOT :
-                opstr = "NOT";
-                break;
-                
-            case OR :
-                opstr = "OR";
-                break;
-                
-            default:
-                opstr = "UNKNOWN";
-        }
-
-        return opstr;
-    }
-
-
-    /**
-     * Gets the recursive prefix string represent of the filter from this node
-     * down.
-     * 
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append( getOperatorString( operator ) );
-        
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf.toString();
     }
 
 
@@ -413,51 +173,5 @@ public class BranchNode extends AbstractExprNode
                 visitor.visit( this );
             }
         }
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object other )
-    {
-        if ( null == other )
-        {
-            return false;
-        }
-
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( !( other instanceof BranchNode ) )
-        {
-            return false;
-        }
-
-        if ( !super.equals( other ) )
-        {
-            return false;
-        }
-
-        BranchNode otherExprNode = ( BranchNode ) other;
-
-        List<ExprNode> otherChildren = otherExprNode.getChildren();
-
-        if ( otherExprNode.getOperator() != operator )
-        {
-            return false;
-        }
-
-        if ( otherChildren == children )
-        {
-            return true;
-        }
-
-        return ( ( null != children ) && ( null != otherChildren ) && 
-        	children.equals( otherChildren ) );
     }
 }

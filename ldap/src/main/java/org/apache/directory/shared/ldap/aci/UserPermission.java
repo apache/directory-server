@@ -80,58 +80,43 @@ public class UserPermission extends Permission
      *
      * @param buffer the string buffer
      */
-    public void printToBuffer( StringBuffer buffer )
+    public void printToBuffer( StringBuilder buffer )
     {
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
         {
-            buffer.append( "precedence" );
-            buffer.append( ' ' );
+            buffer.append( "precedence " );
             buffer.append( getPrecedence() );
-            buffer.append( ',' );
-            buffer.append( ' ' );
+            buffer.append( ", " );
         }
         
-        buffer.append( "protectedItems" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( "protectedItems { " );
+        
         for ( Iterator it = protectedItems.iterator(); it.hasNext(); )
         {
             ProtectedItem item = ( ProtectedItem ) it.next();
             item.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( it.hasNext() ) 
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
         
-        buffer.append( ',' );
-        buffer.append( ' ' );
-        
-        buffer.append( "grantsAndDenials" );
-        buffer.append( ' ' );
-        buffer.append( '{' );
-        buffer.append( ' ' );
+        buffer.append( " }, grantsAndDenials { " );
+
         for ( Iterator it = getGrantsAndDenials().iterator(); it.hasNext(); )
         {
             GrantAndDenial grantAndDenial = ( GrantAndDenial ) it.next();
             grantAndDenial.printToBuffer( buffer );
             
-            if(it.hasNext()) {
-                buffer.append( ',' );
-                buffer.append( ' ' );
+            if ( it.hasNext() ) 
+            {
+                buffer.append( ", " );
             }
         }
-        buffer.append( ' ' );
-        buffer.append( '}' );
         
-        buffer.append( ' ' );
-        buffer.append( '}' );
+        buffer.append( " } }" );
     }
 }

@@ -39,10 +39,10 @@ public class AssertionNode extends AbstractExprNode
     private static final String MAX_STR = "[" + MAX.toString() + "]";
 
     /** The assertion or predicate to apply */
-    private final Assertion m_assertion;
+    private final Assertion assertion;
 
     /** Description of assertion for polish printouts */
-    private final String m_desc;
+    private final String desc;
 
 
     // ------------------------------------------------------------------------
@@ -52,12 +52,11 @@ public class AssertionNode extends AbstractExprNode
     /**
      * Creates an AssertionNode using an arbitrary candidate assertion.
      * 
-     * @param a_assertion
-     *            the arbitrary selection logic.
+     * @param assertion the arbitrary selection logic.
      */
-    public AssertionNode(Assertion a_assertion)
+    public AssertionNode(Assertion assertion)
     {
-        this( a_assertion, "ASSERTION" );
+        this( assertion, "ASSERTION" );
     }
 
 
@@ -65,16 +64,14 @@ public class AssertionNode extends AbstractExprNode
      * Creates an AssertionNode using an arbitrary candidate assertion with a
      * descriptions used for filter AST walker dumps.
      * 
-     * @param a_assertion
-     *            the arbitrary selection logic.
-     * @param a_desc
-     *            the printout representation for filter prints.
+     * @param assertion the arbitrary selection logic.
+     * @param desc the printout representation for filter prints.
      */
-    public AssertionNode(Assertion a_assertion, String a_desc)
+    public AssertionNode( Assertion assertion, String desc )
     {
-        super( AssertionEnum.ASSERTION );
-        m_desc = a_desc;
-        m_assertion = a_assertion;
+        super();
+        this.desc = desc;
+        this.assertion = assertion;
 
         /*
          * We never want this node to ever make it to the point of becoming a
@@ -92,7 +89,7 @@ public class AssertionNode extends AbstractExprNode
      */
     public Assertion getAssertion()
     {
-        return m_assertion;
+        return assertion;
     }
 
 
@@ -114,16 +111,16 @@ public class AssertionNode extends AbstractExprNode
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
      */
-    public StringBuffer printToBuffer( StringBuffer a_buf )
+    public StringBuilder printToBuffer( StringBuilder buf )
     {
-        return a_buf.append( m_desc ).append( MAX_STR );
+        return buf.append( desc ).append( MAX_STR );
     }
 
     
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
      */
-    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "AssertionNode can't be part of a refinement" );
     }
@@ -133,8 +130,8 @@ public class AssertionNode extends AbstractExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor a_visitor )
+    public void accept( FilterVisitor visitor )
     {
-        a_visitor.visit( this );
+        visitor.visit( this );
     }
 }

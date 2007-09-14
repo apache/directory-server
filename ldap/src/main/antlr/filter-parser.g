@@ -66,10 +66,13 @@ options
 {
     /** the monitor used to track the activities of this parser */
     FilterParserMonitor monitor;
+    
     /** the token stream selector used for multiplexing the underlying stream */
     TokenStreamSelector selector;
+    
     /** the filter value encoding lexer */
     AntlrFilterValueLexer valueLexer;
+    
     /** the value parser pulling tokens from the value lexer */
     AntlrFilterValueParser valueParser;
 
@@ -173,7 +176,7 @@ and returns [BranchNode node]
       }
     )*
     {
-        node = new BranchNode( AssertionEnum.AND, children );
+        node = new AndNode( children );
     }
     ;
 
@@ -198,7 +201,7 @@ or returns [BranchNode node]
       }
     )*
     {
-        node = new BranchNode( AssertionEnum.OR, children );
+        node = new OrNode( children );
     }
     ;
 
@@ -213,7 +216,7 @@ not returns [BranchNode node]
 }
     : EXCLAMATION child=filter
     {
-        node = new BranchNode( AssertionEnum.NOT );
+        node = new NotNode();
         node.addNode( child );
     }
     ;
@@ -297,31 +300,53 @@ simple returns [LeafNode node]
         switch( type )
         {
             case APPROXIMATE :
-            case GREATEREQ :
-            case LESSEQ :
                 if ( value instanceof String )
                 {
-                    node = new SimpleNode( attribute, ( String ) value, type );
+                    node = new ApproximateNode( attribute, ( String ) value );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    node = new SimpleNode( attribute, ( byte[] ) value, type );
+                    node = new ApproximateNode( attribute, ( byte[] ) value );
                 }
+                break;
+
+            case GREATEREQ :
+                if ( value instanceof String )
+                {
+                    node = new GreaterEqNode( attribute, ( String ) value );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    node = new GreaterEqNode( attribute, ( byte[] ) value );
+                }
+                break;
+
+            case LESSEQ :
+                if ( value instanceof String )
+                {
+                    node = new LessEqNode( attribute, ( String ) value );
+                }
+                else if ( value instanceof byte[] )
+                {
+                    node = new LessEqNode( attribute, ( byte[] ) value );
+                }
+
                 break;
                 
             case EQUALITY :
                 if ( value instanceof String )
                 {
-                    node = new SimpleNode( attribute, ( String ) value, type );
+                    node = new EqualityNode( attribute, ( String ) value );
                 }
                 else if ( value instanceof byte[] )
                 {
-                    node = new SimpleNode( attribute, ( byte[] ) value, type );
+                    node = new EqualityNode( attribute, ( byte[] ) value );
                 }
                 else
                 {
                     node = ( LeafNode ) value;
                 }
+                
                 break;
                 
             default:

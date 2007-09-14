@@ -21,60 +21,58 @@ package org.apache.directory.shared.ldap.filter;
 
 
 /**
- * Abstract base class for leaf nodes within the expression filter tree.
+ * A assertion value node for LessOrEqual.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Revision: 519266 $
  */
-public abstract class LeafNode extends AbstractExprNode
+public class LessEqNode extends SimpleNode
 {
-    /** attribute on which this leaf is based */
-    private String attribute;
-
-
     /**
-     * Creates a leaf node.
+     * Creates a new LessEqNode object.
      * 
-     * @param attribute the attribute this node is based on
-     * @param type the type of this leaf node
+     * @param attribute the attribute name
+     * @param value the value to test for
      */
-    protected LeafNode( String attribute )
+    public LessEqNode( String attribute, byte[] value )
     {
-        super();
-        this.attribute = attribute;
+        super( attribute, value );
     }
 
 
     /**
-     * Gets whether this node is a leaf - the answer is always true here.
+     * Creates a new LessEqNode object.
      * 
-     * @return true always
+     * @param attribute the attribute name
+     * @param value the value to test for
      */
-    public final boolean isLeaf()
+    public LessEqNode( String attribute, String value )
     {
-        return true;
+        super( attribute, value );
     }
-
 
     /**
-     * Gets the attribute this leaf node is based on.
-     * 
-     * @return the attribute asserted
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
+     *      java.lang.StringBuilder)
      */
-    public final String getAttribute()
+    public StringBuilder printToBuffer( StringBuilder buf )
     {
-        return attribute;
+        buf.append( '(' ).append( getAttribute() ).append( "<=" ).append( value ).append( ')' );
+
+        return super.printToBuffer( buf );
     }
-    
+
     
     /**
-     * Sets the attribute this leaf node is based on.
-     * 
-     * @param attribute the attribute that is asserted by this filter node
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void setAttribute( String attribute )
+    public void accept( FilterVisitor visitor )
     {
-        this.attribute = attribute;
+        if ( visitor.canVisit( this ) )
+        {
+            visitor.visit( this );
+        }
     }
 
 
@@ -90,16 +88,13 @@ public abstract class LeafNode extends AbstractExprNode
             return true;
         }
 
-        if ( !( other instanceof LeafNode ) )
+        if ( !( other instanceof LessEqNode ) )
         {
             return false;
         }
 
-        if ( !super.equals( other ) )
-        {
-            return false;
-        }
-
-        return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
+        LessEqNode otherNode = (LessEqNode) other; 
+        
+        return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
     }
 }

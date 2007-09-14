@@ -111,7 +111,7 @@ public class FilterParserImplTest extends TestCase
         SimpleNode node = ( SimpleNode ) parser.parse( "( ou ~= people )" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people", node.getValue() );
-        assertEquals( AssertionEnum.APPROXIMATE, node.getAssertionType() );
+        assertTrue( node instanceof ApproximateNode );
     }
 
 
@@ -119,7 +119,7 @@ public class FilterParserImplTest extends TestCase
     {
         BranchNode node = ( BranchNode ) parser.parse( "(& ( ou ~= people ) (age>=30) ) " );
         assertEquals( 2, node.getChildren().size() );
-        assertEquals( AssertionEnum.AND, node.getOperator() );
+        assertTrue( node instanceof AndNode );
     }
 
 
@@ -127,7 +127,7 @@ public class FilterParserImplTest extends TestCase
     {
         BranchNode node = ( BranchNode ) parser.parse( "(& ( ou ~= people ) ) " );
         assertEquals( 1, node.getChildren().size() );
-        assertEquals( AssertionEnum.AND, node.getOperator() );
+        assertTrue( node instanceof AndNode );
     }
 
 
@@ -135,7 +135,7 @@ public class FilterParserImplTest extends TestCase
     {
         BranchNode node = ( BranchNode ) parser.parse( "(| ( ou ~= people ) (age>=30) ) " );
         assertEquals( 2, node.getChildren().size() );
-        assertEquals( AssertionEnum.OR, node.getOperator() );
+                assertTrue( node instanceof OrNode );
     }
 
 
@@ -143,7 +143,7 @@ public class FilterParserImplTest extends TestCase
     {
         BranchNode node = ( BranchNode ) parser.parse( "(| (age>=30) ) " );
         assertEquals( 1, node.getChildren().size() );
-        assertEquals( AssertionEnum.OR, node.getOperator() );
+                assertTrue( node instanceof OrNode );
     }
 
 
@@ -151,7 +151,7 @@ public class FilterParserImplTest extends TestCase
     {
         BranchNode node = ( BranchNode ) parser.parse( "( ! (& ( ou ~= people ) (age>=30) ) )" );
         assertEquals( 1, node.getChildren().size() );
-        assertEquals( AssertionEnum.NOT, node.getOperator() );
+                assertTrue( node instanceof NotNode );
     }
 
 
@@ -183,27 +183,27 @@ public class FilterParserImplTest extends TestCase
     {
         PresenceNode node = ( PresenceNode ) parser.parse( "( ou =*)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( ou =* )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( ou =  * )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "(  ou = *)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( ou =* ) " );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( ou =*)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
     }
 
 
@@ -211,23 +211,24 @@ public class FilterParserImplTest extends TestCase
     {
         PresenceNode node = ( PresenceNode ) parser.parse( "( 1.2.3.4 = * )" );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( 1.2.3.4 =  * )" );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "(  1.2.3.4 = *)" );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+                assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( 1.2.3.4 =* ) " );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+        assertTrue( node instanceof PresenceNode );
+        assertTrue( node instanceof PresenceNode );
 
         node = ( PresenceNode ) parser.parse( "( 1.2.3.4 =*)" );
         assertEquals( "1.2.3.4", node.getAttribute() );
-        assertEquals( AssertionEnum.PRESENCE, node.getAssertionType() );
+        assertTrue( node instanceof PresenceNode );
     }
 
 
@@ -236,7 +237,7 @@ public class FilterParserImplTest extends TestCase
         SimpleNode node = ( SimpleNode ) parser.parse( "( ou = people )" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people", node.getValue() );
-        assertEquals( AssertionEnum.EQUALITY, node.getAssertionType() );
+                assertTrue( node instanceof EqualityNode );
     }
 
 
@@ -260,7 +261,7 @@ public class FilterParserImplTest extends TestCase
         SimpleNode node = ( SimpleNode ) parser.parse( "( ou = people/in/my/company )" );
         assertEquals( "ou", node.getAttribute() );
         assertEquals( "people/in/my/company", node.getValue() );
-        assertEquals( AssertionEnum.EQUALITY, node.getAssertionType() );
+                assertTrue( node instanceof EqualityNode );
     }
 
 
@@ -271,7 +272,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -283,7 +284,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -294,7 +295,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -321,7 +322,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( null, node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -332,7 +333,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -343,7 +344,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertTrue( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -370,7 +371,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertTrue( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -381,7 +382,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "stupidMatch", node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -392,7 +393,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( "1.3434.23.2", node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -403,7 +404,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( null, node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -414,7 +415,7 @@ public class FilterParserImplTest extends TestCase
         assertEquals( "dummyAssertion\\23\\ac", StringTools.utf8ToString( node.getValue() ) );
         assertEquals( null, node.getMatchingRuleId() );
         assertFalse( node.dnAttributes() );
-        assertEquals( AssertionEnum.EXTENSIBLE, node.getAssertionType() );
+                assertTrue( node instanceof ExtensibleNode );
     }
 
 
@@ -503,7 +504,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = foo* )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 0, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -516,7 +517,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = foo*bar )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 0, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -529,7 +530,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = *bar )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 0, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -542,7 +543,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = foo*guy*bar )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 1, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -556,7 +557,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou =a*b*c*d*e*f )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -573,7 +574,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou =*b*c*d*e*f )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -590,7 +591,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou =a*b*c*d*e* )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -607,7 +608,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou =*b*c*d*e* )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 4, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -624,7 +625,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = foo* *bar )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 0, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -638,7 +639,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou = foo* a *bar )" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 1, node.getAny().size() );
         assertFalse( node.getAny().contains( "" ) );
@@ -657,7 +658,7 @@ public class FilterParserImplTest extends TestCase
     {
         SubstringNode node = ( SubstringNode ) parser.parse( "( ou =*foo*)" );
         assertEquals( "ou", node.getAttribute() );
-        assertEquals( AssertionEnum.SUBSTRING, node.getAssertionType() );
+                assertTrue( node instanceof SubstringNode );
 
         assertEquals( 1, node.getAny().size() );
         assertTrue( node.getAny().contains( "foo" ) );

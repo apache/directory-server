@@ -125,6 +125,6 @@ public interface SubtreeSpecification
      *
      * @param buffer the string buffer
      */
-    void printToBuffer( StringBuffer buffer );
+    void printToBuffer( StringBuilder buffer );
     
 }

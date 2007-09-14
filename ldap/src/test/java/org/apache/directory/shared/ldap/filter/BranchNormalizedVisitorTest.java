@@ -49,11 +49,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuffer oriBuf = new StringBuffer();
+        StringBuilder oriBuf = new StringBuilder();
 
         ori.printToBuffer( oriBuf );
 
-        StringBuffer alteredBuf = new StringBuffer();
+        StringBuilder alteredBuf = new StringBuilder();
 
         altered.printToBuffer( alteredBuf );
 
@@ -75,11 +75,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuffer oriBuf = new StringBuffer();
+        StringBuilder oriBuf = new StringBuilder();
 
         ori.printToBuffer( oriBuf );
 
-        StringBuffer alteredBuf = new StringBuffer();
+        StringBuilder alteredBuf = new StringBuilder();
 
         altered.printToBuffer( alteredBuf );
 
@@ -103,11 +103,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuffer oriBuf = new StringBuffer();
+        StringBuilder oriBuf = new StringBuilder();
 
         ori.printToBuffer( oriBuf );
 
-        StringBuffer alteredBuf = new StringBuffer();
+        StringBuilder alteredBuf = new StringBuilder();
 
         altered.printToBuffer( alteredBuf );
 
@@ -131,11 +131,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuffer oriBuf = new StringBuffer();
+        StringBuilder oriBuf = new StringBuilder();
 
         ori.printToBuffer( oriBuf );
 
-        StringBuffer alteredBuf = new StringBuffer();
+        StringBuilder alteredBuf = new StringBuilder();
 
         altered.printToBuffer( alteredBuf );
 

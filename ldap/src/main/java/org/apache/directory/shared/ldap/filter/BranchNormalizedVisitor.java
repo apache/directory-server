@@ -53,7 +53,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         BranchNode branch = ( BranchNode ) node;
 
-        if ( branch.getOperator() == AssertionEnum.NOT )
+        if ( branch instanceof NotNode )
         {
             return;
         }
@@ -139,7 +139,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
         visitor.visit( filter );
 
-        StringBuffer normalized = new StringBuffer();
+        StringBuilder normalized = new StringBuilder();
 
         filter.printToBuffer( normalized );
 
@@ -150,7 +150,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
     {
         public int compare( ExprNode o1, ExprNode o2 )
         {
-            StringBuffer buf = new StringBuffer();
+        	StringBuilder buf = new StringBuilder();
 
             buf.setLength( 0 );
 

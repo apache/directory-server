@@ -65,13 +65,18 @@ import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
-import org.apache.directory.shared.ldap.filter.AssertionEnum;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.ApproximateNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ExtensibleNode;
+import org.apache.directory.shared.ldap.filter.GreaterEqNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
+import org.apache.directory.shared.ldap.filter.LessEqNode;
+import org.apache.directory.shared.ldap.filter.NotNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.message.AbandonRequestImpl;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
@@ -395,15 +400,15 @@ public class TwixTransformer implements TransformerSpi
 
                 if ( twixFilter instanceof AndFilter )
                 {
-                    branch = new BranchNode( AssertionEnum.AND );
+                    branch = new AndNode();
                 }
                 else if ( twixFilter instanceof OrFilter )
                 {
-                    branch = new BranchNode( AssertionEnum.OR );
+                    branch = new OrNode();
                 }
                 else if ( twixFilter instanceof NotFilter )
                 {
-                    branch = new BranchNode( AssertionEnum.NOT );
+                    branch = new NotNode();
                 }
 
                 List<Filter> filtersSet = ( ( ConnectorFilter ) twixFilter ).getFilterSet();
@@ -440,15 +445,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.EQUALITY_MATCH_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue(), 
-                                    AssertionEnum.EQUALITY );
+                                branch = new EqualityNode( ava.getAttributeDesc(), 
+                                    (String)ava.getAssertionValue() );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue(), 
-                                    AssertionEnum.EQUALITY );
+                                branch = new EqualityNode( ava.getAttributeDesc(), 
+                                    (byte[])ava.getAssertionValue() );
                             }
                             
                             break;
@@ -456,15 +459,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.GREATER_OR_EQUAL_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(),
-                                    (String)ava.getAssertionValue(),
-                                    AssertionEnum.GREATEREQ );
+                                branch = new GreaterEqNode( ava.getAttributeDesc(),
+                                    (String)ava.getAssertionValue() );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(),
-                                    (byte[])ava.getAssertionValue(),
-                                    AssertionEnum.GREATEREQ );
+                                branch = new GreaterEqNode( ava.getAttributeDesc(),
+                                    (byte[])ava.getAssertionValue() );
                             }
 
                             break;
@@ -472,15 +473,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.LESS_OR_EQUAL_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue(), 
-                                    AssertionEnum.LESSEQ );
+                                branch = new LessEqNode( ava.getAttributeDesc(), 
+                                    (String)ava.getAssertionValue() );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue(), 
-                                    AssertionEnum.LESSEQ );
+                                branch = new LessEqNode( ava.getAttributeDesc(), 
+                                    (byte[])ava.getAssertionValue() );
                             }
 
                             break;
@@ -488,15 +487,13 @@ public class TwixTransformer implements TransformerSpi
                         case LdapConstants.APPROX_MATCH_FILTER:
                             if ( ava.getAssertionValue() instanceof String )
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (String)ava.getAssertionValue(), 
-                                    AssertionEnum.APPROXIMATE );
+                                branch = new ApproximateNode( ava.getAttributeDesc(), 
+                                    (String)ava.getAssertionValue() );
                             }
                             else
                             {
-                                branch = new SimpleNode( ava.getAttributeDesc(), 
-                                    (byte[])ava.getAssertionValue(), 
-                                    AssertionEnum.APPROXIMATE );
+                                branch = new ApproximateNode( ava.getAttributeDesc(), 
+                                    (byte[])ava.getAssertionValue() );
                             }
 
                             break;

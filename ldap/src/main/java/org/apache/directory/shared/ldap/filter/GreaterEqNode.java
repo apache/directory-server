@@ -21,68 +21,48 @@ package org.apache.directory.shared.ldap.filter;
 
 
 /**
- * Filter expression tree node representing a filter attribute value assertion
- * for presence.
+ * A assertion value node for GreaterOrEqual.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Revision$
+ * @version $Revision: 519266 $
  */
-public final class PresenceNode extends LeafNode
+public class GreaterEqNode extends SimpleNode
 {
     /**
-     * Creates a PresenceNode object based on an attribute.
+     * Creates a new GreaterOrEqual object.
      * 
-     * @param attribute the attribute to assert the presence of
+     * @param attribute the attribute name
+     * @param value the value to test for
      */
-    public PresenceNode( String attribute )
+    public GreaterEqNode( String attribute, byte[] value )
     {
-        super( attribute );
+        super( attribute, value );
     }
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuilder)
+     * Creates a new GreaterOrEqual object.
+     * 
+     * @param attribute the attribute name
+     * @param value the value to test for
+     */
+    public GreaterEqNode( String attribute, String value )
+    {
+        super( attribute, value );
+    }
+
+    /**
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
+     *      java.lang.StringBuilder)
      */
     public StringBuilder printToBuffer( StringBuilder buf )
     {
-        buf.append( '(' ).append( getAttribute() ).append( "=*)" );
-
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-
-    /**
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
-    {
-    	StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
+        buf.append( '(' ).append( getAttribute() ).append( ">=" ).append( value ).append( ')' );
         
-        return ( buf.toString() );
+    	return super.printToBuffer( buf );
     }
 
     
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException( "PresenceNode can't be part of a refinement" );
-    }
-
-
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
@@ -93,5 +73,28 @@ public final class PresenceNode extends LeafNode
         {
             visitor.visit( this );
         }
+    }
+
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals( Object other )
+    {
+        if ( this == other )
+        {
+            return true;
+        }
+
+        if ( !( other instanceof GreaterEqNode ) )
+        {
+            return false;
+        }
+
+        GreaterEqNode otherNode = (GreaterEqNode) other; 
+        
+        return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
     }
 }

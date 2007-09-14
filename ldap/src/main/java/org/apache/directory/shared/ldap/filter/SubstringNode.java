@@ -46,24 +46,21 @@ public class SubstringNode extends LeafNode
     private final String finalPattern;
 
     /** List of fragments between wildcards */
-    private final List anyPattern;
+    private final List<String> anyPattern;
 
     /**
      * Creates a new SubstringNode object with only one wildcard and no internal
      * any fragments between wildcards.
      * 
-     * @param attribute
-     *            the name of the attribute to substring assert
-     * @param initialPattern
-     *            the initial fragment
-     * @param finalPattern
-     *            the final fragment
+     * @param attribute the name of the attribute to substring assert
+     * @param initialPattern the initial fragment
+     * @param finalPattern the final fragment
      */
-    public SubstringNode(String attribute, String initialPattern, String finalPattern)
+    public SubstringNode( String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute, AssertionEnum.SUBSTRING );
+        super( attribute );
 
-        anyPattern = new ArrayList( 2 );
+        anyPattern = new ArrayList<String>( 2 );
         this.finalPattern = finalPattern;
         this.initialPattern = initialPattern;
     }
@@ -73,18 +70,14 @@ public class SubstringNode extends LeafNode
      * Creates a new SubstringNode object more than one wildcard and an any
      * list.
      * 
-     * @param anyPattern
-     *            list of internal fragments between wildcards
-     * @param attribute
-     *            the name of the attribute to substring assert
-     * @param initialPattern
-     *            the initial fragment
-     * @param finalPattern
-     *            the final fragment
+     * @param anyPattern list of internal fragments between wildcards
+     * @param attribute the name of the attribute to substring assert
+     * @param initialPattern the initial fragment
+     * @param finalPattern the final fragment
      */
     public SubstringNode( List<String> anyPattern, String attribute, String initialPattern, String finalPattern )
     {
-        super( attribute, AssertionEnum.SUBSTRING );
+        super( attribute );
 
         this.anyPattern = anyPattern;
         this.finalPattern = finalPattern;
@@ -119,7 +112,7 @@ public class SubstringNode extends LeafNode
      * 
      * @return the any fragments
      */
-    public final List getAny()
+    public final List<String> getAny()
     {
         return anyPattern;
     }
@@ -129,8 +122,7 @@ public class SubstringNode extends LeafNode
      * Gets the compiled regular expression for the substring expression.
      * 
      * @return the equivalent compiled regular expression
-     * @throws RESyntaxException
-     *             if the regular expression is invalid
+     * @throws RESyntaxException if the regular expression is invalid
      */
     public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
     {
@@ -141,6 +133,7 @@ public class SubstringNode extends LeafNode
             for ( int i = 0; i < any.length; i++ )
             {
                 any[i] = ( String ) normalizer.normalize( anyPattern.get( i ) );
+                
                 if ( any[i].length() == 0 )
                 {
                     any[i] = " ";
@@ -187,7 +180,7 @@ public class SubstringNode extends LeafNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         printToBuffer( buf );
 
         return ( buf.toString() );
@@ -195,9 +188,9 @@ public class SubstringNode extends LeafNode
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuilder)
      */
-    public StringBuffer printToBuffer( StringBuffer buf )
+    public StringBuilder printToBuffer( StringBuilder buf )
     {
         buf.append( '(' ).append( getAttribute() ).append( '=' );
 
@@ -210,9 +203,9 @@ public class SubstringNode extends LeafNode
             buf.append( '*' );
         }
 
-        for ( int i = 0; i < anyPattern.size(); i++ )
+        for ( String any:anyPattern )
         {
-            buf.append( anyPattern.get( i ).toString() );
+            buf.append( any );
             buf.append( '*' );
         }
 
@@ -239,9 +232,9 @@ public class SubstringNode extends LeafNode
 
     
     /**
-     * @see ExprNode#printRefinementToBuffer(StringBuffer)
+     * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
-    public StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException
+    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "SubstringNode can't be part of a refinement" );
     }
@@ -251,11 +244,11 @@ public class SubstringNode extends LeafNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor a_visitor )
+    public void accept( FilterVisitor visitor )
     {
-        if ( a_visitor.canVisit( this ) )
+        if ( visitor.canVisit( this ) )
         {
-            a_visitor.visit( this );
+            visitor.visit( this );
         }
     }
 }

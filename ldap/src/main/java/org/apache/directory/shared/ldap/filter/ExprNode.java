@@ -33,20 +33,17 @@ public interface ExprNode
     /**
      * Gets an annotation on the tree by key.
      * 
-     * @param a_key
-     *            the annotation key.
+     * @param key the annotation key.
      * @return the annotation value.
      */
-    Object get( Object a_key );
+    Object get( Object key );
 
 
     /**
      * Sets a annotation key to a value.
      * 
-     * @param key
-     *            the annotation key.
-     * @param value
-     *            the annotation value.
+     * @param key the annotation key.
+     * @param value the annotation value.
      */
     void set( String key, Object value );
 
@@ -63,29 +60,25 @@ public interface ExprNode
      * Recursively appends this String representation of this node and its
      * descendents in prefix notation to a buffer.
      * 
-     * @param a_buf
-     *            the buffer to append to.
+     * @param buf the buffer to append to.
      */
-    StringBuffer printToBuffer( StringBuffer a_buf );
+    StringBuilder printToBuffer( StringBuilder buf );
 
 
     /**
      * Recursively appends the refinement string representation of this node and its
      * descendents in prefix notation to a buffer.
      * 
-     * @param a_buf
-     *            the buffer to append to.
-     * @throws UnsupportedOperationException
-     *            if this node isn't a part of a refinement.
+     * @param buf the buffer to append to.
+     * @throws UnsupportedOperationException if this node isn't a part of a refinement.
      */
-    StringBuffer printRefinementToBuffer( StringBuffer a_buf ) throws UnsupportedOperationException;
+    StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException;
     
     
     /**
      * Element/node accept method for visitor pattern.
      * 
-     * @param a_visitor
-     *            the filter expression tree structure visitor
+     * @param visitor the filter expression tree structure visitor
      */
-    void accept( FilterVisitor a_visitor );
+    void accept( FilterVisitor visitor );
 }

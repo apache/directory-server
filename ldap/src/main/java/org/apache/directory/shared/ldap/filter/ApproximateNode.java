@@ -19,71 +19,37 @@
  */
 package org.apache.directory.shared.ldap.filter;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-
 
 /**
  * A simple assertion value node.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Revision$
+ * @version $Revision: 519266 $
  */
-public class SimpleNode extends LeafNode
+public class ApproximateNode extends SimpleNode
 {
-	/** the value */
-    protected Object value;
-
-    /** Constants for comparisons */
-    public final static boolean EVAL_GREATER = true;
-    public final static boolean EVAL_LESSER = false;
-
     /**
-     * Creates a new SimpleNode object.
+     * Creates a new ApproximateNode object.
      * 
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public SimpleNode( String attribute, byte[] value )
+    public ApproximateNode( String attribute, byte[] value )
     {
-        super( attribute );
-        this.value = value;
+        super( attribute, value );
     }
 
 
     /**
-     * Creates a new SimpleNode object.
+     * Creates a new ApproximateNode object.
      * 
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public SimpleNode( String attribute, String value )
+    public ApproximateNode( String attribute, String value )
     {
-        super( attribute );
-        this.value = value;
+        super( attribute, value );
     }
-
-
-    /**
-     * Gets the value.
-     * 
-     * @return the value
-     */
-    public final Object getValue()
-    {
-        return value;
-    }
-
-
-    /**
-     * Sets the value of this node.
-     * 
-     * @param value the value for this node
-     */
-    public void setValue( Object value )
-    {
-        this.value = value;
-    }
-
 
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
@@ -91,48 +57,12 @@ public class SimpleNode extends LeafNode
      */
     public StringBuilder printToBuffer( StringBuilder buf )
     {
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
+        buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( value ).append( ')' );
 
-        return buf;
+    	return super.printToBuffer( buf );
     }
 
     
-    /**
-     * @see ExprNode#printRefinementToBuffer(StringBuilder)
-     */
-    public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
-    {
-        if ( getAttribute() == null || !SchemaConstants.OBJECT_CLASS_AT.equalsIgnoreCase( getAttribute() ) )
-        {
-            throw new UnsupportedOperationException( "Invalid attribute " + getAttribute() + " for a refinement" );
-        }
-
-        buf.append( "item: " ).append( value );
-
-        return buf;
-    }
-
-
-    /**
-     * @see java.lang.Object#toString()
-     */
-    public String toString()
-    {
-    	StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
-        return ( buf.toString() );
-    }
-
-
     /**
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
@@ -158,13 +88,13 @@ public class SimpleNode extends LeafNode
             return true;
         }
 
-        if ( !( other instanceof SimpleNode ) )
+        if ( !( other instanceof ApproximateNode ) )
         {
             return false;
         }
 
-        SimpleNode otherNode = (SimpleNode)other;
-
+        ApproximateNode otherNode = (ApproximateNode) other; 
+        
         return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
     }
 }

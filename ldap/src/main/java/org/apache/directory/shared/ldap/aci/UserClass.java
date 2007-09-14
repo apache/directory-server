@@ -66,7 +66,7 @@ public abstract class UserClass implements Serializable
      *
      * @param buffer the string buffer
      */
-    public abstract void printToBuffer( StringBuffer buffer );
+    public abstract void printToBuffer( StringBuilder buffer );
     
 
     /**
@@ -89,7 +89,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "allUsers" );
         }
@@ -116,7 +116,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "thisEntry" );
         }
@@ -178,7 +178,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             boolean isFirst = true;
             buffer.append( "{ " );
@@ -229,7 +229,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "name " );
             super.printToBuffer( buffer );
@@ -265,7 +265,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "userGroup " );
             super.printToBuffer( buffer );
@@ -327,7 +327,7 @@ public abstract class UserClass implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             boolean isFirst = true;
             buffer.append( "subtree { " );

@@ -77,7 +77,7 @@ public abstract class ProtectedItem implements Serializable
      *
      * @param buffer the string buffer
      */
-    public abstract void printToBuffer( StringBuffer buffer );
+    public abstract void printToBuffer( StringBuilder buffer );
 
     
     /**
@@ -130,10 +130,9 @@ public abstract class ProtectedItem implements Serializable
         }
 
 
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "classes" );
-            buffer.append( ' ' );
+            buffer.append( "classes " );
             classes.printRefinementToBuffer( buffer );
         }
     }
@@ -162,7 +161,7 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "entry" );
         }
@@ -188,7 +187,7 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "allUserAttributeTypes" );
         }
@@ -214,7 +213,7 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "allUserAttributeTypesAndValues" );
         }
@@ -255,11 +254,6 @@ public abstract class ProtectedItem implements Serializable
                 return true;
             }
 
-            if ( o == null )
-            {
-                return false;
-            }
-
             if ( getClass().isAssignableFrom( o.getClass() ) )
             {
                 AttributeTypeProtectedItem that = ( AttributeTypeProtectedItem ) o;
@@ -270,7 +264,7 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
             buffer.append( "{ " );
             boolean isFirst = true;
@@ -320,10 +314,9 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "attributeType" );
-            buffer.append( ' ' );
+            buffer.append( "attributeType " );
             super.printToBuffer( buffer );
         }
     }
@@ -354,10 +347,9 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "allAttributeValues" );
-            buffer.append( ' ' );
+            buffer.append( "allAttributeValues " );
             super.printToBuffer( buffer );
         }
     }
@@ -392,10 +384,9 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "selfValue" );
-            buffer.append( ' ' );
+            buffer.append( "selfValue " );
             super.printToBuffer( buffer );
         }
     }
@@ -453,19 +444,16 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "attributeValue" );
-            buffer.append( ' ' );
-           
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            buffer.append( "attributeValue {" );
             
             for ( Iterator<Attribute> it = attributes.iterator(); it.hasNext(); )
             {
                 Attribute attribute = it.next();
                 buffer.append( attribute.getID() );
                 buffer.append( '=' );
+                
                 try
                 {
                     buffer.append( attribute.get( 0 ) );
@@ -475,14 +463,13 @@ public abstract class ProtectedItem implements Serializable
                     // doesn't occur here, it is an Attribute
                 }
                 
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
+                if ( it.hasNext() ) 
+                {
+                    buffer.append( ", " );
                 }
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 
@@ -510,14 +497,6 @@ public abstract class ProtectedItem implements Serializable
          */
         public MaxValueCount( Collection<MaxValueCountItem> items )
         {
-            for ( Iterator<MaxValueCountItem> i = items.iterator(); i.hasNext(); )
-            {
-                if ( !MaxValueCountItem.class.isAssignableFrom( i.next().getClass() ) )
-                {
-                    throw new IllegalArgumentException( "Max value count contains a wrong element." );
-                }
-            }
-
             this.items = Collections.unmodifiableCollection( new ArrayList<MaxValueCountItem>( items ) );
         }
 
@@ -554,27 +533,22 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "maxValueCount" );
-            buffer.append( ' ' );
-           
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            buffer.append( "maxValueCount {" );
             
             for ( Iterator<MaxValueCountItem> it = items.iterator(); it.hasNext(); )
             {
                 MaxValueCountItem item = it.next();
                 item.printToBuffer( buffer );
                 
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
+                if ( it.hasNext() ) 
+                {
+                    buffer.append( ", " );
                 }
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 
@@ -634,17 +608,16 @@ public abstract class ProtectedItem implements Serializable
 
         public String toString()
         {
-            StringBuffer buf = new StringBuffer();
+        	StringBuilder buf = new StringBuilder();
             buf.append( "rangeOfValues: " );
             filter.printToBuffer( buf );
             return buf.toString();
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "rangeOfValues" );
-            buffer.append( ' ' );
+            buffer.append( "rangeOfValues " );
             filter.printToBuffer( buffer );
         }
     }
@@ -710,10 +683,9 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "maxImmSub" );
-            buffer.append( ' ' );
+            buffer.append( "maxImmSub " );
             buffer.append( value );
         }
     }
@@ -777,27 +749,22 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( "restrictedBy" );
-            buffer.append( ' ' );
-            
-            buffer.append( '{' );
-            buffer.append( ' ' );
+            buffer.append( "restrictedBy {" );
             
             for ( Iterator<RestrictedByItem> it = items.iterator(); it.hasNext(); )
             {
                 RestrictedByItem item = it.next();
                 item.printToBuffer( buffer );
                 
-                if(it.hasNext()) {
-                    buffer.append( ',' );
-                    buffer.append( ' ' );
+                if ( it.hasNext() ) 
+                {
+                    buffer.append( ", " );
                 }
             }
             
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 
@@ -853,24 +820,13 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( '{' );
-            buffer.append( ' ' );
-            
-            buffer.append( "type" );
-            buffer.append( ' ' );
-            buffer.append( attributeType );
+            buffer.append( "{ type " ).append( attributeType );
 
-            buffer.append( ',' );
-            buffer.append( ' ' );
+            buffer.append( ", maxcount " ).append( maxCount );
             
-            buffer.append( "maxCount" );
-            buffer.append( ' ' );
-            buffer.append( maxCount );
-            
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
 
@@ -927,25 +883,13 @@ public abstract class ProtectedItem implements Serializable
         }
         
         
-        public void printToBuffer( StringBuffer buffer )
+        public void printToBuffer( StringBuilder buffer )
         {
-            buffer.append( '{' );
-            buffer.append( ' ' );
-            
-            buffer.append( "type" );
-            buffer.append( ' ' );
-            buffer.append( attributeType );
+            buffer.append( "' type " ).append( attributeType );
 
-            buffer.append( ',' );
-            buffer.append( ' ' );
+            buffer.append( ", valuesIn " ).append( valuesIn );
             
-            buffer.append( "valuesIn" );
-            buffer.append( ' ' );
-            buffer.append( valuesIn );
-            
-            buffer.append( ' ' );
-            buffer.append( '}' );
+            buffer.append( " }" );
         }
     }
-    
 }
