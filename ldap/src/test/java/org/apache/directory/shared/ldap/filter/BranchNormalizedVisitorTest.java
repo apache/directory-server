@@ -49,15 +49,7 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuilder oriBuf = new StringBuilder();
-
-        ori.printToBuffer( oriBuf );
-
-        StringBuilder alteredBuf = new StringBuilder();
-
-        altered.printToBuffer( alteredBuf );
-
-        assertEquals( oriBuf.toString(), alteredBuf.toString() );
+        assertEquals( ori.toString(), altered.toString() );
     }
 
 
@@ -75,15 +67,7 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuilder oriBuf = new StringBuilder();
-
-        ori.printToBuffer( oriBuf );
-
-        StringBuilder alteredBuf = new StringBuilder();
-
-        altered.printToBuffer( alteredBuf );
-
-        assertEquals( oriBuf.toString(), alteredBuf.toString() );
+        assertEquals( ori.toString(), altered.toString() );
     }
 
 
@@ -103,15 +87,7 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuilder oriBuf = new StringBuilder();
-
-        ori.printToBuffer( oriBuf );
-
-        StringBuilder alteredBuf = new StringBuilder();
-
-        altered.printToBuffer( alteredBuf );
-
-        assertFalse( oriBuf.toString().equals( alteredBuf.toString() ) );
+        assertFalse( ori.toString().equals( altered.toString() ) );
     }
 
 
@@ -131,15 +107,7 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         visitor.visit( altered );
 
-        StringBuilder oriBuf = new StringBuilder();
-
-        ori.printToBuffer( oriBuf );
-
-        StringBuilder alteredBuf = new StringBuilder();
-
-        altered.printToBuffer( alteredBuf );
-
-        assertTrue( oriBuf.toString().equals( alteredBuf.toString() ) );
+        assertTrue( ori.toString().equals( altered.toString() ) );
     }
 
 
