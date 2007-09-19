@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.Comparator;
+import java.util.Iterator;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -58,21 +59,28 @@ public class LeafEvaluator implements Evaluator
 {
     /** equality matching type constant */
     private static final int EQUALITY_MATCH = 0;
+
     /** ordering matching type constant */
     private static final int ORDERING_MATCH = 1;
+
     /** substring matching type constant */
     private static final int SUBSTRING_MATCH = 2;
 
     /** Database used to evaluate leaf with */
     private BTreePartition db;
+
     /** Oid Registry used to translate attributeIds to OIDs */
     private OidRegistry oidRegistry;
+
     /** AttributeType registry needed for normalizing and comparing values */
     private AttributeTypeRegistry attributeTypeRegistry;
+
     /** Substring node evaluator we depend on */
     private SubstringEvaluator substringEvaluator;
+
     /** ScopeNode evaluator we depend on */
     private ScopeEvaluator scopeEvaluator;
+
 
     /**
      * Creates a leaf expression node evaluator.
@@ -81,9 +89,8 @@ public class LeafEvaluator implements Evaluator
      * @param scopeEvaluator
      * @param substringEvaluator
      */
-    public LeafEvaluator(BTreePartition db, OidRegistry oidRegistry,
-        AttributeTypeRegistry attributeTypeRegistry, ScopeEvaluator scopeEvaluator,
-        SubstringEvaluator substringEvaluator)
+    public LeafEvaluator( BTreePartition db, OidRegistry oidRegistry, AttributeTypeRegistry attributeTypeRegistry,
+        ScopeEvaluator scopeEvaluator, SubstringEvaluator substringEvaluator )
     {
         this.db = db;
         this.oidRegistry = oidRegistry;
@@ -102,6 +109,76 @@ public class LeafEvaluator implements Evaluator
     public SubstringEvaluator getSubstringEvaluator()
     {
         return substringEvaluator;
+    }
+
+
+    /**
+     * Match a filter value against an entry's attribute. An entry's attribute
+     * may have more than one value, and the values may not be normalized. 
+     * @param node
+     * @param attr
+     * @param type
+     * @param normalizer
+     * @param comparator
+     * @return
+     * @throws NamingException
+     */
+    private boolean matchValue( SimpleNode node, Attribute attr, AttributeType type, Normalizer normalizer,
+        Comparator<Object> comparator ) throws NamingException
+    {
+        // get the normalized AVA filter value
+        Object filterValue = node.getValue();
+
+        // Check if the attribute normalized value match 
+        // Fast check. If it succeeds, we are done.
+        if ( AttributeUtils.containsValue( attr, filterValue, type ) )
+        {
+            // We are lucky.
+            return true;
+        }
+
+        /*
+         * We need to now iterate through all values because we could not get
+         * a lookup to work.  For each value we normalize and use the comparator
+         * to determine if a match exists.
+         */
+        NamingEnumeration values = attr.getAll();
+
+        while ( values.hasMore() )
+        {
+            Object normValue = normalizer.normalize( values.next() );
+
+            // TODO Fix DIRSERVER-832
+            if ( 0 == comparator.compare( normValue, filterValue ) )
+            {
+                // The value has been found. get out.
+                return true;
+            }
+        }
+
+        // no match so return false
+        return false;
+    }
+
+
+    /**
+     * Get the entry from the backend, if it's not already into the record
+     */
+    private Attributes getEntry( IndexRecord rec ) throws NamingException
+    {
+        // get the attributes associated with the entry 
+        Attributes entry = rec.getAttributes();
+
+        // resuscitate entry if need be
+        // TODO Is this really needed ? 
+        // How possibly can't we have the entry at this point ?
+        if ( null == entry )
+        {
+            rec.setAttributes( db.lookup( ( Long ) rec.getEntryId() ) );
+            entry = rec.getAttributes();
+        }
+
+        return entry;
     }
 
 
@@ -126,11 +203,11 @@ public class LeafEvaluator implements Evaluator
         }
         else if ( node instanceof GreaterEqNode )
         {
-        	return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_GREATER );
+            return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_GREATER );
         }
         else if ( node instanceof LessEqNode )
         {
-        	return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_LESSER );
+            return evalGreaterOrLesser( ( SimpleNode ) node, record, SimpleNode.EVAL_LESSER );
         }
         else if ( node instanceof SubstringNode )
         {
@@ -138,16 +215,16 @@ public class LeafEvaluator implements Evaluator
         }
         else if ( node instanceof ExtensibleNode )
         {
-        	throw new NotImplementedException();
+            throw new NotImplementedException();
         }
         else if ( node instanceof ApproximateNode )
         {
-        	return evalEquality( ( ApproximateNode ) node, record );
+            return evalEquality( ( ApproximateNode ) node, record );
         }
         else
         {
-        	throw new NamingException( "Unrecognized leaf node type: " + node );
-    	}        
+            throw new NamingException( "Unrecognized leaf node type: " + node );
+        }
     }
 
 
@@ -162,10 +239,11 @@ public class LeafEvaluator implements Evaluator
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure
      */
-    private boolean evalGreaterOrLesser( SimpleNode node, IndexRecord record, boolean isGreaterOrLesser ) throws NamingException
+    private boolean evalGreaterOrLesser( SimpleNode node, IndexRecord record, boolean isGreaterOrLesser )
+        throws NamingException
     {
         String attrId = node.getAttribute();
-        Long id = (Long)record.getEntryId();
+        long id = ( Long ) record.getEntryId();
 
         if ( db.hasUserIndexOn( attrId ) )
         {
@@ -173,21 +251,29 @@ public class LeafEvaluator implements Evaluator
 
             if ( isGreaterOrLesser = SimpleNode.EVAL_GREATER )
             {
-                return idx.hasValue( node.getValue(), id, true );
+                if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_GREATER ) )
+                {
+                    return true;
+                }
             }
-
-            return idx.hasValue( node.getValue(), id, false );
+            else
+            {
+                if ( idx.hasValue( node.getValue(), id, SimpleNode.EVAL_LESSER ) )
+                {
+                    return true;
+                }
+            }
         }
 
-        // resusitate entry if need be
+        // resuscitate entry if need be
         if ( null == record.getAttributes() )
         {
             record.setAttributes( db.lookup( id ) );
         }
 
         // get the attribute associated with the node
-        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), 
-            attributeTypeRegistry.lookup( node.getAttribute() ) );
+        Attribute attr = AttributeUtils.getAttribute( record.getAttributes(), attributeTypeRegistry.lookup( node
+            .getAttribute() ) );
 
         // If we do not have the attribute just return false
         if ( null == attr )
@@ -251,31 +337,73 @@ public class LeafEvaluator implements Evaluator
      */
     private boolean evalPresence( String attrId, IndexRecord rec ) throws NamingException
     {
+        // First, check if the attributeType is indexed
         if ( db.hasUserIndexOn( attrId ) )
         {
             Index idx = db.getExistanceIndex();
-            return idx.hasValue( attrId, rec.getEntryId() );
+
+            // We have a fast find if the entry contains 
+            // this attribute type : as the AT was indexed, we
+            // have a direct access to the entry.
+            if ( idx.hasValue( attrId, rec.getEntryId() ) )
+                ;
+            {
+                return true;
+            }
+
+            // Fallthrough : we may have some descendant 
+            // attributes in some entries.
         }
 
-        // resusitate entry if need be
-        if ( null == rec.getAttributes() )
-        {
-            rec.setAttributes( db.lookup( (Long)rec.getEntryId() ) );
-        }
+        // get the attributes associated with the entry 
+        Attributes entry = getEntry( rec );
 
-        // get the attribute associated with the node 
-        Attributes attrs = rec.getAttributes();
-
-        if ( attrs == null )
+        // Of course, if the entry does not contains any attributes
+        // (very unlikely !!!), get out of here
+        // TODO Can this simply happens ???
+        if ( entry == null )
         {
             return false;
         }
 
+        // Now, get the AttributeType associated with the Attribute id
         AttributeType type = attributeTypeRegistry.lookup( oidRegistry.getOid( attrId ) );
-        return null != AttributeUtils.getAttribute( attrs, type );
+
+        // here, we may have some descendants if the attribute is not found
+        if ( AttributeUtils.getAttribute( entry, type ) != null )
+        {
+            // The current entry contains this attribute. We can exit
+            return true;
+        }
+        else
+        {
+            // The attribute was not found in the entry, but it may have
+            // some descendant. Let's chack that
+            if ( attributeTypeRegistry.hasDescendants( attrId ) )
+            {
+                // Ok, we have to check for each descendant if pone of 
+                // them is present into the entry
+                Iterator<AttributeType> descendants = attributeTypeRegistry.descendants( attrId );
+
+                while ( descendants.hasNext() )
+                {
+                    AttributeType descendant = descendants.next();
+
+                    if ( AttributeUtils.getAttribute( entry, descendant ) != null )
+                    {
+                        // We have found one descendant : exit
+                        return true;
+                    }
+                }
+            }
+
+            // We have checked all the descendant, without success.
+            // Get out, and return a failure status
+            return false;
+        }
     }
 
-   
+
     /**
      * Evaluates a simple equality attribute value assertion on a perspective
      * candidate.
@@ -287,14 +415,31 @@ public class LeafEvaluator implements Evaluator
      */
     private boolean evalEquality( SimpleNode node, IndexRecord rec ) throws NamingException
     {
-        if ( db.hasUserIndexOn( node.getAttribute() ) )
+        String filterAttr = node.getAttribute();
+        Object filterValue = node.getValue();
+
+        // First, check if the attributeType is indexed
+        if ( db.hasUserIndexOn( filterAttr ) )
         {
-            Index idx = db.getUserIndex( node.getAttribute() );
-            return idx.hasValue( node.getValue(), rec.getEntryId() );
+            // Whatever the attribute has some descendants or not,
+            // we will take a chance to get the associated entry
+            // from the index.
+            Index idx = db.getUserIndex( filterAttr );
+
+            if ( idx.hasValue( filterValue, rec.getEntryId() ) )
+            {
+                return true;
+            }
+            else
+            {
+                // FallThrough : we may have some descendant attributes
+                // which values are equal to the filter value.
+            }
         }
 
-        Normalizer normalizer = getNormalizer( node.getAttribute(), EQUALITY_MATCH );
-        Comparator<Object> comparator = getComparator( node.getAttribute(), EQUALITY_MATCH );
+        // Get the normalizer and comparator for this attributeType
+        Normalizer normalizer = getNormalizer( filterAttr, EQUALITY_MATCH );
+        Comparator<Object> comparator = getComparator( filterAttr, EQUALITY_MATCH );
 
         /*
          * Get the attribute and if it is not set in rec then resusitate it
@@ -303,52 +448,77 @@ public class LeafEvaluator implements Evaluator
          * AVA value is contained or the normalized form of the AVA value is 
          * contained.
          */
+        // get the attributes associated with the entry 
+        Attributes entry = getEntry( rec );
 
-        // resusitate entry if need be
-        if ( null == rec.getAttributes() )
-        {
-            rec.setAttributes( db.lookup( (Long)rec.getEntryId() ) );
-        }
-
-        // get the attribute associated with the node 
-        Attributes attrs = rec.getAttributes();
-        AttributeType type = attributeTypeRegistry.lookup( node.getAttribute() );
-        Attribute attr = AttributeUtils.getAttribute( attrs, type );
-
-        // If we do not have the attribute just return false
-        if ( null == attr )
+        // Of course, if the entry does not contains any attributes
+        // (very unlikely !!!), get out of here
+        // TODO Can this simply happens ???
+        if ( entry == null )
         {
             return false;
         }
 
-        // get the normalized AVA filter value
-        Object filterValue = node.getValue();
+        // get the attribute associated with the node 
+        AttributeType type = attributeTypeRegistry.lookup( filterAttr );
+        Attribute attr = AttributeUtils.getAttribute( entry, type );
 
-        // check if the normalized value is present
-        if ( AttributeUtils.containsValue(attr, node.getValue(), type ) )
+        if ( attr != null )
         {
-            return true;
-        }
-
-        /*
-         * We need to now iterate through all values because we could not get
-         * a lookup to work.  For each value we normalize and use the comparator
-         * to determine if a match exists.
-         */
-        NamingEnumeration list = attr.getAll();
-        
-        while ( list.hasMore() )
-        {
-            Object value = normalizer.normalize( list.next() );
-
-            // TODO Fix DIRSERVER-832
-            if ( 0 == comparator.compare( value, filterValue ) )
+            // We have found the attribute into the entry.
+            // Check if the normalized value is present
+            if ( AttributeUtils.containsValue( attr, filterValue, type ) )
+            {
+                // We are lucky.
+                return true;
+            }
+            // Check if the unormalized value match
+            else if ( matchValue( node, attr, type, normalizer, comparator ) )
             {
                 return true;
             }
+            else
+            {
+                // Fallthrough : we may have a descendant attribute containing the value
+            }
+        }
+        else
+        {
+            // Fallthrough : we may have a descendant attribute containing the value
         }
 
-        // no match so return false
+        // If we do not have the attribute, loop through the descendant
+        // May be the node Attribute has descendant ?
+        if ( attributeTypeRegistry.hasDescendants( filterAttr ) )
+        {
+            Iterator<AttributeType> descendants = attributeTypeRegistry.descendants( filterAttr );
+
+            while ( descendants.hasNext() )
+            {
+                AttributeType descendant = descendants.next();
+
+                attr = AttributeUtils.getAttribute( entry, descendant );
+
+                if ( null == attr )
+                {
+                    continue;
+                }
+                else
+                {
+                    // check if the normalized value is present
+                    if ( AttributeUtils.containsValue( attr, filterValue, descendant ) )
+                    {
+                        return true;
+                    }
+                    // Now check the unormalized value
+                    else if ( matchValue( node, attr, type, normalizer, comparator ) )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
 
@@ -364,12 +534,12 @@ public class LeafEvaluator implements Evaluator
     private Comparator<Object> getComparator( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, matchType );
-        
+
         if ( mrule == null )
         {
             return ByteArrayComparator.INSTANCE;
         }
-        
+
         return mrule.getComparator();
     }
 
@@ -384,12 +554,12 @@ public class LeafEvaluator implements Evaluator
     private Normalizer getNormalizer( String attrId, int matchType ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, matchType );
-        
+
         if ( mrule == null )
         {
             return NoOpNormalizer.INSTANCE;
         }
-        
+
         return mrule.getNormalizer();
     }
 
@@ -412,12 +582,15 @@ public class LeafEvaluator implements Evaluator
             case ( EQUALITY_MATCH ):
                 mrule = type.getEquality();
                 break;
+
             case ( SUBSTRING_MATCH ):
                 mrule = type.getSubstr();
                 break;
+
             case ( ORDERING_MATCH ):
                 mrule = type.getOrdering();
                 break;
+
             default:
                 throw new NamingException( "Unknown match type: " + matchType );
         }
@@ -428,11 +601,11 @@ public class LeafEvaluator implements Evaluator
         // comparators are redundant and enable ordering to occur.  So if
         // we can we will use the comparator of the ordering matchingRule
         // and if not we default to the equality matchingRule's comparator.
-        if ( matchType != EQUALITY_MATCH && mrule == null )
+        if ( ( matchType != EQUALITY_MATCH ) && ( mrule == null ) )
         {
             return getMatchingRule( attrId, EQUALITY_MATCH );
         }
-        
+
         return mrule;
     }
 }
