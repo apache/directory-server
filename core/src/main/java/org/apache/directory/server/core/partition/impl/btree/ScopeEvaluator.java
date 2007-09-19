@@ -63,10 +63,13 @@ public class ScopeEvaluator implements Evaluator
             case ( SearchControls.OBJECT_SCOPE  ):
                 String dn = db.getEntryDn( (Long)record.getEntryId() );
                 return dn.equals( snode.getBaseDn() );
+                
             case ( SearchControls.ONELEVEL_SCOPE  ):
                 return assertOneLevelScope( snode, (Long)record.getEntryId() );
+            
             case ( SearchControls.SUBTREE_SCOPE  ):
                 return assertSubtreeScope( snode, (Long)record.getEntryId() );
+            
             default:
                 throw new NamingException( "Unrecognized search scope!" );
         }
@@ -106,6 +109,7 @@ public class ScopeEvaluator implements Evaluator
          * not be returned.
          */
         Index idx = db.getAliasIndex();
+
         if ( null != idx.reverseLookup( id ) )
         {
             return false;
@@ -134,6 +138,7 @@ public class ScopeEvaluator implements Evaluator
          * candidate is rejected with a false return because it is not in scope.
          */
         idx = db.getSubAliasIndex();
+        
         return idx.hasValue( baseId, id );
     }
 
@@ -171,6 +176,7 @@ public class ScopeEvaluator implements Evaluator
          * not be returned.
          */
         idx = db.getAliasIndex();
+        
         if ( null != idx.reverseLookup( id ) )
         {
             return false;
@@ -196,6 +202,7 @@ public class ScopeEvaluator implements Evaluator
          * candidate is rejected with a false return because it is not in scope.
          */
         idx = db.getOneAliasIndex();
+        
         return idx.hasValue( baseId, id );
     }
 }
