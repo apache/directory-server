@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.normalization;
 
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -52,22 +51,9 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.ApproximateNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.ExtensibleNode;
-import org.apache.directory.shared.ldap.filter.GreaterEqNode;
-import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.LessEqNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.slf4j.Logger;
@@ -90,9 +76,6 @@ public class NormalizationService extends BaseInterceptor
     /** a filter node value normalizer and undefined node remover */
     private NormalizingVisitor normVisitor;
     
-    /** an expanding filter that makes expressions more specific */
-    private ExpandingVisitor expVisitor;
-    
     /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
     private AttributeTypeRegistry attributeRegistry;
     
@@ -108,7 +91,7 @@ public class NormalizationService extends BaseInterceptor
         attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         normVisitor = new NormalizingVisitor( ncn, oidRegistry );
-        expVisitor = new ExpandingVisitor( attributeRegistry );
+        //expVisitor = new ExpandingVisitor( attributeRegistry );
         attrNormalizers = attributeRegistry.getNormalizerMapping();
     }
 
@@ -177,6 +160,23 @@ public class NormalizationService extends BaseInterceptor
         
         base.normalize( attrNormalizers);
 
+        ExprNode result = (ExprNode)filter.accept( normVisitor );
+        
+        if ( result == null )
+        {
+            log.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            return new EmptyEnumeration<SearchResult>();
+        }
+        else
+        {
+            opContext.setFilter( result );
+            return nextInterceptor.search( opContext );
+        }
+        /*
+         * If we have a leaf that uses a unknown attribute then we must return
+         * an empty result to the user.
+         */
+        /*
         if ( filter.isLeaf() )
         {
             LeafNode ln = ( LeafNode ) filter;
@@ -213,7 +213,7 @@ public class NormalizationService extends BaseInterceptor
                     }
                 }
 
-                filter.accept( normVisitor );
+                ExprNode result = (ExprNode)filter.accept( normVisitor );
                 
                 isFailure = false;
             }
@@ -396,7 +396,7 @@ public class NormalizationService extends BaseInterceptor
                         ExtensibleNode extensibleNode = ( ExtensibleNode ) leaf;
                         
                         newLeaf = new ExtensibleNode( descendant.getOid(), 
-                            extensibleNode.getValue(), 
+                            extensibleNode.getValue(),  
                             extensibleNode.getMatchingRuleId(), 
                             extensibleNode.dnAttributes() );
                     	
@@ -413,6 +413,7 @@ public class NormalizationService extends BaseInterceptor
         
         opContext.setFilter( filter );
         return nextInterceptor.search( opContext );
+        */
     }
 
 
