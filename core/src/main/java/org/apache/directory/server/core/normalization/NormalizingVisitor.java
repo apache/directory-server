@@ -21,20 +21,25 @@ package org.apache.directory.server.core.normalization;
 
 
 import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.ExtensibleNode;
 import org.apache.directory.shared.ldap.filter.FilterVisitor;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -72,9 +77,314 @@ public class NormalizingVisitor implements FilterVisitor
         this.ncn = ncn;
         this.registry = registry;
     }
+    
+    /**
+     * A private method used to normalize a value
+     * @return
+     */
+    private Object normalizeValue( String attribute, Object value )
+    {
+    	try
+    	{
+	    	Object normalized;
+	    	
+	        if ( OID.isOID( attribute ) )
+	        {
+	            if ( value instanceof String )
+	            {
+	                normalized = ncn.normalizeByOid( attribute, ( String ) value );
+	            }
+	            else if ( value instanceof byte [] )
+	            {
+	                normalized = ncn.normalizeByOid( attribute, ( byte[] ) value );
+	            }
+	            else
+	            {
+	                normalized = ncn.normalizeByOid( attribute, value.toString() );
+	            }
+	        }
+	        else
+	        {
+	            if ( value instanceof String )
+	            {
+	                normalized = ncn.normalizeByName( attribute, ( String ) value );
+	            }
+	            else if ( value instanceof byte [] )
+	            {
+	                normalized = ncn.normalizeByName( attribute, ( byte[] ) value );
+	            }
+	            else
+	            {
+	                normalized = ncn.normalizeByName( attribute, value.toString() );
+	            }
+	        }
+	        
+	        return normalized;
+	    }
+	    catch ( NamingException ne )
+	    {
+	        log.warn( "Failed to normalize filter value: {}", ne.getMessage(), ne );
+	        return null;
+	    }
+    	
+    }
+    
+    /**
+     * Visit a PresenceNode. If the attribute exists, the node is returned, otherwise
+     * null is returned.
+     */
+    private ExprNode visitPresenceNode( PresenceNode node )
+    {
+        try
+        {
+            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            return node;
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
+            return null;
+        }
+    }
 
+    /**
+     * Visit a SimpleNode. If the attribute exists, the node is returned, otherwise
+     * null is returned. SimpleNodes are :
+     *  - ApproximateNode
+     *  - EqualityNode
+     *  - GreaterEqNode
+     *  - LesserEqNode
+     */
+    private ExprNode visitSimpleNode( SimpleNode node )
+    {
+        // still need this check here in case the top level is a leaf node
+        // with an undefined attributeType for its attribute
+        if ( !ncn.isDefined( node.getAttribute() ) )
+        {
+            return null;
+        }
 
-    public void visit( ExprNode node )
+       	Object normalized = normalizeValue( node.getAttribute(), node.getValue() );
+        
+        if ( normalized == null )
+        {
+        	return null;
+        }
+
+        try
+        {
+            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            node.setValue( normalized );
+            return node;
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
+            return null;
+        }
+    }
+
+    /**
+     * Visit a SubstringNode. If the attribute exists, the node is returned, otherwise
+     * null is returned. 
+     * 
+     * Normalizing substring value is pretty complex. It's not currently implemented...
+     */
+    private ExprNode visitSubstringNode( SubstringNode node )
+    {
+        // still need this check here in case the top level is a leaf node
+        // with an undefined attributeType for its attribute
+        if ( !ncn.isDefined( node.getAttribute() ) )
+        {
+        	return null;
+        }
+
+        Object normInitial = null;
+        
+        if ( node.getInitial() != null )
+        {
+	        normInitial = normalizeValue( node.getAttribute(), node.getInitial() );
+	        
+	        if ( normInitial == null )
+	        {
+	        	return null;
+	        }
+        }
+        
+        List<String> normAnys = null;
+        
+        if ( ( node.getAny() != null ) && ( node.getAny().size() != 0 ) )
+        {
+	        normAnys = new ArrayList<String>( node.getAny().size() );
+	        
+	        for ( String any:node.getAny() )
+	        {
+	        	Object normAny = normalizeValue( node.getAttribute(), any );
+	        	
+	        	if ( normAny != null )
+	        	{
+	        		normAnys.add( (String)normAny );
+	        	}
+	        }
+        
+	        if ( normAnys.size() == 0 )
+	        {
+	        	return null;
+	        }
+        }
+        
+        Object normFinal = null;
+        
+        if ( node.getFinal() != null )
+        {
+	        normFinal = normalizeValue( node.getAttribute(), node.getFinal() );
+	        
+	        if ( normFinal == null )
+	        {
+	        	return null;
+	        }
+        }
+        
+        
+        try
+        {
+            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            node.setInitial( (String)normInitial );
+            node.setAny( normAnys );
+            node.setFinal( (String)normFinal );
+            return node;
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
+            return null;
+        }
+    }
+
+    /**
+     * Visit a ExtensibleNode. If the attribute exists, the node is returned, otherwise
+     * null is returned. 
+     * 
+     * TODO implement the logic for ExtensibleNode
+     */
+    private ExprNode visitExtensibleNode( ExtensibleNode node )
+    {
+        try
+        {
+            node.setAttribute( registry.getOid( node.getAttribute() ) );
+            return node;
+        }
+        catch ( NamingException ne )
+        {
+            log.warn( "Failed to normalize filter node attribute: {}, error: {}", node.getAttribute(), ne.getMessage() );
+            return null;
+        }
+    }
+
+    /**
+     * Visit a BranchNode. BranchNodes are :
+     *  - AndNode
+     *  - NotNode
+     *  - OrNode
+     */
+    private ExprNode visitBranchNode( BranchNode node )
+    {
+    	// Two differente cases :
+    	// - AND or OR
+    	// - NOT
+    	
+    	if ( node instanceof NotNode )
+    	{
+        	// Manage the NOT
+    		ExprNode child = node.getFirstChild();
+    		
+    		ExprNode result = (ExprNode)visit( child );
+    		
+    		if ( result == null )
+    		{
+    			return result;
+    		}
+    		else if ( result instanceof BranchNode )
+    		{
+    			node.setChildren( ((BranchNode)result).getChildren() );
+    			return node;
+    		}
+    		else if ( result instanceof LeafNode )
+    		{
+    			List<ExprNode> newChildren = new ArrayList<ExprNode>(1); 
+    			newChildren.add( result );
+    			node.setChildren( newChildren );
+    			return node;
+    		}
+    	}
+    	else
+    	{
+    		// Manage AND and OR nodes.
+    		BranchNode branchNode = (BranchNode)node;
+            List<ExprNode> children = node.getChildren();
+    		
+    		// For AND and OR, we may have more than one children.
+    		// We may have to remove some of them, so let's create
+    		// a new handler to store the correct nodes.
+    		List<ExprNode> newChildren = new ArrayList<ExprNode>( 
+    				children.size() );
+    		
+    		// Now, iterate through all the children
+    		for ( int i = 0; i < children.size(); i++ )
+    		{
+    			ExprNode child = children.get( i );
+    			
+    			ExprNode result = (ExprNode)visit( child );
+    			
+    			if ( result != null )
+    			{
+    				// As the node is correct, add it to the children 
+    				// list.
+    				newChildren.add( result );
+    			}
+    		}
+            
+            if ( ( branchNode instanceof AndNode ) && ( newChildren.size() != children.size() ) )
+            {
+                return null;
+            }
+    		
+    		if ( newChildren.size() == 0 )
+    		{
+    			// No more children, return null
+    			return null;
+    		}
+    		else if ( newChildren.size() == 1 )
+    		{
+    			// As we only have one child, return it
+    			// to the caller.
+    			return newChildren.get( 0 );
+    		}
+    		else
+    		{
+    			branchNode.setChildren( newChildren );
+    		}
+    	}
+    	
+    	return node;
+    }
+    
+    /**
+     * Visit the tree, normalizing the leaves and recusrsively visit the branches.
+     * 
+     * Here are the leaves we are visiting :
+     * - PresenceNode ( attr =* )
+     * - ExtensibleNode ( ? )
+     * - SubStringNode ( attr = *X*Y* )
+     * - ApproximateNode ( attr ~= value )
+     * - EqualityNode ( attr = value )
+     * - GreaterEqNode ( attr >= value )
+     * - LessEqNode ( attr <= value )
+     * 
+     * The PresencNode is managed differently from other nodes, as it just check
+     * for the attribute, not the value.
+     */
+    public Object visit( ExprNode node )
     {
         // -------------------------------------------------------------------
         // Handle PresenceNodes
@@ -82,208 +392,38 @@ public class NormalizingVisitor implements FilterVisitor
         
         if ( node instanceof PresenceNode )
         {
-            PresenceNode pnode = ( PresenceNode ) node;
-            
-            try
-            {
-                pnode.setAttribute( registry.getOid( pnode.getAttribute() ) );
-            }
-            catch ( NamingException e )
-            {
-                log.error( "Failed to normalize filter node attribute: " + pnode.getAttribute(), e );
-                RuntimeException rte = new RuntimeException( e.getMessage() );
-                rte.initCause( e );
-                throw rte;
-            }
-            return;
+        	return visitPresenceNode( (PresenceNode)node );
         }
 
         // -------------------------------------------------------------------
-        // Handle SimpleNodes
+        // Handle BranchNodes (AndNode, NotNode and OrNode)
         // -------------------------------------------------------------------
         
-        if ( node instanceof SimpleNode )
+        else if ( node instanceof BranchNode )
         {
-            SimpleNode snode = ( SimpleNode ) node;
-            Object normalized;
-
-            try
-            {
-                // still need this check here in case the top level is a leaf node
-                // with an undefined attributeType for its attribute
-                if ( !ncn.isDefined( snode.getAttribute() ) )
-                {
-                    normalized = snode.getValue();
-                }
-                else if ( Character.isDigit( snode.getAttribute().charAt( 0 ) ) )
-                {
-                    if ( snode.getValue() instanceof String )
-                    {
-                        normalized = ncn.normalizeByOid( snode.getAttribute(), ( String ) snode.getValue() );
-                    }
-                    else if ( snode.getValue() instanceof byte [] )
-                    {
-                        normalized = ncn.normalizeByOid( snode.getAttribute(), ( byte[] ) snode.getValue() );
-                    }
-                    else
-                    {
-                        normalized = ncn.normalizeByOid( snode.getAttribute(), snode.getValue().toString() );
-                    }
-                }
-                else
-                {
-                    if ( snode.getValue() instanceof String )
-                    {
-                        normalized = ncn.normalizeByName( snode.getAttribute(), ( String ) snode.getValue() );
-                    }
-                    else if ( snode.getValue() instanceof byte [] )
-                    {
-                        normalized = ncn.normalizeByName( snode.getAttribute(), ( byte[] ) snode.getValue() );
-                    }
-                    else
-                    {
-                        normalized = ncn.normalizeByName( snode.getAttribute(), snode.getValue().toString() );
-                    }
-                }
-            }
-            catch ( NamingException e )
-            {
-                log.error( "Failed to normalize filter value: " + e.getMessage(), e );
-                RuntimeException rte = new RuntimeException( e.getMessage() );
-                rte.initCause( e );
-                throw rte;
-            }
-
-            try
-            {
-                snode.setAttribute( registry.getOid( snode.getAttribute() ) );
-            }
-            catch ( NamingException e )
-            {
-                log.error( "Failed to normalize filter node attribute: " + snode.getAttribute(), e );
-                UndefinedFilterAttributeException rte = new UndefinedFilterAttributeException( snode, e.getMessage() );
-                rte.initCause( e );
-                throw rte;
-            }
-            
-            snode.setValue( normalized );
-            return;
+        	return visitBranchNode( (BranchNode)node );
         }
 
         // -------------------------------------------------------------------
-        // Handle BranchNodes
+        // Handle SimpleNodes (ApproximateNode, EqualityNode, GreaterEqNode,
+        // and LesserEqNode) 
         // -------------------------------------------------------------------
         
-        if ( node instanceof BranchNode )
+        else if ( node instanceof SimpleNode )
         {
-            BranchNode bnode = ( BranchNode ) node;
-            StringBuffer buf = null;
-            for ( int ii = 0; ii < bnode.getChildren().size(); ii++ )
-            {
-                // before visiting each node let's check to make sure non-branch children use
-                // attributes that are defined in the system, if undefined nodes are removed
-                ExprNode child = bnode.getChildren().get( ii );
-                if ( child.isLeaf() )
-                {
-                    LeafNode ln = ( LeafNode ) child;
-                    if ( !ncn.isDefined( ln.getAttribute() ) )
-                    {
-                        if ( log.isWarnEnabled() )
-                        {
-                            if ( buf == null )
-                            {
-                                buf = new StringBuffer();
-                            }
-                            else
-                            {
-                                buf.setLength( 0 );
-                            }
-                            buf.append( "Removing leaf node based on undefined attribute '" );
-                            buf.append( ln.getAttribute() );
-                            buf.append( "' from filter." );
-                            log.warn( buf.toString() );
-                        }
-
-                        // remove the child at ii
-                        bnode.getChildren().remove( child );
-                        
-                        if ( bnode instanceof AndNode )
-                        {
-                            bnode.set( "undefined", Boolean.FALSE );
-                        }
-                        else
-                        {
-                            bnode.set( "undefined", Boolean.TRUE );
-                        }
-
-                        ii--; // decrement so we can evaluate next child which has shifted to ii
-                        continue;
-                    }
-                }
-
-                // -----------------------------------------------------------
-                // If there is an exception
-                // -----------------------------------------------------------
-
-                try
-                {
-                    visit( child );
-                }
-                catch( UndefinedFilterAttributeException e )
-                {
-                    bnode.getChildren().remove( ii );
-                    
-                    if ( bnode instanceof AndNode )
-                    {
-                        bnode.set( "undefined", Boolean.FALSE );
-                    }
-                    else
-                    {
-                        bnode.set( "undefined", Boolean.TRUE );
-                    }
-
-                    ii--;
-                    continue;
-                }
-            }
-
-            // now see if any branch child nodes are damaged (NOT without children,
-            // AND/OR with one or less children) and repair them by removing branch
-            // nodes without children and replacing branch nodes like AND/OR with
-            // their single child if other branch nodes do not remain.
-            for ( int ii = 0; ii < bnode.getChildren().size(); ii++ )
-            {
-                ExprNode unknown = bnode.getChildren().get( ii );
-                if ( !unknown.isLeaf() )
-                {
-                    BranchNode child = ( BranchNode ) unknown;
-
-                    // remove child branch node that has no children left or 
-                    // a child branch node that is undefined as a result of removals
-                    if ( child.getChildren().size() == 0 || child.get( "undefined" ) == Boolean.TRUE )
-                    {
-                        // remove the child at ii
-                        bnode.getChildren().remove( child );
-                        ii--; // decrement so we can evaluate next child which has shifted to ii
-                        continue;
-                    }
-                    
-                    // now for AND & OR nodes with a single child left replace them
-                    // with their child at the same index they AND/OR node was in
-                    if ( child.getChildren().size() == 1 && ! ( child instanceof NotNode ) )
-                    {
-                        bnode.getChildren().remove( child );
-                        if ( ii >= bnode.getChildren().size() )
-                        {
-                            bnode.getChildren().add( child.getFirstChild() );
-                        }
-                        else
-                        {
-                            bnode.getChildren().add( ii, child.getFirstChild() );
-                        }
-                    }
-                }
-            }
+        	return visitSimpleNode( (SimpleNode)node );
+        }
+        else if ( node instanceof ExtensibleNode )
+        {
+        	return visitExtensibleNode( (ExtensibleNode)node );
+        }
+        else if ( node instanceof SubstringNode )
+        {
+        	return visitSubstringNode( (SubstringNode)node );
+        }
+        else
+        {
+        	return null;
         }
     }
 
