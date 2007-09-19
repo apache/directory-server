@@ -347,9 +347,7 @@ public class SearchHandler extends AbstractLdapHandler implements MessageHandler
 
                 // now we process entries for ever as they change 
                 PersistentSearchListener handler = new PersistentSearchListener( ctx, session, req );
-                StringBuilder buf = new StringBuilder();
-                req.getFilter().printToBuffer( buf );
-                ctx.addNamingListener( req.getBase(), buf.toString(), controls, handler );
+                ctx.addNamingListener( req.getBase(), req.getFilter().toString(), controls, handler );
                 //TM long t1 = System.nanoTime();
                 //TM synchronized( lock )
                 //TM {
