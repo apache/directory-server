@@ -47,16 +47,21 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
 {
     /** time to wait before automatically waking up the writer thread */
     private static final long WAIT_TIMEOUT_MILLIS = 1000;
+    
     private static final Logger log = LoggerFactory.getLogger( ChangeLogInterceptor.class );
 
     /** the changes.log file's stream which we append change log messages to */
     PrintWriter out = null;
+    
     /** queue of string buffers awaiting serialization to the log file */
-    Queue<StringBuffer> queue = new LinkedList<StringBuffer>();
+    Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
+    
     /** a handle on the attributeType registry to determine the binary nature of attributes */
     AttributeTypeRegistry registry = null;
+    
     /** determines if this service has been activated */
     boolean isActive = false;
+    
     /** thread used to asynchronously write change logs to disk */
     Thread writer = null;
     
@@ -75,6 +80,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
 
         // Open a print stream to use for flushing LDIFs into
         File changes = new File( dsConfig.getStartupConfiguration().getWorkingDirectory(), "changes.log" );
+        
         try
         {
             if ( changes.exists() )
@@ -106,6 +112,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     {
         // Gracefully stop writer thread and push remaining enqueued buffers ourselves
         isActive = false;
+        
         do
         {
             // Let's notify the writer thread to make it die faster
@@ -130,7 +137,8 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         {
             while ( ! queue.isEmpty() )
             {
-                StringBuffer buf = queue.poll();
+                StringBuilder buf = queue.poll();
+                
                 if ( buf != null )
                 {
                     out.println( buf );
@@ -158,7 +166,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     {
         while ( isActive )
         {
-            StringBuffer buf = null;
+            StringBuilder buf = null;
 
             // Grab semphore to queue and dequeue from it
             synchronized( queue )
@@ -190,10 +198,9 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
 
-    
     public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
-        StringBuffer buf;
+        StringBuilder buf;
         next.add( opContext );
         
         if ( ! isActive )
@@ -202,7 +209,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         }
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append( "\n#! creatorsName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! createTimestamp: " );
@@ -226,7 +233,6 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
-        StringBuffer buf;
         next.delete( opContext );
 
         if ( ! isActive )
@@ -235,7 +241,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         }
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append( "\n#! deletorsName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! deleteTimestamp: " );
@@ -257,7 +263,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        StringBuffer buf;
+        StringBuilder buf;
         next.modify( opContext );
 
         if ( ! isActive )
@@ -266,7 +272,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         }
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append( "\n#! modifiersName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! modifyTimestamp: " );
@@ -307,10 +313,10 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
             return;
         }
         
-        StringBuffer buf;
+        StringBuilder buf;
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append( "\n#! principleName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! operationTimestamp: " );
@@ -344,10 +350,10 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
             return;
         }
         
-        StringBuffer buf;
+        StringBuilder buf;
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append( "\n#! principleName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! operationTimestamp: " );
@@ -381,10 +387,10 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
             return;
         }
         
-        StringBuffer buf;
+        StringBuilder buf;
         
         // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append( "\n#! principleName: " );
         buf.append( getPrincipalName() );
         buf.append( "\n#! operationTimestamp: " );
@@ -421,7 +427,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
      * @return the buffer argument to allow for call chaining.
      * @throws NamingException if the attribute is not identified by the registry
      */
-    private StringBuffer append( StringBuffer buf, Attribute attr ) throws NamingException
+    private StringBuilder append( StringBuilder buf, Attribute attr ) throws NamingException
     {
         String id = ( String ) attr.getID();
         int sz = attr.size();
@@ -436,9 +442,11 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
                 buf.append( ":: " );
                 Object value = attr.get( ii );
                 String encoded;
+                
                 if ( value instanceof String )
                 {
                     encoded = ( String ) value;
+                    
                     try
                     {
                         encoded = new String( Base64.encode( encoded.getBytes( "UTF-8" ) ) );
@@ -479,14 +487,16 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
      * @return the buffer argument passed in for chaining
      * @throws NamingException if some attribute identifiers are not defined
      */
-    private StringBuffer append( StringBuffer buf, Attributes attrs ) throws NamingException
+    private StringBuilder append( StringBuilder buf, Attributes attrs ) throws NamingException
     {
         NamingEnumeration<String> ids = attrs.getIDs();
+        
         while ( ids.hasMore() )
         {
             String id = ids.next();
             append( buf, attrs.get( id ) );
         }
+        
         return buf;
     }
 
@@ -523,17 +533,21 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     private String getModOpStr( int modOp ) 
     {
         String opStr;
+        
         switch( modOp )
         {
             case( DirContext.ADD_ATTRIBUTE ):
                 opStr = "add: ";
                 break;
+                
             case( DirContext.REMOVE_ATTRIBUTE ):
                 opStr = "delete: ";
                 break;
+                
             case( DirContext.REPLACE_ATTRIBUTE ):
                 opStr = "replace: ";
                 break;
+                
             default:
                 throw new IllegalArgumentException( "Undefined attribute modify operation: " + modOp );
         }
@@ -556,7 +570,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
      * @return the buffer argument provided for chaining
      * @throws NamingException if the modification attribute id is undefined
      */
-    private StringBuffer append( StringBuffer buf, Attribute mod, String modOp ) throws NamingException
+    private StringBuilder append( StringBuilder buf, Attribute mod, String modOp ) throws NamingException
     {
         buf.append( "\n" );
         buf.append( modOp );
