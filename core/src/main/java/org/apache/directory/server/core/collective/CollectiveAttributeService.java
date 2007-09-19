@@ -78,7 +78,12 @@ public class CollectiveAttributeService extends BaseInterceptor
             throws NamingException
         {
             LdapDN name = ((ServerSearchResult)result).getDn();
-            name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
+            
+            if ( !name.isNormalized() )
+            {
+            	name = LdapDN.normalize( name, attrTypeRegistry.getNormalizerMapping() );
+            }
+            
             Attributes entry = result.getAttributes();
             String[] retAttrs = controls.getReturningAttributes();
             addCollectiveAttributes( name, entry, retAttrs );
@@ -114,10 +119,12 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
+        //Attribute caSubentries = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+
         Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
         	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT } ) );
         Attribute caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
+        
         /*
          * If there are no collective attribute subentries referenced
          * then we have no collective attributes to inject to this entry.
@@ -318,6 +325,17 @@ public class CollectiveAttributeService extends BaseInterceptor
 
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
+    	/*
+        SearchControls sc = opContext.getSearchControls();
+        String[] returnedAttrs = sc.getReturningAttributes();
+        
+        String[] newReturnedAttrs = new String[returnedAttrs.length + 1];
+        System.arraycopy( returnedAttrs, 0, newReturnedAttrs, 0, returnedAttrs.length );
+        newReturnedAttrs[returnedAttrs.length] = SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT;
+        
+        sc.setReturningAttributes( newReturnedAttrs );
+        */
+        
         NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
         Invocation invocation = InvocationStack.getInstance().peek();
         
