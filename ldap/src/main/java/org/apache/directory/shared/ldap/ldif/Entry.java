@@ -49,7 +49,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class Entry implements Cloneable
 {
     /** the change type */
-    private int changeType;
+    private ChangeType changeType;
 
     /** the modification item list */
     private List<ModificationItemImpl> modificationList;
@@ -71,17 +71,7 @@ public class Entry implements Cloneable
     /** attributes of the entry */
     private Attributes attributeList;
 
-    /** The possible change types */
-    public final static int ADD = 0;
-
-    public final static int MODIFY = 1;
-
-    public final static int MODDN = 2;
-
-    public final static int MODRDN = 3;
-
-    public final static int DELETE = 4;
-
+    
     /** The control */
     private Control control;
 
@@ -90,7 +80,7 @@ public class Entry implements Cloneable
      */
     public Entry()
     {
-        changeType = ADD; // Default LDIF content
+        changeType = ChangeType.Add; // Default LDIF content
         modificationList = new LinkedList<ModificationItemImpl>();
         modificationItems = new HashMap<String, ModificationItemImpl>();
         dn = null;
@@ -116,7 +106,7 @@ public class Entry implements Cloneable
      *            The change type
      * 
      */
-    public void setChangeType( int changeType )
+    public void setChangeType( ChangeType changeType )
     {
         this.changeType = changeType;
     }
@@ -131,23 +121,23 @@ public class Entry implements Cloneable
     {
         if ( "add".equals( changeType ) )
         {
-            this.changeType = ADD;
+            this.changeType = ChangeType.Add;
         }
         else if ( "modify".equals( changeType ) )
         {
-            this.changeType = MODIFY;
+            this.changeType = ChangeType.Modify;
         }
         else if ( "moddn".equals( changeType ) )
         {
-            this.changeType = MODDN;
+            this.changeType = ChangeType.ModDn;
         }
         else if ( "modrdn".equals( changeType ) )
         {
-            this.changeType = MODRDN;
+            this.changeType = ChangeType.ModRdn;
         }
         else if ( "delete".equals( changeType ) )
         {
-            this.changeType = DELETE;
+            this.changeType = ChangeType.Delete;
         }
     }
 
@@ -158,7 +148,7 @@ public class Entry implements Cloneable
      */
     public void addModificationItem( ModificationItemImpl modification )
     {
-        if ( changeType == MODIFY )
+        if ( changeType == ChangeType.Modify )
         {
             modificationList.add( modification );
             modificationItems.put( modification.getAttribute().getID(), modification );
@@ -177,7 +167,7 @@ public class Entry implements Cloneable
      */
     public void addModificationItem( int modOp, Attribute attr ) throws NamingException
     {
-        if ( changeType == MODIFY )
+        if ( changeType == ChangeType.Modify )
         {
             if ( modificationItems.containsKey( attr.getID() ) )
             {
@@ -214,7 +204,7 @@ public class Entry implements Cloneable
      */
     public void addModificationItem( int modOp, String id, Object value ) throws NamingException
     {
-        if ( changeType == MODIFY )
+        if ( changeType == ChangeType.Modify )
         {
             Attribute attr = new AttributeImpl( id, value );
 
@@ -308,7 +298,7 @@ public class Entry implements Cloneable
      * @return The change type. One of : ADD = 0; MODIFY = 1; MODDN = 2; MODRDN =
      *         3; DELETE = 4;
      */
-    public int getChangeType()
+    public ChangeType getChangeType()
     {
         return changeType;
     }
@@ -433,7 +423,7 @@ public class Entry implements Cloneable
      */
     public boolean isChangeAdd()
     {
-        return changeType == ADD;
+        return changeType == ChangeType.Add;
     }
 
     /**
@@ -441,7 +431,7 @@ public class Entry implements Cloneable
      */
     public boolean isChangeDelete()
     {
-        return changeType == DELETE;
+        return changeType == ChangeType.Delete;
     }
 
     /**
@@ -449,7 +439,7 @@ public class Entry implements Cloneable
      */
     public boolean isChangeModDn()
     {
-        return changeType == MODDN;
+        return changeType == ChangeType.ModDn;
     }
 
     /**
@@ -457,7 +447,7 @@ public class Entry implements Cloneable
      */
     public boolean isChangeModRdn()
     {
-        return changeType == MODRDN;
+        return changeType == ChangeType.ModRdn;
     }
 
     /**
@@ -465,12 +455,12 @@ public class Entry implements Cloneable
      */
     public boolean isChangeModify()
     {
-        return changeType == MODIFY;
+        return changeType == ChangeType.Modify;
     }
 
     public boolean isEntry()
     {
-        return changeType == ADD;
+        return changeType == ChangeType.Add;
     }
 
     /**
@@ -624,7 +614,7 @@ public class Entry implements Cloneable
         
         return sb.toString();
     }
-    
+
     
     /**
      * Return a String representing the Entry
@@ -639,27 +629,27 @@ public class Entry implements Cloneable
             sb.append( "    Control : " ).append(  control ).append( '\n' );
         }
         
-        switch ( changeType )
+        switch ( changeType.getChangeType() )
         {
-            case ADD :
+            case ChangeType.ADD_ORDINAL :
                 sb.append( "    Change type is ADD\n" );
                 sb.append( "        Attributes : \n" );
                 sb.append( dumpAttributes() );
                 break;
                 
-            case MODIFY :
+            case ChangeType.MODIFY_ORDINAL :
                 sb.append( "    Change type is MODIFY\n" );
                 sb.append( "        Modifications : \n" );
                 sb.append( dumpModificationItems() );
                 break;
                 
-            case DELETE :
+            case ChangeType.DELETE_ORDINAL :
                 sb.append( "    Change type is DELETE\n" );
                 break;
                 
-            case MODDN :
-            case MODRDN :
-                sb.append( "    Change type is ").append( changeType == MODDN ? "MODDN\n" : "MODRDN\n" );
+            case ChangeType.MODDN_ORDINAL :
+            case ChangeType.MODRDN_ORDINAL :
+                sb.append( "    Change type is ").append( changeType == ChangeType.ModDn ? "MODDN\n" : "MODRDN\n" );
                 sb.append( "    Delete old RDN : " ).append( deleteOldRdn ? "true\n" : "false\n" );
                 sb.append( "    New RDN : " ).append( newRdn ).append( '\n' );
                 

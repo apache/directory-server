@@ -434,31 +434,31 @@ public class LdifReader implements Iterator<Entry>
      *            The line which contains the changeType
      * @return The operation.
      */
-    private int parseChangeType( String line )
+    private ChangeType parseChangeType( String line )
     {
-        int operation = Entry.ADD;
+        ChangeType operation = ChangeType.Add;
 
         String modOp = StringTools.trim( line.substring( "changetype:".length() + 1 ) );
 
         if ( "add".equalsIgnoreCase( modOp ) )
         {
-            operation = Entry.ADD;
+            operation = ChangeType.Add;
         }
         else if ( "delete".equalsIgnoreCase( modOp ) )
         {
-            operation = Entry.DELETE;
+            operation = ChangeType.Delete;
         }
         else if ( "modify".equalsIgnoreCase( modOp ) )
         {
-            operation = Entry.MODIFY;
+            operation = ChangeType.Modify;
         }
         else if ( "moddn".equalsIgnoreCase( modOp ) )
         {
-            operation = Entry.MODDN;
+            operation = ChangeType.ModDn;
         }
         else if ( "modrdn".equalsIgnoreCase( modOp ) )
         {
-            operation = Entry.MODRDN;
+            operation = ChangeType.ModRdn;
         }
 
         return operation;
@@ -1094,19 +1094,19 @@ public class LdifReader implements Iterator<Entry>
      *            The associated control, if any
      * @return A modification entry
      */
-    private void parseChange( Entry entry, Iterator<String> iter, int operation, Control control ) throws NamingException
+    private void parseChange( Entry entry, Iterator<String> iter, ChangeType operation, Control control ) throws NamingException
     {
         // The changetype and operation has already been parsed.
         entry.setChangeType( operation );
 
-        switch ( operation )
+        switch ( operation.getChangeType() )
         {
-            case Entry.DELETE:
+            case ChangeType.DELETE_ORDINAL:
                 // The change type will tell that it's a delete operation,
                 // the dn is used as a key.
                 return;
 
-            case Entry.ADD:
+            case ChangeType.ADD_ORDINAL:
                 // We will iterate through all attribute/value pairs
                 while ( iter.hasNext() )
                 {
@@ -1117,12 +1117,12 @@ public class LdifReader implements Iterator<Entry>
 
                 return;
 
-            case Entry.MODIFY:
+            case ChangeType.MODIFY_ORDINAL:
                 parseModify( entry, iter );
                 return;
 
-            case Entry.MODRDN:// They are supposed to have the same syntax ???
-            case Entry.MODDN:
+            case ChangeType.MODRDN_ORDINAL:// They are supposed to have the same syntax ???
+            case ChangeType.MODDN_ORDINAL:
                 // First, parse the modrdn part
                 parseModRdn( entry, iter );
 
@@ -1141,7 +1141,7 @@ public class LdifReader implements Iterator<Entry>
                     }
                     else
                     {
-                        if ( operation == Entry.MODDN )
+                        if ( operation == ChangeType.ModDn )
                         {
                             log.error( "A moddn operation must contains a \"newsuperior:\"" );
                             throw new NamingException( "Bad moddn operation, no newsuperior" );
@@ -1150,7 +1150,7 @@ public class LdifReader implements Iterator<Entry>
                 }
                 else
                 {
-                    if ( operation == Entry.MODDN )
+                    if ( operation == ChangeType.ModDn )
                     {
                         log.error( "A moddn operation must contains a \"newsuperior:\"" );
                         throw new NamingException( "Bad moddn operation, no newsuperior" );
@@ -1210,7 +1210,7 @@ public class LdifReader implements Iterator<Entry>
         // after a change operation
         boolean changeTypeSeen = false;
 
-        int operation = Entry.ADD;
+        ChangeType operation = ChangeType.Add;
         String lowerLine = null;
         Control control = null;
 
@@ -1244,7 +1244,6 @@ public class LdifReader implements Iterator<Entry>
                 // Parse the control
                 control = parseControl( line.substring( "control:".length() ) );
                 entry.setControl( control );
-
             }
             else if ( lowerLine.startsWith( "changetype:" ) )
             {
