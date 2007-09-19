@@ -511,9 +511,11 @@ public class SchemaService extends BaseInterceptor
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
         filterAttributesToReturn( searchCtls );
+        
+        String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
-        if ( !subschemaSubentryDnNorm.equals( base.toNormName() ) )
+        if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
             NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
             
