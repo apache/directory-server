@@ -76,7 +76,7 @@ public class ExpandingVisitor implements FilterVisitor
     }
 
 
-    public void visit( ExprNode node ) 
+    public Object visit( ExprNode node ) 
     {
         BranchNode bnode = ( BranchNode ) node;
         
@@ -233,5 +233,7 @@ public class ExpandingVisitor implements FilterVisitor
                 visit( child );
             }
         } // end for loop
+        
+        return null;
     }
 }
