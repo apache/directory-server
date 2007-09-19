@@ -519,7 +519,7 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-    public Iterator descendants( String ancestorId ) throws NamingException
+    public Iterator<AttributeType> descendants( String ancestorId ) throws NamingException
     {
         return null;
     }
