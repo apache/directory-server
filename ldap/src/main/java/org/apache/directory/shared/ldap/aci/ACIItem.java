@@ -110,15 +110,6 @@ public abstract class ACIItem implements Serializable
 
 
     /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public abstract void printToBuffer( StringBuilder buffer );
-
-    
-    /**
      * Converts a set of {@link GrantAndDenial}s into a set of
      * {@link MicroOperation}s and returns it.
      */

@@ -87,9 +87,64 @@ public class ItemFirstACIItem extends ACIItem
 
     public String toString()
     {
-        return "itemFirstACIItem: " + "identificationTag=" + getIdentificationTag() + ", " + "precedence="
-            + getPrecedence() + ", " + "authenticationLevel=" + getAuthenticationLevel() + ", " + "protectedItems="
-            + protectedItems + ", " + "itemPermissions=" + itemPermissions;
+    	StringBuilder buf = new StringBuilder();
+    	
+        // identificationTag
+        buf.append( "{ identificationTag \"" );
+        buf.append( getIdentificationTag() );
+
+        // precedence
+        buf.append( "\", precedence " );
+        buf.append( getPrecedence() );
+        
+        // authenticationLevel
+        buf.append( ", authenticationLevel " );
+        buf.append( getAuthenticationLevel().getName() );
+        
+        // itemOrUserFirst
+        buf.append( ", itemOrUserFirst itemFirst: { " );
+        
+        // protectedItems
+        buf.append( "protectedItems { " );
+        
+        boolean isFirst = true;
+
+        for ( ProtectedItem item:protectedItems )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+
+            buf.append( item.toString() );
+        }
+
+        // itemPermissions
+        buf.append( " }, itemPermissions { " );
+
+        isFirst = true;
+        
+        for ( ItemPermission permission:itemPermissions )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                buf.append( ", " );
+            }
+
+            buf.append( permission.toString() );
+        }
+
+        buf.append( " } } }" );
+        
+        return buf.toString();
     }
 
 
@@ -115,71 +170,7 @@ public class ItemFirstACIItem extends ACIItem
                     toMicroOperations( denials ), false, precedence ) );
             }
         }
+        
         return tuples;
-    }
-
-
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public void printToBuffer( StringBuilder buffer )
-    {
-        // identificationTag
-        buffer.append( "{ identificationTag \"" );
-        buffer.append( getIdentificationTag() );
-
-        // precedence
-        buffer.append( "\", precedence " );
-        buffer.append( getPrecedence() );
-        
-        // authenticationLevel
-        buffer.append( ", authenticationLevel " );
-        buffer.append( getAuthenticationLevel().getName() );
-        
-        // itemOrUserFirst
-        buffer.append( ", itemOrUserFirst itemFirst: { " );
-        
-        // protectedItems
-        buffer.append( "protectedItems { " );
-        
-        boolean isFirst = true;
-
-        for ( ProtectedItem item:protectedItems )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                buffer.append( ", " );
-            }
-
-            item.printToBuffer( buffer );
-        }
-
-        // itemPermissions
-        buffer.append( " }, itemPermissions { " );
-
-        isFirst = true;
-        
-        for ( ItemPermission permission:itemPermissions )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                buffer.append( ", " );
-            }
-
-            permission.printToBuffer( buffer );
-        }
-
-        buffer.append( " } } }" );
     }
 }

@@ -23,7 +23,6 @@ package org.apache.directory.shared.ldap.aci;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 
@@ -88,9 +87,69 @@ public class UserFirstACIItem extends ACIItem
 
     public String toString()
     {
-        return "userFirstACIItem: " + "identificationTag=" + getIdentificationTag() + ", " + "precedence="
-            + getPrecedence() + ", " + "authenticationLevel=" + getAuthenticationLevel() + ", " + "userClasses="
-            + userClasses + ", " + "userPermissions=" + userPermissions;
+    	StringBuilder buf = new StringBuilder();
+    	
+        // identificationTag
+        buf.append( "{ identificationTag \"" );
+        buf.append( getIdentificationTag() );
+        buf.append( "\", " );
+        
+        // precedence
+        buf.append( "precedence " );
+        buf.append( getPrecedence() );
+        buf.append( ", " );
+        
+        // authenticationLevel
+        buf.append( "authenticationLevel " );
+        buf.append( getAuthenticationLevel().getName() );
+        buf.append( ", " );
+        
+        // itemOrUserFirst
+        buf.append( "itemOrUserFirst userFirst: { " );
+        
+        // protectedItems
+        buf.append( "userClasses { " );
+
+        boolean isFirst = true;
+        
+        for ( UserClass userClass:userClasses )
+        {
+        	if ( isFirst )
+        	{
+        		isFirst = false;
+        	}
+        	else
+        	{
+        		buf.append( ", " );
+        	}
+        	
+            buf.append( userClass.toString() );
+        }
+
+        buf.append( " }, " );
+        
+        // itemPermissions
+        buf.append( "userPermissions { " );
+
+        isFirst = true;
+        
+        for ( UserPermission permission:userPermissions )
+        {
+        	if ( isFirst )
+        	{
+        		isFirst = false;
+        	}
+        	else
+        	{
+        		buf.append( ", " );
+        	}
+        	
+            buf.append( permission.toString() );
+        }
+        
+        buf.append( " } } }" );
+
+        return buf.toString();
     }
 
 
@@ -117,65 +176,5 @@ public class UserFirstACIItem extends ACIItem
             }
         }
         return tuples;
-    }
-    
-    
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public void printToBuffer( StringBuilder buffer )
-    {
-        // identificationTag
-        buffer.append( "{ identificationTag \"" );
-        buffer.append( getIdentificationTag() );
-        buffer.append( "\", " );
-        
-        // precedence
-        buffer.append( "precedence " );
-        buffer.append( getPrecedence() );
-        buffer.append( ", " );
-        
-        // authenticationLevel
-        buffer.append( "authenticationLevel " );
-        buffer.append( getAuthenticationLevel().getName() );
-        buffer.append( ", " );
-        
-        // itemOrUserFirst
-        buffer.append( "itemOrUserFirst userFirst: { " );
-        
-        // protectedItems
-        buffer.append( "userClasses { " );
-
-        for ( Iterator it = userClasses.iterator(); it.hasNext(); )
-        {
-            UserClass userClass =  ( UserClass ) it.next();
-            userClass.printToBuffer( buffer );
-            
-            if ( it.hasNext() ) 
-            {
-                buffer.append( ", " );
-            }
-        }
-
-        buffer.append( " }, " );
-        
-        // itemPermissions
-        buffer.append( "userPermissions { " );
-
-        for ( Iterator it = userPermissions.iterator(); it.hasNext(); )
-        {
-            UserPermission permission = ( UserPermission ) it.next();
-            permission.printToBuffer( buffer );
-            
-            if ( it.hasNext() ) 
-            {
-                buffer.append( ", " );
-            }
-        }
-        
-        buffer.append( " } } }" );
     }
 }

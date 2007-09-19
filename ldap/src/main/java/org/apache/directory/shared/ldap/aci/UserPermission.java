@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.aci;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 
 
 /**
@@ -69,54 +68,55 @@ public class UserPermission extends Permission
 
     public String toString()
     {
-        return "itemPermission: precedence=" + getPrecedence() + ", " + "protectedItems=" + protectedItems + ", "
-            + "grantsAndDenials=" + getGrantsAndDenials();
-    }
-    
-    
-    /**
-     * Converts this item into its string representation as stored
-     * in directory.
-     *
-     * @param buffer the string buffer
-     */
-    public void printToBuffer( StringBuilder buffer )
-    {
-        buffer.append( "{ " );
+    	StringBuilder buf = new StringBuilder();
+    	
+        buf.append( "{ " );
 
         if ( getPrecedence() >= 0 && getPrecedence() <= 255 )
         {
-            buffer.append( "precedence " );
-            buffer.append( getPrecedence() );
-            buffer.append( ", " );
+            buf.append( "precedence " );
+            buf.append( getPrecedence() );
+            buf.append( ", " );
         }
         
-        buffer.append( "protectedItems { " );
+        buf.append( "protectedItems { " );
         
-        for ( Iterator it = protectedItems.iterator(); it.hasNext(); )
+        boolean isFirst = true;
+        
+        for ( ProtectedItem item:protectedItems )
         {
-            ProtectedItem item = ( ProtectedItem ) it.next();
-            item.printToBuffer( buffer );
-            
-            if ( it.hasNext() ) 
-            {
-                buffer.append( ", " );
-            }
+        	if ( isFirst )
+        	{
+        		isFirst = false;
+        	}
+        	else
+        	{
+        		buf.append( ", " );
+        	}
+        	
+            buf.append( item.toString() );
         }
         
-        buffer.append( " }, grantsAndDenials { " );
+        buf.append( " }, grantsAndDenials { " );
 
-        for ( Iterator it = getGrantsAndDenials().iterator(); it.hasNext(); )
+        isFirst = true;
+        
+        for ( GrantAndDenial grantAndDenial:getGrantsAndDenials() )
         {
-            GrantAndDenial grantAndDenial = ( GrantAndDenial ) it.next();
-            grantAndDenial.printToBuffer( buffer );
-            
-            if ( it.hasNext() ) 
-            {
-                buffer.append( ", " );
-            }
+        	if ( isFirst )
+        	{
+        		isFirst = false;
+        	}
+        	else
+        	{
+        		buf.append( ", " );
+        	}
+
+        	buf.append( grantAndDenial.toString() );
         }
         
-        buffer.append( " } }" );
+        buf.append( " } }" );
+        
+        return buf.toString();
     }
 }
