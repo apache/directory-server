@@ -970,7 +970,7 @@ public class ReferralService extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
 
-        // handle a normal modify without following referrals
+        // handle a normal search without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
         {
             return next.search( opContext );
