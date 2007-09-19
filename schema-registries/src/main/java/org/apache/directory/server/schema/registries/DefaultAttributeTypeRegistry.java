@@ -245,10 +245,10 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     }
 
 
-    public Iterator descendants( String ancestorId ) throws NamingException
+    public Iterator<AttributeType> descendants( String ancestorId ) throws NamingException
     {
         String oid = oidRegistry.getOid( ancestorId );
-        Set descendants = oidToDescendantSet.get( oid );
+        Set<AttributeType> descendants = oidToDescendantSet.get( oid );
         if ( descendants == null )
         {
             return Collections.EMPTY_SET.iterator();
