@@ -103,5 +103,5 @@ public interface AttributeTypeRegistry extends SchemaObjectRegistry
      * @throws NamingException if the ancestor attributeType cannot be 
      * discerned from the ancestorId supplied
      */
-    Iterator descendants( String ancestorId ) throws NamingException;
+    Iterator<AttributeType> descendants( String ancestorId ) throws NamingException;
 }
