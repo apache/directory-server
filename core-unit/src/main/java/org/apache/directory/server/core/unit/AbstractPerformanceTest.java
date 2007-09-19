@@ -40,6 +40,7 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -99,7 +100,7 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  */
 public class AbstractPerformanceTest extends AbstractTestCase
 {
-    private final Class subclass;
+    private final Class<?> subclass;
     private boolean isExternal = false;
     private String prepareCommand = null;
     private File outputDirectory = null;
@@ -113,7 +114,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
      * 
      * @param subclass 
      */
-    protected AbstractPerformanceTest( Class subclass ) throws IOException
+    protected AbstractPerformanceTest( Class<?> subclass ) throws IOException
     {
         super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
         this.subclass = subclass;
@@ -225,9 +226,9 @@ public class AbstractPerformanceTest extends AbstractTestCase
      */
     protected boolean applyEntry( Entry entry ) throws Exception
     {
-        switch ( entry.getChangeType() )
+        switch ( entry.getChangeType().getChangeType() )
         {
-            case( Entry.ADD ):
+            case( ChangeType.ADD_ORDINAL ):
                 LdapDN ancestor = new LdapDN( testRoot.getNameInNamespace() );
                 LdapDN descendant = new LdapDN( entry.getDn() );
                 LdapDN relative = ( LdapDN ) NamespaceTools.getRelativeName( ancestor, descendant );
@@ -250,7 +251,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             LdifReader reader = new LdifReader( in );
             start = System.currentTimeMillis();
             log( "Started LDIF Import: " + ldifResource  );
-            for ( Iterator ii = reader.iterator(); ii.hasNext(); /**/ )
+            for ( Iterator<Entry> ii = reader.iterator(); ii.hasNext(); /**/ )
             {
                 long startEntry = System.currentTimeMillis();
                 if ( applyEntry( ( Entry ) ii.next() ) )

@@ -67,6 +67,7 @@ import org.apache.directory.shared.ldap.codec.extended.ExtendedResponse;
 import org.apache.directory.shared.ldap.codec.modify.ModifyRequest;
 import org.apache.directory.shared.ldap.codec.modifyDn.ModifyDNRequest;
 import org.apache.directory.shared.ldap.codec.unbind.UnBindRequest;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -516,20 +517,20 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
     private int changeEntry( Entry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
         NamingException, EncoderException
     {
-        switch ( entry.getChangeType() )
+        switch ( entry.getChangeType().getChangeType() )
         {
-            case Entry.ADD:
+            case ChangeType.ADD_ORDINAL:
                 // No difference with the injection of new entries
                 return addEntry( entry, messageId );
 
-            case Entry.DELETE:
+            case ChangeType.DELETE_ORDINAL:
                 return deleteEntry( entry, messageId );
 
-            case Entry.MODIFY:
+            case ChangeType.MODIFY_ORDINAL:
                 return changeModifyEntry( entry, messageId );
 
-            case Entry.MODDN:
-            case Entry.MODRDN:
+            case ChangeType.MODDN_ORDINAL:
+            case ChangeType.MODRDN_ORDINAL:
                 return changeModRDNEntry( entry, messageId );
 
             default:
