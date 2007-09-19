@@ -352,7 +352,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             }
             catch ( UnsupportedOperationException e )
             {
-                refinement.printToBuffer( buffer );
+                buffer.append( refinement.toString() );
             }
 
             buffer.append( ',' );
