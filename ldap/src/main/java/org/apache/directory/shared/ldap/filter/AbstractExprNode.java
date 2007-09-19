@@ -81,4 +81,16 @@ public abstract class AbstractExprNode implements ExprNode
     {
         return annotations;
     }
+    
+    public String toString()
+    {
+        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
+        {
+            return ":[" + getAnnotations().get( "count" ) + "]";
+        }
+        else 
+        {
+        	return "";
+        }
+    }
 }

@@ -96,7 +96,7 @@ public class NotNode extends BranchNode
      */
     public void setChildren( List<ExprNode> list )
     {
-    	if ( ( list != null ) && ( list.size() >= 1 ) )
+    	if ( ( list != null ) && ( list.size() > 1 ) )
     	{
     		throw new IllegalStateException( "Cannot add more than one element to a negation node." );    		
     	}
@@ -150,38 +150,6 @@ public class NotNode extends BranchNode
 
 
     /**
-     * Recursively prints the String representation of this node and all its
-     * descendents to a buffer.
-     * 
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        buf.append( "(!" );
-
-        for ( ExprNode node:children )
-        {
-        	node.printToBuffer( buf );
-        }
-        
-        buf.append( ')' );
-        
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-    
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
@@ -216,59 +184,17 @@ public class NotNode extends BranchNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append( "NOT" );
+        StringBuilder buf = new StringBuilder();
+        buf.append( "(!" );
         
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ) );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
+        buf.append( super.toString() );
 
+        buf.append( getFirstChild() );
+        buf.append( ')' );
+        
         return buf.toString();
     }
 
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.isPrefix() )
-        {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
-
-            if ( visitor.canVisit( this ) )
-            {
-                visitor.visit( this );
-            }
-
-            for ( ExprNode node:children )
-            {
-                node.accept( visitor );
-            }
-        }
-        else
-        {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
-
-            for ( ExprNode node:children )
-            {
-                node.accept( visitor );
-            }
-
-            if ( visitor.canVisit( this ) )
-            {
-                visitor.visit( this );
-            }
-        }
-    }
 
     /**
      * @see Object#hashCode()
@@ -279,51 +205,5 @@ public class NotNode extends BranchNode
         hash = hash*31 + AssertionEnum.NOT.hashCode();
         hash = hash*31 + ( annotations == null ? 0 : annotations.hashCode() );
         return hash;
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object other )
-    {
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( !( other instanceof NotNode ) )
-        {
-            return false;
-        }
-
-        NotNode otherExprNode = ( NotNode ) other;
-
-        List<ExprNode> otherChildren = otherExprNode.getChildren();
-
-        if ( otherChildren == children )
-        {
-            return true;
-        }
-
-        if ( children.size() != otherChildren.size() )
-        {
-        	return false;
-        }
-        
-        for ( int i = 0; i < children.size(); i++ )
-        {
-        	ExprNode child = children.get( i );
-        	ExprNode otherChild = children.get( i );
-        	
-        	if ( !child.equals( otherChild ) )
-        	{
-        		return false;
-        	}
-        }
-        
-        return true;
     }
 }

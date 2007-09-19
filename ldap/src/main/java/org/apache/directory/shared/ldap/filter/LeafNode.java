@@ -95,11 +95,28 @@ public abstract class LeafNode extends AbstractExprNode
             return false;
         }
 
-        if ( !super.equals( other ) )
+        if ( other.getClass() != this.getClass() )
         {
-            return false;
+        	return false;
         }
-
+            
         return attribute.equals( ( ( LeafNode ) other ).getAttribute() );
+    }
+
+
+    /**
+     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
+     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
+     */
+    public final Object accept( FilterVisitor visitor )
+    {
+        if ( visitor.canVisit( this ) )
+        {
+            return visitor.visit( this );
+        }
+        else
+        {
+        	return null;
+        }
     }
 }

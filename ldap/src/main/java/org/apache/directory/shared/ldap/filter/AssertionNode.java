@@ -35,9 +35,6 @@ public class AssertionNode extends AbstractExprNode
     /** Setting scan count to max */
     private static final Long MAX = Long.MAX_VALUE;
 
-    /** Setting display string to [MAX] */
-    private static final String MAX_STR = "[" + MAX.toString() + "]";
-
     /** The assertion or predicate to apply */
     private final Assertion assertion;
 
@@ -109,15 +106,6 @@ public class AssertionNode extends AbstractExprNode
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        return buf.append( desc ).append( MAX_STR );
-    }
-
-    
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
@@ -130,8 +118,23 @@ public class AssertionNode extends AbstractExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor visitor )
+    public Object accept( FilterVisitor visitor )
     {
-        visitor.visit( this );
+        return visitor.visit( this );
+    }
+
+    /**
+     * @see Object#toString
+     */
+    public String toString()
+    {
+    	StringBuilder buf = new StringBuilder();
+    	
+    	buf.append( "(@" );
+    	buf.append( desc );
+    	buf.append( super.toString() );
+    	buf.append( ')' );
+    	
+        return buf.toString();
     }
 }

@@ -41,36 +41,19 @@ public final class PresenceNode extends LeafNode
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuilder)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        buf.append( '(' ).append( getAttribute() ).append( "=*)" );
-
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-
-    /**
      * @see java.lang.Object#toString()
      */
     public String toString()
     {
     	StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
+    	
+        buf.append( '(' ).append( getAttribute() ).append( "=*" );
+
+        buf.append( super.toString() );
+
+        buf.append( ')' );
         
-        return ( buf.toString() );
+        return buf.toString();
     }
 
     
@@ -80,18 +63,5 @@ public final class PresenceNode extends LeafNode
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "PresenceNode can't be part of a refinement" );
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
     }
 }

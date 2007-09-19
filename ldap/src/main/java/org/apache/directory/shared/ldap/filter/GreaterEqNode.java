@@ -51,50 +51,20 @@ public class GreaterEqNode extends SimpleNode
         super( attribute, value );
     }
 
+
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     *      java.lang.StringBuilder)
+     * @see Object#toString()
      */
-    public StringBuilder printToBuffer( StringBuilder buf )
+    public String toString()
     {
-        buf.append( '(' ).append( getAttribute() ).append( ">=" ).append( value ).append( ')' );
+    	StringBuilder buf = new StringBuilder();
+    	
+        buf.append( '(' ).append( getAttribute() ).append( ">=" ).append( value );
+
+        buf.append( super.toString() );
         
-    	return super.printToBuffer( buf );
-    }
-
-    
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object other )
-    {
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( !( other instanceof GreaterEqNode ) )
-        {
-            return false;
-        }
-
-        GreaterEqNode otherNode = (GreaterEqNode) other; 
+        buf.append( ')' );
         
-        return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
+    	return buf.toString();
     }
 }

@@ -51,50 +51,20 @@ public class ApproximateNode extends SimpleNode
         super( attribute, value );
     }
 
+
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     *      java.lang.StringBuilder)
+     * @see Object#toString()
      */
-    public StringBuilder printToBuffer( StringBuilder buf )
+    public String toString()
     {
-        buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( value ).append( ')' );
+    	StringBuilder buf = new StringBuilder();
+    	
+        buf.append( '(' ).append( getAttribute() ).append( "~=" ).append( value );
 
-    	return super.printToBuffer( buf );
-    }
-
-    
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
-    }
-
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals( Object other )
-    {
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( !( other instanceof ApproximateNode ) )
-        {
-            return false;
-        }
-
-        ApproximateNode otherNode = (ApproximateNode) other; 
+        buf.append( super.toString() );
         
-        return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
+        buf.append( ')' );
+        
+    	return buf.toString();
     }
 }

@@ -127,43 +127,6 @@ public class ScopeNode extends AbstractExprNode
 
 
     /**
-     * @see ExprNode#printToBuffer(StringBuilder)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        switch ( scope )
-        {
-            case ( SearchControls.OBJECT_SCOPE  ):
-                buf.append( "OBJECT_SCOPE" );
-
-                break;
-
-            case ( SearchControls.ONELEVEL_SCOPE  ):
-                buf.append( "ONELEVEL_SCOPE" );
-
-                break;
-
-            case ( SearchControls.SUBTREE_SCOPE  ):
-                buf.append( "SUBTREE_SCOPE (Estimated)" );
-
-                break;
-
-            default:
-                buf.append( "UNKNOWN" );
-        }
-
-        if ( getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( " [" );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( ']' );
-        }
-
-        return buf;
-    }
-    
-    
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
@@ -176,11 +139,56 @@ public class ScopeNode extends AbstractExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor visitor )
+    public Object accept( FilterVisitor visitor )
     {
         if ( visitor.canVisit( this ) )
         {
-            visitor.visit( this );
+            return visitor.visit( this );
         }
+        else
+        {
+        	return null;
+        }
+    }
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+    	StringBuilder buf = new StringBuilder();
+    	
+    	buf.append( "(#{" );
+
+        switch ( scope )
+        {
+            case ( SearchControls.OBJECT_SCOPE  ):
+                buf.append( "OBJECT_SCOPE" );
+
+                break;
+
+            case ( SearchControls.ONELEVEL_SCOPE  ):
+                buf.append( "ONE_LEVEL_SCOPE" );
+
+                break;
+
+            case ( SearchControls.SUBTREE_SCOPE  ):
+                buf.append( "SUBTREE_SCOPE (Estimated)" );
+
+                break;
+
+            default:
+                buf.append( "UNKNOWN" );
+        }
+    	
+    	buf.append( ", '" );
+    	buf.append( baseDn );
+    	buf.append( "', " );
+    	buf.append( derefAliases );
+    	buf.append( "}" );
+    	buf.append( super.toString() );
+    	buf.append( ')' );
+    	
+    	return buf.toString();
     }
 }

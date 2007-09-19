@@ -98,38 +98,6 @@ public class OrNode extends BranchNode
 
 
     /**
-     * Recursively prints the String representation of this node and all its
-     * descendents to a buffer.
-     * 
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuffer)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        buf.append( "(|" );
-
-        for ( ExprNode node:children )
-        {
-        	node.printToBuffer( buf );
-        }
-        
-        buf.append( ')' );
-        
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-    
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuffer)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
@@ -164,59 +132,21 @@ public class OrNode extends BranchNode
      */
     public String toString()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append( "OR" );
+        StringBuilder buf = new StringBuilder();
+        buf.append( "(|" );
         
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( ( ( Long ) getAnnotations().get( "count" ) ) );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
+        buf.append( super.toString() );
 
+        for ( ExprNode child:getChildren() )
+        {
+        	buf.append( child );
+        }
+        
+        buf.append( ')' );
+	
         return buf.toString();
     }
 
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.isPrefix() )
-        {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
-
-            if ( visitor.canVisit( this ) )
-            {
-                visitor.visit( this );
-            }
-
-            for ( ExprNode node:children )
-            {
-                node.accept( visitor );
-            }
-        }
-        else
-        {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
-
-            for ( ExprNode node:children )
-            {
-                node.accept( visitor );
-            }
-
-            if ( visitor.canVisit( this ) )
-            {
-                visitor.visit( this );
-            }
-        }
-    }
 
     /**
      * @see Object#hashCode()

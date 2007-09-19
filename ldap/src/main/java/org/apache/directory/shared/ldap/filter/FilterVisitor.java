@@ -48,17 +48,15 @@ public interface FilterVisitor
     /**
      * Visits a filter expression AST using a specific visitation order.
      * 
-     * @param node
-     *            the node to visit
+     * @param node the node to visit
      */
-    void visit( ExprNode node );
+    Object visit( ExprNode node );
 
 
     /**
      * Checks to see if a node can be visited.
      * 
-     * @param node
-     *            the node to be visited
+     * @param node the node to be visited
      * @return whether or node the node should be visited
      */
     boolean canVisit( ExprNode node );
@@ -77,10 +75,8 @@ public interface FilterVisitor
      * child visitations. Some children may not be returned at all if canVisit()
      * returns false on them.
      * 
-     * @param node
-     *            the parent branch node
-     * @param children
-     *            the child node array
+     * @param node the parent branch node
+     * @param children the child node array
      * @return the new reordered array of children
      */
     List<ExprNode> getOrder( BranchNode node, List<ExprNode> children );

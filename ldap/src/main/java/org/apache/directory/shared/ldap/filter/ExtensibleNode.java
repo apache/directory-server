@@ -107,38 +107,6 @@ public class ExtensibleNode extends LeafNode
 
 
     /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(
-     *      java.lang.StringBuilder)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
-        buf.append( '(' ).append( getAttribute() );
-        buf.append( "-" );
-        buf.append( this.dnAttributes );
-        buf.append( "-EXTENSIBLE-" );
-        buf.append( this.matchingRuleId );
-        buf.append( "-" );
-        buf.append( StringTools.utf8ToString( value ) );
-        buf.append( "/" );
-        buf.append( StringTools.dumpBytes( value ) );
-        buf.append( ')' );
-
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
-    }
-
-    
-    /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
@@ -153,21 +121,21 @@ public class ExtensibleNode extends LeafNode
     public String toString()
     {
     	StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
+    	
+        buf.append( '(' ).append( getAttribute() );
+        buf.append( "-" );
+        buf.append( dnAttributes );
+        buf.append( "-EXTENSIBLE-" );
+        buf.append( matchingRuleId );
+        buf.append( "-" );
+        buf.append( StringTools.utf8ToString( value ) );
+        buf.append( "/" );
+        buf.append( StringTools.dumpBytes( value ) );
 
-        return ( buf.toString() );
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
+        buf.append( super.toString() );
+        
+        buf.append( ')' );
+        
+        return buf.toString();
     }
 }

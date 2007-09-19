@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public class SimpleNode extends LeafNode
+public abstract class SimpleNode extends LeafNode
 {
 	/** the value */
     protected Object value;
@@ -43,7 +43,7 @@ public class SimpleNode extends LeafNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public SimpleNode( String attribute, byte[] value )
+    protected SimpleNode( String attribute, byte[] value )
     {
         super( attribute );
         this.value = value;
@@ -56,7 +56,7 @@ public class SimpleNode extends LeafNode
      * @param attribute the attribute name
      * @param value the value to test for
      */
-    public SimpleNode( String attribute, String value )
+    protected SimpleNode( String attribute, String value )
     {
         super( attribute );
         this.value = value;
@@ -93,14 +93,12 @@ public class SimpleNode extends LeafNode
     {
         if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
         {
-            buf.append( '[' );
+            buf.append( ":[" );
             buf.append( getAnnotations().get( "count" ).toString() );
             buf.append( "] " );
         }
-        else
-        {
-            buf.append( ' ' );
-        }
+
+        buf.append( ')' );
 
         return buf;
     }
@@ -123,29 +121,19 @@ public class SimpleNode extends LeafNode
 
 
     /**
-     * @see java.lang.Object#toString()
+     * @see Object#hashCode()
      */
-    public String toString()
+    public int hashCode()
     {
-    	StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
-        return ( buf.toString() );
+    	int h = 31;
+    	h += value.hashCode()*13;
+    	h += getAttribute().hashCode()*13;
+    	h += this.getClass().hashCode()*13;
+    	
+    	return h;
     }
 
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
-    }
-
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -162,9 +150,26 @@ public class SimpleNode extends LeafNode
         {
             return false;
         }
+        
+        if ( other.getClass() != this.getClass() )
+        {
+        	return false;
+        }
+        
+        if ( !super.equals( other ) )
+        {
+        	return false;
+        }
 
         SimpleNode otherNode = (SimpleNode)other;
 
-        return ( value == null ? otherNode.value == null : value.equals( otherNode.value ) );
+        if ( value == null )
+        {
+        	return otherNode.value == null;
+        }
+        else
+        {
+        	return value.equals( otherNode.value );
+    	}
     }
 }

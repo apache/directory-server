@@ -116,7 +116,7 @@ public abstract class BranchNode extends AbstractExprNode
      * 
      * @param list the list of children to set.
      */
-    void setChildren( List<ExprNode> list )
+    public void setChildren( List<ExprNode> list )
     {
         children = list;
     }
@@ -143,35 +143,85 @@ public abstract class BranchNode extends AbstractExprNode
      * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
      *      org.apache.directory.shared.ldap.filter.FilterVisitor)
      */
-    public void accept( FilterVisitor visitor )
+    public final Object accept( FilterVisitor visitor )
     {
         if ( visitor.isPrefix() )
         {
             List<ExprNode> children = visitor.getOrder( this, this.children );
+            ExprNode result = null;
 
             if ( visitor.canVisit( this ) )
             {
-                visitor.visit( this );
+                result = (ExprNode)visitor.visit( this );
             }
 
             for ( ExprNode node:children )
             {
                 node.accept( visitor );
             }
+
+            return result;
         }
         else
         {
-            List<ExprNode> children = visitor.getOrder( this, this.children );
-
-            for ( ExprNode node:children )
-            {
-                node.accept( visitor );
-            }
-
             if ( visitor.canVisit( this ) )
             {
-                visitor.visit( this );
+                return visitor.visit( this );
+            }
+            else
+            {
+            	return null;
             }
         }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals( Object other )
+    {
+        if ( this == other )
+        {
+            return true;
+        }
+
+        if ( !( other instanceof BranchNode ) )
+        {
+            return false;
+        }
+        
+        if ( other.getClass() != this.getClass() )
+        {
+        	return false;
+        }
+
+        BranchNode otherExprNode = ( BranchNode ) other;
+
+        List<ExprNode> otherChildren = otherExprNode.getChildren();
+
+        if ( otherChildren == children )
+        {
+            return true;
+        }
+
+        if ( children.size() != otherChildren.size() )
+        {
+        	return false;
+        }
+        
+        for ( int i = 0; i < children.size(); i++ )
+        {
+        	ExprNode child = children.get( i );
+        	ExprNode otherChild = children.get( i );
+        	
+        	if ( !child.equals( otherChild ) )
+        	{
+        		return false;
+        	}
+        }
+        
+        return true;
     }
 }

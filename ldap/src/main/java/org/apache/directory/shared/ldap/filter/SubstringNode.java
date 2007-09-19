@@ -40,13 +40,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class SubstringNode extends LeafNode
 {
     /** The initial fragment before any wildcards */
-    private final String initialPattern;
+    private String initialPattern;
 
     /** The end fragment after wildcards */
-    private final String finalPattern;
+    private String finalPattern;
 
     /** List of fragments between wildcards */
-    private final List<String> anyPattern;
+    private List<String> anyPattern;
 
     /**
      * Creates a new SubstringNode object with only one wildcard and no internal
@@ -94,7 +94,15 @@ public class SubstringNode extends LeafNode
     {
         return initialPattern;
     }
-
+    
+    /**
+     * Set the initial pattern
+     * @param initialPattern The initial pattern
+     */
+	public void setInitial( String initialPattern ) 
+	{
+		this.initialPattern = initialPattern;
+	}
 
     /**
      * Gets the final fragment or suffix.
@@ -105,6 +113,16 @@ public class SubstringNode extends LeafNode
     {
         return finalPattern;
     }
+
+
+    /**
+     * Set the final pattern
+     * @param finalPattern The final pattern
+     */
+	public void setFinal( String finalPattern ) 
+	{
+		this.finalPattern = finalPattern;
+	}
 
 
     /**
@@ -119,6 +137,16 @@ public class SubstringNode extends LeafNode
 
 
     /**
+     * Set the any patterns
+     * @param anyPattern The any patterns
+     */
+	public void setAny( List<String> anyPattern ) 
+	{
+		this.anyPattern = anyPattern;
+	}
+
+
+    /**
      * Gets the compiled regular expression for the substring expression.
      * 
      * @return the equivalent compiled regular expression
@@ -126,7 +154,7 @@ public class SubstringNode extends LeafNode
      */
     public final Pattern getRegex( Normalizer normalizer ) throws PatternSyntaxException, NamingException
     {
-        if ( anyPattern.size() > 0 )
+        if ( ( anyPattern != null ) && ( anyPattern.size() > 0 ) )
         {
             String[] any = new String[anyPattern.size()];
 
@@ -180,18 +208,8 @@ public class SubstringNode extends LeafNode
      */
     public String toString()
     {
-        StringBuilder buf = new StringBuilder();
-        printToBuffer( buf );
-
-        return ( buf.toString() );
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#printToBuffer(java.lang.StringBuilder)
-     */
-    public StringBuilder printToBuffer( StringBuilder buf )
-    {
+    	StringBuilder buf = new StringBuilder();
+    	
         buf.append( '(' ).append( getAttribute() ).append( '=' );
 
         if ( null != initialPattern )
@@ -203,10 +221,13 @@ public class SubstringNode extends LeafNode
             buf.append( '*' );
         }
 
-        for ( String any:anyPattern )
+        if ( null != anyPattern )
         {
-            buf.append( any );
-            buf.append( '*' );
+	        for ( String any:anyPattern )
+	        {
+	            buf.append( any );
+	            buf.append( '*' );
+	        }
         }
 
         if ( null != finalPattern )
@@ -214,41 +235,19 @@ public class SubstringNode extends LeafNode
             buf.append( finalPattern );
         }
 
+        buf.append( super.toString() );
+        
         buf.append( ')' );
-
-        if ( ( null != getAnnotations() ) && getAnnotations().containsKey( "count" ) )
-        {
-            buf.append( '[' );
-            buf.append( getAnnotations().get( "count" ).toString() );
-            buf.append( "] " );
-        }
-        else
-        {
-            buf.append( ' ' );
-        }
-
-        return buf;
+        
+        return buf.toString();
     }
 
-    
+
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */
     public StringBuilder printRefinementToBuffer( StringBuilder buf ) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException( "SubstringNode can't be part of a refinement" );
-    }
-
-
-    /**
-     * @see org.apache.directory.shared.ldap.filter.ExprNode#accept(
-     *      org.apache.directory.shared.ldap.filter.FilterVisitor)
-     */
-    public void accept( FilterVisitor visitor )
-    {
-        if ( visitor.canVisit( this ) )
-        {
-            visitor.visit( this );
-        }
     }
 }

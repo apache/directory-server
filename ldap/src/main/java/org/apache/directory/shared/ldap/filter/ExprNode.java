@@ -57,15 +57,6 @@ public interface ExprNode
 
 
     /**
-     * Recursively appends this String representation of this node and its
-     * descendents in prefix notation to a buffer.
-     * 
-     * @param buf the buffer to append to.
-     */
-    StringBuilder printToBuffer( StringBuilder buf );
-
-
-    /**
      * Recursively appends the refinement string representation of this node and its
      * descendents in prefix notation to a buffer.
      * 
@@ -79,6 +70,7 @@ public interface ExprNode
      * Element/node accept method for visitor pattern.
      * 
      * @param visitor the filter expression tree structure visitor
+     * @return The modified element
      */
-    void accept( FilterVisitor visitor );
+    Object accept( FilterVisitor visitor );
 }

@@ -44,18 +44,18 @@ import java.text.ParseException;
  */
 public class BranchNormalizedVisitor implements FilterVisitor
 {
-    public void visit( ExprNode node )
+    public Object visit( ExprNode node )
     {
         if ( !( node instanceof BranchNode ) )
         {
-            return;
+            return null;
         }
 
         BranchNode branch = ( BranchNode ) node;
 
         if ( branch instanceof NotNode )
         {
-            return;
+            return null;
         }
 
         Comparator<ExprNode> nodeComparator = new NodeComparator();
@@ -68,15 +68,24 @@ public class BranchNormalizedVisitor implements FilterVisitor
         {
             if ( !child.isLeaf() )
             {
-                visit( child );
+            	ExprNode newChild = (ExprNode)visit( child );
+            	
+            	if ( newChild != null )
+            	{
+            		set.add( newChild );
+            	}
             }
-
-            set.add( child );
+            else
+            {
+            	set.add( child );
+            }
         }
 
         children.clear();
 
         children.addAll( set );
+        
+        return branch;
     }
 
 
@@ -137,13 +146,9 @@ public class BranchNormalizedVisitor implements FilterVisitor
     {
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
-        visitor.visit( filter );
+        ExprNode result = (ExprNode)visitor.visit( filter );
 
-        StringBuilder normalized = new StringBuilder();
-
-        filter.printToBuffer( normalized );
-
-        return normalized.toString().trim();
+        return result.toString().trim();
     }
 
     class NodeComparator implements Comparator<ExprNode>
@@ -156,7 +161,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
             String s1 = null;
 
-            o1.printToBuffer( buf );
+            buf.append( o1.toString() );
 
             s1 = buf.toString();
 
@@ -164,7 +169,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
 
             String s2 = null;
 
-            o2.printToBuffer( buf );
+            buf.append( o2.toString() );
 
             s2 = buf.toString();
 
