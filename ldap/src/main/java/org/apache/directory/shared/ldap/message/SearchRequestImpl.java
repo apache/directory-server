@@ -443,13 +443,8 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         req.getFilter().accept( visitor );
         filter.accept( visitor );
 
-        StringBuilder buf = new StringBuilder();
-        filter.printToBuffer( buf );
-        String myFilterString = buf.toString();
-
-        buf.setLength( 0 );
-        req.getFilter().printToBuffer( buf );
-        String reqFilterString = buf.toString();
+        String myFilterString = filter.toString();
+        String reqFilterString = req.getFilter().toString();
 
         return myFilterString.equals( reqFilterString );
     }
@@ -467,7 +462,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
         if ( filter != null )
         {
             sb.append( "        filter : '" );
-            filter.printToBuffer( sb );
+            sb.append( filter.toString() );
             sb.append( "'\n" );
         }
         
