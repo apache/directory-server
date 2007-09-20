@@ -36,7 +36,9 @@ import org.apache.directory.server.core.authz.support.MaxValueCountFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -50,16 +52,19 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  */
 public class MaxValueCountFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
 
-    private static final Collection PROTECTED_ITEMS = new ArrayList();
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
+
+    private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static final Attributes ENTRY = new AttributesImpl();
     private static final Attributes FULL_ENTRY = new AttributesImpl();
 
     static
     {
-        Collection mvcItems = new ArrayList();
+        Collection<MaxValueCountItem> mvcItems = new ArrayList<MaxValueCountItem>();
         mvcItems.add( new MaxValueCountItem( "testAttr", 2 ) );
         PROTECTED_ITEMS.add( new ProtectedItem.MaxValueCount( mvcItems ) );
 
@@ -75,8 +80,9 @@ public class MaxValueCountFilterTest extends TestCase
     public void testWrongScope() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
+            EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -92,16 +98,17 @@ public class MaxValueCountFilterTest extends TestCase
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
+            null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
     public void testDenialTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, 
+            EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -115,8 +122,9 @@ public class MaxValueCountFilterTest extends TestCase
     public void testGrantTuple() throws Exception
     {
         MaxValueCountFilter filter = new MaxValueCountFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, 
+            EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
             null, null, "testAttr", null, ENTRY, null ).size() );

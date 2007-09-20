@@ -45,7 +45,9 @@ import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -58,12 +60,15 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class MaxImmSubFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final LdapDN ROOTDSE_NAME = new LdapDN();
     private static final LdapDN ENTRY_NAME;
-    private static final Collection PROTECTED_ITEMS = new ArrayList();
+    private static final Collection<ProtectedItem> PROTECTED_ITEMS = new ArrayList<ProtectedItem>();
     private static final Attributes ENTRY = new AttributesImpl();
 
     static
@@ -84,8 +89,9 @@ public class MaxImmSubFilterTest extends TestCase
     public void testWrongScope() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
+            EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -101,8 +107,9 @@ public class MaxImmSubFilterTest extends TestCase
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
+            EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -115,7 +122,7 @@ public class MaxImmSubFilterTest extends TestCase
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
             ENTRY_NAME, null, null, ENTRY, null ).size() );
     }
 
@@ -123,8 +130,9 @@ public class MaxImmSubFilterTest extends TestCase
     public void testDenialTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, false, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
+            PROTECTED_ITEMS, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         tuples = Collections.unmodifiableCollection( tuples );
 
@@ -136,8 +144,9 @@ public class MaxImmSubFilterTest extends TestCase
     public void testGrantTuple() throws Exception
     {
         MaxImmSubFilter filter = new MaxImmSubFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, 
+            PROTECTED_ITEMS, EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
             null, ENTRY_NAME, null, null, ENTRY, null ).size() );
@@ -236,6 +245,7 @@ public class MaxImmSubFilterTest extends TestCase
             }
 
             ii++;
+            
             return new Object();
         }
 
@@ -266,6 +276,7 @@ public class MaxImmSubFilterTest extends TestCase
             }
 
             ii++;
+            
             return new Object();
         }
     }

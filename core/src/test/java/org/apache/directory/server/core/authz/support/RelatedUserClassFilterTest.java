@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
 
 import junit.framework.Assert;
@@ -36,6 +37,8 @@ import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -48,13 +51,15 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class RelatedUserClassFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
+
+    private static final Set<MicroOperation> EMPTY_MICRO_OPERATION_SET = Collections.unmodifiableSet( new HashSet<MicroOperation>() );
 
     private static final LdapDN GROUP_NAME;
     private static final LdapDN USER_NAME;
-    private static final Set USER_NAMES = new HashSet();
-    private static final Set GROUP_NAMES = new HashSet();
+    private static final Set<Name> USER_NAMES = new HashSet<Name>();
+    private static final Set<Name> GROUP_NAMES = new HashSet<Name>();
 
     private static final SubtreeEvaluator SUBTREE_EVALUATOR;
 
@@ -82,14 +87,14 @@ public class RelatedUserClassFilterTest extends TestCase
 
     public void testZeroTuple() throws Exception
     {
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
             null, null, null, null, null, null, null, null ).size() );
     }
 
 
     public void testAllUsers() throws Exception
     {
-        Collection tuples = getTuples( UserClass.ALL_USERS );
+        Collection<ACITuple> tuples = getTuples( UserClass.ALL_USERS );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
             AuthenticationLevel.NONE, null, null, null, null, null ).size() );
@@ -98,7 +103,7 @@ public class RelatedUserClassFilterTest extends TestCase
 
     public void testThisEntry() throws Exception
     {
-        Collection tuples = getTuples( UserClass.THIS_ENTRY );
+        Collection<ACITuple> tuples = getTuples( UserClass.THIS_ENTRY );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
             AuthenticationLevel.NONE, USER_NAME, null, null, null, null ).size() );
@@ -109,7 +114,7 @@ public class RelatedUserClassFilterTest extends TestCase
 
     public void testName() throws Exception
     {
-        Collection tuples = getTuples( new UserClass.Name( USER_NAMES ) );
+        Collection<ACITuple> tuples = getTuples( new UserClass.Name( USER_NAMES ) );
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
             AuthenticationLevel.NONE, null, null, null, null, null ).size() );
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null,
@@ -120,11 +125,11 @@ public class RelatedUserClassFilterTest extends TestCase
 
     public void testUserGroup() throws Exception
     {
-        Collection tuples = getTuples( new UserClass.UserGroup( GROUP_NAMES ) );
+        Collection<ACITuple> tuples = getTuples( new UserClass.UserGroup( GROUP_NAMES ) );
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, GROUP_NAMES, USER_NAME, null,
             AuthenticationLevel.NONE, null, null, null, null, null ).size() );
 
-        Set wrongGroupNames = new HashSet();
+        Set<Name> wrongGroupNames = new HashSet<Name>();
         wrongGroupNames.add( new LdapDN( "ou=unrelatedgroup" ) );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, wrongGroupNames, USER_NAME, null,
@@ -140,7 +145,7 @@ public class RelatedUserClassFilterTest extends TestCase
 
     public void testAuthenticationLevel() throws Exception
     {
-        Collection tuples = getTuples( AuthenticationLevel.SIMPLE, true );
+        Collection<ACITuple> tuples = getTuples( AuthenticationLevel.SIMPLE, true );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
             AuthenticationLevel.STRONG, null, null, null, null, null ).size() );
@@ -164,28 +169,31 @@ public class RelatedUserClassFilterTest extends TestCase
     }
 
 
-    private static Collection getTuples( UserClass userClass )
+    private static Collection<ACITuple> getTuples( UserClass userClass )
     {
-        Collection classes = new ArrayList();
+        Collection<UserClass> classes = new ArrayList<UserClass>();
         classes.add( userClass );
 
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( classes, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( classes, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
+            EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         return tuples;
     }
 
 
-    private static Collection getTuples( AuthenticationLevel level, boolean grant )
+    private static Collection<ACITuple> getTuples( AuthenticationLevel level, boolean grant )
     {
-        Collection classes = new ArrayList();
+        Collection<UserClass> classes = new ArrayList<UserClass>();
+        
         if ( grant )
         {
             classes.add( UserClass.ALL_USERS );
         }
         else
         {
-            Set names = new HashSet();
+            Set<Name> names = new HashSet<Name>();
+            
             try
             {
                 names.add( new LdapDN( "dummy=dummy" ) );
@@ -198,8 +206,8 @@ public class RelatedUserClassFilterTest extends TestCase
             classes.add( new UserClass.Name( names ) );
         }
 
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( classes, level, EMPTY_COLLECTION, EMPTY_SET, grant, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        tuples.add( new ACITuple( classes, level, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, grant, 0 ) );
 
         return tuples;
     }

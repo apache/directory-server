@@ -34,6 +34,8 @@ import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.aci.UserClass;
 
 
 /**
@@ -44,12 +46,13 @@ import org.apache.directory.shared.ldap.aci.MicroOperation;
  */
 public class MicroOperationFilterTest extends TestCase
 {
-    private static final Collection EMPTY_COLLECTION = Collections.unmodifiableCollection( new ArrayList() );
-    private static final Set EMPTY_SET = Collections.unmodifiableSet( new HashSet() );
+    private static final Collection<ACITuple> EMPTY_ACI_TUPLE_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ACITuple>() );
+    private static final Collection<UserClass> EMPTY_USER_CLASS_COLLECTION = Collections.unmodifiableCollection( new ArrayList<UserClass>() );
+    private static final Collection<ProtectedItem> EMPTY_PROTECTED_ITEM_COLLECTION = Collections.unmodifiableCollection( new ArrayList<ProtectedItem>() );
 
-    private static final Set USER_OPERATIONS_A = new HashSet();
-    private static final Set USER_OPERATIONS_B = new HashSet();
-    private static final Set TUPLE_OPERATIONS = new HashSet();
+    private static final Set<MicroOperation> USER_OPERATIONS_A = new HashSet<MicroOperation>();
+    private static final Set<MicroOperation> USER_OPERATIONS_B = new HashSet<MicroOperation>();
+    private static final Set<MicroOperation> TUPLE_OPERATIONS = new HashSet<MicroOperation>();
 
     static
     {
@@ -67,16 +70,18 @@ public class MicroOperationFilterTest extends TestCase
     {
         MicroOperationFilter filter = new MicroOperationFilter();
 
-        Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+        Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
+            null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
     public void testOneTuple() throws Exception
     {
         MicroOperationFilter filter = new MicroOperationFilter();
-        Collection tuples = new ArrayList();
-        tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_SET, TUPLE_OPERATIONS, true, 0 ) );
+        Collection<ACITuple> tuples = new ArrayList<ACITuple>();
+        
+        tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, 
+            TUPLE_OPERATIONS, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
             null, null, USER_OPERATIONS_A ).size() );
