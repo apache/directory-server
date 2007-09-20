@@ -67,7 +67,7 @@ public interface ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<LdapDN> userGroupNames, 
+            Collection<Name> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry,
             AuthenticationLevel authenticationLevel, 

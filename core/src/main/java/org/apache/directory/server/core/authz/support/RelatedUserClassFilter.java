@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -60,7 +61,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<LdapDN> userGroupNames, 
+            Collection<Name> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry, 
             AuthenticationLevel authenticationLevel,
@@ -79,6 +80,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
         for ( Iterator<ACITuple> ii = tuples.iterator(); ii.hasNext(); )
         {
             ACITuple tuple = ii.next();
+            
             if ( tuple.isGrant() )
             {
                 if ( !isRelated( userGroupNames, userName, userEntry, entryName, tuple.getUserClasses() )
@@ -102,7 +104,7 @@ public class RelatedUserClassFilter implements ACITupleFilter
     }
 
 
-    private boolean isRelated( Collection<LdapDN> userGroupNames, LdapDN userName, Attributes userEntry, 
+    private boolean isRelated( Collection<Name> userGroupNames, LdapDN userName, Attributes userEntry, 
         LdapDN entryName, Collection<UserClass> userClasses ) throws NamingException
     {
         for ( UserClass userClass : userClasses )
@@ -129,7 +131,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
             else if ( userClass instanceof UserClass.UserGroup )
             {
                 UserClass.UserGroup userGroupUserClass = ( UserClass.UserGroup ) userClass;
-                for ( LdapDN userGroupName : userGroupNames )
+                
+                for ( Name userGroupName : userGroupNames )
                 {
                     if ( userGroupName != null && userGroupUserClass.getNames().contains( userGroupName ) )
                     {

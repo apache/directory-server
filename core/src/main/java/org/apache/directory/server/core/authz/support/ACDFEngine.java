@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
@@ -117,7 +118,7 @@ public class ACDFEngine
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      * @throws NamingException if failed to evaluate ACI items
      */
-    public void checkPermission( PartitionNexusProxy proxy, Collection<LdapDN> userGroupNames, LdapDN username,
+    public void checkPermission( PartitionNexusProxy proxy, Collection<Name> userGroupNames, LdapDN username,
                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
                                  Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
     {
@@ -161,7 +162,7 @@ public class ACDFEngine
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
      */
-    public boolean hasPermission( PartitionNexusProxy proxy, Collection<LdapDN> userGroupNames, LdapDN userName,
+    public boolean hasPermission( PartitionNexusProxy proxy, Collection<Name> userGroupNames, LdapDN userName,
                                   AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
                                   Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
     {
@@ -174,6 +175,7 @@ public class ACDFEngine
 
         // Determine the scope of the requested operation.
         OperationScope scope;
+        
         if ( attrId == null )
         {
             scope = OperationScope.ENTRY;

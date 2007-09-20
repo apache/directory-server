@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -70,7 +71,7 @@ public class MaxImmSubFilter implements ACITupleFilter
             Collection<ACITuple> tuples, 
             OperationScope scope, 
             PartitionNexusProxy proxy,
-            Collection<LdapDN> userGroupNames, 
+            Collection<Name> userGroupNames, 
             LdapDN userName, 
             Attributes userEntry, 
             AuthenticationLevel authenticationLevel,
