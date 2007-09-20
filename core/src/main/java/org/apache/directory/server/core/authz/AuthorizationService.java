@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -432,7 +433,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // Assemble all the information required to make an access control decision
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
 
         // Build the total collection of tuples to be considered for add rights
@@ -496,7 +497,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -545,7 +546,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -633,7 +634,7 @@ public class AuthorizationService extends BaseInterceptor
             }
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -672,7 +673,7 @@ public class AuthorizationService extends BaseInterceptor
 
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN userName = principal.getJndiName();
-        Set<LdapDN> userGroups = groupCache.getGroups( userName.toNormName() );
+        Set<Name> userGroups = groupCache.getGroups( userName.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, dn, entry );
         addEntryAciTuples( tuples, entry );
@@ -752,7 +753,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -799,7 +800,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
@@ -875,7 +876,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, oriChildName, entry );
         addEntryAciTuples( tuples, entry );
@@ -985,7 +986,7 @@ public class AuthorizationService extends BaseInterceptor
             return next.compare( opContext );
         }
 
-        Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toNormName() );
+        Set<Name> userGroups = groupCache.getGroups( principalDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( proxy, tuples, name, entry );
         addEntryAciTuples( tuples, entry );
@@ -1023,7 +1024,7 @@ public class AuthorizationService extends BaseInterceptor
         while ( matched.size() > 0 )
         {
             entry = proxy.lookup( new LookupOperationContext( matched ), PartitionNexusProxy.GETMATCHEDDN_BYPASS );
-            Set<LdapDN> userGroups = groupCache.getGroups( principalDn.toString() );
+            Set<Name> userGroups = groupCache.getGroups( principalDn.toString() );
             Collection<ACITuple> tuples = new HashSet<ACITuple>();
             addPerscriptiveAciTuples( proxy, tuples, matched, entry );
             addEntryAciTuples( tuples, entry );
@@ -1058,7 +1059,7 @@ public class AuthorizationService extends BaseInterceptor
         Attributes entry = invocation.getProxy().lookup( new LookupOperationContext( normName ), PartitionNexusProxy.LOOKUP_BYPASS );
         ServerLdapContext ctx = ( ServerLdapContext ) invocation.getCaller();
         LdapDN userDn = ctx.getPrincipal().getJndiName();
-        Set<LdapDN> userGroups = groupCache.getGroups( userDn.toNormName() );
+        Set<Name> userGroups = groupCache.getGroups( userDn.toNormName() );
         Collection<ACITuple> tuples = new HashSet<ACITuple>();
         addPerscriptiveAciTuples( invocation.getProxy(), tuples, normName, entry );
         addEntryAciTuples( tuples, entry );
