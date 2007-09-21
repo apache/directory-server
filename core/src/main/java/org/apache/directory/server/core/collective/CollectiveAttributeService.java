@@ -119,11 +119,18 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        //Attribute caSubentries = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
-
-        Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
-        	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT } ) );
-        Attribute caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        Attribute caSubentries = null;
+        
+        if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
+        {
+            Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
+            	SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT } ) );
+            caSubentries = entryWithCAS.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        }
+        else
+        {
+            caSubentries = entry.get( SchemaConstants.COLLECTIVE_ATTRIBUTE_SUBENTRIES_AT );
+        }
         
         /*
          * If there are no collective attribute subentries referenced
@@ -133,7 +140,7 @@ public class CollectiveAttributeService extends BaseInterceptor
         {
             return;
         }
-        
+    
         /*
          * Before we proceed we need to lookup the exclusions within the
          * entry and build a set of exclusions for rapid lookup.  We use
