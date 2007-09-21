@@ -92,8 +92,15 @@ public class LookupOperationContext  extends AbstractOperationContext
      */
     public String[] getAttrsIdArray()
     {
-        String[] attrs = new String[ attrsId.size()];
-        return attrsId.toArray( attrs );
+        if ( attrsId == null )
+        {
+            return new String[]{};
+        }
+        else
+        {
+            String[] attrs = new String[ attrsId.size()];
+            return attrsId.toArray( attrs );
+        }
     }
 
     /**
