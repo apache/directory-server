@@ -33,7 +33,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class IndexEnumeration implements NamingEnumeration<IndexRecord>
+public class IndexEnumeration<T> implements NamingEnumeration<IndexRecord>
 {
     /** */
     private final Pattern re;
