@@ -335,8 +335,7 @@ public class EventService extends BaseInterceptor
         PartitionNexusProxy proxy = invocation.getProxy();
         Attributes oriEntry = proxy.lookup( new LookupOperationContext( opContext.getDn() ), PartitionNexusProxy.LOOKUP_BYPASS );
         
-    	next.modify( opContext );
-        //super.modify( next, opContext );
+        next.modify( opContext );
 
         notifyOnModify( opContext.getDn(), opContext.getModItems(), oriEntry );
     }
