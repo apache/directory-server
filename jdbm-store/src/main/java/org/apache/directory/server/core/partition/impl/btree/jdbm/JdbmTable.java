@@ -1045,9 +1045,9 @@ public class JdbmTable implements Table
     /**
      * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples()
      */
-    public NamingEnumeration listTuples() throws NamingException
+    public NamingEnumeration<Tuple> listTuples() throws NamingException
     {
-        NamingEnumeration list = null;
+        NamingEnumeration<Tuple> list = null;
 
         try
         {
@@ -1074,7 +1074,7 @@ public class JdbmTable implements Table
      * @see org.apache.directory.server.core.partition.impl.btree.Table#listTuples(java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    public NamingEnumeration listTuples( Object key ) throws NamingException
+    public NamingEnumeration<Tuple> listTuples( Object key ) throws NamingException
     {
         // Handle single and zero value returns without duplicates enabled
         if ( !allowsDuplicates )
@@ -1120,9 +1120,9 @@ public class JdbmTable implements Table
      * @see Table#listTuples(java.lang.Object,
      * boolean)
      */
-    public NamingEnumeration listTuples( Object key, boolean isGreaterThan ) throws NamingException
+    public NamingEnumeration<Tuple> listTuples( Object key, boolean isGreaterThan ) throws NamingException
     {
-        NamingEnumeration list = null;
+        NamingEnumeration<Tuple> list = null;
 
         try
         {

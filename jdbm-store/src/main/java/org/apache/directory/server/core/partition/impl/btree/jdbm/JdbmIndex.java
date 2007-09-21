@@ -38,6 +38,7 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
 import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
+import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -342,7 +343,7 @@ public class JdbmIndex implements Index
      */
     public IndexEnumeration listReverseIndices( Object id ) throws NamingException
     {
-        return new IndexEnumeration( reverse.listTuples( id ), true );
+        return new IndexEnumeration<Tuple>( reverse.listTuples( id ), true );
     }
 
 
@@ -351,7 +352,7 @@ public class JdbmIndex implements Index
      */
     public IndexEnumeration listIndices() throws NamingException
     {
-        return new IndexEnumeration( forward.listTuples() );
+        return new IndexEnumeration<Tuple>( forward.listTuples() );
     }
 
 
@@ -360,7 +361,7 @@ public class JdbmIndex implements Index
      */
     public IndexEnumeration listIndices( Object attrVal ) throws NamingException
     {
-        return new IndexEnumeration( forward.listTuples( getNormalized( attrVal ) ) );
+        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ) ) );
     }
 
 
@@ -368,18 +369,18 @@ public class JdbmIndex implements Index
      * @see org.apache.directory.server.core.partition.impl.btree.Index#listIndices(java.lang.Object,
      * boolean)
      */
-    public IndexEnumeration listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException
+    public IndexEnumeration<Tuple> listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException
     {
-        return new IndexEnumeration( forward.listTuples( getNormalized( attrVal ), isGreaterThan ) );
+        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( attrVal ), isGreaterThan ) );
     }
 
 
     /**
      * @see Index#listIndices(org.apache.regexp.RE)
      */
-    public IndexEnumeration listIndices( Pattern regex ) throws NamingException
+    public IndexEnumeration<Tuple> listIndices( Pattern regex ) throws NamingException
     {
-        return new IndexEnumeration( forward.listTuples(), false, regex );
+        return new IndexEnumeration<Tuple>( forward.listTuples(), false, regex );
     }
 
 
@@ -387,9 +388,9 @@ public class JdbmIndex implements Index
      * @see Index#listIndices(org.apache.regexp.RE,
      * java.lang.String)
      */
-    public IndexEnumeration listIndices( Pattern regex, String prefix ) throws NamingException
+    public IndexEnumeration<Tuple> listIndices( Pattern regex, String prefix ) throws NamingException
     {
-        return new IndexEnumeration( forward.listTuples( getNormalized( prefix ), true ), false, regex );
+        return new IndexEnumeration<Tuple>( forward.listTuples( getNormalized( prefix ), true ), false, regex );
     }
 
 
@@ -423,7 +424,7 @@ public class JdbmIndex implements Index
      */
     public boolean hasValue( Pattern regex, Object id ) throws NamingException
     {
-        IndexEnumeration list = new IndexEnumeration( reverse.listTuples( id ), true, regex );
+        IndexEnumeration<Tuple> list = new IndexEnumeration<Tuple>( reverse.listTuples( id ), true, regex );
         boolean hasValue = list.hasMore();
         list.close();
         return hasValue;
