@@ -27,7 +27,7 @@
   <modules>
     <module>project</module>
     <module>shared</module>
-    <module>daemon</module>
+    <!--module>daemon</module-->
     <module>apacheds</module>
   </modules>
 </project>
