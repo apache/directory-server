@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.sam;
 
 
-import org.apache.directory.server.kerberos.shared.messages.value.SamType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 
 
 /**

@@ -23,8 +23,8 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddressType;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddressType;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
@@ -46,7 +46,7 @@ public class HostAddressDecoder
      */
     protected static HostAddress decode( DERSequence sequence )
     {
-        HostAddressType type = HostAddressType.ADDRTYPE_IPV4;
+        HostAddressType type = HostAddressType.ADDRTYPE_INET;
         byte[] value = null;
 
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )

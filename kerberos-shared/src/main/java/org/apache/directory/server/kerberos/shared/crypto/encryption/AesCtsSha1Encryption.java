@@ -31,10 +31,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -44,9 +44,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 abstract class AesCtsSha1Encryption extends EncryptionEngine implements ChecksumEngine
 {
     private static final byte[] iv = new byte[]
-        { ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
-            ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00,
-            ( byte ) 0x00, ( byte ) 0x00 };
+        { 
+            ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, 
+            ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, 
+            ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, 
+            ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00, ( byte ) 0x00 
+        };
 
 
     public int getConfounderLength()
@@ -86,7 +89,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
     {
         byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
 
-        byte[] encryptedData = data.getCipherText();
+        byte[] encryptedData = data.getCipher();
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];
@@ -108,7 +111,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
 
         return withoutConfounder;

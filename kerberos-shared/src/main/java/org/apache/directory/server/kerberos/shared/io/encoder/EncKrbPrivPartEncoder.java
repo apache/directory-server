@@ -87,14 +87,14 @@ public class EncKrbPrivPartEncoder implements Encoder, EncoderFactory
             sequence.add( new DERTaggedObject( 1, KerberosTimeEncoder.encode( message.getTimestamp() ) ) );
         }
 
-        if ( message.getMicroSecond() != null )
+        if ( message.getMicroSecond() != -1 )
         {
-            sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( message.getMicroSecond().intValue() ) ) );
+            sequence.add( new DERTaggedObject( 2, DERInteger.valueOf( message.getMicroSecond() ) ) );
         }
 
-        if ( message.getSequenceNumber() != null )
+        if ( message.getSequenceNumber() != -1 )
         {
-            sequence.add( new DERTaggedObject( 3, DERInteger.valueOf( message.getSequenceNumber().intValue() ) ) );
+            sequence.add( new DERTaggedObject( 3, DERInteger.valueOf( message.getSequenceNumber() ) ) );
         }
 
         sequence.add( new DERTaggedObject( 4, HostAddressesEncoder.encode( message.getSenderAddress() ) ) );

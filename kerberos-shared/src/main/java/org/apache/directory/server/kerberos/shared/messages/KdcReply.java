@@ -20,6 +20,11 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
@@ -30,21 +35,62 @@ import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.KerberosFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
+ * Implements the KDC-REP message.
+ * 
+ * The ASN.1 grammar is the following :
+ * 
+ * KDC-REP         ::= SEQUENCE {
+ *         pvno            [0] INTEGER (5),
+ *         msg-type        [1] INTEGER (11 -- AS -- | 13 -- TGS --),
+ *         padata          [2] SEQUENCE OF PA-DATA OPTIONAL
+ *                                 -- NOTE: not empty --,
+ *         crealm          [3] Realm,
+ *         cname           [4] PrincipalName,
+ *         ticket          [5] Ticket,
+ *         enc-part        [6] EncryptedData
+ *                                 -- EncASRepPart or EncTGSRepPart,
+ *                                 -- as appropriate
+ * }
+ * 
+ 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class KdcReply extends KerberosMessage implements Encodable
 {
-    private PreAuthenticationData[] paData; //optional
+    /** The logger */
+    private static final Logger log = LoggerFactory.getLogger( KdcReply.class );
+
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
+    
+    private List<PreAuthenticationData> paData; //optional
+    
+    /** The client principalName */
+    private PrincipalName cName;
+    
+    /** The client principalName */
     private KerberosPrincipal clientPrincipal;
+    
+    /** The client realm */
+    private String cRealm;
+    
+    /** The newly issued ticket */
     private Ticket ticket;
 
-    private EncKdcRepPart encKDCRepPart = new EncKdcRepPart();
+    /** the encrypted part of a message */
     private EncryptedData encPart;
+
+    //private EncKdcRepPart encKDCRepPart = new EncKdcRepPart();
 
 
     /**
@@ -55,26 +101,6 @@ public class KdcReply extends KerberosMessage implements Encodable
     public KdcReply( MessageType msgType )
     {
         super( msgType );
-    }
-
-
-    /**
-     * Creates a new instance of KdcReply.
-     *
-     * @param paData
-     * @param clientPrincipal
-     * @param ticket
-     * @param encPart
-     * @param msgType
-     */
-    public KdcReply( PreAuthenticationData[] paData, KerberosPrincipal clientPrincipal, Ticket ticket,
-        EncryptedData encPart, MessageType msgType )
-    {
-        this( msgType );
-        this.paData = paData;
-        this.clientPrincipal = clientPrincipal;
-        this.ticket = ticket;
-        this.encPart = encPart;
     }
 
 
@@ -90,13 +116,24 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
+     * Returns the client {@link PrincipalName}.
+     *
+     * @return The client {@link PrincipalName}.
+     */
+    public PrincipalName getClientPrincipalName()
+    {
+        return cName;
+    }
+
+
+    /**
      * Returns the client realm.
      *
      * @return The client realm.
      */
     public String getClientRealm()
     {
-        return clientPrincipal.getRealm();
+        return cRealm;
     }
 
 
@@ -116,7 +153,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @return The array of {@link PreAuthenticationData}s.
      */
-    public PreAuthenticationData[] getPaData()
+    public List<PreAuthenticationData> getPaData()
     {
         return paData;
     }
@@ -138,9 +175,28 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @param clientPrincipal
      */
+    public void setCName( PrincipalName cName )
+    {
+        this.cName = cName;
+    }
+
+    /**
+     * Sets the client {@link KerberosPrincipal}.
+     *
+     * @param clientPrincipal
+     */
     public void setClientPrincipal( KerberosPrincipal clientPrincipal )
     {
         this.clientPrincipal = clientPrincipal;
+        
+        try
+        {
+            this.cName = new PrincipalName( clientPrincipal.getName(), clientPrincipal.getNameType() );
+        }
+        catch ( ParseException pe )
+        {
+            this.cName = null;
+        }
     }
 
 
@@ -160,9 +216,9 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @param part
      */
-    public void setEncPart( EncryptedData part )
+    public void setEncPart( EncryptedData encPart )
     {
-        encPart = part;
+        this.encPart = encPart;
     }
 
 
@@ -173,7 +229,34 @@ public class KdcReply extends KerberosMessage implements Encodable
      */
     public void setPaData( PreAuthenticationData[] data )
     {
+        paData = Arrays.asList( data );
+    }
+
+    
+    /**
+     * Sets the array of {@link PreAuthenticationData}s.
+     *
+     * @param data
+     */
+    public void setPaData( List<PreAuthenticationData> data )
+    {
         paData = data;
+    }
+
+    
+    /**
+     * Sets the array of {@link PreAuthenticationData}s.
+     *
+     * @param data
+     */
+    public void addPaData( PreAuthenticationData data )
+    {
+        if ( paData == null )
+        {
+            paData = new ArrayList<PreAuthenticationData>();
+        }
+        
+        paData.add( data );
     }
 
 
@@ -228,7 +311,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @return The {@link TicketFlags}.
      */
-    public TicketFlags getFlags()
+    public int getFlags()
     {
         return encKDCRepPart.getFlags();
     }
@@ -301,6 +384,17 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
+     * Returns the server {@link PrincipalName}.
+     *
+     * @return The server {@link PrincipalName}.
+     */
+    public PrincipalName getServerPrincipalName()
+    {
+        return encKDCRepPart.getServerPrincipalName();
+    }
+
+
+    /**
      * Return the server realm.
      *
      * @return The server realm.
@@ -362,7 +456,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @param flags
      */
-    public void setFlags( TicketFlags flags )
+    public void setFlags( KerberosFlags flags )
     {
         encKDCRepPart.setFlags( flags );
     }

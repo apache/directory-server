@@ -21,7 +21,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import org.apache.directory.server.kerberos.kdc.KdcContext;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;

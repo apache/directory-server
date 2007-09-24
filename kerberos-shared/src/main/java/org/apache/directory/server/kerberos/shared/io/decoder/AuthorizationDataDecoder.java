@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationDataEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.AuthorizationType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;

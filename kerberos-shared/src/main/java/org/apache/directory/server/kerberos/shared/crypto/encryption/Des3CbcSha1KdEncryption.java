@@ -32,10 +32,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumEngine;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -93,7 +93,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
     {
         byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
 
-        byte[] encryptedData = data.getCipherText();
+        byte[] encryptedData = data.getCipher();
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];
@@ -115,7 +115,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
 
         return withoutConfounder;

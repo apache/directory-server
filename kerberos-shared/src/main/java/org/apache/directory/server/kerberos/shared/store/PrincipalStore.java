@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.store;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 
+
 /**
  * The store interface used by Kerberos services.
  * 

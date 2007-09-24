@@ -20,7 +20,7 @@
 package org.apache.directory.server.changepw.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 
 
@@ -41,7 +41,7 @@ public class ChangePasswordRequestModifier extends AbstractPasswordMessageModifi
      */
     public ChangePasswordRequest getChangePasswordMessage()
     {
-        return new ChangePasswordRequest( versionNumber, authHeader, privateMessage );
+        return new ChangePasswordRequest( messageLength, versionNumber, authHeaderLength, authHeader, privateMessage );
     }
 
 

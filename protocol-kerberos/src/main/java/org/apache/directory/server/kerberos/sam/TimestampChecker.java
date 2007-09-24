@@ -30,7 +30,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthEncryptedTimestamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
@@ -52,23 +52,17 @@ public class TimestampChecker implements KeyIntegrityChecker
 
         try
         {
-            /*
-             * Since the pre-auth value is of type PA-ENC-TIMESTAMP, it should be a valid
-             * ASN.1 PA-ENC-TS-ENC structure, so we can decode it into EncryptedData.
-             */
+            // Since the pre-auth value is of type PA-ENC-TIMESTAMP, it should be a valid
+            // ASN.1 PA-ENC-TS-ENC structure, so we can decode it into EncryptedData.
             EncryptedData sadValue = EncryptedDataDecoder.decode( encryptedData );
 
-            /*
-             * Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC.  Decode the
-             * decrypted timestamp into our timestamp object.
-             */
-            EncryptedTimeStamp timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,
-                key, sadValue, KeyUsage.NUMBER1 );
+            // Decrypt the EncryptedData structure to get the PA-ENC-TS-ENC
+            // Decode the decrypted timestamp into our timestamp object.
+            PreAuthEncryptedTimestamp timestamp = ( PreAuthEncryptedTimestamp ) cipherTextHandler.unseal( PreAuthEncryptedTimestamp.class, key,
+                sadValue, KeyUsage.NUMBER1 );
 
-            /*
-             * Since we got here we must have a valid timestamp structure that we can
-             * validate to be within a five minute skew.
-             */
+            // Since we got here we must have a valid timestamp structure that we can
+            // validate to be within a five minute skew.
             KerberosTime time = timestamp.getTimeStamp();
 
             if ( time.isInClockSkew( FIVE_MINUTES ) )

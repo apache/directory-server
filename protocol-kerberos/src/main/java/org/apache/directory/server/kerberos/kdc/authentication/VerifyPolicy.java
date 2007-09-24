@@ -22,8 +22,8 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import java.util.Date;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -45,17 +45,17 @@ public class VerifyPolicy implements IoHandlerCommand
 
         if ( entry.isDisabled() )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_CLIENT_REVOKED );
         }
 
         if ( entry.isLockedOut() )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_CLIENT_REVOKED );
         }
 
         if ( entry.getExpiration().getTime() < new Date().getTime() )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_CLIENT_REVOKED );
         }
 
         next.execute( session, message );

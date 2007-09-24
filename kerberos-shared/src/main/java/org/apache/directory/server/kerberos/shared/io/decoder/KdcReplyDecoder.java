@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -82,7 +83,7 @@ public class KdcReplyDecoder
     private KdcReply decodeKdcReplySequence( DERSequence sequence ) throws IOException
     {
         MessageType msgType = MessageType.NULL;
-        PreAuthenticationData[] paData = null;
+        List<PreAuthenticationData> paData = null;
         Ticket ticket = null;
         EncryptedData encPart = null;
 

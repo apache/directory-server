@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.kdc.preauthentication;
 
 
+import java.util.List;
+
 import javax.security.auth.kerberos.KerberosKey;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
@@ -28,12 +30,12 @@ import org.apache.directory.server.kerberos.sam.SamException;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
 import org.apache.directory.server.kerberos.sam.TimestampChecker;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -75,22 +77,22 @@ public class VerifySam extends VerifierBase
                 log.debug( "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.", clientName );
             }
 
-            PreAuthenticationData[] preAuthData = request.getPreAuthData();
+            List<PreAuthenticationData> preAuthDatas = request.getPreAuthData();
 
-            if ( preAuthData == null || preAuthData.length == 0 )
+            if ( ( preAuthDatas == null ) || ( preAuthDatas.size() == 0 ) )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config
+                throw new KerberosException( KerberosErrorType.KDC_ERR_PREAUTH_REQUIRED, preparePreAuthenticationError( config
                     .getEncryptionTypes() ) );
             }
 
             try
             {
-                for ( int ii = 0; ii < preAuthData.length; ii++ )
+                for ( PreAuthenticationData preAuthData:preAuthDatas )
                 {
-                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData.getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
-                            preAuthData[ii].getDataValue() );
+                            preAuthData.getDataValue() );
                         clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey.getKeyType() ), samKey
                             .getEncoded() );
                     }
@@ -98,7 +100,7 @@ public class VerifySam extends VerifierBase
             }
             catch ( SamException se )
             {
-                throw new KerberosException( ErrorType.KRB_ERR_GENERIC, se );
+                throw new KerberosException( KerberosErrorType.KRB_ERR_GENERIC, se );
             }
 
             authContext.setClientKey( clientKey );

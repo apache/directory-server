@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
+import java.util.List;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.mina.common.IoSession;
@@ -37,57 +39,35 @@ public class MonitorRequest implements IoHandlerCommand
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorRequest.class );
 
-    private String serviceName;
-
     private String contextKey = "context";
-
-
-    /**
-     * Creates a new instance of MonitorRequest.
-     *
-     * @param serviceName
-     */
-    public MonitorRequest( String serviceName )
-    {
-        this.serviceName = serviceName;
-    }
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcRequest request = kdcContext.getRequest();
+        String clientAddress = kdcContext.getClientAddress().getHostAddress();
 
         if ( log.isDebugEnabled() )
         {
-            try
-            {
-                String clientAddress = kdcContext.getClientAddress().getHostAddress();
+            StringBuffer sb = new StringBuffer();
 
-                StringBuffer sb = new StringBuffer();
+            sb.append( "Responding to authentication request:" );
+            sb.append( "\n\t" + "realm:                 " + request.getRealm() );
+            sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
+            sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
+            sb.append( "\n\t" + "clientAddress:         " + clientAddress );
+            sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
+            sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+            sb.append( "\n\t" + "from krb time:         " + request.getFrom() );
+            sb.append( "\n\t" + "realm krb time:        " + request.getRenewtime() );
+            sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
+            sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
+            sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
+            sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
+            sb.append( "\n\t" + "till:                  " + request.getTill() );
 
-                sb.append( "Received " + serviceName + " request:" );
-                sb.append( "\n\t" + "messageType:           " + request.getMessageType() );
-                sb.append( "\n\t" + "protocolVersionNumber: " + request.getProtocolVersionNumber() );
-                sb.append( "\n\t" + "clientAddress:         " + clientAddress );
-                sb.append( "\n\t" + "nonce:                 " + request.getNonce() );
-                sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
-                sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
-                sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
-                sb.append( "\n\t" + "realm:                 " + request.getRealm() );
-                sb.append( "\n\t" + "from time:             " + request.getFrom() );
-                sb.append( "\n\t" + "till time:             " + request.getTill() );
-                sb.append( "\n\t" + "renew-till time:       " + request.getRtime() );
-                sb.append( "\n\t" + "hostAddresses:         " + request.getAddresses() );
-
-                log.debug( sb.toString() );
-            }
-            catch ( Exception e )
-            {
-                // This is a monitor.  No exceptions should bubble up.
-                log.error( "Error in request monitor", e );
-            }
+            log.debug( sb.toString() );
         }
 
         next.execute( session, message );
@@ -96,18 +76,23 @@ public class MonitorRequest implements IoHandlerCommand
 
     protected String getEncryptionTypes( KdcRequest request )
     {
-        EncryptionType[] etypes = request.getEType();
+        List<EncryptionType> eTypes = request.getEType();
 
         StringBuffer sb = new StringBuffer();
+        boolean isFirst = true;
 
-        for ( int ii = 0; ii < etypes.length; ii++ )
+        for ( EncryptionType eType:eTypes )
         {
-            sb.append( etypes[ii].toString() );
-
-            if ( ii < etypes.length - 1 )
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
             {
                 sb.append( ", " );
             }
+
+            sb.append( eType.toString() );
         }
 
         return sb.toString();

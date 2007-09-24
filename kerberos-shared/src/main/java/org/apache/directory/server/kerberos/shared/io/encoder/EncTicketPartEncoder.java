@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -92,7 +93,7 @@ public class EncTicketPartEncoder implements Encoder, EncoderFactory
         sequence.add( new DERTaggedObject( 0, new DERBitString( ticketPart.getFlags().getBytes() ) ) );
         sequence.add( new DERTaggedObject( 1, EncryptionKeyEncoder.encodeSequence( ticketPart.getSessionKey() ) ) );
         sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( ticketPart.getClientRealm().toString() ) ) );
-        sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( ticketPart.getClientPrincipal() ) ) );
+        sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( ticketPart.getClientPrincipalName() ) ) );
         sequence.add( new DERTaggedObject( 4, TransitedEncodingEncoder.encode( ticketPart.getTransitedEncoding() ) ) );
         sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( ticketPart.getAuthTime() ) ) );
 

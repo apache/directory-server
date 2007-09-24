@@ -22,8 +22,8 @@ package org.apache.directory.server.kerberos.shared.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -48,7 +48,7 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
      * @return The PrincipalStoreEntry
      * @throws Exception
      */
-    public PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, ErrorType errorType )
+    public PrincipalStoreEntry getEntry( KerberosPrincipal principal, PrincipalStore store, KerberosErrorType errorType )
         throws Exception
     {
         PrincipalStoreEntry entry = null;
@@ -62,14 +62,9 @@ public abstract class GetPrincipalStoreEntry implements IoHandlerCommand
             throw new KerberosException( errorType, e );
         }
 
-        if ( entry == null )
+        if ( entry == null || entry.getKeyMap().isEmpty() )
         {
             throw new KerberosException( errorType );
-        }
-
-        if ( entry.getKeyMap() == null || entry.getKeyMap().isEmpty() )
-        {
-            throw new KerberosException( ErrorType.KDC_ERR_NULL_KEY );
         }
 
         return entry;

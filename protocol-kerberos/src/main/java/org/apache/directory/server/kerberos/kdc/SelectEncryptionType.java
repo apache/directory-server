@@ -20,9 +20,11 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
+import java.util.List;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -46,7 +48,7 @@ public class SelectEncryptionType implements IoHandlerCommand
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcConfiguration config = kdcContext.getConfig();
 
-        EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
+        List<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
 
         EncryptionType bestType = getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
@@ -54,7 +56,7 @@ public class SelectEncryptionType implements IoHandlerCommand
 
         if ( bestType == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP );
         }
 
         kdcContext.setEncryptionType( bestType );
@@ -63,13 +65,13 @@ public class SelectEncryptionType implements IoHandlerCommand
     }
 
 
-    protected EncryptionType getBestEncryptionType( EncryptionType[] requestedTypes, EncryptionType[] configuredTypes )
+    protected EncryptionType getBestEncryptionType( List<EncryptionType> requestedTypes, EncryptionType[] configuredTypes )
     {
-        for ( int ii = 0; ii < requestedTypes.length; ii++ )
+        for ( EncryptionType eType:requestedTypes )
         {
             for ( int jj = 0; jj < configuredTypes.length; jj++ )
             {
-                if ( requestedTypes[ii] == configuredTypes[jj] )
+                if ( eType == configuredTypes[jj] )
                 {
                     return configuredTypes[jj];
                 }

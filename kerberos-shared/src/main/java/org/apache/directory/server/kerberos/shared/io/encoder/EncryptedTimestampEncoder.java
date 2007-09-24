@@ -24,7 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthEncryptedTimestamp;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
@@ -42,7 +42,7 @@ public class EncryptedTimestampEncoder implements Encoder, EncoderFactory
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        aos.writeObject( encodeTimestamp( ( EncryptedTimeStamp ) encryptedTimestamp ) );
+        aos.writeObject( encodeTimestamp( ( PreAuthEncryptedTimestamp ) encryptedTimestamp ) );
         aos.close();
 
         return baos.toByteArray();
@@ -61,7 +61,7 @@ public class EncryptedTimestampEncoder implements Encoder, EncoderFactory
      *         pausec[1]                    INTEGER OPTIONAL
      * }
      */
-    private DERSequence encodeTimestamp( EncryptedTimeStamp encryptedTimestamp )
+    private DERSequence encodeTimestamp( PreAuthEncryptedTimestamp encryptedTimestamp )
     {
         DERSequence sequence = new DERSequence();
 

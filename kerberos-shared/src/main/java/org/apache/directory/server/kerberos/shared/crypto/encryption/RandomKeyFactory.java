@@ -30,9 +30,9 @@ import java.util.Set;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -111,7 +111,7 @@ public class RandomKeyFactory
 
         if ( algorithm == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, encryptionType.getName()
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP, encryptionType.getName()
                 + " is not a supported encryption type." );
         }
 
@@ -137,7 +137,7 @@ public class RandomKeyFactory
         }
         catch ( NoSuchAlgorithmException nsae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, nsae );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP, nsae );
         }
     }
 }

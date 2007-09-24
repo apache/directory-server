@@ -23,9 +23,9 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
-import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.ApOptions;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;

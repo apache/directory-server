@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.AuthenticatorDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.AuthorizationDataDecoder;
@@ -46,7 +45,7 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncTicketPartEncod
 import org.apache.directory.server.kerberos.shared.io.encoder.Encoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncoderFactory;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedTimestampEncoder;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.server.kerberos.shared.messages.AuthServerReply;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
@@ -56,8 +55,9 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPri
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthEncryptedTimestamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -81,9 +81,9 @@ public class CipherTextHandler
     {
         Map<Class, Class> map = new HashMap<Class, Class>();
 
-        map.put( EncryptedTimeStamp.class, EncryptedTimestampEncoder.class );
+        map.put( PreAuthEncryptedTimestamp.class, EncryptedTimestampEncoder.class );
         map.put( EncTicketPart.class, EncTicketPartEncoder.class );
-        map.put( AuthenticationReply.class, EncAsRepPartEncoder.class );
+        map.put( AuthServerReply.class, EncAsRepPartEncoder.class );
         map.put( TicketGrantReply.class, EncTgsRepPartEncoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartEncoder.class );
         map.put( EncApRepPart.class, EncApRepPartEncoder.class );
@@ -98,7 +98,7 @@ public class CipherTextHandler
 
         map.put( EncTicketPart.class, EncTicketPartDecoder.class );
         map.put( Authenticator.class, AuthenticatorDecoder.class );
-        map.put( EncryptedTimeStamp.class, EncryptedTimestampDecoder.class );
+        map.put( PreAuthEncryptedTimestamp.class, EncryptedTimestampDecoder.class );
         map.put( AuthorizationData.class, AuthorizationDataDecoder.class );
         map.put( EncKrbPrivPart.class, EncKrbPrivPartDecoder.class );
         map.put( EncApRepPart.class, EncApRepPartDecoder.class );
@@ -138,11 +138,11 @@ public class CipherTextHandler
         }
         catch ( IOException ioe )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
         }
         catch ( ClassCastException cce )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
         }
     }
 
@@ -166,11 +166,11 @@ public class CipherTextHandler
         }
         catch ( IOException ioe )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
         }
         catch ( ClassCastException cce )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
         }
     }
 
@@ -261,7 +261,7 @@ public class CipherTextHandler
 
         if ( clazz == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP );
         }
 
         try
@@ -270,11 +270,11 @@ public class CipherTextHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, iae );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP, iae );
         }
         catch ( InstantiationException ie )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_ETYPE_NOSUPP, ie );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_ETYPE_NOSUPP, ie );
         }
     }
 }

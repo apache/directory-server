@@ -22,8 +22,12 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -48,6 +52,7 @@ public class KerberosTime implements Comparable<KerberosTime>
 
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone( "UTC" );
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddHHmmss'Z'" );
+    private static final Calendar CALENDAR = new GregorianCalendar( UTC_TIME_ZONE );
 
     static
     {
@@ -95,13 +100,133 @@ public class KerberosTime implements Comparable<KerberosTime>
      * @return The {@link KerberosTime}.
      * @throws ParseException
      */
-    public static KerberosTime getTime( String zuluTime ) throws ParseException
+    /*public static KerberosTime getTime( String zuluTime ) throws ParseException
     {
         Date date = null;
         synchronized ( dateFormat )
         {
             date = dateFormat.parse( zuluTime );
         }
+        return new KerberosTime( date );
+    }*/
+    
+    private static int[] DAYS_PER_MONTH = new int[]{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    private static int FEBRUARY = 2;
+    
+    /**
+     * Parse a KerberosTime
+     * @param zuluTime The time to parse
+     * @return A valid KzerberosTime, containing the Date
+     * @exception ParseException If the time is not a KerberosTime
+     */
+    public static KerberosTime getTime( String zuluTime ) throws ParseException
+    {
+        Date date = null;
+        
+        if ( ( zuluTime == null ) || ( zuluTime.length() != 15 ) )
+        {
+            throw new ParseException( "Invalid KerberosTime : it should not be null", 0 );
+        }
+        
+        char[] zTime = zuluTime.toCharArray();
+
+        for ( int i = 0; i < zTime.length; i++ )
+        {
+            if ( !StringTools.isDigit( zTime[i] ) )
+            {
+                if ( ( i == 14 ) && ( ( zTime[i] == 'Z' ) || ( zTime[i] == 'z' ) ) )
+                {
+                    break;
+                }
+                else
+                {
+                    throw new ParseException( "Invalid KerberosTime", i );
+                }
+            }
+        }
+        
+        // compute the numbers
+        int year =  ( ( zTime[0] - '0' ) * 1000 ) +
+                    ( ( zTime[1] - '0' ) * 100 ) +
+                    ( ( zTime[2] - '0' ) * 10 ) +
+                    ( zTime[3] - '0' );
+        
+        int month = ( ( zTime[4] - '0' ) * 10 ) +
+                    ( zTime[5] - '0' );
+
+        int day =   ( ( zTime[6] - '0' ) * 10 ) +
+                    ( zTime[7] - '0' );
+
+        int hour =  ( ( zTime[8] - '0' ) * 10 ) +
+                    ( zTime[9] - '0' );
+
+        int min =   ( ( zTime[10] - '0' ) * 10 ) +
+                    ( zTime[11] - '0' );
+
+        int sec =   ( ( zTime[12] - '0' ) * 10 ) +
+                    ( zTime[13] - '0' );
+        
+        // Now test the values
+        if ( ( month == 0 ) || ( month > 12 ) ) 
+        {
+            throw new ParseException( "Invalid KerberosTime : month is invalid", 5 );
+        }
+
+        if ( day == 0 )
+        {
+            throw new ParseException( "Invalid KerberosTime : day is invalid", 7 );
+        }
+        
+        if ( month == FEBRUARY )
+        {
+            // Check for leap years
+            if ( ( year & 0x0003 ) == 0 )
+            {
+                // evey 400 years, we have a leap year, otherwise it's not
+                if ( year % 400 == 0 )
+                {
+                    if ( day > 29 )
+                    {
+                        throw new ParseException( "Invalid KerberosTime : day is invalid", 7 );
+                    }
+                }
+                else
+                {
+                    if ( day > 28 )
+                    {
+                        throw new ParseException( "Invalid KerberosTime : day is invalid for february", 7 );
+                    }
+                }
+            }
+            else
+            {
+                if ( day > 28 )
+                {
+                    // We don't have a leap year, so we should have only 28 days
+                    throw new ParseException( "Invalid KerberosTime : day is invalid for a non leap year", 7 );
+                }
+            }
+        }
+        else
+        {
+            if ( day > DAYS_PER_MONTH[month] )
+            {
+                throw new ParseException( "Invalid KerberosTime : day is invalid for this month", 7 );
+            }
+        }
+        
+        if ( ( hour > 23 ) || ( min > 59 ) || ( sec > 59 ) ) 
+        {
+            throw new ParseException( "Invalid KerberosTime : time is invalid", 9 );
+       }
+        
+        synchronized( CALENDAR )
+        {
+            CALENDAR.clear();
+            CALENDAR.set( year, month - 1, day, hour, min, sec );
+            date = CALENDAR.getTime();
+        }
+        
         return new KerberosTime( date );
     }
 

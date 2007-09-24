@@ -27,36 +27,43 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 
 
 /**
+ * Compute a checksum using a CRC32 algorithm
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 class Crc32Checksum implements ChecksumEngine
 {
+    /**
+     * Return the checksum type. Here, CRC32.
+     */
     public ChecksumType checksumType()
     {
         return ChecksumType.CRC32;
     }
 
-
+    /**
+     * Compute the checksum
+     * 
+     * @param data the data for which the checksum is computed
+     * @param key Not used
+     * @param usage Not used
+     * 
+     * @return the data checksum, as a four bytes array.
+     */
     public byte[] calculateChecksum( byte[] data, byte[] key, KeyUsage usage )
     {
         CRC32 crc32 = new CRC32();
         crc32.update( data );
+        int value = ( int ) crc32.getValue();
 
-        return int2octet( ( int ) crc32.getValue() );
-    }
-
-
-    private byte[] int2octet( int value )
-    {
         byte[] bytes = new byte[4];
-        int i, shift;
-
-        for ( i = 0, shift = 24; i < 4; i++, shift -= 8 )
-        {
-            bytes[i] = ( byte ) ( 0xFF & ( value >> shift ) );
-        }
-
+        
+        bytes[0] = ( byte ) ( ( value >> 24 ) & 0x00FF );
+        bytes[1] = ( byte ) ( ( value >> 16 ) & 0x00FF );
+        bytes[2] = ( byte ) ( ( value >> 8 ) & 0x00FF );
+        bytes[3] = ( byte ) ( value & 0x00FF );
+        
         return bytes;
     }
 }

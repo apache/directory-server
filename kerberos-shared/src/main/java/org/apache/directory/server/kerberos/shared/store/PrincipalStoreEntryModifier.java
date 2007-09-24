@@ -32,7 +32,7 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.SamType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.SamType;
 
 
 /**

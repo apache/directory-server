@@ -36,9 +36,9 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
@@ -155,7 +155,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
                 log.warn( ke.getMessage() );
             }
 
-            ErrorMessage errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
+            KerberosError errorMessage = getErrorMessage( config.getServicePrincipal(), ke );
 
             ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
             modifier.setErrorMessage( errorMessage );
@@ -187,20 +187,21 @@ public class ChangePasswordProtocolHandler implements IoHandler
     }
 
 
-    private ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    private KerberosError getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
-        ErrorMessageModifier modifier = new ErrorMessageModifier();
-
+        KerberosError kerberosError = new KerberosError();
+        
         KerberosTime now = new KerberosTime();
 
-        modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getMessage() );
-        modifier.setServerPrincipal( principal );
-        modifier.setServerTime( now );
-        modifier.setServerMicroSecond( 0 );
-        modifier.setExplanatoryData( buildExplanatoryData( exception ) );
+        kerberosError.setErrorCode( KerberosErrorType.getTypeByOrdinal( exception.getErrorCode() ) );
+        kerberosError.setExplanatoryText( exception.getMessage() );
+        kerberosError.setServerPrincipal( principal );
+        
+        kerberosError.setServerTime( now );
+        kerberosError.setServerMicroseconds( 0 );
+        kerberosError.setExplanatoryData( buildExplanatoryData( exception ) );
 
-        return modifier.getErrorMessage();
+        return kerberosError;
     }
 
 

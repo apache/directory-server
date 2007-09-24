@@ -24,7 +24,6 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -59,7 +58,7 @@ public class BuildReply implements IoHandlerCommand
         reply.setEndTime( newTicket.getEndTime() );
         reply.setServerPrincipal( newTicket.getServerPrincipal() );
 
-        if ( newTicket.getFlag( TicketFlags.RENEWABLE ) )
+        if ( newTicket.getFlags().isRenewable() )
         {
             reply.setRenewTill( newTicket.getRenewTill() );
         }

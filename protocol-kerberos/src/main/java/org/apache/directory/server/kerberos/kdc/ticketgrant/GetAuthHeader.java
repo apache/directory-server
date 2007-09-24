@@ -21,25 +21,22 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PreAuthenticationDataType;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
  * Differs from the changepw getAuthHeader by verifying the presence of TGS_REQ.
- * 
- * Note that reading the application request requires first determining the server
- * for which a ticket was issued, and choosing the correct key for decryption.  The
- * name of the server appears in the plaintext part of the ticket.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -66,26 +63,20 @@ public class GetAuthHeader implements IoHandlerCommand
 
     protected ApplicationRequest getAuthHeader( KdcRequest request ) throws KerberosException, IOException
     {
-        PreAuthenticationData[] preAuthData = request.getPreAuthData();
-
-        if ( preAuthData == null || preAuthData.length < 1 )
-        {
-            throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
-        }
-
         byte[] undecodedAuthHeader = null;
+        List<PreAuthenticationData> preAuthData = request.getPreAuthData();
 
-        for ( int ii = 0; ii < preAuthData.length; ii++ )
+        for ( PreAuthenticationData paData:preAuthData )
         {
-            if ( preAuthData[ii].getDataType() == PreAuthenticationDataType.PA_TGS_REQ )
+            if ( paData.getDataType() == PreAuthenticationDataType.PA_TGS_REQ )
             {
-                undecodedAuthHeader = preAuthData[ii].getDataValue();
+                undecodedAuthHeader = paData.getDataValue();
             }
         }
 
         if ( undecodedAuthHeader == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
         }
 
         ApplicationRequestDecoder decoder = new ApplicationRequestDecoder();

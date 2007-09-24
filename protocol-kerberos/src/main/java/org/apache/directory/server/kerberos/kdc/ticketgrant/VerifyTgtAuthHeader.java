@@ -20,50 +20,52 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import java.net.InetAddress;
-
-import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
-import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
+import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class VerifyTgtAuthHeader extends VerifyAuthHeader
+public class VerifyBodyChecksum implements IoHandlerCommand
 {
+    /** the log for this class */
+    private static final Logger log = LoggerFactory.getLogger( VerifyBodyChecksum.class );
+
+    private ChecksumHandler checksumHandler = new ChecksumHandler();
+    private String contextKey = "context";
+
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
+        byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
+        Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
 
-        ApplicationRequest authHeader = tgsContext.getAuthHeader();
-        Ticket tgt = tgsContext.getTgt();
-        
-        boolean isValidate = tgsContext.getRequest().getKdcOptions().get( KdcOptions.VALIDATE );
+        if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
+            || authenticatorChecksum.getChecksumValue() == null )
+        {
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_INAPP_CKSUM );
+        }
 
-        EncryptionType encryptionType = tgt.getEncPart().getEncryptionType();
-        EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
+        log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
 
-        long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
-        ReplayCache replayCache = tgsContext.getReplayCache();
-        boolean emptyAddressesAllowed = tgsContext.getConfig().isEmptyAddressesAllowed();
-        InetAddress clientAddress = tgsContext.getClientAddress();
-        CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
-
-        Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
-            emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7, isValidate );
-
-        tgsContext.setAuthenticator( authenticator );
+        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
 
         next.execute( session, message );
+    }
+
+
+    private String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }

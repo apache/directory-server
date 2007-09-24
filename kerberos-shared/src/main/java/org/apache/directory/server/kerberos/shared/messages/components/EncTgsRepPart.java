@@ -26,7 +26,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 
 
 /**
@@ -53,7 +52,7 @@ public class EncTgsRepPart extends EncKdcRepPart
      * @param caddr
      */
     public EncTgsRepPart(EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
-        TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
+        int flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
         KerberosPrincipal serverPrincipal, HostAddresses caddr)
     {
         super( key, lastReq, nonce, keyExpiration, flags, authtime, starttime, endtime, renewTill, serverPrincipal,

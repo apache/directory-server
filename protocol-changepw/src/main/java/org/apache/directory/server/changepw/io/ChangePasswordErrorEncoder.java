@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 
 
 /**
@@ -48,7 +48,7 @@ public class ChangePasswordErrorEncoder
     public void encode( ByteBuffer buf, ChangePasswordError message ) throws IOException
     {
         // Build error message bytes
-        ErrorMessage errorMessage = message.getErrorMessage();
+        KerberosError errorMessage = message.getErrorMessage();
         ErrorMessageEncoder errorEncoder = new ErrorMessageEncoder();
         byte[] errorBytes = errorEncoder.encode( errorMessage );
 

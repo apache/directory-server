@@ -36,34 +36,22 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 public class EncKrbPrivPart extends KerberosMessage implements Encodable
 {
     private byte[] userData;
-    private KerberosTime timestamp; //optional
-    private Integer usec; //optional
-    private Integer sequenceNumber; //optional
-    private HostAddress senderAddress; //optional
-    private HostAddress recipientAddress; //optional
-
+    private KerberosTime timestamp;         // optional
+    private int usec;                       // optional
+    private int sequenceNumber;             // optional
+    private HostAddress senderAddress;      // optional
+    private HostAddress recipientAddress;   // optional
 
     /**
      * Creates a new instance of EncKrbPrivPart.
      *
-     * @param userData
-     * @param timestamp
-     * @param usec
-     * @param sequenceNumber
-     * @param senderAddress
-     * @param recipientAddress
+     * @return The {@link EncKrbPrivPart}.
      */
-    public EncKrbPrivPart( byte[] userData, KerberosTime timestamp, Integer usec, Integer sequenceNumber,
-        HostAddress senderAddress, HostAddress recipientAddress )
+    public EncKrbPrivPart()
     {
         super( MessageType.ENC_PRIV_PART );
-
-        this.userData = userData;
-        this.timestamp = timestamp;
-        this.usec = usec;
-        this.sequenceNumber = sequenceNumber;
-        this.senderAddress = senderAddress;
-        this.recipientAddress = recipientAddress;
+        usec = -1;
+        sequenceNumber = -1;
     }
 
 
@@ -79,6 +67,17 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
 
 
     /**
+     * Sets the recipient {@link HostAddress}.
+     *
+     * @param address
+     */
+    public void setRecipientAddress( HostAddress address )
+    {
+        recipientAddress = address;
+    }
+
+    
+    /**
      * Returns the sender {@link HostAddress}.
      *
      * @return The sender {@link HostAddress}.
@@ -90,16 +89,38 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
 
 
     /**
+     * Sets the sender {@link HostAddress}.
+     *
+     * @param address
+     */
+    public void setSenderAddress( HostAddress address )
+    {
+        senderAddress = address;
+    }
+
+    
+    /**
      * Returns the sequence number.
      *
      * @return The sequence number.
      */
-    public Integer getSequenceNumber()
+    public int getSequenceNumber()
     {
         return sequenceNumber;
     }
 
 
+    /**
+     * Sets the sequence number.
+     *
+     * @param number
+     */
+    public void setSequenceNumber( int number )
+    {
+        sequenceNumber = number;
+    }
+
+    
     /**
      * Returns the {@link KerberosTime} timestamp.
      *
@@ -112,13 +133,35 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
 
 
     /**
+     * Sets the {@link KerberosTime} timestamp.
+     *
+     * @param timestamp
+     */
+    public void setTimestamp( KerberosTime timestamp )
+    {
+        this.timestamp = timestamp;
+    }
+
+    
+    /**
      * Returns the microsecond.
      *
      * @return The microsecond.
      */
-    public Integer getMicroSecond()
+    public int getMicroSecond()
     {
         return usec;
+    }
+
+
+    /**
+     * Sets the microsecond.
+     *
+     * @param usec
+     */
+    public void setMicroSecond( int usec )
+    {
+        this.usec = usec;
     }
 
 
@@ -130,5 +173,16 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
     public byte[] getUserData()
     {
         return userData;
+    }
+
+    
+    /**
+     * Sets the user data.
+     *
+     * @param data
+     */
+    public void setUserData( byte[] data )
+    {
+        userData = data;
     }
 }

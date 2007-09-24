@@ -20,12 +20,11 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -48,23 +47,18 @@ public class VerifyBodyChecksum implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
-        KdcConfiguration config = tgsContext.getConfig();
+        byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
+        Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
 
-        if ( config.isBodyChecksumVerified() )
+        if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
+            || authenticatorChecksum.getChecksumValue() == null )
         {
-            byte[] bodyBytes = tgsContext.getRequest().getBodyBytes();
-            Checksum authenticatorChecksum = tgsContext.getAuthenticator().getChecksum();
-
-            if ( authenticatorChecksum == null || authenticatorChecksum.getChecksumType() == null
-                || authenticatorChecksum.getChecksumValue() == null || bodyBytes == null )
-            {
-                throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
-            }
-
-            log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
-
-            checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_INAPP_CKSUM );
         }
+
+        log.debug( "Verifying body checksum type '{}'.", authenticatorChecksum.getChecksumType() );
+
+        checksumHandler.verifyChecksum( authenticatorChecksum, bodyBytes, null, KeyUsage.NUMBER8 );
 
         next.execute( session, message );
     }

@@ -82,14 +82,11 @@ public class KdcConfiguration extends ServiceConfiguration
     /** The default for allowing proxiable tickets */
     private static final boolean DEFAULT_TGS_PROXIABLE_ALLOWED = true;
 
-    /** The default for allowing postdated tickets */
-    private static final boolean DEFAULT_TGS_POSTDATED_ALLOWED = true;
+    /** The default for allowing postdatable tickets */
+    private static final boolean DEFAULT_TGS_POSTDATE_ALLOWED = true;
 
     /** The default for allowing renewable tickets */
     private static final boolean DEFAULT_TGS_RENEWABLE_ALLOWED = true;
-
-    /** The default for verifying the body checksum */
-    private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
 
     /** The encryption types. */
     private EncryptionType[] encryptionTypes;
@@ -121,14 +118,11 @@ public class KdcConfiguration extends ServiceConfiguration
     /** Whether proxiable addresses are allowed. */
     private boolean isProxiableAllowed = DEFAULT_TGS_PROXIABLE_ALLOWED;
 
-    /** Whether postdated tickets are allowed. */
-    private boolean isPostdatedAllowed = DEFAULT_TGS_POSTDATED_ALLOWED;
+    /** Whether postdating is allowed. */
+    private boolean isPostdateAllowed = DEFAULT_TGS_POSTDATE_ALLOWED;
 
     /** Whether renewable tickets are allowed. */
     private boolean isRenewableAllowed = DEFAULT_TGS_RENEWABLE_ALLOWED;
-
-    /** Whether to verify the body checksum. */
-    private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
 
     /**
@@ -175,11 +169,11 @@ public class KdcConfiguration extends ServiceConfiguration
 
 
     /**
-     * @return the isPostdatedAllowed
+     * @return the isPostdateAllowed
      */
-    public boolean isPostdatedAllowed()
+    public boolean isPostdateAllowed()
     {
-        return isPostdatedAllowed;
+        return isPostdateAllowed;
     }
 
 
@@ -265,11 +259,11 @@ public class KdcConfiguration extends ServiceConfiguration
 
 
     /**
-     * @param isPostdatedAllowed the isPostdatedAllowed to set
+     * @param isPostdateAllowed the isPostdateAllowed to set
      */
-    public void setPostdatedAllowed( boolean isPostdatedAllowed )
+    public void setPostdateAllowed( boolean isPostdateAllowed )
     {
-        this.isPostdatedAllowed = isPostdatedAllowed;
+        this.isPostdateAllowed = isPostdateAllowed;
     }
 
 
@@ -371,24 +365,6 @@ public class KdcConfiguration extends ServiceConfiguration
     }
 
 
-    /**
-     * @return the isBodyChecksumVerified
-     */
-    public boolean isBodyChecksumVerified()
-    {
-        return isBodyChecksumVerified;
-    }
-
-
-    /**
-     * @param isBodyChecksumVerified the isBodyChecksumVerified to set
-     */
-    public void setBodyChecksumVerified( boolean isBodyChecksumVerified )
-    {
-        this.isBodyChecksumVerified = isBodyChecksumVerified;
-    }
-
-
     private void prepareEncryptionTypes()
     {
         String[] encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
@@ -397,13 +373,12 @@ public class KdcConfiguration extends ServiceConfiguration
 
         for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.VALUES )
-            {
-                if ( type.getName().equalsIgnoreCase( enc ) )
-                {
-                    encTypes.add( type );
-                }
-            }
+        	EncryptionType et = EncryptionType.getByName( enc );
+        	
+        	if ( et != EncryptionType.UNKNOWN )
+        	{
+        		encTypes.add( et );
+        	}
         }
 
         encryptionTypes = encTypes.toArray( new EncryptionType[encTypes.size()] );

@@ -27,7 +27,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequestModifier;
 import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequestDecoder;
 import org.apache.directory.server.kerberos.shared.io.decoder.PrivateMessageDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 
 
@@ -48,11 +48,11 @@ public class ChangePasswordRequestDecoder
     {
         ChangePasswordRequestModifier modifier = new ChangePasswordRequestModifier();
 
-        buf.getShort(); // message length
-
+        modifier.setMessageLength( buf.getShort() );
         modifier.setProtocolVersionNumber( buf.getShort() );
 
         short authHeaderLength = buf.getShort();
+        modifier.setAuthHeaderLength( authHeaderLength );
 
         byte[] undecodedAuthHeader = new byte[authHeaderLength];
         buf.get( undecodedAuthHeader, 0, authHeaderLength );

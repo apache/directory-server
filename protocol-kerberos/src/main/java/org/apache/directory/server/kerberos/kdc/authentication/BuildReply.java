@@ -20,11 +20,11 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.server.kerberos.shared.messages.AuthServerReply;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -43,7 +43,7 @@ public class BuildReply implements IoHandlerCommand
         KdcRequest request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
 
-        AuthenticationReply reply = new AuthenticationReply();
+        AuthServerReply reply = new AuthServerReply();
 
         reply.setClientPrincipal( request.getClientPrincipal() );
         reply.setTicket( ticket );
@@ -51,7 +51,7 @@ public class BuildReply implements IoHandlerCommand
 
         // TODO - fetch lastReq for this client; requires store
         reply.setLastRequest( new LastRequest() );
-        // TODO - resp.key-expiration := client.expiration; requires store
+        // TODO    - resp.key-expiration := client.expiration; requires store
 
         reply.setNonce( request.getNonce() );
 
@@ -60,7 +60,7 @@ public class BuildReply implements IoHandlerCommand
         reply.setStartTime( ticket.getStartTime() );
         reply.setEndTime( ticket.getEndTime() );
 
-        if ( ticket.getFlags().get( TicketFlags.RENEWABLE ) )
+        if ( TicketFlags.isRenewable( ticket.getFlags() ) )
         {
             reply.setRenewTill( ticket.getRenewTill() );
         }

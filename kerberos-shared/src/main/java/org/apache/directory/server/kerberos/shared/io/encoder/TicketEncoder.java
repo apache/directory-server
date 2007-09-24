@@ -22,8 +22,11 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
@@ -71,7 +74,17 @@ public class TicketEncoder
 
         vector.add( new DERTaggedObject( 0, DERInteger.valueOf( ticket.getVersionNumber() ) ) );
         vector.add( new DERTaggedObject( 1, DERGeneralString.valueOf( ticket.getRealm() ) ) );
-        vector.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( ticket.getServerPrincipal() ) ) );
+        
+        try
+        {
+            vector.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( 
+                new PrincipalName( ticket.getServerPrincipal().getName(), ticket.getServerPrincipal().getNameType() ) ) ) );
+        }
+        catch ( ParseException pe )
+        {
+            pe.printStackTrace();
+        }
+        
         vector.add( new DERTaggedObject( 3, EncryptedDataEncoder.encodeSequence( ticket.getEncPart() ) ) );
 
         DERApplicationSpecific ticketSequence = null;
@@ -98,6 +111,20 @@ public class TicketEncoder
             DERSequence vector = new DERSequence();
             vector.add( encode( tickets[ii] ) );
             outerVector.add( vector );
+        }
+
+        return outerVector;
+    }
+
+    protected static DERSequence encodeSequence( List<Ticket> tickets )
+    {
+        DERSequence outerVector = new DERSequence();
+
+        for ( Ticket ticket:tickets )
+        {
+            //DERSequence vector = new DERSequence();
+            //vector.add( encode( ticket ) );
+            outerVector.add( encode( ticket ) );
         }
 
         return outerVector;

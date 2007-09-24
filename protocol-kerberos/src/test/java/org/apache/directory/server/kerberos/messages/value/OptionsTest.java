@@ -24,8 +24,9 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.KdcOptions;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**
@@ -44,11 +45,11 @@ public class OptionsTest extends TestCase
     public void testToString()
     {
         TicketFlags flags = new TicketFlags();
-        flags.set( TicketFlags.FORWARDABLE );
-        flags.set( TicketFlags.PROXIABLE );
-        flags.set( TicketFlags.RENEWABLE );
-        flags.set( TicketFlags.INITIAL );
-        assertEquals( flags.toString(), "FORWARDABLE PROXIABLE RENEWABLE INITIAL" );
+        flags.setFlag( TicketFlag.FORWARDABLE );
+        flags.setFlag( TicketFlag.PROXIABLE );
+        flags.setFlag( TicketFlag.RENEWABLE );
+        flags.setFlag( TicketFlag.INITIAL );
+        assertEquals( "FORWARDABLE PROXIABLE RENEWABLE INITIAL", flags.toString() );
     }
 
 
@@ -58,12 +59,12 @@ public class OptionsTest extends TestCase
     public void testDuplicateSetting()
     {
         TicketFlags flags = new TicketFlags();
-        flags.set( TicketFlags.MAY_POSTDATE );
-        flags.set( TicketFlags.FORWARDABLE );
-        flags.set( TicketFlags.PROXIABLE );
-        flags.set( TicketFlags.MAY_POSTDATE );
-        flags.set( TicketFlags.RENEWABLE );
-        assertEquals( flags.toString(), "FORWARDABLE PROXIABLE MAY_POSTDATE RENEWABLE" );
+        flags.setFlag( TicketFlag.MAY_POSTDATE );
+        flags.setFlag( TicketFlag.FORWARDABLE );
+        flags.setFlag( TicketFlag.PROXIABLE );
+        flags.setFlag( TicketFlag.MAY_POSTDATE );
+        flags.setFlag( TicketFlag.RENEWABLE );
+        assertEquals( "FORWARDABLE PROXIABLE MAY_POSTDATE RENEWABLE", flags.toString() );
     }
 
 

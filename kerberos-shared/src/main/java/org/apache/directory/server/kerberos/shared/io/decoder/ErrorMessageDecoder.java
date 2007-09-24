@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosPrincipalModifier;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -45,15 +45,15 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class ErrorMessageDecoder
 {
     /**
-     * Decodes a {@link ByteBuffer} into an {@link ErrorMessage}.
+     * Decodes a {@link ByteBuffer} into an {@link KerberosError}.
      * 
      * KRB-ERROR       ::= [APPLICATION 30] SEQUENCE
      *
      * @param in
-     * @return The {@link ErrorMessage}.
+     * @return The {@link KerberosError}.
      * @throws IOException
      */
-    public ErrorMessage decode( ByteBuffer in ) throws IOException
+    public KerberosError decode( ByteBuffer in ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( in );
 
@@ -82,9 +82,9 @@ public class ErrorMessageDecoder
      e-data          [12] OCTET STRING OPTIONAL
      }
      */
-    private ErrorMessage decodeErrorMessageSequence( DERSequence sequence )
+    private KerberosError decodeErrorMessageSequence( DERSequence sequence )
     {
-        ErrorMessageModifier errorModifier = new ErrorMessageModifier();
+        KerberosError kerberosError = new KerberosError();
         KerberosPrincipalModifier clientModifier = new KerberosPrincipalModifier();
         KerberosPrincipalModifier serverModifier = new KerberosPrincipalModifier();
 
@@ -106,23 +106,23 @@ public class ErrorMessageDecoder
                     break;
                 case 2:
                     DERGeneralizedTime tag2 = ( DERGeneralizedTime ) derObject;
-                    errorModifier.setClientTime( KerberosTimeDecoder.decode( tag2 ) );
+                    kerberosError.setClientTime( KerberosTimeDecoder.decode( tag2 ) );
                     break;
                 case 3:
                     DERInteger tag3 = ( DERInteger ) derObject;
-                    errorModifier.setClientMicroSecond( tag3.intValue() );
+                    kerberosError.setClientMicroSecond( tag3.intValue() );
                     break;
                 case 4:
                     DERGeneralizedTime tag4 = ( DERGeneralizedTime ) derObject;
-                    errorModifier.setServerTime( KerberosTimeDecoder.decode( tag4 ) );
+                    kerberosError.setServerTime( KerberosTimeDecoder.decode( tag4 ) );
                     break;
                 case 5:
                     DERInteger tag5 = ( DERInteger ) derObject;
-                    errorModifier.setServerMicroSecond( tag5.intValue() );
+                    kerberosError.setServerMicroseconds( tag5.intValue() );
                     break;
                 case 6:
                     DERInteger tag6 = ( DERInteger ) derObject;
-                    errorModifier.setErrorCode( tag6.intValue() );
+                    kerberosError.setErrorCode( KerberosErrorType.getTypeByOrdinal( tag6.intValue() ) );
                     break;
                 case 7:
                     DERGeneralString tag7 = ( DERGeneralString ) derObject;
@@ -142,18 +142,18 @@ public class ErrorMessageDecoder
                     break;
                 case 11:
                     DERGeneralString tag11 = ( DERGeneralString ) derObject;
-                    errorModifier.setExplanatoryText( tag11.getString() );
+                    kerberosError.setExplanatoryText( tag11.getString() );
                     break;
                 case 12:
                     DEROctetString tag12 = ( DEROctetString ) derObject;
-                    errorModifier.setExplanatoryData( tag12.getOctets() );
+                    kerberosError.setExplanatoryData( tag12.getOctets() );
                     break;
             }
         }
 
-        errorModifier.setClientPrincipal( clientModifier.getKerberosPrincipal() );
-        errorModifier.setServerPrincipal( serverModifier.getKerberosPrincipal() );
+        kerberosError.setClientPrincipal( clientModifier.getKerberosPrincipal() );
+        kerberosError.setServerPrincipal( serverModifier.getKerberosPrincipal() );
 
-        return errorModifier.getErrorMessage();
+        return kerberosError;
     }
 }

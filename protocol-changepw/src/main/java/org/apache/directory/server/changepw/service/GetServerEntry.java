@@ -22,7 +22,7 @@ package org.apache.directory.server.changepw.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoSession;
@@ -43,7 +43,7 @@ public class GetServerEntry extends GetPrincipalStoreEntry
         KerberosPrincipal principal = changepwContext.getTicket().getServerPrincipal();
         PrincipalStore store = changepwContext.getStore();
 
-        changepwContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        changepwContext.setServerEntry( getEntry( principal, store, KerberosErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
 
         next.execute( session, message );
     }

@@ -21,21 +21,22 @@ package org.apache.directory.server.kerberos.kdc.preauthentication;
 
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptedDataDecoder;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthEncryptedTimestamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -74,9 +75,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
         {
             if ( log.isDebugEnabled() )
             {
-                log.debug(
-                    "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.",
-                    clientName );
+                log.debug( "Entry for client principal {} has no SAM type.  Proceeding with standard pre-authentication.", clientName );
             }
 
             EncryptionType encryptionType = authContext.getEncryptionType();
@@ -84,68 +83,55 @@ public class VerifyEncryptedTimestamp extends VerifierBase
 
             if ( clientKey == null )
             {
-                throw new KerberosException( ErrorType.KDC_ERR_NULL_KEY );
+                throw new KerberosException( KerberosErrorType.KDC_ERR_NULL_KEY );
             }
 
             if ( config.isPaEncTimestampRequired() )
             {
-                PreAuthenticationData[] preAuthData = request.getPreAuthData();
+                List<PreAuthenticationData> preAuthDatas = request.getPreAuthData();
 
-                if ( preAuthData == null )
+                if ( preAuthDatas == null )
                 {
-                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
+                    throw new KerberosException( KerberosErrorType.KDC_ERR_PREAUTH_REQUIRED,
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
-                EncryptedTimeStamp timestamp = null;
+                PreAuthEncryptedTimestamp timestamp = null;
 
-                for ( int ii = 0; ii < preAuthData.length; ii++ )
+                for ( PreAuthenticationData preAuthData:preAuthDatas )
                 {
-                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData.getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue;
 
                         try
                         {
-                            dataValue = EncryptedDataDecoder.decode( preAuthData[ii].getDataValue() );
+                            dataValue = EncryptedDataDecoder.decode( preAuthData.getDataValue() );
                         }
                         catch ( IOException ioe )
                         {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
+                            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, ioe );
                         }
                         catch ( ClassCastException cce )
                         {
-                            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
+                            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY, cce );
                         }
 
-                        timestamp = ( EncryptedTimeStamp ) cipherTextHandler.unseal( EncryptedTimeStamp.class,
+                        timestamp = ( PreAuthEncryptedTimestamp ) cipherTextHandler.unseal( PreAuthEncryptedTimestamp.class,
                             clientKey, dataValue, KeyUsage.NUMBER1 );
                     }
                 }
 
-                if ( preAuthData.length > 0 && timestamp == null )
-                {
-                    throw new KerberosException( ErrorType.KDC_ERR_PADATA_TYPE_NOSUPP );
-                }
-
                 if ( timestamp == null )
                 {
-                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_REQUIRED,
+                    throw new KerberosException( KerberosErrorType.KDC_ERR_PREAUTH_REQUIRED,
                         preparePreAuthenticationError( config.getEncryptionTypes() ) );
                 }
 
                 if ( !timestamp.getTimeStamp().isInClockSkew( config.getAllowableClockSkew() ) )
                 {
-                    throw new KerberosException( ErrorType.KDC_ERR_PREAUTH_FAILED );
+                    throw new KerberosException( KerberosErrorType.KDC_ERR_PREAUTH_FAILED );
                 }
-
-                /*
-                 * if(decrypted_enc_timestamp and usec is replay)
-                 *         error_out(KDC_ERR_PREAUTH_FAILED);
-                 * endif
-                 * 
-                 * add decrypted_enc_timestamp and usec to replay cache;
-                 */
             }
         }
 

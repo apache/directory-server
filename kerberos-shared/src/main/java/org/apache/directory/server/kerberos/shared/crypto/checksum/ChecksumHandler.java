@@ -28,9 +28,9 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes128CtsSh
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Aes256CtsSha1Encryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.Des3CbcSha1KdEncryption;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -73,7 +73,7 @@ public class ChecksumHandler
     {
         if ( !DEFAULT_CHECKSUMS.containsKey( checksumType ) )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_SUMTYPE_NOSUPP );
         }
 
         ChecksumEngine digester = getEngine( checksumType );
@@ -94,12 +94,12 @@ public class ChecksumHandler
     {
         if ( checksum == null )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_INAPP_CKSUM );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_INAPP_CKSUM );
         }
 
         if ( !DEFAULT_CHECKSUMS.containsKey( checksum.getChecksumType() ) )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_SUMTYPE_NOSUPP );
         }
 
         ChecksumType checksumType = checksum.getChecksumType();
@@ -108,7 +108,7 @@ public class ChecksumHandler
 
         if ( !newChecksum.equals( checksum ) )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_MODIFIED );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_MODIFIED );
         }
     }
 
@@ -119,7 +119,7 @@ public class ChecksumHandler
 
         if ( clazz == null )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_SUMTYPE_NOSUPP );
         }
 
         try
@@ -128,11 +128,11 @@ public class ChecksumHandler
         }
         catch ( IllegalAccessException iae )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP, iae );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_SUMTYPE_NOSUPP, iae );
         }
         catch ( InstantiationException ie )
         {
-            throw new KerberosException( ErrorType.KDC_ERR_SUMTYPE_NOSUPP, ie );
+            throw new KerberosException( KerberosErrorType.KDC_ERR_SUMTYPE_NOSUPP, ie );
         }
     }
 }

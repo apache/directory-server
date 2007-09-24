@@ -254,14 +254,13 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
 
         List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 
-        for ( String enc : encryptionTypeStrings )
+        for ( String encryptionType : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.VALUES )
+        	EncryptionType type = EncryptionType.getByName( encryptionType );
+        	
+        	if ( type != EncryptionType.UNKNOWN )
             {
-                if ( type.toString().equalsIgnoreCase( enc ) )
-                {
-                    encTypes.add( type );
-                }
+                encTypes.add( type );
             }
         }
 

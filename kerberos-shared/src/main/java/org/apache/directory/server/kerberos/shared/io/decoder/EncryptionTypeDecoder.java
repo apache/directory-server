@@ -20,7 +20,9 @@
 package org.apache.directory.server.kerberos.shared.io.decoder;
 
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -37,16 +39,14 @@ public class EncryptionTypeDecoder
      * etype[8]             SEQUENCE OF INTEGER, -- EncryptionType,
      *             -- in preference order
      */
-    protected static EncryptionType[] decode( DERSequence sequence )
+    protected static List<EncryptionType> decode( DERSequence sequence )
     {
-        EncryptionType[] eTypes = new EncryptionType[sequence.size()];
+        List<EncryptionType> eTypes = new ArrayList<EncryptionType>( sequence.size() );
 
-        int ii = 0;
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERInteger object = ( DERInteger ) e.nextElement();
-            eTypes[ii] = EncryptionType.getTypeByOrdinal( object.intValue() );
-            ii++;
+            eTypes.add( EncryptionType.getTypeByOrdinal( object.intValue() ) );
         }
 
         return eTypes;

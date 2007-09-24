@@ -34,7 +34,6 @@ import org.apache.directory.server.kerberos.shared.messages.components.Authentic
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncApRepPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
-import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -64,13 +63,12 @@ public class BuildReply implements IoHandlerCommand
 
         // create priv message
         // user-data component is short result code
-        EncKrbPrivPartModifier modifier = new EncKrbPrivPartModifier();
+        EncKrbPrivPart encKrbPrivPart = new EncKrbPrivPart();
         byte[] resultCode =
             { ( byte ) 0x00, ( byte ) 0x00 };
-        modifier.setUserData( resultCode );
+        encKrbPrivPart.setUserData( resultCode );
 
-        modifier.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
-        EncKrbPrivPart privPart = modifier.getEncKrbPrivPart();
+        encKrbPrivPart.setSenderAddress( new HostAddress( InetAddress.getLocalHost() ) );
 
         // get the subsession key from the Authenticator
         EncryptionKey subSessionKey = authenticator.getSubSessionKey();
@@ -79,7 +77,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encPrivPart = cipherTextHandler.seal( subSessionKey, privPart, KeyUsage.NUMBER13 );
+            encPrivPart = cipherTextHandler.seal( subSessionKey, encKrbPrivPart, KeyUsage.NUMBER13 );
         }
         catch ( KerberosException ke )
         {

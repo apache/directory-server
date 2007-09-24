@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
+import org.apache.directory.server.kerberos.shared.messages.value.PreAuthEncryptedTimestamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStampModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -64,7 +64,7 @@ public class EncryptedTimestampDecoder implements Decoder, DecoderFactory
     }
 
 
-    protected EncryptedTimeStamp decodeEncryptedTimestamp( DERSequence sequence )
+    protected PreAuthEncryptedTimestamp decodeEncryptedTimestamp( DERSequence sequence )
     {
         EncryptedTimeStampModifier modifier = new EncryptedTimeStampModifier();
 

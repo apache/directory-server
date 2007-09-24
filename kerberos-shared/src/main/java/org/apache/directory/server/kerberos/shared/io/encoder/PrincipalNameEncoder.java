@@ -20,12 +20,6 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
-
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -39,90 +33,35 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
  */
 public class PrincipalNameEncoder
 {
-    private static final String COMPONENT_SEPARATOR = "/";
-    private static final String REALM_SEPARATOR = "@";
-
-
     /**
-     * Encodes a {@link KerberosPrincipal} into a {@link DERSequence}.
-     * 
      * PrincipalName ::=   SEQUENCE {
      *               name-type[0]     INTEGER,
      *               name-string[1]   SEQUENCE OF GeneralString
      * }
      * 
      * @param principal 
-     * @return The {@link DERSequence}.
+     * @return The {@link DERSequence}. 
      */
-    public static DERSequence encode( KerberosPrincipal principal )
+    public static DERSequence encode( PrincipalName principal )
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( principal.getNameType() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( principal.getNameType().getOrdinal() ) ) );
         vector.add( new DERTaggedObject( 1, encodeNameSequence( principal ) ) );
 
         return vector;
     }
 
 
-    /**
-     * Encodes a {@link PrincipalName} into a {@link DERSequence}.
-     *
-     * @param name
-     * @return The {@link DERSequence}.
-     */
-    public static DERSequence encode( PrincipalName name )
+    private static DERSequence encodeNameSequence( PrincipalName principalName )
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType() ) ) );
-        vector.add( new DERTaggedObject( 1, encodeNameSequence( name ) ) );
-
-        return vector;
-    }
-
-
-    private static DERSequence encodeNameSequence( KerberosPrincipal principal )
-    {
-        Iterator<String> it = getNameStrings( principal ).iterator();
-
-        DERSequence vector = new DERSequence();
-
-        while ( it.hasNext() )
+        for ( String name:principalName.getNameString() )
         {
-            vector.add( DERGeneralString.valueOf( it.next() ) );
+            vector.add( DERGeneralString.valueOf( name ) );
         }
 
         return vector;
-    }
-
-
-    private static List<String> getNameStrings( KerberosPrincipal principal )
-    {
-        String nameComponent = principal.getName().split( REALM_SEPARATOR )[0];
-        String[] components = nameComponent.split( COMPONENT_SEPARATOR );
-        return Arrays.asList( components );
-    }
-
-
-    private static DERSequence encodeNameSequence( PrincipalName name )
-    {
-        Iterator<String> it = getNameStrings( name ).iterator();
-
-        DERSequence vector = new DERSequence();
-
-        while ( it.hasNext() )
-        {
-            vector.add( DERGeneralString.valueOf( it.next() ) );
-        }
-
-        return vector;
-    }
-
-
-    private static List<String> getNameStrings( PrincipalName name )
-    {
-        String[] components = name.getNameComponent().split( COMPONENT_SEPARATOR );
-        return Arrays.asList( components );
     }
 }

@@ -31,97 +31,97 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class ChecksumType implements Comparable<ChecksumType>
+public enum ChecksumType implements Comparable<ChecksumType>
 {
     /**
      * The "unknown" checksum type.
      */
-    public static final ChecksumType UNKNOWN = new ChecksumType( -1, "UNKNOWN" );
+    UNKNOWN( -1 ),
 
     /**
      * The "null" checksum type.
      */
-    public static final ChecksumType NULL = new ChecksumType( 0, "NULL" );
+    NULL( 0 ),
 
     /**
      * The CRC32 checksum type.
      */
-    public static final ChecksumType CRC32 = new ChecksumType( 1, "CRC32" );
+    CRC32( 1 ),
 
     /**
      * The rsa-md4 checksum type.
      */
-    public static final ChecksumType RSA_MD4 = new ChecksumType( 2, "rsa-md4" );
+    RSA_MD4( 2 ),
 
     /**
      * The rsa-md4-des checksum type.
      */
-    public static final ChecksumType RSA_MD4_DES = new ChecksumType( 3, "rsa-md4-des" );
+    RSA_MD4_DES( 3 ),
 
     /**
      * The des-mac checksum type.
      */
-    public static final ChecksumType DES_MAC = new ChecksumType( 4, "des-mac" );
+    DES_MAC( 4 ),
 
     /**
      * The des-mac-k checksum type.
      */
-    public static final ChecksumType DES_MAC_K = new ChecksumType( 5, "des-mac-k" );
+    DES_MAC_K( 5 ),
 
     /**
      * The rsa-md4-des-k checksum type.
      */
-    public static final ChecksumType RSA_MD4_DES_K = new ChecksumType( 6, "rsa-md4-des-k" );
+    RSA_MD4_DES_K( 6 ),
 
     /**
      * The rsa-md5 checksum type.
      */
-    public static final ChecksumType RSA_MD5 = new ChecksumType( 7, "rsa-md5" );
+    RSA_MD5( 7 ),
 
     /**
      * The rsa-md5-des checksum type.
      */
-    public static final ChecksumType RSA_MD5_DES = new ChecksumType( 8, "rsa-md5-des" );
+    RSA_MD5_DES( 8 ),
 
     /**
      * The rsa-md5-des3 checksum type.
      */
-    public static final ChecksumType RSA_MD5_DES3 = new ChecksumType( 9, "rsa-md5-des3" );
+    RSA_MD5_DES3( 9 ),
 
     /**
      * The sha1 (unkeyed) checksum type.
      */
-    public static final ChecksumType SHA1 = new ChecksumType( 10, "sha1 (unkeyed)" );
+    SHA1( 10 ),
 
     /**
      * The hmac-sha1-des3-kd checksum type.
      */
-    public static final ChecksumType HMAC_SHA1_DES3_KD = new ChecksumType( 12, "hmac-sha1-des3-kd" );
+    HMAC_SHA1_DES3_KD( 12 ),
 
     /**
      * The hmac-sha1-des3 checksum type.
      */
-    public static final ChecksumType HMAC_SHA1_DES3 = new ChecksumType( 13, "hmac-sha1-des3" );
+    HMAC_SHA1_DES3( 13 ),
 
     /**
      * The sha1 (unkeyed) checksum type.
      */
-    public static final ChecksumType SHA1_2 = new ChecksumType( 14, "sha1 (unkeyed)" );
+    SHA1_2 ( 14 ),
 
     /**
      * The hmac-sha1-96-aes128 checksum type.
      */
-    public static final ChecksumType HMAC_SHA1_96_AES128 = new ChecksumType( 15, "hmac-sha1-96-aes128" );
+    HMAC_SHA1_96_AES128( 15 ),
 
     /**
      * The hmac-sha1-96-aes256 checksum type.
      */
-    public static final ChecksumType HMAC_SHA1_96_AES256 = new ChecksumType( 16, "hmac-sha1-96-aes256" );
+    HMAC_SHA1_96_AES256( 16 ),
 
     /**
      * The hmac-md5 checksum type.
      */
-    public static final ChecksumType HMAC_MD5 = new ChecksumType( -138, "hmac-md5" );
+    HMAC_MD5( -138 );
 
     /**
      * Array for building a List of VALUES.
@@ -134,12 +134,7 @@ public final class ChecksumType implements Comparable<ChecksumType>
     /**
      * A List of all the checksum type constants.
      */
-    public static final List<ChecksumType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
-
-    /**
-     * The name of the checksum type.
-     */
-    private final String name;
+    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The value/code for the checksum type.
@@ -150,10 +145,9 @@ public final class ChecksumType implements Comparable<ChecksumType>
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private ChecksumType( int ordinal, String name )
+    private ChecksumType( int ordinal )
     {
         this.ordinal = ordinal;
-        this.name = name;
     }
 
 
@@ -165,15 +159,28 @@ public final class ChecksumType implements Comparable<ChecksumType>
      */
     public static ChecksumType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
-        {
-            if ( values[ii].ordinal == type )
-            {
-                return values[ii];
-            }
-        }
-
-        return UNKNOWN;
+    	switch ( type )
+    	{
+    		case -1	: return UNKNOWN;
+    		case 0	: return NULL;
+    		case 1	: return CRC32;
+    		case 2	: return RSA_MD4;
+    		case 3	: return RSA_MD4_DES;
+    		case 4	: return DES_MAC;
+    		case 5	: return DES_MAC_K;
+    		case 6	: return RSA_MD4_DES_K;
+    		case 7	: return RSA_MD5;
+    		case 8	: return RSA_MD5_DES;
+    		case 9	: return RSA_MD5_DES3;
+    		case 10	: return SHA1;
+    		case 12	: return HMAC_SHA1_DES3_KD;
+    		case 13	: return HMAC_SHA1_DES3;
+    		case 14	: return SHA1_2;
+    		case 15	: return HMAC_SHA1_96_AES128;
+    		case 16	: return HMAC_SHA1_96_AES256;
+    		case -138 : return HMAC_MD5;
+    		default	: return UNKNOWN;
+    	}
     }
 
 
@@ -185,17 +192,5 @@ public final class ChecksumType implements Comparable<ChecksumType>
     public int getOrdinal()
     {
         return ordinal;
-    }
-
-
-    public int compareTo( ChecksumType that )
-    {
-        return ordinal - that.ordinal;
-    }
-
-
-    public String toString()
-    {
-        return name;
     }
 }

@@ -94,13 +94,13 @@ public class AuthenticatorEncoder implements Encoder, EncoderFactory
      */
     private DERSequence encodeInitialSequence( Authenticator authenticator )
     {
-        String clientRealm = authenticator.getClientPrincipal().getRealm();
+        String clientRealm = authenticator.getClientRealm();
 
         DERSequence sequence = new DERSequence();
 
         sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( authenticator.getVersionNumber() ) ) );
         sequence.add( new DERTaggedObject( 1, DERGeneralString.valueOf( clientRealm ) ) );
-        sequence.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( authenticator.getClientPrincipal() ) ) );
+        sequence.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( authenticator.getClientPrincipalName() ) ) );
 
         // OPTIONAL
         if ( authenticator.getChecksum() != null )

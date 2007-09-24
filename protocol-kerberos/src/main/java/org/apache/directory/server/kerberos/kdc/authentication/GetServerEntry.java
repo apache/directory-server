@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IoSession;
@@ -41,7 +41,7 @@ public class GetServerEntry extends GetPrincipalStoreEntry
         KerberosPrincipal principal = authContext.getRequest().getServerPrincipal();
         PrincipalStore store = authContext.getStore();
 
-        authContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
+        authContext.setServerEntry( getEntry( principal, store, KerberosErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
 
         next.execute( session, message );
     }

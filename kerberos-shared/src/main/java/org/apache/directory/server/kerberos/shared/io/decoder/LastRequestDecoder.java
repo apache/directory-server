@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequestEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.LastRequestType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.LastRequestType;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralizedTime;
 import org.apache.directory.shared.asn1.der.DERInteger;

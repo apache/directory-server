@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
-import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
+import org.apache.directory.server.kerberos.shared.messages.AuthServerReply;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.mina.common.IoSession;
@@ -42,7 +42,7 @@ public class SealReply implements IoHandlerCommand
     {
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
 
-        AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
+        AuthServerReply reply = ( AuthServerReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
 

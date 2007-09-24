@@ -23,9 +23,9 @@ package org.apache.directory.server.changepw.service;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -49,7 +49,7 @@ public class VerifyServiceTicket implements IoHandlerCommand
 
         if ( !ticket.getRealm().equals( primaryRealm ) || !ticket.getServerPrincipal().equals( changepwPrincipal ) )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_NOT_US );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_NOT_US );
         }
 
         next.execute( session, message );

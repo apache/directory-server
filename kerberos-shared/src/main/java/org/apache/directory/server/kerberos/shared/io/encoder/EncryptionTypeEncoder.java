@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
+import java.util.List;
+
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
@@ -42,6 +44,18 @@ public class EncryptionTypeEncoder
         for ( int ii = 0; ii < eType.length; ii++ )
         {
             sequence.add( DERInteger.valueOf( eType[ii].getOrdinal() ) );
+        }
+
+        return sequence;
+    }
+
+    protected static DERSequence encode( List<EncryptionType> eTypes )
+    {
+        DERSequence sequence = new DERSequence();
+
+        for ( EncryptionType eType:eTypes )
+        {
+            sequence.add( DERInteger.valueOf( eType.getOrdinal() ) );
         }
 
         return sequence;

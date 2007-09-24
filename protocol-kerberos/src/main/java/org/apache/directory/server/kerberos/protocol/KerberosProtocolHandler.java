@@ -30,12 +30,11 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationServiceChain;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
@@ -179,40 +178,31 @@ public class KerberosProtocolHandler implements IoHandler
 
                 case 11:
                 case 13:
-                    throw new KerberosException( ErrorType.KRB_AP_ERR_BADDIRECTION );
+                    throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BADDIRECTION );
 
                 default:
-                    throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
+                    throw new KerberosException( KerberosErrorType.KRB_AP_ERR_MSG_TYPE );
             }
         }
         catch ( KerberosException ke )
         {
-            String messageText = ke.getMessage() + " (" + ke.getErrorCode() + ")";
-
             if ( log.isDebugEnabled() )
             {
-                log.warn( messageText, ke );
+                log.warn( ke.getMessage(), ke );
             }
             else
             {
-                log.warn( messageText );
+                log.warn( ke.getMessage() );
             }
 
-            ErrorMessage error = getErrorMessage( config.getServicePrincipal(), ke );
-
-            if ( log.isDebugEnabled() )
-            {
-                logErrorMessage( error );
-            }
-
-            session.write( error );
+            session.write( getErrorMessage( config.getServicePrincipal(), ke ) );
         }
         catch ( Exception e )
         {
             log.error( "Unexpected exception:  " + e.getMessage(), e );
 
             session.write( getErrorMessage( config.getServicePrincipal(), new KerberosException(
-                ErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
+                KerberosErrorType.KDC_ERR_SVC_UNAVAILABLE ) ) );
         }
     }
 
@@ -226,44 +216,20 @@ public class KerberosProtocolHandler implements IoHandler
     }
 
 
-    protected ErrorMessage getErrorMessage( KerberosPrincipal principal, KerberosException exception )
+    protected KerberosError getErrorMessage( KerberosPrincipal principal, KerberosException exception )
     {
-        ErrorMessageModifier modifier = new ErrorMessageModifier();
+        KerberosError kerberosError = new KerberosError();
 
         KerberosTime now = new KerberosTime();
 
-        modifier.setErrorCode( exception.getErrorCode() );
-        modifier.setExplanatoryText( exception.getMessage() );
-        modifier.setServerPrincipal( principal );
-        modifier.setServerTime( now );
-        modifier.setServerMicroSecond( 0 );
-        modifier.setExplanatoryData( exception.getExplanatoryData() );
+        kerberosError.setErrorCode( KerberosErrorType.getTypeByOrdinal( exception.getErrorCode() ) );
+        kerberosError.setExplanatoryText( exception.getMessage() );
+        kerberosError.setServerPrincipal( principal );
+        kerberosError.setServerTime( now );
+        kerberosError.setServerMicroseconds( 0 );
+        kerberosError.setExplanatoryData( exception.getExplanatoryData() );
 
-        return modifier.getErrorMessage();
-    }
-
-
-    protected void logErrorMessage( ErrorMessage error )
-    {
-        try
-        {
-            StringBuffer sb = new StringBuffer();
-
-            sb.append( "Responding to request with error:" );
-            sb.append( "\n\t" + "explanatory text:      " + error.getExplanatoryText() );
-            sb.append( "\n\t" + "error code:            " + error.getErrorCode() );
-            sb.append( "\n\t" + "clientPrincipal:       " + error.getClientPrincipal() );
-            sb.append( "\n\t" + "client time:           " + error.getServerTime() );
-            sb.append( "\n\t" + "serverPrincipal:       " + error.getServerPrincipal() );
-            sb.append( "\n\t" + "server time:           " + error.getClientTime() );
-
-            log.debug( sb.toString() );
-        }
-        catch ( Exception e )
-        {
-            // This is a monitor.  No exceptions should bubble up.
-            log.error( "Error in reply monitor", e );
-        }
+        return kerberosError;
     }
 
 

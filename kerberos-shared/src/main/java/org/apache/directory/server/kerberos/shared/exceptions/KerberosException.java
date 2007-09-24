@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.exceptions;
 
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
+
 
 /**
  * The root of the Kerberos exception hierarchy.
@@ -43,40 +45,40 @@ public class KerberosException extends Exception
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType}.
+     * Creates a KerberosException with an {@link KerberosErrorType}.
      *
      * @param errorType The error type associated with this KerberosException.
      */
-    public KerberosException( ErrorType errorType )
+    public KerberosException( KerberosErrorType errorType )
     {
-        super( errorType.getMessage() );
+        super( errorType.toString() );
 
         this.errorCode = errorType.getOrdinal();
     }
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType} and an
+     * Creates a KerberosException with an {@link KerberosErrorType} and an
      * underlying {@link Throwable} that caused this fault.
      *
      * @param errorType The error type associated with this KerberosException.
      * @param cause The underlying failure, if any.
      */
-    public KerberosException( ErrorType errorType, Throwable cause )
+    public KerberosException( KerberosErrorType errorType, Throwable cause )
     {
-        super( errorType.getMessage(), cause );
+        super( errorType.toString(), cause );
 
         this.errorCode = errorType.getOrdinal();
     }
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType} and a custom error message.
+     * Creates a KerberosException with an {@link KerberosErrorType} and a custom error message.
      *
-     * @param errorType The {@link ErrorType} associated with this KerberosException.
+     * @param errorType The {@link KerberosErrorType} associated with this KerberosException.
      * @param msg A custom error message for this KerberosException.
      */
-    public KerberosException( ErrorType errorType, String msg )
+    public KerberosException( KerberosErrorType errorType, String msg )
     {
         super( msg );
 
@@ -85,14 +87,14 @@ public class KerberosException extends Exception
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType}, a custom error message, and an
+     * Creates a KerberosException with an {@link KerberosErrorType}, a custom error message, and an
      * underlying {@link Throwable} that caused this fault.
      *
      * @param errorType The error type associated with this KerberosException.
      * @param msg A custom error message for this KerberosException.
      * @param cause The underlying failure, if any.
      */
-    public KerberosException( ErrorType errorType, String msg, Throwable cause )
+    public KerberosException( KerberosErrorType errorType, String msg, Throwable cause )
     {
         super( msg, cause );
 
@@ -101,15 +103,15 @@ public class KerberosException extends Exception
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType} and data helping to
+     * Creates a KerberosException with an {@link KerberosErrorType} and data helping to
      * explain what caused this fault.
      *
      * @param errorType The error type associated with this KerberosException.
      * @param explanatoryData Data helping to explain this fault, if any.
      */
-    public KerberosException( ErrorType errorType, byte[] explanatoryData )
+    public KerberosException( KerberosErrorType errorType, byte[] explanatoryData )
     {
-        super( errorType.getMessage() );
+        super( errorType.toString() );
 
         this.errorCode = errorType.getOrdinal();
         this.explanatoryData = explanatoryData;
@@ -117,16 +119,16 @@ public class KerberosException extends Exception
 
 
     /**
-     * Creates a KerberosException with an {@link ErrorType}, data helping to
+     * Creates a KerberosException with an {@link KerberosErrorType}, data helping to
      * explain what caused this fault, and an underlying {@link Throwable} that caused this fault.
      *
      * @param errorType The error type associated with this KerberosException.
      * @param explanatoryData Data helping to explain this fault, if any.
      * @param cause The underlying failure, if any.
      */
-    public KerberosException( ErrorType errorType, byte[] explanatoryData, Throwable cause )
+    public KerberosException( KerberosErrorType errorType, byte[] explanatoryData, Throwable cause )
     {
-        super( errorType.getMessage(), cause );
+        super( errorType.toString(), cause );
 
         this.errorCode = errorType.getOrdinal();
         this.explanatoryData = explanatoryData;

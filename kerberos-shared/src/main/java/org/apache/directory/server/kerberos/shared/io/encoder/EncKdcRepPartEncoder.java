@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -92,7 +93,7 @@ public abstract class EncKdcRepPartEncoder implements Encoder
             sequence.add( new DERTaggedObject( 3, KerberosTimeEncoder.encode( reply.getKeyExpiration() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 4, new DERBitString( reply.getFlags().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 4, new DERBitString( TicketFlags.getBytes( reply.getFlags() ) ) ) );
         sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( reply.getAuthTime() ) ) );
 
         // OPTIONAL
@@ -110,7 +111,7 @@ public abstract class EncKdcRepPartEncoder implements Encoder
         }
 
         sequence.add( new DERTaggedObject( 9, DERGeneralString.valueOf( reply.getServerRealm().toString() ) ) );
-        sequence.add( new DERTaggedObject( 10, PrincipalNameEncoder.encode( reply.getServerPrincipal() ) ) );
+        sequence.add( new DERTaggedObject( 10, PrincipalNameEncoder.encode( reply.getServerPrincipalName() ) ) );
 
         // OPTIONAL
         if ( reply.getClientAddresses() != null )

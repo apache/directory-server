@@ -27,7 +27,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**
@@ -42,7 +42,7 @@ public class EncKdcRepPart implements Encodable
     private LastRequest lastRequest;
     private int nonce;
     private KerberosTime keyExpiration; //optional
-    private TicketFlags flags = new TicketFlags();
+    private TicketFlags flags;
     private KerberosTime authTime;
     private KerberosTime startTime; //optional
     private KerberosTime endTime;
@@ -58,41 +58,6 @@ public class EncKdcRepPart implements Encodable
     public EncKdcRepPart()
     {
         // built up by setter during reply generation
-    }
-
-
-    /**
-     * Creates a new instance of EncKdcRepPart.
-     *
-     * @param key
-     * @param lastReq
-     * @param nonce
-     * @param keyExpiration
-     * @param flags
-     * @param authtime
-     * @param starttime
-     * @param endtime
-     * @param renewTill
-     * @param serverPrincipal
-     * @param caddr
-     * @param componentType
-     */
-    public EncKdcRepPart( EncryptionKey key, LastRequest lastReq, int nonce, KerberosTime keyExpiration,
-        TicketFlags flags, KerberosTime authtime, KerberosTime starttime, KerberosTime endtime, KerberosTime renewTill,
-        KerberosPrincipal serverPrincipal, HostAddresses caddr, MessageComponentType componentType )
-    {
-        this.key = key;
-        this.lastRequest = lastReq;
-        this.nonce = nonce;
-        this.keyExpiration = keyExpiration;
-        this.flags = flags;
-        this.authTime = authtime;
-        this.startTime = starttime;
-        this.endTime = endtime;
-        this.renewTill = renewTill;
-        this.serverPrincipal = serverPrincipal;
-        this.clientAddresses = caddr;
-        this.componentType = componentType;
     }
 
 
@@ -130,9 +95,9 @@ public class EncKdcRepPart implements Encodable
 
 
     /**
-     * Returns the {@link TicketFlags}.
+     * Returns the TicketFlags.
      *
-     * @return The {@link TicketFlags}.
+     * @return The TicketFlags.
      */
     public TicketFlags getFlags()
     {
@@ -269,6 +234,17 @@ public class EncKdcRepPart implements Encodable
     public void setEndTime( KerberosTime time )
     {
         endTime = time;
+    }
+
+
+    /**
+     * Sets the {@link TicketFlags}.
+     *
+     * @param flags
+     */
+    public void setFlags( int flags )
+    {
+        this.flags = new TicketFlags( flags );
     }
 
 

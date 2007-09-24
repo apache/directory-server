@@ -31,13 +31,13 @@ public class EncryptedTimeStampModifier
 
 
     /**
-     * Returns the {@link EncryptedTimeStamp}.
+     * Returns the {@link PreAuthEncryptedTimestamp}.
      *
-     * @return The {@link EncryptedTimeStamp}.
+     * @return The {@link PreAuthEncryptedTimestamp}.
      */
-    public EncryptedTimeStamp getEncryptedTimestamp()
+    public PreAuthEncryptedTimestamp getEncryptedTimestamp()
     {
-        return new EncryptedTimeStamp( timeStamp, microSecond );
+        return new PreAuthEncryptedTimestamp( timeStamp, microSecond );
     }
 
 

@@ -31,10 +31,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.messages.value.types.KerberosErrorType;
 
 
 /**
@@ -92,7 +92,7 @@ public class DesCbcCrcEncryption extends EncryptionEngine
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         // decrypt the data
-        byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
+        byte[] decryptedData = decrypt( data.getCipher(), key.getKeyValue() );
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];
@@ -110,7 +110,7 @@ public class DesCbcCrcEncryption extends EncryptionEngine
         // compare checksums
         if ( !Arrays.equals( oldChecksum, newChecksum ) )
         {
-            throw new KerberosException( ErrorType.KRB_AP_ERR_BAD_INTEGRITY );
+            throw new KerberosException( KerberosErrorType.KRB_AP_ERR_BAD_INTEGRITY );
         }
 
         // remove leading confounder and checksum

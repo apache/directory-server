@@ -26,9 +26,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
+import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -45,20 +48,7 @@ public class MonitorContext implements IoHandlerCommand
     /** the log for this class */
     private static final Logger log = LoggerFactory.getLogger( MonitorContext.class );
 
-    private String serviceName;
-
     private String contextKey = "context";
-
-
-    /**
-     * Creates a new instance of MonitorContext.
-     *
-     * @param serviceName
-     */
-    public MonitorContext( String serviceName )
-    {
-        this.serviceName = serviceName;
-    }
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
@@ -69,8 +59,11 @@ public class MonitorContext implements IoHandlerCommand
             {
                 TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
+                PrincipalStore store = tgsContext.getStore();
+                ApplicationRequest authHeader = tgsContext.getAuthHeader();
                 Ticket tgt = tgsContext.getTgt();
                 long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
+                ReplayCache replayCache = tgsContext.getReplayCache();
                 ChecksumType checksumType = tgsContext.getAuthenticator().getChecksum().getChecksumType();
                 InetAddress clientAddress = tgsContext.getClientAddress();
                 HostAddresses clientAddresses = tgt.getClientAddresses();
@@ -83,8 +76,10 @@ public class MonitorContext implements IoHandlerCommand
 
                 StringBuffer sb = new StringBuffer();
 
-                sb.append( "Monitoring " + serviceName + " context:" );
-
+                sb.append( "\n\t" + "store                  " + store );
+                sb.append( "\n\t" + "authHeader             " + authHeader );
+                sb.append( "\n\t" + "tgt                    " + tgt );
+                sb.append( "\n\t" + "replayCache            " + replayCache );
                 sb.append( "\n\t" + "clockSkew              " + clockSkew );
                 sb.append( "\n\t" + "checksumType           " + checksumType );
                 sb.append( "\n\t" + "clientAddress          " + clientAddress );

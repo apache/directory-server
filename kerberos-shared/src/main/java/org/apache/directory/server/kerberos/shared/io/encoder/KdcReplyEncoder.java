@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
@@ -86,7 +87,7 @@ public class KdcReplyEncoder
 
         sequence.add( new DERTaggedObject( 3, DERGeneralString.valueOf( app.getClientRealm().toString() ) ) );
 
-        sequence.add( new DERTaggedObject( 4, PrincipalNameEncoder.encode( app.getClientPrincipal() ) ) );
+        sequence.add( new DERTaggedObject( 4, PrincipalNameEncoder.encode( app.getClientPrincipalName() ) ) );
 
         sequence.add( new DERTaggedObject( 5, TicketEncoder.encode( app.getTicket() ) ) );
 
@@ -102,16 +103,16 @@ public class KdcReplyEncoder
      padata-value[2]       OCTET STRING,
      -- might be encoded AP-REQ
      }*/
-    private DERSequence encodePreAuthData( PreAuthenticationData[] preAuthData )
+    private DERSequence encodePreAuthData( List<PreAuthenticationData> preAuthData )
     {
         DERSequence preAuth = new DERSequence();
 
-        for ( int ii = 0; ii < preAuthData.length; ii++ )
+        for ( PreAuthenticationData data:preAuthData )
         {
             DERSequence sequence = new DERSequence();
 
-            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getDataType().getOrdinal() ) ) );
-            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getDataValue() ) ) );
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( data.getDataType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 2, new DEROctetString( data.getDataValue() ) ) );
             preAuth.add( sequence );
         }
 

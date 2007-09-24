@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import org.apache.directory.server.kerberos.shared.io.encoder.ErrorMessageEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcReplyEncoder;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
@@ -52,9 +52,9 @@ public class KerberosUdpEncoder extends ProtocolEncoderAdapter
         }
         else
         {
-            if ( message instanceof ErrorMessage )
+            if ( message instanceof KerberosError )
             {
-                errorEncoder.encode( ( ErrorMessage ) message, buf.buf() );
+                errorEncoder.encode( ( KerberosError ) message, buf.buf() );
             }
         }
 

@@ -21,7 +21,9 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.components.TicketModifier;
@@ -64,15 +66,14 @@ public class TicketDecoder
      * @return The array of {@link Ticket}s.
      * @throws IOException
      */
-    public static Ticket[] decodeSequence( DERSequence sequence ) throws IOException
+    public static List<Ticket> decodeSequence( DERSequence sequence ) throws IOException
     {
-        Ticket[] tickets = new Ticket[sequence.size()];
+        List<Ticket> tickets = new ArrayList<Ticket>( sequence.size() );
 
-        int ii = 0;
         for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERApplicationSpecific object = ( DERApplicationSpecific ) e.nextElement();
-            tickets[ii] = decode( object );
+            tickets.add( decode( object ) );
         }
 
         return tickets;

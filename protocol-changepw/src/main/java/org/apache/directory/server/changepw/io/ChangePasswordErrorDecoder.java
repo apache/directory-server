@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.kerberos.shared.io.decoder.ErrorMessageDecoder;
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 
 
 /**
@@ -50,11 +50,12 @@ public class ChangePasswordErrorDecoder
         ChangePasswordErrorModifier modifier = new ChangePasswordErrorModifier();
 
         short messageLength = buf.getShort();
+        modifier.setMessageLength( messageLength );
 
         modifier.setProtocolVersionNumber( buf.getShort() );
 
         // AP_REQ length will be 0 for error messages
-        buf.getShort(); // authHeader length
+        modifier.setAuthHeaderLength( buf.getShort() );
 
         int errorLength = messageLength - HEADER_LENGTH;
 
@@ -64,7 +65,7 @@ public class ChangePasswordErrorDecoder
         ByteBuffer errorBuffer = ByteBuffer.wrap( errorBytes );
 
         ErrorMessageDecoder errorDecoder = new ErrorMessageDecoder();
-        ErrorMessage errorMessage = errorDecoder.decode( errorBuffer );
+        KerberosError errorMessage = errorDecoder.decode( errorBuffer );
 
         modifier.setErrorMessage( errorMessage );
 

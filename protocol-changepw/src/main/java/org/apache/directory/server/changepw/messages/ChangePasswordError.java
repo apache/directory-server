@@ -20,7 +20,7 @@
 package org.apache.directory.server.changepw.messages;
 
 
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 
 
 /**
@@ -29,7 +29,7 @@ import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
  */
 public class ChangePasswordError extends AbstractPasswordMessage
 {
-    private ErrorMessage errorMessage;
+    private KerberosError errorMessage;
 
 
     /**
@@ -40,20 +40,21 @@ public class ChangePasswordError extends AbstractPasswordMessage
      * @param authHeaderLength
      * @param errorMessage
      */
-    public ChangePasswordError( short versionNumber, ErrorMessage errorMessage )
+    public ChangePasswordError( short messageLength, short versionNumber, short authHeaderLength,
+        KerberosError errorMessage )
     {
-        super( versionNumber );
+        super( messageLength, versionNumber, authHeaderLength );
 
         this.errorMessage = errorMessage;
     }
 
 
     /**
-     * Returns the {@link ErrorMessage}.
+     * Returns the {@link KerberosError}.
      *
-     * @return The {@link ErrorMessage}.
+     * @return The {@link KerberosError}.
      */
-    public ErrorMessage getErrorMessage()
+    public KerberosError getErrorMessage()
     {
         return errorMessage;
     }

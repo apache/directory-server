@@ -79,7 +79,7 @@ public class EncryptedDataEncoder
             sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( encryptedData.getKeyVersion() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 2, new DEROctetString( encryptedData.getCipherText() ) ) );
+        sequence.add( new DERTaggedObject( 2, new DEROctetString( encryptedData.getCipher() ) ) );
 
         return sequence;
     }

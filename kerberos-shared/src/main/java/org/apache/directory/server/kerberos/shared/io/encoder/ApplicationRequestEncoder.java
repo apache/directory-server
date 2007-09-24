@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
+import org.apache.directory.server.kerberos.shared.messages.application.ApplicationRequest;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;

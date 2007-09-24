@@ -51,7 +51,14 @@ public class TicketModifier
             serverPrincipal = serverModifier.getKerberosPrincipal();
         }
 
-        return new Ticket( ticketVersionNumber, serverPrincipal, encPart );
+        try
+        {
+            return new Ticket( ticketVersionNumber, serverPrincipal, encPart );
+        }
+        catch ( InvalidTicketException ite )
+        {
+            return null;
+        }
     }
 
 

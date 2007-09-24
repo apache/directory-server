@@ -23,10 +23,10 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -83,7 +83,7 @@ public class KdcRequestEncoder
             sequence.add( new DERTaggedObject( 3, encodePreAuthData( app.getPreAuthData() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app.getRequestBody() ) ) );
+        sequence.add( new DERTaggedObject( 4, encodeKdcRequestBody( app ) ) );
 
         return sequence;
     }
@@ -92,16 +92,16 @@ public class KdcRequestEncoder
     /**
      * Encodes a {@link KdcRequest} into a byte[].
      *
-     * @param requestBody
+     * @param request
      * @return The encoded {@link KdcRequest}.
      * @throws IOException
      */
-    public byte[] encodeRequestBody( RequestBody requestBody ) throws IOException
+    public byte[] encodeBody( KdcRequest request ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        aos.writeObject( encodeKdcRequestBody( requestBody ) );
+        aos.writeObject( encodeKdcRequestBody( request ) );
         aos.close();
 
         return baos.toByteArray();
@@ -129,63 +129,61 @@ public class KdcRequestEncoder
      *     additional-tickets[11]       SEQUENCE OF Ticket OPTIONAL
      * }
      */
-    private DERSequence encodeKdcRequestBody( RequestBody requestBody )
+    public DERSequence encodeKdcRequestBody( KdcRequest request )
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, new DERBitString( requestBody.getKdcOptions().getBytes() ) ) );
+        sequence.add( new DERTaggedObject( 0, new DERBitString( request.getKdcOptions().getData() ) ) );
 
         // OPTIONAL
-        if ( requestBody.getClientPrincipal() != null )
+        if ( request.getClientPrincipal() != null )
         {
-            sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( requestBody.getClientPrincipal() ) ) );
+            sequence.add( new DERTaggedObject( 1, PrincipalNameEncoder.encode( request.getClientPrincipalName() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( requestBody.getServerPrincipal().getRealm()
-            .toString() ) ) );
+        sequence.add( new DERTaggedObject( 2, DERGeneralString.valueOf( request.getRealm().toString() ) ) );
 
         // OPTIONAL
-        if ( requestBody.getServerPrincipal() != null )
+        if ( request.getServerPrincipal() != null )
         {
-            sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( requestBody.getServerPrincipal() ) ) );
-        }
-
-        // OPTIONAL
-        if ( requestBody.getFrom() != null )
-        {
-            sequence.add( new DERTaggedObject( 4, KerberosTimeEncoder.encode( requestBody.getFrom() ) ) );
-        }
-
-        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( requestBody.getTill() ) ) );
-
-        // OPTIONAL
-        if ( requestBody.getRtime() != null )
-        {
-            sequence.add( new DERTaggedObject( 6, KerberosTimeEncoder.encode( requestBody.getRtime() ) ) );
-        }
-
-        sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( requestBody.getNonce() ) ) );
-
-        sequence.add( new DERTaggedObject( 8, EncryptionTypeEncoder.encode( requestBody.getEType() ) ) );
-
-        // OPTIONAL
-        if ( requestBody.getAddresses() != null )
-        {
-            sequence.add( new DERTaggedObject( 9, HostAddressesEncoder.encodeSequence( requestBody.getAddresses() ) ) );
+            sequence.add( new DERTaggedObject( 3, PrincipalNameEncoder.encode( request.getServerPrincipalName() ) ) );
         }
 
         // OPTIONAL
-        if ( requestBody.getEncAuthorizationData() != null )
+        if ( request.getFrom() != null )
         {
-            sequence.add( new DERTaggedObject( 10, EncryptedDataEncoder.encodeSequence( requestBody
+            sequence.add( new DERTaggedObject( 4, KerberosTimeEncoder.encode( request.getFrom() ) ) );
+        }
+
+        sequence.add( new DERTaggedObject( 5, KerberosTimeEncoder.encode( request.getTill() ) ) );
+
+        // OPTIONAL
+        if ( request.getRenewtime() != null )
+        {
+            sequence.add( new DERTaggedObject( 6, KerberosTimeEncoder.encode( request.getRenewtime() ) ) );
+        }
+
+        sequence.add( new DERTaggedObject( 7, DERInteger.valueOf( request.getNonce() ) ) );
+
+        sequence.add( new DERTaggedObject( 8, EncryptionTypeEncoder.encode( request.getEType() ) ) );
+
+        // OPTIONAL
+        if ( request.getAddresses() != null )
+        {
+            sequence.add( new DERTaggedObject( 9, HostAddressesEncoder.encodeSequence( request.getAddresses() ) ) );
+        }
+
+        // OPTIONAL
+        if ( request.getEncAuthorizationData() != null )
+        {
+            sequence.add( new DERTaggedObject( 10, EncryptedDataEncoder.encodeSequence( request
                 .getEncAuthorizationData() ) ) );
         }
 
         // OPTIONAL
-        if ( requestBody.getAdditionalTickets() != null )
+        if ( request.getAdditionalTickets() != null )
         {
-            sequence
-                .add( new DERTaggedObject( 11, TicketEncoder.encodeSequence( requestBody.getAdditionalTickets() ) ) );
+            sequence.add( new DERTaggedObject( 11, TicketEncoder.encodeSequence( request.getAdditionalTickets() ) ) );
         }
 
         return sequence;
@@ -198,16 +196,16 @@ public class KdcRequestEncoder
      padata-value[2]       OCTET STRING,
      -- might be encoded AP-REQ
      }*/
-    private DERSequence encodePreAuthData( PreAuthenticationData[] preAuthData )
+    private DERSequence encodePreAuthData( List<PreAuthenticationData> preAuthData )
     {
         DERSequence preAuth = new DERSequence();
 
-        for ( int ii = 0; ii < preAuthData.length; ii++ )
+        for ( PreAuthenticationData paData:preAuthData )
         {
             DERSequence sequence = new DERSequence();
 
-            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getDataType().getOrdinal() ) ) );
-            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getDataValue() ) ) );
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( paData.getDataType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 2, new DEROctetString( paData.getDataValue() ) ) );
             preAuth.add( sequence );
         }
 

@@ -24,7 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
+import org.apache.directory.server.kerberos.shared.messages.KerberosError;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
@@ -41,13 +41,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class ErrorMessageEncoder
 {
     /**
-     * Encodes an {@link ErrorMessage} into a {@link ByteBuffer}.
+     * Encodes an {@link KerberosError} into a {@link ByteBuffer}.
      *
      * @param message
      * @param out
      * @throws IOException
      */
-    public void encode( ErrorMessage message, ByteBuffer out ) throws IOException
+    public void encode( KerberosError message, ByteBuffer out ) throws IOException
     {
         ASN1OutputStream aos = new ASN1OutputStream( out );
 
@@ -59,13 +59,13 @@ public class ErrorMessageEncoder
 
 
     /**
-     * Encodes an {@link ErrorMessage} into a byte array.
+     * Encodes an {@link KerberosError} into a byte array.
      *
      * @param message
      * @return The byte array.
      * @throws IOException
      */
-    public byte[] encode( ErrorMessage message ) throws IOException
+    public byte[] encode( KerberosError message ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
@@ -79,7 +79,7 @@ public class ErrorMessageEncoder
     }
 
 
-    private DERSequence encodeErrorMessageSequence( ErrorMessage message )
+    private DERSequence encodeErrorMessageSequence( KerberosError message )
     {
         DERSequence sequence = new DERSequence();
 
@@ -92,20 +92,20 @@ public class ErrorMessageEncoder
             sequence.add( new DERTaggedObject( 2, KerberosTimeEncoder.encode( message.getClientTime() ) ) );
         }
 
-        if ( message.getClientMicroSecond() != null )
+        if ( message.getClientMicroSecond() != -1 )
         {
-            sequence.add( new DERTaggedObject( 3, DERInteger.valueOf( message.getClientMicroSecond().intValue() ) ) );
+            sequence.add( new DERTaggedObject( 3, DERInteger.valueOf( message.getClientMicroSecond() ) ) );
         }
 
         sequence.add( new DERTaggedObject( 4, KerberosTimeEncoder.encode( message.getServerTime() ) ) );
 
         sequence.add( new DERTaggedObject( 5, DERInteger.valueOf( message.getServerMicroSecond() ) ) );
 
-        sequence.add( new DERTaggedObject( 6, DERInteger.valueOf( message.getErrorCode() ) ) );
+        sequence.add( new DERTaggedObject( 6, DERInteger.valueOf( message.getErrorCode().getOrdinal() ) ) );
 
         if ( message.getClientPrincipal() != null )
         {
-            sequence.add( new DERTaggedObject( 7, DERGeneralString.valueOf( message.getClientPrincipal().getRealm()
+            sequence.add( new DERTaggedObject( 7, DERGeneralString.valueOf( message.getClientRealm()
                 .toString() ) ) );
         }
 
@@ -114,7 +114,7 @@ public class ErrorMessageEncoder
             sequence.add( new DERTaggedObject( 8, PrincipalNameEncoder.encode( message.getClientPrincipal() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 9, DERGeneralString.valueOf( message.getServerPrincipal().getRealm() ) ) );
+        sequence.add( new DERTaggedObject( 9, DERGeneralString.valueOf( message.getServerRealm() ) ) );
 
         sequence.add( new DERTaggedObject( 10, PrincipalNameEncoder.encode( message.getServerPrincipal() ) ) );
 
