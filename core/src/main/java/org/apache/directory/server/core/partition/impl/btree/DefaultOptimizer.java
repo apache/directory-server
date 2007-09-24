@@ -345,7 +345,7 @@ public class DefaultOptimizer implements Optimizer
                 return 1L;
             
             case ( SearchControls.ONELEVEL_SCOPE  ):
-                long id = db.getEntryId( node.getBaseDn() );
+                Long id = db.getEntryId( node.getBaseDn() );
                 return Long.valueOf( db.getChildCount( id ) );
                 
             case ( SearchControls.SUBTREE_SCOPE  ):
