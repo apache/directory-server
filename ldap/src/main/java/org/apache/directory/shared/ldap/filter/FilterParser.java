@@ -36,22 +36,18 @@ public interface FilterParser
     /**
      * Parses a search filter string into a filter expression tree.
      * 
-     * @param a_filter
-     *            the filter
+     * @param filter the filter
      * @return the root node of the filter expression tree
-     * @throws IOException
-     *             if a pipe breaks
-     * @throws ParseException
-     *             if the input string does not conform to syntax
+     * @throws IOException if a pipe breaks
+     * @throws ParseException if the input string does not conform to syntax
      */
-    ExprNode parse( String a_filter ) throws IOException, ParseException;
+    public ExprNode parse( String filter ) throws IOException, ParseException;
 
 
     /**
      * Sets the monitor for this filter parser.
      * 
-     * @param monitor
-     *            monitor that recieves parser events
+     * @param monitor monitor that recieves parser events
      */
     void setFilterParserMonitor( FilterParserMonitor monitor );
 }
