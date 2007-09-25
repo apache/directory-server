@@ -220,6 +220,8 @@ public class SearchTest extends AbstractServerTest
     
     public void testDirserver635() throws NamingException
     {
+        nbTests = 26;
+        
         // create additional entry
         Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
         ctx.createSubcontext( "cn=Kate Bush", attributes );
