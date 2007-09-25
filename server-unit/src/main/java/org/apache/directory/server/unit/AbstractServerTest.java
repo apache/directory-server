@@ -86,6 +86,9 @@ public abstract class AbstractServerTest extends TestCase
 
     protected int port = -1;
 
+    private static int start = 0;
+    private static long t0 = 0L;
+    protected static int nbTests = 10000;
     
     /**
      * Tells subclasses whether or not the server is online.
@@ -228,6 +231,13 @@ public abstract class AbstractServerTest extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
+        
+        if ( start == 0 )
+        {
+            t0 = System.currentTimeMillis();
+        }
+
+        start++;
 
         doDelete( configuration.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
@@ -333,6 +343,11 @@ public abstract class AbstractServerTest extends TestCase
         sysRoot = null;
         doDelete( configuration.getWorkingDirectory() );
         configuration = new MutableServerStartupConfiguration();
+        
+        if ( start >= nbTests )
+        {
+            System.out.println( "Delta = " + ( System.currentTimeMillis() - t0 ) );
+        }
     }
 
 
