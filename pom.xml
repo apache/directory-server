@@ -32,6 +32,7 @@
   <modules>
     <module>asn1</module>
     <module>ldap</module>
+    <module>ldap-jndi</module>
     <module>ldap-constants</module>
     <module>asn1-codec</module>
     <module>convert</module>
