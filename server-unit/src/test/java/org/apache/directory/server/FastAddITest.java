@@ -24,8 +24,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
@@ -220,49 +218,38 @@ public class FastAddITest extends AbstractServerFastTest
      * @throws LDAPException 
      */
     @Test
-    public void testAddEntryWithTwoDescriptions() throws NamingException
+    public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
-        Attributes entry = new BasicAttributes();
+        LDAPConnection con = new LDAPConnection();
+        con.connect( 3, HOST, port, USER, PASSWORD );
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
+            { "top", "person" } );
+        attrs.add( ocls );
+        attrs.add( new LDAPAttribute( "sn", "Bush" ) );
+        attrs.add( new LDAPAttribute( "cn", "Kate Bush" ) );
 
-        Attribute oc = new BasicAttribute( "objectClass" );
-        oc.add( "top" );
-        oc.add( "person" );
-        entry.put( oc );
-        
-        entry.put( "sn", "Bush" );
-        entry.put( "cn", "Kate Bush" );
-        
-        Attribute desc = new BasicAttribute( "description" );
-        desc.add(  "a British singer-songwriter with an expressive four-octave voice" );
-        desc.add(  "one of the most influential female artists of the twentieth century" );
-        entry.put( desc );
-        
-        ctx.createSubcontext( "cn=Kate Bush", entry );
-        
-        DirContext person = ( DirContext ) ctx.lookup( "cn=Kate Bush" );
-        
-        assertNotNull( person );
-        Attributes attr = person.getAttributes( "" );
-        
+        String descr[] =
+            { "a British singer-songwriter with an expressive four-octave voice",
+                "one of the most influential female artists of the twentieth century" };
+
+        attrs.add( new LDAPAttribute( "description", descr ) );
+
+        String dn = "cn=Kate Bush," + BASE;
+        LDAPEntry kate = new LDAPEntry( dn, attrs );
+
+        con.add( kate );
+
+        // Analyze entry and description attribute
+        LDAPEntry kateReloaded = con.read( dn );
+        assertNotNull( kateReloaded );
+        LDAPAttribute attr = kateReloaded.getAttribute( "description" );
         assertNotNull( attr );
-        
-        desc = attr.get( "description" );
-        assertNotNull( desc );
-        
-        NamingEnumeration descs = desc.getAll();
-        
-        int nbDesc = 0;
-        
-        while ( descs.hasMoreElements() )
-        {
-            descs.nextElement();
-            nbDesc ++;
-        }
-        
-        assertEquals( 2, nbDesc );
+        assertEquals( 2, attr.getStringValueArray().length );
 
         // Remove entry
-        ctx.destroySubcontext( "cn=Kate Bush" );
+        con.delete( dn );
+        con.disconnect();
     }
 
 
