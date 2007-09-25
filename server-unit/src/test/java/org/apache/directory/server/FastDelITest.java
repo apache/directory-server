@@ -28,6 +28,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerFastTest;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.fail;
@@ -94,17 +95,25 @@ public class FastDelITest extends AbstractServerFastTest
     
     /**
      * Try to delete an inexistant name.
+     * 
+     * WARNING !!! This test is valid ONLY because we have a double inexistant
+     * RDN in the context. doing the same thing with a single RDN will miserabilly 
+     * fail because of a gross misunderstanding of the RFC by SUN : JNDI is 
+     * considering that the matchedDN may be used to modify the resultCode,
+     * which is really a bad idea...
+     * 
+     * A bug report has been filled : ID 1074903
      */
     @Test public void testDeleteInvalidName() throws NamingException
     {
         try
         {
-            ctx.destroySubcontext( "cn=This does not exist" );
-            //fail("deletion should fail");
+            ctx.destroySubcontext( "cn=This does not exist, cn=at all" );
+            fail("deletion should fail");
         } 
         catch ( Exception e) 
         {
-            assertTrue( e instanceof InvalidNameException );
+            assertTrue( e instanceof NameNotFoundException );
         }
     }
 
