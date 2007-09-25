@@ -63,7 +63,7 @@ public interface SubtreeSpecification
      * @return a set of relative {@link javax.naming.Name}s to the subtree base
      *         or the empty set
      */
-    Set getChopBeforeExclusions();
+    Set<LdapDN> getChopBeforeExclusions();
 
 
     /**
@@ -75,7 +75,7 @@ public interface SubtreeSpecification
      * @return a set of relative {@link javax.naming.Name}s to the subtree base
      *         or the empty set
      */
-    Set getChopAfterExclusions();
+    Set<LdapDN> getChopAfterExclusions();
 
 
     /**

@@ -40,10 +40,10 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     private final LdapDN base;
 
     /** the set of subordinates entries and their subordinates to exclude */
-    private final Set chopBefore;
+    private final Set<LdapDN> chopBefore;
 
     /** the set of subordinates entries whose subordinates are to be excluded */
-    private final Set chopAfter;
+    private final Set<LdapDN> chopAfter;
 
     /** the minimum distance below base to start including entries */
     private final int minBaseDistance;
@@ -67,18 +67,14 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * base and all subordinates underneath (excluding those that are part of
      * inner areas) are part of the the subtree.
      */
+    @SuppressWarnings("unchecked")
     public BaseSubtreeSpecification()
     {
         this.base = new LdapDN();
-
         this.minBaseDistance = 0;
-
         this.maxBaseDistance = UNBOUNDED_MAX;
-
         this.chopAfter = Collections.EMPTY_SET;
-
         this.chopBefore = Collections.EMPTY_SET;
-
         this.refinement = null;
     }
 
@@ -92,18 +88,14 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *            the filter expression only composed of objectClass attribute
      *            value assertions
      */
+    @SuppressWarnings("unchecked")
     public BaseSubtreeSpecification(ExprNode refinement)
     {
         this.base = new LdapDN();
-
         this.minBaseDistance = 0;
-
         this.maxBaseDistance = UNBOUNDED_MAX;
-
         this.chopAfter = Collections.EMPTY_SET;
-
         this.chopBefore = Collections.EMPTY_SET;
-
         this.refinement = refinement;
     }
 
@@ -116,18 +108,14 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      * @param base
      *            the base of the subtree relative to the administrative point
      */
+    @SuppressWarnings("unchecked")
     public BaseSubtreeSpecification( LdapDN base )
     {
         this.base = base;
-
         this.minBaseDistance = 0;
-
         this.maxBaseDistance = UNBOUNDED_MAX;
-
         this.chopAfter = Collections.EMPTY_SET;
-
         this.chopBefore = Collections.EMPTY_SET;
-
         this.refinement = null;
     }
 
@@ -149,7 +137,8 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *            the set of subordinates entries and their subordinates to
      *            exclude
      */
-    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore )
+    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, 
+        Set<LdapDN> chopAfter, Set<LdapDN> chopBefore )
     {
         this( base, minBaseDistance, maxBaseDistance, chopAfter, chopBefore, null );
     }
@@ -176,11 +165,10 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
      *            the filter expression only composed of objectClass attribute
      *            value assertions
      */
-    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, Set chopAfter, Set chopBefore,
-        ExprNode refinement )
+    public BaseSubtreeSpecification( LdapDN base, int minBaseDistance, int maxBaseDistance, 
+        Set<LdapDN> chopAfter, Set<LdapDN> chopBefore, ExprNode refinement )
     {
         this.base = base;
-
         this.minBaseDistance = minBaseDistance;
 
         if ( maxBaseDistance < 0 )
@@ -193,9 +181,7 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
         }
 
         this.chopAfter = chopAfter;
-
         this.chopBefore = chopBefore;
-
         this.refinement = refinement;
     }
 
@@ -204,19 +190,20 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
     // A C C E S S O R S
     // -----------------------------------------------------------------------
 
+
     public LdapDN getBase()
     {
         return this.base;
     }
 
 
-    public Set getChopBeforeExclusions()
+    public Set<LdapDN> getChopBeforeExclusions()
     {
         return this.chopBefore;
     }
 
 
-    public Set getChopAfterExclusions()
+    public Set<LdapDN> getChopAfterExclusions()
     {
         return this.chopAfter;
     }
@@ -283,9 +270,9 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
             buffer.append( ' ' );
             buffer.append( '{' );
 
-            for ( Iterator it = chopBefore.iterator(); it.hasNext(); )
+            for ( Iterator<LdapDN> it = chopBefore.iterator(); it.hasNext(); )
             {
-                LdapDN dn = ( LdapDN ) it.next();
+                LdapDN dn = it.next();
                 buffer.append( ' ' );
                 buffer.append( "chopBefore" );
                 buffer.append( ':' );
@@ -307,9 +294,9 @@ public class BaseSubtreeSpecification implements SubtreeSpecification
                 buffer.append( ' ' );
             }
 
-            for ( Iterator it = chopAfter.iterator(); it.hasNext(); )
+            for ( Iterator<LdapDN> it = chopAfter.iterator(); it.hasNext(); )
             {
-                LdapDN dn = ( LdapDN ) it.next();
+                LdapDN dn = it.next();
                 buffer.append( ' ' );
                 buffer.append( "chopAfter" );
                 buffer.append( ':' );
