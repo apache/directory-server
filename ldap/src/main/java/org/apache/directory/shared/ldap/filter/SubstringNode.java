@@ -67,6 +67,23 @@ public class SubstringNode extends LeafNode
 
 
     /**
+     * Creates a new SubstringNode object without any value
+     * 
+     * @param attribute the name of the attribute to substring assert
+     * @param initialPattern the initial fragment
+     * @param finalPattern the final fragment
+     */
+    public SubstringNode( String attribute )
+    {
+        super( attribute );
+
+        anyPattern = new ArrayList<String>( 2 );
+        this.finalPattern = null;
+        this.initialPattern = null;
+    }
+
+
+    /**
      * Creates a new SubstringNode object more than one wildcard and an any
      * list.
      * 
