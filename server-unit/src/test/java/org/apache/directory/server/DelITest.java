@@ -38,8 +38,7 @@ public class DelITest extends AbstractServerTest
     static final String USER = "uid=admin,ou=system";
     static final String PASSWORD = "secret";
     static final String BASE = "dc=example,dc=com";
-
-
+    
     private LDAPConnection con = null;
 
     protected void setUp() throws LDAPException, Exception {
@@ -58,11 +57,17 @@ public class DelITest extends AbstractServerTest
      * Try to delete a non existing entry. Expected result code is 32
      * (NO_SUCH_OBJECT).
      */
-    public void testDeleteNotExisting() {
-        try {
+    public void testDeleteNotExisting() 
+    {
+        nbTests = 2;
+        
+        try 
+        {
             con.delete("cn=This does not exist" + "," + BASE);
             fail("deletion should fail");
-        } catch (LDAPException e) {
+        } 
+        catch (LDAPException e) 
+        {
             assertTrue(e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT);
         }
     }
