@@ -84,7 +84,34 @@ public interface ApacheSchemaConstants
     String WINDOWS_FILE_OC_OID                      = "1.3.6.1.4.1.18060.0.4.1.3.6";
 
 
+    // Apache Schema constants
+    // ApacheNdn
+    String APACHE_N_DN_AT                           = "apacheNdn";
+    String APACHE_N_DN_OID                          = "1.3.6.1.4.1.18060.0.4.1.2.1";
     
+    // ApacheNdn
+    String APACHE_UP_DN_AT                          = "apacheUpdn";
+    String APACHE_UP_DN_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.2";
+    
+    // ApacheNdn
+    String APACHE_EXISTANCE_AT                      = "apacheExistance";
+    String APACHE_EXISTANCE_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.3";
+    
+    // ApacheNdn
+    String APACHE_HIERARCHY_AT                      = "apacheHierarchy";
+    String APACHE_HIERARCHY_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.4";
+    
+    // ApacheNdn
+    String APACHE_ONE_ALIAS_AT                      = "apacheOneAlias";
+    String APACHE_ONE_ALIAS_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.5";
+    
+    // ApacheNdn
+    String APACHE_SUB_ALIAS_AT                      = "apacheSubAlias";
+    String APACHE_SUB_ALIAS_OID                     = "1.3.6.1.4.1.18060.0.4.1.2.6";
+
+    // ApacheNdn
+    String APACHE_ALIAS_AT                          = "apacheAlias";
+    String APACHE_ALIAS_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.7";
     
     
     // SchemaModifiersName
