@@ -28,7 +28,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.unit.AbstractServerFastTest;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.fail;
