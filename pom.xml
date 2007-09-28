@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.directory.server</groupId>
+  <version>1.0</version>
+  <artifactId>1.0-with-dependencies</artifactId>
+  <name>ApacheDS 1.0 Build With Dependencies</name>
+  <inceptionYear>2004</inceptionYear>
+  <packaging>pom</packaging>
+  <modules>
+    <module>apacheds</module>
+    <module>shared</module>
+    <module>daemon</module>
+  </modules>
+</project>
