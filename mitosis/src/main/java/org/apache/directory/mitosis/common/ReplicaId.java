@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.util.StringTools;
  *  contains only this char set : { '-', '_', 'a..z', 'A..Z', '0..9' }
  *  and its length is between 1 and 16. 
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class ReplicaId implements Comparable, Serializable
@@ -50,7 +52,7 @@ public class ReplicaId implements Comparable, Serializable
     private static final Pattern REPLICA_ID_PATTERN = Pattern.compile( "[-_A-Z0-9]{1,16}" );
 
     /** The formated replicaId */
-    private String id;
+    private final String id;
 
 
     /**

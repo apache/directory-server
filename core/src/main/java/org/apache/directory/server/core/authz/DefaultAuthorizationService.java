@@ -35,7 +35,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -71,6 +70,8 @@ import org.slf4j.LoggerFactory;
  * If a user tries to perform any operations that requires
  * permission he or she doesn't have, {@link NoPermissionException} will be
  * thrown and therefore the current invocation chain will terminate.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -122,7 +123,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
         normalizerMapping = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();

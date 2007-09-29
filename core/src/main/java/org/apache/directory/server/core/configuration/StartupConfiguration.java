@@ -20,6 +20,19 @@
 package org.apache.directory.server.core.configuration;
 
 
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.collective.CollectiveAttributeService;
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
+import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +45,8 @@ import java.util.*;
 /**
  * A {@link Configuration} that starts up ApacheDS.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -43,55 +58,7 @@ public class StartupConfiguration extends Configuration
     private static final String SIMPLE_AUTHENTICATOR = "org.apache.directory.server.core.authn.SimpleAuthenticator";
     /** fully qualified class name of the anonymous authenticator implementation */
     private static final String ANONYMOUS_AUTHENTICATOR = "org.apache.directory.server.core.authn.AnonymousAuthenticator";
-    
-    /** The normalizationService name */
-    public static final String NORMALIZATION_SERVICE_NAME = "normalizationService";
-    /** The fully qualified class name for the normalization service */
-    private static final String NORMALIZATION_SERVICE_CLASS = "org.apache.directory.server.core.normalization.NormalizationService";
-    /** The authenticationService name */
-    public static final String AUTHENTICATION_SERVICE_NAME = "authenticationService";
-    /** The fully qualified class name for the normalization service */
-    private static final String AUTHENTICATION_SERVICE_CLASS = "org.apache.directory.server.core.authn.AuthenticationService";
-    /** The referralService name */
-    public static final String REFERRAL_SERVICE_NAME = "referralService";
-    /** The fully qualified class name for the referral service */
-    private static final String REFERRAL_SERVICE_CLASS = "org.apache.directory.server.core.referral.ReferralService";
-    /** The authorizationService name */
-    public static final String AUTHORIZATION_SERVICE_NAME = "authorizationService";
-    /** The fully qualified class name for the authorization service */
-    private static final String AUTHORIZATION_SERVICE_CLASS = "org.apache.directory.server.core.authz.AuthorizationService";
-    /** The default authorization service name */
-    public static final String DEFAULT_AUTHORIZATION_SERVICE_NAME = "defaultAuthorizationService";
-    /** The fully qualified class name for the default authorization service */
-    private static final String DEFAULT_AUTHORIZATION_SERVICE_CLASS = "org.apache.directory.server.core.authz.DefaultAuthorizationService";
-    /** The exceptionService name */
-    public static final String EXCEPTION_SERVICE_NAME = "exceptionService";
-    /** The fully qualified class name for the default authorization service */
-    private static final String EXCEPTION_SERVICE_CLASS = "org.apache.directory.server.core.exception.ExceptionService";
-    /** The operationalAttributeService name */
-    public static final String OPERATIONAL_ATTRIBUTE_SERVICE_NAME = "operationalAttributeService";
-    /** The fully qualified class name for the default operational attribute service */
-    private static final String OPERATIONAL_ATTRIBUTE_SERVICE_CLASS = "org.apache.directory.server.core.operational.OperationalAttributeService";
-    /** The schemaService name */
-    public static final String SCHEMA_SERVICE_NAME = "schemaService";
-    /** The fully qualified class name for the schema service */
-    private static final String SCHEMA_SERVICE_CLASS = "org.apache.directory.server.core.schema.SchemaService";
-    /** The subentryService name */
-    public static final String SUBENTRY_SERVICE_NAME = "subentryService";
-    /** The fully qualified class name for the subentry service */
-    private static final String SUBENTRY_SERVICE_CLASS = "org.apache.directory.server.core.subtree.SubentryService";
-    /** The collectiveAttributeService name */
-    public static final String COLLECTIVE_ATTRIBUTE_SERVICE_NAME = "collectiveAttributeService";
-    /** The fully qualified class name for the collective attribute service */
-    private static final String COLLECTIVE_ATTRIBUTE_SERVICE_CLASS = "org.apache.directory.server.core.collective.CollectiveAttributeService";
-    /** The eventService name */
-    public static final String EVENT_SERVICE_NAME = "eventService";
-    /** The fully qualified class name for the event service */
-    private static final String EVENT_SERVICE_CLASS = "org.apache.directory.server.core.event.EventService";
-    /** The triggerService name */
-    public static final String TRIGGER_SERVICE_NAME = "triggerService";
-    /** The fully qualified class name for the trigger service */
-    private static final String TRIGGER_SERVICE_CLASS = "org.apache.directory.server.core.trigger.TriggerService";
+
     /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( StartupConfiguration.class );
 
@@ -110,12 +77,12 @@ public class StartupConfiguration extends Configuration
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
-    private Set<AuthenticatorConfiguration> authenticatorConfigurations; 
-    private List<InterceptorConfiguration> interceptorConfigurations; 
-    private PartitionConfiguration systemPartitionConfiguration; 
-    private Set<? extends PartitionConfiguration> partitionConfigurations = 
+    private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
+    private List<Interceptor> interceptors;
+    private PartitionConfiguration systemPartitionConfiguration;
+    private Set<? extends PartitionConfiguration> partitionConfigurations =
         new HashSet<PartitionConfiguration>();
-    private List<Entry> testEntries = new ArrayList<Entry>(); 
+    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
 
 
     /**
@@ -143,7 +110,7 @@ public class StartupConfiguration extends Configuration
     private void setDefaultAuthenticatorConfigurations()
     {
         Set<AuthenticatorConfiguration> set = new HashSet<AuthenticatorConfiguration>();
-        
+
         // Anonymous
         set.add( new MutableAuthenticatorConfiguration( "Anonymous", ANONYMOUS_AUTHENTICATOR ) );
 
@@ -156,74 +123,38 @@ public class StartupConfiguration extends Configuration
         setAuthenticatorConfigurations( set );
     }
 
-    
+
     private void setDefaultInterceptorConfigurations()
     {
         // Set default interceptor chains
-        InterceptorConfiguration interceptorCfg;
-        List<InterceptorConfiguration> list = new ArrayList<InterceptorConfiguration>();
+        Interceptor interceptorCfg;
+        List<Interceptor> list = new ArrayList<Interceptor>();
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( NORMALIZATION_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( NORMALIZATION_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new NormalizationService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( AUTHENTICATION_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( AUTHENTICATION_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new AuthenticationService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( REFERRAL_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( REFERRAL_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new ReferralService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( AUTHORIZATION_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( AUTHORIZATION_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new AuthorizationService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( DEFAULT_AUTHORIZATION_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( DEFAULT_AUTHORIZATION_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new DefaultAuthorizationService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( EXCEPTION_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( EXCEPTION_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new ExceptionService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( OPERATIONAL_ATTRIBUTE_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new OperationalAttributeService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( SCHEMA_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( SCHEMA_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new SchemaService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( SUBENTRY_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( SUBENTRY_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new SubentryService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( COLLECTIVE_ATTRIBUTE_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( COLLECTIVE_ATTRIBUTE_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new CollectiveAttributeService() );
 
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( EVENT_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( EVENT_SERVICE_CLASS );
-        list.add( interceptorCfg );
-        
-        interceptorCfg = new MutableInterceptorConfiguration();
-        interceptorCfg.setName( TRIGGER_SERVICE_NAME );
-        interceptorCfg.setInterceptorClassName( TRIGGER_SERVICE_CLASS );
-        list.add( interceptorCfg );
+        list.add( new EventService() );
 
-        setInterceptorConfigurations( list );
+        list.add( new TriggerService() );
+
+        setInterceptors( list );
     }
 
 
@@ -233,7 +164,7 @@ public class StartupConfiguration extends Configuration
     @SuppressWarnings("unchecked")
     public Set<AuthenticatorConfiguration> getAuthenticatorConfigurations()
     {
-        Set<AuthenticatorConfiguration> cloned = 
+        Set<AuthenticatorConfiguration> cloned =
             new HashSet<AuthenticatorConfiguration>( authenticatorConfigurations.size() );
         cloned.addAll( authenticatorConfigurations );
         return cloned;
@@ -257,11 +188,11 @@ public class StartupConfiguration extends Configuration
             if ( names.contains( name ) )
             {
                 // TODO Not sure that it worth to throw an excpetion here. We could simply ditch the
-                // duplicated authenticator, trace a warning and that's it. 
+                // duplicated authenticator, trace a warning and that's it.
                 log.error( "The authenticator nammed '{}' has already been registred.", name );
                 throw new ConfigurationException( "Duplicate authenticator name: " + name );
             }
-            
+
             names.add( name );
         }
 
@@ -295,7 +226,7 @@ public class StartupConfiguration extends Configuration
             PartitionConfiguration cfg = i.next();
             cfg.validate();
 
-            String id = cfg.getId();
+            String id = cfg.getName();
             if ( names.contains( id ) )
             {
                 throw new ConfigurationException( "Duplicate partition id: " + id );
@@ -347,10 +278,10 @@ public class StartupConfiguration extends Configuration
      * Returns interceptor chain.
      */
     @SuppressWarnings("unchecked")
-    public List<InterceptorConfiguration> getInterceptorConfigurations()
+    public List<Interceptor> getInterceptors()
     {
-        List<InterceptorConfiguration> cloned = new ArrayList<InterceptorConfiguration>();
-        cloned.addAll( interceptorConfigurations );
+        List<Interceptor> cloned = new ArrayList<Interceptor>();
+        cloned.addAll( interceptors );
         return cloned;
     }
 
@@ -358,27 +289,21 @@ public class StartupConfiguration extends Configuration
     /**
      * Sets interceptor chain.
      */
-    protected void setInterceptorConfigurations( List<InterceptorConfiguration> interceptorConfigurations )
+    protected void setInterceptors( List<Interceptor> interceptors)
     {
-        List<InterceptorConfiguration> cloned = new ArrayList<InterceptorConfiguration>();
-        cloned.addAll( interceptorConfigurations );
 
         Set<String> names = new HashSet<String>();
-        Iterator<InterceptorConfiguration> i = cloned.iterator();
-        while ( i.hasNext() )
-        {
-            InterceptorConfiguration cfg = i.next();
-            cfg.validate();
+        Iterator i = interceptors.iterator();
+        for (Interceptor interceptor : interceptors) {
 
-            String name = cfg.getName();
-            if ( names.contains( name ) )
-            {
-                throw new ConfigurationException( "Duplicate interceptor name: " + name );
+            String name = interceptor.getName();
+            if (names.contains(name)) {
+                throw new ConfigurationException("Duplicate interceptor name: " + name);
             }
-            names.add( name );
+            names.add(name);
         }
 
-        this.interceptorConfigurations = interceptorConfigurations;
+        this.interceptors = interceptors;
     }
 
 
@@ -398,7 +323,7 @@ public class StartupConfiguration extends Configuration
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      */
-    protected void setTestEntries( List<Entry> testEntries )
+    protected void setTestEntries( List<? extends Entry> testEntries )
     {
         List<Entry> cloned = new ArrayList<Entry>();
         cloned.addAll( testEntries );

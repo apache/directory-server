@@ -31,6 +31,8 @@ import org.apache.directory.server.core.configuration.PartitionConfiguration;
 /**
  * A mutable form of {@link BTreePartitionConfiguration}.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -42,12 +44,16 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
     }
     
     
-    public void setId( String name )
+    public void setName( String name )
     {
-        super.setId( name );
+        super.setName( name );
     }
 
-
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration"
+     *
+     * @param indexedAttributes
+     */
     public void setIndexedAttributes( Set<Object> indexedAttributes )
     {
         super.setIndexedAttributes( indexedAttributes );
@@ -91,7 +97,7 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
         newConfig.setCacheSize( config.getCacheSize() );
         newConfig.setContextEntry( config.getContextEntry() );
         newConfig.setIndexedAttributes( config.getIndexedAttributes() );
-        newConfig.setId( config.getId() );
+        newConfig.setName( config.getName() );
         newConfig.setSuffix( config.getSuffix() );
         newConfig.setSynchOnWrite( false );
         return newConfig;

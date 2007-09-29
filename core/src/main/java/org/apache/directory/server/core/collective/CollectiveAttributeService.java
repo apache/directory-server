@@ -32,7 +32,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -60,6 +59,8 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * inject collective attribute value pairs into the response based on
  * the entires inclusion within collectiveAttributeSpecificAreas and
  * collectiveAttributeInnerAreas.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -97,9 +98,9 @@ public class CollectiveAttributeService extends BaseInterceptor
     private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker = null;
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
-        super.init( factoryCfg, cfg );
+        super.init( factoryCfg);
         nexus = factoryCfg.getPartitionNexus();
         attrTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker(nexus, attrTypeRegistry);

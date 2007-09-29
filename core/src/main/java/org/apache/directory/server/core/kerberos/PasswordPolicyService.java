@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
  * rejected if it does not pass the password policy checks.  The password MUST be passed to
  * the core as plaintext.
  * 
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

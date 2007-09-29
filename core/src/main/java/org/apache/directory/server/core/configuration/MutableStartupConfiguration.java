@@ -29,7 +29,9 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 
 /**
  * A mutable version of {@link StartupConfiguration}.
- * 
+ *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -47,7 +49,7 @@ public class MutableStartupConfiguration extends StartupConfiguration
 
 
     /**
-     * Creates a new instance that operates on the {@link DirectoryService} with
+     * Creates a new instance that operates on the {@link org.apache.directory.server.core.DirectoryService} with
      * the specified ID.
      */
     public MutableStartupConfiguration( String instanceId )
@@ -73,13 +75,21 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setInstanceId( instanceId );
     }
 
-
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.AuthenticatorConfiguration"
+     *
+     * @param authenticators
+     */
     public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticators )
     {
         super.setAuthenticatorConfigurations( authenticators );
     }
 
-
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.PartitionConfiguration"
+     *
+     * @param paritionConfigurations partitions to start
+     */
     public void setPartitionConfigurations( Set<? extends PartitionConfiguration> paritionConfigurations )
     {
         super.setPartitionConfigurations( paritionConfigurations );
@@ -97,14 +107,22 @@ public class MutableStartupConfiguration extends StartupConfiguration
         super.setAllowAnonymousAccess( enableAnonymousAccess );
     }
 
-
-    public void setInterceptorConfigurations( List<InterceptorConfiguration> interceptorConfigurations )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.InterceptorConfiguration"
+     *
+     * @param interceptorConfigurations
+     */
+    public void setInterceptors( List interceptorConfigurations )
     {
-        super.setInterceptorConfigurations( interceptorConfigurations );
+        super.setInterceptors( interceptorConfigurations );
     }
 
-
-    public void setTestEntries( List<Entry> testEntries )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
+     *
+     * @param testEntries
+     */
+    public void setTestEntries( List testEntries )
     {
         super.setTestEntries( testEntries );
     }

@@ -24,6 +24,8 @@ package org.apache.directory.server.core.configuration;
  * A {@link Configuration} that adds a new {@link Partition} to
  * the current {@link PartitionNexus}.
  *
+ * @org.apache.xbean.XBean element="AddPartition"
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

@@ -62,7 +62,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         super( service, env );
         refService = (( ReferralService )service.getConfiguration()
-            .getInterceptorChain().get( StartupConfiguration.REFERRAL_SERVICE_NAME ) );        
+            .getInterceptorChain().get( ReferralService.class.getName() ) );        
     }
 
 
@@ -77,7 +77,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     {
         super( service, principal, dn );
         refService = (( ReferralService )service.getConfiguration()
-            .getInterceptorChain().get( StartupConfiguration.REFERRAL_SERVICE_NAME ) );        
+            .getInterceptorChain().get( ReferralService.class.getName() ) );        
     }
 
 

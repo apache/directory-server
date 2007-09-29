@@ -31,7 +31,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -70,6 +69,8 @@ import org.apache.directory.shared.ldap.util.EmptyEnumeration;
  * of {@link Partition} and terminates the current invocation chain by
  * throwing a {@link NamingException}. Those operations include when an entry
  * already exists at a DN and is added once again to the same DN.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -116,7 +117,7 @@ public class ExceptionService extends BaseInterceptor
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
         normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();

@@ -122,7 +122,7 @@ public class DbFileListing
      * @param resourceDescription
      * @return the InputStream to read the contents of the resource
      * @throws IOException if there are problems reading or finding a unique copy of the resource
-     */
+     */                                                                                                
     public static InputStream getUniqueResourceAsStream( String resourceName, String resourceDescription ) throws IOException
     {
         resourceName = BASE_PATH + resourceName;

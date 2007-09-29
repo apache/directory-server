@@ -151,7 +151,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.velocity</groupId> 
+        <groupId>org.apache.velocity</groupId>
         <artifactId>velocity</artifactId>
         <version>1.5</version>
       </dependency>
@@ -347,6 +347,7 @@
     <!--module>kerberos-unit</module-->
     <module>mitosis</module>
     <module>server-replication</module>
+    <module>apacheds-xbean-spring</module>
   </modules>
 
   <developers>
@@ -457,6 +458,36 @@
             </execution>
           </executions>
         </plugin>
+
+
+        <plugin>
+          <groupId>org.apache.xbean</groupId>
+          <artifactId>maven-xbean-plugin</artifactId>
+          <version>3.1</version>
+        </plugin>
+
+        <!--  lets ensure that the XSD gets deployed  -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.0</version>
+        </plugin>
+
+        <plugin>
+          <inherited>true</inherited>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.0.3</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -468,6 +499,17 @@
           <tagBase>https://svn.apache.org/repos/asf/directory/apacheds/releases</tagBase>
         </configuration>
       </plugin>
+
+      <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-compiler-plugin</artifactId>-->
+      <!--</plugin>-->
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+
     </plugins>
   </build>
 

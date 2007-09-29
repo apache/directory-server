@@ -77,7 +77,7 @@ public class NtpITest extends AbstractServerTest
 
         // Add partition 'example'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
+        pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example,dc=com" );
 
         Set<Object> indexedAttrs = new HashSet<Object>();

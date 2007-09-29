@@ -566,7 +566,7 @@ class DefaultDirectoryService extends DirectoryService
 
             partitionNexus.add( new AddOperationContext( name, attributes ) );
             
-            Interceptor authzInterceptor = interceptorChain.get( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
+            Interceptor authzInterceptor = interceptorChain.get( AuthorizationService.class.getName() );
             
             if ( authzInterceptor == null )
             {
@@ -847,7 +847,7 @@ class DefaultDirectoryService extends DirectoryService
         // --------------------------------------------------------------------
         
         MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
-        schemaPartitionConfig.setId( "schema" );
+        schemaPartitionConfig.setName( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
         DbFileListing listing = null;

@@ -37,7 +37,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -72,6 +71,8 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link Interceptor} that authenticates users.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -97,7 +98,7 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         this.factoryCfg = factoryCfg;
 

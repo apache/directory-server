@@ -39,10 +39,9 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.configuration.MutableReplicationInterceptorConfiguration;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
@@ -103,7 +102,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             ldapCfg.setShutdownHookEnabled( false );
             ldapCfg.setWorkingDirectory( workDir );
 
-            List<InterceptorConfiguration> interceptorCfgs = ldapCfg.getInterceptorConfigurations();
+            List<Interceptor> interceptors = ldapCfg.getInterceptors();
 
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
@@ -118,14 +117,11 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
                 }
             }
 
-            MutableReplicationInterceptorConfiguration interceptorCfg = 
-                new MutableReplicationInterceptorConfiguration();
-            interceptorCfg.setName( "mitosis" );
-            interceptorCfg.setInterceptorClassName( ReplicationService.class.getName() );
-            interceptorCfg.setReplicationConfiguration( replicationCfg );
-            interceptorCfgs.add( interceptorCfg );
+            ReplicationService replicationService = new ReplicationService();
+            replicationService.setConfiguration(replicationCfg);
+            interceptors.add(replicationService);
 
-            ldapCfg.setInterceptorConfigurations( interceptorCfgs );
+            ldapCfg.setInterceptors( interceptors );
 
             if( workDir.exists() )
             {
@@ -143,7 +139,6 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             // Initialize the server instance.
             LdapContext context = new InitialLdapContext( env, null );
             contexts.put( replicaId, context );
-            ReplicationService replicationService = (ReplicationService) DirectoryService.getInstance( replicaId ).getConfiguration().getInterceptorChain().get( "mitosis" );
             replicationServices.put( replicaId, replicationService );
         }
 
@@ -165,7 +160,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
 
         return ( LdapContext ) context.lookup( "" );
     }
-    
+
     @SuppressWarnings("unchecked")
     protected void destroyAllReplicas() throws Exception
     {

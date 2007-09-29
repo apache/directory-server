@@ -23,6 +23,8 @@ package org.apache.directory.server.core.configuration;
 /**
  * A {@link Configuration} that makes a call to {@link DirectoryService#sync()}.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

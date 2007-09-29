@@ -38,7 +38,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -83,6 +82,8 @@ import org.slf4j.LoggerFactory;
  * The Subentry interceptor service which is responsible for filtering
  * out subentries on search operations and injecting operational attributes
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -126,9 +127,9 @@ public class SubentryService extends BaseInterceptor
     private AttributeType objectClassType;
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
-        super.init( factoryCfg, cfg );
+        super.init( factoryCfg);
         this.nexus = factoryCfg.getPartitionNexus();
         this.factoryCfg = factoryCfg;
         this.attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();

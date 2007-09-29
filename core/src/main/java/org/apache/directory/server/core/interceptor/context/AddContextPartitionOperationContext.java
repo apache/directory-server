@@ -78,7 +78,7 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
      */
     public String toString()
     {
-        return "AddContextPartitionOperationContext for partition context '" + partitionConfiguration.getId() + "'";
+        return "AddContextPartitionOperationContext for partition context '" + partitionConfiguration.getName() + "'";
     }
 
     
@@ -129,7 +129,7 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
         {
             String msg = "Could not load partition implementation class '" 
                 + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId();
+                + partitionConfiguration.getName();
             log.error( msg );
             throw new LdapConfigurationException( msg, e );
         }
@@ -142,7 +142,7 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
         {
             String msg = "No default constructor in partition implementation class '" 
                 + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId();
+                + partitionConfiguration.getName();
             log.error( msg );
             throw new LdapConfigurationException( msg, e );
         }
@@ -150,7 +150,7 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
         {
             String msg = "Default constructor for partition implementation class '" 
                 + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId() + " is not publicly accessible.";
+                + partitionConfiguration.getName() + " is not publicly accessible.";
             log.error( msg );
             throw new LdapConfigurationException( msg, e );
         }

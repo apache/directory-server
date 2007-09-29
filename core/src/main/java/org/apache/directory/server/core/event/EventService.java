@@ -41,7 +41,6 @@ import javax.naming.event.NamingListener;
 import javax.naming.event.ObjectChangeListener;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -78,6 +77,8 @@ import org.slf4j.LoggerFactory;
  * An interceptor based serivice for notifying NamingListeners of EventContext
  * and EventDirContext changes.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -92,9 +93,9 @@ public class EventService extends BaseInterceptor
     private NormalizingVisitor visitor;
 
     
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
-        super.init( factoryCfg, cfg );
+        super.init( factoryCfg);
 
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();

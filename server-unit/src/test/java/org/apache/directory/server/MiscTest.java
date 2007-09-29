@@ -95,7 +95,7 @@ public class MiscTest extends AbstractServerTest
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
-            partition.setId( "apache" );
+            partition.setName( "apache" );
             partition.setContextEntry( entry );
             partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
             partitions.add( partition );
@@ -116,7 +116,7 @@ public class MiscTest extends AbstractServerTest
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
-            partition.setId( "apache" );
+            partition.setName( "apache" );
             partition.setContextEntry( entry );
             partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
             partitions.add( partition );

@@ -30,6 +30,8 @@ import org.apache.mina.common.IoSession;
  * An extension (hook) point that enables an implementor to provide his or her
  * own LDAP 'Extended' operation.  
  *
+ * @org.apache.xbean.XBean
+*
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  *

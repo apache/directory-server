@@ -61,7 +61,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
-        systemCfg.setId( "system" );
+        systemCfg.setName( "system" );
         
         // @TODO need to make this configurable for the system partition
         systemCfg.setCacheSize( 500 );

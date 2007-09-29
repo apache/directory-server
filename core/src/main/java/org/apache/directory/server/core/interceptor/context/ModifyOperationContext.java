@@ -65,7 +65,7 @@ public class ModifyOperationContext extends AbstractOperationContext
 
     /**
      * Set the modified attributes
-     * @param value The modified attributes
+     * @param modItems The modified attributes
      */
     public void setModItems( ModificationItemImpl[] modItems ) 
     {

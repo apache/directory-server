@@ -31,7 +31,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -61,11 +60,23 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * implemented to pass the flow of control to next interceptor by defaults.
  * Please override the methods you have concern in.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public abstract class BaseInterceptor implements Interceptor
 {
+    /**
+     * default interceptor name is its class, preventing accidental duplication of interceptors by naming
+     * instances differently
+     * @return (default, class name) interceptor name
+     */
+    public String getName()
+    {
+        return getClass().getName();
+    }
+    
     /**
      * Returns {@link LdapPrincipal} of current context.
      */
@@ -96,7 +107,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * This method does nothing by default.
      */
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
     }
 

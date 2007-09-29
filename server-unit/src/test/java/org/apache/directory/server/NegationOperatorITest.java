@@ -67,7 +67,7 @@ public class NegationOperatorITest extends AbstractServerTest
         if ( this.getName().indexOf( "Indexed" ) != -1 )
         {
             MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setId( "system" );
+            systemCfg.setName( "system" );
             
             // @TODO need to make this configurable for the system partition
             systemCfg.setCacheSize( 500 );

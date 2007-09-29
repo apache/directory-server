@@ -29,6 +29,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * A {@link Configuration} that removed the attached {@link Partition} in
  * the current {@link PartitionNexus}.
  *
+ * @org.apache.xbean.XBean element="RemovePartition"
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

@@ -31,11 +31,9 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
@@ -69,19 +67,12 @@ public class InterceptorChainTest extends TestCase
 
         for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            MutableInterceptorConfiguration config = new MutableInterceptorConfiguration();
-            config.setInterceptorClassName( MockInterceptor.class.getName() );
-            config.setName( Integer.toString( ii ) );
-            chain.addLast( config );
-        }
-        
-        List interceptorsInChain = chain.getAll();
-        for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
-        {
-            MockInterceptor interceptor = ( MockInterceptor ) interceptorsInChain.get( ii );
+            MockInterceptor interceptor = new MockInterceptor();
             interceptor.setTest( this );
             interceptor.setName( Integer.toString( ii ) );
+            chain.addLast(interceptor);
         }
+        
     }
 
 

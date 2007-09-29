@@ -34,7 +34,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -73,6 +72,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The Trigger Service based on the Trigger Specification.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
@@ -88,7 +89,7 @@ public class TriggerService extends BaseInterceptor
     /** a normalizing Trigger Specification parser */
     private TriggerSpecificationParser triggerParser;
     /** the attribute type registry */
-    private AttributeTypeRegistry attrRegistry;
+//    private AttributeTypeRegistry attrRegistry;
     /** */
     private InterceptorChain chain;
     /** whether or not this interceptor is activated */
@@ -221,11 +222,11 @@ public class TriggerService extends BaseInterceptor
     // Interceptor Overrides
     ////////////////////////////////////////////////////////////////////////////
     
-    public void init( DirectoryServiceConfiguration dirServCfg, InterceptorConfiguration intCfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration dirServCfg) throws NamingException
     {
-        super.init( dirServCfg, intCfg );
+        super.init( dirServCfg);
         triggerSpecCache = new TriggerSpecCache( dirServCfg );
-        attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
+        final AttributeTypeRegistry attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
@@ -445,7 +446,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         while ( attrList.hasMore() )
@@ -519,7 +520,7 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
         Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         

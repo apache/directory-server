@@ -14,7 +14,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -73,9 +72,9 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     // -----------------------------------------------------------------------
 
     
-    public void init( DirectoryServiceConfiguration dsConfig, InterceptorConfiguration iConfig ) throws NamingException
+    public void init( DirectoryServiceConfiguration dsConfig ) throws NamingException
     {
-        super.init( dsConfig, iConfig );
+        super.init( dsConfig );
 
         // Get a handle on the attribute registry to check if attributes are binary
         registry = dsConfig.getRegistries().getAttributeTypeRegistry();

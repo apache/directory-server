@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.mitosis.service;
 
@@ -40,7 +40,6 @@ import org.apache.directory.mitosis.common.DefaultCSN;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.configuration.ReplicationInterceptorConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
 import org.apache.directory.mitosis.service.protocol.codec.ReplicationServerProtocolCodecFactory;
@@ -49,7 +48,6 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -91,7 +89,7 @@ import org.slf4j.LoggerFactory;
  * Once an operation is invoked, this interceptor transforms it into one or
  * more operations that makes the requested operation more proper and robust
  * for replication.  The transformation process is actually just calling a
- * respective factory method in {@link OperationFactory}.  The methods in 
+ * respective factory method in {@link OperationFactory}.  The methods in
  * {@link OperationFactory} returns a new {@link Operation} instance.
  * <p>
  * The newly created {@link Operation} is used for three purposes.
@@ -135,20 +133,27 @@ import org.slf4j.LoggerFactory;
  *     operations are overrided to ignore entries with <tt>entryDeleted</tt>
  *     set to <tt>TRUE</tt>.</li>
  * </ul>
- * 
+ *
+ * @org.apache.xbean.XBean
+ *
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev$, $Date$
  */
 public class ReplicationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
-    
+
     /** The service name */
     public static final String NAME = "replicationService";
-    
+
 
     private static final String ENTRY_CSN_OID = "1.3.6.1.4.1.18060.0.4.1.2.30";
     private static final String ENTRY_DELETED_OID = "1.3.6.1.4.1.18060.0.4.1.2.31";
+
+    /**
+     * default name is the service name?
+     */
+    private String name = NAME;
 
     private DirectoryServiceConfiguration directoryServiceConfiguration;
     private ReplicationConfiguration configuration;
@@ -164,6 +169,17 @@ public class ReplicationService extends BaseInterceptor
     {
     }
 
+    /**
+     * this interceptor has configuration so it might be useful to allow several instances in a chain.
+     * @return configured name for this interceptor.
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public ReplicationConfiguration getConfiguration()
     {
@@ -171,16 +187,18 @@ public class ReplicationService extends BaseInterceptor
     }
 
 
+    public void setConfiguration(ReplicationConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
     public DirectoryServiceConfiguration getFactoryConfiguration()
     {
         return directoryServiceConfiguration;
     }
 
 
-    public void init( DirectoryServiceConfiguration serviceCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration serviceCfg) throws NamingException
     {
-        ReplicationInterceptorConfiguration replicationCfg = ( ReplicationInterceptorConfiguration ) cfg;
-        configuration = replicationCfg.getReplicationConfiguration();
         configuration.validate();
         // and then preserve frequently used ones
         directoryServiceConfiguration = serviceCfg;
@@ -253,8 +271,8 @@ public class ReplicationService extends BaseInterceptor
         }
         registry.unbindAll();
     }
-    
-    
+
+
     /**
      * Forces this context to send replication data to the peer replica immediately.
      */
@@ -279,9 +297,10 @@ public class ReplicationService extends BaseInterceptor
      * (i.e. {@link Constants#ENTRY_DELETED} is <tt>TRUE</tt>).  This method
      * should be called periodically to make sure the size of the DIT and
      * {@link ReplicationStore} increase limitlessly.
-     * 
+     *
      * @see ReplicationConfiguration#setLogMaxAge(int)
      * @see ReplicationLogCleanJob
+     * @throws javax.naming.NamingException on error
      */
     public void purgeAgedData() throws NamingException
     {
@@ -338,7 +357,7 @@ public class ReplicationService extends BaseInterceptor
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
-        NamingEnumeration<SearchResult> e = nexus.search( 
+        NamingEnumeration<SearchResult> e = nexus.search(
             new SearchOperationContext( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
@@ -396,26 +415,24 @@ public class ReplicationService extends BaseInterceptor
         Operation op = operationFactory.newModify( modifyContext );
         op.execute( nexus, store, attrRegistry );
     }
-    
-    
+
+
     @Override
-    public void move( NextInterceptor next, MoveOperationContext opContext ) throws NamingException
+    public void move( NextInterceptor next, MoveOperationContext moveOpContext ) throws NamingException
     {
-        MoveOperationContext moveOpContext = opContext;
         Operation op = operationFactory.newMove( moveOpContext.getDn(), moveOpContext.getParent() );
         op.execute( nexus, store, attrRegistry );
     }
-    
-    
+
+
     @Override
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext ) throws NamingException
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameOpContext ) throws NamingException
     {
-        MoveAndRenameOperationContext moveAndRenameOpContext = opContext;
         Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(), moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(), moveAndRenameOpContext.getDelOldDn() );
         op.execute( nexus, store, attrRegistry );
     }
-    
-    
+
+
     @Override
     public void rename( NextInterceptor next, RenameOperationContext renameOpContext ) throws NamingException
     {
@@ -454,9 +471,9 @@ public class ReplicationService extends BaseInterceptor
         if ( lookupContext.getAttrsId() != null )
         {
             boolean found = false;
-            
+
             String[] attrIds = lookupContext.getAttrsIdArray();
-            
+
             // Look for 'entryDeleted' attribute is in attrIds.
             for ( String attrId:attrIds )
             {
@@ -466,7 +483,7 @@ public class ReplicationService extends BaseInterceptor
                     break;
                 }
             }
-    
+
             // If not exists, add one.
             if ( !found )
             {
@@ -476,7 +493,7 @@ public class ReplicationService extends BaseInterceptor
                 lookupContext.setAttrsId( newAttrIds );
             }
         }
-        
+
         Attributes result = nextInterceptor.lookup( lookupContext );
         ensureNotDeleted( lookupContext.getDn(), result );
         return result;
@@ -489,7 +506,7 @@ public class ReplicationService extends BaseInterceptor
         DirContext ctx = ( DirContext ) InvocationStack.getInstance().peek().getCaller();
 
     	NamingEnumeration<SearchResult> result = nextInterceptor.search(
-	            new SearchOperationContext( 
+	            new SearchOperationContext(
 	                opContext.getDn(), ctx.getEnvironment(),
 	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
 	                new SearchControls() ) );
@@ -503,7 +520,7 @@ public class ReplicationService extends BaseInterceptor
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         SearchControls searchControls = opContext.getSearchControls();
-        
+
         if ( searchControls.getReturningAttributes() != null )
         {
             String[] oldAttrIds = searchControls.getReturningAttributes();
@@ -512,16 +529,15 @@ public class ReplicationService extends BaseInterceptor
             newAttrIds[oldAttrIds.length] = Constants.ENTRY_DELETED.toLowerCase();
             searchControls.setReturningAttributes( newAttrIds );
         }
-        
-    	NamingEnumeration<SearchResult> result = nextInterceptor.search( 
+
+    	NamingEnumeration<SearchResult> result = nextInterceptor.search(
             new SearchOperationContext( opContext.getDn(), opContext.getEnv(), opContext.getFilter(), searchControls ) );
         return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }
 
 
-    private void ensureNotDeleted( LdapDN name, Attributes entry ) throws NamingException, LdapNameNotFoundException
-    {
+    private void ensureNotDeleted( LdapDN name, Attributes entry ) throws NamingException {
         if ( isDeleted( entry ) )
         {
             LdapNameNotFoundException e = new LdapNameNotFoundException( "Deleted entry: " + name.getUpName() );

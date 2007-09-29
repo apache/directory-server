@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
  * A configuration for {@link ReplicationService}.  This configuration can be
  * used by calling {@link ReplicationService#setConfiguration(ReplicationConfiguration)}.
  * 
+ * @org.apache.xbean.XBean
+ *
  * @author The Apache Directory Project Team
  */
 public class ReplicationConfiguration

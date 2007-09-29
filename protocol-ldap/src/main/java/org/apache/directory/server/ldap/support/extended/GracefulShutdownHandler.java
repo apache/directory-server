@@ -50,6 +50,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * @org.apache.xbean.XBean
+ *
+ */
 public class GracefulShutdownHandler implements ExtendedOperationHandler
 {
     private static final Logger log = LoggerFactory.getLogger( GracefulShutdownHandler.class );

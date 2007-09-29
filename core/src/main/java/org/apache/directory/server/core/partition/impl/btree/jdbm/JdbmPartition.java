@@ -93,13 +93,13 @@ public class JdbmPartition extends BTreePartition
         storeConfig.setCacheSize( cfg.getCacheSize() );
         storeConfig.setContextEntry( cfg.getContextEntry() );
         storeConfig.setIndexedAttributes( cfg.getIndexedAttributes() );
-        storeConfig.setName( cfg.getId() );
+        storeConfig.setName( cfg.getName() );
         storeConfig.setOidRegistry( oidRegistry );
         storeConfig.setSuffixDn( cfg.getSuffix() );
         
         storeConfig.setWorkingDirectory( new File( 
             factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
-            + File.separator + cfg.getId() ) );
+            + File.separator + cfg.getName() ) );
         
         if ( cfg instanceof BTreePartitionConfiguration )
         {

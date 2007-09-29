@@ -28,7 +28,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -65,6 +64,8 @@ import org.slf4j.LoggerFactory;
  * names are normalized before calls are made against the respective interface methods
  * on {@link PartitionNexus}.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -85,7 +86,7 @@ public class NormalizationService extends BaseInterceptor
     /**
      * Initialize the registries, normalizers. 
      */
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
         attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();

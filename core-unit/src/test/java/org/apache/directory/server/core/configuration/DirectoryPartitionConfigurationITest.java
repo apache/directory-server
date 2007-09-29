@@ -54,7 +54,7 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
     public void testAddAndRemove() throws Exception
     {
         MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
-        partitionCfg.setId( "removable" );
+        partitionCfg.setName( "removable" );
         partitionCfg.setSuffix( "ou=removable" );
         Attributes ctxEntry = new AttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );

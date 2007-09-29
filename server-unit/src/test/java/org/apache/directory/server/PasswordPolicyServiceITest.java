@@ -31,10 +31,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.PasswordPolicyService;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -68,7 +67,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
         // Add partition 'example'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
+        pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example,dc=com" );
 
         Set<Object> indexedAttrs = new HashSet<Object>();
@@ -90,13 +89,10 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         pcfgs.add( pcfg );
         configuration.setPartitionConfigurations( pcfgs );
 
-        MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
-        List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
+        List<Interceptor> list = configuration.getInterceptors();
 
-        interceptorCfg.setName( PasswordPolicyService.NAME );
-        interceptorCfg.setInterceptorClassName( "org.apache.directory.server.core.kerberos.PasswordPolicyService" );
-        list.add( interceptorCfg );
-        configuration.setInterceptorConfigurations( list );
+        list.add( new PasswordPolicyService() );
+        configuration.setInterceptors( list );
 
         super.setUp();
 

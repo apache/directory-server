@@ -23,6 +23,8 @@ package org.apache.directory.server.core.configuration;
 /**
  * A {@link Configuration} that shuts down ApacheDS.
  *
+ * @org.apache.xbean.XBean element="Shutdown"
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

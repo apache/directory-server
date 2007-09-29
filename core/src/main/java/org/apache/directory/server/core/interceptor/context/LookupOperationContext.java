@@ -132,7 +132,7 @@ public class LookupOperationContext  extends AbstractOperationContext
     /**
      * Set the attribute oIds
      *
-     * @param attrsId The String array containing all the attribute OIDs
+     * @param attrsOid The String array containing all the attribute OIDs
      */
     public void setAttrsOid( String[] attrsOid )
     {

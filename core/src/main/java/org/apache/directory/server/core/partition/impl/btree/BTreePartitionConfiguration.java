@@ -79,7 +79,7 @@ public class BTreePartitionConfiguration extends PartitionConfiguration
         newConfig.setContextEntry( config.getContextEntry() );
         newConfig.setPartitionClassName( config.getPartitionClassName() );
         newConfig.setIndexedAttributes( config.getIndexedAttributes() );
-        newConfig.setId( config.getId() );
+        newConfig.setName( config.getName() );
         newConfig.setSuffix( config.getSuffix() );
         return newConfig;
     }

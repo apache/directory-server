@@ -28,7 +28,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -119,10 +118,16 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface Interceptor
 {
     /**
+     * Name that must be unique in an interceptor chain
+     * @return name of this interceptor, must be unique in an interceptor chain.
+     */
+    String getName();
+
+    /**
      * Intializes this interceptor.  This is invoked by {@link InterceptorChain}
      * when this intercepter is loaded into interceptor chain.
      */
-    void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException;
+    void init(DirectoryServiceConfiguration factoryCfg) throws NamingException;
 
 
     /**

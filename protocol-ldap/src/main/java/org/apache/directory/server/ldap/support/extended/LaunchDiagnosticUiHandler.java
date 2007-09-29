@@ -50,7 +50,10 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRespo
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
 
-
+/**
+ * @org.apache.xbean.XBean
+ * 
+ */
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
     public static final Set EXTENSION_OIDS;

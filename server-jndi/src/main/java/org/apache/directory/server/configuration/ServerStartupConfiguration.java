@@ -36,6 +36,8 @@ import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 /**
  * A {@link StartupConfiguration} that starts up ApacheDS with network layer support.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

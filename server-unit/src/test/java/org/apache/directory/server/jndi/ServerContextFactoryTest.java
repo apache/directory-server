@@ -61,7 +61,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         // Add partition 'testing'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "testing" );
+        pcfg.setName( "testing" );
         pcfg.setSuffix( "ou=testing" );
 
         indexedAttrs = new HashSet();
@@ -84,7 +84,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         // Add partition 'example'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
+        pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example" );
 
         indexedAttrs = new HashSet();
@@ -108,7 +108,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         // Add partition 'MixedCase'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "mixedcase" );
+        pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
 
         indexedAttrs = new HashSet();
@@ -287,7 +287,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         // Add partition 'test=testing'
         pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "testing" );
+        pcfg.setName( "testing" );
         
         try
         {

@@ -60,6 +60,8 @@ import org.apache.mina.common.IoSession;
 
 
 /**
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */

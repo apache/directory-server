@@ -38,7 +38,6 @@ import javax.naming.directory.SearchResult;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -83,6 +82,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An ACI based authorization service.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -191,12 +192,11 @@ public class AuthorizationService extends BaseInterceptor
      * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
      *
      * @param factoryCfg the ContextFactory configuration for the server
-     * @param cfg the interceptor configuration
      * @throws NamingException if there are problems during initialization
      */
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
-        super.init( factoryCfg, cfg );
+        super.init( factoryCfg);
         tupleCache = new TupleCache( factoryCfg );
         groupCache = new GroupCache( factoryCfg );
         attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
@@ -423,7 +423,7 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( name, entry );
         NamingEnumeration<? extends Attribute> attrList = entry.getAll();
         
@@ -822,7 +822,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         
@@ -897,7 +897,7 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( StartupConfiguration.SUBENTRY_SERVICE_NAME );
+        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
         Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         

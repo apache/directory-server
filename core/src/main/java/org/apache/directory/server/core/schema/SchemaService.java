@@ -42,7 +42,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -109,6 +108,9 @@ import org.slf4j.LoggerFactory;
  * An {@link org.apache.directory.server.core.interceptor.Interceptor} that manages and enforces schemas.
  *
  * @todo Better interceptor description required.
+
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -149,7 +151,7 @@ public class SchemaService extends BaseInterceptor
      * subschemaSubentry attribute's value from Root DSE
      */
     private LdapDN subschemaSubentryDn;
-    
+
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
 
@@ -159,10 +161,10 @@ public class SchemaService extends BaseInterceptor
     private LdapDN schemaModificationAttributesDN;
 
     private SchemaManager schemaManager;
-    
+
     // the base DN (normalized) of the schema partition
     private LdapDN schemaBaseDN;
-    
+
     /** A map used to store all the objectClasses superiors */
     private Map<String, List<ObjectClass>> superiors;
 
@@ -178,14 +180,11 @@ public class SchemaService extends BaseInterceptor
 
     /**
      * Initialize the Schema Service
-     * 
+     *
      * @param factoryCfg
-     * @param cfg
-     * 
      * @throws NamingException
      */
-    @SuppressWarnings(value={"unchecked"})
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -199,19 +198,19 @@ public class SchemaService extends BaseInterceptor
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
         binaries = ( Set<String> ) factoryCfg.getEnvironment().get( BINARY_KEY );
-        
+
         if ( binaries == null )
         {
             binaries = new HashSet<String>();
         }
-            
-            
+
+
 
         schemaBaseDN = new LdapDN( "ou=schema" );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        
+
         schemaManager = factoryCfg.getSchemaManager();
-        
+
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
@@ -220,7 +219,7 @@ public class SchemaService extends BaseInterceptor
 
         schemaModificationAttributesDN = new LdapDN( "cn=schemaModifications,ou=schema" );
         schemaModificationAttributesDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        
+
         computeSuperiors();
 
         if ( IS_DEBUG )
@@ -229,7 +228,7 @@ public class SchemaService extends BaseInterceptor
         }
     }
 
-    
+
     /**
      * Compute the MUST attributes for an objectClass. This method gather all the
      * MUST from all the objectClass and its superors.
@@ -378,7 +377,7 @@ public class SchemaService extends BaseInterceptor
     }
 
     /**
-     * 
+     *
      */
     public NamingEnumeration<SearchResult> list( NextInterceptor nextInterceptor, ListOperationContext opContext ) throws NamingException
     {
@@ -389,7 +388,7 @@ public class SchemaService extends BaseInterceptor
 
     /**
      * Remove all unknown attributes from the searchControls, to avoid an exception.
-     * 
+     *
      * RFC 2251 states that :
      * " Attributes MUST be named at most once in the list, and are returned "
      * " at most once in an entry. "
@@ -408,16 +407,16 @@ public class SchemaService extends BaseInterceptor
             searchCtls.setReturningAttributes( SchemaConstants.ALL_USER_ATTRIBUTES_ARRAY );
             return;
         }
-        
-        Map<String, String> filteredAttrs = new HashMap<String, String>(); 
+
+        Map<String, String> filteredAttrs = new HashMap<String, String>();
         boolean hasNoAttribute = false;
         boolean hasAttributes = false;
-        
+
         for ( String attribute:attributes )
         {
             // Skip special attributes
-            if ( ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( attribute ) ) || 
-                ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( attribute ) ) || 
+            if ( ( SchemaConstants.ALL_USER_ATTRIBUTES.equals( attribute ) ) ||
+                ( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES.equals( attribute ) ) ||
                 ( SchemaConstants.NO_ATTRIBUTE.equals( attribute ) ) )
             {
                 if ( !filteredAttrs.containsKey( attribute ) )
@@ -433,17 +432,17 @@ public class SchemaService extends BaseInterceptor
                 {
                     hasAttributes = true;
                 }
-                
+
                 continue;
             }
-            
+
             try
             {
             	// Check that the attribute is declared
             	if ( registries.getOidRegistry().hasOid( attribute ) )
             	{
 	                String oid = registries.getOidRegistry().getOid( attribute );
-	                
+
             		// The attribute must be an AttributeType
 	                if ( registries.getAttributeTypeRegistry().hasAttributeType( oid ) )
 	                {
@@ -454,7 +453,7 @@ public class SchemaService extends BaseInterceptor
 		                }
 	                }
             	}
-                
+
                 hasAttributes = true;
             }
             catch ( NamingException ne )
@@ -462,19 +461,19 @@ public class SchemaService extends BaseInterceptor
                 /* Do nothing, the attribute does not exist */
             }
         }
-        
+
         // Treat a special case : if we have an attribute and "1.1", then discard "1.1"
         if ( hasAttributes && hasNoAttribute )
         {
             filteredAttrs.remove( SchemaConstants.NO_ATTRIBUTE );
         }
-        
+
         // If we still have the same attribute number, then we can just get out the method
         if ( filteredAttrs.size() == attributes.length )
         {
             return;
         }
-        
+
         // Deal with the special case where the attribute list is now empty
         if (  filteredAttrs.size() == 0 )
         {
@@ -483,42 +482,42 @@ public class SchemaService extends BaseInterceptor
         	searchCtls.setReturningAttributes( SchemaConstants.NO_ATTRIBUTE_ARRAY );
         	return;
         }
-        
+
         // Some attributes have been removed. let's modify the searchControl
         String[] newAttributesList = new String[filteredAttrs.size()];
-        
+
         int pos = 0;
-        
+
         for ( String key:filteredAttrs.keySet() )
         {
             newAttributesList[pos++] = filteredAttrs.get( key );
         }
-        
+
         searchCtls.setReturningAttributes( newAttributesList );
     }
 
 
     /**
-     * 
+     *
      */
     public NamingEnumeration<SearchResult> search( NextInterceptor nextInterceptor, SearchOperationContext opContext ) throws NamingException
     {
         LdapDN base = opContext.getDn();
         SearchControls searchCtls = opContext.getSearchControls();
         ExprNode filter = opContext.getFilter();
-        
+
         // We have to eliminate bad attributes from the request, accordingly
         // to RFC 2251, chap. 4.5.1. Basically, all unknown attributes are removed
         // from the list
         filterAttributesToReturn( searchCtls );
-        
+
         String baseNormForm = ( base.isNormalized() ? base.getNormName() : base.toNormName() );
 
         // Deal with the normal case : searching for a normal value (not subSchemaSubEntry
         if ( !subschemaSubentryDnNorm.equals( baseNormForm ) )
         {
             NamingEnumeration<SearchResult> result = nextInterceptor.search( opContext );
-            
+
             Invocation invocation = InvocationStack.getInstance().peek();
 
             if ( searchCtls.getReturningAttributes() != null )
@@ -538,10 +537,10 @@ public class SchemaService extends BaseInterceptor
             if ( filter instanceof SimpleNode )
             {
                 // We should get the value for the filter.
-                // only 'top' and 'subSchema' are valid values 
+                // only 'top' and 'subSchema' are valid values
                 SimpleNode node = ( SimpleNode ) filter;
                 String objectClass = null;
-                
+
                 if ( node.getValue() instanceof String )
                 {
                     objectClass = ( String ) node.getValue();
@@ -550,9 +549,9 @@ public class SchemaService extends BaseInterceptor
                 {
                     objectClass = node.getValue().toString();
                 }
-    
+
                 String objectClassOid = null;
-                
+
                 if ( registries.getObjectClassRegistry().hasObjectClass( objectClass ) )
                 {
                     objectClassOid = registries.getObjectClassRegistry().lookup( objectClass ).getOid();
@@ -561,12 +560,12 @@ public class SchemaService extends BaseInterceptor
                 {
                     return new EmptyEnumeration<SearchResult>();
                 }
-                
+
                 String nodeOid = registries.getOidRegistry().getOid( node.getAttribute() );
-                
+
                 // see if node attribute is objectClass
                 if ( nodeOid.equals( SchemaConstants.OBJECT_CLASS_AT_OID )
-                    && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) || 
+                    && ( objectClassOid.equals( SchemaConstants.TOP_OC_OID ) ||
                         objectClassOid.equals( SchemaConstants.SUBSCHEMA_OC_OID ) )
                     && ( node instanceof EqualityNode ) )
                 {
@@ -601,7 +600,7 @@ public class SchemaService extends BaseInterceptor
 
 
     /**
-     * 
+     *
      * @param ids
      * @return
      * @throws NamingException
@@ -636,47 +635,47 @@ public class SchemaService extends BaseInterceptor
                 setOids.add( registries.getOidRegistry().getOid( id ) );
             }
         }
-        
+
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.COMPARATORS_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.COMPARATORS_AT );
             Iterator<ComparatorDescription> list = registries.getComparatorRegistry().comparatorDescriptionIterator();
-            
+
             while ( list.hasNext() )
             {
                 ComparatorDescription description = list.next();
                 attr.add( SchemaUtils.render( description ).toString() );
             }
-            
+
             attrs.put( attr );
         }
-        
+
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.NORMALIZERS_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.NORMALIZERS_AT );
             Iterator<NormalizerDescription> list = registries.getNormalizerRegistry().normalizerDescriptionIterator();
-            
+
             while ( list.hasNext() )
             {
                 NormalizerDescription normalizer = list.next();
                 attr.add( SchemaUtils.render( normalizer ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.SYNTAX_CHECKERS_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.SYNTAX_CHECKERS_AT );
-            Iterator<SyntaxCheckerDescription> list = 
+            Iterator<SyntaxCheckerDescription> list =
                 registries.getSyntaxCheckerRegistry().syntaxCheckerDescriptionIterator();
-            
+
             while ( list.hasNext() )
             {
                 SyntaxCheckerDescription syntaxCheckerDescription = list.next();
                 attr.add( SchemaUtils.render( syntaxCheckerDescription ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -684,13 +683,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.OBJECT_CLASSES_AT );
             Iterator<ObjectClass> list = registries.getObjectClassRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 ObjectClass oc = list.next();
                 attr.add( SchemaUtils.render( oc ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -698,13 +697,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.ATTRIBUTE_TYPES_AT );
             Iterator<AttributeType> list = registries.getAttributeTypeRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 AttributeType at = list.next();
                 attr.add( SchemaUtils.render( at ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -712,13 +711,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.MATCHING_RULES_AT );
             Iterator<MatchingRule> list = registries.getMatchingRuleRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 MatchingRule mr = list.next();
                 attr.add( SchemaUtils.render( mr ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -726,13 +725,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.MATCHING_RULE_USE_AT );
             Iterator list = registries.getMatchingRuleUseRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 MatchingRuleUse mru = ( MatchingRuleUse ) list.next();
                 attr.add( SchemaUtils.render( mru ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -740,13 +739,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.LDAP_SYNTAXES_AT );
             Iterator<Syntax> list = registries.getSyntaxRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 Syntax syntax = list.next();
                 attr.add( SchemaUtils.render( syntax ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -754,13 +753,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.DIT_CONTENT_RULES_AT );
             Iterator<DITContentRule> list = registries.getDitContentRuleRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 DITContentRule dcr = list.next();
                 attr.add( SchemaUtils.render( dcr ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -768,13 +767,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.DIT_STRUCTURE_RULES_AT );
             Iterator list = registries.getDitStructureRuleRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 DITStructureRule dsr = ( DITStructureRule ) list.next();
                 attr.add( SchemaUtils.render( dsr ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -782,13 +781,13 @@ public class SchemaService extends BaseInterceptor
         {
             attr = new AttributeImpl( SchemaConstants.NAME_FORMS_AT );
             Iterator list = registries.getNameFormRegistry().iterator();
-            
+
             while ( list.hasNext() )
             {
                 NameForm nf = ( NameForm ) list.next();
                 attr.add( SchemaUtils.render( nf ).toString() );
             }
-            
+
             attrs.put( attr );
         }
 
@@ -797,27 +796,27 @@ public class SchemaService extends BaseInterceptor
             attr = new AttributeImpl( SchemaConstants.SUBTREE_SPECIFICATION_AT, "{}" );
             attrs.put( attr );
         }
-        
+
         int minSetSize = 0;
-        
+
         if ( setOids.contains( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
         {
             minSetSize++;
         }
-        
+
         if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) )
         {
             minSetSize++;
         }
-        
+
         if ( setOids.contains( SchemaConstants.REF_AT_OID ) )
         {
             minSetSize++;
         }
 
         // add the objectClass attribute
-        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
-             setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) || 
+        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
+             setOids.contains( SchemaConstants.OBJECT_CLASS_AT_OID ) ||
              setOids.size() == minSetSize )
         {
             attr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
@@ -829,22 +828,22 @@ public class SchemaService extends BaseInterceptor
         }
 
         // add the cn attribute as required for the RDN
-        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) || 
-             setOids.contains( SchemaConstants.CN_AT_OID ) || 
+        if ( setOids.contains( SchemaConstants.ALL_USER_ATTRIBUTES ) ||
+             setOids.contains( SchemaConstants.CN_AT_OID ) ||
              setOids.size() == minSetSize )
         {
             attrs.put( SchemaConstants.CN_AT, "schema" );
         }
 
         // -------------------------------------------------------------------
-        // set operational attributes for the subentry 
+        // set operational attributes for the subentry
         // -------------------------------------------------------------------
 
-        // look up cn=schemaModifications,ou=schema and get values for the 
+        // look up cn=schemaModifications,ou=schema and get values for the
         // modifiers and creators operational information
 
         Attributes modificationAttributes = nexus.lookup( new LookupOperationContext( schemaModificationAttributesDN ) );
-        
+
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.CREATE_TIMESTAMP_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
@@ -861,13 +860,13 @@ public class SchemaService extends BaseInterceptor
             attr.add( PartitionNexus.ADMIN_PRINCIPAL );
             attrs.put( attr );
         }
-        
+
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MODIFY_TIMESTAMP_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
             AttributeType schemaModifyTimestampAT = registries.
                 getAttributeTypeRegistry().lookup( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT );
-            Attribute schemaModifyTimestamp = 
+            Attribute schemaModifyTimestamp =
                 AttributeUtils.getAttribute( modificationAttributes, schemaModifyTimestampAT );
             attr.add( schemaModifyTimestamp.get() );
             attrs.put( attr );

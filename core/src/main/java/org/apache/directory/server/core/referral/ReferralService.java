@@ -38,11 +38,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authz.AuthorizationService;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
+import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
@@ -59,9 +61,14 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -87,6 +94,8 @@ import org.slf4j.LoggerFactory;
  * referral handling behavoir when the {@link Context.REFERRAL} is implicitly
  * or explicitly set to "ignore", when set to "throw" and when set to "follow". 
  * 
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
@@ -113,16 +122,18 @@ public class ReferralService extends BaseInterceptor
          * partitions of the system during startup and during add/remove partition ops
          */
         Collection<String> c = new HashSet<String>();
-        c.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
-        c.add( StartupConfiguration.SUBENTRY_SERVICE_NAME );
-        c.add( StartupConfiguration.OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
-        c.add( StartupConfiguration.REFERRAL_SERVICE_NAME );
-        c.add( StartupConfiguration.EVENT_SERVICE_NAME );
-        c.add( StartupConfiguration.TRIGGER_SERVICE_NAME );
+        c.add( NormalizationService.class.getName() );
+        c.add( AuthenticationService.class.getName() );
+        c.add( ReferralService.class.getName() );
+        c.add( AuthorizationService.class.getName() );
+        c.add( DefaultAuthorizationService.class.getName() );
+//        c.add( ExceptionService.class.getName() );
+        c.add( OperationalAttributeService.class.getName() );
+        c.add( SchemaService.class.getName() );
+        c.add( SubentryService.class.getName() );
+//        c.add( CollectiveAttributeService.class.getName() );
+        c.add( EventService.class.getName() );
+        c.add( TriggerService.class.getName() );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -269,7 +280,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void init( DirectoryServiceConfiguration dsConfig, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration dsConfig) throws NamingException
     {
         nexus = dsConfig.getPartitionNexus();
         attrRegistry = dsConfig.getRegistries().getAttributeTypeRegistry();

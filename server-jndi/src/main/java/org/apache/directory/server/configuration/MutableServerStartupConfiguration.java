@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
-import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
+import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
@@ -38,6 +38,8 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 
 /**
  * A mutable version of {@link ServerStartupConfiguration}.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -83,13 +85,13 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     {
         super.setMaxTimeLimit( maxTimeLimit );
     }
-    
-    
+
+
     public void setMaxSizeLimit( int maxSizeLimit )
     {
         super.setMaxSizeLimit( maxSizeLimit );
     }
-    
+
 
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
@@ -115,28 +117,44 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
         super.setDenormalizeOpAttrsEnabled( denormalizeOpAttrsEnabled );
     }
 
-
-    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> arg0 )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.AuthenticatorConfiguration"
+     *
+     * @param authenticatorConfigurations
+     */
+    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticatorConfigurations )
     {
-        super.setAuthenticatorConfigurations( arg0 );
+        super.setAuthenticatorConfigurations( authenticatorConfigurations );
     }
 
-
-    public void setPartitionConfigurations( Set<? extends PartitionConfiguration> arg0 )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.PartitionConfiguration"
+     *
+     * @param partitionConfigurations
+     */
+    public void setPartitionConfigurations( Set<? extends PartitionConfiguration> partitionConfigurations )
     {
-        super.setPartitionConfigurations( arg0 );
+        super.setPartitionConfigurations( partitionConfigurations );
     }
 
-
-    public void setInterceptorConfigurations( List<InterceptorConfiguration> arg0 )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.InterceptorConfiguration"
+     *
+     * @param interceptors
+     */
+    public void setInterceptors( List<Interceptor> interceptors )
     {
-        super.setInterceptorConfigurations( arg0 );
+        super.setInterceptors( interceptors );
     }
 
-
-    public void setTestEntries( List<Entry> arg0 )
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
+     *
+     * @param entries
+     */
+    public void setTestEntries( List<? extends Entry> entries )
     {
-        super.setTestEntries( arg0 );
+        super.setTestEntries( entries );
     }
 
 
@@ -151,7 +169,11 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
         super.setLdifDirectory( ldifDirectory );
     }
 
-
+    /**
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.protocol.shared.store.LdifLoadFilter"
+     *
+     * @param ldifFilters
+     */
     public void setLdifFilters( List<LdifLoadFilter> ldifFilters )
     {
         super.setLdifFilters( ldifFilters );

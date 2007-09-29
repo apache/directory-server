@@ -42,9 +42,9 @@ public class MutablePartitionConfiguration extends PartitionConfiguration
     }
 
 
-    public void setId( String id )
+    public void setName( String id )
     {
-        super.setId( id );
+        super.setName( id );
     }
 
 

@@ -37,7 +37,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -73,6 +72,8 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  * of entries. There are four default attributes for now;
  * <tt>'creatorsName'</tt>, <tt>'createTimestamp'</tt>, <tt>'modifiersName'</tt>,
  * and <tt>'modifyTimestamp'</tt>.
+ *
+ * @org.apache.xbean.XBean
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -132,7 +133,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
     {
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getRegistries().getAttributeTypeRegistry();

@@ -98,7 +98,7 @@ public abstract class BTreePartition implements Partition
     
     public String getId()
     {
-        return cfg.getId();
+        return cfg.getName();
     }
     
     

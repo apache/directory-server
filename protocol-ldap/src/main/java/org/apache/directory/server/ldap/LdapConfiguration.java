@@ -34,7 +34,9 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 
 /**
  * Contains the configuration parameters for the LDAP protocol provider.
- * 
+ *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -273,6 +275,8 @@ public class LdapConfiguration extends ServiceConfiguration
     /**
      * Sets the {@link ExtendedOperationHandler}s.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.ldap.ExtendedOperationHandler"
+     *
      * @param handlers A collection of {@link ExtendedOperationHandler}s.
      */
     public void setExtendedOperationHandlers( Collection<ExtendedOperationHandler> handlers )
@@ -340,7 +344,7 @@ public class LdapConfiguration extends ServiceConfiguration
      * 
      * @return The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      */
-    public List getSaslQop()
+    public List<String> getSaslQop()
     {
         return saslQop;
     }
@@ -349,6 +353,8 @@ public class LdapConfiguration extends ServiceConfiguration
     /**
      * Sets the desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      * 
+     * @org.apache.xbean.Property nestedType="java.lang.String"
+     *
      * @param saslQop The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      */
     public void setSaslQop( List<String> saslQop )
@@ -371,6 +377,8 @@ public class LdapConfiguration extends ServiceConfiguration
     /**
      * Sets the realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      * 
+     * @org.apache.xbean.Property nestedType="java.lang.String"
+     *
      * @param saslRealms The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      */
     public void setSaslRealms( List<String> saslRealms )
@@ -393,6 +401,8 @@ public class LdapConfiguration extends ServiceConfiguration
     /**
      * Sets the list of supported authentication mechanisms.
      * 
+     * @org.apache.xbean.Property propertyEditor="ListEditor" nestedType="java.lang.String"
+     *
      * @param supportedMechanisms The list of supported authentication mechanisms.
      */
     public void setSupportedMechanisms( Set<String> supportedMechanisms )

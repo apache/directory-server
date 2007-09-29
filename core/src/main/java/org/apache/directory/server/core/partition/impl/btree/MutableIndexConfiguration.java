@@ -23,6 +23,8 @@ package org.apache.directory.server.core.partition.impl.btree;
 /**
  * A mutable version of {@link IndexConfiguration}.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

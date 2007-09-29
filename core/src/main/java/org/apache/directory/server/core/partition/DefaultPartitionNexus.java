@@ -323,9 +323,9 @@ public class DefaultPartitionNexus extends PartitionNexus
             // check a few things to make sure users configured it properly
             // ---------------------------------------------------------------
 
-            if ( ! systemCfg.getId().equals( "system" ) ) 
+            if ( ! systemCfg.getName().equals( "system" ) ) 
             {
-                throw new ConfigurationException( "System partition has wrong name: should be 'system'." );
+                throw new ConfigurationException( "System partition has wrong name: should be 'system' not '" + systemCfg.getName() + "'." );
             }
             
             // add all attribute oids of index configs to a hashset
@@ -384,7 +384,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         else
         {
             systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setId( "system" );
+            systemCfg.setName( "system" );
             
             // @TODO need to make this configurable for the system partition
             systemCfg.setCacheSize( 500 );

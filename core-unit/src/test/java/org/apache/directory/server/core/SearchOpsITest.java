@@ -67,7 +67,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
         if ( getName().indexOf( "WithIndices" ) != -1 )
         {
             MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
-            sysConf.setId( "system" );
+            sysConf.setName( "system" );
             Attributes attrs = new AttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
             attrs.put( "ou", "system" );

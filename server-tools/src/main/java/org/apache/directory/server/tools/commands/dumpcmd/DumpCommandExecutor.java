@@ -207,7 +207,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         }
         
         MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
-        schemaPartitionConfig.setId( "schema" );
+        schemaPartitionConfig.setName( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
         DbFileListing listing = null;

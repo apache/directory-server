@@ -25,7 +25,9 @@ import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 /**
  * Contains the configuration parameters for the DNS protocol provider.
- * 
+ *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */

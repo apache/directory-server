@@ -72,15 +72,12 @@ public class TriggerSpecCache
     /** the logger for this class */
     private static final Logger log = LoggerFactory.getLogger( TriggerSpecCache.class );
 
-    /** cloned startup environment properties we use for subentry searching */
-    private final Hashtable env;
     /** a map of strings to TriggerSpecification collections */
     private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     /** a normalizing TriggerSpecification parser */
     private final TriggerSpecificationParser triggerSpecParser;
-    private AttributeTypeRegistry attrRegistry;
 
 
     /**
@@ -91,7 +88,6 @@ public class TriggerSpecCache
     public TriggerSpecCache( DirectoryServiceConfiguration dirServCfg ) throws NamingException
     {
         this.nexus = dirServCfg.getPartitionNexus();
-        attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         final AttributeTypeRegistry registry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
@@ -100,12 +96,12 @@ public class TriggerSpecCache
                     return registry.getNormalizerMapping();
                 }
             });
-        env = ( Hashtable ) dirServCfg.getEnvironment().clone();
-        initialize();
+        Hashtable env = ( Hashtable ) dirServCfg.getEnvironment().clone();
+        initialize(registry, env);
     }
 
 
-    private void initialize() throws NamingException
+    private void initialize(AttributeTypeRegistry registry, Hashtable env) throws NamingException
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -136,7 +132,7 @@ public class TriggerSpecCache
                 }
 
                 LdapDN normSubentryName = new LdapDN( subentryDn );
-                normSubentryName.normalize( attrRegistry.getNormalizerMapping() );
+                normSubentryName.normalize( registry.getNormalizerMapping() );
                 subentryAdded( normSubentryName, result.getAttributes() );
             }
             

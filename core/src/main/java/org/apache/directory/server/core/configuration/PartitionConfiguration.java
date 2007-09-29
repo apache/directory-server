@@ -47,7 +47,7 @@ public class PartitionConfiguration
         "org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition";
     public static final int DEFAULT_CACHE_SIZE = 10000;
 
-    private String id;
+    private String name;
     private int cacheSize = -1;
     private String suffix;
     private Set<Object> indexedAttributes; // Set<String> or <IndexConfiguration>
@@ -68,9 +68,9 @@ public class PartitionConfiguration
      * Returns user-defined name of the {@link Partition} that
      * this configuration configures.
      */
-    public String getId()
+    public String getName()
     {
-        return id;
+        return name;
     }
 
 
@@ -78,10 +78,10 @@ public class PartitionConfiguration
      * Sets user-defined name of the {@link Partition} that
      * this configuration configures.
      */
-    protected void setId( String id )
+    protected void setName( String name)
     {
-        id = id.trim();
-        this.id = id;
+        name = name.trim();
+        this.name = name;
     }
 
 
@@ -191,7 +191,7 @@ public class PartitionConfiguration
      */
     public void validate()
     {
-        if ( getId() == null || getId().length() == 0 )
+        if ( getName() == null || getName().length() == 0 )
         {
             throw new ConfigurationException( "Name is not specified." );
         }
