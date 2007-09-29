@@ -164,6 +164,16 @@ public class SubstringNode extends LeafNode
 
 
     /**
+     * Add an any pattern
+     * @param anyPattern The any pattern
+     */
+    public void addAny( String anyPattern ) 
+    {
+        this.anyPattern.add( anyPattern );
+    }
+
+
+    /**
      * Gets the compiled regular expression for the substring expression.
      * 
      * @return the equivalent compiled regular expression

@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
@@ -353,7 +353,7 @@ public class SubtreeSpecificationParserTest extends TestCase
     {
         SubtreeSpecification ss = parser.parse( SPEC_WITH_FILTER );
 
-        ExprNode filter = new FilterParserImpl().parse( "(&(cn=test)(sn=test))" );
+        ExprNode filter = FilterParser.parse( "(&(cn=test)(sn=test))" );
 
         assertEquals( filter, ss.getRefinement() );
     }

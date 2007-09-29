@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.filter;
 
 import org.apache.directory.shared.ldap.filter.BranchNormalizedVisitor;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 
 import junit.framework.TestCase;
 
@@ -37,13 +36,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 {
     public void testBranchNormalizedVisitor0() throws Exception
     {
-        FilterParserImpl parser = new FilterParserImpl();
+        String filter = "(ou=Human Resources)";
 
-        String filter = "( ou = Human Resources )";
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode ori = parser.parse( filter );
-
-        ExprNode altered = parser.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -55,13 +52,11 @@ public class BranchNormalizedVisitorTest extends TestCase
 
     public void testBranchNormalizedVisitor1() throws Exception
     {
-        FilterParserImpl parser = new FilterParserImpl();
+        String filter = "(&(ou=Human Resources)(uid=akarasulu))";
 
-        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) )";
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode ori = parser.parse( filter );
-
-        ExprNode altered = parser.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -73,15 +68,13 @@ public class BranchNormalizedVisitorTest extends TestCase
 
     public void testBranchNormalizedVisitor2() throws Exception
     {
-        FilterParserImpl parser = new FilterParserImpl();
+        String filter = "(&(uid=akarasulu)(ou=Human Resources)";
 
-        String filter = "( & ( uid = akarasulu ) ( ou = Human Resources ) ";
+        filter += "(|(uid=akarasulu)(ou=Human Resources))) ";
 
-        filter += "(| ( uid = akarasulu ) ( ou = Human Resources ) ) ) ";
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode ori = parser.parse( filter );
-
-        ExprNode altered = parser.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -93,15 +86,13 @@ public class BranchNormalizedVisitorTest extends TestCase
 
     public void testBranchNormalizedVisitor3() throws Exception
     {
-        FilterParserImpl parser = new FilterParserImpl();
+        String filter = "(&(ou=Human Resources)(uid=akarasulu)";
 
-        String filter = "( & ( ou = Human Resources ) ( uid = akarasulu ) ";
+        filter += "(|(ou=Human Resources)(uid=akarasulu)))";
 
-        filter += "(| ( ou = Human Resources ) ( uid = akarasulu ) ) ) ";
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode ori = parser.parse( filter );
-
-        ExprNode altered = parser.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -113,9 +104,9 @@ public class BranchNormalizedVisitorTest extends TestCase
 
     public void testBranchNormalizedComplex() throws Exception
     {
-        String filter1 = "( & ( a = A ) ( | ( b = B ) ( c = C ) ) )";
+        String filter1 = "(&(a=A)(|(b=B)(c=C)))";
 
-        String filter2 = "( & ( a = A ) ( | ( c = C ) ( b = B ) ) )";
+        String filter2 = "(&(a=A)(|(c=C)(b=B)))";
 
         String normalizedFilter1 = BranchNormalizedVisitor.getNormalizedFilter( filter1 );
 

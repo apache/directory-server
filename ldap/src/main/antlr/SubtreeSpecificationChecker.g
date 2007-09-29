@@ -24,7 +24,7 @@ header
 package org.apache.directory.shared.ldap.subtree;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 
@@ -67,8 +67,6 @@ options
     
     private ComponentsMonitor subtreeSpecificationComponentsMonitor = null;
     
-    private final FilterParserImpl filterParser = new FilterParserImpl();
-
     /**
      * Does nothing.
      */
@@ -241,7 +239,7 @@ filter
 	log.debug( "entered filter()" );
 }
 	:
-	( filterToken:FILTER { filterParser.parse( filterToken.getText() ); } )
+	( filterToken:FILTER { FilterParser.parse( filterToken.getText() ); } )
 	;
 	exception
     catch [Exception e]

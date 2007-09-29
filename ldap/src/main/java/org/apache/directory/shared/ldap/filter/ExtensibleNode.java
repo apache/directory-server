@@ -32,14 +32,24 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class ExtensibleNode extends LeafNode
 {
     /** The value of the attribute to match for */
-    private final byte[] value;
+    private byte[] value;
 
     /** The matching rules id */
-    private final String matchingRuleId;
+    private String matchingRuleId;
 
     /** The name of the dn attributes */
     private boolean dnAttributes = false;
 
+
+    /**
+     * Creates a new emptyExtensibleNode object.
+     */
+    public ExtensibleNode( String attribute )
+    {
+        super( attribute );
+        
+        dnAttributes = false;
+    }
 
     /**
      * Creates a new ExtensibleNode object.
@@ -63,7 +73,7 @@ public class ExtensibleNode extends LeafNode
      * @param matchingRuleId the OID of the matching rule
      * @param dnAttributes the dn attributes
      */
-    public ExtensibleNode(String attribute, byte[] value, String matchingRuleId, boolean dnAttributes)
+    public ExtensibleNode( String attribute, byte[] value, String matchingRuleId, boolean dnAttributes )
     {
         super( attribute );
 
@@ -78,9 +88,20 @@ public class ExtensibleNode extends LeafNode
      * 
      * @return the dn attributes
      */
-    public boolean dnAttributes()
+    public boolean hasDnAttributes()
     {
         return dnAttributes;
+    }
+    
+    
+    /**
+     * Set the dnAttributes flag
+     *
+     * @param dnAttributes The flag to set
+     */
+    public void setDnAttributes( boolean dnAttributes )
+    {
+        this.dnAttributes = dnAttributes;
     }
 
 
@@ -96,6 +117,15 @@ public class ExtensibleNode extends LeafNode
 
 
     /**
+     * Sets the matching rule id as an OID string.
+     */
+    public void setMatchingRuleId( String matchingRuleId )
+    {
+        this.matchingRuleId = matchingRuleId;
+    }
+
+
+    /**
      * Gets the value.
      * 
      * @return the value
@@ -106,6 +136,15 @@ public class ExtensibleNode extends LeafNode
     }
 
 
+    /**
+     * Sets the value.
+     */
+    public final void setValue( String value)
+    {
+        this.value = StringTools.getBytesUtf8( value );
+    }
+
+    
     /**
      * @see ExprNode#printRefinementToBuffer(StringBuilder)
      */

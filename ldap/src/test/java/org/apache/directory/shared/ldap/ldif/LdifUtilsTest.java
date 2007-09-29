@@ -20,7 +20,9 @@
 package org.apache.directory.shared.ldap.ldif;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
 import junit.framework.TestCase;
@@ -241,5 +243,37 @@ public class LdifUtilsTest extends TestCase
         Attributes attributes = new BasicAttributes( "cn", "Saarbr\u00FCcken" );
         String ldif = LdifUtils.convertToLdif( attributes );
         assertEquals( "cn:: U2FhcmJyw7xja2Vu\n", ldif );
+    }
+    
+    public void testConvertEntryToLdif() throws NamingException
+    {
+        String expected = 
+            "dn:: Y249U2Fhcm\n" +
+            " Jyw7xja2VuLCBk\n" +
+            " Yz1leGFtcGxlLC\n" +
+            " BkYz1jb20=\n" +
+            "changeType: Add\n" +
+            "sn: test\n" +
+            "cn:: U2FhcmJyw7\n xja2Vu\n" +
+            "objectClass: to\n p\n" +
+            "objectClass: pe\n rson\n" +
+            "objectClass: in\n etorgPerson\n\n";
+        
+        Entry entry = new Entry();
+        entry.setDn( "cn=Saarbr\u00FCcken, dc=example, dc=com" );
+        entry.setChangeType( ChangeType.Add );
+        
+        Attribute oc = new BasicAttribute( "objectClass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        oc.add( "inetorgPerson" );
+        
+        entry.addAttribute( oc );
+        
+        entry.addAttribute( "cn", "Saarbr\u00FCcken" );
+        entry.addAttribute( "sn", "test" );
+
+        String ldif = LdifUtils.convertToLdif( entry, 15 );
+        assertEquals( expected, ldif );
     }
 }

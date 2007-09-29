@@ -186,6 +186,27 @@ public class StringTools
             true,  true,  true,  false, false, false, false, false 
         };
 
+    /** %01-%27 %2B-%5B %5D-%7F */
+    private static final boolean[] UNICODE_SUBSET =
+        { 
+            false, true,  true,  true,  true,  true,  true,  true, // '\0'
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,
+            false, false, false, false, true,  true,  true,  true, // '(', ')', '*'
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true,  
+            true,  true,  true,  true,  false, true,  true,  true, // '\'
+            true,  true,  true,  true,  true,  true,  true,  true,
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true, 
+            true,  true,  true,  true,  true,  true,  true,  true,
+        };
+
     /** '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' */
     private static final boolean[] DIGIT =
         { 
@@ -1909,7 +1930,7 @@ public class StringTools
      */
     public static final boolean isAlpha( byte c )
     {
-        return ( ( c > 127 ) || ( ALPHA[c] == false ) );
+        return ( ( c > 0 ) && ( c <= 127 ) && ALPHA[c] );
     }
 
     /**
@@ -1923,7 +1944,7 @@ public class StringTools
      */
     public static final boolean isAlpha( char c )
     {
-        return ( ( c > 127 ) || ( ALPHA[c] == false ) );
+        return ( ( c > 0 ) && ( c <= 127 ) && ALPHA[c] );
     }
 
 
@@ -3408,4 +3429,36 @@ public class StringTools
         return true;
     }
 
+    /**
+     * Check if the current char is in the unicodeSubset : all chars but
+     * '\0', '(', ')', '*' and '\'
+     *
+     * @param str The string to check
+     * @param pos Position of the current char
+     * @return True if the current char is in the unicode subset
+     */
+    public static boolean isUnicodeSubset( String str, int pos )
+    {
+        if ( ( str == null ) || ( str.length() <= pos ) || ( pos < 0 ) ) 
+        {
+            return false;
+        }
+        
+        char c = str.charAt( pos );
+        
+        return ( ( c > 127 ) || UNICODE_SUBSET[c] );
+        
+    }
+
+    /**
+     * Check if the current char is in the unicodeSubset : all chars but
+     * '\0', '(', ')', '*' and '\'
+     *
+     * @param c The char to check
+     * @return True if the current char is in the unicode subset
+     */
+    public static boolean isUnicodeSubset( char c )
+    {
+        return ( ( c > 127 ) || UNICODE_SUBSET[c] );
+    }
 }

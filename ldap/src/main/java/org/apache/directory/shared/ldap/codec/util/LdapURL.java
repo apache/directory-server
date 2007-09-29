@@ -21,12 +21,11 @@ package org.apache.directory.shared.ldap.codec.util;
 
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import java.text.ParseException;
@@ -71,9 +70,6 @@ public class LdapURL
 
     /** A null LdapURL */
     public static final LdapURL EMPTY_URL = new LdapURL();
-
-    /** The filter parser */
-    private static FilterParserImpl filterParser = new FilterParserImpl();
 
     // ~ Instance fields
     // ----------------------------------------------------------------------------
@@ -898,16 +894,18 @@ public class LdapURL
             end++;
         }
 
+        if ( end == pos )
+        {
+            // We have no filter
+            return end;
+        }
+        
         try
         {
             filter = decode( new String( chars, pos, end - pos ) );
-            filterParser.parse( filter );
+            FilterParser.parse( filter );
         }
         catch ( URIException ue )
-        {
-            return -1;
-        }
-        catch ( IOException ioe )
         {
             return -1;
         }
