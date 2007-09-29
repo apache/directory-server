@@ -239,7 +239,7 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Returns <tt>true</tt> if access control checks are enbaled.
+     * Returns <tt>true</tt> if access control checks are enabled.
      */
     public boolean isAccessControlEnabled()
     {
