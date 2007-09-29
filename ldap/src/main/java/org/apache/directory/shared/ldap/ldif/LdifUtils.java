@@ -45,10 +45,12 @@ public class LdifUtils
     static
     {
     	// Initialization of the array that will be used to match the first char.
-    	for (int i = 0; i < 128; i++) {
+    	for (int i = 0; i < 128; i++) 
+        {
     		LDIF_SAFE_STARTING_CHAR_ALPHABET[i] = true;
 		}
-    	LDIF_SAFE_STARTING_CHAR_ALPHABET[0] = false; // 0 (NUL)
+    	
+        LDIF_SAFE_STARTING_CHAR_ALPHABET[0] = false; // 0 (NUL)
     	LDIF_SAFE_STARTING_CHAR_ALPHABET[10] = false; // 10 (LF)
     	LDIF_SAFE_STARTING_CHAR_ALPHABET[13] = false; // 13 (CR)
     	LDIF_SAFE_STARTING_CHAR_ALPHABET[32] = false; // 32 (SPACE)
@@ -56,10 +58,12 @@ public class LdifUtils
     	LDIF_SAFE_STARTING_CHAR_ALPHABET[60] = false; // 60 (>)
     	
     	// Initialization of the array that will be used to match the other chars.
-    	for (int i = 0; i < 128; i++) {
+    	for (int i = 0; i < 128; i++) 
+        {
     		LDIF_SAFE_OTHER_CHARS_ALPHABET[i] = true;
 		}
-    	LDIF_SAFE_OTHER_CHARS_ALPHABET[0] = false; // 0 (NUL)
+    	
+        LDIF_SAFE_OTHER_CHARS_ALPHABET[0] = false; // 0 (NUL)
     	LDIF_SAFE_OTHER_CHARS_ALPHABET[10] = false; // 10 (LF)
     	LDIF_SAFE_OTHER_CHARS_ALPHABET[13] = false; // 13 (CR)
     }
@@ -94,7 +98,8 @@ public class LdifUtils
     {
     	// Checking the first char
     	char currentChar = str.charAt(0);
-    	if ( currentChar > 127 || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
+        
+    	if ( ( currentChar > 127 ) || !LDIF_SAFE_STARTING_CHAR_ALPHABET[currentChar] )
     	{
     		return false;
     	}
@@ -104,7 +109,7 @@ public class LdifUtils
     	{
         	currentChar = str.charAt(i);
         	
-        	if ( currentChar > 127 || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
+        	if ( ( currentChar > 127 ) || !LDIF_SAFE_OTHER_CHARS_ALPHABET[currentChar] )
         	{
         		return false;
         	}
@@ -117,20 +122,36 @@ public class LdifUtils
     /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
+     * @param length the expectend line length
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
     public static String convertToLdif( Attributes attrs ) throws NamingException
     {
-		StringBuffer sb = new StringBuffer();
+        return convertToLdif( attrs, 80 );
+    }
+    
+    
+    /**
+     * Convert an Attributes as LDIF
+     * @param attrs the Attributes to convert
+     * @param length the expectend line length
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Attributes attrs, int length ) throws NamingException
+    {
+		StringBuilder sb = new StringBuilder();
 		
 		NamingEnumeration ne = attrs.getAll();
 		
 		while ( ne.hasMore() )
 		{
 			Object attribute = ne.next();
-			if (attribute instanceof Attribute) {
-				sb.append( convertToLdif( (Attribute) attribute ) );
+            
+			if ( attribute instanceof Attribute ) 
+            {
+				sb.append( convertToLdif( (Attribute) attribute, length ) );
 			}			
 		}
 		
@@ -138,23 +159,96 @@ public class LdifUtils
 	}
     
     /**
+     * Convert an Entry to LDIF
+     * @param entry the entry to convert
+     * @return the corresponding LDIF as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Entry entry ) throws NamingException
+    {
+        return convertToLdif( entry, 80 );
+    }
+    
+    /**
+     * Convert an Entry to LDIF
+     * @param entry the entry to convert
+     * @return the corresponding LDIF as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+    public static String convertToLdif( Entry entry, int length ) throws NamingException
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        // First, dump the DN
+        if ( isLDIFSafe( entry.getDn() ) )
+        {
+            sb.append( stripLineToNChars( "dn: " + entry.getDn(), length ) );
+        }
+        else
+        {
+            sb.append( stripLineToNChars( "dn:: " + encodeBase64( entry.getDn() ), length ) );
+        }
+        
+        sb.append( '\n' );
+        
+        // Dump the ChangeType
+        sb.append( stripLineToNChars( "changeType: " + entry.getChangeType(), length ) );
+        
+        sb.append( '\n' );
+
+        // Now, iterate through all the attributes
+        NamingEnumeration ne = entry.getAttributes().getAll();;
+        
+        while ( ne.hasMore() )
+        {
+            Attribute attribute = (Attribute)ne.next();
+            
+            sb.append( convertToLdif( (Attribute) attribute, length ) );
+        }
+        
+        sb.append( '\n' );
+        
+        return sb.toString();
+    }
+    
+    /**
+     * Base64 encode a String  
+     */
+    private static String encodeBase64( String str )
+    {
+        char[] encoded;
+        
+        try
+        {
+            // force encoding using UTF-8 charset, as required in RFC2849 note 7
+            encoded = Base64.encode( ( ( String ) str ).getBytes( "UTF-8" ) );
+        }
+        catch ( UnsupportedEncodingException e )
+        {
+            encoded = Base64.encode( ( ( String ) str ).getBytes() );
+        }
+        
+        return new String( encoded );
+    }
+
+    /**
      * Converts an Attribute as LDIF
      * @param attr the Attribute to convert
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-	private static String convertToLdif(Attribute attr) throws NamingException
+	private static String convertToLdif( Attribute attr, int length ) throws NamingException
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		// iterating on the attribute's values
 		for ( int i = 0; i < attr.size(); i++ )
         {
-			StringBuffer lineBuffer = new StringBuffer();
+			StringBuilder lineBuffer = new StringBuilder();
 			
-			lineBuffer.append( attr.getID() );
+            lineBuffer.append( attr.getID() );
 			
-			Object value = attr.get(i);
+			Object value = attr.get( i );
             
             // Checking if the value is binary
             if ( value instanceof byte[] )
@@ -168,20 +262,10 @@ public class LdifUtils
             {
             	// It's a String but, we have to check if encoding isn't required
             	String str = (String) value;
+                
             	if ( !LdifUtils.isLDIFSafe( str ) )
             	{
-            		char[] encoded;
-                    try
-                    {
-                        // force encoding using UTF-8 charset, as required in RFC2849 note 7
-                        encoded = Base64.encode( ( ( String ) value ).getBytes( "UTF-8" ) );
-                    }
-                    catch ( UnsupportedEncodingException e )
-                    {
-                        encoded = Base64.encode( ( ( String ) value ).getBytes() );
-                    }
-
-                    lineBuffer.append( ":: " + new String( encoded ) );
+                    lineBuffer.append( ":: " + encodeBase64( (String)value ) );
             	}
             	else
             	{
@@ -190,7 +274,7 @@ public class LdifUtils
             }
             
             lineBuffer.append( "\n" );
-            sb.append( stripLineToNChars(lineBuffer.toString(), 80));
+            sb.append( stripLineToNChars( lineBuffer.toString(), length ) );
         }
 		
 		return sb.toString();

@@ -922,6 +922,7 @@ public class RdnParser
 
         pos.end = pos.start;
         pos.length = 0;
+        
         if ( ( type = parseAttributeType( dn, pos ) ) == null )
         {
             return DNUtils.PARSING_ERROR;

@@ -20,12 +20,15 @@
 package org.apache.directory.shared.ldap.util;
 
 
+import java.text.ParseException;
 import java.util.Arrays;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 import javax.naming.directory.Attribute;
@@ -333,7 +336,18 @@ public class AttributeUtils
             return true;
         }
         
-        Normalizer normalizer = type.getEquality().getNormalizer();
+        MatchingRule matchingRule = type.getEquality();
+        
+        Normalizer normalizer = null;
+        
+        if ( matchingRule != null )
+        {
+            normalizer = type.getEquality().getNormalizer();
+        }
+        else
+        {
+            normalizer = new NoOpNormalizer();
+        }
 
         if ( type.getSyntax().isHumanReadable() )
         {
@@ -352,15 +366,77 @@ public class AttributeUtils
         }
         else
         {
-            byte[] comparedBytes = ( byte[] ) compared;
+            byte[] comparedBytes = null;
+            
+            if ( compared instanceof String )
+            {
+                if ( ((String)compared).length() < 3 )
+                {
+                    return false;
+                }
+                
+                // Tansform the String to a byte array
+                int state = 1;
+                comparedBytes = new byte[((String)compared).length()/3];
+                int pos = 0;
+                
+                for ( char c:((String)compared).toCharArray() )
+                {
+                    switch ( state )
+                    {
+                        case 1 :
+                            if ( c != '\\' )
+                            {
+                                return false;
+                            }
+
+                            state++;
+                            break;
+                            
+                        case 2 :
+                            int high = StringTools.getHexValue( c );
+                            
+                            if ( high == -1 )
+                            {
+                                return false;
+                            }
+                            
+                            comparedBytes[pos] = (byte)(high << 4);
+                            
+                            state++;
+                            break;
+                            
+                        case 3 :
+                            int low = StringTools.getHexValue( c );
+                            
+                            if ( low == -1 )
+                            {
+                                return false;
+                            }
+                            
+                            comparedBytes[pos] += (byte)low;
+                            pos++;
+                            
+                            state = 1;
+                    }
+                }
+            }
+            else
+            {
+                comparedBytes = ( byte[] ) compared;
+            }
             
             for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
             //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
             {
-                String value = (String)values.nextElement();
-                if ( ArrayUtils.isEquals( comparedBytes, value ) )
+                Object value = values.nextElement();
+                
+                if ( value instanceof byte[] )
                 {
-                    return true;
+                    if ( ArrayUtils.isEquals( comparedBytes, value ) )
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -759,6 +835,197 @@ public class AttributeUtils
         }
         
         return sb.toString();
+    }
+    
+    /**
+     * Parse attribute's options :
+     * 
+     * options = *( ';' option )
+     * option = 1*keychar
+     * keychar = 'a'-z' | 'A'-'Z' / '0'-'9' / '-'
+     */
+    private static void parseOptions( String str, Position pos ) throws ParseException
+    {
+        while ( StringTools.isCharASCII( str, pos.start, ';' ) )
+        {
+            pos.start++;
+            
+            // We have an option
+            if ( !StringTools.isAlphaDigitMinus( str, pos.start ) )
+            {
+                // We must have at least one keychar
+                throw new ParseException( "An empty option is not allowed", pos.start );
+            }
+            
+            pos.start++;
+            
+            while ( StringTools.isAlphaDigitMinus( str, pos.start ) )
+            {
+                pos.start++;
+            }
+        }
+    }
+    
+    /**
+     * Parse a number :
+     * 
+     * number = '0' | '1'..'9' digits
+     * digits = '0'..'9'*
+     * 
+     * @return true if a number has been found
+     */
+    private static boolean parseNumber( String filter, Position pos )
+    {
+        char c = StringTools.charAt( filter, pos.start );
+        
+        switch ( c )
+        {
+            case '0' :
+                // If we get a starting '0', we should get out
+                pos.start++;
+                return true;
+                
+            case '1' : 
+            case '2' : 
+            case '3' : 
+            case '4' : 
+            case '5' : 
+            case '6' : 
+            case '7' : 
+            case '8' : 
+            case '9' : 
+                pos.start++;
+                break;
+                
+            default :
+                // Not a number.
+                return false;
+        }
+        
+        while ( StringTools.isDigit( filter, pos.start ) )
+        {
+            pos.start++;
+        }
+        
+        return true;
+    }
+
+    
+    /**
+     * 
+     * Parse an OID.
+     *
+     * numericoid = number 1*( '.' number )
+     * number = '0'-'9' / ( '1'-'9' 1*'0'-'9' )
+     *
+     * @param str The OID to parse
+     * @param pos The current position in the string
+     * @return A valid OID
+     * @throws ParseException If we don't have a valid OID
+     */
+    public static void parseOID( String str, Position pos ) throws ParseException
+    {
+        // We have an OID
+        parseNumber( str, pos );
+        
+        // We must have at least one '.' number
+        if ( StringTools.isCharASCII( str, pos.start, '.' ) == false )
+        {
+            throw new ParseException( "Invalid OID, missing '.'", pos.start );
+        }
+        
+        pos.start++;
+        
+        if ( parseNumber( str, pos ) == false )
+        {
+            throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
+        }
+        
+        while ( true )
+        {
+            // Break if we get something which is not a '.'
+            if ( StringTools.isCharASCII( str, pos.start, '.' ) == false )
+            {
+                break;
+            }
+            
+            pos.start++;
+            
+            if ( parseNumber( str, pos ) == false )
+            {
+                throw new ParseException( "Invalid OID, missing a number after a '.'", pos.start );
+            }
+        }
+    }
+    
+    /**
+     * Parse an attribute. The grammar is :
+     * attributedescription = attributetype options
+     * attributetype = oid
+     * oid = descr / numericoid
+     * descr = keystring
+     * numericoid = number 1*( '.' number )
+     * options = *( ';' option )
+     * option = 1*keychar
+     * keystring = leadkeychar *keychar
+     * leadkeychar = 'a'-z' | 'A'-'Z'
+     * keychar = 'a'-z' | 'A'-'Z' / '0'-'9' / '-'
+     * number = '0'-'9' / ( '1'-'9' 1*'0'-'9' )
+     *
+     * @param attr The parsed attribute,
+     * @param pos The position of the attribute in the current string
+     * @return The parsed attribute if valid
+     */
+    public static String parseAttribute( String str, Position pos, boolean withOption ) throws ParseException
+    {
+        // We must have an OID or an DESCR first
+        char c = StringTools.charAt( str, pos.start );
+        
+        if ( c == '\0' )
+        {
+            throw new ParseException( "Empty attributes", pos.start );
+        }
+        
+        int start = pos.start;
+
+        if ( StringTools.isAlpha( c ) )
+        {
+            // A DESCR
+            pos.start++;
+            
+            while ( StringTools.isAlphaDigitMinus( str, pos.start ) )
+            {
+                pos.start++;
+            }
+
+            // Parse the options if needed
+            if ( withOption )
+            {
+                parseOptions( str, pos );
+            }
+            
+            return str.substring( start, pos.start );
+        }
+        else if ( StringTools.isDigit( c ) )
+        {
+            // An OID
+            pos.start++;
+            
+            // Parse the OID
+            parseOID( str, pos );
+            
+            // Parse the options
+            if ( withOption )
+            {
+                parseOptions( str, pos );
+            }
+            
+            return str.substring( start, pos.start );
+        }
+        else
+        {
+            throw new ParseException( "Bad char in attribute", pos.start );
+        }
     }
 
 

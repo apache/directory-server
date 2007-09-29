@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -82,8 +82,6 @@ options
 
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrSubtreeSpecificationParser.class );
-    
-    private FilterParserImpl filterParser;
     
     private NormalizerMappingResolver resolver;
     
@@ -166,7 +164,6 @@ subtreeSpecification returns [SubtreeSpecification ss]
     chopBeforeExclusions = new HashSet<LdapDN>();
     chopAfterExclusions = new HashSet<LdapDN>();
     // always create a new filter parser in case we may have some statefulness problems with it
-    filterParser = new FilterParserImpl();
 }
     :
     OPEN_CURLY ( SP )*
@@ -324,7 +321,7 @@ filter returns [ ExprNode filterExpr = null ]
 	log.debug( "entered filter()" );
 }
 	:
-	( filterToken:FILTER { filterExpr=filterParser.parse( filterToken.getText() ); } )
+	( filterToken:FILTER { filterExpr=FastFilterParserImpl.parse( filterToken.getText() ); } )
 	;
 	exception
     catch [Exception e]

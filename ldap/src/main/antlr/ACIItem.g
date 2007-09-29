@@ -39,9 +39,9 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -103,9 +103,6 @@ tokens
 
 {
     private static final Logger log = LoggerFactory.getLogger( AntlrACIItemParser.class );
-    
-    // subordinate parser instances
-    private final FilterParserImpl filterParser = new FilterParserImpl();
     
     NameComponentNormalizer normalizer;
     
@@ -543,7 +540,7 @@ rangeOfValues
     {
         protectedItemsMap.put( "rangeOfValues",
                 new ProtectedItem.RangeOfValues(
-                        filterParser.parse( token.getText() ) ) );
+                        FastFilterParserImpl.parse( token.getText() ) ) );
         log.debug( "filterParser parsed " + token.getText() );
     }
     ;

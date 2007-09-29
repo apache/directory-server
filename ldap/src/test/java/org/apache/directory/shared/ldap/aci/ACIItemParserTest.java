@@ -78,8 +78,8 @@ public class ACIItemParserTest extends TestCase
         
         spec = " { identificationTag \"id8\", precedence 0, authenticationLevel simple "
             + ", itemOrUserFirst userFirst: { userClasses { allUsers }, userPermissions { "
-            + " { protectedItems { rangeOfValues (& (cn=test) (sn=test) ) }, grantsAndDenials { grantAdd } }, "
-            + "{ protectedItems { rangeOfValues (| (! (cn=aaa) ) (sn=bbb) ) }, grantsAndDenials { grantAdd } } "
+            + " { protectedItems { rangeOfValues (&(cn=test)(sn=test)) }, grantsAndDenials { grantAdd } }, "
+            + "{ protectedItems { rangeOfValues (|(!(cn=aaa))(sn=bbb)) }, grantsAndDenials { grantAdd } } "
             + " } } }";
         
         parser.parse( spec );
