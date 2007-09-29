@@ -40,7 +40,6 @@ import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -234,8 +233,7 @@ public class SubtreeEvaluatorTest extends TestCase
 
     public void testWithMinMaxAndSimpleRefinement() throws Exception
     {
-        FilterParser parser = new FilterParserImpl();
-        ExprNode refinement = parser.parse( "( objectClass = person )" );
+        ExprNode refinement = FilterParser.parse( "(objectClass=person)" );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setRefinement( refinement );
@@ -293,8 +291,7 @@ public class SubtreeEvaluatorTest extends TestCase
     
     public void testWithFilter() throws Exception
     {
-        FilterParser parser = new FilterParserImpl();
-        ExprNode filter = parser.parse( "(&(cn=Ersin)(objectClass=person))" );
+        ExprNode filter = FilterParser.parse( "(&(cn=Ersin)(objectClass=person))" );
 
         SubtreeSpecificationModifier modifier = new SubtreeSpecificationModifier();
         modifier.setRefinement( filter );

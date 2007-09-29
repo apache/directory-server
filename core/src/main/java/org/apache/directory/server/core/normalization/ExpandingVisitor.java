@@ -203,7 +203,7 @@ public class ExpandingVisitor implements FilterVisitor
                                 newLeaf = new ExtensibleNode( descendant.getOid(), 
                                     extensibleNode.getValue(), 
                                     extensibleNode.getMatchingRuleId(), 
-                                    extensibleNode.dnAttributes() );
+                                    extensibleNode.hasDnAttributes() );
                             }
                             else if ( leaf instanceof SubstringNode )
                             {
@@ -224,7 +224,6 @@ public class ExpandingVisitor implements FilterVisitor
                 catch ( NamingException e )
                 {
                     // log something here and throw a runtime excpetion
-                    e.printStackTrace();
                     throw new RuntimeException( "Failed to expand node" );
                 }
             }

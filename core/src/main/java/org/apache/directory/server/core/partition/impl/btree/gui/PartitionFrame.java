@@ -71,7 +71,6 @@ import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
@@ -598,12 +597,11 @@ public class PartitionFrame extends JFrame
                 + "' and a return limit of '" + limit + "'" );
         }
 
-        FilterParser parser = new FilterParserImpl();
         ExprNode root = null;
 
         try
         {
-            root = parser.parse( filter );
+            root = FilterParser.parse( filter );
         }
         catch ( Exception e )
         {
@@ -742,12 +740,11 @@ public class PartitionFrame extends JFrame
 
     public boolean doAnnotate( String filter ) throws Exception
     {
-        FilterParser parser = new FilterParserImpl();
         ExprNode root = null;
 
         try
         {
-            root = parser.parse( filter );
+            root = FilterParser.parse( filter );
         }
         catch ( Exception e )
         {

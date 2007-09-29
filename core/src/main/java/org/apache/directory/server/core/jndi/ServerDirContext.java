@@ -20,7 +20,6 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Hashtable;
@@ -52,7 +51,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
@@ -655,7 +654,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            filterNode = filterParser.parse( filter );
+            filterNode = FilterParser.parse( filter );
         }
         catch ( ParseException pe )
         {
@@ -663,12 +662,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                 "Encountered parse exception while parsing the filter: '" + filter + "'" );
             isfe.setRootCause( pe );
             throw isfe;
-        }
-        catch ( IOException ioe )
-        {
-            NamingException ne = new NamingException( "Parser failed with IO exception on filter: '" + filter + "'" );
-            ne.setRootCause( ioe );
-            throw ne;
         }
 
         return doSearchOperation( target, getEnvironment(), filterNode, cons );
@@ -759,9 +752,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     // EventDirContext implementations
     // ------------------------------------------------------------------------
 
-    private final FilterParserImpl filterParser = new FilterParserImpl();
-
-
     public void addNamingListener( Name name, String filterStr, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
     {
@@ -769,7 +759,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
 
         try
         {
-            filter = filterParser.parse( filterStr );
+            filter = FilterParser.parse( filterStr );
         }
         catch ( Exception e )
         {

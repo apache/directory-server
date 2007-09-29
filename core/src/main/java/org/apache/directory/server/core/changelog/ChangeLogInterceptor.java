@@ -8,10 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
@@ -29,6 +27,9 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 
+import org.apache.directory.shared.ldap.ldif.ChangeType;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
@@ -45,25 +46,26 @@ import org.slf4j.LoggerFactory;
  */
 public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
 {
+    /** logger used by this class */
+    private static final Logger log = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+
     /** time to wait before automatically waking up the writer thread */
     private static final long WAIT_TIMEOUT_MILLIS = 1000;
     
-    private static final Logger log = LoggerFactory.getLogger( ChangeLogInterceptor.class );
-
     /** the changes.log file's stream which we append change log messages to */
-    PrintWriter out = null;
+    private PrintWriter out = null;
     
     /** queue of string buffers awaiting serialization to the log file */
-    Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
+    private Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
     
     /** a handle on the attributeType registry to determine the binary nature of attributes */
-    AttributeTypeRegistry registry = null;
+    private AttributeTypeRegistry registry = null;
     
     /** determines if this service has been activated */
-    boolean isActive = false;
+    private boolean isActive = false;
     
     /** thread used to asynchronously write change logs to disk */
-    Thread writer = null;
+    private Thread writer = null;
     
     
     // -----------------------------------------------------------------------
@@ -216,11 +218,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( DateUtils.getGeneralizedTime() );
         
         // Append the LDIF entry now
-        buf.append( "\ndn: " );
-        buf.append( opContext.getDn().getUpName() );
-        buf.append( "\nchangetype: add" );
-        append( buf, opContext.getEntry() );
-        buf.append( "\n" );
+        buf.append( LdifUtils.convertToLdif( opContext.getEntry() ) );
 
         // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
         synchronized ( queue )
@@ -230,7 +228,10 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         }
     }
 
-    
+    /**
+     * The delete operation has to be stored with a way to restore the deleted element.
+     * There is no way to do that but reading the entry and dump it into the log.
+     */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
         next.delete( opContext );
@@ -247,10 +248,11 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( "\n#! deleteTimestamp: " );
         buf.append( DateUtils.getGeneralizedTime() );
         
-        // Append the LDIF record now
-        buf.append( "\ndn: " );
-        buf.append( opContext.getDn() );
-        buf.append( "\nchangetype: delete\n" );
+        Entry entry = new Entry();
+        entry.setDn( opContext.getDn().getUpName() );
+        entry.setChangeType( ChangeType.Delete );
+        buf.append( LdifUtils.convertToLdif( entry ) );
+        
 
         // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
         synchronized ( queue )
@@ -478,29 +480,6 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     }
     
 
-    /**
-     * Appends a set of attributes to a buffer for an LDIF record.  The Dn is presumed
-     * to be added some time before.
-     * 
-     * @param buf the buffer to add the attributes to
-     * @param attrs the attributes to append to the buffer
-     * @return the buffer argument passed in for chaining
-     * @throws NamingException if some attribute identifiers are not defined
-     */
-    private StringBuilder append( StringBuilder buf, Attributes attrs ) throws NamingException
-    {
-        NamingEnumeration<String> ids = attrs.getIDs();
-        
-        while ( ids.hasMore() )
-        {
-            String id = ids.next();
-            append( buf, attrs.get( id ) );
-        }
-        
-        return buf;
-    }
-
-    
     /**
      * Gets the DN of the user currently bound to the server executing this operation.  If 
      * the user is anonymous "" is returned.
