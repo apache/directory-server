@@ -24,7 +24,7 @@ header
 package org.apache.directory.shared.ldap.subtree;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.util.ComponentsMonitor;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 
@@ -239,7 +239,7 @@ filter
 	log.debug( "entered filter()" );
 }
 	:
-	( filterToken:FILTER { FastFilterParserImpl.parse( filterToken.getText() ); } )
+	( filterToken:FILTER { FilterParser.parse( filterToken.getText() ); } )
 	;
 	exception
     catch [Exception e]

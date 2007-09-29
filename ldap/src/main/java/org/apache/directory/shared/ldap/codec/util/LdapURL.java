@@ -21,7 +21,7 @@ package org.apache.directory.shared.ldap.codec.util;
 
 
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -903,7 +903,7 @@ public class LdapURL
         try
         {
             filter = decode( new String( chars, pos, end - pos ) );
-            FastFilterParserImpl.parse( filter );
+            FilterParser.parse( filter );
         }
         catch ( URIException ue )
         {

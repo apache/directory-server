@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
@@ -540,7 +540,7 @@ rangeOfValues
     {
         protectedItemsMap.put( "rangeOfValues",
                 new ProtectedItem.RangeOfValues(
-                        FastFilterParserImpl.parse( token.getText() ) ) );
+                        FilterParser.parse( token.getText() ) ) );
         log.debug( "filterParser parsed " + token.getText() );
     }
     ;

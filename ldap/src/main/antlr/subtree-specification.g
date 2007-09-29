@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.FastFilterParserImpl;
+import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecificationModifier;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -321,7 +321,7 @@ filter returns [ ExprNode filterExpr = null ]
 	log.debug( "entered filter()" );
 }
 	:
-	( filterToken:FILTER { filterExpr=FastFilterParserImpl.parse( filterToken.getText() ); } )
+	( filterToken:FILTER { filterExpr=FilterParser.parse( filterToken.getText() ); } )
 	;
 	exception
     catch [Exception e]

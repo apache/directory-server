@@ -38,9 +38,9 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         String filter = "(ou=Human Resources)";
 
-        ExprNode ori = FastFilterParserImpl.parse( filter );
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode altered = FastFilterParserImpl.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -54,9 +54,9 @@ public class BranchNormalizedVisitorTest extends TestCase
     {
         String filter = "(&(ou=Human Resources)(uid=akarasulu))";
 
-        ExprNode ori = FastFilterParserImpl.parse( filter );
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode altered = FastFilterParserImpl.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -72,9 +72,9 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         filter += "(|(uid=akarasulu)(ou=Human Resources))) ";
 
-        ExprNode ori = FastFilterParserImpl.parse( filter );
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode altered = FastFilterParserImpl.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 
@@ -90,9 +90,9 @@ public class BranchNormalizedVisitorTest extends TestCase
 
         filter += "(|(ou=Human Resources)(uid=akarasulu)))";
 
-        ExprNode ori = FastFilterParserImpl.parse( filter );
+        ExprNode ori = FilterParser.parse( filter );
 
-        ExprNode altered = FastFilterParserImpl.parse( filter );
+        ExprNode altered = FilterParser.parse( filter );
 
         BranchNormalizedVisitor visitor = new BranchNormalizedVisitor();
 

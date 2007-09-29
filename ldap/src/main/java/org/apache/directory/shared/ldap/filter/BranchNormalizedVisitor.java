@@ -126,7 +126,7 @@ public class BranchNormalizedVisitor implements FilterVisitor
      */
     public static String getNormalizedFilter( String filter ) throws IOException, ParseException
     {
-        ExprNode originalNode = FastFilterParserImpl.parse( filter );
+        ExprNode originalNode = FilterParser.parse( filter );
 
         return getNormalizedFilter( originalNode );
     }
