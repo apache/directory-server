@@ -20,18 +20,13 @@
 package org.apache.directory.server.core.configuration;
 
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.util.*;
 
 
 /**
@@ -135,7 +130,7 @@ public class StartupConfiguration extends Configuration
 
     /**
      * Creates a new instance with default settings that operates on the
-     * {@link DirectoryService} with the specified ID.
+     * {@link org.apache.directory.server.core.DirectoryService} with the specified ID.
      */
     public StartupConfiguration(String instanceId)
     {

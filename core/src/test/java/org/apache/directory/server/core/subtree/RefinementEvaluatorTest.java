@@ -39,7 +39,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 
@@ -184,9 +183,9 @@ public class RefinementEvaluatorTest extends TestCase
     {
         ExprNode refinement = null;
         Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
-        FilterParser parser = new FilterParserImpl();
-        String refStr = "(| (objectClass=person) (objectClass=organizationalUnit) )";
-        refinement = parser.parse( refStr );
+        String refStr = "(|(objectClass=person)(objectClass=organizationalUnit))";
+        
+        refinement = FilterParser.parse( refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
@@ -201,9 +200,9 @@ public class RefinementEvaluatorTest extends TestCase
         ExprNode refinement = null;
         Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
         objectClasses.add( "organizationalUnit" );
-        FilterParser parser = new FilterParserImpl();
-        String refStr = "(& (objectClass=person) (objectClass=organizationalUnit) )";
-        refinement = parser.parse( refStr );
+        String refStr = "(&(objectClass=person)(objectClass=organizationalUnit))";
+        
+        refinement = FilterParser.parse( refStr );
 
         assertTrue( evaluator.evaluate( refinement, objectClasses ) );
         objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );
@@ -219,9 +218,9 @@ public class RefinementEvaluatorTest extends TestCase
     {
         ExprNode refinement = null;
         Attribute objectClasses = new AttributeImpl( "objectClass", "person" );
-        FilterParser parser = new FilterParserImpl();
-        String refStr = "(! (objectClass=person) )";
-        refinement = parser.parse( refStr );
+        String refStr = "(!(objectClass=person))";
+
+        refinement = FilterParser.parse( refStr );
 
         assertFalse( evaluator.evaluate( refinement, objectClasses ) );
         objectClasses = new AttributeImpl( "objectClass", "organizationalUnit" );

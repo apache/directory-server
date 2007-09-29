@@ -801,9 +801,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * @see Partition#modifyModifyOperationContext)
-     */
     public void modify( ModifyOperationContext modifyContext ) throws NamingException
     {
         Partition backend = getPartition( modifyContext.getDn() );
@@ -821,9 +818,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * @see Partition#search(org.apache.directory.shared.ldap.name.LdapDN,java.util.Map,org.apache.directory.shared.ldap.filter.ExprNode,javax.naming.directory.SearchControls)
-     */
     public NamingEnumeration<SearchResult> search( SearchOperationContext opContext )
         throws NamingException
     {
@@ -972,9 +966,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * @see Partition#lookup(org.apache.directory.shared.ldap.name.LdapDN,String[])
-     */
     public Attributes lookup( LookupOperationContext opContext ) throws NamingException
     {
         LdapDN dn = opContext.getDn();
@@ -1057,9 +1048,6 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    /**
-     * @see Partition#moveAndRename( MaveAndRenameOperationContext )
-     */
     public void moveAndRename( MoveAndRenameOperationContext opContext ) throws NamingException
     {
         Partition backend = getPartition( opContext.getDn() );

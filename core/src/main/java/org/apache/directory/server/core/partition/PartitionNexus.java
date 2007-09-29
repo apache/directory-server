@@ -198,7 +198,7 @@ public abstract class PartitionNexus implements Partition
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( CompareOperationContext opContext ) throws NamingException;
+    public abstract boolean compare( CompareOperationContext compareContext ) throws NamingException;
 
 
     public abstract void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
@@ -233,7 +233,7 @@ public abstract class PartitionNexus implements Partition
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext opContext ) throws NamingException;
+    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws NamingException;
 
 
     /**
@@ -241,13 +241,13 @@ public abstract class PartitionNexus implements Partition
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param getSuffixContext the Context containing normalized distinguished 
+     * @param suffixContext the Context containing normalized distinguished
      * name to use for finding a suffix.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getSuffix ( GetSuffixOperationContext opContext ) throws NamingException;
+    public abstract LdapDN getSuffix ( GetSuffixOperationContext suffixContext ) throws NamingException;
 
 
     /**

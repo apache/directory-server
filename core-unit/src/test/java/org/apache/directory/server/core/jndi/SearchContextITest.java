@@ -261,7 +261,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
-        NamingEnumeration list = sysRoot.search( "", "(| (ou={0}) (ou={1}))", new Object[]
+        NamingEnumeration list = sysRoot.search( "", "(|(ou={0})(ou={1}))", new Object[]
             { "testing00", "testing01" }, controls );
         while ( list.hasMore() )
         {
@@ -405,7 +405,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
-        NamingEnumeration list = sysRoot.search( "", "(| (name=testing00)(name=testing01))", controls );
+        NamingEnumeration list = sysRoot.search( "", "(|(name=testing00)(name=testing01))", controls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -552,7 +552,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertFalse( enm.hasMore() );
         assertEquals( "cn=Kate Bush,ou=system", sr.getName() );
 
-        enm = sysRoot.search( "", "(userCertificate={0})", new Object[] {certData}, controls );
+        enm = sysRoot.search( "", "(userCertificate=\\34\\56\\4E\\5F)", controls );
         assertTrue( enm.hasMore() );
         sr = ( SearchResult ) enm.next();
         assertNotNull( sr );

@@ -185,7 +185,7 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(EntryOperationContext)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(LookupOperationContext)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */

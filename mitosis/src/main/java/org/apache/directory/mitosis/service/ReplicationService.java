@@ -20,7 +20,6 @@
 package org.apache.directory.mitosis.service;
 
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -73,7 +72,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.FilterParserImpl;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
@@ -297,17 +295,12 @@ public class ReplicationService extends BaseInterceptor
         CSN purgeCSN = new DefaultCSN( System.currentTimeMillis() - configuration.getLogMaxAge() * 1000L * 60L * 60L
             * 24L, // convert days to millis
             new ReplicaId( "ZZZZZZZZZZZZZZZZ" ), Integer.MAX_VALUE );
-        FilterParser parser = new FilterParserImpl();
         ExprNode filter;
 
         try
         {
-            filter = parser.parse( "(& (" + ENTRY_CSN_OID + "<=" + purgeCSN.toOctetString() + ") (" + ENTRY_DELETED_OID
+            filter = FilterParser.parse( "(&(" + ENTRY_CSN_OID + "<=" + purgeCSN.toOctetString() + ")(" + ENTRY_DELETED_OID
                 + "=TRUE))" );
-        }
-        catch ( IOException e )
-        {
-            throw ( NamingException ) new NamingException().initCause( e );
         }
         catch ( ParseException e )
         {
