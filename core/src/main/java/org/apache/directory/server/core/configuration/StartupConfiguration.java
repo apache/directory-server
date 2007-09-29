@@ -20,7 +20,20 @@
 package org.apache.directory.server.core.configuration;
 
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.directory.Attributes;
+
+import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.authn.SimpleAuthenticator;
+import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
@@ -37,10 +50,6 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.directory.Attributes;
-import java.io.File;
-import java.util.*;
-
 
 /**
  * A {@link Configuration} that starts up ApacheDS.
@@ -52,12 +61,6 @@ import java.util.*;
  */
 public class StartupConfiguration extends Configuration
 {
-    /** fully qualified class name of the string authenticator implementation */
-    private static final String STRONG_AUTHENTICATOR = "org.apache.directory.server.core.authn.StrongAuthenticator";
-    /** fully qualified class name of the simple authenticator implementation */
-    private static final String SIMPLE_AUTHENTICATOR = "org.apache.directory.server.core.authn.SimpleAuthenticator";
-    /** fully qualified class name of the anonymous authenticator implementation */
-    private static final String ANONYMOUS_AUTHENTICATOR = "org.apache.directory.server.core.authn.AnonymousAuthenticator";
 
     /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( StartupConfiguration.class );
@@ -77,7 +80,7 @@ public class StartupConfiguration extends Configuration
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
-    private Set authenticatorConfigurations; // Set<AuthenticatorConfiguration>
+    private Set<Authenticator> authenticators;
     private List<Interceptor> interceptors;
     private PartitionConfiguration systemPartitionConfiguration;
     private Set<? extends PartitionConfiguration> partitionConfigurations =
@@ -90,7 +93,7 @@ public class StartupConfiguration extends Configuration
      */
     public StartupConfiguration()
     {
-        setDefaultAuthenticatorConfigurations();
+        setDefaultAuthenticators();
         setDefaultInterceptorConfigurations();
     }
 
@@ -101,26 +104,26 @@ public class StartupConfiguration extends Configuration
      */
     public StartupConfiguration(String instanceId)
     {
-        setDefaultAuthenticatorConfigurations();
+        setDefaultAuthenticators();
         setDefaultInterceptorConfigurations();
         setInstanceId( instanceId );
     }
 
 
-    private void setDefaultAuthenticatorConfigurations()
+    private void setDefaultAuthenticators()
     {
-        Set<AuthenticatorConfiguration> set = new HashSet<AuthenticatorConfiguration>();
+        Set<Authenticator> set = new HashSet<Authenticator>();
 
         // Anonymous
-        set.add( new MutableAuthenticatorConfiguration( "Anonymous", ANONYMOUS_AUTHENTICATOR ) );
+        set.add( new AnonymousAuthenticator() );
 
         // Simple
-        set.add( new MutableAuthenticatorConfiguration( "Simple", SIMPLE_AUTHENTICATOR ) );
+        set.add( new SimpleAuthenticator() );
 
         // Strong
-        set.add( new MutableAuthenticatorConfiguration( "Strong", STRONG_AUTHENTICATOR ) );
+        set.add( new StrongAuthenticator() );
 
-        setAuthenticatorConfigurations( set );
+        setAuthenticators( set );
     }
 
 
@@ -159,45 +162,24 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Returns {@link AuthenticatorConfiguration}s to use for authenticating clients.
+     * Returns {@link Authenticator}s to use for authenticating clients.
      */
     @SuppressWarnings("unchecked")
-    public Set<AuthenticatorConfiguration> getAuthenticatorConfigurations()
+    public Set<Authenticator> getAuthenticators()
     {
-        Set<AuthenticatorConfiguration> cloned =
-            new HashSet<AuthenticatorConfiguration>( authenticatorConfigurations.size() );
-        cloned.addAll( authenticatorConfigurations );
-        return cloned;
+        return new HashSet<Authenticator>( authenticators );
     }
 
 
     /**
-     * Sets {@link AuthenticatorConfiguration}s to use for authenticating clients.
+     * Sets {@link Authenticator}s to use for authenticating clients.
      */
-    protected void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticatorConfigurations )
+    protected void setAuthenticators( Set<Authenticator> authenticators )
     {
-        Set<String> names = new HashSet<String>();
-
-        // Loop through all the configurations to check if we do not have duplicated authenticators.
-        for ( AuthenticatorConfiguration cfg:authenticatorConfigurations )
-        {
-            cfg.validate();
-
-            String name = cfg.getName();
-
-            if ( names.contains( name ) )
-            {
-                // TODO Not sure that it worth to throw an excpetion here. We could simply ditch the
-                // duplicated authenticator, trace a warning and that's it.
-                log.error( "The authenticator nammed '{}' has already been registred.", name );
-                throw new ConfigurationException( "Duplicate authenticator name: " + name );
-            }
-
-            names.add( name );
-        }
-
-        // The set has been checked, so we can now register it
-        this.authenticatorConfigurations = authenticatorConfigurations;
+        //At one time there was a check for duplicate names.  I think it is more appropriate to
+        // implement equals correctly on Authenticator instances and the fact we have a Set will do
+        // the work for us.
+        this.authenticators = authenticators;
     }
 
 

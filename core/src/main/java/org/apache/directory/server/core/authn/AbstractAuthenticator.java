@@ -24,7 +24,6 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -39,7 +38,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public abstract class AbstractAuthenticator implements Authenticator
 {
     private DirectoryServiceConfiguration factoryCfg;
-    private AuthenticatorConfiguration cfg;
 
     /** authenticator type */
     private String authenticatorType;
@@ -65,16 +63,6 @@ public abstract class AbstractAuthenticator implements Authenticator
         return factoryCfg;
     }
 
-
-    /**
-     * Returns the configuration of this authenticator.
-     */
-    public AuthenticatorConfiguration getConfiguration()
-    {
-        return cfg;
-    }
-
-
     public String getAuthenticatorType()
     {
         return authenticatorType;
@@ -86,11 +74,10 @@ public abstract class AbstractAuthenticator implements Authenticator
      * <tt>configuration</tt>, and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg )
+    public final void init( DirectoryServiceConfiguration factoryCfg )
         throws NamingException
     {
         this.factoryCfg = factoryCfg;
-        this.cfg = cfg;
         doInit();
     }
 
@@ -117,7 +104,6 @@ public abstract class AbstractAuthenticator implements Authenticator
         finally
         {
             this.factoryCfg = null;
-            this.cfg = null;
         }
     }
 

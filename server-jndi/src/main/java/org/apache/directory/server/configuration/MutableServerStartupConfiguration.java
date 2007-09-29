@@ -26,8 +26,8 @@ import java.util.Set;
 
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.authn.Authenticator;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
@@ -120,11 +120,11 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     /**
      * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.AuthenticatorConfiguration"
      *
-     * @param authenticatorConfigurations
+     * @param authenticators
      */
-    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticatorConfigurations )
+    public void setAuthenticators( Set<Authenticator> authenticators )
     {
-        super.setAuthenticatorConfigurations( authenticatorConfigurations );
+        super.setAuthenticators( authenticators );
     }
 
     /**

@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.server.core.authn.Authenticator;
 
 
 /**
@@ -80,9 +80,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
      *
      * @param authenticators
      */
-    public void setAuthenticatorConfigurations( Set<AuthenticatorConfiguration> authenticators )
+    public void setAuthenticators( Set<Authenticator> authenticators )
     {
-        super.setAuthenticatorConfigurations( authenticators );
+        super.setAuthenticators( authenticators );
     }
 
     /**
