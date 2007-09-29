@@ -472,7 +472,12 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
 
         JdbmMasterTable master = new JdbmMasterTable( recMan );
         AttributeType attributeType = bootstrapRegistries.getAttributeTypeRegistry().lookup( "apacheUpdn" );
-        JdbmIndex idIndex = new JdbmIndex( attributeType, partitionDirectory, 1000, 1000 );
+        JdbmIndex idIndex = new JdbmIndex();
+        idIndex.setAttributeId( attributeType.getName() );
+        idIndex.setWkDirPath( partitionDirectory );
+        idIndex.setCacheSize( 1000 );
+        idIndex.setNumDupLimit( 512 );
+        idIndex.init( attributeType, partitionDirectory );
 
         out.println( "#---------------------" );
         NamingEnumeration list = master.listTuples();

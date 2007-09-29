@@ -21,6 +21,7 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
 
@@ -47,6 +48,12 @@ public class ShutdownITest extends AbstractAdminTestCase
      */
     public void testShutdownNonNullContext() throws Exception
     {
+        // for some reason if we don't synch first windows blows chuncks when
+        // attempting to delete the db files - perhaps this buys more time rather
+        // because there is less to sync when shutting down so shutdown happens
+        // faster before the doDelete method is called. Regardless this does
+        // deserve some investigation at some point after the bigbang cleanup.
+        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
         setContextRoots( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
         doDelete( configuration.getWorkingDirectory() );
@@ -60,6 +67,7 @@ public class ShutdownITest extends AbstractAdminTestCase
      */
     public void testShutdownRestart() throws Exception
     {
+        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
         setContextRoots( "uid=admin,ou=system", "secret", new ShutdownConfiguration() );
         assertNotNull( sysRoot );
 
