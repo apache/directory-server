@@ -278,7 +278,7 @@ class DefaultDirectoryService extends DirectoryService
     {
         if ( !started )
         {
-            throw new IllegalStateException( "Attempt to shutdown server before it has started!" );
+            return;
         }
 
         serviceListener.beforeShutdown( this );

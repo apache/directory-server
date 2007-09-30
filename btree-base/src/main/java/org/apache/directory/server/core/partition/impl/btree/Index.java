@@ -38,6 +38,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public interface Index
 {
+    int DEFAULT_INDEX_CACHE_SIZE = 100;
+    
     // -----------------------------------------------------------------------
     // C O N F I G U R A T I O N   M E T H O D S
     // -----------------------------------------------------------------------

@@ -118,6 +118,7 @@ public class RootDSEITest extends TestCase
     public void testGetInitialContext() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
@@ -141,6 +142,7 @@ public class RootDSEITest extends TestCase
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
@@ -171,6 +173,7 @@ public class RootDSEITest extends TestCase
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
@@ -200,6 +203,7 @@ public class RootDSEITest extends TestCase
     public void testDelete() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
@@ -272,6 +276,7 @@ public class RootDSEITest extends TestCase
     public void testModify() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
@@ -308,6 +313,7 @@ public class RootDSEITest extends TestCase
     public void testModify2() throws NamingException
     {
         MutableStartupConfiguration cfg = new MutableStartupConfiguration();
+        cfg.setShutdownHookEnabled( false );
         cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );

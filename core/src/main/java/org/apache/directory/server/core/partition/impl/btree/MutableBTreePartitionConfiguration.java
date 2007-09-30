@@ -50,8 +50,6 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
     }
 
     /**
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration"
-     *
      * @param indexedAttributes
      */
     public void setIndexedAttributes( Set<? extends Index> indexedAttributes )

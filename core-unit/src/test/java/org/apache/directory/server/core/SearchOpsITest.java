@@ -22,7 +22,6 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
-import org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;

@@ -77,13 +77,6 @@ public class NegationOperatorITest extends AbstractServerTest
     
             // Add indexed attributes for system partition
             Set<Index> indexedAttrs = new HashSet<Index>();
-            indexedAttrs.add( new JdbmIndex( Oid.ALIAS ) );
-            indexedAttrs.add( new JdbmIndex( Oid.EXISTANCE ) );
-            indexedAttrs.add( new JdbmIndex( Oid.HIERARCHY ) );
-            indexedAttrs.add( new JdbmIndex( Oid.NDN ) );
-            indexedAttrs.add( new JdbmIndex( Oid.ONEALIAS ) );
-            indexedAttrs.add( new JdbmIndex( Oid.SUBALIAS ) );
-            indexedAttrs.add( new JdbmIndex( Oid.UPDN ) );
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OU_AT ) );
             systemCfg.setIndexedAttributes( indexedAttrs );

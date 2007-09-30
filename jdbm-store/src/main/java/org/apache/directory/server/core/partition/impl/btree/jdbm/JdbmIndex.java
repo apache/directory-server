@@ -50,8 +50,6 @@ import java.util.regex.Pattern;
  */
 public class JdbmIndex implements Index
 {
-    /** default cache size to use */
-    public static final int DEFAULT_INDEX_CACHE_SIZE = 100;
     /**
      * default duplicate limit before duplicate keys switch to using a btree for values
      */

@@ -23,13 +23,13 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -52,9 +52,11 @@ public class JdbmPartition extends BTreePartition
 {
     private JdbmStore store;
 
+
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
+
 
     /**
      * Creates a store based on JDBM B+Trees.
@@ -64,20 +66,46 @@ public class JdbmPartition extends BTreePartition
         store = new JdbmStore();
     }
 
-    
-    protected void initRegistries1( Registries registries ) 
+
+    public void setRegistries( Registries registries )
     {
-        super.initRegistries1( registries );
+        initRegistries( registries );
+    }
+
+
+    protected void initRegistries( Registries registries )
+    {
+        attributeTypeRegistry = registries.getAttributeTypeRegistry();
+        oidRegistry = registries.getOidRegistry();
+        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
+        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
+        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
         store.initRegistries( registries );
     }
-    
+
 
     public final void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
     {
         // setup optimizer and registries for parent
-        initOptimizerAndConfiguration0( cfg );
-        initRegistries1( factoryCfg.getRegistries() );
+        if ( cfg instanceof BTreePartitionConfiguration )
+        {
+            this.cfg = ( BTreePartitionConfiguration ) cfg;
+            if ( ! this.cfg.isOptimizerEnabled() )
+            {
+                optimizer = new NoOpOptimizer();
+            }
+            else
+            {
+                optimizer = new DefaultOptimizer( this );
+            }
+        }
+        else
+        {
+            this.cfg = BTreePartitionConfiguration.convert( cfg );
+            optimizer = new DefaultOptimizer( this );
+        }
+        initRegistries( factoryCfg.getRegistries() );
         
         // initialize the store
         store.setCacheSize( cfg.getCacheSize() );
@@ -108,7 +136,46 @@ public class JdbmPartition extends BTreePartition
                     index.setWkDirPath( obj.getWkDirPath() );
                 }
 
-                userIndices.add( index );
+                String oid = oidRegistry.getOid( index.getAttributeId() );
+                if ( SYS_INDEX_OIDS.contains( oidRegistry.getOid( index.getAttributeId() ) ) )
+                {
+                    if ( oid.equals( Oid.ALIAS ) )
+                    {
+                        store.setAliasIndex( index );
+                    }
+                    else if ( oid.equals( Oid.EXISTANCE ) )
+                    {
+                        store.setExistanceIndex( index );
+                    }
+                    else if ( oid.equals( Oid.HIERARCHY ) )
+                    {
+                        store.setHierarchyIndex( index );
+                    }
+                    else if ( oid.equals( Oid.NDN ) )
+                    {
+                        store.setNdnIndex( index );
+                    }
+                    else if ( oid.equals( Oid.ONEALIAS ) )
+                    {
+                        store.setOneAliasIndex( index );
+                    }
+                    else if ( oid.equals( Oid.SUBALIAS ) )
+                    {
+                        store.setSubAliasIndex( index );
+                    }
+                    else if ( oid.equals( Oid.UPDN ) )
+                    {
+                        store.setUpdnIndex( index );
+                    }
+                    else
+                    {
+                        throw new IllegalStateException( "Unrecognized system index " + oid );
+                    }
+                }
+                else
+                {
+                    userIndices.add( index );
+                }
             }
             store.setUserIndices( userIndices );
             store.setSyncOnWrite( ( ( BTreePartitionConfiguration ) cfg ).isSynchOnWrite() );
@@ -141,13 +208,13 @@ public class JdbmPartition extends BTreePartition
     // I N D E X   M E T H O D S
     // ------------------------------------------------------------------------
 
-    public final void addIndexOn( AttributeType spec, int cacheSize, int numDupLimit ) throws NamingException
+
+    public final void addIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( spec.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.addIndex( index );
+        if ( index instanceof JdbmIndex)
+        {
+            store.addIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -157,13 +224,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setExistanceIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setExistanceIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setExistanceIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setExistanceIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -173,13 +239,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setHierarchyIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setHierarchyIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setHierarchyIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setHierarchyIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -189,13 +254,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setAliasIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setAliasIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setAliasIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -205,13 +269,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setOneAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setOneAliasIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setOneAliasIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setOneAliasIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -221,13 +284,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setSubAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setSubAliasIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setSubAliasIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setSubAliasIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -237,13 +299,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setUpdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setUpdnIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setUpdnIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setUpdnIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -253,13 +314,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void setNdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException
+    public final void setNdnIndexOn( Index index ) throws NamingException
     {
-        JdbmIndex index = new JdbmIndex();
-        index.setAttributeId( attrType.getName() );
-        index.setCacheSize( cacheSize );
-        index.setNumDupLimit( numDupLimit );
-        store.setNdnIndex( index );
+        if ( index instanceof JdbmIndex )
+        {
+            store.setNdnIndex( ( JdbmIndex ) index );
+        }
     }
 
 
@@ -438,12 +498,17 @@ public class JdbmPartition extends BTreePartition
 
     public final void bind( LdapDN bindDn, byte[] credentials, List mechanisms, String saslAuthId ) throws NamingException
     {
+        if ( bindDn == null || credentials == null || mechanisms == null ||  saslAuthId == null )
+        {
+            // do nothing just using variables to prevent yellow lights : bad :)
+        }
         // does nothing
         throw new LdapAuthenticationNotSupportedException(
                 "Bind requests only tunnel down into partitions if there are no authenticators to handle the mechanism.\n"
                         + "Check to see if you have correctly configured authenticators for the server.",
                 ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
     }
+    
 
     public final void bind( BindOperationContext bindContext ) throws NamingException
     {

@@ -65,7 +65,7 @@ public class JdbmTable implements Table
     /** */
     private TupleRenderer renderer;
 
-    private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
+    private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
 
     private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     
