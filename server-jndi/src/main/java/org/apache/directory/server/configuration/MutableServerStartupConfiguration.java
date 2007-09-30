@@ -118,16 +118,6 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
     /**
-     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.AuthenticatorConfiguration"
-     *
-     * @param authenticators
-     */
-    public void setAuthenticators( Set<Authenticator> authenticators )
-    {
-        super.setAuthenticators( authenticators );
-    }
-
-    /**
      * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.configuration.PartitionConfiguration"
      *
      * @param partitionConfigurations

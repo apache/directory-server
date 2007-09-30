@@ -40,7 +40,7 @@ public abstract class AbstractAuthenticator implements Authenticator
     private DirectoryServiceConfiguration factoryCfg;
 
     /** authenticator type */
-    private String authenticatorType;
+    private final String authenticatorType;
 
 
     /**
@@ -125,21 +125,5 @@ public abstract class AbstractAuthenticator implements Authenticator
     public void invalidateCache( LdapDN bindDn )
     {
     }
-    
 
-    /**
-     * Returns a new {@link LdapPrincipal} instance whose value is the specified
-     * <tt>name</tt>.
-     *
-     * @param name the distinguished name of the X.500 principal
-     * @param authenticationLeve
-     * @return the principal for the <tt>name</tt>
-     * @throws NamingException if there is a problem parsing <tt>name</tt>
-     */
-    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve )
-        throws NamingException
-    {
-        LdapDN principalDn = new LdapDN( name );
-        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
-    }
 }

@@ -29,11 +29,7 @@ import java.util.Set;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.authn.AnonymousAuthenticator;
 import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authn.Authenticator;
-import org.apache.directory.server.core.authn.SimpleAuthenticator;
-import org.apache.directory.server.core.authn.StrongAuthenticator;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
@@ -80,7 +76,6 @@ public class StartupConfiguration extends Configuration
     private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
-    private Set<Authenticator> authenticators;
     private List<Interceptor> interceptors;
     private PartitionConfiguration systemPartitionConfiguration;
     private Set<? extends PartitionConfiguration> partitionConfigurations =
@@ -93,7 +88,6 @@ public class StartupConfiguration extends Configuration
      */
     public StartupConfiguration()
     {
-        setDefaultAuthenticators();
         setDefaultInterceptorConfigurations();
     }
 
@@ -104,28 +98,9 @@ public class StartupConfiguration extends Configuration
      */
     public StartupConfiguration(String instanceId)
     {
-        setDefaultAuthenticators();
         setDefaultInterceptorConfigurations();
         setInstanceId( instanceId );
     }
-
-
-    private void setDefaultAuthenticators()
-    {
-        Set<Authenticator> set = new HashSet<Authenticator>();
-
-        // Anonymous
-        set.add( new AnonymousAuthenticator() );
-
-        // Simple
-        set.add( new SimpleAuthenticator() );
-
-        // Strong
-        set.add( new StrongAuthenticator() );
-
-        setAuthenticators( set );
-    }
-
 
     private void setDefaultInterceptorConfigurations()
     {
@@ -158,28 +133,6 @@ public class StartupConfiguration extends Configuration
         list.add( new TriggerService() );
 
         setInterceptors( list );
-    }
-
-
-    /**
-     * Returns {@link Authenticator}s to use for authenticating clients.
-     */
-    @SuppressWarnings("unchecked")
-    public Set<Authenticator> getAuthenticators()
-    {
-        return new HashSet<Authenticator>( authenticators );
-    }
-
-
-    /**
-     * Sets {@link Authenticator}s to use for authenticating clients.
-     */
-    protected void setAuthenticators( Set<Authenticator> authenticators )
-    {
-        //At one time there was a check for duplicate names.  I think it is more appropriate to
-        // implement equals correctly on Authenticator instances and the fact we have a Set will do
-        // the work for us.
-        this.authenticators = authenticators;
     }
 
 

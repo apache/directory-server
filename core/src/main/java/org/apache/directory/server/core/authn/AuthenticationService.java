@@ -69,22 +69,21 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link Interceptor} that authenticates users.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
+ * @org.apache.xbean.XBean
  */
 public class AuthenticationService extends BaseInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
-    
-    /** Speedup for logs */
+
+    /**
+     * Speedup for logs
+     */
     private static final boolean IS_DEBUG = log.isDebugEnabled();
 
-    /** authenticators **/
-    public Map<String, Collection<Authenticator>> authenticators = new HashMap<String, Collection<Authenticator>>();
-
-    private DirectoryServiceConfiguration factoryCfg;
+    private Set<Authenticator> authenticators;
+    private final Map<String, Collection<Authenticator>> authenticatorsMapByType = new HashMap<String, Collection<Authenticator>>();
 
     /**
      * Creates an authentication service interceptor.
@@ -96,62 +95,77 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
-        this.factoryCfg = factoryCfg;
 
-        // Register all authenticators
-        for ( Authenticator authenticator:factoryCfg.getStartupConfiguration().getAuthenticators() )
+        if ( authenticators == null )
         {
-            try
-            {
-                register( authenticator );
-            }
-            catch ( Exception e )
-            {
-                destroy();
-                throw ( NamingException ) new NamingException( "Failed to register authenticator." ).initCause( e );
-            }
+            setDefaultAuthenticators();
+        }
+        // Register all authenticators
+        for ( Authenticator authenticator : authenticators )
+        {
+            register( authenticator, factoryCfg );
         }
     }
 
+    private void setDefaultAuthenticators()
+    {
+        Set<Authenticator> set = new HashSet<Authenticator>();
+        set.add( new AnonymousAuthenticator() );
+        set.add( new SimpleAuthenticator() );
+        set.add( new StrongAuthenticator() );
+
+        setAuthenticators( set );
+    }
+
+
+    public Set<Authenticator> getAuthenticators()
+    {
+        return authenticators;
+    }
+
+    /**
+     * @param authenticators authenticators to be used by this AuthenticationService
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.authn.Authenticator"
+     */
+    public void setAuthenticators( Set<Authenticator> authenticators )
+    {
+        this.authenticators = authenticators;
+    }
 
     /**
      * Deinitializes and deregisters all {@link Authenticator}s from this service.
      */
     public void destroy()
     {
-        Set<Collection<Authenticator>> clonedAuthenticatorCollections = new HashSet<Collection<Authenticator>>();
-        clonedAuthenticatorCollections.addAll( authenticators.values() );
-        
-        for ( Collection<Authenticator> collection:clonedAuthenticatorCollections )
+        authenticatorsMapByType.clear();
+        Set<Authenticator> copy = new HashSet<Authenticator>( authenticators );
+        authenticators = null;
+        for ( Authenticator authenticator : copy )
         {
-            Set <Authenticator> clonedAuthenticators = new HashSet<Authenticator>();
-            clonedAuthenticators.addAll( collection );
-            
-            for ( Authenticator authenticator:clonedAuthenticators )
-            {
-                unregister( authenticator );
-            }
+            authenticator.destroy();
         }
-
-        authenticators.clear();
     }
 
     /**
      * Initializes the specified {@link Authenticator} and registers it to
      * this service.
+     *
+     * @param authenticator Authenticator to initialize and register by type
+     * @param factoryConfig configuration info to supply to the Authenticator during initialization
+     * @throws javax.naming.NamingException if initialization fails.
      */
-    private void register( Authenticator authenticator ) throws NamingException
+    private void register( Authenticator authenticator, DirectoryServiceConfiguration factoryConfig ) throws NamingException
     {
-        authenticator.init( factoryCfg );
+        authenticator.init( factoryConfig );
 
         Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
-        
+
         if ( authenticatorList == null )
         {
             authenticatorList = new ArrayList<Authenticator>();
-            authenticators.put( authenticator.getAuthenticatorType(), authenticatorList );
+            authenticatorsMapByType.put( authenticator.getAuthenticatorType(), authenticatorList );
         }
 
         authenticatorList.add( authenticator );
@@ -159,45 +173,19 @@ public class AuthenticationService extends BaseInterceptor
 
 
     /**
-     * Deinitializes the specified {@link Authenticator} and deregisters it from
-     * this service.
-     */
-    private void unregister( Authenticator authenticator )
-    {
-        Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
-
-        if ( authenticatorList == null )
-        {
-            return;
-        }
-
-        authenticatorList.remove( authenticator );
-
-        try
-        {
-            authenticator.destroy();
-        }
-        catch ( Throwable t )
-        {
-            log.warn( "Failed to destroy an authenticator.", t );
-        }
-    }
-
-
-    /**
      * Returns the list of {@link Authenticator}s with the specified type.
-     * 
-     * @return <tt>null</tt> if no authenticator is found.
+     *
+     * @param type type of Authenticator sought
+     * @return A list of Authenticators of the requested type or <tt>null</tt> if no authenticator is found.
      */
     private Collection<Authenticator> getAuthenticators( String type )
     {
-        Collection<Authenticator> result = authenticators.get( type );
-        
+        Collection<Authenticator> result = authenticatorsMapByType.get( type );
+
         if ( ( result != null ) && ( result.size() > 0 ) )
         {
             return result;
-        }
-        else
+        } else
         {
             return null;
         }
@@ -208,9 +196,9 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Adding the entry " + 
-            		AttributeUtils.toString( opContext.getEntry() ) + 
-            		" for DN = '" + opContext.getDn().getUpName() + "'" );
+            log.debug( "Adding the entry " +
+                    AttributeUtils.toString( opContext.getEntry() ) +
+                    " for DN = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.ADD_REQUEST );
@@ -231,7 +219,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public LdapDN getMatchedName ( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
+    public LdapDN getMatchedName( NextInterceptor next, GetMatchedNameOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -255,7 +243,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public LdapDN getSuffix ( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
+    public LdapDN getSuffix( NextInterceptor next, GetSuffixOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -291,7 +279,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
 
-    public Iterator<String> listSuffixes ( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
+    public Iterator<String> listSuffixes( NextInterceptor next, ListSuffixOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
@@ -308,13 +296,12 @@ public class AuthenticationService extends BaseInterceptor
         if ( IS_DEBUG )
         {
             List<String> attrIds = opContext.getAttrsId();
-            
+
             if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
             {
                 String attrs = StringTools.listToString( attrIds );
                 log.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', attributes = " + attrs );
-            }
-            else
+            } else
             {
                 log.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', no attributes " );
             }
@@ -326,19 +313,19 @@ public class AuthenticationService extends BaseInterceptor
 
     private void invalidateAuthenticatorCaches( LdapDN principalDn )
     {
-        for ( String authMech:authenticators.keySet() )
+        for ( String authMech : authenticatorsMapByType.keySet() )
         {
             Collection<Authenticator> authenticators = getAuthenticators( authMech );
-            
+
             // try each authenticator
-            for ( Authenticator authenticator:authenticators )
+            for ( Authenticator authenticator : authenticators )
             {
                 authenticator.invalidateCache( principalDn );
             }
         }
     }
-    
-    
+
+
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
@@ -351,14 +338,14 @@ public class AuthenticationService extends BaseInterceptor
         invalidateAuthenticatorCaches( opContext.getDn() );
     }
 
-    
+
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" + 
-                opContext.getNewRdn() + "', " +
-                "oldRDN = '" + opContext.getDelOldDn() + "'" );
+            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" +
+                    opContext.getNewRdn() + "', " +
+                    "oldRDN = '" + opContext.getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
@@ -368,14 +355,14 @@ public class AuthenticationService extends BaseInterceptor
 
 
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opContext )
-        throws NamingException
+            throws NamingException
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" + 
-                opContext.getParent() + "', new RDN = '" + 
-                opContext.getNewRdn() + "', oldRDN = '" + 
-                opContext.getDelOldDn() + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" +
+                    opContext.getParent() + "', new RDN = '" +
+                    opContext.getNewRdn() + "', oldRDN = '" +
+                    opContext.getDelOldDn() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
@@ -388,8 +375,8 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" + 
-                opContext.getParent().getUpName() + "'" );
+            log.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" +
+                    opContext.getParent().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.MOD_DN_REQUEST );
@@ -416,7 +403,7 @@ public class AuthenticationService extends BaseInterceptor
         {
             checkAuthenticated();
         }
-        catch( IllegalStateException ise )
+        catch ( IllegalStateException ise )
         {
             log.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
 
@@ -434,7 +421,7 @@ public class AuthenticationService extends BaseInterceptor
             {
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             }
-            
+
             return;
         }
 
@@ -443,82 +430,82 @@ public class AuthenticationService extends BaseInterceptor
 
 
     public void bind( NextInterceptor next, BindOperationContext opContext )
-    throws NamingException
-    {   
+            throws NamingException
+    {
         // The DN is always normalized here
         LdapDN normBindDn = opContext.getDn();
         String bindUpDn = normBindDn.getUpName();
-        
+
         if ( IS_DEBUG )
         {
             log.debug( "Bind operation. bindDn: " + bindUpDn );
         }
-        
+
         // check if we are already authenticated and if so we return making
         // sure first that the credentials are not exposed within context
         ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-    
+
         if ( IS_DEBUG )
         {
             log.debug( "bind: principal: " + ctx.getPrincipal() );
         }
-        
+
         if ( ctx.getPrincipal() != null )
         {
             if ( ctx.getEnvironment().containsKey( Context.SECURITY_CREDENTIALS ) )
             {
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             }
-            
+
             return;
         }
-    
+
         // pick the first matching authenticator type
         Collection<Authenticator> authenticators = null;
-        
-        for ( String mechanism:opContext.getMechanisms() )
+
+        for ( String mechanism : opContext.getMechanisms() )
         {
             authenticators = getAuthenticators( mechanism );
-    
+
             if ( authenticators != null )
             {
                 break;
             }
         }
-    
+
         if ( authenticators == null )
         {
             log.debug( "No authenticators found, delegating bind to the nexus." );
-            
+
             // as a last resort try binding via the nexus
             next.bind( opContext );
-            
+
             log.debug( "Nexus succeeded on bind operation." );
-            
+
             // bind succeeded if we got this far 
             ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
-                .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
-            
+                    .getAuthenticationLevel( ctx.getEnvironment() ) ) ) );
+
             // remove creds so there is no security risk
             ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
             return;
         }
-    
+
         // TODO : we should refactor that.
-        // try each authenticators
-        for ( Authenticator authenticator:authenticators )
+        // try each authenticator
+        for ( Authenticator authenticator : authenticators )
         {
             try
             {
                 // perform the authentication
                 LdapPrincipal authorizationId = authenticator.authenticate( normBindDn, ctx );
-                
+
                 // authentication was successful
                 ctx.setPrincipal( new TrustedPrincipalWrapper( authorizationId ) );
-                
+
                 // remove creds so there is no security risk
                 ctx.removeFromEnvironment( Context.SECURITY_CREDENTIALS );
-                
+
                 return;
             }
             catch ( LdapAuthenticationException e )
@@ -538,18 +525,18 @@ public class AuthenticationService extends BaseInterceptor
                 }
             }
         }
-    
+
         if ( log.isInfoEnabled() )
         {
             log.info( "Cannot bind to the server " );
         }
-        
+
         throw new LdapAuthenticationException();
     }
 
     /**
      * FIXME This doesn't secure anything actually.
-     * 
+     * <p/>
      * Created this wrapper to pass to ctx.setPrincipal() which is public for added
      * security.  This adds more security because an instance of this class is not
      * easily accessible whereas LdapPrincipals can be accessed easily from a context
@@ -562,7 +549,9 @@ public class AuthenticationService extends BaseInterceptor
      */
     public final class TrustedPrincipalWrapper
     {
-        /** the wrapped ldap principal */
+        /**
+         * the wrapped ldap principal
+         */
         private final LdapPrincipal principal;
 
 
@@ -571,7 +560,7 @@ public class AuthenticationService extends BaseInterceptor
          *
          * @param principal the LdapPrincipal to wrap
          */
-        private TrustedPrincipalWrapper(LdapPrincipal principal)
+        private TrustedPrincipalWrapper( LdapPrincipal principal )
         {
             this.principal = principal;
         }
