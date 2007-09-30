@@ -23,9 +23,11 @@ package org.apache.directory.server;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -34,22 +36,16 @@ import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NoPermissionException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.directory.*;
+import javax.naming.ldap.InitialLdapContext;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-
-import javax.naming.Context;
-import javax.naming.NoPermissionException;
-import javax.naming.NamingEnumeration;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 
 
 /**
@@ -88,7 +84,7 @@ public class MiscTest extends AbstractServerTest
         {
             Set<PartitionConfiguration> partitions = new HashSet<PartitionConfiguration>();
             partitions.addAll( configuration.getPartitionConfigurations() );
-            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
+            MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "aPache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
@@ -97,7 +93,9 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setName( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
+            Set<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             configuration.setPartitionConfigurations( partitions );
         }
@@ -109,7 +107,7 @@ public class MiscTest extends AbstractServerTest
             // create a partition to search
             Set partitions = new HashSet();
             partitions.addAll( configuration.getPartitionConfigurations() );
-            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
+            MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "apache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
@@ -118,7 +116,9 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setName( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
+            Set<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             configuration.setPartitionConfigurations( partitions );
         }

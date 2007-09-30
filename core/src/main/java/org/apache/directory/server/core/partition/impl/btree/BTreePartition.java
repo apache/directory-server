@@ -143,7 +143,7 @@ public abstract class BTreePartition implements Partition
      * @param indices
      * @throws NamingException
      */
-    protected void initIndices2(Set indices ) throws NamingException
+    protected void initIndices2( Set<Index> indices ) throws NamingException
     {
         Set<String> sysOidSet = new HashSet<String>();
         sysOidSet.add( Oid.EXISTANCE );
@@ -384,7 +384,11 @@ public abstract class BTreePartition implements Partition
     {
         initOptimizerAndConfiguration0( cfg );
         initRegistries1( factoryCfg.getRegistries() );
-        initIndices2( cfg.getIndexedAttributes() );
+        if ( cfg instanceof BTreePartitionConfiguration )
+        {
+            BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) cfg;
+            initIndices2( btpconf.getIndexedAttributes() );
+        }
         initSuffixEntry3( cfg.getSuffix(), cfg.getContextEntry() );
     }
 

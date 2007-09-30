@@ -186,7 +186,7 @@ public class StartupConfiguration extends Configuration
     /**
      * Returns {@link PartitionConfiguration}s to configure context partitions.
      */
-    public Set<PartitionConfiguration> getPartitionConfigurations()
+    public Set<? extends PartitionConfiguration> getPartitionConfigurations()
     {
         Set<PartitionConfiguration> cloned = new HashSet<PartitionConfiguration>();
         cloned.addAll( partitionConfigurations );

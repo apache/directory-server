@@ -20,39 +20,34 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
+import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
-import junit.framework.TestCase;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -130,11 +125,18 @@ public class PartitionSchemaLoaderTest extends TestCase
         // Initialize schema partition
         // --------------------------------------------------------------------
         
-        MutablePartitionConfiguration pc = new MutablePartitionConfiguration();
+        MutableBTreePartitionConfiguration pc = new MutableBTreePartitionConfiguration();
         pc.setName( "schema" );
         pc.setCacheSize( 1000 );
         pc.setPartitionClassName( JdbmPartition.class.getName() );
-        pc.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
+
+        Set<Index> indexedAttributes = new HashSet<Index>();
+        for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
+        {
+            indexedAttributes.add( new JdbmIndex( attributeId ) );
+        }
+
+        pc.setIndexedAttributes( indexedAttributes );
         pc.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();

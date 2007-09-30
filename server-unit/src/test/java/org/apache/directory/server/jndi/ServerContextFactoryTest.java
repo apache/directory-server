@@ -20,9 +20,14 @@
 package org.apache.directory.server.jndi;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -30,12 +35,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -54,19 +56,19 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
         Attributes attrs;
-        Set indexedAttrs;
+        Set<Index> indexedAttrs;
         Set pcfgs = new HashSet();
 
-        MutablePartitionConfiguration pcfg;
+        MutableBTreePartitionConfiguration pcfg;
 
         // Add partition 'testing'
-        pcfg = new MutablePartitionConfiguration();
+        pcfg = new MutableBTreePartitionConfiguration();
         pcfg.setName( "testing" );
         pcfg.setSuffix( "ou=testing" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "objectClass" );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         pcfg.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
@@ -83,14 +85,14 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
 
         // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
+        pcfg = new MutableBTreePartitionConfiguration();
         pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         pcfg.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
@@ -107,13 +109,13 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         pcfgs.add( pcfg );
 
         // Add partition 'MixedCase'
-        pcfg = new MutablePartitionConfiguration();
+        pcfg = new MutableBTreePartitionConfiguration();
         pcfg.setName( "mixedcase" );
         pcfg.setSuffix( "dc=MixedCase" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         pcfg.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );

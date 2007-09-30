@@ -24,6 +24,9 @@ import javax.naming.NamingException;
 
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 
+import java.util.Set;
+import java.util.HashSet;
+
 
 /**
  * A partition configuration containing parameters specific to the BTree 
@@ -41,6 +44,34 @@ public class BTreePartitionConfiguration extends PartitionConfiguration
      */
     private boolean synchOnWrite = false;
     private boolean optimizerEnabled = true;
+    private Set<? extends Index> indexedAttributes; 
+
+
+    public BTreePartitionConfiguration()
+    {
+        setIndexedAttributes( new HashSet<Index>() );
+    }
+
+
+    /**
+     * Returns the set of attribute type strings to create an index on.
+     */
+    @SuppressWarnings("unchecked")
+    public Set<Index> getIndexedAttributes()
+    {
+        Set<Index> newSet = new HashSet<Index>();
+        newSet.addAll( indexedAttributes );
+        return newSet;
+    }
+
+
+    /**
+     * Sets the set of attribute type strings to create an index on.
+     */
+    protected void setIndexedAttributes( Set<? extends Index> indexedAttributes )
+    {
+        this.indexedAttributes = indexedAttributes;
+    }
 
 
     protected void setOptimizerEnabled( boolean optimizerEnabled )
@@ -78,7 +109,6 @@ public class BTreePartitionConfiguration extends PartitionConfiguration
         newConfig.setCacheSize( config.getCacheSize() );
         newConfig.setContextEntry( config.getContextEntry() );
         newConfig.setPartitionClassName( config.getPartitionClassName() );
-        newConfig.setIndexedAttributes( config.getIndexedAttributes() );
         newConfig.setName( config.getName() );
         newConfig.setSuffix( config.getSuffix() );
         return newConfig;

@@ -54,7 +54,7 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
      *
      * @param indexedAttributes
      */
-    public void setIndexedAttributes( Set<Object> indexedAttributes )
+    public void setIndexedAttributes( Set<? extends Index> indexedAttributes )
     {
         super.setIndexedAttributes( indexedAttributes );
     }
@@ -96,7 +96,13 @@ public class MutableBTreePartitionConfiguration extends BTreePartitionConfigurat
         MutableBTreePartitionConfiguration newConfig = new MutableBTreePartitionConfiguration();
         newConfig.setCacheSize( config.getCacheSize() );
         newConfig.setContextEntry( config.getContextEntry() );
-        newConfig.setIndexedAttributes( config.getIndexedAttributes() );
+
+        if ( config instanceof BTreePartitionConfiguration )
+        {
+            BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) config;
+            newConfig.setIndexedAttributes( btpconf.getIndexedAttributes() );    
+        }
+
         newConfig.setName( config.getName() );
         newConfig.setSuffix( config.getSuffix() );
         newConfig.setSynchOnWrite( false );

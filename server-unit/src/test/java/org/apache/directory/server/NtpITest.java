@@ -20,27 +20,29 @@
 package org.apache.directory.server;
 
 
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.mina.util.AvailablePortFinder;
+
+import javax.naming.Context;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -73,17 +75,17 @@ public class NtpITest extends AbstractServerTest
         Attributes attrs;
         Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
 
-        MutablePartitionConfiguration pcfg;
+        MutableBTreePartitionConfiguration pcfg;
 
         // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
+        pcfg = new MutableBTreePartitionConfiguration();
         pcfg.setName( "example" );
         pcfg.setSuffix( "dc=example,dc=com" );
 
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
         pcfg.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );

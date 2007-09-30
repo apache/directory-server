@@ -48,12 +48,6 @@ public class MutablePartitionConfiguration extends PartitionConfiguration
     }
 
 
-    public void setIndexedAttributes( Set<Object> indexedAttributes )
-    {
-        super.setIndexedAttributes( indexedAttributes );
-    }
-
-
     public void setPartitionClassName( String partitionClassName )
     {
         super.setPartitionClassName( partitionClassName );

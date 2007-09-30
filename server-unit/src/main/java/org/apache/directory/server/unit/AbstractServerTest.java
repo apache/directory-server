@@ -20,31 +20,12 @@
 package org.apache.directory.server.unit;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
 import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -53,6 +34,16 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 /**
@@ -268,6 +259,7 @@ public abstract class AbstractServerTest extends TestCase
             {
                 FileUtils.deleteDirectory( wkdir );
             }
+
             if ( wkdir.exists() )
             {
                 throw new IOException( "Failed to delete: " + wkdir );
@@ -331,6 +323,9 @@ public abstract class AbstractServerTest extends TestCase
         env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+
+
         try
         {
             new InitialContext( env );
@@ -338,10 +333,10 @@ public abstract class AbstractServerTest extends TestCase
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
         }
 
         sysRoot = null;
-        doDelete( configuration.getWorkingDirectory() );
         configuration = new MutableServerStartupConfiguration();
         
         if ( start >= nbTests )

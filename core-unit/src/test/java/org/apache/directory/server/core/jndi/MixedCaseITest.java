@@ -20,22 +20,20 @@
 package org.apache.directory.server.core.jndi;
 
 
-import javax.naming.NamingException;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,14 +52,14 @@ public class MixedCaseITest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
 
-        MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
+        MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
         partition.setName( "apache" );
         partition.setSuffix( suffix );
 
-        Set<Object> indexedAttributes = new HashSet<Object>();
-        indexedAttributes.add( "objectClass" );
-        indexedAttributes.add( "ou" );
-        indexedAttributes.add( "uid" );
+        HashSet<Index> indexedAttributes = new HashSet<Index>();
+        indexedAttributes.add( new JdbmIndex( "objectClass" ) );
+        indexedAttributes.add( new JdbmIndex( "ou" ) );
+        indexedAttributes.add( new JdbmIndex( "uid" ) );
         partition.setIndexedAttributes( indexedAttributes );
 
         Attributes attrs = new AttributesImpl( true );
@@ -74,7 +72,7 @@ public class MixedCaseITest extends AbstractAdminTestCase
 
         partition.setContextEntry( attrs );
 
-        Set<MutablePartitionConfiguration> partitions = new HashSet<MutablePartitionConfiguration>();
+        Set<MutableBTreePartitionConfiguration> partitions = new HashSet<MutableBTreePartitionConfiguration>();
         partitions.add( partition );
 
         configuration.setPartitionConfigurations( partitions );

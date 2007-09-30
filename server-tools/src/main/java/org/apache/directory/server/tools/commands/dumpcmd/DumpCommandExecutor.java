@@ -18,31 +18,11 @@
  *  
  */
 package org.apache.directory.server.tools.commands.dumpcmd;
- 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
-
 import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
 import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.core.DirectoryService;
@@ -52,6 +32,8 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
@@ -59,18 +41,9 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -87,6 +60,18 @@ import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -206,7 +191,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                     "the installation layout could not be found:\n\t" + schemaDirectory );
         }
         
-        MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
+        MutableBTreePartitionConfiguration schemaPartitionConfig = new MutableBTreePartitionConfiguration();
         schemaPartitionConfig.setName( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
@@ -220,8 +205,13 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
                 ResultCodeEnum.OTHER );
         }
-        
-        schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
+
+        Set<Index> indexedAttributes = new HashSet<Index>();
+        for ( String attributeId : listing.getIndexedAttributes() )
+        {
+            indexedAttributes.add( new JdbmIndex( attributeId ) );
+        }
+        schemaPartitionConfig.setIndexedAttributes( indexedAttributes );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();

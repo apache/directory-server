@@ -445,6 +445,8 @@ public class JdbmStore
      */
     public synchronized void destroy()
     {
+        LOG.debug( "destroy() called on store for {}", this.suffixDn );
+
         if ( !initialized )
         {
             return;
@@ -493,6 +495,7 @@ public class JdbmStore
             try
             {
                 index.close();
+                LOG.debug( "Closed {} index for {} partition.",  index.getAttributeId(), suffixDn );
             }
             catch ( Throwable t )
             {
@@ -503,6 +506,7 @@ public class JdbmStore
         try
         {
             master.close();
+            LOG.debug( "Closed master table for {} partition.",  suffixDn );
         }
         catch ( Throwable t )
         {
@@ -512,6 +516,7 @@ public class JdbmStore
         try
         {
             recMan.close();
+            LOG.debug( "Cloased record manager for {} partition.",  suffixDn );
         }
         catch ( Throwable t )
         {

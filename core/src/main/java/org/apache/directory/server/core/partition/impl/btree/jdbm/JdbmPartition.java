@@ -89,35 +89,32 @@ public class JdbmPartition extends BTreePartition
             + File.separator + cfg.getName() ) );
 
         Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
-        for ( Object obj : cfg.getIndexedAttributes() )
-        {
-            JdbmIndex index = new JdbmIndex();
-            userIndices.add( index );
-
-            if ( obj instanceof String )
-            {
-                index.setAttributeId( ( String ) obj );
-            }
-            else if ( obj instanceof IndexConfiguration )
-            {
-                IndexConfiguration indexConfiguration = ( IndexConfiguration ) obj;
-                index.setAttributeId( indexConfiguration.getAttributeId() );
-                index.setCacheSize( indexConfiguration.getCacheSize() );
-                index.setNumDupLimit( indexConfiguration.getDuplicateLimit() );
-            }
-        }
-        store.setUserIndices( userIndices );
-
         if ( cfg instanceof BTreePartitionConfiguration )
         {
+            BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) cfg;
+            for ( Index obj : btpconf.getIndexedAttributes() )
+            {
+                JdbmIndex index;
+
+                if ( obj instanceof JdbmIndex )
+                {
+                    index = ( JdbmIndex ) obj;
+                }
+                else
+                {
+                    index = new JdbmIndex();
+                    index.setAttributeId( obj.getAttributeId() );
+                    index.setCacheSize( obj.getCacheSize() );
+                    index.setWkDirPath( obj.getWkDirPath() );
+                }
+
+                userIndices.add( index );
+            }
+            store.setUserIndices( userIndices );
             store.setSyncOnWrite( ( ( BTreePartitionConfiguration ) cfg ).isSynchOnWrite() );
-        }
-        
-        if ( cfg instanceof BTreePartitionConfiguration )
-        {
             store.setEnableOptimizer( ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() );
         }
-        
+
         store.init( oidRegistry, attributeTypeRegistry );
     }
 

@@ -20,23 +20,20 @@
 package org.apache.directory.server.core;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.MutableIndexConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -66,7 +63,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
 
         if ( getName().indexOf( "WithIndices" ) != -1 )
         {
-            MutablePartitionConfiguration sysConf = new MutablePartitionConfiguration();
+            MutableBTreePartitionConfiguration sysConf = new MutableBTreePartitionConfiguration();
             sysConf.setName( "system" );
             Attributes attrs = new AttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
@@ -74,15 +71,10 @@ public class SearchOpsITest extends AbstractAdminTestCase
             sysConf.setContextEntry( attrs );
             sysConf.setSuffix( "ou=system" );
             
-            Set<Object> indices = new HashSet<Object>();
+            Set<Index> indices = new HashSet<Index>();
             indices.addAll( sysConf.getIndexedAttributes() );
-            
-            MutableIndexConfiguration idxConfig = new MutableIndexConfiguration();
-            idxConfig.setAttributeId( "gidNumber" );
-            indices.add( "gidNumber" );
-            
+            indices.add( new JdbmIndex( "gidNumber" ) );
             sysConf.setIndexedAttributes( indices );
-            
             configuration.setSystemPartitionConfiguration( sysConf );
         }
         

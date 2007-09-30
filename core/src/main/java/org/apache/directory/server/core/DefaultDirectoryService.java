@@ -20,24 +20,9 @@
 package org.apache.directory.server.core;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.ConfigurationException;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -51,24 +36,19 @@ import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.schema.SchemaPartitionDao;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-import org.apache.directory.server.schema.registries.DefaultOidRegistry;
-import org.apache.directory.server.schema.registries.DefaultRegistries;
-import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
@@ -87,6 +67,14 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -290,7 +278,7 @@ class DefaultDirectoryService extends DirectoryService
     {
         if ( !started )
         {
-            return;
+            throw new IllegalStateException( "Attempt to shutdown server before it has started!" );
         }
 
         serviceListener.beforeShutdown( this );
@@ -846,7 +834,7 @@ class DefaultDirectoryService extends DirectoryService
         // Initialize schema partition
         // --------------------------------------------------------------------
         
-        MutablePartitionConfiguration schemaPartitionConfig = new MutablePartitionConfiguration();
+        MutableBTreePartitionConfiguration schemaPartitionConfig = new MutableBTreePartitionConfiguration();
         schemaPartitionConfig.setName( "schema" );
         schemaPartitionConfig.setCacheSize( 1000 );
         
@@ -860,8 +848,14 @@ class DefaultDirectoryService extends DirectoryService
             throw new LdapNamingException( "Got IOException while trying to read DBFileListing: " + e.getMessage(), 
                 ResultCodeEnum.OTHER );
         }
-        
-        schemaPartitionConfig.setIndexedAttributes( listing.getIndexedAttributes() );
+
+        Set<Index> indexedAttributes = new HashSet<Index>();
+        for ( String attributeId : listing.getIndexedAttributes() )
+        {
+            indexedAttributes.add( new JdbmIndex( attributeId ) );
+        }
+
+        schemaPartitionConfig.setIndexedAttributes( indexedAttributes );
         schemaPartitionConfig.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
@@ -901,20 +895,24 @@ class DefaultDirectoryService extends DirectoryService
         
         for ( PartitionConfiguration pconf : pcs )
         {
-            Iterator<Object> indices = pconf.getIndexedAttributes().iterator();
-            while ( indices.hasNext() )
+            if ( pconf instanceof BTreePartitionConfiguration )
             {
-                Object indexedAttr = indices.next();
-                String schemaName = dao.findSchema( indexedAttr.toString() );
-                if ( schemaName == null )
+                BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) pconf;
+                Iterator<Index> indices = btpconf.getIndexedAttributes().iterator();
+                while ( indices.hasNext() )
                 {
-                    throw new NamingException( "Index on unidentified attribute: " + indexedAttr.toString() );
-                }
-                
-                Schema schema = schemaMap.get( schemaName );
-                if ( schema.isDisabled() )
-                {
-                    dao.enableSchema( schemaName );
+                    Index indexedAttr = indices.next();
+                    String schemaName = dao.findSchema( indexedAttr.getAttributeId() );
+                    if ( schemaName == null )
+                    {
+                        throw new NamingException( "Index on unidentified attribute: " + indexedAttr.toString() );
+                    }
+
+                    Schema schema = schemaMap.get( schemaName );
+                    if ( schema.isDisabled() )
+                    {
+                        dao.enableSchema( schemaName );
+                    }
                 }
             }
         }

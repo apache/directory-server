@@ -20,8 +20,16 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.directory.server.core.partition.Oid;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,15 +38,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -69,16 +70,16 @@ public class DIRSERVER951ITest extends AbstractServerTest
         systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
 
         // Add indexed attributes for system partition
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( Oid.ALIAS );
-        indexedAttrs.add( Oid.EXISTANCE );
-        indexedAttrs.add( Oid.HIERARCHY );
-        indexedAttrs.add( Oid.NDN );
-        indexedAttrs.add( Oid.ONEALIAS );
-        indexedAttrs.add( Oid.SUBALIAS );
-        indexedAttrs.add( Oid.UPDN );
-        indexedAttrs.add( "objectClass" );
-        indexedAttrs.add( "ou" );
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( Oid.ALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.EXISTANCE ) );
+        indexedAttrs.add( new JdbmIndex( Oid.HIERARCHY ) );
+        indexedAttrs.add( new JdbmIndex( Oid.NDN ) );
+        indexedAttrs.add( new JdbmIndex( Oid.ONEALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.SUBALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.UPDN ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
         systemCfg.setIndexedAttributes( indexedAttrs );
 
         // Add context entry for system partition

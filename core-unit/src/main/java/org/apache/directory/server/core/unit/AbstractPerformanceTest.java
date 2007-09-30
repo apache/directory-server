@@ -20,31 +20,28 @@
 package org.apache.directory.server.core.unit;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
+import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.Context;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
+import java.io.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
 
 
 /**
@@ -138,10 +135,10 @@ public class AbstractPerformanceTest extends AbstractTestCase
         if ( ! isExternal )
         {
             // Add indices for ou, uid, and objectClass
-            HashSet<Object> indexedAttributes = new HashSet<Object>();
-            indexedAttributes.add( "ou" );
-            indexedAttributes.add( "uid" );
-            indexedAttributes.add( SchemaConstants.OBJECT_CLASS_AT );
+            HashSet<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "ou" ) );
+            indexedAttributes.add( new JdbmIndex( "uid" ) );
+            indexedAttributes.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             
             // Build the root entry for the new partition
             Attributes attributes = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, "top", true );
@@ -149,7 +146,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
             attributes.put( "ou", "test" );
             
             // Add apache.org paritition since all work will be done here
-            MutablePartitionConfiguration partConfig = new MutablePartitionConfiguration();
+            MutableBTreePartitionConfiguration partConfig = new MutableBTreePartitionConfiguration();
             partConfig.setIndexedAttributes( indexedAttributes );
             partConfig.setName( "test" );
             partConfig.setSuffix( "ou=test" );

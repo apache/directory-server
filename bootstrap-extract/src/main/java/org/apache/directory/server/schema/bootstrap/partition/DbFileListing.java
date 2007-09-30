@@ -177,9 +177,9 @@ public class DbFileListing
      *
      * @return set of user index names
      */
-    public Set<Object> getIndexedAttributes()
+    public Set<String> getIndexedAttributes()
     {
-        Set<Object> attributes = new HashSet<Object>();
+        Set<String> attributes = new HashSet<String>();
         Iterator<String> ii = iterator();
         while( ii.hasNext() )
         {

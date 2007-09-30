@@ -20,21 +20,21 @@
 package org.apache.directory.server.core.configuration;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
- * A configuration for {@link Partition}.
+ * A configuration for {@link PartitionConfiguration}.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -50,7 +50,6 @@ public class PartitionConfiguration
     private String name;
     private int cacheSize = -1;
     private String suffix;
-    private Set<Object> indexedAttributes; // Set<String> or <IndexConfiguration>
     private Attributes contextEntry = new AttributesImpl( true );
     private String partitionClassName = DEFAULT_PARTITION_IMPLEMENTATION;
 
@@ -60,7 +59,6 @@ public class PartitionConfiguration
      */
     protected PartitionConfiguration()
     {
-        setIndexedAttributes( new HashSet<Object>() );
     }
 
 
@@ -82,27 +80,6 @@ public class PartitionConfiguration
     {
         name = name.trim();
         this.name = name;
-    }
-
-
-    /**
-     * Returns the set of attribute type strings to create an index on.
-     */
-    @SuppressWarnings("unchecked")
-    public Set<Object> getIndexedAttributes()
-    {
-        Set<Object> newSet = new HashSet<Object>();
-        newSet.addAll( indexedAttributes );
-        return newSet;
-    }
-
-
-    /**
-     * Sets the set of attribute type strings to create an index on.
-     */
-    protected void setIndexedAttributes( Set<Object> indexedAttributes )
-    {
-        this.indexedAttributes = indexedAttributes;
     }
 
 

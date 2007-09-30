@@ -149,7 +149,8 @@ public class ServerContextFactory extends CoreContextFactory
     }
 
 
-    public void afterShutdown( DirectoryService service )
+    // @todo this was afterShutdown but perhaps it's best this occurs before shutdown
+    public void beforeShutdown( DirectoryService service )
     {
         ServerStartupConfiguration cfg = ( ServerStartupConfiguration ) service.getConfiguration()
             .getStartupConfiguration();

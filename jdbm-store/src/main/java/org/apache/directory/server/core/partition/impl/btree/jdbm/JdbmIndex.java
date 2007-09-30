@@ -134,6 +134,13 @@ public class JdbmIndex implements Index
     }
 
 
+    public JdbmIndex( String attributeId )
+    {
+        initialized = false;
+        setAttributeId( attributeId );
+    }
+
+
     public void init( AttributeType attributeType, File wkDirPath ) throws NamingException
     {
         this.keyCache = new SynchronizedLRUMap( cacheSize );

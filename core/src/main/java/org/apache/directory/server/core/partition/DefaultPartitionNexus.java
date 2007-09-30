@@ -20,55 +20,16 @@
 package org.apache.directory.server.core.partition;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.naming.ConfigurationException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.partition.tree.BranchNode;
 import org.apache.directory.server.core.partition.tree.LeafNode;
 import org.apache.directory.server.core.partition.tree.Node;
-import org.apache.directory.server.core.partition.tree.BranchNode;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -80,14 +41,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.CascadeControl;
-import org.apache.directory.shared.ldap.message.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
-import org.apache.directory.shared.ldap.message.SubentriesControl;
+import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -97,9 +51,20 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.ConfigurationException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -231,6 +196,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     {
         return "NEXUS";
     }
+
     
     public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
         throws NamingException
@@ -249,8 +215,8 @@ public class DefaultPartitionNexus extends PartitionNexus
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
-        Iterator<PartitionConfiguration> partitionConfigurations = 
-            factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
+        Iterator<PartitionConfiguration> partitionConfigurations =
+                ( Iterator<PartitionConfiguration> ) factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
         try
         {
             while ( partitionConfigurations.hasNext() )
@@ -329,56 +295,23 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             
             // add all attribute oids of index configs to a hashset
-            Set<Object> indices = systemCfg.getIndexedAttributes();
+            Set<Index> indices = systemCfg.getIndexedAttributes();
             Set<String> indexOids = new HashSet<String>();
             OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
             
-            for ( Object index : indices )
+            for ( Index index : indices )
             {
-                indexOids.add( registry.getOid( index.toString() ) );
+                indexOids.add( registry.getOid( index.getAttributeId() ) );
             }
-            
-            if ( ! indexOids.contains( Oid.ALIAS ) )
-            {
-                indices.add( Oid.ALIAS );
-            }
-            
-            if ( ! indexOids.contains( Oid.EXISTANCE ) )
-            {
-                indices.add( Oid.EXISTANCE );
-            }
-            
-            if ( ! indexOids.contains( Oid.HIERARCHY ) )
-            {
-                indices.add( Oid.HIERARCHY );
-            }
-            
-            if ( ! indexOids.contains( Oid.NDN ) )
-            {
-                indices.add( Oid.NDN );
-            }
-            
-            if ( ! indexOids.contains( Oid.ONEALIAS ) )
-            {
-                indices.add( Oid.ONEALIAS );
-            }
-            
-            if ( ! indexOids.contains( Oid.SUBALIAS ) )
-            {
-                indices.add( Oid.SUBALIAS );
-            }
-            
-            if ( ! indexOids.contains( Oid.UPDN ) )
-            {
-                indices.add( Oid.UPDN );
-            }
-            
+
             if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
             {
                 log.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
                         "in the system partition configuration.  This will lead to poor " +
                         "performance.  The server is automatically adding this index for you." );
-                indices.add( SchemaConstants.OBJECT_CLASS_AT );
+                JdbmIndex index = new JdbmIndex();
+                index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
+                indices.add( index );
             }
         }
         else
@@ -392,16 +325,9 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     
             // Add indexed attributes for system partition
-            Set<Object> indexedSystemAttrs = new HashSet<Object>();
-            indexedSystemAttrs.add( Oid.ALIAS );
-            indexedSystemAttrs.add( Oid.EXISTANCE );
-            indexedSystemAttrs.add( Oid.HIERARCHY );
-            indexedSystemAttrs.add( Oid.NDN );
-            indexedSystemAttrs.add( Oid.ONEALIAS );
-            indexedSystemAttrs.add( Oid.SUBALIAS );
-            indexedSystemAttrs.add( Oid.UPDN );
-            indexedSystemAttrs.add( SchemaConstants.OBJECT_CLASS_AT );
-            systemCfg.setIndexedAttributes( indexedSystemAttrs );
+            Set<JdbmIndex> indexedAttrs = new HashSet<JdbmIndex>();
+            indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
+            systemCfg.setIndexedAttributes( indexedAttrs );
     
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
@@ -650,13 +576,12 @@ public class DefaultPartitionNexus extends PartitionNexus
         // This is easier to create a new structure from scratch than to reorganize
         // the current structure. As this strcuture is not modified often
         // this is an acceptable solution.
-        synchronized (partitionLookupTree)
+        synchronized ( partitionLookupTree )
         {
             partitions.remove( key );
-        
             partitionLookupTree = new BranchNode();
             
-            for ( Partition part:partitions.values() )
+            for ( Partition part : partitions.values() )
             {
                 partitionLookupTree.recursivelyAddPartition( partitionLookupTree, part.getSuffix(), 0, partition );
             }
