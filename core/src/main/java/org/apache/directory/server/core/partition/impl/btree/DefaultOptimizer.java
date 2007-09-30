@@ -76,7 +76,7 @@ public class DefaultOptimizer implements Optimizer
     public void annotate( ExprNode node ) throws NamingException
     {
         // Start off with the worst case unless scan count says otherwise.
-        long count = Long.MAX_VALUE;
+        Long count = Long.MAX_VALUE;
 
         /* --------------------------------------------------------------------
          *                 H A N D L E   L E A F   N O D E S          
