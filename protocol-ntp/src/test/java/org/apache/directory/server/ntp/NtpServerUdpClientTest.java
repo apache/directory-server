@@ -42,7 +42,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * A simple integration test which uses the Apache Commons Net client to talk to the NTP server. 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:  $, $Date:  $
+ * @version $Rev$, $Date$
  */
 public class NtpServerUdpClientTest extends TestCase
 {
@@ -87,7 +87,7 @@ public class NtpServerUdpClientTest extends TestCase
 
         // Get time via client call
         NTPUDPClient client = new NTPUDPClient();
-        InetAddress localhost = InetAddress.getByName( "localhost" );
+        InetAddress localhost = InetAddress.getByName( null );
         TimeInfo time = client.getTime( localhost, port );
         long returnTime = time.getReturnTime();
 
