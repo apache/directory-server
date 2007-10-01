@@ -33,7 +33,7 @@ public class OidNormalizer
     private String attributeTypeOid;
 
     /** The normalizer to be used with this OID */
-    private Normalizer normalizer;
+    private Normalizer<?> normalizer;
 
 
     /**
@@ -42,7 +42,7 @@ public class OidNormalizer
      * @param attributeTypeOid the oid of the attributeType mapped to the normalizer
      * @param normalizer the associated equality match based normalizer
      */
-    public OidNormalizer( String attributeTypeOid, Normalizer normalizer )
+    public OidNormalizer( String attributeTypeOid, Normalizer<?> normalizer )
     {
         this.attributeTypeOid = attributeTypeOid;
         this.normalizer = normalizer;
@@ -66,7 +66,7 @@ public class OidNormalizer
      * 
      * @return The normalizer associated to the current OID
      */
-    public Normalizer getNormalizer()
+    public Normalizer<?> getNormalizer()
     {
         return normalizer;
     }

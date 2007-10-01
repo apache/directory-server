@@ -34,6 +34,7 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.DefaultStringNormalizer;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -1422,7 +1423,7 @@ public class LdapDN implements Name
                 {
                     return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
                     		atav.getUpValue(),
-                    		oidNormalizer.getNormalizer().normalize( atav.getValue() ) );
+                    		((Normalizer<Object>)oidNormalizer.getNormalizer()).normalize( atav.getValue() ) );
 
                 }
                 else
@@ -1457,7 +1458,7 @@ public class LdapDN implements Name
         Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
 
         rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
-                oidNormalizer.getNormalizer().normalize( normValue ) );
+            ((Normalizer<Object>)oidNormalizer.getNormalizer()).normalize( normValue ) );
 
     }
 
