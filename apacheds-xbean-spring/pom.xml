@@ -59,6 +59,12 @@
       <version>${pom.version}</version>
       <classifier>sources</classifier>
     </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+      <version>${pom.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
       <!-- replication service xbean config metadata -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
