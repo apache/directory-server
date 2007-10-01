@@ -48,12 +48,7 @@ public class NoOpOptimizer implements Optimizer
         BranchNode bnode = ( BranchNode ) node;
         if ( bnode.getChildren().size() == 0 )
         {
-            return;
-        }
-        
-        if ( bnode.getChildren().size() == 1 )
-        {
-            bnode.getChildren().get( 0 ).set( "count", MAX );
+            bnode.set( "count", MAX );
             return;
         }
         
@@ -70,5 +65,7 @@ public class NoOpOptimizer implements Optimizer
                 annotate( child );
             }
         }
+
+        bnode.set( "count", MAX );
     }
 }

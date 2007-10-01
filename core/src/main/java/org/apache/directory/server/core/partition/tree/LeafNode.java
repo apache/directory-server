@@ -72,7 +72,7 @@ public class LeafNode implements Node
     {
         try
         {
-            return partition.getSuffix().getUpName();
+            return partition.getSuffixDn().getUpName();
         }
         catch ( NamingException ne )
         {

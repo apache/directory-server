@@ -162,11 +162,8 @@ public abstract class AbstractTestCase extends TestCase
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-        
     	List entries = reader.parseLdif( LDIF );
-        
         Entry entry = ( Entry ) entries.get(0);
-
         testEntries.add( entry );
 
         // -------------------------------------------------------------------

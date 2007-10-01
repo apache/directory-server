@@ -128,7 +128,7 @@ public abstract class AbstractContextFactory implements InitialContextFactory, D
         else if ( cfg instanceof AddPartitionConfiguration )
         {
             AddContextPartitionOperationContext ctxPartition = 
-                new AddContextPartitionOperationContext( ( ( AddPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
+                new AddContextPartitionOperationContext( ( ( AddPartitionConfiguration ) cfg ).getPartition() );
             
             Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" ); 
             

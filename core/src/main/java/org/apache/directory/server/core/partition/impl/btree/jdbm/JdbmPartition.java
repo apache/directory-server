@@ -21,7 +21,6 @@ package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
@@ -51,8 +50,10 @@ import java.util.Set;
 public class JdbmPartition extends BTreePartition
 {
     private JdbmStore store;
+    private boolean optimizerEnabled = true;
+    private Set<Index> indexedAttributes;
 
-
+    
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
@@ -64,7 +65,66 @@ public class JdbmPartition extends BTreePartition
     public JdbmPartition()
     {
         store = new JdbmStore();
+        indexedAttributes = new HashSet<Index>();
     }
+
+
+    // ------------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+    public String getSuffix()
+    {
+        return super.suffix;
+    }
+
+
+    public void setSuffix( String suffix )
+    {
+        super.suffix = suffix;
+    }
+
+
+    public void setIndexedAttributes( Set<Index> indexedAttributes )
+    {
+        this.indexedAttributes = indexedAttributes;
+    }
+
+
+    public Set<Index> getIndexedAttributes()
+    {
+        return indexedAttributes;
+    }
+
+
+    public boolean isOptimizerEnabled()
+    {
+        return optimizerEnabled;
+    }
+
+
+    public void setOptimizerEnabled( boolean optimizerEnabled )
+    {
+        this.optimizerEnabled = optimizerEnabled;
+    }
+
+
+    public void setSyncOnWrite( boolean syncOnWrite )
+    {
+        store.setSyncOnWrite( syncOnWrite );
+    }
+
+
+    public boolean isSyncOnWrite()
+    {
+        return store.isSyncOnWrite();
+    }
+
+
+    // ------------------------------------------------------------------------
+    // E N D   C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
 
 
     public void setRegistries( Registries registries )
@@ -84,102 +144,87 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
-        throws NamingException
+    public final void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
         // setup optimizer and registries for parent
-        if ( cfg instanceof BTreePartitionConfiguration )
+        if ( ! optimizerEnabled )
         {
-            this.cfg = ( BTreePartitionConfiguration ) cfg;
-            if ( ! this.cfg.isOptimizerEnabled() )
-            {
-                optimizer = new NoOpOptimizer();
-            }
-            else
-            {
-                optimizer = new DefaultOptimizer( this );
-            }
+            optimizer = new NoOpOptimizer();
         }
         else
         {
-            this.cfg = BTreePartitionConfiguration.convert( cfg );
             optimizer = new DefaultOptimizer( this );
         }
+
         initRegistries( factoryCfg.getRegistries() );
         
         // initialize the store
-        store.setCacheSize( cfg.getCacheSize() );
-        store.setContextEntry( cfg.getContextEntry() );
-        store.setName( cfg.getName() );
-        store.setSuffixDn( cfg.getSuffix() );
+        store.setCacheSize( cacheSize );
+        store.setContextEntry( contextEntry );
+        store.setName( id );
+        store.setSuffixDn( suffix );
         store.setWorkingDirectory( new File(
-            factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath()
-            + File.separator + cfg.getName() ) );
+            factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath() + File.separator + id ) );
 
         Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
-        if ( cfg instanceof BTreePartitionConfiguration )
+        for ( Index obj : indexedAttributes )
         {
-            BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) cfg;
-            for ( Index obj : btpconf.getIndexedAttributes() )
+            JdbmIndex index;
+
+            if ( obj instanceof JdbmIndex )
             {
-                JdbmIndex index;
+                index = ( JdbmIndex ) obj;
+            }
+            else
+            {
+                index = new JdbmIndex();
+                index.setAttributeId( obj.getAttributeId() );
+                index.setCacheSize( obj.getCacheSize() );
+                index.setWkDirPath( obj.getWkDirPath() );
+            }
 
-                if ( obj instanceof JdbmIndex )
+            String oid = oidRegistry.getOid( index.getAttributeId() );
+            if ( SYS_INDEX_OIDS.contains( oidRegistry.getOid( index.getAttributeId() ) ) )
+            {
+                if ( oid.equals( Oid.ALIAS ) )
                 {
-                    index = ( JdbmIndex ) obj;
+                    store.setAliasIndex( index );
+                }
+                else if ( oid.equals( Oid.EXISTANCE ) )
+                {
+                    store.setExistanceIndex( index );
+                }
+                else if ( oid.equals( Oid.HIERARCHY ) )
+                {
+                    store.setHierarchyIndex( index );
+                }
+                else if ( oid.equals( Oid.NDN ) )
+                {
+                    store.setNdnIndex( index );
+                }
+                else if ( oid.equals( Oid.ONEALIAS ) )
+                {
+                    store.setOneAliasIndex( index );
+                }
+                else if ( oid.equals( Oid.SUBALIAS ) )
+                {
+                    store.setSubAliasIndex( index );
+                }
+                else if ( oid.equals( Oid.UPDN ) )
+                {
+                    store.setUpdnIndex( index );
                 }
                 else
                 {
-                    index = new JdbmIndex();
-                    index.setAttributeId( obj.getAttributeId() );
-                    index.setCacheSize( obj.getCacheSize() );
-                    index.setWkDirPath( obj.getWkDirPath() );
-                }
-
-                String oid = oidRegistry.getOid( index.getAttributeId() );
-                if ( SYS_INDEX_OIDS.contains( oidRegistry.getOid( index.getAttributeId() ) ) )
-                {
-                    if ( oid.equals( Oid.ALIAS ) )
-                    {
-                        store.setAliasIndex( index );
-                    }
-                    else if ( oid.equals( Oid.EXISTANCE ) )
-                    {
-                        store.setExistanceIndex( index );
-                    }
-                    else if ( oid.equals( Oid.HIERARCHY ) )
-                    {
-                        store.setHierarchyIndex( index );
-                    }
-                    else if ( oid.equals( Oid.NDN ) )
-                    {
-                        store.setNdnIndex( index );
-                    }
-                    else if ( oid.equals( Oid.ONEALIAS ) )
-                    {
-                        store.setOneAliasIndex( index );
-                    }
-                    else if ( oid.equals( Oid.SUBALIAS ) )
-                    {
-                        store.setSubAliasIndex( index );
-                    }
-                    else if ( oid.equals( Oid.UPDN ) )
-                    {
-                        store.setUpdnIndex( index );
-                    }
-                    else
-                    {
-                        throw new IllegalStateException( "Unrecognized system index " + oid );
-                    }
-                }
-                else
-                {
-                    userIndices.add( index );
+                    throw new IllegalStateException( "Unrecognized system index " + oid );
                 }
             }
+            else
+            {
+                userIndices.add( index );
+            }
             store.setUserIndices( userIndices );
-            store.setSyncOnWrite( ( ( BTreePartitionConfiguration ) cfg ).isSynchOnWrite() );
-            store.setEnableOptimizer( ( ( BTreePartitionConfiguration ) cfg ).isOptimizerEnabled() );
+            store.setEnableOptimizer( isOptimizerEnabled() );
         }
 
         store.init( oidRegistry, attributeTypeRegistry );
@@ -437,12 +482,12 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final LdapDN getSuffix()
+    public final LdapDN getSuffixDn()
     {
         return store.getSuffix();
     }
 
-    public final LdapDN getUpSuffix()
+    public final LdapDN getUpSuffixDn()
     {
         return store.getUpSuffix();
     }

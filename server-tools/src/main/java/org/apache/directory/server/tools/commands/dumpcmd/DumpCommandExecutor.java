@@ -28,12 +28,10 @@ import org.apache.directory.server.configuration.ServerStartupConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
@@ -191,9 +189,9 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                     "the installation layout could not be found:\n\t" + schemaDirectory );
         }
         
-        MutableBTreePartitionConfiguration schemaPartitionConfig = new MutableBTreePartitionConfiguration();
-        schemaPartitionConfig.setName( "schema" );
-        schemaPartitionConfig.setCacheSize( 1000 );
+        JdbmPartition schemaPartition = new JdbmPartition();
+        schemaPartition.setId( "schema" );
+        schemaPartition.setCacheSize( 1000 );
         
         DbFileListing listing = null;
         try 
@@ -211,16 +209,15 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         {
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
-        schemaPartitionConfig.setIndexedAttributes( indexedAttributes );
-        schemaPartitionConfig.setSuffix( "ou=schema" );
+        schemaPartition.setIndexedAttributes( indexedAttributes );
+        schemaPartition.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, "schema" );
-        schemaPartitionConfig.setContextEntry( entry );
-        JdbmPartition schemaPartition = new JdbmPartition();
-        
+        schemaPartition.setContextEntry( entry );
+
         DirectoryServiceConfiguration dsc = new DirectoryServiceConfiguration()
         {
             public Hashtable<String, Object> getEnvironment()
@@ -274,7 +271,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
             }
         };
         
-        schemaPartition.init( dsc, schemaPartitionConfig );
+        schemaPartition.init( dsc );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries

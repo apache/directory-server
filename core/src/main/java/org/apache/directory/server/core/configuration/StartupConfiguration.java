@@ -34,10 +34,11 @@ import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
 import org.apache.directory.server.core.collective.CollectiveAttributeService;
 import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.normalization.NormalizationService;
 import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.normalization.NormalizationService;
 import org.apache.directory.server.core.operational.OperationalAttributeService;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.subtree.SubentryService;
@@ -45,6 +46,10 @@ import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.util.*;
 
 
 /**
@@ -77,9 +82,8 @@ public class StartupConfiguration extends Configuration
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
     private List<Interceptor> interceptors;
-    private PartitionConfiguration systemPartitionConfiguration;
-    private Set<? extends PartitionConfiguration> partitionConfigurations =
-        new HashSet<PartitionConfiguration>();
+    private Partition systemPartition;
+    private Set<? extends Partition> partitions = new HashSet<Partition>();
     private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
 
 
@@ -137,31 +141,30 @@ public class StartupConfiguration extends Configuration
 
 
     /**
-     * Returns {@link PartitionConfiguration}s to configure context partitions.
+     * Returns {@link Partition}s to configure context partitions.
      */
-    public Set<? extends PartitionConfiguration> getPartitionConfigurations()
+    public Set<? extends Partition> getPartitions()
     {
-        Set<PartitionConfiguration> cloned = new HashSet<PartitionConfiguration>();
-        cloned.addAll( partitionConfigurations );
+        Set<Partition> cloned = new HashSet<Partition>();
+        cloned.addAll( partitions );
         return cloned;
     }
 
 
     /**
-     * Sets {@link PartitionConfiguration}s to configure context partitions.
+     * Sets {@link Partition}s to configure context partitions.
      */
-    protected void setPartitionConfigurations( Set<? extends PartitionConfiguration> contextParitionConfigurations )
+    protected void setPartitions( Set<? extends Partition> contextParitions )
     {
-        Set<PartitionConfiguration> cloned = new HashSet<PartitionConfiguration>();
-        cloned.addAll( contextParitionConfigurations );
+        Set<Partition> cloned = new HashSet<Partition>();
+        cloned.addAll( contextParitions );
         Set<String> names = new HashSet<String>();
-        Iterator<? extends PartitionConfiguration> i = cloned.iterator();
+        Iterator<? extends Partition> i = cloned.iterator();
         while ( i.hasNext() )
         {
-            PartitionConfiguration cfg = i.next();
-            cfg.validate();
+            Partition p = i.next();
 
-            String id = cfg.getName();
+            String id = p.getId();
             if ( names.contains( id ) )
             {
                 throw new ConfigurationException( "Duplicate partition id: " + id );
@@ -169,7 +172,7 @@ public class StartupConfiguration extends Configuration
             names.add( id );
         }
 
-        this.partitionConfigurations = cloned;
+        this.partitions = cloned;
     }
 
 
@@ -353,15 +356,15 @@ public class StartupConfiguration extends Configuration
         return maxTimeLimit;
     }
 
-    protected void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
+    protected void setSystemPartition( Partition systemPartition )
     {
-        this.systemPartitionConfiguration = systemPartitionConfiguration;
+        this.systemPartition = systemPartition;
     }
 
 
-    public PartitionConfiguration getSystemPartitionConfiguration()
+    public Partition getSystemPartition()
     {
-        return systemPartitionConfiguration;
+        return systemPartition;
     }
 
 

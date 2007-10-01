@@ -20,11 +20,10 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -63,13 +62,13 @@ public class SaslBindITest extends AbstractServerTest
         configuration.getLdapConfiguration().setSaslHost( "localhost" );
 
         Attributes attrs;
-        Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
+        Set<Partition> partitions = new HashSet<Partition>();
 
-        MutableBTreePartitionConfiguration pcfg;
+        JdbmPartition pcfg;
 
         // Add partition 'example'
-        pcfg = new MutableBTreePartitionConfiguration();
-        pcfg.setName( "example" );
+        pcfg = new JdbmPartition();
+        pcfg.setId( "example" );
         pcfg.setSuffix( "dc=example,dc=com" );
 
         Set<Index> indexedAttrs = new HashSet<Index>();
@@ -88,8 +87,8 @@ public class SaslBindITest extends AbstractServerTest
         attrs.put( attr );
         pcfg.setContextEntry( attrs );
 
-        pcfgs.add( pcfg );
-        configuration.setPartitionConfigurations( pcfgs );
+        partitions.add( pcfg );
+        configuration.setPartitions( partitions );
         super.setUp();
 
         Hashtable<String, String> env = new Hashtable<String, String>();

@@ -162,7 +162,7 @@ public class PartitionFrame extends JFrame
         content.add( mainPnl, java.awt.BorderLayout.NORTH );
         getContentPane().add( content, BorderLayout.CENTER );
         // set title
-        setTitle( "Partition: " + this.partition.getSuffix().toString() );
+        setTitle( "Partition: " + this.partition.getSuffixDn().toString() );
         // add status bar
         getContentPane().add( statusBar, BorderLayout.SOUTH );
         // add menu bar
@@ -357,7 +357,7 @@ public class PartitionFrame extends JFrame
         try
         {
             TreePath path = tree.getSelectionModel().getSelectionPath();
-            String parentDn = partition.getSuffix().toString();
+            String parentDn = partition.getSuffixDn().toString();
 
             if ( null != path )
             {
@@ -401,7 +401,7 @@ public class PartitionFrame extends JFrame
 
         if ( null == path )
         {
-            return partition.getSuffix().toString();
+            return partition.getSuffixDn().toString();
         }
 
         Object last = path.getLastPathComponent();
@@ -420,7 +420,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            base = partition.getSuffix().toString();
+            base = partition.getSuffixDn().toString();
         }
 
         return base;
@@ -554,7 +554,7 @@ public class PartitionFrame extends JFrame
         }
         else
         {
-            dialog.setBase( partition.getSuffix().toString() );
+            dialog.setBase( partition.getSuffixDn().toString() );
         }
 
         dialog.addActionListener( new ActionListener()
@@ -869,7 +869,7 @@ public class PartitionFrame extends JFrame
         nodes = new HashMap<Long, EntryNode>();
 
         Attributes suffix = partition.getSuffixEntry();
-        Long id = partition.getEntryId( partition.getSuffix().toString() );
+        Long id = partition.getEntryId( partition.getSuffixDn().toString() );
         root = new EntryNode( id, null, partition, suffix, nodes );
 
         /*
@@ -889,7 +889,7 @@ public class PartitionFrame extends JFrame
          }
          });
 
-         dialog.setBase(database.getSuffix().toString());
+         dialog.setBase(database.getSuffixDn().toString());
          dialog.setScope(FilterDialog.SUBTREE_SCOPE);
 
          //Center the frame on screen

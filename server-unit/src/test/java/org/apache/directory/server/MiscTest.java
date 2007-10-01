@@ -23,11 +23,10 @@ package org.apache.directory.server;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.asn1.util.Asn1StringUtils;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -42,7 +41,6 @@ import javax.naming.NoPermissionException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -82,22 +80,22 @@ public class MiscTest extends AbstractServerTest
         }
         else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
-            Set<PartitionConfiguration> partitions = new HashSet<PartitionConfiguration>();
-            partitions.addAll( configuration.getPartitionConfigurations() );
-            MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
+            Set<Partition> partitions = new HashSet<Partition>();
+            partitions.addAll( configuration.getPartitions() );
+            JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "aPache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
-            partition.setName( "apache" );
+            partition.setId( "apache" );
             partition.setContextEntry( entry );
             Set<Index> indexedAttributes = new HashSet<Index>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            configuration.setPartitionConfigurations( partitions );
+            configuration.setPartitions( partitions );
         }
         else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
@@ -106,21 +104,21 @@ public class MiscTest extends AbstractServerTest
 
             // create a partition to search
             Set partitions = new HashSet();
-            partitions.addAll( configuration.getPartitionConfigurations() );
-            MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
+            partitions.addAll( configuration.getPartitions() );
+            JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "apache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
             entry.put( oc );
             oc.add( "top" );
             oc.add( "domain" );
-            partition.setName( "apache" );
+            partition.setId( "apache" );
             partition.setContextEntry( entry );
             Set<Index> indexedAttributes = new HashSet<Index>();
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            configuration.setPartitionConfigurations( partitions );
+            configuration.setPartitions( partitions );
         }
 
         super.setUp();

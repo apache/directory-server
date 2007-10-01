@@ -233,7 +233,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -276,7 +276,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -319,7 +319,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -362,7 +362,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -405,7 +405,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -497,7 +497,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -613,7 +613,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -662,7 +662,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -690,7 +690,7 @@ public class SchemaPartitionDao
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
         return partition.search( 
-            new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+            new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
     }
 
 
@@ -739,7 +739,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -787,7 +787,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -829,7 +829,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 SearchResult sr = ne.next();
@@ -909,7 +909,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( 
-                new SearchOperationContext( partition.getSuffix(), new HashMap(), filter, searchControls ) );
+                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );

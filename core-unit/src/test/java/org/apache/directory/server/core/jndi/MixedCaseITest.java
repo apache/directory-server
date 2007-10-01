@@ -20,10 +20,10 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -51,9 +51,8 @@ public class MixedCaseITest extends AbstractAdminTestCase
 
     public void setUp() throws Exception
     {
-
-        MutableBTreePartitionConfiguration partition = new MutableBTreePartitionConfiguration();
-        partition.setName( "apache" );
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "apache" );
         partition.setSuffix( suffix );
 
         HashSet<Index> indexedAttributes = new HashSet<Index>();
@@ -72,10 +71,10 @@ public class MixedCaseITest extends AbstractAdminTestCase
 
         partition.setContextEntry( attrs );
 
-        Set<MutableBTreePartitionConfiguration> partitions = new HashSet<MutableBTreePartitionConfiguration>();
+        Set<Partition> partitions = new HashSet<Partition>();
         partitions.add( partition );
 
-        configuration.setPartitionConfigurations( partitions );
+        configuration.setPartitions( partitions );
         super.overrideEnvironment( Context.PROVIDER_URL, suffix );
 
         super.setUp();

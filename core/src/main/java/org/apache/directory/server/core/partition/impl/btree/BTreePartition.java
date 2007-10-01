@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public abstract class BTreePartition implements Partition
 {
-    protected final static Set<String> SYS_INDEX_OIDS;
+    protected static final Set<String> SYS_INDEX_OIDS;
 
     static
     {
@@ -71,15 +71,21 @@ public abstract class BTreePartition implements Partition
     /** the search engine used to search the database */
     protected SearchEngine searchEngine;
     protected Optimizer optimizer;
-    protected BTreePartitionConfiguration cfg;
-    
+
     protected AttributeTypeRegistry attributeTypeRegistry;
     protected OidRegistry oidRegistry;
+
+    protected String id;
+    protected int cacheSize = -1;
+    protected LdapDN suffixDn;
+    protected String suffix;
+    protected Attributes contextEntry = new AttributesImpl( true );
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
+
 
     /**
      * Creates a B-tree based context partition.
@@ -89,18 +95,84 @@ public abstract class BTreePartition implements Partition
     }
 
     
-    public BTreePartitionConfiguration getConfiguration()
+    // ------------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Used to specify the entry cache size for a Partition.  Various Partition
+     * implementations may interpret this value in different ways: i.e. total cache
+     * size limit verses the number of entries to cache.
+     *
+     * @param cacheSize the maximum size of the cache in the number of entries
+     */
+    public void setCacheSize( int cacheSize )
     {
-        return cfg;
+        this.cacheSize = cacheSize;
     }
-    
-    
+
+
+    /**
+     * Gets the entry cache size for this BTreePartition.
+     *
+     * @return the maximum size of the cache as the number of entries maximum before paging out
+     */
+    public int getCacheSize()
+    {
+        return cacheSize;
+    }
+
+
+    /**
+     * Returns root entry for this BTreePartition.
+     *
+     * @return the root suffix entry for this BTreePartition
+     */
+    public Attributes getContextEntry()
+    {
+        return ( Attributes ) contextEntry.clone();
+    }
+
+
+    /**
+     * Sets root entry for this BTreePartition.
+     *
+     * @param rootEntry the root suffix entry of this BTreePartition
+     */
+    public void setContextEntry( Attributes rootEntry )
+    {
+        this.contextEntry = ( Attributes ) rootEntry.clone();
+    }
+
+
+    /**
+     * Gets the unique identifier for this partition.
+     *
+     * @return the unique identifier for this partition
+     */
     public String getId()
     {
-        return cfg.getName();
+        return id;
+    }
+
+
+    /**
+     * Sets the unique identifier for this partition.
+     *
+     * @param id the unique identifier for this partition
+     */
+    public void setId( String id )
+    {
+        this.id = id;
     }
     
     
+    // -----------------------------------------------------------------------
+    // E N D   C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
     /**
      * Allows for schema entity registries to be swapped out during runtime.  This is 
      * primarily here to facilitate the swap out of a temporary bootstrap registry.  
@@ -129,8 +201,9 @@ public abstract class BTreePartition implements Partition
 
 
     // ------------------------------------------------------------------------
-    // ContextPartition Interface Method Implementations
+    // Partition Interface Method Implementations
     // ------------------------------------------------------------------------
+
 
     public void delete( DeleteOperationContext opContext ) throws NamingException
     {
@@ -187,6 +260,7 @@ public abstract class BTreePartition implements Partition
             opContext.getFilter(), 
             searchCtls );
 
+        //noinspection unchecked
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 

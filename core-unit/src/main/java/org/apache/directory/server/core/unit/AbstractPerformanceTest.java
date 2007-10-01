@@ -20,11 +20,11 @@
 package org.apache.directory.server.core.unit;
 
 
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -146,14 +146,14 @@ public class AbstractPerformanceTest extends AbstractTestCase
             attributes.put( "ou", "test" );
             
             // Add apache.org paritition since all work will be done here
-            MutableBTreePartitionConfiguration partConfig = new MutableBTreePartitionConfiguration();
-            partConfig.setIndexedAttributes( indexedAttributes );
-            partConfig.setName( "test" );
-            partConfig.setSuffix( "ou=test" );
-            partConfig.setContextEntry( attributes );
+            JdbmPartition partition = new JdbmPartition();
+            partition.setIndexedAttributes( indexedAttributes );
+            partition.setId( "test" );
+            partition.setSuffix( "ou=test" );
+            partition.setContextEntry( attributes );
             
             configuration.setShutdownHookEnabled( false );
-            configuration.setPartitionConfigurations( Collections.singleton( ( PartitionConfiguration ) partConfig ) );
+            configuration.setPartitions( Collections.singleton( partition ) );
 
             super.setUp();
             

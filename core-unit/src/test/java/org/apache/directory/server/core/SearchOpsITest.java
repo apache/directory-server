@@ -21,8 +21,8 @@ package org.apache.directory.server.core;
 
 
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -62,19 +62,19 @@ public class SearchOpsITest extends AbstractAdminTestCase
 
         if ( getName().indexOf( "WithIndices" ) != -1 )
         {
-            MutableBTreePartitionConfiguration sysConf = new MutableBTreePartitionConfiguration();
-            sysConf.setName( "system" );
+            JdbmPartition partition = new JdbmPartition();
+            partition.setId( "system" );
             Attributes attrs = new AttributesImpl( "objectClass", "top", true );
             attrs.get( "objectClass" ).add( "organizationalUnit" );
             attrs.put( "ou", "system" );
-            sysConf.setContextEntry( attrs );
-            sysConf.setSuffix( "ou=system" );
+            partition.setContextEntry( attrs );
+            partition.setSuffix( "ou=system" );
             
             Set<Index> indices = new HashSet<Index>();
-            indices.addAll( sysConf.getIndexedAttributes() );
+            indices.addAll( partition.getIndexedAttributes() );
             indices.add( new JdbmIndex( "gidNumber" ) );
-            sysConf.setIndexedAttributes( indices );
-            configuration.setSystemPartitionConfiguration( sysConf );
+            partition.setIndexedAttributes( indices );
+            configuration.setSystemPartition( partition );
         }
         
         super.setUp();

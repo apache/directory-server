@@ -20,13 +20,12 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationService;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -73,20 +72,20 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         configuration.setAllowAnonymousAccess( false );
 
         Attributes attrs;
-        Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
+        Set<Partition> partitions = new HashSet<Partition>();
 
-        MutableBTreePartitionConfiguration pcfg;
+        JdbmPartition partition;
 
         // Add partition 'example'
-        pcfg = new MutableBTreePartitionConfiguration();
-        pcfg.setName( "example" );
-        pcfg.setSuffix( "dc=example,dc=com" );
+        partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
 
         Set<Index> indexedAttrs = new HashSet<Index>();
         indexedAttrs.add( new JdbmIndex( "ou" ) );
         indexedAttrs.add( new JdbmIndex( "dc" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
-        pcfg.setIndexedAttributes( indexedAttrs );
+        partition.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "objectClass" );
@@ -96,10 +95,10 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         attr = new AttributeImpl( "dc" );
         attr.add( "example" );
         attrs.put( attr );
-        pcfg.setContextEntry( attrs );
+        partition.setContextEntry( attrs );
 
-        pcfgs.add( pcfg );
-        configuration.setPartitionConfigurations( pcfgs );
+        partitions.add( partition );
+        configuration.setPartitions( partitions );
 
         List<Interceptor> list = configuration.getInterceptors();
 

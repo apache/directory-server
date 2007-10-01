@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.core.configuration;
 
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
+
 
 /**
  * A {@link Configuration} that adds a new {@link Partition} to
@@ -33,28 +36,22 @@ public class AddPartitionConfiguration extends Configuration
 {
     private static final long serialVersionUID = -6690435863387769527L;
 
-    private final PartitionConfiguration directoryPartitionConfiguration;
+    private final Partition partition;
 
 
-    public AddPartitionConfiguration(PartitionConfiguration directoryPartitionConfiguration)
+    public AddPartitionConfiguration( Partition partition )
     {
-        if ( directoryPartitionConfiguration == null )
+        if ( partition == null )
         {
             throw new NullPointerException( "directoryPartitionConfiguration" );
         }
 
-        this.directoryPartitionConfiguration = directoryPartitionConfiguration;
+        this.partition = partition;
     }
 
 
-    public PartitionConfiguration getDirectoryPartitionConfiguration()
+    public Partition getPartition()
     {
-        return directoryPartitionConfiguration;
-    }
-
-
-    public void validate()
-    {
-        directoryPartitionConfiguration.validate();
+        return partition;
     }
 }

@@ -29,7 +29,6 @@ import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -124,11 +123,10 @@ public class PartitionSchemaLoaderTest extends TestCase
         // --------------------------------------------------------------------
         // Initialize schema partition
         // --------------------------------------------------------------------
-        
-        MutableBTreePartitionConfiguration pc = new MutableBTreePartitionConfiguration();
-        pc.setName( "schema" );
-        pc.setCacheSize( 1000 );
-        pc.setPartitionClassName( JdbmPartition.class.getName() );
+
+        schemaPartition = new JdbmPartition();
+        schemaPartition.setId( "schema" );
+        schemaPartition.setCacheSize( 1000 );
 
         Set<Index> indexedAttributes = new HashSet<Index>();
         for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
@@ -136,16 +134,15 @@ public class PartitionSchemaLoaderTest extends TestCase
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
 
-        pc.setIndexedAttributes( indexedAttributes );
-        pc.setSuffix( "ou=schema" );
+        schemaPartition.setIndexedAttributes( indexedAttributes );
+        schemaPartition.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );
-        pc.setContextEntry( entry );
-        schemaPartition = new JdbmPartition();
-        schemaPartition.init( configuration, pc );
+        schemaPartition.setContextEntry( entry );
+        schemaPartition.init( configuration );
     }
     
     

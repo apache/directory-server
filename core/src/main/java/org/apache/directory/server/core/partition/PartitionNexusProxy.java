@@ -44,7 +44,6 @@ import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.event.EventService;
@@ -219,14 +218,49 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public PartitionConfiguration getConfiguration()
+    public void setId( String id )
     {
-        throw new UnsupportedOperationException( "Nexus partition proxy objects do not have a " +
-                "partition configuration." );
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException
+    public Attributes getContextEntry()
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public void setContextEntry( Attributes contextEntry )
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public String getSuffix()
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public void setSuffix( String suffix )
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public void setCacheSize( int cacheSize )
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public int getCacheSize()
+    {
+        throw new UnsupportedOperationException( "Not supported by PartitionNexusProxy" );
+    }
+
+
+    public void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
     {
     }
 
@@ -248,14 +282,14 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public LdapDN getSuffix() throws NamingException
+    public LdapDN getSuffixDn() throws NamingException
     {
-        return this.configuration.getPartitionNexus().getSuffix();
+        return this.configuration.getPartitionNexus().getSuffixDn();
     }
 
-    public LdapDN getUpSuffix() throws NamingException
+    public LdapDN getUpSuffixDn() throws NamingException
     {
-        return this.configuration.getPartitionNexus().getUpSuffix();
+        return this.configuration.getPartitionNexus().getUpSuffixDn();
     }
 
 
@@ -312,7 +346,7 @@ public class PartitionNexusProxy extends PartitionNexus
         ensureStarted();
         InvocationStack stack = InvocationStack.getInstance();
         Object[] args = new Object[] {opContext};
-        stack.push( new Invocation( this, caller, "getSuffix", args, bypass ) );
+        stack.push( new Invocation( this, caller, "getSuffixDn", args, bypass ) );
         try
         {
             return this.configuration.getInterceptorChain().getSuffix( opContext );

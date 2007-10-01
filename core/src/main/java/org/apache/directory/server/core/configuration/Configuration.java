@@ -20,6 +20,8 @@
 package org.apache.directory.server.core.configuration;
 
 
+import org.apache.directory.server.core.DirectoryService;
+
 import java.io.Serializable;
 import java.util.Hashtable;
 

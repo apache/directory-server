@@ -20,11 +20,11 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.partition.Oid;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -67,19 +67,19 @@ public class NegationOperatorITest extends AbstractServerTest
     {
         if ( this.getName().indexOf( "Indexed" ) != -1 )
         {
-            MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setName( "system" );
+            JdbmPartition system = new JdbmPartition();
+            system.setId( "system" );
             
             // @TODO need to make this configurable for the system partition
-            systemCfg.setCacheSize( 500 );
+            system.setCacheSize( 500 );
             
-            systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+            system.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     
             // Add indexed attributes for system partition
             Set<Index> indexedAttrs = new HashSet<Index>();
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OU_AT ) );
-            systemCfg.setIndexedAttributes( indexedAttrs );
+            system.setIndexedAttributes( indexedAttrs );
     
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
@@ -92,9 +92,9 @@ public class NegationOperatorITest extends AbstractServerTest
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
-            systemCfg.setContextEntry( systemEntry );
+            system.setContextEntry( systemEntry );
             
-            configuration.setSystemPartitionConfiguration( systemCfg );
+            configuration.setSystemPartition( system );
         }
         
         super.setUp();

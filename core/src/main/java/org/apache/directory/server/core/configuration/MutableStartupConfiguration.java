@@ -20,11 +20,12 @@
 package org.apache.directory.server.core.configuration;
 
 
+import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.partition.Partition;
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.directory.server.core.authn.Authenticator;
 
 
 /**
@@ -58,9 +59,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
+    public void setSystemPartition( Partition systemPartition )
     {
-        super.setSystemPartitionConfiguration( systemPartitionConfiguration );
+        super.setSystemPartition( systemPartition );
     }
 
 
@@ -80,9 +81,9 @@ public class MutableStartupConfiguration extends StartupConfiguration
      *
      * @param paritionConfigurations partitions to start
      */
-    public void setPartitionConfigurations( Set<? extends PartitionConfiguration> paritionConfigurations )
+    public void setPartitions( Set<? extends Partition> paritionConfigurations )
     {
-        super.setPartitionConfigurations( paritionConfigurations );
+        super.setPartitions( paritionConfigurations );
     }
 
 

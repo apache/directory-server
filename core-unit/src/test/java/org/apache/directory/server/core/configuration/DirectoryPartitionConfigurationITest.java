@@ -20,21 +20,18 @@
 package org.apache.directory.server.core.configuration;
 
 
-import java.util.Hashtable;
+import junit.framework.Assert;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.directory.Attributes;
-
-import junit.framework.Assert;
-
-import org.apache.directory.server.core.configuration.AddPartitionConfiguration;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.RemovePartitionConfiguration;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import java.util.Hashtable;
 
 
 /**
@@ -53,16 +50,16 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
 
     public void testAddAndRemove() throws Exception
     {
-        MutablePartitionConfiguration partitionCfg = new MutablePartitionConfiguration();
-        partitionCfg.setName( "removable" );
-        partitionCfg.setSuffix( "ou=removable" );
+        Partition partition = new JdbmPartition();
+        partition.setId( "removable" );
+        partition.setSuffix( "ou=removable" );
         Attributes ctxEntry = new AttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );
         ctxEntry.put( "ou", "removable" );
-        partitionCfg.setContextEntry( ctxEntry );
+        partition.setContextEntry( ctxEntry );
 
         // Test AddContextPartition
-        AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partitionCfg );
+        AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partition );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );

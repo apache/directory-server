@@ -20,20 +20,20 @@
 package org.apache.directory.server.configuration;
 
 
-import java.io.File;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.directory.server.changepw.ChangePasswordConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.authn.Authenticator;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
 import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ntp.NtpConfiguration;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.ldif.Entry;
+
+import java.io.File;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -69,9 +69,9 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
     }
 
 
-    public void setSystemPartitionConfiguration( PartitionConfiguration systemPartitionConfiguration )
+    public void setSystemPartition( Partition systemPartition )
     {
-        super.setSystemPartitionConfiguration( systemPartitionConfiguration );
+        super.setSystemPartition( systemPartition );
     }
 
 
@@ -122,9 +122,9 @@ public class MutableServerStartupConfiguration extends ServerStartupConfiguratio
      *
      * @param partitionConfigurations
      */
-    public void setPartitionConfigurations( Set<? extends PartitionConfiguration> partitionConfigurations )
+    public void setPartitions( Set<? extends Partition> partitionConfigurations )
     {
-        super.setPartitionConfigurations( partitionConfigurations );
+        super.setPartitions( partitionConfigurations );
     }
 
     /**

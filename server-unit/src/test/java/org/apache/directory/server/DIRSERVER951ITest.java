@@ -23,8 +23,8 @@ package org.apache.directory.server;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -61,8 +61,8 @@ public class DIRSERVER951ITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
-        systemCfg.setName( "system" );
+        JdbmPartition systemCfg = new JdbmPartition();
+        systemCfg.setId( "system" );
         
         // @TODO need to make this configurable for the system partition
         systemCfg.setCacheSize( 500 );
@@ -96,7 +96,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
         systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
         
-        configuration.setSystemPartitionConfiguration( systemCfg );
+        configuration.setSystemPartition( systemCfg );
         
         super.setUp();
         super.loadTestLdif( true );

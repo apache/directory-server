@@ -21,10 +21,8 @@ package org.apache.directory.server.core.partition;
 
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.tree.BranchNode;
@@ -76,10 +74,10 @@ import java.util.*;
  */
 public class DefaultPartitionNexus extends PartitionNexus
 {
-    private static final Logger log = LoggerFactory.getLogger( DefaultPartitionNexus.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultPartitionNexus.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** the vendorName string proudly set to: Apache Software Foundation*/
     private static final String ASF = "Apache Software Foundation";
@@ -112,6 +110,7 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
+    private Object partitionLookupTreeLock = new Object();
 
 
     /**
@@ -121,6 +120,7 @@ public class DefaultPartitionNexus extends PartitionNexus
      * attributes are added to the rootDSE.
      *
      * @see <a href="http://www.faqs.org/rfcs/rfc3045.html">Vendor Information</a>
+     * @param rootDSE the root entry for the DSA
      */
     public DefaultPartitionNexus( Attributes rootDSE )
     {
@@ -176,7 +176,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
         catch ( IOException e )
         {
-            log.error( "failed to log version properties" );
+            LOG.error( "failed to LOG version properties" );
         }
 
         attr = new AttributeImpl( VENDORVERSION_ATTR );
@@ -185,20 +185,97 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
     
-    public PartitionConfiguration getConfiguration()
-    {
-        throw new UnsupportedOperationException( "The NEXUS partition does not have a " +
-                "standard partition configuration associated with it." );
-    }
-    
-
+    /**
+     * Always returns the string "NEXUS".
+     *
+     * @return the string "NEXUS"
+     */
     public String getId()
     {
         return "NEXUS";
     }
 
-    
-    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
+
+    // -----------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Not supported!
+     *
+     * @throws UnsupportedOperationException everytime
+     */
+    public void setId( String id )
+    {
+        throw new UnsupportedOperationException( "The id cannot be set for the partition nexus." );
+    }
+
+
+    /**
+     * Returns root the rootDSE.
+     *
+     * @return the root entry for the DSA
+     */
+    public Attributes getContextEntry()
+    {
+        return rootDSE;
+    }
+
+
+    /**
+     * Sets root entry for this BTreePartition.
+     *
+     * @throws UnsupportedOperationException everytime
+     */
+    public void setContextEntry( Attributes rootEntry )
+    {
+        throw new UnsupportedOperationException( "Setting the RootDSE is not allowed." );
+    }
+
+
+    /**
+     * Always returns the empty String "".
+     * @return the empty String ""
+     */
+    public String getSuffix()
+    {
+        return "";
+    }
+
+
+    /**
+     * Unsupported operation on the Nexus.
+     * @throws UnsupportedOperationException everytime
+     */
+    public void setSuffix( String suffix )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+
+    /**
+     * Not support!
+     */
+    public void setCacheSize( int cacheSize )
+    {
+        throw new UnsupportedOperationException( "You cannot set the cache size of the nexus" );
+    }
+
+
+    /**
+     * Not supported!
+     *
+     * @throws UnsupportedOperationException always
+     */
+    public int getCacheSize()
+    {
+        throw new UnsupportedOperationException( "There is no cache size associated with the nexus" );
+    }
+
+
+
+    public void init( DirectoryServiceConfiguration factoryCfg )
         throws NamingException
     {
         // NOTE: We ignore ContextPartitionConfiguration parameter here.
@@ -215,14 +292,15 @@ public class DefaultPartitionNexus extends PartitionNexus
         List<Partition> initializedPartitions = new ArrayList<Partition>();
         initializedPartitions.add( 0, this.system );
 
-        Iterator<PartitionConfiguration> partitionConfigurations =
-                ( Iterator<PartitionConfiguration> ) factoryCfg.getStartupConfiguration().getPartitionConfigurations().iterator();
+        //noinspection unchecked
+        Iterator<Partition> partitions =
+                ( Iterator<Partition> ) factoryCfg.getStartupConfiguration().getPartitions().iterator();
         try
         {
-            while ( partitionConfigurations.hasNext() )
+            while ( partitions.hasNext() )
             {
-                PartitionConfiguration c = partitionConfigurations.next();
-                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( c );
+                Partition p = partitions.next();
+                AddContextPartitionOperationContext opCtx = new AddContextPartitionOperationContext( p );
                 addContextPartition( opCtx );
                 initializedPartitions.add( opCtx.getPartition() );
             }
@@ -243,7 +321,7 @@ public class DefaultPartitionNexus extends PartitionNexus
                     }
                     catch ( Exception e )
                     {
-                        log.warn( "Failed to destroy a partition: " + partition.getSuffix(), e );
+                        LOG.warn( "Failed to destroy a partition: " + partition.getSuffixDn(), e );
                     }
                     finally
                     {
@@ -255,21 +333,13 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    private PartitionConfiguration initializeSystemPartition() throws NamingException
+    private Partition initializeSystemPartition() throws NamingException
     {
         // initialize system partition first
-        MutableBTreePartitionConfiguration systemCfg;
-        PartitionConfiguration overrides = factoryCfg.getStartupConfiguration().getSystemPartitionConfiguration();
-        if ( overrides != null )
+        Partition override = factoryCfg.getStartupConfiguration().getSystemPartition();
+        if ( override != null )
         {
-            systemCfg = MutableBTreePartitionConfiguration.getConfiguration( overrides );
-
-            // ---------------------------------------------------------------
-            // Add some attributes w/ some only if they're missing.  Allows 
-            // users to add more attributes to the system namingConext root
-            // ---------------------------------------------------------------
-            
-            Attributes systemEntry = systemCfg.getContextEntry();
+            Attributes systemEntry = override.getContextEntry();
             Attribute objectClassAttr = systemEntry.get( SchemaConstants.OBJECT_CLASS_AT );
             if ( objectClassAttr == null )
             {
@@ -283,51 +353,56 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
-            systemCfg.setContextEntry( systemEntry );
+            override.setContextEntry( systemEntry );
             
             // ---------------------------------------------------------------
             // check a few things to make sure users configured it properly
             // ---------------------------------------------------------------
 
-            if ( ! systemCfg.getName().equals( "system" ) ) 
+            if ( ! override.getId().equals( "system" ) )
             {
-                throw new ConfigurationException( "System partition has wrong name: should be 'system' not '" + systemCfg.getName() + "'." );
+                throw new ConfigurationException( "System partition has wrong name: should be 'system' not '"
+                        + override.getId() + "'." );
             }
             
             // add all attribute oids of index configs to a hashset
-            Set<Index> indices = systemCfg.getIndexedAttributes();
-            Set<String> indexOids = new HashSet<String>();
-            OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
-            
-            for ( Index index : indices )
+            if ( override instanceof JdbmPartition )
             {
-                indexOids.add( registry.getOid( index.getAttributeId() ) );
-            }
+                Set<Index> indices = ( ( JdbmPartition ) override ).getIndexedAttributes();
+                Set<String> indexOids = new HashSet<String>();
+                OidRegistry registry = factoryCfg.getRegistries().getOidRegistry();
 
-            if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
-            {
-                log.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
-                        "in the system partition configuration.  This will lead to poor " +
-                        "performance.  The server is automatically adding this index for you." );
-                JdbmIndex index = new JdbmIndex();
-                index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
-                indices.add( index );
+                for ( Index index : indices )
+                {
+                    indexOids.add( registry.getOid( index.getAttributeId() ) );
+                }
+
+                if ( ! indexOids.contains( registry.getOid( SchemaConstants.OBJECT_CLASS_AT ) ) )
+                {
+                    LOG.warn( "CAUTION: You have not included objectClass as an indexed attribute" +
+                            "in the system partition configuration.  This will lead to poor " +
+                            "performance.  The server is automatically adding this index for you." );
+                    JdbmIndex index = new JdbmIndex();
+                    index.setAttributeId( SchemaConstants.OBJECT_CLASS_AT );
+                    indices.add( index );
+                }
+
+                ( ( JdbmPartition ) override ).setIndexedAttributes( indices );
+
+                system = ( JdbmPartition ) override;
             }
         }
         else
         {
-            systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setName( "system" );
-            
-            // @TODO need to make this configurable for the system partition
-            systemCfg.setCacheSize( 500 );
-            
-            systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+            system = new JdbmPartition();
+            system.setId( "system" );
+            system.setCacheSize( 500 );
+            system.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
     
-            // Add indexed attributes for system partition
-            Set<JdbmIndex> indexedAttrs = new HashSet<JdbmIndex>();
+            // Add objectClass attribute for the system partition
+            Set<Index> indexedAttrs = new HashSet<Index>();
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
-            systemCfg.setIndexedAttributes( indexedAttrs );
+            ( ( JdbmPartition ) system ).setIndexedAttributes( indexedAttrs );
     
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
@@ -340,12 +415,11 @@ public class DefaultPartitionNexus extends PartitionNexus
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
-            systemCfg.setContextEntry( systemEntry );
+            system.setContextEntry( systemEntry );
         }
 
-        system = new JdbmPartition(); // using default implementation.
-        system.init( factoryCfg, systemCfg );
-        String key = system.getSuffix().toString();
+        system.init( factoryCfg );
+        String key = system.getSuffixDn().toString();
         
         if ( partitions.containsKey( key ) )
         {
@@ -355,13 +429,12 @@ public class DefaultPartitionNexus extends PartitionNexus
         synchronized ( partitionLookupTree )
         {
             partitions.put( key, system );
-            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffix(), 0, system );
-
+            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, system.getSuffixDn(), 0, system );
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-            namingContexts.add( system.getUpSuffix().getUpName() );
+            namingContexts.add( system.getUpSuffixDn().getUpName() );
         }
 
-        return systemCfg;
+        return system;
     }
 
 
@@ -392,7 +465,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             }
             catch ( NamingException e )
             {
-                log.warn( "Failed to destroy a partition: " + suffix, e );
+                LOG.warn( "Failed to destroy a partition: " + suffix, e );
             }
         }
 
@@ -406,19 +479,16 @@ public class DefaultPartitionNexus extends PartitionNexus
     public void sync() throws NamingException
     {
         MultiException error = null;
-        Iterator<Partition> list = this.partitions.values().iterator();
-        
-        while ( list.hasNext() )
-        {
-            Partition partition = list.next();
 
+        for ( Partition partition : this.partitions.values() )
+        {
             try
             {
                 partition.sync();
             }
             catch ( NamingException e )
             {
-                log.warn( "Failed to flush partition data out.", e );
+                LOG.warn( "Failed to flush partition data out.", e );
                 if ( error == null )
                 {
                     error = new MultiException( "Grouping many exceptions on root nexus sync()" );
@@ -512,11 +582,10 @@ public class DefaultPartitionNexus extends PartitionNexus
 
     public synchronized void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException
     {
-        PartitionConfiguration config = opContext.getPartitionConfiguration();
         Partition partition = opContext.getPartition();
 
         // Turn on default indices
-        String key = config.getSuffix();
+        String key = partition.getSuffix();
         
         if ( partitions.containsKey( key ) )
         {
@@ -525,12 +594,12 @@ public class DefaultPartitionNexus extends PartitionNexus
 
         if ( ! partition.isInitialized() )
         {
-            partition.init( factoryCfg, config );
+            partition.init( factoryCfg );
         }
         
         synchronized ( partitionLookupTree )
         {
-        	LdapDN partitionSuffix = partition.getSuffix();
+        	LdapDN partitionSuffix = partition.getSuffixDn();
         	
         	if ( partitionSuffix == null )
         	{
@@ -538,7 +607,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         	}
         	
             partitions.put( partitionSuffix.toString(), partition );
-            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffix(), 0, partition );
+            partitionLookupTree.recursivelyAddPartition( partitionLookupTree, partition.getSuffixDn(), 0, partition );
 
             Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
             
@@ -547,7 +616,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         		throw new ConfigurationException( "The current partition does not have any suffix: " + partition.getId() );
         	}
         	
-        	LdapDN partitionUpSuffix = partition.getUpSuffix();
+        	LdapDN partitionUpSuffix = partition.getUpSuffixDn();
 
         	if ( partitionUpSuffix == null )
         	{
@@ -570,7 +639,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         }
 
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getUpSuffix().getUpName() );
+        namingContexts.remove( partition.getUpSuffixDn().getUpName() );
 
         // Create a new partition list. 
         // This is easier to create a new structure from scratch than to reorganize
@@ -583,7 +652,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             
             for ( Partition part : partitions.values() )
             {
-                partitionLookupTree.recursivelyAddPartition( partitionLookupTree, part.getSuffix(), 0, partition );
+                partitionLookupTree.recursivelyAddPartition( partitionLookupTree, part.getSuffixDn(), 0, partition );
             }
     
             partition.sync();
@@ -628,12 +697,12 @@ public class DefaultPartitionNexus extends PartitionNexus
     }
 
 
-    public LdapDN getSuffix()
+    public LdapDN getSuffixDn()
     {
         return LdapDN.EMPTY_LDAPDN;
     }
 
-    public LdapDN getUpSuffix()
+    public LdapDN getUpSuffixDn()
     {
         return LdapDN.EMPTY_LDAPDN;
     }
@@ -645,7 +714,7 @@ public class DefaultPartitionNexus extends PartitionNexus
     public LdapDN getSuffix ( GetSuffixOperationContext getSuffixContext ) throws NamingException
     {
         Partition backend = getPartition( getSuffixContext.getDn() );
-        return backend.getSuffix();
+        return backend.getSuffixDn();
     }
 
 
@@ -679,8 +748,8 @@ public class DefaultPartitionNexus extends PartitionNexus
     private void unregister( Partition partition ) throws NamingException
     {
         Attribute namingContexts = rootDSE.get( NAMINGCTXS_ATTR );
-        namingContexts.remove( partition.getSuffix().getUpName() );
-        partitions.remove( partition.getSuffix().toString() );
+        namingContexts.remove( partition.getSuffixDn().getUpName() );
+        partitions.remove( partition.getSuffixDn().toString() );
     }
 
 
@@ -940,7 +1009,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         if ( IS_DEBUG )
         {
-            log.debug( "Check if DN '" + dn + "' exists." );
+            LOG.debug( "Check if DN '" + dn + "' exists." );
         }
 
         if ( dn.size() == 0 )
@@ -994,7 +1063,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         
         // This is synchronized so that we can't read the
         // partitionList when it is modified.
-        synchronized ( partitionLookupTree )
+        synchronized ( partitionLookupTreeLock )
         {
             // Iterate through all the RDN until we find the associated partition
             while ( rdns.hasMoreElements() )
@@ -1041,9 +1110,10 @@ public class DefaultPartitionNexus extends PartitionNexus
             supportedExtension = new AttributeImpl( "supportedExtension" );
             rootDSE.put( supportedExtension );
         }
-        for ( Iterator<String> oids = extensionOids.iterator(); oids.hasNext(); )
+        
+        for ( String extensionOid : extensionOids )
         {
-            supportedExtension.add( oids.next() );
+            supportedExtension.add( extensionOid );
         }
     }
 }

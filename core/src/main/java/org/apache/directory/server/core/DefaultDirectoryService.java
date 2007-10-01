@@ -23,7 +23,6 @@ package org.apache.directory.server.core;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.configuration.Configuration;
 import org.apache.directory.server.core.configuration.ConfigurationException;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -35,10 +34,10 @@ import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.BTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
@@ -833,11 +832,11 @@ class DefaultDirectoryService extends DirectoryService
         // --------------------------------------------------------------------
         // Initialize schema partition
         // --------------------------------------------------------------------
-        
-        MutableBTreePartitionConfiguration schemaPartitionConfig = new MutableBTreePartitionConfiguration();
-        schemaPartitionConfig.setName( "schema" );
-        schemaPartitionConfig.setCacheSize( 1000 );
-        
+
+        JdbmPartition schemaPartition = new JdbmPartition();
+        schemaPartition.setId( "schema" );
+        schemaPartition.setCacheSize( 1000 );
+
         DbFileListing listing = null;
         try 
         {
@@ -855,16 +854,15 @@ class DefaultDirectoryService extends DirectoryService
             indexedAttributes.add( new JdbmIndex( attributeId ) );
         }
 
-        schemaPartitionConfig.setIndexedAttributes( indexedAttributes );
-        schemaPartitionConfig.setSuffix( "ou=schema" );
+        schemaPartition.setIndexedAttributes( indexedAttributes );
+        schemaPartition.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
         entry.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, "schema" );
-        schemaPartitionConfig.setContextEntry( entry );
-        JdbmPartition schemaPartition = new JdbmPartition();
-        schemaPartition.init( configuration, schemaPartitionConfig );
+        schemaPartition.setContextEntry( entry );
+        schemaPartition.init( configuration );
 
         // --------------------------------------------------------------------
         // Enable schemas of all indices of partition configurations 
@@ -879,25 +877,15 @@ class DefaultDirectoryService extends DirectoryService
         
         SchemaPartitionDao dao = new SchemaPartitionDao( schemaPartition, registries );
         Map<String,Schema> schemaMap = dao.getSchemas();
-        PartitionConfiguration pc = startupConfiguration.getSystemPartitionConfiguration();
-        Set<PartitionConfiguration> pcs = new HashSet<PartitionConfiguration>();
-        if ( pc != null )
+        Set<Partition> partitions = new HashSet<Partition>();
+        partitions.add( startupConfiguration.getSystemPartition() );
+        partitions.addAll( startupConfiguration.getPartitions() );
+
+        for ( Partition partition : partitions )
         {
-            pcs.add( pc );
-        }
-        else
-        {
-            log.warn( "Encountered null configuration." );
-        }
-            
-        
-        pcs.addAll( startupConfiguration.getPartitionConfigurations() );
-        
-        for ( PartitionConfiguration pconf : pcs )
-        {
-            if ( pconf instanceof BTreePartitionConfiguration )
+            if ( partition instanceof BTreePartition )
             {
-                BTreePartitionConfiguration btpconf = ( BTreePartitionConfiguration ) pconf;
+                JdbmPartition btpconf = ( JdbmPartition ) partition;
                 Iterator<Index> indices = btpconf.getIndexedAttributes().iterator();
                 while ( indices.hasNext() )
                 {
@@ -996,9 +984,8 @@ class DefaultDirectoryService extends DirectoryService
         }
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
-        partitionNexus.init( configuration, null );
-        partitionNexus.addContextPartition( 
-            new AddContextPartitionOperationContext( schemaPartitionConfig, schemaPartition ) );
+        partitionNexus.init( configuration );
+        partitionNexus.addContextPartition( new AddContextPartitionOperationContext( schemaPartition ) );
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( configuration );
