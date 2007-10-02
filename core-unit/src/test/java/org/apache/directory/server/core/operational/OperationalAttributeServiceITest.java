@@ -44,15 +44,22 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 /**
  * Tests the methods on JNDI contexts that are analogous to entry modify
  * operations in LDAP.
- *
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 {
     private static final String CREATORS_NAME = "creatorsName";
+
     private static final String CREATE_TIMESTAMP = "createTimestamp";
+
+    private static final String MODIFIERS_NAME = "modifiersName";
+
+    private static final String MODIFY_TIMESTAMP = "modifyTimestamp";
+
     private static final String RDN_KATE_BUSH = "cn=Kate Bush";
+
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
@@ -67,6 +74,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         return attrs;
     }
 
+
     protected void setUp() throws NamingException, Exception
     {
         super.setUp();
@@ -76,6 +84,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         DirContext ctx = sysRoot.createSubcontext( RDN_KATE_BUSH, attrs );
         assertNotNull( ctx );
     }
+
 
     protected void tearDown() throws NamingException, Exception
     {
@@ -116,7 +125,8 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         ctls.setReturningAttributes( new String[]
             { "ou", "createTimestamp", "creatorsName" } );
 
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+            DerefAliasesEnum.NEVER_DEREF_ALIASES );
         NamingEnumeration list;
         list = sysRoot.search( "", "(ou=testing00)", ctls );
         SearchResult result = ( SearchResult ) list.next();
@@ -129,15 +139,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
 
     /**
-     * Checks to confirm that the system context root ou=system has the
-     * required operational attributes.  Since this is created automatically
-     * on system database creation properties the create attributes must be
-     * specified.  There are no interceptors in effect when this happens so
-     * we must test explicitly.
-     *
-     *
+     * Checks to confirm that the system context root ou=system has the required
+     * operational attributes. Since this is created automatically on system
+     * database creation properties the create attributes must be specified.
+     * There are no interceptors in effect when this happens so we must test
+     * explicitly.
+     * 
+     * 
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-57">DIREVE-57:
-     * ou=system does not contain operational attributes</a>
+     *      ou=system does not contain operational attributes</a>
      */
     public void testSystemContextRoot() throws NamingException
     {
@@ -166,22 +176,99 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
     /**
      * Test which confirms that all new users created under the user's dn
-     * (ou=users,ou=system) have the creatorsName set to the DN of the new
-     * user even though the admin is creating the user.  This is the basis
-     * for some authorization rules to protect passwords.
-     *
+     * (ou=users,ou=system) have the creatorsName set to the DN of the new user
+     * even though the admin is creating the user. This is the basis for some
+     * authorization rules to protect passwords.
+     * 
      * NOTE THIS CHANGE WAS REVERTED SO WE ADAPTED THE TEST TO MAKE SURE THE
      * CHANGE DOES NOT PERSIST!
-     *
-     * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue DIREVE-67</a>
+     * 
+     * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue
+     *      DIREVE-67</a>
      */
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
+
         Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[]
             { "creatorsName" } );
 
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
     }
+
+
+    /**
+     * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
+     */
+    public void _testModifyShouldLeadToModifiersAttributes() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description",
+            "Singer Songwriter" ) );
+
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String[] ids = new String[]
+            { MODIFIERS_NAME, MODIFY_TIMESTAMP };
+        controls.setReturningAttributes( ids );
+
+        NamingEnumeration list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        SearchResult result = ( SearchResult ) list.next();
+        Attributes attributes = result.getAttributes();
+        assertNotNull( attributes.get( MODIFIERS_NAME ) );
+        assertNotNull( attributes.get( MODIFY_TIMESTAMP ) );
+    }
+
+
+    /**
+     * Modify an entry and check whether attribute modifyTimestamp changes.
+     */
+    public void _testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
+    {
+        // Add attribute description to entry
+        ModificationItem modifyAddOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+            "description", "an English singer, songwriter, musician" ) );
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyAddOp } );
+
+        // Determine modifyTimestamp
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String[] ids = new String[]
+            { MODIFY_TIMESTAMP };
+        controls.setReturningAttributes( ids );
+        NamingEnumeration list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        SearchResult result = ( SearchResult ) list.next();
+        Attributes attributes = result.getAttributes();
+        Attribute modifyTimestamp = attributes.get( MODIFY_TIMESTAMP );
+        assertNotNull( modifyTimestamp );
+        String oldTimestamp = modifyTimestamp.get().toString();
+        
+        // Wait two seconds
+        Thread.sleep( 2000 );
+
+        // Change value of attribute description
+        ModificationItem modifyOp = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            "description", "one of England's most successful solo female performers" ) );
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+
+        // Determine modifyTimestamp after mofification
+        list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        result = ( SearchResult ) list.next();
+        attributes = result.getAttributes();
+        modifyTimestamp = attributes.get( MODIFY_TIMESTAMP );
+        assertNotNull( modifyTimestamp );
+        String newTimestamp = modifyTimestamp.get().toString();
+        
+        System.out.println(oldTimestamp);
+        System.out.println(newTimestamp);
+
+        // assert the value has changed
+        assertFalse( oldTimestamp.equals( newTimestamp ) );
+    }
+
 
     /**
      * Try to add modifiersName attribute to an entry
