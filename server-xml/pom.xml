@@ -37,18 +37,28 @@
       <version>${version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-bootstrap-partition</artifactId>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
       <version>${version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.xbean</groupId>
       <artifactId>xbean-spring</artifactId>
       <version>3.1</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>

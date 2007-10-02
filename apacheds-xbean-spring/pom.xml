@@ -7,13 +7,20 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.directory.server</groupId>
   <artifactId>apacheds-xbean-spring</artifactId>
-  <name>apacheds-xbean-spring</name>
+  <name>ApacheDS Xbean Spring</name>
 
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
+      <version>${pom.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
     </dependency>

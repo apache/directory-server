@@ -45,6 +45,8 @@ import java.util.regex.Pattern;
 /** 
  * A Jdbm based index implementation.
  *
+ * @org.apache.xbean.XBean
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

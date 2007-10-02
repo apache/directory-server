@@ -50,6 +50,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * base suffix.  Each partition contains entries whose name ends with that
  * base suffix.
  *
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

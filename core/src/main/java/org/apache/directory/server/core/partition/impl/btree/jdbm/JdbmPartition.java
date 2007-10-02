@@ -44,6 +44,7 @@ import java.util.Set;
  * A {@link Partition} that stores entries in
  * <a href="http://jdbm.sourceforge.net/">JDBM</a> database.
  *
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */

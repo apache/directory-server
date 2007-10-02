@@ -104,45 +104,45 @@
       </ldapConfiguration>
     </ldapConfiguration>
 
-    <systemPartitionConfiguration>
-      <!-- use the following partitionConfiguration to override defaults for  -->
-      <!-- the system partition                                               -->
-      <mutableBTreePartitionConfiguration id="systemPartitionConfiguration"
-        name="system"
+    <systemPartition>
+      <!-- use the following partitionConfiguration to override defaults for -->
+      <!-- the system partition                                              -->
+
+      <jdbmPartition 
+        id="system"
         cacheSize="100"
         suffix="ou=system"
         optimizerEnabled="true"
-        synchOnWrite="true"
-        partitionClassName="org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition">
+        syncOnWrite="true">
         <indexedAttributes>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.1"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.2"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.3"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.4"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.5"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.6"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.7"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="ou"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="uid"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="objectClass"
               cacheSize="100"/>
         </indexedAttributes>
@@ -154,52 +154,51 @@
             ou: system
           </value>
         </contextEntry>
-      </mutableBTreePartitionConfiguration>
-    </systemPartitionConfiguration>
+      </jdbmPartition>
+    </systemPartition>
 
-    <partitionConfigurations>
-      <mutableBTreePartitionConfiguration id="examplePartitionConfiguration"
-        name="example"
+    <partitions>
+      <jdbmPartition 
+        id="example"
         cacheSize="100"
         suffix="dc=example,dc=com"
         optimizerEnabled="true"
-        synchOnWrite="true"
-        partitionClassName="org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition">
+        syncOnWrite="true">
         <indexedAttributes>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.1"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.2"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.3"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.4"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.5"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.6"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="1.3.6.1.4.1.18060.0.4.1.2.7"
               cacheSize="10"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="dc"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="ou"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="krb5PrincipalName"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="uid"
               cacheSize="100"/>
-            <mutableIndexConfiguration
+            <jdbmIndex
               attributeId="objectClass"
               cacheSize="100"/>
         </indexedAttributes>
@@ -211,8 +210,8 @@
             dc: example
           </value>
         </contextEntry>
-      </mutableBTreePartitionConfiguration>
-    </partitionConfigurations>
+      </jdbmPartition>
+    </partitions>
 
     <interceptors>
       <normalizationService/>
@@ -222,30 +221,32 @@
       <defaultAuthorizationService/>
       <exceptionService/>
       <operationalAttributeService/>
+
       <!-- Uncomment to enable the password policy service
       <passwordPolicyService/>
       <keyDerivationService/>
       -->
+
       <schemaService/>
       <subentryService/>
       <collectiveAttributeService/>
       <eventService/>
       <triggerService/>
 
-        <!-- Uncomment to enable replication service -->
-        <replicationService >
-          <configuration>
-            <replicationConfiguration
-              serverPort="10390"
-              peerReplicas="instance_b@localhost:10392">
-              <replicaId>
-                <replicaId id="instance_a"/>
-              </replicaId>
-            </replicationConfiguration>
-          </configuration>
-        </replicationService>
-      <!--
-        -->
+      <!-- Uncomment to enable replication service
+      <replicationService >
+        <configuration>
+          <replicationConfiguration
+            serverPort="10390"
+            peerReplicas="instance_b@localhost:10392">
+            <replicaId>
+              <replicaId id="instance_a"/>
+            </replicaId>
+          </replicationConfiguration>
+        </configuration>
+      </replicationService>
+      -->
+
     </interceptors>
   </mutableServerStartupConfiguration>
 
