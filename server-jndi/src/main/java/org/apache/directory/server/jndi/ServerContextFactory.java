@@ -136,7 +136,7 @@ public class ServerContextFactory extends CoreContextFactory
         DirectoryServiceContext dsc = new DirectoryServiceContext();
         contexts.put(service, dsc);
 
-        int maxThreads = service.getConfiguration().getStartupConfiguration().getMaxThreads();
+        int maxThreads = ( ( ServerStartupConfiguration ) service.getConfiguration().getStartupConfiguration() ).getMaxThreads();
         dsc.ioExecutor = Executors.newCachedThreadPool();
         dsc.logicExecutor = Executors.newFixedThreadPool( maxThreads );
         dsc.udpAcceptor = new DatagramAcceptor();

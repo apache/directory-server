@@ -62,13 +62,11 @@ import java.util.*;
  */
 public class StartupConfiguration extends Configuration
 {
-
     /** The logger for this class */
     private static final Logger log = LoggerFactory.getLogger( StartupConfiguration.class );
 
     private static final long serialVersionUID = 4826762196566871677L;
 
-    public static final int MAX_THREADS_DEFAULT = 32;
     public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
     public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
 
@@ -76,9 +74,8 @@ public class StartupConfiguration extends Configuration
     private boolean exitVmOnShutdown = true; // allow by default
     private boolean shutdownHookEnabled = true; // allow by default
     private boolean allowAnonymousAccess = true; // allow by default
-    private boolean accessControlEnabled = false; // turn off by default
-    private boolean denormalizeOpAttrsEnabled = false;
-    private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
+    private boolean accessControlEnabled; // off by default
+    private boolean denormalizeOpAttrsEnabled; // off by default
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
     private List<Interceptor> interceptors;
@@ -314,22 +311,6 @@ public class StartupConfiguration extends Configuration
     public boolean isExitVmOnShutdown()
     {
         return exitVmOnShutdown;
-    }
-
-
-    protected void setMaxThreads( int maxThreads )
-    {
-        this.maxThreads = maxThreads;
-        if ( maxThreads < 1 )
-        {
-            throw new IllegalArgumentException( "Number of max threads should be greater than 0" );
-        }
-    }
-
-
-    public int getMaxThreads()
-    {
-        return maxThreads;
     }
 
 

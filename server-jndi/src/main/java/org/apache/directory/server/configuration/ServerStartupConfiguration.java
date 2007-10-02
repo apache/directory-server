@@ -46,9 +46,10 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private static final long serialVersionUID = -7138616822614155454L;
 
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
+    public static final int MAX_THREADS_DEFAULT = 32;
 
+    private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
     private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
-
     private boolean enableNetworking = true;
 
     private File ldifDirectory = null;
@@ -70,6 +71,22 @@ public class ServerStartupConfiguration extends StartupConfiguration
     protected ServerStartupConfiguration( String instanceId )
     {
         super( instanceId );
+    }
+
+
+    public int getMaxThreads()
+    {
+        return maxThreads;
+    }
+
+
+    protected void setMaxThreads( int maxThreads )
+    {
+        this.maxThreads = maxThreads;
+        if ( maxThreads < 1 )
+        {
+            throw new IllegalArgumentException( "Number of max threads should be greater than 0" );
+        }
     }
 
 

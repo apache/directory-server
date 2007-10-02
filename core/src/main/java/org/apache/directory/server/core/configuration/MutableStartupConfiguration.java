@@ -65,12 +65,6 @@ public class MutableStartupConfiguration extends StartupConfiguration
     }
 
 
-    public void setMaxThreads( int maxThreads )
-    {
-        super.setMaxThreads( maxThreads );
-    }
-
-
     public void setInstanceId( String instanceId )
     {
         super.setInstanceId( instanceId );

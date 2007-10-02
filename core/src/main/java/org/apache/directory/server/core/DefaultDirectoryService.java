@@ -86,8 +86,6 @@ class DefaultDirectoryService extends DirectoryService
     private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryService.class );
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
-    private final String instanceId;
-
     private final DirectoryServiceConfiguration configuration = new DefaultDirectoryServiceConfiguration( this );
 
     private DirectoryServiceListener serviceListener;
@@ -120,6 +118,7 @@ class DefaultDirectoryService extends DirectoryService
     // Constructor
     // ------------------------------------------------------------------------
 
+
     /**
      * Creates a new instance.
      */
@@ -134,8 +133,36 @@ class DefaultDirectoryService extends DirectoryService
 
 
     // ------------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+//    public static final int MAX_THREADS_DEFAULT = 32;
+//    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
+//    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
+//
+    private String instanceId;
+//    private File workingDirectory = new File( "server-work" );
+//    private boolean exitVmOnShutdown = true; // allow by default
+//    private boolean shutdownHookEnabled = true; // allow by default
+//    private boolean allowAnonymousAccess = true; // allow by default
+//    private boolean accessControlEnabled; // off by default
+//    private boolean denormalizeOpAttrsEnabled; // off by default
+//    private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
+//    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
+//    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
+//    private List<Interceptor> interceptors;
+//    private Partition systemPartition;
+//    private Set<? extends Partition> partitions = new HashSet<Partition>();
+//    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
+
+
+
+
+    // ------------------------------------------------------------------------
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
+
 
     public Context getJndiContext( String rootDN ) throws NamingException
     {
