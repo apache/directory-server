@@ -11,5 +11,7 @@
     <module>apacheds</module>
     <module>shared</module>
     <module>daemon</module>
+    <module>project</module>
+    <module>installers</module>
   </modules>
 </project>
