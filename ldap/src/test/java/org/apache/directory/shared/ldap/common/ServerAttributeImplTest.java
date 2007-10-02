@@ -442,6 +442,7 @@ public class ServerAttributeImplTest
         assertFalse( attr2.contains( StringTools.getBytesUtf8( "test3" ) ) );
     }
     
+
     /**
      * Test the clone method
      */
@@ -515,5 +516,59 @@ public class ServerAttributeImplTest
         }
         
         assertEquals( i, attr.size() );
+    }
+
+
+    /**
+     * Test the equals method
+     */
+    @Test public void testEquals() throws NamingException
+    {
+        ServerAttribute attr1 = new ServerAttributeImpl( "string1", "test1" );
+        attr1.add(  "test2" );
+        attr1.add( (String)null );
+        
+        ServerAttribute attr2 = new ServerAttributeImpl( "string2", "test1" );
+        attr2.add(  "test2" );
+        attr2.add( (String)null );
+        
+        ServerAttribute attr3 = new ServerAttributeImpl( "string1", "a1" );
+        attr1.add(  "a2" );
+        attr1.add( (String)null );
+        
+        // Test reflexivity
+        assertEquals( attr1, attr1 );
+        assertEquals( attr2, attr2 );
+        assertEquals( attr3, attr3 );
+        
+        // Compare != attrs
+        assertNotSame( attr1, attr2 );
+        assertNotSame( attr1, attr3 );
+        assertNotSame( attr2, attr3 );
+
+        // Compare cloned attrs
+        ServerAttribute attr4 = attr1.clone();
+
+        assertEquals( attr1, attr4 );
+
+        // Compare clone & modified attrs
+        ServerAttribute attr5 = attr1.clone();
+        attr5.remove( "test2" );
+        
+        assertNotSame( attr1, attr5 );
+        
+        // Compare attr containing null values
+        attr5.remove(  "test1" );
+        
+        assertEquals( 1, attr5.size() );
+        assertTrue( attr5.contains( (String)null ) );
+        assertNotSame( attr1, attr5 );
+        
+        attr1.remove( "test1" );
+        attr1.remove( "test2" );
+
+        assertEquals( 1, attr1.size() );
+        assertTrue( attr1.contains( (String)null ) );
+        assertEquals( attr1, attr5 );
     }
 }
