@@ -193,7 +193,7 @@ public class ServerEntryImpl implements ServerEntry
      *
      * @return The entry DN
      */
-    public LdapDN getDN()
+    public LdapDN getDn()
     {
         return dn;
     }
@@ -204,7 +204,7 @@ public class ServerEntryImpl implements ServerEntry
      * 
      * @param dn The LdapdN associated with this entry
      */
-    public void setDN( LdapDN dn)
+    public void setDn( LdapDN dn)
     {
         this.dn = dn;
     }
@@ -351,7 +351,7 @@ public class ServerEntryImpl implements ServerEntry
      * 
      * @return an iterator of the OIDs of all contained attributes
      */
-    public Iterator<OID> getOIDs()
+    public Iterator<OID> getOids()
     {
         return new OidIterator();
     }

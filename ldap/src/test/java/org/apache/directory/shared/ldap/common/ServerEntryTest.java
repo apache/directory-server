@@ -49,7 +49,7 @@ public class ServerEntryTest
     {
         ServerEntry entry = new ServerEntryImpl();
         
-        assertNull( entry.getDN() );
+        assertNull( entry.getDn() );
         assertEquals( 0, entry.size() );
     }
 
@@ -63,7 +63,7 @@ public class ServerEntryTest
         
         ServerEntry entry = new ServerEntryImpl( dn );
         
-        assertEquals( dn, entry.getDN() );
+        assertEquals( dn, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
 
@@ -77,9 +77,9 @@ public class ServerEntryTest
         LdapDN newDn = new LdapDN( "dc=real, dc=org" );
         
         ServerEntry entry = new ServerEntryImpl( dn );
-        entry.setDN( newDn );
+        entry.setDn( newDn );
         
-        assertEquals( newDn, entry.getDN() );
+        assertEquals( newDn, entry.getDn() );
         assertEquals( 0, entry.size() );
     }
     
@@ -114,14 +114,14 @@ public class ServerEntryTest
         entry.put(  attr2 );
         entry.put(  attr3 );
         
-        assertEquals( dn, entry.getDN() );
+        assertEquals( dn, entry.getDn() );
         assertEquals( 3, entry.size() );
         
         ServerAttribute attr = entry.get( oid2 );
         assertNotNull( attr );
         assertEquals( oid2, attr.getOid() );
         
-        Iterator<OID> oids = entry.getOIDs();
+        Iterator<OID> oids = entry.getOids();
         OID[] expected = new OID[]{oid1, oid2, oid3};
         int i = 0;
         
@@ -133,6 +133,7 @@ public class ServerEntryTest
         }
     }
 
+    
     /**
      * Test the size method
      */
@@ -187,28 +188,27 @@ public class ServerEntryTest
         assertEquals( 0, entry.size() );
     }
     
+    
     /**
-     * Test the getDN/setDN method
+     * Test the getDn/setDn method
      */
-    @Test public void testGetSetDN() throws InvalidNameException
+    @Test public void testGetsetDn() throws InvalidNameException
     {
         LdapDN dn = new LdapDN( "dc=example, dc=org" );
         
         ServerEntry entry = new ServerEntryImpl( dn );
         
-        assertEquals( dn, entry.getDN() );
+        assertEquals( dn, entry.getDn() );
 
         ServerEntry entry2 = new ServerEntryImpl();
         
-        assertNull( entry2.getDN() );
+        assertNull( entry2.getDn() );
         
-        entry2.setDN( dn );
+        entry2.setDn( dn );
         
-        assertEquals( dn, entry2.getDN() );
+        assertEquals( dn, entry2.getDn() );
     }
     
-
-
 
     /**
      * Test the getOIDs method
@@ -232,7 +232,7 @@ public class ServerEntryTest
         entry.put( attr2 );
         entry.put( oid3, oid3.toString() );
         
-        Iterator<OID> iterOids = entry.getOIDs();
+        Iterator<OID> iterOids = entry.getOids();
         int i = 0;
         
         while ( iterOids.hasNext() )
@@ -270,6 +270,7 @@ public class ServerEntryTest
         assertNull( entry.remove( oid2 ) );
     }
 
+    
     /**
      * Test the clone method
      */
@@ -302,7 +303,7 @@ public class ServerEntryTest
         assertEquals( attr2, clone.get( oid2 ) );
         assertEquals( attr3, clone.get( oid3 ) );
         
-        // Modify the inital attribute
+        // Modify the initial attribute
         entry.remove( oid1 );
         assertNull( entry.get( oid1 ) );
         assertEquals( attr1, clone.get( oid1 ) );

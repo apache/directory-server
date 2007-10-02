@@ -114,7 +114,7 @@ public interface ServerEntry extends Cloneable, Serializable
      *
      * @return The entry DN
      */
-    public LdapDN getDN();
+    public LdapDN getDn();
     
 
     /**
@@ -122,7 +122,7 @@ public interface ServerEntry extends Cloneable, Serializable
      * 
      * @param dn The LdapdN associated with this entry
      */
-    public void setDN( LdapDN dn);
+    public void setDn( LdapDN dn);
     
 
     /**
@@ -132,7 +132,7 @@ public interface ServerEntry extends Cloneable, Serializable
      * 
      * @return an enumeration of the OIDs of all contained attributes
      */
-    Iterator<OID> getOIDs();
+    Iterator<OID> getOids();
     
     
     /**
