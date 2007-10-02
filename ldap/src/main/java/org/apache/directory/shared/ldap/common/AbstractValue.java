@@ -133,6 +133,17 @@ public abstract class AbstractValue<T> implements Value<T>
      */
     public boolean equals( Object obj )
     {
-        return obj == this || !( ( obj == null ) || !( obj instanceof Value ) ) && obj.getClass() == this.getClass();
+        if ( obj == this )
+        {
+            return true;
+        }
+
+        if ( obj == null )
+        {
+            return false;
+        }
+
+        // At the end, both classes should be equal
+        return ( obj.getClass() == this.getClass() );
     }
 }
