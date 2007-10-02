@@ -70,7 +70,7 @@ public class BinaryValueTest
         
         BinaryValue value = new BinaryValue( bytes );
         
-        Value clone = (Value)value.clone();
+        Value<?> clone = value.clone();
         
         assertTrue( clone instanceof BinaryValue );
         assertTrue( clone.getValue() instanceof byte[] );

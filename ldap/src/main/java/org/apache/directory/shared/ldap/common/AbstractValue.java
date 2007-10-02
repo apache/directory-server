@@ -111,9 +111,9 @@ public abstract class AbstractValue<T> implements Value<T>
     /**
      * Normalize the value
      */
+    @SuppressWarnings(value = "unchecked")
     public void normalize( Normalizer normalizer ) throws NamingException
     {
-        //noinspection unchecked
         normValue = ( T ) normalizer.normalize( value );
     }
     
@@ -121,10 +121,10 @@ public abstract class AbstractValue<T> implements Value<T>
     /**
      * Clone the value.
      */
-    public Value clone() throws CloneNotSupportedException
+    public Value<?> clone() throws CloneNotSupportedException
     {
         // Simply clone the object
-        return ( Value ) super.clone();
+        return (Value<?>)super.clone();
     }
     
     

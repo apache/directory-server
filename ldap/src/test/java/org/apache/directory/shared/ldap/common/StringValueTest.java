@@ -63,7 +63,7 @@ public class StringValueTest
     {
         StringValue value = new StringValue( "Test1" );
         
-        Value clone = (Value)value.clone();
+        Value<?> clone = value.clone();
         
         assertTrue( clone instanceof StringValue );
         assertTrue( clone.getValue() instanceof String );

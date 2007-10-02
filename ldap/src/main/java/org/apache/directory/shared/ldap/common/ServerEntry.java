@@ -71,7 +71,22 @@ public interface ServerEntry extends Cloneable, Serializable
      * 
      * @return a deep copy of this <code>Attributes</code> instance
      */
-    Object clone();
+    ServerEntry clone();
+
+
+    /**
+     * Places a non-null attribute in the attribute collection. If there is
+     * already an attribute with the same OID as the new attribute, the old one
+     * is removed from the collection and is returned by this method. If there
+     * was no attribute with the same OID the return value is <code>null</code>.
+     * 
+     * This method clone the attribute.
+     * 
+     * @param attribute the attribute to be copied
+     * @return the old attribute with the same OID, if exists; otherwise
+     *         <code>null</code>
+     */
+    ServerAttribute copy( ServerAttribute attr );
 
 
     /**
@@ -150,7 +165,7 @@ public interface ServerEntry extends Cloneable, Serializable
      *         <code>null</code>
      * @throws NamingException If the oid is null.
      */
-    ServerAttribute put( OID oid, Value val ) throws NamingException;
+    ServerAttribute put( OID oid, Value<?> val ) throws NamingException;
     
 
     /**

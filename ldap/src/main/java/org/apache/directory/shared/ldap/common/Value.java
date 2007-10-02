@@ -88,5 +88,5 @@ public interface Value<T> extends Serializable, Cloneable
      * @return A non-null copy of the Value.
      * @throws CloneNotSupportedException if the clone operation is not supported
      */
-    Object clone() throws CloneNotSupportedException;
+    Value<?> clone() throws CloneNotSupportedException;
 }

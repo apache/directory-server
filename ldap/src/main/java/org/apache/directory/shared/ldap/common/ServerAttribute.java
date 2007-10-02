@@ -77,7 +77,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * @param val a new value to be added which may be null
      * @return true if a value was added, otherwise false
      */
-    boolean add( Value val );
+    boolean add( Value<?> val );
     
     
     /**
@@ -124,7 +124,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * 
      * @return a deep clone of this attribute
      */
-    Object clone();
+    ServerAttribute clone();
 
    
     /**
@@ -133,7 +133,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * @param val the value which may be null
      * @return true if this attribute contains the value, otherwise false
      */
-    boolean contains( Value val );
+    boolean contains( Value<?> val );
     
 
     /**
@@ -166,7 +166,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * @return a value of this attribute
      * @throws NamingException If the attribute has no value.
      */
-    Value get() throws NamingException;
+    Value<?> get() throws NamingException;
 
 
     /**
@@ -182,7 +182,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * @return an enumeration of all values of the attribute
      * @throws NamingException If any <code>NamingException</code> occurs.
      */
-    Iterator<Value> getAll() throws NamingException;
+    Iterator<Value<?>> getAll() throws NamingException;
 
 
     /**
@@ -222,7 +222,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      * @param val the value to be removed
      * @return true if the value is removed, otherwise false
      */
-    boolean remove( Value val );
+    boolean remove( Value<?> val );
     
 
     /**

@@ -115,7 +115,7 @@ public class ServerAttributeImplTest
         assertEquals( 2, attr.size() );
         assertEquals( "test1", attr.get().getValue() );
         
-        Iterator<Value> vals = attr.getAll();
+        Iterator<Value<?>> vals = attr.getAll();
         int i = 1;
         
         while ( vals.hasNext() )
@@ -140,7 +140,7 @@ public class ServerAttributeImplTest
         assertEquals( 2, attr.size() );
         assertTrue( Arrays.equals( b1, (byte[])attr.get().getValue() ) );
         
-        Iterator<Value> vals = attr.getAll();
+        Iterator<Value<?>> vals = attr.getAll();
         int i = 1;
         
         while ( vals.hasNext() )
@@ -280,7 +280,7 @@ public class ServerAttributeImplTest
     {
         ServerAttribute attr1 = new ServerAttributeImpl( "test", "test1" );
         
-        Value v = attr1.get();
+        Value<?> v = attr1.get();
         assertEquals( "test1", v.getValue() );
 
         attr1.add( "test2" );
@@ -369,12 +369,12 @@ public class ServerAttributeImplTest
         String[] expectedLC = new String[]{ "test1", "test2", null };
         String[] expectedUC = new String[]{ "TEST1", "TEST2", null };
         
-        Iterator<Value> iter = attr.getAll();
+        Iterator<Value<?>> iter = attr.getAll();
         int i = 0;
         
         while ( iter.hasNext() )
         {
-            Value v = iter.next();
+            Value<?> v = iter.next();
             assertEquals( expectedLC[i], v.getNormValue() );
             assertEquals( expectedUC[i], v.getValue() );
             
@@ -485,7 +485,7 @@ public class ServerAttributeImplTest
         
         assertNotSame( clone, attr );
         assertEquals( 3, clone.size() );
-        Value v = clone.get();
+        Value<?> v = clone.get();
         assertEquals( "TEST1", v.getValue() );
         assertEquals( "test1", v.getNormValue() );
         assertEquals( oid, clone.getOid() );
@@ -501,14 +501,14 @@ public class ServerAttributeImplTest
         attr.add(  "test2" );
         attr.add( (String)null );
         
-        Iterator<Value> iter = attr.getAll();
+        Iterator<Value<?>> iter = attr.getAll();
         assertNotNull( iter );
         
         int i = 0;
         
         while ( iter.hasNext() )
         {
-            Value v = iter.next();
+            Value<?> v = iter.next();
             
             assertNotNull( v );
             i++;

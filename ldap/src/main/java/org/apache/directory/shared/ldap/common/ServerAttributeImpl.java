@@ -58,10 +58,10 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
     private OID oid;
 
     /** In case we have only one value, just use this container */
-    private Value value;
+    private Value<?> value;
     
     /** the list of attribute values, if unordered */
-    private List<Value> values;
+    private List<Value<?>> values;
     
     /** A size to handle the number of values, as one of them can be null */
     private int size;
@@ -123,7 +123,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @param val the attribute's value
      * @throws NamingException if the id is invalid
      */
-    public ServerAttributeImpl( String id, Value val ) throws NamingException
+    public ServerAttributeImpl( String id, Value<?> val ) throws NamingException
     {
         if ( StringTools.isEmpty( id ) )
         {
@@ -146,7 +146,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @param val the attribute's value
      * @throws NamingException if the oid is invalid
      */
-    public ServerAttributeImpl( OID oid, Value val ) throws NamingException
+    public ServerAttributeImpl( OID oid, Value<?> val ) throws NamingException
     {
         if ( oid == null )
         {
@@ -292,13 +292,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                     
                 default :
                     value = null;
-                    values = new ArrayList<Value>( copy.size() );
+                    values = new ArrayList<Value<?>>( copy.size() );
                     
-                    Iterator<Value> vals = copy.getAll();
+                    Iterator<Value<?>> vals = copy.getAll();
                     
                     while ( vals.hasNext() )
                     {
-                        Value val = vals.next();
+                        Value<?> val = vals.next();
                         values.add( val );
                     }
                     
@@ -345,7 +345,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                     break;
                     
                 default :   
-                    NamingEnumeration vals = attribute.getAll();
+                    NamingEnumeration<?> vals = attribute.getAll();
                     
                     while ( vals.hasMoreElements() )
                     {
@@ -386,15 +386,19 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @param value the value to clone
      * @return the value that was cloned
      */
-    private Value getClonedValue( Value value )
+    private Value<?> getClonedValue( Value<?> value )
     {
+        if ( value == null )
+        {
+            return new StringValue( null );
+        }
         try
         {
-            return (Value)value.clone();
+            return value.clone();
         }
         catch ( CloneNotSupportedException csne )
         {
-            return null;
+            return new StringValue( null );
         }
     }
     
@@ -407,11 +411,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @return the Iterator wrapped as a NamingEnumberation.
      */
-    public Iterator<Value> getAll()
+    public Iterator<Value<?>> getAll()
     {
         if ( size < 2 )
         {
-            return new Iterator<Value>()
+            return new Iterator<Value<?>>()
             {
                 private boolean more = (value != null);
                     
@@ -420,7 +424,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                     return more;
                 }
                 
-                public Value next() 
+                public Value<?> next() 
                 {
                     more = false;
                     return value;
@@ -445,7 +449,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @return the first value or null.
      */
-    public Value get()
+    public Value<?> get()
     {
         switch ( size )
         {
@@ -500,7 +504,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @param val the value to test for
      * @return true if val is in the list backing store, false otherwise
      */
-    public boolean contains( Value val )
+    public boolean contains( Value<?> val )
     {
         switch ( size )
         {
@@ -511,7 +515,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 return AttributeUtils.equals( value, val );
                 
             default :
-                for ( Value value:values )
+                for ( Value<?> value:values )
                 {
                     if ( AttributeUtils.equals( value, val ) )
                     {
@@ -556,7 +560,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @return true if val is added to the list backing store, false if it
      *         already existed there.
      */
-    public boolean add( Value val )
+    public boolean add( Value<?> val )
     {
         if ( contains( val ) )
         {
@@ -576,21 +580,23 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 
             case 1 :
                 // We can't store different kind of Values in the attribute
-                // The null value is an exception
-                if ( ( value != null) && ( val != null ) && 
+                // The null value is an exception, as it is not associated
+                // with a StringValue or a BinaryValue
+                if ( ( value.getValue() != null) && ( val.getValue() != null ) && 
                      ( value.getClass() != val.getClass() ) )
                 {
                     return false;
                 }
 
-                if ( value != null && value.equals( val ) )
+                // value is never null.
+                if ( value.equals( val ) )
                 {
                     // Don't add two times the same value
                     return true;
                 }
                 else
                 {
-                    values = new ArrayList<Value>();
+                    values = new ArrayList<Value<?>>();
                     values.add( value );
                     values.add( val );
                     value = null;
@@ -599,7 +605,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 }
                 
             default :
-                Value firstValue = values.get( 0 );
+                Value<?> firstValue = values.get( 0 );
             
                 if ( firstValue.getValue() == null )
                 {
@@ -607,8 +613,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 }
                 
                 // We can't store different kind of Values in the attribute
-                // The null value is an exception
-                if ( ( val != null ) && ( val.getValue() != null ) &&
+                if ( ( val.getValue() != null ) &&
                      ( firstValue.getValue().getClass() != val.getClass() ) )
                 {
                     return false;
@@ -664,7 +669,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @return true if val is remove from the list backing store, false if
      *         never existed there.
      */
-    public boolean remove( Value val )
+    public boolean remove( Value<?> val )
     {
         if ( contains( val) )
         {
@@ -752,7 +757,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @return a copy of this attribute using the same parent lock and id
      *         containing references to all the values of the original.
      */
-    public Object clone()
+    public ServerAttribute clone()
     {
         try
         {
@@ -763,15 +768,15 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
             
             if ( size < 2 )
             {
-                clone.value = (Value)value.clone();
+                clone.value = value.clone();
             }
             else
             {
-                clone.values = new ArrayList<Value>( values.size() );
+                clone.values = new ArrayList<Value<?>>( values.size() );
                 
-                for ( Value value:values )
+                for ( Value<?> value:values )
                 {
-                    Value newValue = (Value)value.clone();
+                    Value<?> newValue = value.clone();
                     clone.values.add( newValue );
                 }
             }
@@ -833,11 +838,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 return ( value.equals( attr.get() ) );
             
             default :
-                Iterator<Value> vals = getAll();
+                Iterator<Value<?>> vals = getAll();
                 
                 while ( vals.hasNext() )
                 {
-                    Value val = vals.next();
+                    Value<?> val = vals.next();
                     
                     if ( !attr.contains( val ) )
                     {
@@ -909,7 +914,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
             default :
                 boolean isFirst = true;
             
-                for ( Value value:values )
+                for ( Value<?> value:values )
                 {
                     if ( !isFirst )
                     {

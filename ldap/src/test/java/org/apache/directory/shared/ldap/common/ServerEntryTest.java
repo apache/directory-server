@@ -30,13 +30,9 @@ import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 
 /**
  * A class to test ServerEntry
@@ -210,4 +206,117 @@ public class ServerEntryTest
         
         assertEquals( dn, entry2.getDN() );
     }
+    
+
+
+
+    /**
+     * Test the getOIDs method
+     */
+    @Test public void testGetOIDs() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        OID[] expectedOIDs = new OID[]{ oid1, oid2, oid3 };
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, oid2.toString() );
+
+        entry.put( attr1 );
+        entry.put( attr2 );
+        entry.put( oid3, oid3.toString() );
+        
+        Iterator<OID> iterOids = entry.getOIDs();
+        int i = 0;
+        
+        while ( iterOids.hasNext() )
+        {
+            OID oid = iterOids.next();
+            assertEquals( expectedOIDs[i], oid );
+            i++;
+        }
+    }
+
+    
+    /**
+     * Test the clear method
+     */
+    @Test public void testClear() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        entry.put( oid1, oid1.toString() );
+        entry.put( oid2, oid2.toString() );
+        entry.put( oid3, oid3.toString() );
+     
+        assertEquals( 3, entry.size() );
+
+        // Now, clear the entry
+        entry.clear();
+        
+        assertEquals( 0, entry.size() );
+        assertNull( entry.remove( oid2 ) );
+    }
+
+    /**
+     * Test the clone method
+     */
+    @Test public void testClone() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        // Create three attributes : two StringValues and one BinaryValue
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, StringTools.getBytesUtf8( "test" ) );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid2.toString() );
+        
+        entry.put( attr1 );
+        entry.put( attr2 );
+        entry.put( attr3 );
+     
+        assertEquals( 3, entry.size() );
+
+        // Now, clone the entry
+        ServerEntry clone = (ServerEntry)entry.clone();
+        
+        assertEquals( 3, clone.size() );
+        assertEquals( attr1, clone.get( oid1 ) );
+        assertEquals( attr2, clone.get( oid2 ) );
+        assertEquals( attr3, clone.get( oid3 ) );
+        
+        // Modify the inital attribute
+        entry.remove( oid1 );
+        assertNull( entry.get( oid1 ) );
+        assertEquals( attr1, clone.get( oid1 ) );
+        
+        // modify the clone
+        clone.remove( oid3 );
+        assertNull( clone.get( oid3 ) );
+        assertEquals( attr3, entry.get( oid3 ) );
+        
+        // Modify an attribute : the clone should not change
+        ServerAttribute attr = entry.get( oid2 );
+        ServerAttribute clonedAttr = (ServerAttribute)attr.clone();
+        attr.clear();
+        
+        assertEquals( clonedAttr, clone.get( oid2 ) );
+    }    
 }
