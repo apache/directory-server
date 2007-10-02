@@ -72,7 +72,7 @@ public interface Value<T> extends Serializable, Cloneable
      * @param normalizer The normalizer to use
      * @throws NamingException If the normalization fail
      */
-    void normalize( Normalizer<T> normalizer ) throws NamingException;
+    void normalize( Normalizer normalizer ) throws NamingException;
     
     /**
      * Tells if the value has been normalized. It's a speedup.
@@ -86,6 +86,7 @@ public interface Value<T> extends Serializable, Cloneable
      * Makes a copy of the Value. 
      *
      * @return A non-null copy of the Value.
+     * @throws CloneNotSupportedException if the clone operation is not supported
      */
     Object clone() throws CloneNotSupportedException;
 }

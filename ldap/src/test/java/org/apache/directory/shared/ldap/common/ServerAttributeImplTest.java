@@ -328,15 +328,15 @@ public class ServerAttributeImplTest
         
         ServerAttribute attr = new ServerAttributeImpl( "test", (String)null );
 
-        attr.normalize( oid, new Normalizer<String>()
+        attr.normalize( oid, new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+
+            public Object normalize( Object value ) throws NamingException
             {
-                public static final long serialVersionUID = 1L;
-                
-                public String normalize( String value )
-                {
-                    return value == null ? null : StringTools.toLowerCase( value );
-                }
-            });
+                return value == null ? null : StringTools.toLowerCase( ( String ) value );
+            }
+        });
         
         assertEquals( null, attr.get().getNormValue() );
         assertEquals( null, attr.get().getValue() );
@@ -356,15 +356,15 @@ public class ServerAttributeImplTest
         attr.add( "TEST2" );
         attr.add( (String)null );
 
-        attr.normalize( oid, new Normalizer<String>()
+        attr.normalize( oid, new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+
+            public Object normalize( Object value ) throws NamingException
             {
-                public static final long serialVersionUID = 1L;
-                
-                public String normalize( String value )
-                {
-                    return value == null ? null : StringTools.toLowerCase( value );
-                }
-            });
+                return value == null ? null : StringTools.toLowerCase( ( String ) value );
+            }
+        });
         
         String[] expectedLC = new String[]{ "test1", "test2", null };
         String[] expectedUC = new String[]{ "TEST1", "TEST2", null };
@@ -457,27 +457,27 @@ public class ServerAttributeImplTest
         
         OID oid = new OID( "0.1.2.3.4" );
 
-        attr.normalize( oid, new Normalizer<String>()
+        attr.normalize( oid, new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+
+            public Object normalize( Object value ) throws NamingException
             {
-                public static final long serialVersionUID = 1L;
-                
-                public String normalize( String value )
-                {
-                    return value == null ? null : StringTools.toLowerCase( value );
-                }
-            });
+                return value == null ? null : StringTools.toLowerCase( ( String ) value );
+            }
+        });
 
         assertNotSame( clone, attr );
         
-        clone.normalize( oid, new Normalizer<String>()
+        clone.normalize( oid, new Normalizer()
+        {
+            public static final long serialVersionUID = 1L;
+
+            public Object normalize( Object value ) throws NamingException
             {
-                public static final long serialVersionUID = 1L;
-                
-                public String normalize( String value )
-                {
-                    return value == null ? null : StringTools.toLowerCase( value );
-                }
-            });
+                return value == null ? null : StringTools.toLowerCase( ( String ) value );
+            }
+        });
         
         assertEquals( clone, attr );
         

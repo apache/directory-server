@@ -65,13 +65,6 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 public interface ServerAttribute extends Cloneable, Serializable 
 {
     /**
-     * This constant is used during deserialization to check the version which
-     * created the serialized object.
-     */
-    static final long serialVersionUID = 2L;
-    
-    
-    /**
      * Adds a value to this attribute. If the new value is already present in 
      * the attribute values, the method has no effect.
      * <p>
@@ -263,6 +256,7 @@ public interface ServerAttribute extends Cloneable, Serializable
      *
      * @param oid The attribute OID
      * @param normalizer The normalizer
+     * @throws NamingException when normalization fails
      */
-    void normalize( OID oid, Normalizer<?> normalizer ) throws NamingException;
+    void normalize( OID oid, Normalizer normalizer ) throws NamingException;
 }

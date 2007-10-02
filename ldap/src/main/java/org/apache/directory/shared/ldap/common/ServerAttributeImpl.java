@@ -31,7 +31,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.shared.asn1.primitives.OID;
-import org.apache.directory.shared.ldap.common.Value;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerAttributeImpl implements ServerAttribute, Serializable, Cloneable
 {
-    private static final Logger log = LoggerFactory.getLogger( ServerAttributeImpl.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ServerAttributeImpl.class );
 
     /** For serialization */
     private static final long serialVersionUID = 2L;
@@ -67,20 +66,23 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
     /** A size to handle the number of values, as one of them can be null */
     private int size;
 
+
     // ------------------------------------------------------------------------
     // Constructors
     // ------------------------------------------------------------------------
+
 
     /**
      * Creates a ServerAttribute with an id
      * 
      * @param id the id or name of this attribute.
+     * @throws NamingException if the id is null
      */
     public ServerAttributeImpl( String id ) throws NamingException
     {
         if ( StringTools.isEmpty( id ) )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -96,12 +98,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * Creates a ServerAttribute with an oid
      * 
      * @param oid the oid of this attribute.
+     * @throws NamingException if the oid is null
      */
     public ServerAttributeImpl( OID oid ) throws NamingException
     {
         if ( oid == null )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -118,12 +121,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val the attribute's value
+     * @throws NamingException if the id is invalid
      */
     public ServerAttributeImpl( String id, Value val ) throws NamingException
     {
         if ( StringTools.isEmpty( id ) )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -140,12 +144,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val the attribute's value
+     * @throws NamingException if the oid is invalid
      */
     public ServerAttributeImpl( OID oid, Value val ) throws NamingException
     {
         if ( oid == null )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -162,12 +167,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val a value for the attribute
+     * @throws NamingException if the id string is invalid
      */
     public ServerAttributeImpl( String id, byte[] val ) throws NamingException
     {
         if ( StringTools.isEmpty( id ) )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -184,12 +190,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val a value for the attribute
+     * @throws NamingException if the oid is invalid
      */
     public ServerAttributeImpl( OID oid, byte[] val ) throws NamingException
     {
         if ( oid == null )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -206,12 +213,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val a value for the attribute
+     * @throws NamingException if the id string is invalid
      */
     public ServerAttributeImpl( String id, String val ) throws NamingException
     {
         if ( StringTools.isEmpty( id ) )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -228,12 +236,13 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val a value for the attribute
+     * @throws NamingException if there's no OID provided
      */
     public ServerAttributeImpl( OID oid, String val ) throws NamingException
     {
         if ( oid == null )
         {
-            log.error( "Attributes with an empty ID or OID are not allowed" );
+            LOG.error( "Attributes with an empty ID or OID are not allowed" );
             throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
         }
 
@@ -257,7 +266,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
     {
         if ( attribute == null )
         {
-            log.error(  "Null attribute is not allowed" );
+            LOG.error(  "Null attribute is not allowed" );
             throw new NamingException( "Null attribute is not allowed" );
         }
         else if ( attribute instanceof ServerAttributeImpl )
@@ -326,7 +335,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                     }
                     else
                     {
-                        log.error( "The value's type is not String or byte[]" );
+                        LOG.error( "The value's type is not String or byte[]" );
                         throw new NamingException( "The value's type is not String or byte[]" );
                     }
 
@@ -352,7 +361,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                         }
                         else
                         {
-                            log.error( "The value's type is not String or byte[]" );
+                            LOG.error( "The value's type is not String or byte[]" );
                             throw new NamingException( "The value's type is not String or byte[]" );
                         }
                     }
@@ -365,16 +374,17 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
         }
         else
         {
-            log.error( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
+            LOG.error( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
             throw new NamingException( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
         }
     }
 
     
     /**
-     * 
      * Clone a value. This private message is used to avoid adding try--catch
      * all over the code.
+     * @param value the value to clone
+     * @return the value that was cloned
      */
     private Value getClonedValue( Value value )
     {
@@ -548,8 +558,6 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      */
     public boolean add( Value val )
     {
-        boolean exists = false;
-        
         if ( contains( val ) )
         {
             // Do not duplicate values
@@ -574,10 +582,8 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                 {
                     return false;
                 }
-                
-                exists = value.equals( val );
 
-                if ( exists )
+                if ( value != null && value.equals( val ) )
                 {
                     // Don't add two times the same value
                     return true;
@@ -608,18 +614,17 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                     return false;
                 }
 
-                exists = values.contains( val ); 
-            
-                if ( exists )
+                if ( values.contains( val ) )
                 {
                     // Don't add two times the same value
                     return true;
                 }
-                
-                values.add( val );
-                size++;
-                
-                return exists;
+                else
+                {
+                    values.add( val );
+                    size++;
+                    return false;
+                }
         }
     }
 
@@ -737,7 +742,6 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
             default :
                 values = null;
                 size = 0;
-                return;
         }
     }
 
@@ -853,7 +857,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * @param normalizer The normalizer
      */
     @SuppressWarnings(value="unchecked")
-    public void normalize( OID oid, Normalizer<?> normalizer ) throws NamingException
+    public void normalize( OID oid, Normalizer normalizer ) throws NamingException
     {
         this.oid = oid;
         
@@ -907,7 +911,7 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
             
                 for ( Value value:values )
                 {
-                    if ( isFirst == false )
+                    if ( !isFirst )
                     {
                         sb.append( ", " );
                     }

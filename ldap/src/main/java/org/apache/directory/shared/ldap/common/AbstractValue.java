@@ -40,6 +40,7 @@ public abstract class AbstractValue<T> implements Value<T>
 
     /**
      * Creates a new instance of StringValue with no value
+     * @param value the value
      */
     public AbstractValue( T value )
     {
@@ -110,19 +111,20 @@ public abstract class AbstractValue<T> implements Value<T>
     /**
      * Normalize the value
      */
-    public void normalize( Normalizer<T> normalizer ) throws NamingException
+    public void normalize( Normalizer normalizer ) throws NamingException
     {
-        normValue = normalizer.normalize( value );
+        //noinspection unchecked
+        normValue = ( T ) normalizer.normalize( value );
     }
     
     
     /**
      * Clone the value.
      */
-    public Object clone() throws CloneNotSupportedException
+    public Value clone() throws CloneNotSupportedException
     {
         // Simply clone the object
-        return (Value)super.clone();
+        return ( Value ) super.clone();
     }
     
     
@@ -131,21 +133,6 @@ public abstract class AbstractValue<T> implements Value<T>
      */
     public boolean equals( Object obj )
     {
-        if ( obj == this )
-        {
-            return true;
-        }
-
-        if ( ( obj == null ) || !( obj instanceof Value ) )
-        {
-            return false;
-        }
-        
-        if ( obj.getClass() != this.getClass() )
-        {
-            return false;
-        }
-        
-        return true;
+        return obj == this || !( ( obj == null ) || !( obj instanceof Value ) ) && obj.getClass() == this.getClass();
     }
 }

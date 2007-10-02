@@ -32,7 +32,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class BinaryValue extends AbstractValue<byte[]>
 {
     /**
-     * serialVersionUID 
+     * serialVersionUID
      */
     static final long serialVersionUID = 2L;
 
@@ -78,7 +78,7 @@ public class BinaryValue extends AbstractValue<byte[]>
      *
      * @return A non-null copy of the Value.
      */
-    public Object clone() throws CloneNotSupportedException
+    public BinaryValue clone() throws CloneNotSupportedException
     {
         // Clone the superclass
         BinaryValue cloned = (BinaryValue)super.clone();
