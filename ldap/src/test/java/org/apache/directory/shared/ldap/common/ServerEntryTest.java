@@ -20,6 +20,7 @@
 
 package org.apache.directory.shared.ldap.common;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import javax.naming.InvalidNameException;
@@ -33,6 +34,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * A class to test ServerEntry
@@ -137,7 +140,7 @@ public class ServerEntryTest
     /**
      * Test the size method
      */
-    @Test public void testServerEntrySize() 
+    @Test public void testSize() 
         throws InvalidNameException, DecoderException, NamingException
     {
         LdapDN dn = new LdapDN( "dc=example, dc=org" );
@@ -320,4 +323,269 @@ public class ServerEntryTest
         
         assertEquals( clonedAttr, clone.get( oid2 ) );
     }    
+
+
+    /**
+     * Test the get method
+     */
+    @Test public void testGet() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, oid2.toString() );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid3.toString() );
+        
+        entry.put( attr1 );
+        entry.put( attr2 );
+        entry.put( attr3 );
+        
+        assertEquals( 3, entry.size() );
+        
+        assertEquals( attr2, entry.get( oid2 ) );
+        
+        entry.remove( oid2 );
+        assertNull( entry.get(  oid2 ) );
+    }
+
+    
+    /**
+     * Test the getAll method
+     */
+    @Test public void testGetAll() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, oid2.toString() );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid3.toString() );
+        
+        entry.put( attr1 );
+        entry.put( oid2, oid2.toString() );
+        entry.put( oid3, "1.2.5" );
+        
+        ServerAttribute[] expectedAttrs = new ServerAttribute[]{ attr1, attr2, attr3 };
+        
+        assertEquals( 3, entry.size() );
+        Iterator<ServerAttribute> iter = entry.getAll();
+        int i = 0;
+        
+        assertTrue( iter.hasNext() );
+        
+        while ( iter.hasNext() )
+        {
+            ServerAttribute attr = iter.next();
+            assertEquals( expectedAttrs[i], attr );
+            i++;
+        }
+        
+        assertEquals( 3, i );
+    }
+
+    /**
+     * Test the put methods
+     */
+    @Test public void testPut() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        OID oid4 = new OID( "1.2.6" );
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, oid2.toString() );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid3.toString() );
+        ServerAttribute attr4 = new ServerAttributeImpl( oid4, oid4.getOID() );
+        
+        // Check the put( ServerAttribute )
+        entry.put( attr1 );
+        assertEquals( attr1, entry.get( oid1 ) );
+        assertEquals( 1, entry.size() );
+        assertEquals( "1.2.3", entry.get( oid1 ).get().getValue() );
+        
+        // Check the put( OID, Value )
+        entry.put( oid2, new StringValue( oid2.toString() ) );
+        assertEquals( attr2, entry.get( oid2 ) );
+        assertEquals( 2, entry.size() );
+        assertEquals( "1.2.4", entry.get( oid2 ).get().getValue() );
+        
+        // Check the put( OID, String )
+        entry.put( oid3, oid3.toString() );
+        assertEquals( attr3, entry.get( oid3 ) );
+        assertEquals( 3, entry.size() );
+        assertEquals( "1.2.5", entry.get( oid3 ).get().getValue() );
+        
+        // Check the put( OID, byte[] )
+        entry.put( oid4, oid4.getOID() );
+        assertEquals( attr4, entry.get( oid4 ) );
+        assertEquals( 4, entry.size() );
+        assertTrue( Arrays.equals( oid4.getOID(), (byte[])entry.get( oid4 ).get().getValue() ) );
+    }
+
+
+    /**
+     * Test the remove methods
+     */
+    @Test public void testRemove() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=example, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        OID oid4 = new OID( "1.2.6" );
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, (String)null );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid3.toString() );
+        ServerAttribute attr4 = new ServerAttributeImpl( oid4, oid4.getOID() );
+        
+        entry.put( attr1 );
+        entry.put( attr2 );
+        entry.put( attr3 );
+        entry.put( attr4 );
+        
+        assertEquals( 4, entry.size() );
+        
+        // Test remove(OID)
+        ServerAttribute deleted = entry.remove( oid1 );
+        
+        assertEquals( 3, entry.size() );
+        assertEquals( attr1, deleted );
+        
+        // test remove( ServerAttribute )
+        deleted = entry.remove( attr2 );
+        
+        assertEquals( 2, entry.size() );
+        assertEquals( attr2, deleted );
+        
+        deleted = entry.remove( attr3 );
+        
+        assertEquals( 1, entry.size() );
+        assertEquals( attr3, deleted );
+
+        deleted = entry.remove( attr4 );
+        
+        assertEquals( 0, entry.size() );
+        assertEquals( attr4, deleted );
+    }
+    
+
+    /**
+     * Test the copy methods
+     */
+    @Test public void testCopy() throws InvalidNameException, DecoderException, NamingException
+    {
+        LdapDN dn1 = new LdapDN( "dc=example1, dc=org" );
+        
+        ServerEntry entry = new ServerEntryImpl( dn1 );
+        
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        OID oid3 = new OID( "1.2.5" );
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, (String)null );
+        ServerAttribute attr3 = new ServerAttributeImpl( oid3, oid3.getOID() );
+        
+        assertEquals( 0, entry.size() );
+        
+        // First, copy a StringValue
+        ServerAttribute copy = entry.copy( attr1 );
+        assertEquals( 1, entry.size() );
+        assertNull( copy );
+        
+        // Then check that even if we modify the original attribute, the
+        // copied value is not changed
+        attr1.clear();
+        copy = entry.get( oid1 );
+        assertNotSame( attr1, copy );
+        assertEquals( "1.2.3", copy.get().getValue() );
+        
+        // Do the same thing with a BinaryValue
+        copy = entry.copy( attr3 );
+        assertEquals( 2, entry.size() );
+        assertNull( copy );
+        
+        // Then check that even if we modify the original attribute, the
+        // copied value is not changed
+        ((byte[])attr3.get().getValue())[0] = '0';
+        copy = entry.get( oid3 );
+        assertNotSame( attr3, copy );
+        assertTrue( Arrays.equals( oid3.getOID(), (byte[])copy.get().getValue() ) );
+        
+        // Do the same thing with a null value
+        copy = entry.copy( attr2 );
+        assertEquals( 3, entry.size() );
+        assertNull( copy );
+        
+        // Then check that even if we modify the original attribute, the
+        // copied value is not changed
+        attr2.clear();
+        copy = entry.get( oid2 );
+        assertNotSame( attr2, copy );
+        assertNull( copy.get().getValue() );
+    }    
+
+
+    
+
+    /**
+     * Test the equals methods
+     */
+    @Test public void testEquals() throws InvalidNameException, DecoderException, NamingException
+    {
+        OID oid1 = new OID( "1.2.3" ); 
+        OID oid2 = new OID( "1.2.4" ); 
+        
+        ServerAttribute attr1 = new ServerAttributeImpl( oid1, oid1.toString() );
+        ServerAttribute attr2 = new ServerAttributeImpl( oid2, (String)null );
+        
+        LdapDN dn1 = new LdapDN( "dc=example1, dc=org" );
+        ServerEntry entry1 = new ServerEntryImpl( dn1 );
+        
+        entry1.put( attr1 );
+        entry1.put( attr2 );
+        
+        LdapDN dn2 = new LdapDN( "dc=example2, dc=org" );
+        ServerEntry entry2 = new ServerEntryImpl( dn2 );
+        
+        entry2.put( attr1 );
+        entry2.put( attr2 );
+        
+        assertEquals( entry1, entry1 );
+        assertNotSame( entry1, entry2 );
+        
+        entry2.setDn( dn1 );
+        
+        assertEquals( entry1, entry2 );
+        
+        entry2.clear();
+        
+        assertNotSame( entry1, entry2 );
+        
+        ServerEntry clone = entry1.clone();
+        
+        assertEquals( entry1, clone );
+        
+    }        
+        
 }

@@ -161,6 +161,63 @@ public class ServerEntryImpl implements ServerEntry
     
     
     /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        
+        if ( ( obj == null ) || !( obj instanceof ServerEntryImpl ) )
+        {
+            return false;
+        }
+        
+        ServerEntry entry = (ServerEntry)obj;
+        
+        // check the DN, which can be null
+        if ( dn == null )
+        {
+            if ( entry.getDn() != null )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ( !dn.equals( entry.getDn() ) )
+            {
+                return false;
+            }
+        }
+        
+        // Compares the attributes
+        Iterator<ServerAttribute> all = entry.getAll();
+        
+        if ( !all.hasNext() )
+        {
+            return attributes.size() == 0;
+        }
+        
+        int size = attributes.size();
+        
+        while ( all.hasNext() )
+        {
+            if ( !attributes.contains( all.next() ) )
+            {
+                return false;
+            }
+            
+            size --;
+        }
+        
+        return size == 0;
+    }
+    
+    
+    /**
      * Returns the attribute with the specified OID. The return value
      * is <code>null</code> if no match is found.
      * 
@@ -302,11 +359,11 @@ public class ServerEntryImpl implements ServerEntry
 
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                max = 0;
+                max = attributes.size();
             }
             else
             {
-                max = attributes.size();
+                max = 0;
             }
         }
     
