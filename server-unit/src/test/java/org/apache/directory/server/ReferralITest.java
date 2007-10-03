@@ -301,7 +301,7 @@ public class ReferralITest extends AbstractServerTest
         NamingEnumeration ii = ctx.search( "", filter, controls );
     
         // collect all results
-        Set results = new HashSet();
+        Set<String> results = new HashSet<String>();
     
         while ( ii.hasMore() )
         {
@@ -336,14 +336,14 @@ public class ReferralITest extends AbstractServerTest
      */
     private Set search( LdapContext ctx, String filter, SearchControls controls ) throws NamingException
     {
-        NamingEnumeration ii = ctx.search( "", filter, controls );
+        NamingEnumeration<SearchResult> ii = ctx.search( "", filter, controls );
 
         // collect all results
-        Set results = new HashSet();
+        Set<String> results = new HashSet<String>();
 
         while ( ii.hasMore() )
         {
-            SearchResult result = ( SearchResult ) ii.next();
+            SearchResult result = ii.next();
             results.add( result.getName() );
         }
 
