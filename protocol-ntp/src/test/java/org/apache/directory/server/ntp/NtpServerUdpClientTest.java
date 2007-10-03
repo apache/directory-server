@@ -21,13 +21,13 @@
 package org.apache.directory.server.ntp;
 
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
@@ -36,6 +36,9 @@ import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.util.AvailablePortFinder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -44,7 +47,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class NtpServerUdpClientTest extends TestCase
+public class NtpServerUdpClientTest
 {
 
     private NtpServer ntpServer = null;
@@ -56,7 +59,7 @@ public class NtpServerUdpClientTest extends TestCase
 
     /** Starts the NTP server on UDP, uses the first port available starting from 1024.
      */
-    protected void setUp()
+    @Before public void startNTPServerOnUDP()
     {
 
         NtpConfiguration ntpCfg = new NtpConfiguration();
@@ -82,7 +85,7 @@ public class NtpServerUdpClientTest extends TestCase
      * @throws UnknownHostException
      * @throws IOException
      */
-    public void testReturnTime() throws UnknownHostException, IOException
+    @Test public void shouldReturnCurrentTimeToClient() throws UnknownHostException, IOException
     {
 
         // Get time via client call
@@ -101,7 +104,7 @@ public class NtpServerUdpClientTest extends TestCase
 
     /** Shuts the NTP server down
      */
-    protected void tearDown()
+    @After public void shutdownNTPServer()
     {
         ntpServer.destroy();
     }
