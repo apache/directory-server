@@ -20,13 +20,20 @@
 package org.apache.directory.server;
 
 
+/**
+ * A simple Java class which acts as the stored procedure within StoredProcedureExecutionITest.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev:$ 
+ * */
 public class HelloWorldProcedure
 {
     public static String sayHello()
     {
         return "Hello World!";
     }
-    
+
+
     public static String sayHelloTo( String name )
     {
         return "Hello " + name + "!";
