@@ -31,6 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * Contains a method to delete a subtree. To be used as a stored procedure within tests.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$ 
+ * */
 public class DITUtilitiesSP
 {
 	private static final Logger log = LoggerFactory.getLogger( DITUtilitiesSP.class );
