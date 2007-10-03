@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Hashtable;
 
@@ -36,10 +40,14 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.unit.AbstractServerFastTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -49,7 +57,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRemoveTest extends AbstractServerTest
+public class ModifyRemoveTest extends AbstractServerFastTest
 {
 
     private LdapContext ctx = null;
@@ -96,10 +104,8 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Create context and a person entry.
      */
-    public void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
-        super.setUp();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
@@ -108,7 +114,7 @@ public class ModifyRemoveTest extends AbstractServerTest
         env.put( "java.naming.security.authentication", "simple" );
 
         ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
+        Assert.assertNotNull( ctx );
 
         // Create a person with description
         Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
@@ -120,12 +126,11 @@ public class ModifyRemoveTest extends AbstractServerTest
     /**
      * Remove person entry and close context.
      */
-    public void tearDown() throws Exception
+    @After public void tearDown() throws Exception
     {
         ctx.unbind( RDN );
         ctx.close();
         ctx = null;
-        super.tearDown();
     }
 
 
@@ -135,11 +140,11 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
-    public void testSetUpTearDown() throws NamingException
+    @Test public void shouldBeAbleToConnect() throws NamingException
     {
-        assertNotNull( ctx );
+        Assert.assertNotNull( ctx );
         DirContext tori = ( DirContext ) ctx.lookup( RDN );
-        assertNotNull( tori );
+        Assert.assertNotNull( tori );
     }
 
 
@@ -151,7 +156,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemoveNotRequiredAttribute() throws NamingException
+    @Test public void shouldAllowRemovalOfOptionalAttribute() throws NamingException
     {
         // Remove description Attribute
         Attribute attr = new AttributeImpl( "description" );
@@ -174,7 +179,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemoveTwoNotRequiredAttributes() throws NamingException
+    @Test public void shouldAllowRemovalOfTwoOptionalAttributes() throws NamingException
     {
         // add telephoneNumber to entry
         Attributes tn = new AttributesImpl( "telephoneNumber", "12345678" );
@@ -203,7 +208,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemoveRequiredAttribute() throws NamingException
+    @Test public void shouldRejectRemovalOfRequiredAttribute() throws NamingException
     {
         // Remove sn attribute
         Attribute attr = new AttributeImpl( "sn" );
@@ -229,7 +234,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemovePartOfRdn() throws NamingException
+    @Test public void shouldRejectRemovalOfPartOfRdn() throws NamingException
     {
         // Remove sn attribute
         Attribute attr = new AttributeImpl( "cn" );
@@ -255,7 +260,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemovePartOfRdnNotRequired() throws NamingException
+    @Test public void shouldRejectRemovalOfPartOfRdnWhichIsNotRequired() throws NamingException
     {
         // Change RDN to another attribute
         String newRdn = "description=an American singer-songwriter";
@@ -291,7 +296,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemoveAttributeNotPresent() throws NamingException
+    @Test public void shouldRejectRemovalOfAnAttributeNotPresentInEntry() throws NamingException
     {
         // Remove telephoneNumber Attribute
         Attribute attr = new AttributeImpl( "telephoneNumber" );
@@ -317,7 +322,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testRemoveAttributeNotValid() throws NamingException
+    @Test public void shouldRejectRemovalOfUnknownAttribute() throws NamingException
     {
         // Remove phantasy attribute
         Attribute attr = new AttributeImpl( "XXX" );
@@ -341,11 +346,11 @@ public class ModifyRemoveTest extends AbstractServerTest
 
 
     /**
-     * Create a person entry and try to remove an attribute value
+     * Replacing an existing attribute with an empty value should lead to the deletion of this attribute.
      * 
      * @throws NamingException 
      */
-    public void testReplaceNonExistingAttribute() throws NamingException
+    @Test public void shouldCauseDeletionOfAnAttributeWhenReplacedWithEmptyValue() throws NamingException
     {
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes( "Bush", "Kate Bush" );
@@ -390,7 +395,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
-    public void testReplaceRdnByEmptyValueAttribute() throws NamingException
+    @Test public void shouldRejectReplacingPartOfTheRdnWithEmptyValue() throws NamingException
     {
 
         // Create an entry
@@ -422,7 +427,7 @@ public class ModifyRemoveTest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
-    public void testRemoveRdnAttribute() throws NamingException
+    @Test public void shouldRejectDeletingPartOfTheRdn() throws NamingException
     {
 
         // Create an entry
@@ -447,45 +452,13 @@ public class ModifyRemoveTest extends AbstractServerTest
 
         ctx.destroySubcontext( rdn );
     }
-
-
-    /**
-     * Create a person entry and try to remove an attribute from the RDN
-     * 
-     * @throws NamingException 
-     */
-    public void testRemoveRdnAttributeValue() throws NamingException
-    {
-
-        // Create an entry
-        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
-        String rdn = "cn=Kate Bush";
-        ctx.createSubcontext( rdn, attrs );
-
-        // replace attribute cn with empty value (=> deletion)
-        Attribute attr = new AttributeImpl( "cn", "Kate Bush" );
-        ModificationItemImpl item = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, attr );
-
-        try
-        {
-            ctx.modifyAttributes( rdn, new ModificationItemImpl[]
-                { item } );
-            fail( "modify should fail" );
-        }
-        catch ( SchemaViolationException e )
-        {
-            // Expected behaviour
-        }
-
-        ctx.destroySubcontext( rdn );
-    }
     
     /**
      * Create a person entry and try to remove objectClass attribute
      * 
      * @throws NamingException 
      */
-    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgperson() throws NamingException {
+    @Test public void shouldRejectDeletionOfObjectClassAttribute() throws NamingException {
 
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
@@ -509,12 +482,11 @@ public class ModifyRemoveTest extends AbstractServerTest
     }
 
     /**
-     * Create a person entry and try to remove objectClass attribute. A variant
-     * which works.
+     * Create a person entry and try to remove objectClass attribute. A variant.
      * 
      * @throws NamingException 
      */
-    public void testDeleteOclAttrWithTopPersonOrganizationalpersonInetorgpersonVariant() throws NamingException {
+    @Test public void shouldRejectDeletionOfObjectClassAttributeVariant() throws NamingException {
 
         // Create an entry
         Attributes attrs = getInetOrgPersonAttributes("Bush", "Kate Bush");
