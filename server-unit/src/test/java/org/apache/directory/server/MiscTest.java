@@ -35,6 +35,7 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
@@ -208,7 +209,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Hashtable env = new Hashtable();
+        final Properties env = new Properties();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -241,7 +242,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Hashtable env = new Hashtable();
+        final Properties env = new Properties();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -274,7 +275,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Hashtable env = new Hashtable();
+        final Properties env = new Properties();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
         env.put( "java.naming.ldap.version", "3" );
@@ -310,7 +311,7 @@ public class MiscTest extends AbstractServerTest
      */
     public void testUserAuthOnMixedCaseSuffix() throws Exception
     {
-        final Hashtable env = new Hashtable();
+        final Properties env = new Properties();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
@@ -422,7 +423,7 @@ public class MiscTest extends AbstractServerTest
                 return new byte[0];
             }
         };
-        final Hashtable env = new Hashtable();
+        final Properties env = new Properties();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
