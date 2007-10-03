@@ -19,6 +19,10 @@
  */
 package org.apache.directory.server;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Hashtable;
 
@@ -30,9 +34,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.unit.AbstractServerFastTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -42,7 +50,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRdnTest extends AbstractServerTest
+public class ModifyRdnTest extends AbstractServerFastTest
 {
 
     private LdapContext ctx = null;
@@ -69,10 +77,8 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Create context
      */
-    public void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
-        super.setUp();
-
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
@@ -80,27 +86,25 @@ public class ModifyRdnTest extends AbstractServerTest
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
+        Assert.assertNotNull( ctx );
     }
 
 
     /**
      * Close context
      */
-    public void tearDown() throws Exception
+    @After public void tearDown() throws Exception
     {
         ctx.close();
         ctx = null;
-
-        super.tearDown();
     }
 
 
     /**
      * Just a little test to check wether opening the connection succeeds.
      */
-    public void testSetUpTearDown()
-    {
+    @Test public void testSetUpTearDown()
+    {        
         assertNotNull( ctx );
     }
 
@@ -110,7 +114,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDeleteOld() throws NamingException
+    @Test public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -128,7 +132,7 @@ public class ModifyRdnTest extends AbstractServerTest
         try
         {
             ctx.lookup( oldRdn );
-            fail( "Entry must not exist" );
+            Assert.fail( "Entry must not exist" );
         }
         catch ( NameNotFoundException ignored )
         {
@@ -157,7 +161,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+    @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -202,7 +206,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndKeepOld() throws NamingException
+    @Test public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -249,7 +253,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDeleteOldVariant() throws NamingException
+    @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -303,7 +307,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnDifferentAttribute() throws NamingException
+    @Test public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
         // Create a person, cn value is rdn
