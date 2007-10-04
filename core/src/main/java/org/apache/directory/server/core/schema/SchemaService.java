@@ -117,12 +117,12 @@ public class SchemaService extends BaseInterceptor
     /** The LoggerFactory used by this Interceptor */
     private static Logger log = LoggerFactory.getLogger( SchemaService.class );
 
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
     /**
      * the root nexus to all database partitions

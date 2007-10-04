@@ -37,6 +37,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.configuration.InterceptorConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
@@ -66,6 +67,8 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -79,6 +82,28 @@ import org.apache.directory.shared.ldap.util.DateUtils;
  */
 public class OperationalAttributeService extends BaseInterceptor
 {
+    /** The LoggerFactory used by this Interceptor */
+    private static Logger log = LoggerFactory.getLogger( OperationalAttributeService.class );
+    
+    /** Speedup for logs */
+    private static final boolean IS_DEBUG = log.isDebugEnabled();
+
+    /**
+     * the root nexus of the system
+     */
+    private PartitionNexus nexus;
+
+    /** The attribute registry */
+    private AttributeTypeRegistry registry;
+
+    /** A flag set in configuration if the user want OpAtt to be denormalized */
+    private boolean isDenormalizeOpAttrsEnabled;
+
+    /**
+     * subschemaSubentry attribute's value from Root DSE
+     */
+    private LdapDN subschemaSubentryDn;
+
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
@@ -109,20 +134,32 @@ public class OperationalAttributeService extends BaseInterceptor
             return true;
         }
     };
-
+    
+    
     /**
-     * the root nexus of the system
+     * An helper method to add the modifiersname and modifyTimestamp
+     * operational attributes
      */
-    private PartitionNexus nexus;
+    private ModificationItemImpl[] addModifyOperationalAttribute( ModificationItemImpl[] mods, LdapPrincipal principal )
+    {
+        // Copy the current mods into a new array, and adding two elements at the end
+        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length + 2 ];
+        System.arraycopy( mods, 0, newMods, 0, mods.length );
+        
+        // Add the modifiersName
+        ModificationItemImpl mod = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
+            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, principal.getName() ) );
+        mod.modifiedByServer();
+        newMods[mods.length] = mod;
+        
+        // Add the modifyTimestamp
+        mod = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
+            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
+        mod.modifiedByServer();
+        newMods[mods.length + 1] = mod;
 
-    private AttributeTypeRegistry registry;
-
-    private boolean isDenormalizeOpAttrsEnabled;
-
-    /**
-     * subschemaSubentry attribute's value from Root DSE
-     */
-    private LdapDN subschemaSubentryDn;
+        return newMods;
+    }
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -132,8 +169,18 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
+    /**
+     * Interceptor initialization
+     * 
+     * @see BaseInterceptor#init(DirectoryServiceConfiguration, InterceptorConfiguration)
+     */
     public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
     {
+        if ( IS_DEBUG )
+        {
+            log.debug( "Initializing OperationalAttributeService..." );
+        }
+
         nexus = factoryCfg.getPartitionNexus();
         registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
         isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
@@ -142,9 +189,19 @@ public class OperationalAttributeService extends BaseInterceptor
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+
+        if ( IS_DEBUG )
+        {
+            log.debug( "SchemaService Initialized !" );
+        }
     }
 
 
+    /**
+     * Interceptor teardown
+     * 
+     * @see BaseInterceptor#destroy()
+     */
     public void destroy()
     {
     }
@@ -152,6 +209,12 @@ public class OperationalAttributeService extends BaseInterceptor
 
     /**
      * Adds extra operational attributes to the entry before it is added.
+     * 
+     * This method adds those two attroibutes :
+     *  - creatorNames
+     *  - createTimestamp
+     *  
+     *  The creatorNames is the principal
      */
     public void add(NextInterceptor nextInterceptor, AddOperationContext opContext )
         throws NamingException
@@ -159,41 +222,47 @@ public class OperationalAttributeService extends BaseInterceptor
         String principal = getPrincipal().getName();
         Attributes entry = opContext.getEntry();
 
-        Attribute attribute = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
-        attribute.add( principal );
-        entry.put( attribute );
-
-        attribute = new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT );
-        attribute.add( DateUtils.getGeneralizedTime() );
-        entry.put( attribute );
+        // Add the operational attributes to the entry
+        entry.put( new AttributeImpl( SchemaConstants.CREATORS_NAME_AT, principal ) );
+        entry.put( new AttributeImpl( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
 
         nextInterceptor.add( opContext );
     }
     
+    
+    /**
+     * Adds extra operational attributes when an entry is modified.
+     * 
+     * This method adds or modify those two attributes :
+     *  - modifierNames
+     *  - modifyTimestamp
+     *  
+     *  The modifierNames is the principal
+     */
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws NamingException
     {
-        // -------------------------------------------------------------------
-        // Add the operational attributes for the modifier first
-        // -------------------------------------------------------------------
+        nextInterceptor.modify( opContext );
 
-        List<ModificationItemImpl> modItemList = 
-            new ArrayList<ModificationItemImpl>( opContext.getModItems().length + 2 );
-        Collections.addAll( modItemList, opContext.getModItems() );
+        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        {
+            return;
+        }
         
+        // add operational attributes after call in case the operation fails
+        Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
-        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
-        
+        attributes.put( attribute );
+
         attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
-        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
+        attributes.put( attribute );
+        
+        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
-        // -------------------------------------------------------------------
-        // Make the modify() call happen
-        // -------------------------------------------------------------------
-
-        nextInterceptor.modify( opContext );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), items );
+        nexus.modify( newModify );
     }
 
 
@@ -398,7 +467,7 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
     
-    public void denormalizeEntryOpAttrs( Attributes entry ) throws NamingException
+    private void denormalizeEntryOpAttrs( Attributes entry ) throws NamingException
     {
         if ( isDenormalizeOpAttrsEnabled )
         {
@@ -446,7 +515,7 @@ public class OperationalAttributeService extends BaseInterceptor
      * Does not create a new DN but alters existing DN by using the first
      * short name for an attributeType definition.
      */
-    public LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
+    private LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
     {
         LdapDN newDn = new LdapDN();
         

@@ -529,14 +529,17 @@ public class SchemaManager
         for ( ModificationItemImpl mod : mods )
         {
             String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
+            
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
                     modifyAddOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break;
+                    
                 case( DirContext.REMOVE_ATTRIBUTE ):
                     modifyRemoveOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break; 
+                    
                 case( DirContext.REPLACE_ATTRIBUTE ):
                     throw new LdapOperationNotSupportedException( 
                         "Modify REPLACE operations on schema subentries are not allowed: " +
@@ -544,6 +547,7 @@ public class SchemaManager
                         "that reside in schema operational attributes.  Instead use \na " +
                         "targeted combination of modify ADD and REMOVE operations.", 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
+                
                 default:
                     throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }

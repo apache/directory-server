@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.Test;
 
 
 /**
@@ -186,6 +187,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue
      *      DIREVE-67</a>
      */
+    @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
 
@@ -199,7 +201,8 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     /**
      * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
      */
-    public void _testModifyShouldLeadToModifiersAttributes() throws NamingException
+    @Test
+    public void testModifyShouldLeadToModifiersAttributes() throws NamingException
     {
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description",
             "Singer Songwriter" ) );
@@ -224,7 +227,8 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     /**
      * Modify an entry and check whether attribute modifyTimestamp changes.
      */
-    public void _testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
+    @Test
+    public void testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
     {
         // Add attribute description to entry
         ModificationItem modifyAddOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
@@ -262,9 +266,6 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         assertNotNull( modifyTimestamp );
         String newTimestamp = modifyTimestamp.get().toString();
         
-        System.out.println(oldTimestamp);
-        System.out.println(newTimestamp);
-
         // assert the value has changed
         assertFalse( oldTimestamp.equals( newTimestamp ) );
     }
@@ -273,6 +274,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     /**
      * Try to add modifiersName attribute to an entry
      */
+    @Test
     public void testModifyOperationalAttributeAdd() throws NamingException
     {
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
@@ -298,6 +300,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     /**
      * Try to remove creatorsName attribute from an entry.
      */
+    @Test
     public void testModifyOperationalAttributeRemove() throws NamingException
     {
         ModificationItem modifyOp = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
@@ -323,6 +326,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     /**
      * Try to replace creatorsName attribute on an entry.
      */
+    @Test(expected=NoPermissionException.class)
     public void testModifyOperationalAttributeReplace() throws NamingException
     {
         ModificationItem modifyOp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
