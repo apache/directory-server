@@ -40,6 +40,13 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 public class ModificationItemImpl extends ModificationItem
 {
     private static final long serialVersionUID = 1L;
+    
+    /** 
+     * A special flag set to false by default, used to indicate
+     * that some modification has been done by the server. Usefull
+     * for Operationnal Attributes.
+     */
+    private boolean modifiedByServer;
 
     /**
      * Create a modificationItemImpl
@@ -52,6 +59,7 @@ public class ModificationItemImpl extends ModificationItem
     public ModificationItemImpl( int modificationOp, Attribute attribute ) 
     {
         super( modificationOp, AttributeUtils.toAttributeImpl( attribute ) );
+        modifiedByServer = false;
     }
     
     /**
@@ -66,6 +74,7 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+        modifiedByServer = false;
     }
     
     /**
@@ -76,6 +85,7 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+        modifiedByServer = false;
     }
     
     /**
@@ -104,6 +114,32 @@ public class ModificationItemImpl extends ModificationItem
         return new ModificationItemImpl( getModificationOp(), (Attribute)getAttribute().clone() ); 
     }
     
+
+    /**
+     * 
+     * tells if the modification has been done by the server
+     *
+     * @return <code>true</code> if the server has modified this attribute
+     */
+    public boolean isModifiedByServer()
+    {
+        return modifiedByServer;
+    }
+
+    
+    /**
+     * 
+     * Method called when the server modifies an operationnal
+     * attribute, as we must protect the attribute from being
+     * checked by the SchemaService interceptor
+     *
+     */
+    public void modifiedByServer()
+    {
+        modifiedByServer = true;
+    }
+
+    
     /**
      * @see Object#toString()
      */
@@ -111,7 +147,14 @@ public class ModificationItemImpl extends ModificationItem
     {
         StringBuffer sb = new StringBuffer();
         
-        sb.append( "ModificationItem : \n" );
+        sb.append( "ModificationItem" );
+        
+        if ( modifiedByServer )
+        {
+            sb.append( "[Op]" );
+        }
+        
+        sb.append( " : \n" );
         
         switch ( getModificationOp() )
         {
