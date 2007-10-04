@@ -34,6 +34,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -46,9 +47,9 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
+import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 
@@ -91,26 +92,27 @@ public class TriggerSpecCache
         final AttributeTypeRegistry registry = dirServCfg.getRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
-                public Map getNormalizerMapping() throws NamingException
+                public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
                 {
                     return registry.getNormalizerMapping();
                 }
             });
-        Hashtable env = ( Hashtable ) dirServCfg.getEnvironment().clone();
+        
+        Hashtable<String, Object> env = ( Hashtable<String, Object> ) dirServCfg.getEnvironment().clone();
         initialize(registry, env);
     }
 
 
-    private void initialize(AttributeTypeRegistry registry, Hashtable env) throws NamingException
+    private void initialize(AttributeTypeRegistry registry, Hashtable<String, Object> env) throws NamingException
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
         // add that subentry to the hash
-        Iterator suffixes = nexus.listSuffixes( null );
+        Iterator<String> suffixes = nexus.listSuffixes( null );
         
         while ( suffixes.hasNext() )
         {
-            String suffix = ( String ) suffixes.next();
+            String suffix = suffixes.next();
             LdapDN baseDn = new LdapDN( suffix );
             ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, ApacheSchemaConstants.TRIGGER_EXECUTION_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
@@ -206,13 +208,13 @@ public class TriggerSpecCache
         }
 
         LdapDN normName = opContext.getDn();
-        ModificationItemImpl[] mods = opContext.getModItems();
+        List<ModificationItem> mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
         
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItem mod:mods )
         {
-            isTriggerSpecModified |= mods[ii].getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
+            isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }
         
         if ( isTriggerSpecModified )

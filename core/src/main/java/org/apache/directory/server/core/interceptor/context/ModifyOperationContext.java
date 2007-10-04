@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -40,7 +43,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
-    private ModificationItemImpl[] modItems;
+    private List<ModificationItem> modItems;
     
     /**
      * 
@@ -57,7 +60,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Creates a new instance of ModifyOperationContext.
      *
      */
-    public ModifyOperationContext( LdapDN dn, ModificationItemImpl[] modItems )
+    public ModifyOperationContext( LdapDN dn, List<ModificationItem> modItems )
     {
         super( dn );
         this.modItems = modItems;
@@ -67,7 +70,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Set the modified attributes
      * @param modItems The modified attributes
      */
-    public void setModItems( ModificationItemImpl[] modItems ) 
+    public void setModItems( List<ModificationItem> modItems ) 
     {
         this.modItems = modItems;
     }
@@ -75,20 +78,20 @@ public class ModifyOperationContext extends AbstractOperationContext
     /**
      * @return The modifications
      */
-    public ModificationItemImpl[] getModItems() 
+    public List<ModificationItem> getModItems() 
     {
         return modItems;
     }
     
-    public static ModificationItemImpl[] createModItems( Attributes attributes, int modOp ) throws NamingException
+    @SuppressWarnings( value = "unchecked" )
+    public static List<ModificationItem> createModItems( Attributes attributes, int modOp ) throws NamingException
     {
-        ModificationItemImpl[] items = new ModificationItemImpl[attributes.size()];
-        NamingEnumeration e = attributes.getAll();
-        int i = 0;
+        List<ModificationItem> items = new ArrayList<ModificationItem>( attributes.size() );
+        NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attributes.getAll();
         
         while ( e.hasMore() )
         {
-            items[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() );
+            items.add( new ModificationItemImpl( modOp, e.next() ) );
         }
 
         return items;

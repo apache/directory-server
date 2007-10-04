@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -50,6 +49,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -1514,12 +1515,12 @@ public class JdbmStore
     }
 
 
-    public void modify( LdapDN dn, ModificationItemImpl[] mods ) throws NamingException
+    public void modify( LdapDN dn, List<ModificationItem> mods ) throws NamingException
     {
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
-        for ( ModificationItemImpl mod : mods )
+        for ( ModificationItem mod : mods )
         {
             Attribute attrMods = mod.getAttribute();
 
@@ -1855,12 +1856,12 @@ public class JdbmStore
             dropAliasIndices( movedBaseId, movedBase );
         }
 
-        NamingEnumeration aliases = new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ),
+        NamingEnumeration<IndexRecord> aliases = new IndexAssertionEnumeration( aliasIdx.listIndices( movedBase.toString(), true ),
             isBaseDescendant );
         
         while ( aliases.hasMore() )
         {
-            IndexRecord entry = ( IndexRecord ) aliases.next();
+            IndexRecord entry = aliases.next();
             dropAliasIndices( (Long)entry.getEntryId(), movedBase );
         }
     }

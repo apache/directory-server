@@ -39,6 +39,8 @@ import javax.naming.event.NamespaceChangeListener;
 import javax.naming.event.NamingEvent;
 import javax.naming.event.NamingListener;
 import javax.naming.event.ObjectChangeListener;
+import javax.naming.directory.ModificationItem;
+
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -65,7 +67,6 @@ import org.apache.directory.shared.ldap.filter.LeafNode;
 import org.apache.directory.shared.ldap.filter.NotNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
 
@@ -245,18 +246,18 @@ public class EventService extends BaseInterceptor
     	LdapDN name = opContext.getDn();
         Attributes entry = opContext.getEntry();
         
-        Set selecting = getSelectingSources( name, entry );
+        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
         
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator list = selecting.iterator();
+        Iterator<EventSourceRecord> list = selecting.iterator();
         
         while ( list.hasNext() )
         {
-            EventSourceRecord rec = ( EventSourceRecord ) list.next();
+            EventSourceRecord rec = list.next();
             NamingListener listener = rec.getNamingListener();
 
             if ( listener instanceof NamespaceChangeListener )
@@ -278,14 +279,14 @@ public class EventService extends BaseInterceptor
         next.delete( opContext );
         //super.delete( next, opContext );
         
-        Set selecting = getSelectingSources( name, entry );
+        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
         
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator list = selecting.iterator();
+        Iterator<EventSourceRecord> list = selecting.iterator();
         
         while ( list.hasNext() )
         {
@@ -303,19 +304,21 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( LdapDN name, ModificationItemImpl[] mods, Attributes oriEntry ) throws NamingException
+    private void notifyOnModify( LdapDN name, List<ModificationItem> mods, Attributes oriEntry ) throws NamingException
     {
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
-        Set selecting = getSelectingSources( name, entry );
+        Set<EventSourceRecord> selecting = getSelectingSources( name, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator list = selecting.iterator();
+        Iterator<EventSourceRecord> list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
-            EventSourceRecord rec = ( EventSourceRecord ) list.next();
+            EventSourceRecord rec =list.next();
             NamingListener listener = rec.getNamingListener();
 
             if ( listener instanceof ObjectChangeListener )
@@ -345,16 +348,18 @@ public class EventService extends BaseInterceptor
     private void notifyOnNameChange( LdapDN oldName, LdapDN newName ) throws NamingException
     {
         Attributes entry = nexus.lookup( new LookupOperationContext( newName ) );
-        Set selecting = getSelectingSources( oldName, entry );
+        Set<EventSourceRecord> selecting = getSelectingSources( oldName, entry );
+        
         if ( selecting.isEmpty() )
         {
             return;
         }
 
-        Iterator list = selecting.iterator();
+        Iterator<EventSourceRecord> list = selecting.iterator();
+        
         while ( list.hasNext() )
         {
-            EventSourceRecord rec = ( EventSourceRecord ) list.next();
+            EventSourceRecord rec = list.next();
             NamingListener listener = rec.getNamingListener();
 
             if ( listener instanceof NamespaceChangeListener )
@@ -407,15 +412,15 @@ public class EventService extends BaseInterceptor
     }
 
 
-    Set getSelectingSources( LdapDN name, Attributes entry ) throws NamingException
+    Set<EventSourceRecord> getSelectingSources( LdapDN name, Attributes entry ) throws NamingException
     {
         if ( sources.isEmpty() )
         {
             return Collections.EMPTY_SET;
         }
 
-        Set<Object> selecting = new HashSet<Object>();
-        Iterator list = sources.values().iterator();
+        Set<EventSourceRecord> selecting = new HashSet<EventSourceRecord>();
+        Iterator<Object> list = sources.values().iterator();
         
         while ( list.hasNext() )
         {
@@ -427,18 +432,18 @@ public class EventService extends BaseInterceptor
             
                 if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
                 {
-                    selecting.add( obj );
+                    selecting.add( rec );
                 }
             }
             else if ( obj instanceof List )
             {
-                List records = ( List ) obj;
-                for ( int ii = 0; ii < records.size(); ii++ )
+                List<EventSourceRecord> records = ( List<EventSourceRecord> ) obj;
+                
+                for ( EventSourceRecord rec:records )
                 {
-                    EventSourceRecord rec = ( EventSourceRecord ) records.get( ii );
                     if ( evaluator.evaluate( rec.getFilter(), name.toNormName(), entry ) )
                     {
-                        selecting.add( obj );
+                        selecting.add( rec );
                     }
                 }
             }

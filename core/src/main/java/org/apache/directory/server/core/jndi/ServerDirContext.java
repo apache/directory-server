@@ -22,8 +22,10 @@ package org.apache.directory.server.core.jndi;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -159,17 +161,17 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        ModificationItemImpl[] modItems = null;
+        List<ModificationItem> modItems = null;
         
         if ( attrs != null )
         {
-            modItems = new ModificationItemImpl[attrs.size()];
-            NamingEnumeration e = attrs.getAll();
+            modItems = new ArrayList<ModificationItem>( attrs.size() );
+            NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attrs.getAll();
             int i = 0;
             
             while ( e.hasMore() )
             {
-                modItems[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() ) ;
+                modItems.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
             }
         }
 
@@ -216,11 +218,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
-        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length ];
+        List<ModificationItem> newMods = new ArrayList<ModificationItem>( mods.length );
         
-        for ( int i = 0; i < mods.length; i++ )
+        for ( ModificationItem mod:mods )
         {
-            newMods[i] = new ModificationItemImpl( mods[i] );
+            newMods.add( new ModificationItemImpl( mod ) );
         }
         
         doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -231,7 +233,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( Name name, ModificationItemImpl[] mods ) throws NamingException
+    public void modifyAttributes( Name name, List<ModificationItem> mods ) throws NamingException
     {
         doModifyOperation( buildTarget( new LdapDN( name ) ), mods );
     }

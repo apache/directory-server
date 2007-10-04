@@ -37,6 +37,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -353,7 +354,7 @@ public class SchemaService extends BaseInterceptor
      */
     private void computeSuperiors() throws NamingException
     {
-        Iterator objectClasses = registries.getObjectClassRegistry().iterator();
+        Iterator<ObjectClass> objectClasses = registries.getObjectClassRegistry().iterator();
         superiors = new HashMap<String, List<ObjectClass>>();
         allMust = new HashMap<String, List<AttributeType>>();
         allMay = new HashMap<String, List<AttributeType>>();
@@ -363,7 +364,7 @@ public class SchemaService extends BaseInterceptor
         {
             List<ObjectClass> ocSuperiors = new ArrayList<ObjectClass>();
 
-            ObjectClass objectClass = (ObjectClass)objectClasses.next();
+            ObjectClass objectClass = objectClasses.next();
             superiors.put( objectClass.getOid(), ocSuperiors );
 
             computeOCSuperiors( objectClass, ocSuperiors, new HashSet<String>() );
@@ -724,11 +725,11 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.MATCHING_RULE_USE_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.MATCHING_RULE_USE_AT );
-            Iterator list = registries.getMatchingRuleUseRegistry().iterator();
+            Iterator<MatchingRuleUse> list = registries.getMatchingRuleUseRegistry().iterator();
 
             while ( list.hasNext() )
             {
-                MatchingRuleUse mru = ( MatchingRuleUse ) list.next();
+                MatchingRuleUse mru = list.next();
                 attr.add( SchemaUtils.render( mru ).toString() );
             }
 
@@ -766,11 +767,11 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.DIT_STRUCTURE_RULES_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.DIT_STRUCTURE_RULES_AT );
-            Iterator list = registries.getDitStructureRuleRegistry().iterator();
+            Iterator<DITStructureRule> list = registries.getDitStructureRuleRegistry().iterator();
 
             while ( list.hasNext() )
             {
-                DITStructureRule dsr = ( DITStructureRule ) list.next();
+                DITStructureRule dsr =list.next();
                 attr.add( SchemaUtils.render( dsr ).toString() );
             }
 
@@ -780,11 +781,11 @@ public class SchemaService extends BaseInterceptor
         if ( returnAllOperationalAttributes || setOids.contains( SchemaConstants.NAME_FORMS_AT_OID ) )
         {
             attr = new AttributeImpl( SchemaConstants.NAME_FORMS_AT );
-            Iterator list = registries.getNameFormRegistry().iterator();
+            Iterator<NameForm> list = registries.getNameFormRegistry().iterator();
 
             while ( list.hasNext() )
             {
-                NameForm nf = ( NameForm ) list.next();
+                NameForm nf = list.next();
                 attr.add( SchemaUtils.render( nf ).toString() );
             }
 
@@ -1050,13 +1051,13 @@ public class SchemaService extends BaseInterceptor
 
         // We must select all the ObjectClasses, except 'top',
         // but including all the inherited ObjectClasses
-        NamingEnumeration ocs = objectClasses.getAll();
+        NamingEnumeration<String> ocs = (NamingEnumeration<String>)objectClasses.getAll();
         boolean hasExtensibleObject = false;
 
 
         while ( ocs.hasMoreElements() )
         {
-            String objectClassName = (String)ocs.nextElement();
+            String objectClassName = ocs.nextElement();
 
             if ( SchemaConstants.TOP_OC.equals( objectClassName ) )
             {
@@ -1084,14 +1085,14 @@ public class SchemaService extends BaseInterceptor
         return hasExtensibleObject;
     }
 
-    private Set<String> getAllMust( NamingEnumeration objectClasses ) throws NamingException
+    private Set<String> getAllMust( NamingEnumeration<String> objectClasses ) throws NamingException
     {
         Set<String> must = new HashSet<String>();
 
         // Loop on all objectclasses
         while ( objectClasses.hasMoreElements() )
         {
-            String ocName = (String)objectClasses.nextElement();
+            String ocName = objectClasses.nextElement();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMustList();
@@ -1109,7 +1110,7 @@ public class SchemaService extends BaseInterceptor
         return must;
     }
 
-    private Set<String> getAllAllowed( NamingEnumeration objectClasses, Set<String> must ) throws NamingException
+    private Set<String> getAllAllowed( NamingEnumeration<String> objectClasses, Set<String> must ) throws NamingException
     {
         Set<String> allowed = new HashSet<String>( must );
 
@@ -1119,7 +1120,7 @@ public class SchemaService extends BaseInterceptor
         // Loop on all objectclasses
         while ( objectClasses.hasMoreElements() )
         {
-            String ocName = (String)objectClasses.nextElement();
+            String ocName = objectClasses.nextElement();
             ObjectClass oc = registries.getObjectClassRegistry().lookup( ocName );
 
             AttributeType[] types = oc.getMayList();
@@ -1158,11 +1159,11 @@ public class SchemaService extends BaseInterceptor
         objectClassesUP.add( SchemaConstants.TOP_OC );
         
         // Construct the new list of ObjectClasses
-        NamingEnumeration ocList = objectClassAttr.getAll();
+        NamingEnumeration<String> ocList = (NamingEnumeration<String>)objectClassAttr.getAll();
 
         while ( ocList.hasMoreElements() )
         {
-            String ocName = ( String ) ocList.nextElement();
+            String ocName = ocList.nextElement();
 
             if ( !ocName.equalsIgnoreCase( SchemaConstants.TOP_OC ) )
             {
@@ -1260,7 +1261,7 @@ public class SchemaService extends BaseInterceptor
     {
         Attributes entry = null; 
         LdapDN name = opContext.getDn();
-        ModificationItemImpl[] mods = opContext.getModItems();
+        List<ModificationItem> mods = opContext.getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -1287,14 +1288,14 @@ public class SchemaService extends BaseInterceptor
         Attributes tmpEntry = ( Attributes ) entry.clone();
         
         Set<String> modset = new HashSet<String>();
-        ModificationItemImpl objectClassMod = null;
+        ModificationItem objectClassMod = null;
         
         // Check that we don't have two times the same modification.
         // This is somehow useless, as modification operations are supposed to
         // be atomic, so we may have a sucession of Add, DEL, ADD operations
         // for the same attribute, and this will be legal.
         // @TODO : check if we can remove this test.
-        for ( ModificationItemImpl mod:mods )
+        for ( ModificationItem mod:mods )
         {
             if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
@@ -1354,17 +1355,17 @@ public class SchemaService extends BaseInterceptor
         // (deletion) causes an error
         // -------------------------------------------------------------------
         
-        if ( ( mods.length == 1 ) && 
-             ( mods[0].getAttribute().size() == 0 ) && 
-             ( mods[0].getModificationOp() == DirContext.REPLACE_ATTRIBUTE ) &&
-             ! atRegistry.hasAttributeType( mods[0].getAttribute().getID() ) )
+        if ( ( mods.size() == 1 ) && 
+             ( mods.get( 0 ).getAttribute().size() == 0 ) && 
+             ( mods.get( 0 ).getModificationOp() == DirContext.REPLACE_ATTRIBUTE ) &&
+             ! atRegistry.hasAttributeType( mods.get( 0 ).getAttribute().getID() ) )
         {
             return;
         }
         
         // Now, apply the modifications on the cloned entry before applying it on the
         // real object.
-        for ( ModificationItemImpl mod:mods )
+        for ( ModificationItem mod:mods )
         {
             int modOp = mod.getModificationOp();
             Attribute change = mod.getAttribute();
@@ -1375,7 +1376,7 @@ public class SchemaService extends BaseInterceptor
                 throw new LdapInvalidAttributeIdentifierException();
             }
 
-            // We will forbid modification of operationnal attributes which are not
+            // We will forbid modification of operational attributes which are not
             // user modifiable.
             AttributeType attributeType = atRegistry.lookup( change.getID() );
             
@@ -1734,8 +1735,8 @@ public class SchemaService extends BaseInterceptor
         alterObjectClasses( objectClassAttr );
         
         // Now we can process the MUST and MAY attributes
-        Set<String> must = getAllMust( objectClassAttr.getAll() );
-        Set<String> allowed = getAllAllowed( objectClassAttr.getAll(), must );
+        Set<String> must = getAllMust( (NamingEnumeration<String>)objectClassAttr.getAll() );
+        Set<String> allowed = getAllAllowed( (NamingEnumeration<String>)objectClassAttr.getAll(), must );
 
         boolean hasExtensibleObject = getObjectClasses( objectClassAttr, ocs );
 

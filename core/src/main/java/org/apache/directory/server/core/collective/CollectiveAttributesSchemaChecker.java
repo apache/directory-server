@@ -20,11 +20,15 @@
 
 package org.apache.directory.server.core.collective;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -78,22 +82,20 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkModify( LdapDN normName, int modOp, Attributes mods ) throws NamingException
     {
-        ModificationItemImpl[] modsAsArray = new ModificationItemImpl[ mods.size() ];
+        List<ModificationItem> modsAsArray = new ArrayList<ModificationItem>( mods.size() );
         NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
-        int i = 0;
         
         while ( allAttrs.hasMoreElements() )
         {
             Attribute attr = allAttrs.nextElement();
-            modsAsArray[i] = new ModificationItemImpl( modOp, attr );
-            i++;
+            modsAsArray.add( new ModificationItemImpl( modOp, attr ) );
         }
         
         checkModify( normName, modsAsArray );
     }
     
     
-    public void checkModify( LdapDN normName, ModificationItemImpl[] mods ) throws NamingException
+    public void checkModify( LdapDN normName, List<ModificationItem> mods ) throws NamingException
     {
         Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
@@ -116,9 +118,9 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean addsAnyCollectiveAttributes( ModificationItemImpl[] mods ) throws NamingException
+    private boolean addsAnyCollectiveAttributes( List<ModificationItem> mods ) throws NamingException
     {
-        for ( ModificationItemImpl mod:mods )
+        for ( ModificationItem mod:mods )
         {
             Attribute attr = mod.getAttribute();
             String attrID = attr.getID();

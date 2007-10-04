@@ -40,6 +40,7 @@ import javax.naming.Referenceable;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
@@ -375,7 +376,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
-    protected void doModifyOperation( LdapDN dn, ModificationItemImpl[] modItems ) throws NamingException
+    protected void doModifyOperation( LdapDN dn, List<ModificationItem> modItems ) throws NamingException
     {
         // setup the op context and populate with request controls
         ModifyOperationContext opCtx = new ModifyOperationContext( dn, modItems );

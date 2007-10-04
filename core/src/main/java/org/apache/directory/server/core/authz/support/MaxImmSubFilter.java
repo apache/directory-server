@@ -38,16 +38,12 @@ import org.apache.directory.server.core.interceptor.context.SearchOperationConte
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.normalization.NormalizationService;
 import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.collective.CollectiveAttributeService;
 import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;

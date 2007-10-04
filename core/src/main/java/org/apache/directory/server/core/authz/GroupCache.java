@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +36,6 @@ import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -376,7 +376,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public void groupModified( LdapDN name, List<ModificationItem> mods, Attributes entry ) throws NamingException
     {
         Attribute members = null;
         String memberAttrId = null;

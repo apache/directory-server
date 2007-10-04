@@ -20,8 +20,10 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -31,6 +33,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -558,7 +561,7 @@ public class SchemaPartitionDao
         dn.normalize( attrRegistry.getNormalizerMapping() );
         Attributes entry = partition.lookup( new LookupOperationContext( dn ) );
         Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
-        ModificationItemImpl[] mods = new ModificationItemImpl[3];
+        List<ModificationItem> mods = new ArrayList<ModificationItem>( 3 );
         
         if ( disabledAttr == null )
         {
@@ -573,12 +576,14 @@ public class SchemaPartitionDao
             return;
         }
         
-        mods[0] = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
-            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) );
-        mods[1] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) );
-        mods[2] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) );
+        mods.add( new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
+            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) ) );
+        
+        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) ) );
+        
+        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );
         
         partition.modify( new ModifyOperationContext( dn, mods ) );
     }

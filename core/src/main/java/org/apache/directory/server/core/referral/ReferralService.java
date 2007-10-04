@@ -34,6 +34,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -79,7 +80,6 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -110,7 +110,7 @@ public class ReferralService extends BaseInterceptor
 
     private ReferralLut lut = new ReferralLut();
     private PartitionNexus nexus;
-    private Hashtable env;
+    private Hashtable<String, Object> env;
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
 
@@ -287,11 +287,11 @@ public class ReferralService extends BaseInterceptor
         oidRegistry = dsConfig.getRegistries().getOidRegistry();
         env = dsConfig.getEnvironment();
 
-        Iterator suffixes = nexus.listSuffixes( null );
+        Iterator<String> suffixes = nexus.listSuffixes( null );
         
         while ( suffixes.hasNext() )
         {
-            LdapDN suffix = new LdapDN( ( String ) suffixes.next() );
+            LdapDN suffix = new LdapDN( suffixes.next() );
             addReferrals( 
                 nexus.search( 
                     new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ) ), suffix );
@@ -766,7 +766,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void checkModify( LdapDN name, ModificationItemImpl[] mods ) throws NamingException
+    private void checkModify( LdapDN name, List<ModificationItem> mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
 
@@ -774,13 +774,13 @@ public class ReferralService extends BaseInterceptor
         // Check and update lut if we change the objectClass 
         // -------------------------------------------------------------------
 
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItem mod:mods )
         {
-            if ( mods[ii].getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
+            if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
-                boolean modsOcHasReferral = hasValue( mods[ii].getAttribute(), SchemaConstants.REFERRAL_OC );
+                boolean modsOcHasReferral = hasValue( mod.getAttribute(), SchemaConstants.REFERRAL_OC );
 
-                switch ( mods[ii].getModificationOp() )
+                switch ( mod.getModificationOp() )
                 {
                     /* 
                      * if ADD op where refferal is added to objectClass of a
@@ -791,6 +791,7 @@ public class ReferralService extends BaseInterceptor
                         {
                             lut.referralAdded( name );
                         }
+                    
                         break;
                         
                     /* 
@@ -802,6 +803,7 @@ public class ReferralService extends BaseInterceptor
                         {
                             lut.referralDeleted( name );
                         }
+                    
                         break;
                         
                     /* 
@@ -821,6 +823,7 @@ public class ReferralService extends BaseInterceptor
                         {
                             lut.referralAdded( name );
                         }
+                    
                         break;
                         
                     default:
@@ -839,7 +842,7 @@ public class ReferralService extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        ModificationItemImpl[] mods = opContext.getModItems();
+        List<ModificationItem> mods = opContext.getModItems();
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
@@ -899,7 +902,7 @@ public class ReferralService extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration list = invocation.getProxy().search( 
+        NamingEnumeration<SearchResult> list = invocation.getProxy().search( 
             new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ),
             SEARCH_BYPASS );
         addReferrals( list, suffix );
@@ -910,7 +913,7 @@ public class ReferralService extends BaseInterceptor
     {
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration list = invocation.getProxy().search( 
+        NamingEnumeration<SearchResult> list = invocation.getProxy().search( 
             new SearchOperationContext( 
                 opContext.getDn(), 
                 env, 
@@ -924,11 +927,11 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void addReferrals( NamingEnumeration referrals, LdapDN base ) throws NamingException
+    private void addReferrals( NamingEnumeration<SearchResult> referrals, LdapDN base ) throws NamingException
     {
         while ( referrals.hasMore() )
         {   
-            SearchResult r = ( SearchResult ) referrals.next();
+            SearchResult r = referrals.next();
             LdapDN referral = null;
             LdapDN result = new LdapDN( r.getName() );
             result.normalize( attrRegistry.getNormalizerMapping() );
@@ -949,11 +952,11 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void deleteReferrals( NamingEnumeration referrals, LdapDN base ) throws NamingException
+    private void deleteReferrals( NamingEnumeration<SearchResult> referrals, LdapDN base ) throws NamingException
     {
         while ( referrals.hasMore() )
         {
-            SearchResult r = ( SearchResult ) referrals.next();
+            SearchResult r = referrals.next();
             LdapDN referral = null;
             LdapDN result = new LdapDN( r.getName() );
             result.normalize( attrRegistry.getNormalizerMapping() );

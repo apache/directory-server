@@ -20,15 +20,17 @@
 package org.apache.directory.mitosis.operation;
 
 
+import java.util.List;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.mitosis.common.CSN;
 
@@ -64,7 +66,7 @@ public class ReplaceAttributeOperation extends AttributeOperation
     {
         Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
-        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attrs, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItem> items = ModifyOperationContext.createModItems( attrs, DirContext.REPLACE_ATTRIBUTE );
 
         nexus.modify( new ModifyOperationContext( getName(), items ) );
     }

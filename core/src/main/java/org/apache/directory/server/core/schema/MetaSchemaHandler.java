@@ -21,6 +21,7 @@ package org.apache.directory.server.core.schema;
 
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
@@ -36,7 +38,6 @@ import org.apache.directory.server.schema.registries.SchemaObjectRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -123,11 +124,12 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an ModificationItem arry
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, 
+    public void modify( LdapDN name, List<ModificationItem> mods, Attributes entry, 
         Attributes targetEntry, boolean cascade ) throws NamingException
     {
         Attribute disabledInEntry = AttributeUtils.getAttribute( entry, disabledAT );
-        ModificationItemImpl disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
+        ModificationItem disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
+        
         if ( disabledModification != null )
         {
             disable( name, disabledModification.getModificationOp(), disabledModification.getAttribute(), 
@@ -137,6 +139,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
         Attribute disabled = AttributeUtils.getAttribute( targetEntry, this.disabledAT );
+        
         if ( disabled == null )
         {
             isEnabled = true;
@@ -147,6 +150,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         }
 
         Attribute dependencies = AttributeUtils.getAttribute( mods, dependenciesAT );
+        
         if ( dependencies != null )
         {
             checkForDependencies( isEnabled, targetEntry );

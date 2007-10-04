@@ -20,6 +20,7 @@
 package org.apache.directory.mitosis.operation;
 
 
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NameAlreadyBoundException;
@@ -28,6 +29,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -48,7 +50,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
@@ -163,17 +164,15 @@ public class OperationFactory
      */
     public Operation newModify( ModifyOperationContext opContext )
     {
-        ModificationItemImpl[] items = opContext.getModItems();
+        List<ModificationItem> items = opContext.getModItems();
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        int length = items.length;
         
         // Transform into multiple {@link AttributeOperation}s.
-        for ( int i = 0; i < length; i++ )
+        for ( ModificationItem item:items )
         {
-            ModificationItemImpl item = items[i];
             result.add( newModify( csn, normalizedName, item.getModificationOp(), item.getAttribute() ) );
         }
 
@@ -250,12 +249,12 @@ public class OperationFactory
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = nexus.search( 
+        NamingEnumeration<SearchResult> e = nexus.search( 
             new SearchOperationContext( oldName, environment, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) e.next();
+            SearchResult sr = e.next();
 
             // Get the name of the old entry
             LdapDN oldEntryName = new LdapDN( sr.getName() );

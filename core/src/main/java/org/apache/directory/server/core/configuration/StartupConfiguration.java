@@ -47,10 +47,6 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.directory.Attributes;
-import java.io.File;
-import java.util.*;
-
 
 /**
  * A {@link Configuration} that starts up ApacheDS.

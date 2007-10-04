@@ -113,11 +113,24 @@ public class CompareAuthorizationITest extends AbstractAuthorizationITest
 
         // Gives grantCompare, and grantRead perm to all users in the Administrators group for
         // entries and all attribute types and values
-        createAccessControlSubentry( "administratorAdd", "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { "
-            + "userClasses { userGroup { \"cn=Administrators,ou=groups,ou=system\" } }, " + "userPermissions { { "
-            + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantCompare, grantRead, grantBrowse } } } } }" );
+        createAccessControlSubentry( "administratorAdd", 
+            "{ identificationTag \"addAci\", " +
+            "  precedence 14, " +
+            "  authenticationLevel none, " + 
+            "  itemOrUserFirst userFirst: { " +
+            "    userClasses { " +
+            "      userGroup { " +
+            "        \"cn=Administrators,ou=groups,ou=system\" " +
+            "      } " +
+            "    }, " + 
+            "    userPermissions { " +
+            "      { " +
+            "        protectedItems { entry, allUserAttributeTypesAndValues }, " +
+            "        grantsAndDenials { grantCompare, grantRead, grantBrowse } " +
+            "      } " +
+            "    } " +
+            "  } " +
+            "}" );
 
         // see if we can now add that test entry which we could not before
         // add op should still fail since billd is not in the admin group

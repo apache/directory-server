@@ -167,8 +167,8 @@ public class PartitionNexusProxy extends PartitionNexus
         c.add( AuthorizationService.class.getName() );
         c.add( DefaultAuthorizationService.class.getName() );
 //        c.add( ExceptionService.class.getName() );
-        c.add( OperationalAttributeService.class.getName() );
         c.add( SchemaService.class.getName() );
+        c.add( OperationalAttributeService.class.getName() );
         c.add( SubentryService.class.getName() );
 //        c.add( CollectiveAttributeService.class.getName() );
         c.add( EventService.class.getName() );

@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -32,13 +33,13 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
@@ -71,7 +72,6 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -531,7 +531,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        ModificationItemImpl[] mods = opContext.getModItems();
+        List<ModificationItem> mods = opContext.getModItems();
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -557,14 +557,15 @@ public class AuthorizationService extends BaseInterceptor
 
         Collection<MicroOperation> perms = null;
 
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItem mod:mods )
         {
-            Attribute attr = mods[ii].getAttribute();
+            Attribute attr = mod.getAttribute();
             
-            switch ( mods[ii].getModificationOp() )
+            switch ( mod.getModificationOp() )
             {
                 case ( DirContext.ADD_ATTRIBUTE  ):
                     perms = ADD_PERMS;
+                
                     // If the attribute is being created with an initial value ...
                     if ( entry.get( attr.getID() ) == null )
                     {
@@ -572,11 +573,13 @@ public class AuthorizationService extends BaseInterceptor
                         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
                             attr.getID(), null, perms, tuples, entry );
                     }
+                    
                     break;
                     
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
                     perms = REMOVE_PERMS;
                     Attribute entryAttr = entry.get( attr.getID() );
+                    
                     if (  entryAttr != null )
                     {
                         // If there is only one value remaining in the attribute ...
@@ -587,6 +590,7 @@ public class AuthorizationService extends BaseInterceptor
                                 attr.getID(), null, perms, tuples, entry );
                         }
                     }
+                    
                     break;
                     
                 case ( DirContext.REPLACE_ATTRIBUTE  ):

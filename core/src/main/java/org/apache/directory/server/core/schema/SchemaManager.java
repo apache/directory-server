@@ -20,10 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +34,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
@@ -410,7 +413,7 @@ public class SchemaManager
     }
 
 
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, Attributes targetEntry, 
+    public void modify( LdapDN name, List<ModificationItem> mods, Attributes entry, Attributes targetEntry, 
         boolean doCascadeModify ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
@@ -418,6 +421,7 @@ public class SchemaManager
         for ( int ii = 0; ii < oc.size(); ii++ )
         {
             String oid = globalRegistries.getOidRegistry().getOid( ( String ) oc.get( ii ) );
+            
             if ( objectClass2handlerMap.containsKey( oid ) )
             {
                 SchemaChangeHandler handler = objectClass2handlerMap.get( oid );
@@ -533,20 +537,23 @@ public class SchemaManager
      * @param subentry the attributes of the subentry
      * @param targetSubentry the target subentry after being modified
      */
-    public void modifySchemaSubentry( LdapDN name, ModificationItemImpl[] mods, Attributes subentry, 
+    public void modifySchemaSubentry( LdapDN name, List<ModificationItem> mods, Attributes subentry, 
         Attributes targetSubentry, boolean doCascadeModify ) throws NamingException 
     {
-        for ( ModificationItemImpl mod : mods )
+        for ( ModificationItem mod : mods )
         {
             String opAttrOid = globalRegistries.getOidRegistry().getOid( mod.getAttribute().getID() );
+            
             switch ( mod.getModificationOp() )
             {
                 case( DirContext.ADD_ATTRIBUTE ):
                     modifyAddOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break;
+                    
                 case( DirContext.REMOVE_ATTRIBUTE ):
                     modifyRemoveOperation( opAttrOid, mod.getAttribute(), doCascadeModify );
                     break; 
+                    
                 case( DirContext.REPLACE_ATTRIBUTE ):
                     throw new LdapOperationNotSupportedException( 
                         "Modify REPLACE operations on schema subentries are not allowed: " +
@@ -554,12 +561,13 @@ public class SchemaManager
                         "that reside in schema operational attributes.  Instead use \na " +
                         "targeted combination of modify ADD and REMOVE operations.", 
                         ResultCodeEnum.UNWILLING_TO_PERFORM );
+                
                 default:
                     throw new IllegalStateException( "Undefined modify operation: " + mod.getModificationOp() );
             }
         }
         
-        if ( mods != null || mods.length > 0 )
+        if ( mods.size() > 0 )
         {
             updateSchemaModificationAttributes();
         }
@@ -905,11 +913,14 @@ public class SchemaManager
         String modifiersName = ctx.getPrincipal().getJndiName().getNormName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
         
-        ModificationItemImpl[] mods = new ModificationItemImpl[2];
-        mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
-            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, modifyTimestamp ) );
-        mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
-            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) );
+        List<ModificationItem> mods = new ArrayList<ModificationItem>( 2 );
+        
+        mods.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
+            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, modifyTimestamp ) ) );
+        
+        mods.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE,
+            new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT, modifiersName ) ) );
+        
         LdapDN name = new LdapDN( "cn=schemaModifications,ou=schema" );
         name.normalize( globalRegistries.getAttributeTypeRegistry().getNormalizerMapping() );
         

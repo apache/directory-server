@@ -21,10 +21,12 @@ package org.apache.directory.server.core.kerberos;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,8 +34,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -215,30 +217,32 @@ public class KeyDerivationService extends BaseInterceptor
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
         throws NamingException
     {
-        ModificationItemImpl[] mods = modContext.getModItems();
+        List<ModificationItem> mods = modContext.getModItems();
 
         String operation = null;
 
         // Loop over attributes being modified to pick out 'userPassword' and 'krb5PrincipalName'.
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItem mod:mods )
         {
             if ( log.isDebugEnabled() )
             {
-                switch ( mods[ii].getModificationOp() )
+                switch ( mod.getModificationOp() )
                 {
                     case DirContext.ADD_ATTRIBUTE:
                         operation = "Adding";
                         break;
+                        
                     case DirContext.REMOVE_ATTRIBUTE:
                         operation = "Removing";
                         break;
+                        
                     case DirContext.REPLACE_ATTRIBUTE:
                         operation = "Replacing";
                         break;
                 }
             }
 
-            Attribute attr = mods[ii].getAttribute();
+            Attribute attr = mod.getAttribute();
             String attrId = attr.getID();
 
             if ( attrId.equalsIgnoreCase( "userPassword" ) )
@@ -352,7 +356,7 @@ public class KeyDerivationService extends BaseInterceptor
      */
     void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext )
     {
-        ModificationItemImpl[] mods = modContext.getModItems();
+        List<ModificationItem> mods = modContext.getModItems();
 
         String principalName = subContext.getPrincipalName();
         String userPassword = subContext.getUserPassword();
@@ -362,12 +366,12 @@ public class KeyDerivationService extends BaseInterceptor
 
         Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-        Set<ModificationItemImpl> newModsList = new HashSet<ModificationItemImpl>();
+        List<ModificationItem> newModsList = new ArrayList<ModificationItem>();
 
         // Make sure we preserve any other modification items.
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for ( ModificationItem mod:mods )
         {
-            newModsList.add( mods[ii] );
+            newModsList.add( mod );
         }
 
         // Add our modification items.
@@ -377,9 +381,7 @@ public class KeyDerivationService extends BaseInterceptor
             KerberosAttribute.VERSION, Integer.toString( kvno ) ) ) );
         newModsList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, getKeyAttribute( keys ) ) );
 
-        ModificationItemImpl[] newMods = newModsList.toArray( mods );
-
-        modContext.setModItems( newMods );
+        modContext.setModItems( newModsList );
     }
 
 

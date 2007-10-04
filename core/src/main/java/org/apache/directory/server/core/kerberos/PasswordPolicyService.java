@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -34,7 +35,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -126,11 +126,11 @@ public class PasswordPolicyService extends BaseInterceptor
     {
         LdapDN name = modContext.getDn();
 
-        ModificationItemImpl[] mods = modContext.getModItems();
+        List<ModificationItem> mods = modContext.getModItems();
 
         String operation = null;
 
-        for ( ModificationItemImpl mod:mods )
+        for ( ModificationItem mod:mods )
         {
             if ( log.isDebugEnabled() )
             {

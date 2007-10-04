@@ -46,6 +46,8 @@ import org.codehaus.plexus.util.FileUtils;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -798,9 +800,12 @@ public class BootstrapPlugin extends AbstractMojo
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName
                 + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
         ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
-        ModificationItemImpl[] mods = new ModificationItemImpl[] {mod};
+        
+        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        mods.add( mod );
         store.modify( dn, mods );
     }
 

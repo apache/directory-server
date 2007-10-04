@@ -20,10 +20,13 @@
 
 package org.apache.directory.server.core.trigger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -36,7 +39,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN modifiedEntryName;
-    private ModificationItemImpl[] modifications;
+    private List<ModificationItem> modifications;
     private Attributes oldEntry;
     
     
@@ -66,7 +69,21 @@ public class ModifyStoredProcedureParameterInjector extends AbstractStoredProced
     {
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
-            return modifications.clone();
+            List<ModificationItem> newMods = new ArrayList<ModificationItem>();
+            
+            try
+            {
+                for ( ModificationItem mod:modifications )
+                {
+                    newMods.add( (ModificationItemImpl)((ModificationItemImpl)mod).clone() );
+                }
+            }
+            catch ( CloneNotSupportedException cnse )
+            {
+                // do nothing ...
+            }
+            
+            return newMods;
         }
     };
     

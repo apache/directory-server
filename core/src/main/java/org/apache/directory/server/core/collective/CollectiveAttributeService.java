@@ -360,7 +360,6 @@ public class CollectiveAttributeService extends BaseInterceptor
         collectiveAttributesSchemaChecker.checkAdd( opContext.getDn(), opContext.getEntry() );
         
         next.add( opContext );
-        //super.add( next, opContext );
     }
 
 
@@ -369,6 +368,5 @@ public class CollectiveAttributeService extends BaseInterceptor
         collectiveAttributesSchemaChecker.checkModify( opContext.getDn(), opContext.getModItems() );
 
         next.modify( opContext );
-        //super.modify( next, opContext );
     }
 }

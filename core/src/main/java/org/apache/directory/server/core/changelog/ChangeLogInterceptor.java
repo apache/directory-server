@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.naming.NamingException;
@@ -284,11 +285,13 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( opContext.getDn() );
         buf.append( "\nchangetype: modify" );
 
-        ModificationItem[] mods = opContext.getModItems();
-        for ( int ii = 0; ii < mods.length; ii++ )
+        List<ModificationItem> mods = opContext.getModItems();
+        
+        for ( ModificationItem mod:mods )
         {
-            append( buf, mods[ii].getAttribute(), getModOpStr( mods[ii].getModificationOp() ) );
+            append( buf, mod.getAttribute(), getModOpStr( mod.getModificationOp() ) );
         }
+        
         buf.append( "\n" );
 
         // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 

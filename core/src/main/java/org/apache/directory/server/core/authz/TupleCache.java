@@ -33,6 +33,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -49,7 +50,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -237,16 +237,17 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, List<ModificationItem> mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
         
-        for ( int ii = 0; ii < mods.length; ii++ )
+        for (ModificationItem mod:mods )
         {
-            String attrID = mods[ii].getAttribute().getID();
+            String attrID = mod.getAttribute().getID();
+            
             if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
                 attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
             {

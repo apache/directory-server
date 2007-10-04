@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.exception;
 
 
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -27,6 +28,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -314,13 +316,13 @@ public class ExceptionService extends BaseInterceptor
         assertHasEntry( nextInterceptor, msg, opContext.getDn() );
 
         Attributes entry = nexus.lookup( new LookupOperationContext( opContext.getDn() ) );
-        ModificationItemImpl[] items = opContext.getModItems();
+        List<ModificationItem> items = opContext.getModItems();
         
-        for ( int ii = 0; ii < items.length; ii++ )
+        for ( ModificationItem item:items )
         {
-            if ( items[ii].getModificationOp() == DirContext.ADD_ATTRIBUTE )
+            if ( item.getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
-                Attribute modAttr = items[ii].getAttribute();
+                Attribute modAttr = item.getAttribute();
                 Attribute entryAttr = entry.get( modAttr.getID() );
 
                 if ( entryAttr != null )

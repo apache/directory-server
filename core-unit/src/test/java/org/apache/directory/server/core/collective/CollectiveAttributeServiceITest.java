@@ -130,6 +130,25 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
 
 
+    public SearchResult getEntry( String name ) throws NamingException
+    {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        controls.setReturningAttributes( new String[]
+            { "+", "*" } );
+        
+        NamingEnumeration<SearchResult> results = sysRoot.search( name, "(objectClass=*)", controls );
+        
+        while ( results.hasMore() )
+        {
+            SearchResult result = results.next();
+            return result;
+        }
+        
+        return null;
+    }
+
+
     public Map<String, Attributes> getAllEntriesRestrictAttributes() throws NamingException
     {
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
@@ -171,6 +190,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
+        
+        SearchResult result = getEntry( "" );
+        
         super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
 
         // -------------------------------------------------------------------

@@ -21,7 +21,6 @@ package org.apache.directory.server.core.operational;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +31,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
@@ -174,27 +174,37 @@ public class OperationalAttributeService extends BaseInterceptor
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws NamingException
     {
+        nextInterceptor.modify( opContext );
+        
+        if ( opContext.getDn().getNormName().equals( subschemaSubentryDn.getNormName() ) ) 
+        {
+            return;
+        }
+
         // -------------------------------------------------------------------
         // Add the operational attributes for the modifier first
         // -------------------------------------------------------------------
-
-        List<ModificationItemImpl> modItemList = 
-            new ArrayList<ModificationItemImpl>( opContext.getModItems().length + 2 );
-        Collections.addAll( modItemList, opContext.getModItems() );
+        
+        List<ModificationItem> modItemList = new ArrayList<ModificationItem>(2);
         
         Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
-        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
+        ModificationItemImpl modifiers = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute );
+        modifiers.setServerModified();
+        modItemList.add( modifiers );
         
         attribute = new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT );
         attribute.add( DateUtils.getGeneralizedTime() );
-        modItemList.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute ) );
+        ModificationItemImpl timestamp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attribute );
+        timestamp.setServerModified();
+        modItemList.add( timestamp );
 
         // -------------------------------------------------------------------
         // Make the modify() call happen
         // -------------------------------------------------------------------
 
-        nextInterceptor.modify( opContext );
+        ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), modItemList );
+        nexus.modify( newModify );
     }
 
 
@@ -218,7 +228,7 @@ public class OperationalAttributeService extends BaseInterceptor
         newDn.add( opContext.getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
-        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
         
@@ -240,7 +250,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
 
         ModifyOperationContext newModify = 
@@ -265,11 +275,12 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        ModificationItemImpl[] items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
             new ModifyOperationContext( 
         		opContext.getParent(), items );
+        
         nexus.modify( newModify );
     }
 
@@ -334,11 +345,11 @@ public class OperationalAttributeService extends BaseInterceptor
      */
     private boolean filter( Attributes attributes ) throws NamingException
     {
-        NamingEnumeration list = attributes.getIDs();
+        NamingEnumeration<String> list = attributes.getIDs();
 
         while ( list.hasMore() )
         {
-            String attrId = ( String ) list.next();
+            String attrId =  list.next();
 
             AttributeType type = null;
 
@@ -378,11 +389,11 @@ public class OperationalAttributeService extends BaseInterceptor
                 idsSet.add( id.toLowerCase() );
             }
 
-            NamingEnumeration list = entry.getIDs();
+            NamingEnumeration<String> list = entry.getIDs();
 
             while ( list.hasMore() )
             {
-                String attrId = ( ( String ) list.nextElement() ).toLowerCase();
+                String attrId = list.nextElement().toLowerCase();
 
                 if ( !idsSet.contains( attrId ) )
                 {
@@ -470,12 +481,13 @@ public class OperationalAttributeService extends BaseInterceptor
             // below we only process multi-valued rdns
             StringBuffer buf = new StringBuffer();
         
-            for ( Iterator jj = rdn.iterator(); jj.hasNext(); /**/ )
+            for ( Iterator<AttributeTypeAndValue> atavs = rdn.iterator(); atavs.hasNext(); /**/ )
             {
-                AttributeTypeAndValue atav = ( AttributeTypeAndValue ) jj.next();
+                AttributeTypeAndValue atav = atavs.next();
                 String type = registry.lookup( rdn.getNormType() ).getName();
                 buf.append( type ).append( '=' ).append( atav.getValue() );
-                if ( jj.hasNext() )
+                
+                if ( atavs.hasNext() )
                 {
                     buf.append( '+' );
                 }
