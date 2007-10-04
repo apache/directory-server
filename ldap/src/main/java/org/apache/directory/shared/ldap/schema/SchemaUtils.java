@@ -28,9 +28,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
@@ -53,21 +53,23 @@ public class SchemaUtils
      * @return the resultant entry after the modifications have taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static Attributes getTargetEntry( ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public static Attributes getTargetEntry( List<ModificationItem> mods, Attributes entry ) throws NamingException
     {
         Attributes targetEntry = ( Attributes ) entry.clone();
-        for ( int ii = 0; ii < mods.length; ii++ )
+        
+        for ( ModificationItem mod:mods )
         {
-            String id = mods[ii].getAttribute().getID();
+            String id = mod.getAttribute().getID();
 
-            switch ( mods[ii].getModificationOp() )
+            switch ( mod.getModificationOp() )
             {
                 case( DirContext.REPLACE_ATTRIBUTE ):
-                    targetEntry.put( mods[ii].getAttribute() );
+                    targetEntry.put( mod.getAttribute() );
                     break;
+                    
                 case( DirContext.ADD_ATTRIBUTE ):
                     Attribute combined = new AttributeImpl( id );
-                    Attribute toBeAdded = mods[ii].getAttribute();
+                    Attribute toBeAdded = mod.getAttribute();
                     Attribute existing = entry.get( id );
                     
                     if ( existing != null )
@@ -85,8 +87,9 @@ public class SchemaUtils
                     
                     targetEntry.put( combined );
                     break;
+                    
                 case( DirContext.REMOVE_ATTRIBUTE ):
-                    Attribute toBeRemoved = mods[ii].getAttribute();
+                    Attribute toBeRemoved = mod.getAttribute();
                     
                     if ( toBeRemoved.size() == 0 )
                     {
@@ -104,9 +107,11 @@ public class SchemaUtils
                             }
                         }
                     }
+                    
                     break;
+                    
                 default:
-                    throw new IllegalStateException( "undefined modification type: " + mods[ii].getModificationOp() );
+                    throw new IllegalStateException( "undefined modification type: " + mod.getModificationOp() );
             }
         }
         

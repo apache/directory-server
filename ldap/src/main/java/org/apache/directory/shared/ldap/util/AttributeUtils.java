@@ -22,10 +22,10 @@ package org.apache.directory.shared.ldap.util;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -34,6 +34,7 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.ModificationItem;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
@@ -263,7 +264,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public final static ModificationItemImpl getModificationItem( ModificationItemImpl[] mods, AttributeType type )
+    public final static ModificationItem getModificationItem( ModificationItem[] mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -303,22 +304,91 @@ public class AttributeUtils
     
     
     /**
+     * Utility method to extract a modification item from an array of modifications.
+     * 
+     * @param mods the array of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the modification item on the attributeType specified
+     */
+    public final static ModificationItem getModificationItem( List<ModificationItem> mods, AttributeType type )
+    {
+        // optimization bypass to avoid cost of the loop below
+        if ( type.getNames().length == 1 )
+        {
+            for ( ModificationItem mod:mods )
+            {
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
+                {
+                    return mod;
+                }
+            }
+        }
+        
+        // check if the attribute's OID is used
+        for ( ModificationItem mod:mods )
+        {
+            if ( mod.getAttribute().getID().equals( type.getOid() ) )
+            {
+                return mod;
+            }
+        }
+        
+        // iterate through aliases
+        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        {
+            for ( ModificationItem mod:mods )
+            {
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
+                {
+                    return mod;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    
+    /**
      * Utility method to extract an attribute from an array of modifications.
      * 
      * @param mods the array of ModificationItems to extract the Attribute from.
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( ModificationItemImpl[] mods, AttributeType type )
+    public final static Attribute getAttribute( ModificationItem[] mods, AttributeType type )
     {
-        ModificationItemImpl mod = getModificationItem( mods, type );
+        ModificationItem mod = getModificationItem( mods, type );
+        
         if ( mod != null )
         {
             return mod.getAttribute();
         }
+        
         return null;
     }
     
+
+    /**
+     * Utility method to extract an attribute from a list of modifications.
+     * 
+     * @param mods the list of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the extract Attribute or null if no such attribute exists
+     */
+    public final static Attribute getAttribute( List<ModificationItem> mods, AttributeType type )
+    {
+        ModificationItem mod = getModificationItem( mods, type );
+        
+        if ( mod != null )
+        {
+            return mod.getAttribute();
+        }
+        
+        return null;
+    }
+    
+
     /**
      * Check if an attribute contains a specific value, using the associated matchingRule for that
      *

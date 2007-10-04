@@ -40,6 +40,9 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 public class ModificationItemImpl extends ModificationItem
 {
     private static final long serialVersionUID = 1L;
+    
+    /** A flag set when the server has created this item */
+    private boolean serverModified;
 
     /**
      * Create a modificationItemImpl
@@ -52,6 +55,8 @@ public class ModificationItemImpl extends ModificationItem
     public ModificationItemImpl( int modificationOp, Attribute attribute ) 
     {
         super( modificationOp, AttributeUtils.toAttributeImpl( attribute ) );
+        
+        serverModified = false;
     }
     
     /**
@@ -66,6 +71,8 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+        
+        serverModified = false;
     }
     
     /**
@@ -76,6 +83,8 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
+        
+        serverModified = false;
     }
     
     /**
@@ -104,6 +113,31 @@ public class ModificationItemImpl extends ModificationItem
         return new ModificationItemImpl( getModificationOp(), (Attribute)getAttribute().clone() ); 
     }
     
+    
+    
+    /**
+     * 
+     * Tells if this modification has been created by the server or not
+     *
+     * @return <code>true</code> if the server has created this modifictionItem
+     */
+    public boolean isServerModified()
+    {
+        return serverModified;
+    }
+
+    
+    /**
+     * Set the serverModified item
+     *
+     * @param serverModified 
+     */
+    public void setServerModified()
+    {
+        serverModified = true;
+    }
+    
+    
     /**
      * @see Object#toString()
      */
@@ -111,7 +145,14 @@ public class ModificationItemImpl extends ModificationItem
     {
         StringBuffer sb = new StringBuffer();
         
-        sb.append( "ModificationItem : \n" );
+        sb.append( "ModificationItem" );
+        
+        if ( serverModified )
+        {
+            sb.append( "[op]" );
+        }
+        
+        sb.append( " : \n" );
         
         switch ( getModificationOp() )
         {
