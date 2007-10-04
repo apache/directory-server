@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.Test;
 
 
 /**
@@ -50,8 +51,6 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  */
 public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 {
-    private static final String CREATORS_NAME = "creatorsName";
-    private static final String CREATE_TIMESTAMP = "createTimestamp";
     private static final String RDN_KATE_BUSH = "cn=Kate Bush";
 
     protected Attributes getPersonAttributes( String sn, String cn )
@@ -109,22 +108,22 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         assertNotNull( attribute );
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
-        assertNull( attributes.get( CREATE_TIMESTAMP ) );
-        assertNull( attributes.get( CREATORS_NAME ) );
+        assertNull( attributes.get( "createTimestamp" ) );
+        assertNull( attributes.get( "creatorsName" ) );
 
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes( new String[]
             { "ou", "createTimestamp", "creatorsName" } );
 
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
-        NamingEnumeration list;
+        NamingEnumeration<SearchResult> list;
         list = sysRoot.search( "", "(ou=testing00)", ctls );
-        SearchResult result = ( SearchResult ) list.next();
+        SearchResult result = list.next();
         list.close();
 
         assertNotNull( result.getAttributes().get( "ou" ) );
-        assertNotNull( result.getAttributes().get( CREATORS_NAME ) );
-        assertNotNull( result.getAttributes().get( CREATE_TIMESTAMP ) );
+        assertNotNull( result.getAttributes().get( "creatorsName" ) );
+        assertNotNull( result.getAttributes().get( "createTimestamp" ) );
     }
 
 
@@ -143,9 +142,9 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        NamingEnumeration list;
+        NamingEnumeration<SearchResult> list;
         list = sysRoot.search( "", "(objectClass=*)", controls );
-        SearchResult result = ( SearchResult ) list.next();
+        SearchResult result = list.next();
 
         // test to make sure op attribute do not occur - this is the control
         Attributes attributes = result.getAttributes();
@@ -157,7 +156,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
             { "creatorsName", "createTimestamp" };
         controls.setReturningAttributes( ids );
         list = sysRoot.search( "", "(objectClass=*)", controls );
-        result = ( SearchResult ) list.next();
+        result = list.next();
         attributes = result.getAttributes();
         assertNotNull( attributes.get( "creatorsName" ) );
         assertNotNull( attributes.get( "createTimestamp" ) );
@@ -182,6 +181,80 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
         assertFalse( "uid=akarasulu,ou=users,ou=system".equals( attributes.get( "creatorsName" ).get() ) );
     }
+
+    
+    /**
+     * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
+     */
+    @Test
+    public void testModifyShouldLeadToModifiersAttributes() throws NamingException
+    {
+        ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description",
+            "Singer Songwriter" ) );
+
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String[] ids = new String[]
+            { "modifiersName", "modifyTimestamp" };
+        controls.setReturningAttributes( ids );
+
+        NamingEnumeration<SearchResult> list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        SearchResult result = list.next();
+        Attributes attributes = result.getAttributes();
+        assertNotNull( attributes.get( "modifiersName" ) );
+        assertNotNull( attributes.get( "modifyTimestamp" ) );
+    }
+    
+    
+    /**
+     * Modify an entry and check whether attribute modifyTimestamp changes.
+     */
+    @Test
+    public void testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
+    {
+        // Add attribute description to entry
+        ModificationItem modifyAddOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
+            "description", "an English singer, songwriter, musician" ) );
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyAddOp } );
+
+        // Determine modifyTimestamp
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.OBJECT_SCOPE );
+        String[] ids = new String[]
+            { "modifyTimestamp" };
+        controls.setReturningAttributes( ids );
+        NamingEnumeration<SearchResult> list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        SearchResult result = list.next();
+        Attributes attributes = result.getAttributes();
+        Attribute modifyTimestamp = attributes.get( "modifyTimestamp" );
+        assertNotNull( modifyTimestamp );
+        String oldTimestamp = modifyTimestamp.get().toString();
+        
+        // Wait two seconds
+        Thread.sleep( 2000 );
+
+        // Change value of attribute description
+        ModificationItem modifyOp = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
+            "description", "one of England's most successful solo female performers" ) );
+        sysRoot.modifyAttributes( RDN_KATE_BUSH, new ModificationItem[]
+            { modifyOp } );
+
+        // Determine modifyTimestamp after modification
+        list = sysRoot.search( RDN_KATE_BUSH, "(objectClass=*)", controls );
+        result = list.next();
+        attributes = result.getAttributes();
+        modifyTimestamp = attributes.get( "modifyTimestamp" );
+        assertNotNull( modifyTimestamp );
+        String newTimestamp = modifyTimestamp.get().toString();
+        
+        // assert the value has changed
+        assertFalse( oldTimestamp.equals( newTimestamp ) );
+    }
+
 
     /**
      * Try to add modifiersName attribute to an entry
