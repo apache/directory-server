@@ -23,6 +23,12 @@ package org.apache.directory.server.core.sp;
 
 import junit.framework.TestCase;
 
+/**
+ * Tests for class StoredProcUtils.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
 public class StoredProcUtilsTest extends TestCase
 {
 
