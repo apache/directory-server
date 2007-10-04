@@ -111,6 +111,25 @@ public class OID implements Serializable
     }
 
 
+    /**
+     * Create a new OID object from a String
+     * 
+     * @param oid The String which is supposed to be an OID
+     */
+    public OID( String oid, boolean safe )
+    {
+        try
+        {
+            setOID( oid );
+            hash = computeHashCode();
+        }
+        catch ( DecoderException de )
+        {
+            // do nothing
+        }
+    }
+
+
     // ~ Methods
     // ------------------------------------------------------------------------------------
     /**
