@@ -554,7 +554,7 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         createUser( "billyd", "billyd" );
         createAccessControlSubentry( "mvcACI",
             " {" +
-                " identificationTag \"selfControlPasswordACI\"," +
+                " identificationTag \"mvcACI\"," +
                 " precedence 10," +
                 " authenticationLevel simple," +
                 " itemOrUserFirst userFirst:" + 
