@@ -227,10 +227,10 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
     private ModificationItemImpl[] toItems( int modOp, Attributes changes ) throws NamingException
     {
         List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
-        NamingEnumeration list = changes.getAll();
+        NamingEnumeration<? extends Attribute> list = changes.getAll();
         while ( list.hasMore() )
         {
-            Attribute attr = ( Attribute ) list.next();
+            Attribute attr = list.next();
             mods.add( new ModificationItemImpl( modOp, attr ) );
         }
         ModificationItemImpl[] modArray = new ModificationItemImpl[mods.size()];
@@ -545,4 +545,62 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         
     }
     
+
+    /**
+     * FIXME https://issues.apache.org/jira/browse/DIRSERVER-1062
+     * 
+    public void testMaxValueCountProtectedItem() throws NamingException
+    {
+        createUser( "billyd", "billyd" );
+        createAccessControlSubentry( "mvcACI",
+            " {" +
+                " identificationTag \"selfControlPasswordACI\"," +
+                " precedence 10," +
+                " authenticationLevel simple," +
+                " itemOrUserFirst userFirst:" + 
+                " {" +
+                    " userClasses { allUsers }," +
+                    " userPermissions" + 
+                    " {" +
+                        " {" +
+                            " protectedItems { entry }," +
+                            " grantsAndDenials { grantModify, grantBrowse }" +
+                        " }" +
+                        " ," +
+                        " {" +
+                            " protectedItems" + 
+                            " {" +
+                                " maxValueCount" + 
+                                " {" +
+                                    " { type description, maxCount 1 }" + 
+                                " }" +
+                                " ," +
+                                " allAttributeValues { description }" + 
+                            " }" +
+                            " ," +
+                            " grantsAndDenials" + 
+                            " {" +
+                                " grantRemove," +
+                                " grantAdd" +
+                            " }" +
+                        " }" +
+                     " }" +
+                " }" +
+            " }" );
+        
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+            new AttributesImpl( "description", "description 1", true ) );
+        
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        AttributesImpl attrs = new AttributesImpl(true);
+        AttributeImpl attr = new AttributeImpl( "description" );
+        attr.add( "description 1" );
+        attr.add( "description 2" );
+        attrs.put( attr );
+        mods = toItems( DirContext.ADD_ATTRIBUTE, attrs );
+        
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+    }
+    */
 }
