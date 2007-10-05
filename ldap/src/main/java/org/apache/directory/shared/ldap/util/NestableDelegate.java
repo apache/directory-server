@@ -27,7 +27,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -260,18 +259,21 @@ public class NestableDelegate implements Serializable
      *             chain
      * @since 2.0
      */
-    public int indexOfThrowable( Class type, int fromIndex )
+    public int indexOfThrowable( Class<?> type, int fromIndex )
     {
         if ( fromIndex < 0 )
         {
             throw new IndexOutOfBoundsException( "The start index was out of bounds: " + fromIndex );
         }
+        
         Throwable[] throwables = ExceptionUtils.getThrowables( this.nestable );
+        
         if ( fromIndex >= throwables.length )
         {
             throw new IndexOutOfBoundsException( "The start index was out of bounds: " + fromIndex + " >= "
                 + throwables.length );
         }
+        
         for ( int i = fromIndex; i < throwables.length; i++ )
         {
             if ( throwables[i].getClass().equals( type ) )
@@ -279,6 +281,7 @@ public class NestableDelegate implements Serializable
                 return i;
             }
         }
+        
         return -1;
     }
 
@@ -365,16 +368,22 @@ public class NestableDelegate implements Serializable
 
         synchronized ( out )
         {
-            for ( Iterator iter = stacks.iterator(); iter.hasNext(); )
+            boolean isFirst = true;
+            
+            for ( String[] st:stacks )
             {
-                String[] st = ( String[] ) iter.next();
-                for ( int i = 0, len = st.length; i < len; i++ )
+                if ( isFirst )
                 {
-                    out.println( st[i] );
+                    isFirst = false;
                 }
-                if ( iter.hasNext() )
+                else
                 {
                     out.print( separatorLine );
+                }
+
+                for ( String s:st )
+                {
+                    out.println( s );
                 }
             }
         }
@@ -417,18 +426,19 @@ public class NestableDelegate implements Serializable
      *            The list containing String[] elements
      * @since 2.0
      */
-    protected void trimStackFrames( List stacks )
+    protected void trimStackFrames( List<String[]> stacks )
     {
         for ( int size = stacks.size(), i = size - 1; i > 0; i-- )
         {
-            String[] curr = ( String[] ) stacks.get( i );
-            String[] next = ( String[] ) stacks.get( i - 1 );
+            String[] curr = stacks.get( i );
+            String[] next = stacks.get( i - 1 );
 
-            List currList = new ArrayList( Arrays.asList( curr ) );
-            List nextList = new ArrayList( Arrays.asList( next ) );
+            List<String> currList = new ArrayList<String>( Arrays.asList( curr ) );
+            List<String> nextList = new ArrayList<String>( Arrays.asList( next ) );
             ExceptionUtils.removeCommonFrames( currList, nextList );
 
             int trimmed = curr.length - currList.size();
+            
             if ( trimmed > 0 )
             {
                 currList.add( "\t... " + trimmed + " more" );
