@@ -76,10 +76,11 @@ public class CreateContextITest extends AbstractAdminTestCase
         String filter = "(sn=Bush)";
         String base = "";
 
-        NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+        NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
+        
         while ( enm.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) enm.next();
+            SearchResult sr = enm.next();
             attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
