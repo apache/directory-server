@@ -23,7 +23,6 @@ package org.apache.directory.server.core.jndi;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
 import javax.naming.NameParser;
