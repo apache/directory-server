@@ -20,30 +20,9 @@
 package org.apache.directory.server.unit;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.AssertionFailedError;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -51,10 +30,20 @@ import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import static org.junit.Assert.assertNotNull;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 /**
@@ -65,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerFastTest
 {
-    private static final Logger log = LoggerFactory.getLogger( AbstractServerFastTest.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractServerFastTest.class );
     private static final List<Entry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<Entry>( 0 ) );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
@@ -87,33 +76,29 @@ public abstract class AbstractServerFastTest
     /** flag whether to delete database files for each test or not */
     protected static boolean doDelete = true;
 
-    protected static MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
-
     protected static int port = -1;
-    
-    private static long start;
-    
-    protected static final String ldif = null;
-    
+    protected static final String LDIF = null;
     protected static final String HOST = "localhost";
     protected static final String USER = "uid=admin,ou=system";
     protected static final String PASSWORD = "secret";
     protected static final String BASE = "dc=example,dc=com";
+    protected static ApacheDS apacheDS = new ApacheDS();
+
 
     /**
      * If there is an LDIF file with the same name as the test class 
-     * but with the .ldif extension then it is read and the entries 
+     * but with the .LDIF extension then it is read and the entries
      * it contains are added to the server.  It appears as though the
      * administor adds these entries to the server.
      *
      * @param verifyEntries whether or not all entry additions are checked
      * to see if they were in fact correctly added to the server
      * @return a list of entries added to the server in the order they were added
-     * @throws NamingException
+     * @throws NamingException of the load of test LDIF fails
      */
     protected List<Entry> loadTestLdif( boolean verifyEntries ) throws NamingException
     {
-        InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".ldif" );
+        InputStream in = getClass().getResourceAsStream( getClass().getSimpleName() + ".LDIF" );
         
         if ( in == null )
         {
@@ -131,11 +116,11 @@ public abstract class AbstractServerFastTest
             if ( verifyEntries )
             {
                 verify( entry );
-                log.info( "Successfully verified addition of entry {}", entry.getDn() );
+                LOG.info( "Successfully verified addition of entry {}", entry.getDn() );
             }
             else
             {
-                log.info( "Added entry {} without verification", entry.getDn() );
+                LOG.info( "Added entry {} without verification", entry.getDn() );
             }
             
             entries.add( entry );
@@ -166,7 +151,7 @@ public abstract class AbstractServerFastTest
             {
                 if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
                 {
-                    log.error( "Failed to verify entry addition of {}. {} attribute in original " +
+                    LOG.error( "Failed to verify entry addition of {}. {} attribute in original " +
                     		"entry missing from read entry.", entry.getDn(), id );
                     throw new AssertionFailedError( "Failed to verify entry addition of " + entry.getDn()  );
                 }
@@ -215,14 +200,14 @@ public abstract class AbstractServerFastTest
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        start = System.currentTimeMillis();
-        
-        doDelete( configuration.getWorkingDirectory() );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.getLdapConfiguration().setIpPort( port );
-        configuration.setShutdownHookEnabled( false );
+        apacheDS.getLdapConfiguration().setIpPort( port );
+        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
+        apacheDS.startup();
         
-        Hashtable<String, Object> env = new Hashtable<String, Object>( configuration.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( ApacheDS.JNDI_KEY, apacheDS );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -234,6 +219,8 @@ public abstract class AbstractServerFastTest
 
     /**
      * Deletes the Eve working directory.
+     * @param wkdir the working directory to delete
+     * @throws IOException if the directory cannot be deleted
      */
     protected static void doDelete( File wkdir ) throws IOException
     {
@@ -314,30 +301,23 @@ public abstract class AbstractServerFastTest
      * Sets the system context root to null.
      *
      * @see junit.framework.TestCase#tearDown()
+     * @throws Exception if there are problems shutting down the server
      */
     @AfterClass
     public static void tearDownAfterClass() throws Exception
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
-        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        
         try
         {
-            new InitialContext( env );
+            apacheDS.shutdown();
         }
         catch ( Exception e )
         {
+            LOG.error( "Encountered exception while trying to shutdown.", e );
         }
 
         root = null;
-        doDelete( configuration.getWorkingDirectory() );
-        configuration = new MutableServerStartupConfiguration();
-        
-        System.out.println( "Delta : " + (System.currentTimeMillis() - start ) );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
+        apacheDS = new ApacheDS();
     }
 
 
@@ -347,8 +327,9 @@ public abstract class AbstractServerFastTest
      * that only ou=system entries will be added - entries for other partitions
      * cannot be imported and will blow chunks.
      *
-     * @throws NamingException if there are problems reading the ldif file and
+     * @throws NamingException if there are problems reading the LDIF file and
      * adding those entries to the system partition
+     * @param in the input stream to read the LDIF file from
      */
     protected void importLdif( InputStream in ) throws NamingException
     {
@@ -365,7 +346,7 @@ public abstract class AbstractServerFastTest
         }
         catch ( Exception e )
         {
-            String msg = "failed while trying to parse system ldif file";
+            String msg = "failed while trying to parse system LDIF file";
             NamingException ne = new LdapConfigurationException( msg );
             ne.setRootCause( e );
             throw ne;
@@ -394,7 +375,7 @@ public abstract class AbstractServerFastTest
         }
         catch ( Exception e )
         {
-            String msg = "failed while trying to parse system ldif file";
+            String msg = "failed while trying to parse system LDIF file";
             NamingException ne = new LdapConfigurationException( msg );
             ne.setRootCause( e );
             throw ne;
@@ -403,19 +384,18 @@ public abstract class AbstractServerFastTest
 
     
     /**
-     * Inject an ldif String into the server. DN must be relative to the
+     * Inject an LDIF String into the server. DN must be relative to the
      * root.
+     * @param ldif the LDIF to add
+     * @throws NamingException if there are problems adding the entries in the LDIF
      */
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
         List<Entry> entries = reader.parseLdif( ldif );
-        
-        Iterator<Entry> entryIter = entries.iterator(); 
-        
-        while ( entryIter.hasNext() )
+
+        for ( Entry entry : entries )
         {
-            Entry entry = entryIter.next();
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }

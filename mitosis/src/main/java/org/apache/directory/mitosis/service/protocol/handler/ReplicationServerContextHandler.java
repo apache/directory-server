@@ -21,7 +21,6 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
@@ -53,7 +52,7 @@ import org.apache.mina.util.SessionLog;
  */
 public class ReplicationServerContextHandler implements ReplicationContextHandler
 {
-    private Replica replicaInTransaction = null;
+    private Replica replicaInTransaction;
 
 
     public void contextBegin( ReplicationContext ctx ) throws Exception
@@ -136,19 +135,17 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     private void onLogin( ReplicationContext ctx, LoginMessage message )
     {
-        Iterator i = ctx.getConfiguration().getPeerReplicas().iterator();
-        while ( i.hasNext() )
+        for ( Replica replica : ctx.getConfiguration().getPeerReplicas() )
         {
-            Replica replica = ( Replica ) i.next();
             if ( replica.getId().equals( message.getReplicaId() ) )
             {
                 if ( replica.getAddress().getAddress().equals(
-                    ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
+                        ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
                 {
                     ctx.getSession()
-                        .write(
-                            new LoginAckMessage( message.getSequence(), Constants.OK, ctx.getConfiguration()
-                                .getReplicaId() ) );
+                            .write(
+                                    new LoginAckMessage( message.getSequence(), Constants.OK, ctx.getConfiguration()
+                                            .getReplicaId() ) );
                     ctx.setPeer( replica );
                     ctx.setState( State.READY );
 
@@ -159,10 +156,10 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
                 else
                 {
                     SessionLog.warn( ctx.getSession(), "Peer address mismatches: "
-                        + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
+                            + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
                     ctx.getSession().write(
-                        new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
-                            .getReplicaId() ) );
+                            new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
+                                    .getReplicaId() ) );
                     ctx.getSession().close();
                     return;
                 }
@@ -190,9 +187,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         LogEntryAckMessage ack = null;
         try
         {
-            op.execute( ctx.getServiceConfiguration().getPartitionNexus(), 
-                ctx.getConfiguration().getStore(),
-                ctx.getServiceConfiguration().getRegistries().getAttributeTypeRegistry() );
+            op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
+                ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }
         catch ( Exception e )

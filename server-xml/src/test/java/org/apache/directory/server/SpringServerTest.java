@@ -16,25 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
 package org.apache.directory.server;
 
-import java.io.File;
-import java.util.Properties;
-import java.net.URL;
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
 
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
+import java.io.File;
+import java.net.URL;
+import java.util.Hashtable;
 
-import org.junit.Test;
-import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.jndi.ServerContextFactory;
-import org.springframework.context.ApplicationContext;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class SpringServerTest
 {
@@ -45,18 +43,17 @@ public class SpringServerTest
         ClassLoader classLoader = this.getClass().getClassLoader();
         URL configURL = classLoader.getResource( "server.xml" );
 
-        File configF = new File(configURL.toURI());
-        ApplicationContext factory = new FileSystemXmlApplicationContext(configF.toURL().toString());
-        MutableServerStartupConfiguration cfg = (MutableServerStartupConfiguration) factory.getBean("configuration");
-        Properties env = (Properties) factory.getBean("environment");
-        env.setProperty( Context.PROVIDER_URL, providerURL);
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
+        File configF = new File( configURL.toURI() );
+        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURL().toString() );
+        ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
+        //noinspection unchecked
+        Hashtable<String,Object> env = ( Hashtable ) factory.getBean( "environment" );
+        env.put( ApacheDS.JNDI_KEY, apacheDS );
+        env.put( Context.PROVIDER_URL, providerURL );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
-        File workingDirFile = new File(configF.getParentFile(), "work");
-        cfg.setWorkingDirectory(workingDirFile);
-
-        env.putAll(cfg.toJndiEnvironment());
-        new InitialDirContext(env);
-
+        File workingDirFile = new File( configF.getParentFile(), "work" );
+        apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
+        new InitialDirContext( env );
     }
 }

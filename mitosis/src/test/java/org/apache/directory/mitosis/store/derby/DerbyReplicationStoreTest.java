@@ -18,60 +18,32 @@
  *  
  */
 package org.apache.directory.mitosis.store.derby;
- 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.ldap.LdapName;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.SchemaManager;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.mitosis.common.*;
+import org.apache.directory.mitosis.common.UUID;
+import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.mitosis.operation.*;
+import org.apache.directory.mitosis.store.ReplicationLogIterator;
+import org.apache.directory.mitosis.store.ReplicationStoreException;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNFactory;
-import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.DefaultCSNFactory;
-import org.apache.directory.mitosis.common.DefaultUUIDFactory;
-import org.apache.directory.mitosis.common.UUID;
-import org.apache.directory.mitosis.common.UUIDFactory;
-import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.operation.AddAttributeOperation;
-import org.apache.directory.mitosis.operation.AddEntryOperation;
-import org.apache.directory.mitosis.operation.CompositeOperation;
-import org.apache.directory.mitosis.operation.DeleteAttributeOperation;
-import org.apache.directory.mitosis.operation.Operation;
-import org.apache.directory.mitosis.operation.ReplaceAttributeOperation;
-import org.apache.directory.mitosis.store.ReplicationLogIterator;
-import org.apache.directory.mitosis.store.ReplicationStoreException;
-import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
+
+import javax.naming.Name;
+import javax.naming.ldap.LdapName;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 
 public class DerbyReplicationStoreTest extends TestCase
 {
-    private static final ReplicaId REPLICA_ID = new ReplicaId( "TEST_REPLICA" );
+    private static final ReplicaId TEST_REPLICA_ID = new ReplicaId( "TEST_REPLICA" );
     private static final ReplicaId OTHER_REPLICA_ID = new ReplicaId( "OTHER_REPLICA" );
     private static final ReplicaId OTHER_REPLICA_ID_2 = new ReplicaId( "OTHER_REPLICA_2" );
     private static final File DB_PATH = new File( "target/testDB" );
@@ -86,7 +58,7 @@ public class DerbyReplicationStoreTest extends TestCase
     public void setUp() throws Exception
     {
         dropDatabase();
-        startupDatabase( REPLICA_ID );
+        startupDatabase( TEST_REPLICA_ID );
         initStopWatch();
     }
 
@@ -100,7 +72,7 @@ public class DerbyReplicationStoreTest extends TestCase
         // Open store
         store = new DerbyReplicationStore();
         store.setTablePrefix( "TEST_" );
-        store.open( new DirectoryServiceConfigurationImpl(), cfg );
+        store.open( new DefaultDirectoryService(), cfg );
     }
 
 
@@ -113,6 +85,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void dropDatabase() throws IOException
     {
+        FileUtils.deleteDirectory( new File( new DefaultDirectoryService().getWorkingDirectory().getPath(), "replication" ) );
         FileUtils.deleteDirectory( DB_PATH );
         File logFile = new File( "derby.log" );
         if ( !logFile.delete() )
@@ -149,8 +122,9 @@ public class DerbyReplicationStoreTest extends TestCase
         }
         catch ( ReplicationStoreException e )
         {
+            assertNotNull( e );
         }
-        startupDatabase( REPLICA_ID );
+        startupDatabase( TEST_REPLICA_ID );
     }
 
 
@@ -170,10 +144,10 @@ public class DerbyReplicationStoreTest extends TestCase
     {
         ReplicationLogIterator it;
 
-        it = store.getLogs( csnFactory.newInstance( REPLICA_ID ), true );
+        it = store.getLogs( csnFactory.newInstance( TEST_REPLICA_ID ), true );
         Assert.assertFalse( it.next() );
         it.close();
-        it = store.getLogs( csnFactory.newInstance( REPLICA_ID ), false );
+        it = store.getLogs( csnFactory.newInstance( TEST_REPLICA_ID ), false );
         Assert.assertFalse( it.next() );
         it.close();
         it = store.getLogs( csnFactory.newInstance( OTHER_REPLICA_ID ), true );
@@ -189,7 +163,7 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestWriteLog() throws Exception
     {
-        CSN csn = csnFactory.newInstance( REPLICA_ID );
+        CSN csn = csnFactory.newInstance( TEST_REPLICA_ID );
         CompositeOperation op1 = new CompositeOperation( csn );
         op1.add( new AddEntryOperation( csn, new LdapDN( "ou=a" ), new AttributesImpl( true ) ) );
         op1.add( new AddAttributeOperation( csn, new LdapDN( "ou=a" ), new AttributeImpl( "id", "valie" ) ) );
@@ -210,7 +184,7 @@ public class DerbyReplicationStoreTest extends TestCase
         testGetLogs( csn, op2 );
 
         Assert.assertEquals( 2, store.getLogSize() );
-        Assert.assertEquals( 1, store.getLogSize( REPLICA_ID ) );
+        Assert.assertEquals( 1, store.getLogSize( TEST_REPLICA_ID ) );
         Assert.assertEquals( 1, store.getLogSize( OTHER_REPLICA_ID ) );
 
         // Test getLogs(CSNVector, true)
@@ -259,14 +233,14 @@ public class DerbyReplicationStoreTest extends TestCase
         CSN csn;
         ReplicationLogIterator it;
 
-        it = store.getLogs( new DefaultCSN( 0, REPLICA_ID, 0 ), false );
+        it = store.getLogs( new DefaultCSN( 0, TEST_REPLICA_ID, 0 ), false );
         it.next();
         csn = it.getOperation().getCSN();
         it.close();
 
         Assert.assertEquals( 0, store.removeLogs( csn, false ) );
         Assert.assertEquals( 1, store.removeLogs( csn, true ) );
-        Assert.assertEquals( 0, store.getLogSize( REPLICA_ID ) );
+        Assert.assertEquals( 0, store.getLogSize( TEST_REPLICA_ID ) );
 
         it = store.getLogs( new DefaultCSN( 0, OTHER_REPLICA_ID, 0 ), false );
         Assert.assertTrue( it.next() );
@@ -283,8 +257,8 @@ public class DerbyReplicationStoreTest extends TestCase
 
     private void subTestVectors() throws Exception
     {
-        CSN csnA = new DefaultCSN( 0, REPLICA_ID, 0 );
-        CSN csnB = new DefaultCSN( 1, REPLICA_ID, 0 );
+        CSN csnA = new DefaultCSN( 0, TEST_REPLICA_ID, 0 );
+        CSN csnB = new DefaultCSN( 1, TEST_REPLICA_ID, 0 );
         CSN csnC = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 0 );
         CSN csnD = new DefaultCSN( 0, OTHER_REPLICA_ID_2, 1 );
         store.putLog( new Operation( csnA ) );
@@ -293,7 +267,7 @@ public class DerbyReplicationStoreTest extends TestCase
         store.putLog( new Operation( csnD ) );
 
         Set<ReplicaId> expectedKnownReplicaIds = new HashSet<ReplicaId>();
-        expectedKnownReplicaIds.add( REPLICA_ID );
+        expectedKnownReplicaIds.add( TEST_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID );
         expectedKnownReplicaIds.add( OTHER_REPLICA_ID_2 );
 
@@ -378,69 +352,5 @@ public class DerbyReplicationStoreTest extends TestCase
     private static void assertEquals( Operation expected, Operation actual )
     {
         Assert.assertEquals( expected.toString(), actual.toString() );
-    }
-
-    private static class DirectoryServiceConfigurationImpl implements DirectoryServiceConfiguration
-    {
-        public DirectoryService getService()
-        {
-            return null;
-        }
-
-
-        public String getInstanceId()
-        {
-            return null;
-        }
-
-
-        public Hashtable getEnvironment()
-        {
-            return null;
-        }
-
-
-        public StartupConfiguration getStartupConfiguration()
-        {
-            MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-            cfg.setWorkingDirectory( DB_PATH );
-            return cfg;
-        }
-
-
-        public Registries getRegistries()
-        {
-            return null;
-        }
-
-
-        public PartitionNexus getPartitionNexus()
-        {
-            return null;
-        }
-
-
-        public InterceptorChain getInterceptorChain()
-        {
-            return null;
-        }
-
-
-        public boolean isFirstStart()
-        {
-            return false;
-        }
-
-
-        public DirectoryServiceListener getServiceListener()
-        {
-            return null;
-        }
-
-
-        public SchemaManager getSchemaManager()
-        {
-            return null;
-        }
     }
 }

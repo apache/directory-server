@@ -20,10 +20,11 @@
 package org.apache.directory.server.core.prefs;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.NotImplementedException;
+
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
-
-import org.apache.directory.shared.ldap.NotImplementedException;
 
 
 /**
@@ -35,9 +36,18 @@ import org.apache.directory.shared.ldap.NotImplementedException;
  */
 public class ServerPreferencesFactory implements PreferencesFactory
 {
+    private final DirectoryService directoryService;
+
+
+    public ServerPreferencesFactory( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+
     public Preferences systemRoot()
     {
-        return new ServerSystemPreferences();
+        return new ServerSystemPreferences( directoryService );
     }
 
 

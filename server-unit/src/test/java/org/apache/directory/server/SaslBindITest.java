@@ -49,7 +49,7 @@ import java.util.Set;
  */
 public class SaslBindITest extends AbstractServerTest
 {
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -58,26 +58,21 @@ public class SaslBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
-        configuration.getLdapConfiguration().setSaslHost( "localhost" );
+        apacheDS.setAllowAnonymousAccess( false );
+        apacheDS.getLdapConfiguration().setSaslHost( "localhost" );
 
-        Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
-
-        JdbmPartition pcfg;
-
-        // Add partition 'example'
-        pcfg = new JdbmPartition();
-        pcfg.setId( "example" );
-        pcfg.setSuffix( "dc=example,dc=com" );
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
 
         Set<Index> indexedAttrs = new HashSet<Index>();
         indexedAttrs.add( new JdbmIndex( "ou" ) );
         indexedAttrs.add( new JdbmIndex( "dc" ) );
         indexedAttrs.add( new JdbmIndex( "objectClass" ) );
-        pcfg.setIndexedAttributes( indexedAttrs );
+        partition.setIndexedAttributes( indexedAttrs );
 
-        attrs = new AttributesImpl( true );
+        Attributes attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
         attr.add( "domain" );
@@ -85,10 +80,10 @@ public class SaslBindITest extends AbstractServerTest
         attr = new AttributeImpl( "dc" );
         attr.add( "example" );
         attrs.put( attr );
-        pcfg.setContextEntry( attrs );
+        partition.setContextEntry( attrs );
 
-        partitions.add( pcfg );
-        configuration.setPartitions( partitions );
+        partitions.add( partition );
+        apacheDS.getDirectoryService().setPartitions( partitions );
         super.setUp();
 
         Hashtable<String, String> env = new Hashtable<String, String>();
@@ -322,44 +317,37 @@ public class SaslBindITest extends AbstractServerTest
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work.
      */
-    public void testSaslDigestMd5Bind()
+    public void testSaslDigestMd5Bind() throws Exception
     {
-        try
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+        env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
+        env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+        // Specify realm
+        env.put( "java.naming.security.sasl.realm", "example.com" );
+
+        // Request privacy protection
+        env.put( "javax.security.sasl.qop", "auth-conf" );
+
+        DirContext ctx = new InitialDirContext( env );
+
+        String[] attrIDs =
+            { "uid" };
+
+        Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+        String uid = null;
+
+        if ( attrs.get( "uid" ) != null )
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
-            env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-            // Specify realm
-            env.put( "java.naming.security.sasl.realm", "example.com" );
-
-            // Request privacy protection
-            env.put( "javax.security.sasl.qop", "auth-conf" );
-
-            DirContext ctx = new InitialDirContext( env );
-
-            String[] attrIDs =
-                { "uid" };
-
-            Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-            String uid = null;
-
-            if ( attrs.get( "uid" ) != null )
-            {
-                uid = ( String ) attrs.get( "uid" ).get();
-            }
-
-            assertEquals( uid, "hnelson" );
+            uid = ( String ) attrs.get( "uid" ).get();
         }
-        catch ( NamingException e )
-        {
-            fail( "Should not have caught exception." );
-        }
+
+        assertEquals( uid, "hnelson" );
     }
 
 

@@ -20,24 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
-import java.text.ParseException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.support.ACDFEngine;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
@@ -45,18 +28,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -72,12 +44,20 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.text.ParseException;
+import java.util.*;
 
 
 /**
@@ -91,7 +71,7 @@ import org.slf4j.LoggerFactory;
 public class AuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( AuthorizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AuthorizationService.class );
 
     /**
      * the multivalued op attr used to track the perscriptive access control
@@ -167,17 +147,15 @@ public class AuthorizationService extends BaseInterceptor
     private AttributeTypeRegistry attrRegistry;
     
     /** whether or not this interceptor is activated */
-    private boolean enabled = false;
+    private boolean enabled;
     
     /** the system wide subschemaSubentryDn */
     private String subschemaSubentryDn;
 
     private AttributeType objectClassType;
     private AttributeType acSubentryType;
-    
-    private String objectClassOid;
+
     private String subentryOid;
-    private String acSubentryOid;
 
     /** A storage for the entryACI attributeType */
     private AttributeType entryAciType;
@@ -191,34 +169,34 @@ public class AuthorizationService extends BaseInterceptor
      * Initializes this interceptor based service by getting a handle on the nexus, setting up
      * the tupe and group membership caches and the ACIItem parser and the ACDF engine.
      *
-     * @param factoryCfg the ContextFactory configuration for the server
+     * @param directoryService the directory service core
      * @throws NamingException if there are problems during initialization
      */
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( factoryCfg);
-        tupleCache = new TupleCache( factoryCfg );
-        groupCache = new GroupCache( factoryCfg );
-        attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
+        super.init( directoryService );
+        tupleCache = new TupleCache( directoryService );
+        groupCache = new GroupCache( directoryService );
+        attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         
         // look up some constant information
-        objectClassOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
+        String objectClassOid = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
         subentryOid = oidRegistry.getOid( SchemaConstants.SUBENTRY_OC );
-        acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
+        String acSubentryOid = oidRegistry.getOid( AC_SUBENTRY_ATTR );
         objectClassType = attrRegistry.lookup( objectClassOid );
         acSubentryType = attrRegistry.lookup( acSubentryOid );
         entryAciType = attrRegistry.lookup( SchemaConstants.ENTRY_ACI_AT_OID ); 
         subentryAciType = attrRegistry.lookup( SchemaConstants.SUBENTRY_ACI_AT_OID );
         
         aciParser = new ACIItemParser( new ConcreteNameComponentNormalizer( attrRegistry, oidRegistry ), attrRegistry.getNormalizerMapping() );
-        engine = new ACDFEngine( factoryCfg.getRegistries().getOidRegistry(), attrRegistry );
-        chain = factoryCfg.getInterceptorChain();
-        enabled = factoryCfg.getStartupConfiguration().isAccessControlEnabled();
+        engine = new ACDFEngine( directoryService.getRegistries().getOidRegistry(), attrRegistry );
+        chain = directoryService.getInterceptorChain();
+        enabled = directoryService.isAccessControlEnabled();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = 
-        	( String ) factoryCfg.getPartitionNexus().getRootDSE( null ).
+        	( String ) directoryService.getPartitionNexus().getRootDSE( null ).
         		get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
         subschemaSubentryDnName.normalize( attrRegistry.getNormalizerMapping() );
@@ -246,6 +224,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param dn the normalized distinguished name of the protected entry
      * @param entry the target entry that access to is being controled
      * @throws NamingException if there are problems accessing attribute values
+     * @param proxy the partition nexus proxy object
      */
     private void addPerscriptiveAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn,
         Attributes entry ) throws NamingException
@@ -313,7 +292,7 @@ public class AuthorizationService extends BaseInterceptor
             catch ( ParseException e )
             {
                 String msg = "failed to parse entryACI: " + aciString;
-                log.error( msg, e );
+                LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
@@ -330,6 +309,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param dn the normalized distinguished name of the protected entry
      * @param entry the target entry that access to is being regulated
      * @throws NamingException if there are problems accessing attribute values
+     * @param proxy the partition nexus proxy object
      */
     private void addSubentryAciTuples( PartitionNexusProxy proxy, Collection<ACITuple> tuples, LdapDN dn, Attributes entry )
         throws NamingException
@@ -366,7 +346,7 @@ public class AuthorizationService extends BaseInterceptor
             catch ( ParseException e )
             {
                 String msg = "failed to parse subentryACI: " + aciString;
-                log.error( msg, e );
+                LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
@@ -417,7 +397,7 @@ public class AuthorizationService extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
             next.add( addContext );
-            tupleCache.subentryAdded( name.getUpName(), name, entry );
+            tupleCache.subentryAdded( name, entry );
             groupCache.groupAdded( name, entry );
             return;
         }
@@ -465,7 +445,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // if the entry added is a subentry or a groupOf[Unique]Names we must
         // update the ACITuple cache and the groups cache to keep them in sync
-        tupleCache.subentryAdded( name.getUpName(), name, entry );
+        tupleCache.subentryAdded( name, entry );
         groupCache.groupAdded( name, entry );
     }
 
@@ -531,7 +511,7 @@ public class AuthorizationService extends BaseInterceptor
             return;
         }
 
-        List<ModificationItem> mods = opContext.getModItems();
+        List<ModificationItemImpl> mods = opContext.getModItems();
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -557,13 +537,13 @@ public class AuthorizationService extends BaseInterceptor
 
         Collection<MicroOperation> perms = null;
 
-        for ( ModificationItem mod:mods )
+        for ( ModificationItemImpl mod : mods )
         {
             Attribute attr = mod.getAttribute();
-            
+
             switch ( mod.getModificationOp() )
             {
-                case ( DirContext.ADD_ATTRIBUTE  ):
+                case ( DirContext.ADD_ATTRIBUTE ):
                     perms = ADD_PERMS;
                 
                     // If the attribute is being created with an initial value ...
@@ -571,29 +551,29 @@ public class AuthorizationService extends BaseInterceptor
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                            attr.getID(), null, perms, tuples, entry );
+                                attr.getID(), null, perms, tuples, entry );
                     }
                     
                     break;
-                    
-                case ( DirContext.REMOVE_ATTRIBUTE  ):
+
+                case ( DirContext.REMOVE_ATTRIBUTE ):
                     perms = REMOVE_PERMS;
                     Attribute entryAttr = entry.get( attr.getID() );
-                    
-                    if (  entryAttr != null )
+
+                    if ( entryAttr != null )
                     {
                         // If there is only one value remaining in the attribute ...
                         if ( entryAttr.size() == 1 )
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                attr.getID(), null, perms, tuples, entry );
+                                    attr.getID(), null, perms, tuples, entry );
                         }
                     }
                     
                     break;
-                    
-                case ( DirContext.REPLACE_ATTRIBUTE  ):
+
+                case ( DirContext.REPLACE_ATTRIBUTE ):
                     perms = REPLACE_PERMS;
                     break;
             }
@@ -601,7 +581,7 @@ public class AuthorizationService extends BaseInterceptor
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                    attr.getID(), attr.get( jj ), perms, tuples, entry );
+                        attr.getID(), attr.get( jj ), perms, tuples, entry );
             }
         }
 
@@ -628,14 +608,7 @@ public class AuthorizationService extends BaseInterceptor
         if ( isPrincipalAnAdministrator( principalDn ) || !enabled || ( name.size() == 0 ) ) // no checks on the rootdse
         {
             // No need to go down to the stack, if the dn is empty : it's the rootDSE, and it exists !
-            if ( name.size() == 0 )
-            {
-                return true;
-            }
-            else
-            {
-                return next.hasEntry( entryContext );
-            }
+            return name.size() == 0 || next.hasEntry( entryContext );
         }
 
         Set<Name> userGroups = groupCache.getGroups( principalDn.toNormName() );
@@ -665,7 +638,7 @@ public class AuthorizationService extends BaseInterceptor
      * @param principal the user associated with the call
      * @param dn the name of the entry being looked up
      * @param entry the raw entry pulled from the nexus
-     * @throws NamingException
+     * @throws NamingException if undlying access to the DIT fails
      */
     private void checkLookupAccess( LdapPrincipal principal, LdapDN dn, Attributes entry ) throws NamingException
     {

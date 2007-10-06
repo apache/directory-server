@@ -20,25 +20,24 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -109,7 +108,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
 
 
-    public final void modify( LdapDN name, List<ModificationItem> mods, Attributes entry, 
+    public final void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry,
         Attributes targetEntry, boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );

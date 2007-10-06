@@ -20,29 +20,9 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.TimeZone;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import jdbm.helper.IntegerComparator;
-
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -53,24 +33,19 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntax.LdapSyntaxDescription;
-import org.apache.directory.shared.ldap.schema.syntax.MatchingRuleDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.ObjectClassDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.ComparatorDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.LdapSyntaxDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.MatchingRuleDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.NormalizerDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.ObjectClassDescriptionSchemaParser;
-import org.apache.directory.shared.ldap.schema.syntax.parser.SyntaxCheckerDescriptionSchemaParser;
+import org.apache.directory.shared.ldap.schema.syntax.*;
+import org.apache.directory.shared.ldap.schema.syntax.parser.*;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 /**
@@ -1825,7 +1800,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_PRINCIPAL, "cn=bogus user,ou=system" );
-        env.put( Configuration.JNDI_KEY, new StartupConfiguration() );
+        env.put( DirectoryService.JNDI_KEY, service );
         InitialDirContext ctx = new InitialDirContext( env );
         
         // now let's add another attribute type definition to the schema but 

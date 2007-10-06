@@ -21,25 +21,21 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosPrincipal;
-
-import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
-import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.kerberos.shared.store.operations.*;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -52,27 +48,24 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
  */
 class MultiBaseSearch implements PrincipalStore
 {
-    private InitialContextFactory factory;
     private Hashtable<String, Object> env = new Hashtable<String, Object>();
-
     private Catalog catalog;
 
 
-    MultiBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
+    MultiBaseSearch( ServiceConfiguration config, DirectoryService directoryService )
     {
-        this.factory = factory;
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getCatalogBaseDn() );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( env );
             catalog = new KerberosCatalog( ( Map ) execute( ctx, new GetCatalog() ) );
         }
         catch ( Exception e )
         {
-            String message = "Failed to get catalog context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get catalog context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -80,16 +73,18 @@ class MultiBaseSearch implements PrincipalStore
 
     public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( entry.getRealmName() ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( entry.getRealmName() ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return ( String ) execute( ctx, new AddPrincipal( entry ) );
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
     }
@@ -97,16 +92,18 @@ class MultiBaseSearch implements PrincipalStore
 
     public String deletePrincipal( KerberosPrincipal principal ) throws Exception
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return ( String ) execute( ctx, new DeletePrincipal( principal ) );
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
     }
@@ -114,16 +111,18 @@ class MultiBaseSearch implements PrincipalStore
 
     public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( realm ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( realm ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return ( PrincipalStoreEntry[] ) execute( ctx, new GetAllPrincipals() );
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
     }
@@ -131,16 +130,18 @@ class MultiBaseSearch implements PrincipalStore
 
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return ( PrincipalStoreEntry ) execute( ctx, new GetPrincipal( principal ) );
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
     }
@@ -148,16 +149,18 @@ class MultiBaseSearch implements PrincipalStore
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( principal.getRealm() ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return ( String ) execute( ctx, new ChangePassword( principal, newPassword ) );
         }
         catch ( NamingException ne )
         {
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
     }

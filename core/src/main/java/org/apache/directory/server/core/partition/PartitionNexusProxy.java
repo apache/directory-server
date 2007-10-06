@@ -40,7 +40,6 @@ import javax.naming.event.NamingListener;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
@@ -141,7 +140,6 @@ public class PartitionNexusProxy extends PartitionNexus
 
     private final Context caller;
     private final DirectoryService service;
-    private final DirectoryServiceConfiguration configuration;
 
     static
     {
@@ -202,13 +200,12 @@ public class PartitionNexusProxy extends PartitionNexus
     {
         this.caller = caller;
         this.service = service;
-        this.configuration = service.getConfiguration();
     }
 
 
     public LdapContext getLdapContext()
     {
-        return this.configuration.getPartitionNexus().getLdapContext();
+        return service.getPartitionNexus().getLdapContext();
     }
 
 
@@ -260,7 +257,7 @@ public class PartitionNexusProxy extends PartitionNexus
     }
 
 
-    public void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public void init( DirectoryService core ) throws NamingException
     {
     }
 
@@ -272,24 +269,24 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public Partition getSystemPartition()
     {
-        return this.configuration.getPartitionNexus().getSystemPartition();
+        return service.getPartitionNexus().getSystemPartition();
     }
 
 
     public Partition getPartition( LdapDN dn ) throws NamingException
     {
-        return this.configuration.getPartitionNexus().getPartition( dn );
+        return service.getPartitionNexus().getPartition( dn );
     }
 
 
     public LdapDN getSuffixDn() throws NamingException
     {
-        return this.configuration.getPartitionNexus().getSuffixDn();
+        return service.getPartitionNexus().getSuffixDn();
     }
 
     public LdapDN getUpSuffixDn() throws NamingException
     {
-        return this.configuration.getPartitionNexus().getUpSuffixDn();
+        return service.getPartitionNexus().getUpSuffixDn();
     }
 
 
@@ -326,7 +323,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
         try
         {
-            return this.configuration.getInterceptorChain().getMatchedName( opContext );
+            return service.getInterceptorChain().getMatchedName( opContext );
         }
         finally
         {
@@ -349,7 +346,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "getSuffixDn", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getSuffix( opContext );
+            return service.getInterceptorChain().getSuffix( opContext );
         }
         finally
         {
@@ -372,7 +369,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "listSuffixes", args, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().listSuffixes( opContext );
+            return service.getInterceptorChain().listSuffixes( opContext );
         }
         finally
         {
@@ -395,7 +392,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().compare( opContext );
+            return service.getInterceptorChain().compare( opContext );
         }
         finally
         {
@@ -418,7 +415,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().delete( opContext );
+            service.getInterceptorChain().delete( opContext );
         }
         finally
         {
@@ -441,7 +438,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().add( opContext );
+            service.getInterceptorChain().add( opContext );
         }
         finally
         {
@@ -465,7 +462,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
         try
         {
-            this.configuration.getInterceptorChain().modify( opContext );
+            service.getInterceptorChain().modify( opContext );
         }
         finally
         {
@@ -489,7 +486,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().list( opContext );
+            return service.getInterceptorChain().list( opContext );
         }
         finally
         {
@@ -559,7 +556,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().search( opContext );
+            return service.getInterceptorChain().search( opContext );
         }
         finally
         {
@@ -580,7 +577,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {
                     if ( ROOT_DSE_NO_OPERATIONNAL == null )
                     {
-                        ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, ( Collection<String> ) null );
+                        ROOT_DSE_NO_OPERATIONNAL = lookup( opContext, null );
                     }
                 }
 
@@ -591,7 +588,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {
                     if ( ROOT_DSE_ALL == null )
                     {
-                        ROOT_DSE_ALL = lookup( opContext, ( Collection<String> ) null );
+                        ROOT_DSE_ALL = lookup( opContext, null );
                     }
                 }
 
@@ -600,7 +597,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
         }
 
-        return lookup( opContext, ( Collection<String> ) null );
+        return lookup( opContext, null );
     }
 
 
@@ -612,7 +609,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().lookup( opContext );
+            return service.getInterceptorChain().lookup( opContext );
         }
         finally
         {
@@ -634,7 +631,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().hasEntry( opContext );
+            return service.getInterceptorChain().hasEntry( opContext );
         }
         finally
         {
@@ -658,7 +655,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "rename", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().rename( opContext );
+            service.getInterceptorChain().rename( opContext );
         }
         finally
         {
@@ -681,7 +678,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().move( opContext );
+            service.getInterceptorChain().move( opContext );
         }
         finally
         {
@@ -706,7 +703,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "moveAndRename", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().moveAndRename( opContext );
+            service.getInterceptorChain().moveAndRename( opContext );
         }
         finally
         {
@@ -718,8 +715,8 @@ public class PartitionNexusProxy extends PartitionNexus
      * TODO : check if we can find another way to procect ourselves from recursion.
      *
      * @param opContext The operation context
-     * @param bypass
-     * @throws NamingException
+     * @param bypass bypass instructions to skip interceptors
+     * @throws NamingException if bind fails
      */
     public void bind( BindOperationContext opContext, Collection<String> bypass )
             throws NamingException
@@ -733,7 +730,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
         try
         {
-            configuration.getInterceptorChain().bind( opContext );
+            service.getInterceptorChain().bind( opContext );
         }
         finally
         {
@@ -750,7 +747,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "unbind", args, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().unbind( opContext );
+            service.getInterceptorChain().unbind( opContext );
         }
         finally
         {
@@ -798,7 +795,7 @@ public class PartitionNexusProxy extends PartitionNexus
         stack.push( new Invocation( this, caller, "getRootDSE", null, bypass ) );
         try
         {
-            return this.configuration.getInterceptorChain().getRootDSE( opContext );
+            return service.getInterceptorChain().getRootDSE( opContext );
         }
         finally
         {
@@ -822,7 +819,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().addContextPartition( opContext );
+            service.getInterceptorChain().addContextPartition( opContext );
         }
         finally
         {
@@ -846,7 +843,7 @@ public class PartitionNexusProxy extends PartitionNexus
                 {opContext}, bypass ) );
         try
         {
-            this.configuration.getInterceptorChain().removeContextPartition( opContext );
+            service.getInterceptorChain().removeContextPartition( opContext );
         }
         finally
         {
@@ -866,7 +863,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public void registerSupportedExtensions( Set<String> extensionOids )
     {
-        configuration.getPartitionNexus().registerSupportedExtensions( extensionOids );
+        service.getPartitionNexus().registerSupportedExtensions( extensionOids );
     }
 
     // -----------------------------------------------------------------------
@@ -883,7 +880,7 @@ public class PartitionNexusProxy extends PartitionNexus
     public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
             NamingListener namingListener ) throws NamingException
     {
-        InterceptorChain chain = this.configuration.getInterceptorChain();
+        InterceptorChain chain = service.getInterceptorChain();
         EventService interceptor = ( EventService ) chain.get( EventService.class.getName() );
         interceptor.addNamingListener( ctx, name, filter, searchControls, namingListener );
     }
@@ -891,7 +888,7 @@ public class PartitionNexusProxy extends PartitionNexus
 
     public void removeNamingListener( EventContext ctx, NamingListener namingListener ) throws NamingException
     {
-        InterceptorChain chain = this.configuration.getInterceptorChain();
+        InterceptorChain chain = service.getInterceptorChain();
         if ( chain == null )
         {
             return;

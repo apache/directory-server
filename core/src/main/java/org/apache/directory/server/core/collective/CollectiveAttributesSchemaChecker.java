@@ -82,7 +82,7 @@ public class CollectiveAttributesSchemaChecker
     
     public void checkModify( LdapDN normName, int modOp, Attributes mods ) throws NamingException
     {
-        List<ModificationItem> modsAsArray = new ArrayList<ModificationItem>( mods.size() );
+        ArrayList<ModificationItemImpl> modsAsArray = new ArrayList<ModificationItemImpl>( mods.size() );
         NamingEnumeration<? extends Attribute> allAttrs = mods.getAll();
         
         while ( allAttrs.hasMoreElements() )
@@ -95,7 +95,7 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    public void checkModify( LdapDN normName, List<ModificationItem> mods ) throws NamingException
+    public void checkModify( LdapDN normName, List<ModificationItemImpl> mods ) throws NamingException
     {
         Attributes originalEntry = nexus.lookup( new LookupOperationContext( normName ) );
         Attributes targetEntry = SchemaUtils.getTargetEntry( mods, originalEntry );
@@ -118,7 +118,7 @@ public class CollectiveAttributesSchemaChecker
     }
     
     
-    private boolean addsAnyCollectiveAttributes( List<ModificationItem> mods ) throws NamingException
+    private boolean addsAnyCollectiveAttributes( List<ModificationItemImpl> mods ) throws NamingException
     {
         for ( ModificationItem mod:mods )
         {

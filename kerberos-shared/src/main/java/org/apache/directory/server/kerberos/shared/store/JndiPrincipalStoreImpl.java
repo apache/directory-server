@@ -20,10 +20,10 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosPrincipal;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
@@ -40,8 +40,8 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
 {
     /** a handle on the configuration */
     private ServiceConfiguration config;
-    /** a handle on the provider factory */
-    private InitialContextFactory factory;
+    /** a handle on the core */
+    private DirectoryService directoryService;
     /** a handle on the search strategy */
     private PrincipalStore store;
 
@@ -49,14 +49,13 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
     /**
      * Creates a new instance of JndiPrincipalStoreImpl.
      *
-     * @param config
-     * @param factory
+     * @param config the configuration
+     * @param directoryService the core service
      */
-    public JndiPrincipalStoreImpl( ServiceConfiguration config, InitialContextFactory factory )
+    public JndiPrincipalStoreImpl( ServiceConfiguration config, DirectoryService directoryService )
     {
         this.config = config;
-        this.factory = factory;
-
+        this.directoryService = directoryService;
         store = getStore();
     }
 
@@ -96,10 +95,10 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
         if ( config.getCatalogBaseDn() != null )
         {
             // build a catalog from the backing store
-            return new MultiBaseSearch( config, factory );
+            return new MultiBaseSearch( config, directoryService );
         }
 
         // search only the configured entry baseDN
-        return new SingleBaseSearch( config, factory );
+        return new SingleBaseSearch( config, directoryService );
     }
 }

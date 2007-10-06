@@ -46,8 +46,8 @@ import org.apache.directory.shared.ldap.sp.LdapContextParameter;
  */
 public class StoredProcedureExecutionITest extends AbstractServerTest
 {
-    private LdapContext ctx = null;
-    private LdapContext spCtx = null;
+    private LdapContext ctx;
+    private LdapContext spCtx;
 
     
     public void setUp() throws Exception
@@ -55,7 +55,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         /////////////////////////////////////////////////////////
         // Enable the Stored Procedure Extended Operation Handler
         /////////////////////////////////////////////////////////
-        LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
+        LdapConfiguration ldapCfg = super.apacheDS.getLdapConfiguration();
         Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapCfg.getExtendedOperationHandlers() );
         handlers.add( new StoredProcedureExtendedOperationHandler() );
         ldapCfg.setExtendedOperationHandlers( handlers );

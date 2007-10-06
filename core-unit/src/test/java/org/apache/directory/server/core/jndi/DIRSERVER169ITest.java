@@ -20,19 +20,14 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.NamingEnumeration;
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.*;
 import java.util.Hashtable;
 
 
@@ -73,7 +68,8 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
 
     public void testSearchResultNameIsRelativeToSearchContext() throws Exception
     {
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -108,10 +104,13 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
     /**
      * Search over binary attributes now should work via the core JNDI 
      * provider.
+     *
+     * @throws Exception if there are errors
      */
     public void testPasswordComparisonSucceeds() throws Exception
     {
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

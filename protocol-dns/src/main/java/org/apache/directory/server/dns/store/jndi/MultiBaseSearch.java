@@ -21,15 +21,7 @@
 package org.apache.directory.server.dns.store.jndi;
 
 
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
@@ -44,6 +36,14 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * A JNDI-backed search strategy implementation.  This search strategy builds a catalog
@@ -55,31 +55,29 @@ import org.slf4j.LoggerFactory;
  */
 public class MultiBaseSearch implements SearchStrategy
 {
-    /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( MultiBaseSearch.class );
+    /** the LOG for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( MultiBaseSearch.class );
 
-    private InitialContextFactory factory;
     private Hashtable<String, Object> env = new Hashtable<String, Object>();
-
     private Catalog catalog;
 
 
-    MultiBaseSearch( DnsConfiguration config, InitialContextFactory factory )
+    MultiBaseSearch( DnsConfiguration config, DirectoryService directoryService )
     {
-        this.factory = factory;
-
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getCatalogBaseDn() );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( env );
+            //noinspection unchecked
             catalog = new DnsCatalog( ( Map<String, Object> ) execute( ctx, new GetCatalog() ) );
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
-            String message = "Failed to get catalog context " + ( String ) env.get( Context.PROVIDER_URL );
+            LOG.error( e.getMessage(), e );
+            String message = "Failed to get catalog context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -87,28 +85,30 @@ public class MultiBaseSearch implements SearchStrategy
 
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
-        env.put( Context.PROVIDER_URL, catalog.getBaseDn( question.getDomainName() ) );
+        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
+        cloned.putAll( env );
+        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( question.getDomainName() ) );
 
         try
         {
-            DirContext ctx = ( DirContext ) factory.getInitialContext( env );
+            DirContext ctx = new InitialDirContext( cloned );
             return execute( ctx, new GetRecords( question ) );
         }
         catch ( LdapNameNotFoundException lnnfe )
         {
-            log.debug( "Name for DNS record search does not exist.", lnnfe );
+            LOG.debug( "Name for DNS record search does not exist.", lnnfe );
 
             throw new DnsException( ResponseCode.NAME_ERROR );
         }
         catch ( NamingException ne )
         {
-            log.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+            LOG.error( ne.getMessage(), ne );
+            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
             throw new ServiceConfigurationException( message, ne );
         }
         catch ( Exception e )
         {
-            log.debug( "Unexpected error retrieving DNS records.", e );
+            LOG.debug( "Unexpected error retrieving DNS records.", e );
             throw new DnsException( ResponseCode.SERVER_FAILURE );
         }
 

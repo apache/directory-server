@@ -21,6 +21,7 @@ package org.apache.directory.server.core.configuration;
 
 
 import junit.framework.Assert;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -35,8 +36,7 @@ import java.util.Hashtable;
 
 
 /**
- * Tests {@link AddPartitionConfiguration} and
- * {@link RemovePartitionConfiguration} works correctly.
+ * Tests dynamic partition addition and removal.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
@@ -59,19 +59,19 @@ public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
         partition.setContextEntry( ctxEntry );
 
         // Test AddContextPartition
-        AddPartitionConfiguration addCfg = new AddPartitionConfiguration( partition );
+        service.addPartition( partition );
 
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.putAll( addCfg.toJndiEnvironment() );
-
+        env.put( DirectoryService.JNDI_KEY, service );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         Context ctx = new InitialContext( env );
         Assert.assertNotNull( ctx.lookup( "ou=removable" ) );
 
         // Test removeContextPartition
-        RemovePartitionConfiguration removeCfg = new RemovePartitionConfiguration( "ou=removable" );
-        env.putAll( removeCfg.toJndiEnvironment() );
-
+        service.removePartition( partition );
         ctx = new InitialContext( env );
         try
         {

@@ -87,7 +87,7 @@ public abstract class ServiceConfiguration
     private String servicePid;
 
     /** Whether this service is enabled. */
-    private boolean isEnabled = false;
+    private boolean isEnabled;
 
 
     /**
@@ -160,19 +160,13 @@ public abstract class ServiceConfiguration
      * Compares whether a Dictionary of configuration is 
      * different from the current instance of configuration.
      *
-     * @param config
+     * @param config the configuration
      * @return Whether the configuration is different.
      */
     public boolean isDifferent( Dictionary<String, Object> config )
     {
         int port = getIpPort();
-
-        if ( port == Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) ) )
-        {
-            return false;
-        }
-
-        return true;
+        return port != Integer.parseInt( ( String ) config.get( IP_PORT_KEY ) );
     }
 
 
@@ -358,6 +352,8 @@ public abstract class ServiceConfiguration
     /**
      * Throws a {@link ServiceConfigurationException} if the specified port number
      * is out of range.
+     * 
+     * @param port the port number to validate
      */
     protected void validatePortNumber( int port )
     {

@@ -19,43 +19,14 @@
  */
 package org.apache.directory.server.core.schema;
 
- 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -65,44 +36,28 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.exception.*;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.filter.SimpleNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.CascadeControl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ServerSearchResult;
+import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.DITContentRule;
-import org.apache.directory.shared.ldap.schema.DITStructureRule;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
-import org.apache.directory.shared.ldap.schema.NameForm;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.schema.UsageEnum;
-import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
-import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
-import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
+import org.apache.directory.shared.ldap.schema.*;
+import org.apache.directory.shared.ldap.schema.syntax.*;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.directory.*;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 
 /**
@@ -148,11 +103,6 @@ public class SchemaService extends BaseInterceptor
 
     private Set<String> binaries;
 
-    /**
-     * subschemaSubentry attribute's value from Root DSE
-     */
-    private LdapDN subschemaSubentryDn;
-
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
 
@@ -182,23 +132,23 @@ public class SchemaService extends BaseInterceptor
     /**
      * Initialize the Schema Service
      *
-     * @param factoryCfg
-     * @throws NamingException
+     * @param directoryService the directory service core
+     * @throws NamingException if there are problems during initialization
      */
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
         if ( IS_DEBUG )
         {
             log.debug( "Initializing SchemaService..." );
         }
 
-        nexus = factoryCfg.getPartitionNexus();
-        registries = factoryCfg.getRegistries();
+        nexus = directoryService.getPartitionNexus();
+        registries = directoryService.getRegistries();
         binaryAttributeFilter = new BinaryAttributeFilter();
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
-        binaries = ( Set<String> ) factoryCfg.getEnvironment().get( BINARY_KEY );
+        binaries = ( Set<String> ) directoryService.getEnvironment().get( BINARY_KEY );
 
         if ( binaries == null )
         {
@@ -210,11 +160,11 @@ public class SchemaService extends BaseInterceptor
         schemaBaseDN = new LdapDN( "ou=schema" );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
-        schemaManager = factoryCfg.getSchemaManager();
+        schemaManager = directoryService.getSchemaManager();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
-        subschemaSubentryDn = new LdapDN( subschemaSubentry );
+        LdapDN subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         subschemaSubentryDnNorm = subschemaSubentryDn.getNormName();
 
@@ -233,6 +183,10 @@ public class SchemaService extends BaseInterceptor
     /**
      * Compute the MUST attributes for an objectClass. This method gather all the
      * MUST from all the objectClass and its superors.
+     *
+     * @param atSeen ???
+     * @param objectClass the object class to gather MUST attributes for
+     * @throws NamingException if there are problems resolving schema entitites
      */
     private void computeMustAttributes( ObjectClass objectClass, Set<String> atSeen ) throws NamingException
     {
@@ -272,6 +226,10 @@ public class SchemaService extends BaseInterceptor
      * MAY from all the objectClass and its superors.
      *
      * The allowed attributes is also computed, it's the union of MUST and MAY
+     *
+     * @param atSeen ???
+     * @param objectClass the object class to get all the MAY attributes for
+     * @throws NamingException with problems accessing registries
      */
     private void computeMayAttributes( ObjectClass objectClass, Set<String> atSeen ) throws NamingException
     {
@@ -344,9 +302,8 @@ public class SchemaService extends BaseInterceptor
                 }
             }
         }
-
-        return;
     }
+
 
     /**
      * Compute all ObjectClasses superiors, MAY and MUST attributes.
@@ -540,7 +497,7 @@ public class SchemaService extends BaseInterceptor
                 // We should get the value for the filter.
                 // only 'top' and 'subSchema' are valid values
                 SimpleNode node = ( SimpleNode ) filter;
-                String objectClass = null;
+                String objectClass;
 
                 if ( node.getValue() instanceof String )
                 {
@@ -1261,7 +1218,7 @@ public class SchemaService extends BaseInterceptor
     {
         Attributes entry = null; 
         LdapDN name = opContext.getDn();
-        List<ModificationItem> mods = opContext.getModItems();
+        List<ModificationItemImpl> mods = opContext.getModItems();
 
         // handle operations against the schema subentry in the schema service
         // and never try to look it up in the nexus below
@@ -1782,8 +1739,6 @@ public class SchemaService extends BaseInterceptor
      * Checks to see if an attribute is required by as determined from an entry's
      * set of objectClass attribute values.
      *
-     * @param attrId the attribute to test if required by a set of objectClass values
-     * @param objectClass the objectClass values
      * @return true if the objectClass values require the attribute, false otherwise
      * @throws NamingException if the attribute is not recognized
      */

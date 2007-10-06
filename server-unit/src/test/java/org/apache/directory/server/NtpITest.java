@@ -22,6 +22,7 @@ package org.apache.directory.server;
 
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -52,7 +53,7 @@ import java.util.Set;
  */
 public class NtpITest extends AbstractServerTest
 {
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -60,12 +61,12 @@ public class NtpITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        apacheDS.setAllowAnonymousAccess( false );
 
-        LdapConfiguration ldapConfig = configuration.getLdapConfiguration();
+        LdapConfiguration ldapConfig = apacheDS.getLdapConfiguration();
         ldapConfig.setEnabled( false );
 
-        NtpConfiguration ntpConfig = configuration.getNtpConfiguration();
+        NtpConfiguration ntpConfig = apacheDS.getNtpConfiguration();
         ntpConfig.setEnabled( true );
 
         port = AvailablePortFinder.getNextAvailable( 10123 );
@@ -96,14 +97,19 @@ public class NtpITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        configuration.setPartitions( partitions );
+        apacheDS.getDirectoryService().setPartitions( partitions );
 
-        doDelete( configuration.getWorkingDirectory() );
-        configuration.setShutdownHookEnabled( false );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
+        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
+        apacheDS.getNtpConfiguration().setEnabled( true );
+        apacheDS.getNtpConfiguration().setIpPort( AvailablePortFinder.getNextAvailable( 1123) );
+        super.setUp();
+
         setContexts( "uid=admin,ou=system", "secret" );
 
         // Get a context.
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, apacheDS.getDirectoryService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -117,7 +123,7 @@ public class NtpITest extends AbstractServerTest
     /**
      * Tests to make sure NTP works when enabled in the server.
      * 
-     * @throws Exception 
+     * @throws Exception  if there are errors
      */
     public void testNtp() throws Exception
     {
@@ -128,8 +134,7 @@ public class NtpITest extends AbstractServerTest
         NTPUDPClient ntp = new NTPUDPClient();
         ntp.setDefaultTimeout( 5000 );
 
-        TimeInfo timeInfo = ntp.getTime( host, port );
-
+        TimeInfo timeInfo = ntp.getTime( host, apacheDS.getNtpConfiguration().getIpPort() );
         long returnTime = timeInfo.getReturnTime();
         assertTrue( currentTime - returnTime < 1000 );
 

@@ -54,7 +54,7 @@ public class SearchContextITest extends AbstractAdminTestCase
     {
         if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
         {
-            super.configuration.setDenormalizeOpAttrsEnabled( true );
+            super.service.setDenormalizeOpAttrsEnabled( true );
         }
         
         super.setUp();
@@ -514,6 +514,10 @@ public class SearchContextITest extends AbstractAdminTestCase
     
     /**
      * Creation of required attributes of a person entry.
+     *
+     * @param cn the commonName of the person
+     * @param sn the surName of the person
+     * @return the attributes of a new person entry
      */
     protected Attributes getPersonAttributes( String sn, String cn )
     {

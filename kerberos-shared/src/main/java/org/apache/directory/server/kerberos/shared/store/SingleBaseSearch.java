@@ -21,22 +21,18 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.kerberos.shared.store.operations.*;
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
+import javax.naming.directory.InitialDirContext;
 import javax.security.auth.kerberos.KerberosPrincipal;
-
-import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
-import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import java.util.Hashtable;
 
 
 /**
@@ -50,18 +46,17 @@ class SingleBaseSearch implements PrincipalStore
 {
     private DirContext ctx;
     private Hashtable<String, Object> env = new Hashtable<String, Object>();
-    private InitialContextFactory factory;
 
 
-    SingleBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
+    SingleBaseSearch( ServiceConfiguration config, DirectoryService directoryService )
     {
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
         env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
         env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
         env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
 
-        this.factory = factory;
     }
 
 
@@ -101,11 +96,11 @@ class SingleBaseSearch implements PrincipalStore
         {
             try
             {
-                ctx = ( DirContext ) factory.getInitialContext( env );
+                ctx = new InitialDirContext( env );
             }
             catch ( NamingException ne )
             {
-                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+                String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
                 throw new ServiceConfigurationException( message, ne );
             }
         }

@@ -21,30 +21,11 @@
 package org.apache.directory.server.core.trigger;
 
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -63,10 +44,17 @@ import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
-import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification.SPSpec;
+import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.text.ParseException;
+import java.util.*;
 
 
 /**
@@ -80,7 +68,7 @@ import org.slf4j.LoggerFactory;
 public class TriggerService extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( TriggerService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( TriggerService.class );
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
 
@@ -113,6 +101,7 @@ public class TriggerService extends BaseInterceptor
      * @param dn the normalized distinguished name of the entry
      * @param entry the target entry that is considered as the trigger source
      * @throws NamingException if there are problems accessing attribute values
+     * @param proxy the partition nexus proxy 
      */
     private void addPrescriptiveTriggerSpecs( List<TriggerSpecification> triggerSpecs, PartitionNexusProxy proxy,
         LdapDN dn, Attributes entry ) throws NamingException
@@ -175,7 +164,7 @@ public class TriggerService extends BaseInterceptor
             catch ( ParseException e )
             {
                 String msg = "failed to parse entryTrigger: " + triggerString;
-                log.error( msg, e );
+                LOG.error( msg, e );
                 throw new LdapNamingException( msg, ResultCodeEnum.OPERATIONS_ERROR );
             }
 
@@ -188,18 +177,17 @@ public class TriggerService extends BaseInterceptor
      * 
      * @NOTE: This method serves as an extion point for new Action Time types.
      * 
-     * @param triggerSpecs
-     * @param ldapOperation
+     * @param triggerSpecs the trigger specifications
+     * @param ldapOperation the ldap operation being performed
+     * @return the set of trigger specs for a trigger action 
      */
     public Map<ActionTime, List<TriggerSpecification>> getActionTimeMappedTriggerSpecsForOperation( List<TriggerSpecification> triggerSpecs, LdapOperation ldapOperation )
     {
         List<TriggerSpecification> afterTriggerSpecs = new ArrayList<TriggerSpecification>();
         Map<ActionTime, List<TriggerSpecification>> triggerSpecMap = new HashMap<ActionTime, List<TriggerSpecification>>();
-        
-        Iterator<TriggerSpecification> it = triggerSpecs.iterator();
-        while ( it.hasNext() )
+
+        for ( TriggerSpecification triggerSpec : triggerSpecs )
         {
-            TriggerSpecification triggerSpec = it.next();
             if ( triggerSpec.getLdapOperation().equals( ldapOperation ) )
             {
                 if ( triggerSpec.getActionTime().equals( ActionTime.AFTER ) )
@@ -208,8 +196,8 @@ public class TriggerService extends BaseInterceptor
                 }
                 else
                 {
-                	
-                }    
+
+                }
             }
         }
         
@@ -222,11 +210,11 @@ public class TriggerService extends BaseInterceptor
     // Interceptor Overrides
     ////////////////////////////////////////////////////////////////////////////
     
-    public void init(DirectoryServiceConfiguration dirServCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( dirServCfg);
-        triggerSpecCache = new TriggerSpecCache( dirServCfg );
-        final AttributeTypeRegistry attrRegistry = dirServCfg.getRegistries().getAttributeTypeRegistry();
+        super.init( directoryService );
+        triggerSpecCache = new TriggerSpecCache( directoryService );
+        final AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         triggerParser = new TriggerSpecificationParser
             ( new NormalizerMappingResolver()
                 {
@@ -236,7 +224,7 @@ public class TriggerService extends BaseInterceptor
                     }
                 }
             );
-        chain = dirServCfg.getInterceptorChain();
+        chain = directoryService.getInterceptorChain();
         
         //StoredProcEngineConfig javaxScriptSPEngineConfig = new JavaxStoredProcEngineConfig();
         StoredProcEngineConfig javaSPEngineConfig = new JavaStoredProcEngineConfig();
@@ -555,13 +543,9 @@ public class TriggerService extends BaseInterceptor
     private Object executeTriggers( List<TriggerSpecification> triggerSpecs, StoredProcedureParameterInjector injector, ServerLdapContext callerRootCtx ) throws NamingException
     {
         Object result = null;
-        
-        Iterator<TriggerSpecification> it = triggerSpecs.iterator();
-        
-        while( it.hasNext() )
+
+        for ( TriggerSpecification triggerSpec : triggerSpecs )
         {
-            TriggerSpecification tsec = it.next();
-            
             // TODO: Replace the Authorization Code with a REAL one.
             if ( triggerExecutionAuthorizer.hasPermission() )
             {
@@ -569,7 +553,7 @@ public class TriggerService extends BaseInterceptor
                  * If there is only one Trigger to be executed, this assignment
                  * will make sense (as in INSTEADOF search Triggers).
                  */
-                result = executeTrigger( tsec, injector, callerRootCtx );
+                result = executeTrigger( triggerSpec, injector, callerRootCtx );
             }
         }
         

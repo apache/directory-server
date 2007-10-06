@@ -20,10 +20,11 @@
 package org.apache.directory.server.core.authz;
 
 
-import javax.naming.NamingException;
-
+import junit.framework.Assert;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -76,7 +77,7 @@ public class AuthzAuthnITest extends AbstractAuthorizationITest
         }
         catch ( LdapNoPermissionException e )
         {
-            
+            Assert.assertNotNull( e ); 
         }
     }
     

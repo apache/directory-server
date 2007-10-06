@@ -23,21 +23,15 @@ package org.apache.directory.server.tools.commands.dumpcmd;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmMasterTable;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
@@ -88,7 +82,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     private Registries bootstrapRegistries = new DefaultRegistries( "bootstrap", 
         new BootstrapSchemaLoader(), new DefaultOidRegistry() );
     private Set<String> exclusions = new HashSet<String>();
-    private boolean includeOperational = false;
+    private boolean includeOperational;
     private String outputFile;
     private String[] partitions;
     private String[] excludedAttributes;
@@ -193,7 +187,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
         
-        DbFileListing listing = null;
+        DbFileListing listing;
         try 
         {
             listing = new DbFileListing();
@@ -218,60 +212,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         entry.put( SchemaConstants.OU_AT, "schema" );
         schemaPartition.setContextEntry( entry );
 
-        DirectoryServiceConfiguration dsc = new DirectoryServiceConfiguration()
-        {
-            public Hashtable<String, Object> getEnvironment()
-            {
-                return null;
-            }
-
-            public String getInstanceId()
-            {
-                return "1";
-            }
-
-            public InterceptorChain getInterceptorChain()
-            {
-                return null;
-            }
-
-            public PartitionNexus getPartitionNexus()
-            {
-                return null;
-            }
-
-            public Registries getRegistries()
-            {
-                return registries;
-            }
-
-            public SchemaManager getSchemaManager()
-            {
-                return null;
-            }
-
-            public DirectoryService getService()
-            {
-                return null;
-            }
-
-            public DirectoryServiceListener getServiceListener()
-            {
-                return null;
-            }
-
-            public StartupConfiguration getStartupConfiguration()
-            {
-                return getConfiguration();
-            }
-
-            public boolean isFirstStart()
-            {
-                return false;
-            }
-        };
-        
-        schemaPartition.init( dsc );
+        DirectoryService directoryService = new DefaultDirectoryService();
+        schemaPartition.init( directoryService );
 
         // --------------------------------------------------------------------
         // Initialize schema subsystem and reset registries
@@ -291,13 +233,13 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         
         bootstrapRegistries = loadRegistries();
 
-        PrintWriter out = null;
+        PrintWriter out;
         if ( excludedAttributes != null )
         {
             AttributeTypeRegistry registry = bootstrapRegistries.getAttributeTypeRegistry();
-            for ( int ii = 0; ii < excludedAttributes.length; ii++ )
+            for ( String excludedAttribute : excludedAttributes )
             {
-                AttributeType type = registry.lookup( excludedAttributes[ii] );
+                AttributeType type = registry.lookup( excludedAttribute );
                 exclusions.add( type.getName() );
             }
         }
@@ -310,10 +252,10 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         {
             out = new PrintWriter( new FileWriter( outputFile ) );
         }
-        
-        for ( int ii = 0; ii < partitions.length; ii++ )
+
+        for ( String partition : partitions )
         {
-            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partitions[ii] );
+            File partitionDirectory = new File( getLayout().getPartitionsDirectory(), partition );
             out.println( "\n\n" );
             dump( partitionDirectory, out );
         }
@@ -323,9 +265,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     private void processParameters( Parameter[] params )
     {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        for ( int i = 0; i < params.length; i++ )
+        for ( Parameter parameter : params )
         {
-            Parameter parameter = params[i];
             parameters.put( parameter.getName(), parameter.getValue() );
         }
 
@@ -333,21 +274,21 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         Boolean quietParam = ( Boolean ) parameters.get( QUIET_PARAMETER );
         if ( quietParam != null )
         {
-            setQuietEnabled( quietParam.booleanValue() );
+            setQuietEnabled( quietParam );
         }
 
         // Debug param
         Boolean debugParam = ( Boolean ) parameters.get( DEBUG_PARAMETER );
         if ( debugParam != null )
         {
-            setDebugEnabled( debugParam.booleanValue() );
+            setDebugEnabled( debugParam );
         }
 
         // Verbose param
         Boolean verboseParam = ( Boolean ) parameters.get( VERBOSE_PARAMETER );
         if ( verboseParam != null )
         {
-            setVerboseEnabled( verboseParam.booleanValue() );
+            setVerboseEnabled( verboseParam );
         }
 
         // Install-path param
@@ -361,14 +302,12 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                 {
                     notifyOutputListener( "loading settings from: " + getLayout().getConfigurationFile() );
                 }
-                ApplicationContext factory = null;
-                URL configUrl;
 
-                configUrl = getLayout().getConfigurationFile().toURI().toURL();
-                factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-                setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
-                MutableServerStartupConfiguration msc = ( MutableServerStartupConfiguration ) getConfiguration();
-                msc.setWorkingDirectory( getLayout().getPartitionsDirectory() );
+                URL configUrl = getLayout().getConfigurationFile().toURI().toURL();
+                ApplicationContext factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+                ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
+                setApacheDS( apacheDS );
+                apacheDS.getDirectoryService().setWorkingDirectory( getLayout().getPartitionsDirectory() );
             }
             catch ( MalformedURLException e )
             {
@@ -402,7 +341,7 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
         Boolean includeOperationalParam = ( Boolean ) parameters.get( INCLUDEOPERATIONAL_PARAMETER );
         if ( includeOperationalParam != null )
         {
-            includeOperational = includeOperationalParam.booleanValue();
+            includeOperational = includeOperationalParam;
         }
     }
 
@@ -410,9 +349,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
     private void processListeners( ListenerParameter[] listeners )
     {
         Map<String, ToolCommandListener> parameters = new HashMap<String, ToolCommandListener>();
-        for ( int i = 0; i < listeners.length; i++ )
+        for ( ListenerParameter parameter : listeners )
         {
-            ListenerParameter parameter = listeners[i];
             parameters.put( parameter.getName(), parameter.getListener() );
         }
 
@@ -525,9 +463,8 @@ public class DumpCommandExecutor extends BaseToolCommandExecutor
                 toRemove.add( attr.getID() );
             }
         }
-        for ( int ii = 0; ii < toRemove.size(); ii++ )
+        for ( String id : toRemove )
         {
-            String id = toRemove.get( ii );
             entry.remove( id );
             if ( isDebugEnabled() )
             {

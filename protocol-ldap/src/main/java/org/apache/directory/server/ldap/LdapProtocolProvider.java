@@ -20,62 +20,12 @@
 package org.apache.directory.server.ldap;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-
-import org.apache.directory.server.ldap.support.AbandonHandler;
-import org.apache.directory.server.ldap.support.AddHandler;
-import org.apache.directory.server.ldap.support.BindHandler;
-import org.apache.directory.server.ldap.support.CompareHandler;
-import org.apache.directory.server.ldap.support.DeleteHandler;
-import org.apache.directory.server.ldap.support.ExtendedHandler;
-import org.apache.directory.server.ldap.support.ModifyDnHandler;
-import org.apache.directory.server.ldap.support.ModifyHandler;
-import org.apache.directory.server.ldap.support.SearchHandler;
-import org.apache.directory.server.ldap.support.UnbindHandler;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.ldap.support.*;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
 import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.AbandonRequestImpl;
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.CascadeControl;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.CompareRequestImpl;
-import org.apache.directory.shared.ldap.message.MutableControl;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
-import org.apache.directory.shared.ldap.message.EntryChangeControl;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.MessageDecoder;
-import org.apache.directory.shared.ldap.message.MessageEncoder;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.PersistentSearchControl;
-import org.apache.directory.shared.ldap.message.Request;
-import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.message.ResultResponse;
-import org.apache.directory.shared.ldap.message.ResultResponseRequest;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.SubentriesControl;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
-import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
+import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
@@ -88,6 +38,9 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.handler.demux.MessageHandler;
 import org.apache.mina.util.SessionLog;
+
+import javax.naming.Context;
+import java.util.*;
 
 
 /**
@@ -106,15 +59,16 @@ public class LdapProtocolProvider
     /** the constant service name of this ldap protocol provider **/
     public static final String SERVICE_NAME = "ldap";
     /** a map of the default request object class name to the handler class name */
-    private static final Map DEFAULT_HANDLERS;
+    private static final Map<String,Class> DEFAULT_HANDLERS;
     /** a set of supported controls */
     private static final Set SUPPORTED_CONTROLS;
     /** configuration for the LDAP protocol provider **/
     private LdapConfiguration cfg;
+    private DirectoryService directoryService;
 
     static
     {
-        Map<Object, Object> map = new HashMap<Object, Object>();
+        Map<String, Class> map = new HashMap<String, Class>();
 
         /*
          * Note:
@@ -184,20 +138,23 @@ public class LdapProtocolProvider
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
      */
-    public LdapProtocolProvider( LdapConfiguration cfg, Hashtable env) throws LdapNamingException
+    public LdapProtocolProvider( DirectoryService directoryService, LdapConfiguration cfg, Hashtable env )
+            throws LdapNamingException
     {
         this.cfg = cfg;
+        this.directoryService = directoryService;
 
         Hashtable copy = ( Hashtable ) env.clone();
         copy.put( Context.PROVIDER_URL, "" );
+        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        copy.put( DirectoryService.JNDI_KEY, directoryService );
+
         SessionRegistry.releaseSingleton();
         new SessionRegistry( cfg, copy );
 
-        Iterator requestTypes = DEFAULT_HANDLERS.keySet().iterator();
-        while ( requestTypes.hasNext() )
+        for ( String type : DEFAULT_HANDLERS.keySet() )
         {
-            MessageHandler handler = null;
-            String type = ( String ) requestTypes.next();
+            MessageHandler handler;
             Class clazz = null;
 
             if ( copy.containsKey( type ) )
@@ -225,6 +182,12 @@ public class LdapProtocolProvider
             {
                 Class typeClass = Class.forName( type );
                 handler = ( MessageHandler ) clazz.newInstance();
+
+                if ( handler instanceof BindHandler )
+                {
+                    ( ( BindHandler ) handler ).setDirectoryService( directoryService );
+                }
+
                 this.handler.addMessageHandler( typeClass, handler );
             }
             catch ( Exception e )

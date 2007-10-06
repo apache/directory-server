@@ -20,9 +20,13 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
 
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -33,13 +37,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 
 /**
@@ -53,7 +53,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 {
     /**
      * Cleans up old database files on creation.
-     * @throws IOException
+     * @throws IOException if we cannot delete some working directories
      */
     public SimpleAuthenticationITest() throws IOException
     {
@@ -138,7 +138,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void test3UseAkarasulu() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -179,10 +180,12 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
     {
         // clean out the database
         tearDown();
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
+        service.setAllowAnonymousAccess( false );
+        service.startup();
 
-        configuration.setAllowAnonymousAccess( false );
         try
         {
             setContextRoots( env );
@@ -194,17 +197,18 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         tearDown();
 
         // ok this should start up the system now as admin
-        env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        configuration.setAllowAnonymousAccess( true );
+        service.setAllowAnonymousAccess( true );
+        service.startup();
 
         setContextRoots( env );
         assertNotNull( sysRoot );
 
-        // now go in as anonymous user and we should be wh
+        // now go in as anonymous user and we should be ok
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-
         InitialLdapContext initial = new InitialLdapContext( env, null );
 
         try
@@ -236,9 +240,11 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        service.startup();
 
         try
         {
@@ -265,9 +271,11 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         // clean out the database
         tearDown();
         doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
+        service.startup();
 
         try
         {
@@ -288,7 +296,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      */
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -306,7 +315,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      */
     public void test10TestNonAdminUser() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -318,7 +328,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void test11InvalidateCredentialCache() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -392,7 +403,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void testSHA() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -444,7 +456,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void testSSHA() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -494,9 +507,11 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
     }
 
+
     public void testMD5() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -546,9 +561,11 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
     }
 
+
     public void testSMD5() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -600,7 +617,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
     public void testCRYPT() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, super.service );
         env.put( Context.PROVIDER_URL, "ou=system" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -651,12 +669,14 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
     }
     
     /**
-     * @see https://issues.apache.org/jira/browse/DIRSERVER-1001
+     * @see <a ref="https://issues.apache.org/jira/browse/DIRSERVER-1001"/>
+     * @throws NamingException on errors
      */
     public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
     {
         // bind as akarasulu
-        Hashtable<String,Object> envUser = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> envUser = new Hashtable<String,Object>();
+        envUser.put( DirectoryService.JNDI_KEY, super.service );
         envUser.put( Context.PROVIDER_URL, "ou=system" );
         envUser.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
         envUser.put( Context.SECURITY_CREDENTIALS, "test" );
@@ -666,7 +686,8 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         idcUser.close();
         
         // bind as admin
-        Hashtable<String,Object> envAdmin = new Hashtable<String,Object>( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> envAdmin = new Hashtable<String,Object>();
+        envAdmin.put( DirectoryService.JNDI_KEY, super.service );
         envAdmin.put( Context.PROVIDER_URL, "ou=system" );
         envAdmin.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         envAdmin.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -684,7 +705,7 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         envUser.put( Context.SECURITY_CREDENTIALS, "test" );
         try
         {
-            idcUser = new InitialDirContext( envUser );
+            new InitialDirContext( envUser );
             fail( "Authentication with old password should fail" );
         }
         catch ( NamingException e )

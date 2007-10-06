@@ -20,7 +20,17 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.exception.LdapException;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.mina.common.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -33,17 +43,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.sasl.AuthorizeCallback;
 import javax.security.sasl.RealmCallback;
-
-import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.MutableControl;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
-import org.apache.mina.common.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Hashtable;
 
 
 /**
@@ -62,6 +62,13 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
     private String username;
     private String realm;
+
+
+    protected AbstractSaslCallbackHandler( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
 
 
     /**
@@ -85,6 +92,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         return realm;
     }
 
+    protected final DirectoryService directoryService;
 
     /**
      * Implementors set the password based on a lookup, using the username and
@@ -212,6 +220,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             else
             {
                 MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
+                env.put( DirectoryService.JNDI_KEY, directoryService );
                 ctx = new InitialLdapContext( env, connCtls );
             }
         }

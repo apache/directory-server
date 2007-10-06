@@ -19,15 +19,7 @@
  */
 package org.apache.directory.server.core.authz;
 
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -36,6 +28,7 @@ import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -44,14 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Name;
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
 
 
 /**
@@ -63,10 +52,10 @@ import javax.naming.directory.SearchResult;
 public class GroupCache
 {
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( GroupCache.class );
+    private static final Logger LOG = LoggerFactory.getLogger( GroupCache.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** String key for the DN of a group to a Set (HashSet) for the Strings of member DNs */
     private final Map<String, Set<String>> groups = new HashMap<String, Set<String>>();
@@ -77,9 +66,6 @@ public class GroupCache
     /** the env to use for searching */
     private final Map<?, ?> env;
 
-    /** Stores a reference to the AttributeType registry */ 
-    private AttributeTypeRegistry attributeTypeRegistry;
-    
     /** A storage for the member attributeType */
     private AttributeType memberAT;
 
@@ -99,14 +85,15 @@ public class GroupCache
     /**
      * Creates a static group cache.
      *
-     * @param factoryCfg the context factory configuration for the server
+     * @param directoryService the directory service core
+     * @throws NamingException if there are failures on initialization 
      */
-    public GroupCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public GroupCache( DirectoryService directoryService ) throws NamingException
     {
-    	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        nexus = factoryCfg.getPartitionNexus();
-        env = ( Map<?, ?> ) factoryCfg.getEnvironment().clone();
-        attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+    	normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        nexus = directoryService.getPartitionNexus();
+        env = ( Map<?, ?> ) directoryService.getEnvironment().clone();
+        AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         
         memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID ); 
         uniqueMemberAT = attributeTypeRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
@@ -160,7 +147,7 @@ public class GroupCache
                 }
                 else
                 {
-                    log.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getUpName() );
+                    LOG.warn( "Found group '{}' without any member or uniqueMember attributes", groupDn.getUpName() );
                 }
             }
             
@@ -169,7 +156,7 @@ public class GroupCache
 
         if ( IS_DEBUG )
         {
-            log.debug( "group cache contents on startup:\n {}", groups );
+            LOG.debug( "group cache contents on startup:\n {}", groups );
         }
     }
 
@@ -240,7 +227,7 @@ public class GroupCache
             }
             catch ( NamingException e )
             {
-                log.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
+                LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not added to GroupCache.", e );
             }
 
             memberSet.add( memberDn );
@@ -268,7 +255,7 @@ public class GroupCache
             }
             catch ( NamingException e )
             {
-                log.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
+                LOG.warn( "Malformed member DN in groupOf[Unique]Names entry.  Member not removed from GroupCache.", e );
             }
 
             memberSet.remove( memberDn );
@@ -280,8 +267,7 @@ public class GroupCache
      * Adds a groups members to the cache.  Called by interceptor to account for new
      * group additions.
      *
-     * @param upName the user provided name for the group entry
-     * @param normName the normalized name for the group entry
+     * @param name the user provided name for the group entry
      * @param entry the group entry's attributes
      * @throws NamingException if there are problems accessing the attr values
      */
@@ -300,7 +286,7 @@ public class GroupCache
         
         if ( IS_DEBUG )
         {
-            log.debug( "group cache contents after adding '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after adding '{}' :\n {}", name.getUpName(), groups );
         }
     }
 
@@ -325,7 +311,7 @@ public class GroupCache
         
         if ( IS_DEBUG )
         {
-            log.debug( "group cache contents after deleting '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after deleting '{}' :\n {}", name.getUpName(), groups );
         }
     }
 
@@ -376,7 +362,7 @@ public class GroupCache
      * @param entry the group entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, List<ModificationItem> mods, Attributes entry ) throws NamingException
+    public void groupModified( LdapDN name, List<ModificationItemImpl> mods, Attributes entry ) throws NamingException
     {
         Attribute members = null;
         String memberAttrId = null;
@@ -418,7 +404,7 @@ public class GroupCache
         
         if ( IS_DEBUG )
         {
-            log.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
         }
     }
 
@@ -430,10 +416,9 @@ public class GroupCache
      * @param name the normalized name of the group entry modified
      * @param modOp the modify operation being performed
      * @param mods the modifications being performed
-     * @param entry the entry being modified
      * @throws NamingException if there are problems accessing attribute  values
      */
-    public void groupModified( LdapDN name, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void groupModified( LdapDN name, int modOp, Attributes mods ) throws NamingException
     {
         Attribute members = getMemberAttribute( mods );
 
@@ -451,7 +436,7 @@ public class GroupCache
         
         if ( IS_DEBUG )
         {
-            log.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
+            LOG.debug( "group cache contents after modifying '{}' :\n {}", name.getUpName(), groups );
         }
     }
 
@@ -474,7 +459,7 @@ public class GroupCache
         
         if ( members == null )
         {
-            log.warn( "What do you mean there is no administrators group? This is bad news." );
+            LOG.warn( "What do you mean there is no administrators group? This is bad news." );
             return false;
         }
         
@@ -492,7 +477,7 @@ public class GroupCache
      */
     public Set<Name> getGroups( String member ) throws NamingException
     {
-    	LdapDN normMember = null;
+    	LdapDN normMember;
     	
         try
         {
@@ -500,7 +485,7 @@ public class GroupCache
         }
         catch ( NamingException e )
         {
-            log.warn( "Malformed member DN.  Could not find groups for member '{}' in GroupCache. Returning empty set for groups!", member, e );
+            LOG.warn( "Malformed member DN.  Could not find groups for member '{}' in GroupCache. Returning empty set for groups!", member, e );
             return EMPTY_GROUPS;
         }
 
@@ -545,7 +530,7 @@ public class GroupCache
             
             if ( IS_DEBUG )
             {
-                log.debug( "group cache contents after renaming '{}' :\n{}", oldName.getUpName(), groups );
+                LOG.debug( "group cache contents after renaming '{}' :\n{}", oldName.getUpName(), groups );
             }
             
             return true;

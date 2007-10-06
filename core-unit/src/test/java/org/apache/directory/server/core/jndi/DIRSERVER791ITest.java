@@ -19,22 +19,16 @@
  */
 package org.apache.directory.server.core.jndi;
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.SchemaViolationException;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.Hashtable;
 
 /**
  * A test case which demonstrates the three defects described in DIRSERVER-791.
@@ -45,6 +39,7 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
 {
     /**
      * Returns the attributes as depicted as test data in DIRSERVER-791
+     * @return attributes for the test entry
      */
     protected Attributes getTestEntryAttributes() {
 
@@ -74,14 +69,18 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         sysRoot.createSubcontext("cn=test", entry);
     }
 
+    
     /**
      * Demonstrates that removal of a value from RDN attribute which is not part
      * of the RDN is not possible.
+     *
+     * @throws NamingException on error
      */
     public void testDefect1a() throws NamingException 
     {
 
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -98,13 +97,17 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         assertFalse( cn.contains("aaa") );
     }
 
+
     /**
      * Checks whether it is possible to replace the cn attribute with a single
      * value. The JIRA issue states that this one works.
+     *
+     * @throws NamingException on error
      */
     public void testDefect1b() throws NamingException 
     {
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -122,14 +125,18 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         assertFalse(cn.contains("aaa"));
     }
 
+
     /**
      * It is possible to add an value to objectclass, which isn't a valid
      * objectclass. The server returns an error, but nevertheless the invalid
      * value is stored. I think this should be rejected from server.
+     *
+     * @throws NamingException on error
      */
     public void testDefect2() throws NamingException 
     {
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -168,13 +175,17 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         assertFalse(ocls.contains("test"));
     }
 
+
     /**
      * It is possible to add an attribute to the entry that is not allowed
      * according the objectclasses. The server should reject this.
+     *
+     * @throws NamingException on error
      */
     public void testDefect3() throws NamingException 
     {
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 

@@ -20,26 +20,8 @@
 
 package org.apache.directory.server.core.trigger;
 
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -47,14 +29,20 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecification;
 import org.apache.directory.shared.ldap.trigger.TriggerSpecificationParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.text.ParseException;
+import java.util.*;
 
 
 /**
@@ -71,7 +59,7 @@ public class TriggerSpecCache
     private static final String PRESCRIPTIVE_TRIGGER_ATTR = "prescriptiveTriggerSpecification";
 
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( TriggerSpecCache.class );
+    private static final Logger LOG = LoggerFactory.getLogger( TriggerSpecCache.class );
 
     /** a map of strings to TriggerSpecification collections */
     private final Map<String, List<TriggerSpecification>> triggerSpecs = new HashMap<String, List<TriggerSpecification>>();
@@ -84,12 +72,13 @@ public class TriggerSpecCache
     /**
      * Creates a TriggerSpecification cache.
      *
-     * @param dirServCfg the context factory configuration for the server
+     * @param directoryService the directory service core
+     * @throws NamingException with problems initializing cache
      */
-    public TriggerSpecCache( DirectoryServiceConfiguration dirServCfg ) throws NamingException
+    public TriggerSpecCache( DirectoryService directoryService ) throws NamingException
     {
-        this.nexus = dirServCfg.getPartitionNexus();
-        final AttributeTypeRegistry registry = dirServCfg.getRegistries().getAttributeTypeRegistry();
+        this.nexus = directoryService.getPartitionNexus();
+        final AttributeTypeRegistry registry = directoryService.getRegistries().getAttributeTypeRegistry();
         triggerSpecParser = new TriggerSpecificationParser( new NormalizerMappingResolver()
             {
                 public Map<String, OidNormalizer> getNormalizerMapping() throws NamingException
@@ -97,9 +86,8 @@ public class TriggerSpecCache
                     return registry.getNormalizerMapping();
                 }
             });
-        
-        Hashtable<String, Object> env = ( Hashtable<String, Object> ) dirServCfg.getEnvironment().clone();
-        initialize(registry, env);
+        Hashtable env = ( Hashtable ) directoryService.getEnvironment().clone();
+        initialize( registry, env );
     }
 
 
@@ -129,7 +117,7 @@ public class TriggerSpecCache
                 
                 if ( triggerSpec == null )
                 {
-                    log.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
+                    LOG.warn( "Found triggerExecutionSubentry '" + subentryDn + "' without any " + PRESCRIPTIVE_TRIGGER_ATTR );
                     continue;
                 }
 
@@ -146,13 +134,9 @@ public class TriggerSpecCache
     private boolean hasPrescriptiveTrigger( Attributes entry )
     {
         // only do something if the entry contains prescriptiveTrigger
-        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );       
-        
-        if ( triggerSpec == null )
-        {
-            return false;
-        }
-        return true;
+        Attribute triggerSpec = entry.get( PRESCRIPTIVE_TRIGGER_ATTR );
+
+        return triggerSpec != null;
     }
 
 
@@ -180,7 +164,7 @@ public class TriggerSpecCache
             catch ( ParseException e )
             {
                 String msg = "TriggerSpecification parser failure on '" + item + "'. Cannnot add Trigger Specificaitons to TriggerSpecCache.";
-                log.error( msg, e );
+                LOG.error( msg, e );
             }
             
         }
@@ -208,11 +192,11 @@ public class TriggerSpecCache
         }
 
         LdapDN normName = opContext.getDn();
-        List<ModificationItem> mods = opContext.getModItems();
+        List<ModificationItemImpl> mods = opContext.getModItems();
 
         boolean isTriggerSpecModified = false;
-        
-        for ( ModificationItem mod:mods )
+
+        for ( ModificationItemImpl mod : mods )
         {
             isTriggerSpecModified |= mod.getAttribute().contains( PRESCRIPTIVE_TRIGGER_ATTR );
         }

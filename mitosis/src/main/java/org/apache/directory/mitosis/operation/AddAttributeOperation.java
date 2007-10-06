@@ -20,19 +20,18 @@
 package org.apache.directory.mitosis.operation;
 
 
-import java.util.List;
+import org.apache.directory.mitosis.common.CSN;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.mitosis.common.CSN;
+import java.util.List;
 
 
 /**
@@ -66,7 +65,7 @@ public class AddAttributeOperation extends AttributeOperation
     {
         Attributes attrs = new AttributesImpl( true );
         attrs.put( getAttribute() );
-        List<ModificationItem> items = ModifyOperationContext.createModItems( attrs, DirContext.ADD_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attrs, DirContext.ADD_ATTRIBUTE );
         nexus.modify( new ModifyOperationContext( getName(), items ) );
     }
 }

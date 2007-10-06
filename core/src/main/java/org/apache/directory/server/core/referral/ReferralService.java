@@ -20,25 +20,7 @@
 package org.apache.directory.server.core.referral;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authz.AuthorizationService;
 import org.apache.directory.server.core.authz.DefaultAuthorizationService;
@@ -48,17 +30,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumera
 import org.apache.directory.server.core.event.EventService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -80,6 +52,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -88,10 +61,16 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
+
 
 /**
  * An service which is responsible referral handling behavoirs.  It manages 
- * referral handling behavoir when the {@link Context.REFERRAL} is implicitly
+ * referral handling behavoir when the {@link Context#REFERRAL} is implicitly
  * or explicitly set to "ignore", when set to "throw" and when set to "follow". 
  * 
  * @org.apache.xbean.XBean
@@ -101,7 +80,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReferralService extends BaseInterceptor
 {
-    private static final Logger log = LoggerFactory.getLogger( ReferralService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReferralService.class );
     private static final String IGNORE = "ignore";
     private static final String THROW_FINDING_BASE = "throw-finding-base";
     private static final String THROW = "throw";
@@ -167,7 +146,7 @@ public class ReferralService extends BaseInterceptor
         
         if ( oc == null )
         {
-            log.warn( "could not find objectClass attribute in entry: " + entry );
+            LOG.warn( "could not find objectClass attribute in entry: " + entry );
             return false;
         }
         
@@ -185,7 +164,7 @@ public class ReferralService extends BaseInterceptor
             	{
             		// very unlikely, as we have already checked the entry in SchemaService
             		String message = "An entry with a 'referral' ObjectClass must contains a 'ref' Attribute";
-            		log.error( message );
+            		LOG.error( message );
             		throw new NamingException( message );
             	}
             	
@@ -217,35 +196,35 @@ public class ReferralService extends BaseInterceptor
             					// Let's assume that it's incorrect if we get something
             					// else in the LdapURL
             					String message = "An LDAPURL should not contains a scope";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             				
             				if ( !StringTools.isEmpty( ldapUrl.getFilter() ) )
             				{
             					String message = "An LDAPURL should not contains filters";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             				
             				if ( ( ldapUrl.getAttributes() != null ) && ( ldapUrl.getAttributes().size() != 0 ) )
             				{
             					String message = "An LDAPURL should not contains any description attribute list";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             				
             				if ( ( ldapUrl.getExtensions() != null ) && ( ldapUrl.getExtensions().size() != 0 ) )
             				{
             					String message = "An LDAPURL should not contains any extension";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             				
             				if ( ( ldapUrl.getCriticalExtensions() != null ) && ( ldapUrl.getCriticalExtensions().size() != 0 ) )
             				{
             					String message = "An LDAPURL should not contains any critical extension";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             				
@@ -254,7 +233,7 @@ public class ReferralService extends BaseInterceptor
             				if ( ( dn == null ) || dn.isEmpty() )
             				{
             					String message = "An LDAPURL should contains a non-empty DN";
-            					log.error( message );
+            					LOG.error( message );
             					throw new NamingException( message );
             				}
             			}
@@ -262,13 +241,12 @@ public class ReferralService extends BaseInterceptor
             			{
             				// Either the URL is invalid, or it's not a LDAP URL.
             				// we will just ignore this LdapURL.
-            				continue;
-            			}
+                        }
             		}
             		else
             		{
             			String message = "Invalid referral value, it should be a String";
-            			log.error( message );
+            			LOG.error( message );
             			throw new NamingException( message );
             		}
             	}
@@ -280,12 +258,12 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    public void init(DirectoryServiceConfiguration dsConfig) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        nexus = dsConfig.getPartitionNexus();
-        attrRegistry = dsConfig.getRegistries().getAttributeTypeRegistry();
-        oidRegistry = dsConfig.getRegistries().getOidRegistry();
-        env = dsConfig.getEnvironment();
+        nexus = directoryService.getPartitionNexus();
+        attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        oidRegistry = directoryService.getRegistries().getOidRegistry();
+        env = directoryService.getEnvironment();
 
         Iterator<String> suffixes = nexus.listSuffixes( null );
         
@@ -323,7 +301,7 @@ public class ReferralService extends BaseInterceptor
             }
             catch ( LdapURLEncodingException e )
             {
-                log.error( "Bad URL (" + val + ") for ref in " + farthest + ".  Reference will be ignored." );
+                LOG.error( "Bad URL (" + val + ") for ref in " + farthest + ".  Reference will be ignored." );
             }
 
             LdapDN urlDn = new LdapDN( ldapUrl.getDn().toNormName() );
@@ -375,9 +353,8 @@ public class ReferralService extends BaseInterceptor
             buf.append( LdapURL.urlEncode( urlDn.getUpName(), false ) );
             list.add( buf.toString() );
         }
-        
-        LdapReferralException lre = new LdapReferralException( list );
-        throw lre;
+
+        throw new LdapReferralException( list );
     }
 
 
@@ -398,8 +375,6 @@ public class ReferralService extends BaseInterceptor
             {
                 lut.referralAdded( name );
             }
-            
-            return;
         }
         else if ( refval.equals( THROW ) )
         {
@@ -766,7 +741,7 @@ public class ReferralService extends BaseInterceptor
     }
 
 
-    private void checkModify( LdapDN name, List<ModificationItem> mods ) throws NamingException
+    private void checkModify( LdapDN name, List<ModificationItemImpl> mods ) throws NamingException
     {
         boolean isTargetReferral = lut.isReferral( name );
 
@@ -774,7 +749,7 @@ public class ReferralService extends BaseInterceptor
         // Check and update lut if we change the objectClass 
         // -------------------------------------------------------------------
 
-        for ( ModificationItem mod:mods )
+        for ( ModificationItem mod : mods )
         {
             if ( mod.getAttribute().getID().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT ) )
             {
@@ -786,35 +761,35 @@ public class ReferralService extends BaseInterceptor
                      * if ADD op where refferal is added to objectClass of a
                      * non-referral entry then we add a new referral to lut
                      */
-                    case ( DirContext.ADD_ATTRIBUTE  ):
+                    case ( DirContext.ADD_ATTRIBUTE ):
                         if ( modsOcHasReferral && !isTargetReferral )
                         {
                             lut.referralAdded( name );
                         }
                     
                         break;
-                        
-                    /* 
-                     * if REMOVE op where refferal is removed from objectClass of a
-                     * referral entry then we remove the referral from lut
-                     */
-                    case ( DirContext.REMOVE_ATTRIBUTE  ):
+
+                        /*
+                        * if REMOVE op where refferal is removed from objectClass of a
+                        * referral entry then we remove the referral from lut
+                        */
+                    case ( DirContext.REMOVE_ATTRIBUTE ):
                         if ( modsOcHasReferral && isTargetReferral )
                         {
                             lut.referralDeleted( name );
                         }
                     
                         break;
-                        
-                    /* 
-                     * if REPLACE op on referral has new set of OC values which does 
-                     * not contain a referral value then we remove the referral from 
-                     * the lut
-                     * 
-                     * if REPLACE op on non-referral has new set of OC values with 
-                     * referral value then we add the new referral to the lut
-                     */
-                    case ( DirContext.REPLACE_ATTRIBUTE  ):
+
+                        /*
+                        * if REPLACE op on referral has new set of OC values which does
+                        * not contain a referral value then we remove the referral from
+                        * the lut
+                        *
+                        * if REPLACE op on non-referral has new set of OC values with
+                        * referral value then we add the new referral to the lut
+                        */
+                    case ( DirContext.REPLACE_ATTRIBUTE ):
                         if ( isTargetReferral && !modsOcHasReferral )
                         {
                             lut.referralDeleted( name );
@@ -825,7 +800,7 @@ public class ReferralService extends BaseInterceptor
                         }
                     
                         break;
-                        
+
                     default:
                         throw new IllegalStateException( "undefined modification operation" );
                 }
@@ -842,7 +817,7 @@ public class ReferralService extends BaseInterceptor
         ServerLdapContext caller = ( ServerLdapContext ) invocation.getCaller();
         String refval = ( String ) caller.getEnvironment().get( Context.REFERRAL );
         LdapDN name = opContext.getDn();
-        List<ModificationItem> mods = opContext.getModItems();
+        List<ModificationItemImpl> mods = opContext.getModItems();
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )
@@ -932,7 +907,7 @@ public class ReferralService extends BaseInterceptor
         while ( referrals.hasMore() )
         {   
             SearchResult r = referrals.next();
-            LdapDN referral = null;
+            LdapDN referral;
             LdapDN result = new LdapDN( r.getName() );
             result.normalize( attrRegistry.getNormalizerMapping() );
             
@@ -941,11 +916,7 @@ public class ReferralService extends BaseInterceptor
                 referral = ( LdapDN ) base.clone();
                 referral.addAll( result );
             }
-            else
-            {
-                referral = result;
-            }
-            
+
             // Now, add the referral to the cache
             lut.referralAdded( result );
         }
@@ -957,7 +928,7 @@ public class ReferralService extends BaseInterceptor
         while ( referrals.hasMore() )
         {
             SearchResult r = referrals.next();
-            LdapDN referral = null;
+            LdapDN referral;
             LdapDN result = new LdapDN( r.getName() );
             result.normalize( attrRegistry.getNormalizerMapping() );
 
@@ -965,10 +936,6 @@ public class ReferralService extends BaseInterceptor
             {
                 referral = ( LdapDN ) base.clone();
                 referral.addAll( result );
-            }
-            else
-            {
-                referral = result;
             }
             
             // Now, remove the referral from the cache
@@ -1089,7 +1056,7 @@ public class ReferralService extends BaseInterceptor
             }
             catch ( LdapURLEncodingException e )
             {
-                log.error( "Bad URL (" + val + ") for ref in " + base + ".  Reference will be ignored." );
+                LOG.error( "Bad URL (" + val + ") for ref in " + base + ".  Reference will be ignored." );
             }
 
             StringBuilder buf = new StringBuilder();
@@ -1126,9 +1093,8 @@ public class ReferralService extends BaseInterceptor
 
             list.add( buf.toString() );
         }
-        
-        LdapReferralException lre = new LdapReferralException( list );
-        throw lre;
+
+        throw new LdapReferralException( list );
     }
 
 
@@ -1158,7 +1124,7 @@ public class ReferralService extends BaseInterceptor
             }
             catch ( LdapURLEncodingException e )
             {
-                log.error( "Bad URL (" + val + ") for ref in " + farthest + ".  Reference will be ignored." );
+                LOG.error( "Bad URL (" + val + ") for ref in " + farthest + ".  Reference will be ignored." );
             }
 
             LdapDN urlDn = new LdapDN( ldapUrl.getDn().toNormName() );
@@ -1207,9 +1173,8 @@ public class ReferralService extends BaseInterceptor
             
             list.add( buf.toString() );
         }
-        
-        LdapReferralException lre = new LdapReferralException( list );
-        throw lre;
+
+        throw new LdapReferralException( list );
     }
 
     /**

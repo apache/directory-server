@@ -20,24 +20,23 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
 
 
 /**
@@ -48,6 +47,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  */
 public class RootDSEITest extends TestCase
 {
+    private static final Logger LOG = LoggerFactory.getLogger( RootDSEITest.class );
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
@@ -67,8 +67,9 @@ public class RootDSEITest extends TestCase
 
 
     /**
-     * Deletes the Eve working directory.
+     * Deletes the servers working directory.
      *
+     * @param wkdir the working directory to delete
      * @throws java.io.IOException if there are failures while deleting.
      */
     protected void doDelete( File wkdir ) throws IOException
@@ -77,34 +78,16 @@ public class RootDSEITest extends TestCase
         {
             if ( wkdir.exists() )
             {
-                FileUtils.deleteDirectory( wkdir );
+                try
+                {
+                    FileUtils.deleteDirectory( wkdir );
+                }
+                catch ( IOException e )
+                {
+                    LOG.error( "Failed to delete the working directory: {}" + wkdir, e );
+                    throw e;
+                }
             }
-        }
-    }
-
-
-    /**
-     * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
-
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-        try
-        {
-            new InitialContext( env );
-        }
-        catch ( Exception e )
-        {
         }
     }
 
@@ -117,11 +100,12 @@ public class RootDSEITest extends TestCase
      */
     public void testGetInitialContext() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -130,6 +114,7 @@ public class RootDSEITest extends TestCase
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
+        service.shutdown();
     }
 
 
@@ -141,11 +126,13 @@ public class RootDSEITest extends TestCase
      */
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -153,15 +140,14 @@ public class RootDSEITest extends TestCase
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         InitialContext initCtx = new InitialContext( env );
-
         assertNotNull( initCtx );
 
         DirContext ctx = ( DirContext ) initCtx.lookup( "" );
-
         Attributes attributes = ctx.getAttributes( "" );
 
         // Added some objectClass attributes to the rootDSE
         assertEquals( 1, attributes.size() );
+        service.shutdown();
     }
 
 
@@ -172,11 +158,13 @@ public class RootDSEITest extends TestCase
      */
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -192,6 +180,7 @@ public class RootDSEITest extends TestCase
         assertEquals( 2, attributes.size() );
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
+        service.shutdown();
     }
 
 
@@ -202,11 +191,13 @@ public class RootDSEITest extends TestCase
      */
     public void testDelete() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -229,6 +220,7 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
+        service.shutdown();
     }
 
 
@@ -239,10 +231,13 @@ public class RootDSEITest extends TestCase
      */
     public void testRename() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -265,6 +260,7 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
+        service.shutdown();
     }
 
 
@@ -275,11 +271,13 @@ public class RootDSEITest extends TestCase
      */
     public void testModify() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -302,6 +300,7 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
+        service.shutdown();
     }
 
 
@@ -312,11 +311,13 @@ public class RootDSEITest extends TestCase
      */
     public void testModify2() throws NamingException
     {
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setShutdownHookEnabled( false );
-        cfg.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        DirectoryService service = new DefaultDirectoryService();
+        service.setShutdownHookEnabled( false );
+        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
+        service.startup();
 
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
@@ -344,5 +345,6 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
+        service.shutdown();
     }
 }

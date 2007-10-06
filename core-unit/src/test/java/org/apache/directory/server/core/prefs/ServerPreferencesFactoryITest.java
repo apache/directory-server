@@ -36,7 +36,7 @@ public class ServerPreferencesFactoryITest extends AbstractAdminTestCase
 {
     public void testSystemRoot()
     {
-        ServerPreferencesFactory factory = new ServerPreferencesFactory();
+        ServerPreferencesFactory factory = new ServerPreferencesFactory( service );
         Preferences prefs = factory.systemRoot();
 
         assertNotNull( prefs );

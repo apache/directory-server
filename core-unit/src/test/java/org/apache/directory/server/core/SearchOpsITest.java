@@ -74,7 +74,7 @@ public class SearchOpsITest extends AbstractAdminTestCase
             indices.addAll( partition.getIndexedAttributes() );
             indices.add( new JdbmIndex( "gidNumber" ) );
             partition.setIndexedAttributes( indices );
-            configuration.setSystemPartition( partition );
+            service.setSystemPartition( partition );
         }
         
         super.setUp();
@@ -115,6 +115,11 @@ public class SearchOpsITest extends AbstractAdminTestCase
     /**
      *  Convenience method that performs a one level search using the 
      *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param controls the search controls
+     * @param filter the filter expression
+     * @return the set of groups
+     * @throws NamingException if there are problems conducting the search
      */
     public Set<String> searchGroups( String filter, SearchControls controls ) throws NamingException
     {
@@ -139,8 +144,12 @@ public class SearchOpsITest extends AbstractAdminTestCase
     /**
      *  Convenience method that performs a one level search using the 
      *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param filter the filter expression
+     * @return the set of group names
+     * @throws NamingException if there are problems conducting the search
      */
-    public Set searchGroups( String filter ) throws NamingException
+    public Set<String> searchGroups( String filter ) throws NamingException
     {
         return searchGroups( filter, null );
     }

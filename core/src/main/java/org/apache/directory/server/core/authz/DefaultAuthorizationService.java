@@ -20,34 +20,13 @@
 package org.apache.directory.server.core.authz;
 
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -64,6 +43,19 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NoPermissionException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * An {@link Interceptor} that controls access to {@link PartitionNexus}.
@@ -79,7 +71,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultAuthorizationService extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( DefaultAuthorizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultAuthorizationService.class );
 
     /**
      * the base distinguished {@link Name} for all users
@@ -107,9 +99,6 @@ public class DefaultAuthorizationService extends BaseInterceptor
     private Map<String, OidNormalizer> normalizerMapping;
     
     private PartitionNexus nexus;
-    
-    /** attribute type registry */
-    private AttributeTypeRegistry attrRegistry;
 
     /** A starage for the uniqueMember attributeType */
     private AttributeType uniqueMemberAT;
@@ -123,13 +112,13 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
 
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        nexus = factoryCfg.getPartitionNexus();
-        normalizerMapping = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        nexus = directoryService.getPartitionNexus();
+        normalizerMapping = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
 
         // disable this static module if basic access control mechanisms are enabled
-        enabled = !factoryCfg.getStartupConfiguration().isAccessControlEnabled();
+        enabled = ! directoryService.isAccessControlEnabled();
         
         USER_BASE_DN = PartitionNexus.getUsersBaseName();
         USER_BASE_DN.normalize( normalizerMapping );
@@ -139,8 +128,8 @@ public class DefaultAuthorizationService extends BaseInterceptor
      
         ADMIN_GROUP_DN = new LdapDN( ServerDNConstants.ADMINISTRATORS_GROUP_DN );
         ADMIN_GROUP_DN.normalize( normalizerMapping );
-        
-        attrRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+
+        AttributeTypeRegistry attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         
         uniqueMemberAT = attrRegistry.lookup( SchemaConstants.UNIQUE_MEMBER_AT_OID );
         
@@ -191,14 +180,14 @@ public class DefaultAuthorizationService extends BaseInterceptor
         if ( name.isEmpty() )
         {
             String msg = "The rootDSE cannot be deleted!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( name.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
         {
             String msg = "The Administrators group cannot be deleted!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
@@ -207,7 +196,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             String msg = "User " + principalDn.getUpName();
             msg += " does not have permission to delete the admin account.";
             msg += " No one not even the admin can delete this account!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
@@ -220,7 +209,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     String msg = "User " + principalDn.getUpName();
                     msg += " does not have permission to delete the user account: ";
                     msg += name.getUpName() + ". Only the admin can delete user accounts.";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
         
@@ -229,7 +218,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     String msg = "User " + principalDn.getUpName();
                     msg += " does not have permission to delete the group entry: ";
                     msg += name.getUpName() + ". Only the admin can delete groups.";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
             }
@@ -239,20 +228,16 @@ public class DefaultAuthorizationService extends BaseInterceptor
     }
 
     
-    private final boolean isTheAdministrator( LdapDN normalizedDn )
+    private boolean isTheAdministrator( LdapDN normalizedDn )
     {
         return normalizedDn.getNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
     }
     
     
-    private final boolean isAnAdministrator( LdapDN normalizedDn )
+    private boolean isAnAdministrator( LdapDN normalizedDn )
     {
-        if ( isTheAdministrator( normalizedDn ) )
-        {
-            return true;
-        }
-        
-        return administrators.contains( normalizedDn.getNormName() );
+        return isTheAdministrator( normalizedDn ) || administrators.contains( normalizedDn.getNormName() );
+
     }
     
 
@@ -296,7 +281,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
         if ( dn.isEmpty() )
         {
             String msg = "The rootDSE cannot be modified!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
@@ -313,7 +298,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 String msg = "User " + principalDn.getUpName();
                 msg += " does not have permission to modify the account of the";
                 msg += " admin user.";
-                log.error( msg );
+                LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
 
@@ -326,7 +311,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     msg += " user " + dn.getUpName() + ".\nEven the owner of an account cannot";
                     msg += " modify it.\nUser accounts can only be modified by the";
                     msg += " administrator.";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
     
@@ -335,7 +320,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     String msg = "User " + principalDn.getUpName();
                     msg += " does not have permission to modify the group entry ";
                     msg += dn.getUpName() + ".\nGroups can only be modified by the admin.";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
             }
@@ -393,14 +378,14 @@ public class DefaultAuthorizationService extends BaseInterceptor
         if ( dn.isEmpty() )
         {
             String msg = "The rootDSE cannot be moved or renamed!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
         if ( dn.getNormName().equals( ADMIN_GROUP_DN.getNormName() ) )
         {
             String msg = "The Administrators group cannot be moved or renamed!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
         
@@ -410,7 +395,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             msg += "' does not have permission to move or rename the admin";
             msg += " account.  No one not even the admin can move or";
             msg += " rename " + dn.getUpName() + "!";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
@@ -420,7 +405,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             msg += "' does not have permission to move or rename the user";
             msg += " account: " + dn.getUpName() + ". Only the admin can move or";
             msg += " rename user accounts.";
-            log.error( msg );
+            LOG.error( msg );
             throw new LdapNoPermissionException( msg );
         }
 
@@ -468,7 +453,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     String msg = "Access to user account '" + normalizedDn.getUpName() + "' not permitted";
                     msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
                     msg += " access user account information";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
 
@@ -483,7 +468,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                     String msg = "Access to group '" + normalizedDn.getUpName() + "' not permitted";
                     msg += " for user '" + principalDn.getUpName() + "'.  Only the admin can";
                     msg += " access group information";
-                    log.error( msg );
+                    LOG.error( msg );
                     throw new LdapNoPermissionException( msg );
                 }
             }
@@ -499,7 +484,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
                 String msg = "Access to admin account not permitted for user '";
                 msg += principalDn.getUpName() + "'.  Only the admin can";
                 msg += " access admin account information";
-                log.error( msg );
+                LOG.error( msg );
                 throw new LdapNoPermissionException( msg );
             }
         }
@@ -589,11 +574,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
         }
         
         // Non-admin users cannot read the admin entry
-        if ( isTheAdministrator( dn ) )
-        {
-            return false;
-        }
-        
-        return true;
+        return ! isTheAdministrator( dn );
+
     }
 }

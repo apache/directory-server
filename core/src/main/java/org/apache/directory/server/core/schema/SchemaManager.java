@@ -413,7 +413,7 @@ public class SchemaManager
     }
 
 
-    public void modify( LdapDN name, List<ModificationItem> mods, Attributes entry, Attributes targetEntry, 
+    public void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry, Attributes targetEntry,
         boolean doCascadeModify ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
@@ -537,7 +537,7 @@ public class SchemaManager
      * @param subentry the attributes of the subentry
      * @param targetSubentry the target subentry after being modified
      */
-    public void modifySchemaSubentry( LdapDN name, List<ModificationItem> mods, Attributes subentry, 
+    public void modifySchemaSubentry( LdapDN name, List<ModificationItemImpl> mods, Attributes subentry, 
         Attributes targetSubentry, boolean doCascadeModify ) throws NamingException 
     {
         for ( ModificationItem mod : mods )
@@ -913,7 +913,7 @@ public class SchemaManager
         String modifiersName = ctx.getPrincipal().getJndiName().getNormName();
         String modifyTimestamp = DateUtils.getGeneralizedTime();
         
-        List<ModificationItem> mods = new ArrayList<ModificationItem>( 2 );
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 2 );
         
         mods.add( new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, 
             new AttributeImpl( ApacheSchemaConstants.SCHEMA_MODIFY_TIMESTAMP_AT, modifyTimestamp ) ) );

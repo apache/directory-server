@@ -20,13 +20,7 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.security.sasl.SaslException;
-import javax.security.sasl.SaslServer;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -36,6 +30,12 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.sasl.SaslException;
+import javax.security.sasl.SaslServer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -43,29 +43,30 @@ import org.slf4j.LoggerFactory;
  */
 public class HandleSasl implements IoHandlerCommand
 {
-    private static final Logger log = LoggerFactory.getLogger( HandleSasl.class );
+    private static final Logger LOG = LoggerFactory.getLogger( HandleSasl.class );
 
     /**
      * A Hashed Adapter mapping SASL mechanisms to their handlers.
      */
-    private static final Map DEFAULT_HANDLERS;
+    private final Map handlers;
 
-    static
+
+    public HandleSasl( DirectoryService directoryService )
     {
         Map<String, MechanismHandler> map = new HashMap<String, MechanismHandler>();
-        map.put( "CRAM-MD5", new CramMd5MechanismHandler() );
-        map.put( "DIGEST-MD5", new DigestMd5MechanismHandler() );
-        map.put( "GSSAPI", new GssapiMechanismHandler() );
-
-        DEFAULT_HANDLERS = Collections.unmodifiableMap( map );
+        map.put( "CRAM-MD5", new CramMd5MechanismHandler( directoryService ) );
+        map.put( "DIGEST-MD5", new DigestMd5MechanismHandler( directoryService ) );
+        map.put( "GSSAPI", new GssapiMechanismHandler( directoryService ) );
+        handlers = Collections.unmodifiableMap( map );
     }
+
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
 
-        if ( DEFAULT_HANDLERS.containsKey( sessionMechanism ) )
+        if ( handlers.containsKey( sessionMechanism ) )
         {
             SaslServer ss = handleMechanism( sessionMechanism, session, message );
             handleMechanism( ss, next, session, message );
@@ -79,7 +80,7 @@ public class HandleSasl implements IoHandlerCommand
 
     private SaslServer handleMechanism( String mechanism, IoSession session, Object message ) throws Exception
     {
-        MechanismHandler mechanismHandler = ( MechanismHandler ) DEFAULT_HANDLERS.get( mechanism );
+        MechanismHandler mechanismHandler = ( MechanismHandler ) handlers.get( mechanism );
 
         if ( mechanismHandler == null )
         {
@@ -125,17 +126,17 @@ public class HandleSasl implements IoHandlerCommand
                 }
                 else
                 {
-                    log.info( "Continuation token had length " + tokenBytes.length );
+                    LOG.info( "Continuation token had length " + tokenBytes.length );
                     result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
                     BindResponse resp = ( BindResponse ) request.getResultResponse();
                     resp.setServerSaslCreds( tokenBytes );
                     session.write( resp );
-                    log.debug( "Returning final authentication data to client to complete context." );
+                    LOG.debug( "Returning final authentication data to client to complete context." );
                 }
             }
             catch ( SaslException se )
             {
-                log.error( se.getMessage() );
+                LOG.error( se.getMessage() );
                 result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
                 result.setErrorMessage( se.getMessage() );
                 session.write( request.getResultResponse() );

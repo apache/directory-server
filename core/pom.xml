@@ -94,12 +94,6 @@
       <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-kerberos-shared</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
   </dependencies>
 
   <build>

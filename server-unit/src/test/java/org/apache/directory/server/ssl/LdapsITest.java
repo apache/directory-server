@@ -49,7 +49,7 @@ public class LdapsITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
 
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -57,11 +57,11 @@ public class LdapsITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        doDelete( configuration.getWorkingDirectory() );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
 
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
         
-        LdapConfiguration ldapsCfg = configuration.getLdapsConfiguration();
+        LdapConfiguration ldapsCfg = apacheDS.getLdapsConfiguration();
         ldapsCfg.setEnableLdaps( true );
         ldapsCfg.setLdapsCertificatePassword( "boguspw" );
         ldapsCfg.setIpPort( ldapsPort );
@@ -115,7 +115,7 @@ public class LdapsITest extends AbstractServerTest
     /**
      * Just a little test to check if the connection is made successfully.
      * 
-     * @throws NamingException
+     * @throws NamingException cannot create person
      */
     public void testSetUpTearDown() throws NamingException
     {

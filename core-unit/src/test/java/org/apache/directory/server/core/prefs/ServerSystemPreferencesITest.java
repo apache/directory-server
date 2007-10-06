@@ -41,7 +41,7 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
         super.setUp();
-        prefs = new ServerSystemPreferences();
+        prefs = new ServerSystemPreferences( service );
     }
 
 

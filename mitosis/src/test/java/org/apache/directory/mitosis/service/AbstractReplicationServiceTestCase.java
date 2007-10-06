@@ -20,42 +20,38 @@
 
 package org.apache.directory.mitosis.service;
 
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.common.ReplicaId;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.mina.util.AvailablePortFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.util.*;
+
 
 /**
- * TODO AbstractReplicationServiceTestCase.
+ * An abstract base class for replication tests.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public abstract class AbstractReplicationServiceTestCase extends TestCase
 {
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractReplicationServiceTestCase.class );
     protected Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
+    protected Map<String, DirectoryService> services = new HashMap<String, DirectoryService>();
     protected Map<String, ReplicationService> replicationServices = new HashMap<String, ReplicationService>();
 
     protected void setUp() throws Exception
@@ -89,46 +85,46 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
                 + File.separator + "mitosis-"
                 + Long.toHexString( random.nextLong() );
 
-        for( int i = 0; i < replicas.length; i++ )
+        for ( Replica replica : replicas )
         {
-            Replica replica = replicas[ i ];
-            String replicaId = replicas[ i ].getId().getId();
-            MutableStartupConfiguration ldapCfg = new MutableStartupConfiguration(
-                    replicaId );
+            String replicaId = replica.getId().getId();
+            DirectoryService service = new DefaultDirectoryService();
+            service.setInstanceId( replicaId );
 
             File workDir = new File( homeDirectory + File.separator
-                    + ldapCfg.getInstanceId() );
+                    + service.getInstanceId() );
 
-            ldapCfg.setShutdownHookEnabled( false );
-            ldapCfg.setWorkingDirectory( workDir );
+            service.setShutdownHookEnabled( false );
+            service.setWorkingDirectory( workDir );
 
-            List<Interceptor> interceptors = ldapCfg.getInterceptors();
+            List<Interceptor> interceptors = service.getInterceptors();
 
             ReplicationConfiguration replicationCfg = new ReplicationConfiguration();
             replicationCfg.setReplicaId( replica.getId() );
             // Disable automatic replication to prevent unexpected behavior
-            replicationCfg.setReplicationInterval(0);
+            replicationCfg.setReplicationInterval( 0 );
             replicationCfg.setServerPort( replica.getAddress().getPort() );
-            for( int j = 0; j < replicas.length; j++ )
+            for ( Replica replica1 : replicas )
             {
-                if( replicas[ j ] != replica )
+                if ( replica1 != replica )
                 {
-                    replicationCfg.addPeerReplica( replicas[ j ] );
+                    replicationCfg.addPeerReplica( replica1 );
                 }
             }
 
             ReplicationService replicationService = new ReplicationService();
-            replicationService.setConfiguration(replicationCfg);
-            interceptors.add(replicationService);
+            replicationService.setConfiguration( replicationCfg );
+            interceptors.add( replicationService );
 
-            ldapCfg.setInterceptors( interceptors );
+            service.setInterceptors( interceptors );
 
-            if( workDir.exists() )
+            if ( workDir.exists() )
             {
                 FileUtils.deleteDirectory( workDir );
             }
 
-            Hashtable env = new Hashtable( ldapCfg.toJndiEnvironment() );
+            Hashtable env = new Hashtable();
+            env.put( DirectoryService.JNDI_KEY, service );
             env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
             env.put( Context.SECURITY_CREDENTIALS, "secret" );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -139,13 +135,14 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             // Initialize the server instance.
             LdapContext context = new InitialLdapContext( env, null );
             contexts.put( replicaId, context );
+            services.put( replicaId, service );
             replicationServices.put( replicaId, replicationService );
         }
 
         // Ensure all replicas have had a chance to connect to each other since the last one started.
-        for( Iterator<ReplicationService> i = replicationServices.values().iterator(); i.hasNext(); )
+        for ( ReplicationService replicationService : replicationServices.values() )
         {
-            i.next().interruptConnectors();
+            replicationService.interruptConnectors();
         }
         Thread.sleep( 5000 );
     }
@@ -164,27 +161,19 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
     @SuppressWarnings("unchecked")
     protected void destroyAllReplicas() throws Exception
     {
-        for( Iterator<String> i = contexts.keySet().iterator(); i.hasNext(); )
+        for( Iterator<DirectoryService> i = services.values().iterator(); i.hasNext(); )
         {
-            String replicaId = i.next();
-            File workDir = DirectoryService.getInstance( replicaId )
-                    .getConfiguration().getStartupConfiguration()
-                    .getWorkingDirectory();
+            DirectoryService replica = i.next();
+            File workDir = replica.getWorkingDirectory();
 
-            Hashtable env = new Hashtable();
-            env.put( Context.PROVIDER_URL, "ou=system" );
-            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
-                    .getName() );
-            env.putAll( new ShutdownConfiguration( replicaId )
-                    .toJndiEnvironment() );
-            env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
             try
             {
-                new InitialContext( env );
+                replica.shutdown();
             }
             catch( Exception e )
             {
+                LOG.error( "Encountered error while shutting down replica {}", replica.getInstanceId(), e );
+                throw e;
             }
 
             try

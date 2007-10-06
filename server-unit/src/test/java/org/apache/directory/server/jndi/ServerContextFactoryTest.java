@@ -20,6 +20,7 @@
 package org.apache.directory.server.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -128,7 +129,7 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
 
         partitions.add( partition );
 
-        configuration.setPartitions( partitions );
+        service.setPartitions( partitions );
 
         super.setUp();
     }
@@ -167,115 +168,84 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     public void testSetupTeardown() throws NamingException
     {
         assertNotNull( sysRoot );
-
         Attributes attributes = sysRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "system", attributes.get( "ou" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
 
     public void testAppPartitionExample() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "dc=example" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "example", attributes.get( "dc" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "domain" ) );
     }
 
 
     public void testAppPartitionTesting() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "ou=testing" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "testing", attributes.get( "ou" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
 
     public void testAppPartitionMixedCase() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "dc=MixedCase" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "MixedCase", attributes.get( "dc" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "domain" ) );
     }
 }

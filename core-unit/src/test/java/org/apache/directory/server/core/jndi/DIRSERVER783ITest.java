@@ -19,22 +19,17 @@
  */
 package org.apache.directory.server.core.jndi;
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.Hashtable;
 
 /**
  * Tries to demonstrate DIRSERVER-783 ("Adding another value to an attribute
@@ -53,6 +48,8 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
 
     /**
      * Try to add entry with required attribute missing.
+     * 
+     * @throws NamingException if there are errors
      */
     public void testAddAnotherValueToAnAttribute() throws NamingException
     {
@@ -68,7 +65,8 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
 
         String rdn = "cn=Fiona Apple";
 
-        Hashtable<String,Object> env = configuration.toJndiEnvironment();
+        Hashtable<String,Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, "ou=system" );
 
@@ -109,10 +107,7 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
         while (enm.hasMore()) 
         {
             SearchResult sr = (SearchResult) enm.next();
-
-            attrs = sr.getAttributes();
             Attribute desc = sr.getAttributes().get("description");
-
             assertNotNull(desc);
             assertTrue(desc.contains(description1));
             assertTrue(desc.contains(description2));

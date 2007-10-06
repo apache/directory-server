@@ -20,27 +20,12 @@
 package org.apache.directory.server.core.collective;
 
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -51,6 +36,15 @@ import org.apache.directory.shared.ldap.message.ServerSearchResult;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -92,17 +86,17 @@ public class CollectiveAttributeService extends BaseInterceptor
         }
     };
 
-    private AttributeTypeRegistry attrTypeRegistry = null;
-    private PartitionNexus nexus = null;
+    private AttributeTypeRegistry attrTypeRegistry;
+    private PartitionNexus nexus;
     
-    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker = null;
+    private CollectiveAttributesSchemaChecker collectiveAttributesSchemaChecker;
 
 
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( factoryCfg);
-        nexus = factoryCfg.getPartitionNexus();
-        attrTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        super.init( directoryService );
+        nexus = directoryService.getPartitionNexus();
+        attrTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         collectiveAttributesSchemaChecker = new CollectiveAttributesSchemaChecker(nexus, attrTypeRegistry);
     }
 
@@ -120,8 +114,9 @@ public class CollectiveAttributeService extends BaseInterceptor
      */
     private void addCollectiveAttributes( LdapDN normName, Attributes entry, String[] retAttrs ) throws NamingException
     {
-        Attribute caSubentries = null;
-        
+        Attribute caSubentries;
+
+        //noinspection StringEquality
         if ( ( retAttrs == null ) || ( retAttrs.length != 1 ) || ( retAttrs[0] != SchemaConstants.ALL_USER_ATTRIBUTES ) )
         {
             Attributes entryWithCAS = nexus.lookup( new LookupOperationContext( normName, new String[] { 
@@ -224,19 +219,16 @@ public class CollectiveAttributeService extends BaseInterceptor
                 }
                 
                 Set<AttributeType> allSuperTypes = getAllSuperTypes( attrType );
-                Iterator<String> it = retIdsSet.iterator();
-                
-                while ( it.hasNext() )
+
+                for ( String retId : retIdsSet )
                 {
-                    String retId = it.next();
-                    
                     if ( retId.equals( SchemaConstants.ALL_USER_ATTRIBUTES ) || retId.equals( SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES ) )
                     {
                         continue;
                     }
-                    
+
                     AttributeType retType = attrTypeRegistry.lookup( retId );
-                    
+
                     if ( allSuperTypes.contains( retType ) )
                     {
                         retIdsSet.add( attrId );

@@ -20,26 +20,15 @@
 package org.apache.directory.server.core.partition;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -144,10 +133,10 @@ public interface Partition
     /**
      * Initializes this partition.
      *
-     * @param factoryCfg the configuration for the server.
+     * @param core the directory core for the server.
      * @throws NamingException if initialization fails in any way
      */
-    void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException;
+    void init( DirectoryService core ) throws NamingException;
 
 
     /**

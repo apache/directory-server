@@ -20,18 +20,18 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.ldap.LdapContext;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.sasl.AuthorizeCallback;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.ldap.LdapContext;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.sasl.AuthorizeCallback;
+import java.util.Hashtable;
 
 
 /**
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( GssapiCallbackHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( GssapiCallbackHandler.class );
 
     private IoSession session;
     private Object message;
@@ -49,11 +49,13 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     /**
      * Creates a new instance of GssapiCallbackHandler.
      *
-     * @param session
-     * @param message
+     * @param session the mina IO session
+     * @param message the bind message
+     * @param directoryService the directory service core
      */
-    public GssapiCallbackHandler( IoSession session, Object message )
+    public GssapiCallbackHandler( DirectoryService directoryService, IoSession session, Object message )
     {
+        super( directoryService );
         this.session = session;
         this.message = message;
     }
@@ -68,7 +70,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
     protected void authorize( AuthorizeCallback authorizeCB )
     {
-        log.debug( "Processing conversion of principal name to DN." );
+        LOG.debug( "Processing conversion of principal name to DN." );
 
         Hashtable env = getEnvironment( session );
 
@@ -80,7 +82,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
         PrincipalStoreEntry entry = ( PrincipalStoreEntry ) getPrincipal.execute( ctx, null );
         String bindDn = entry.getDistinguishedName();
 
-        log.debug( "Converted username {} to DN {}.", username, bindDn );
+        LOG.debug( "Converted username {} to DN {}.", username, bindDn );
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );
 
         authorizeCB.setAuthorizedID( bindDn );

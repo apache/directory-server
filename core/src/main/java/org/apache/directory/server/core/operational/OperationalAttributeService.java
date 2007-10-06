@@ -19,37 +19,14 @@
  */
 package org.apache.directory.server.core.operational;
 
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -65,6 +42,11 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.UsageEnum;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
 
 
 /**
@@ -85,12 +67,8 @@ public class OperationalAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls ) 
             throws NamingException
         {
-            if ( controls.getReturningAttributes() != null )
-            {
-                return filterDenormalized( result.getAttributes() );
-            }
-            
-            return true;
+            return controls.getReturningAttributes() == null || filterDenormalized( result.getAttributes() );
+
         }
     };
 
@@ -102,12 +80,8 @@ public class OperationalAttributeService extends BaseInterceptor
         public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
             throws NamingException
         {
-            if ( controls.getReturningAttributes() == null )
-            {
-                return filter( result.getAttributes() );
-            }
+            return controls.getReturningAttributes() != null || filter( result.getAttributes() );
 
-            return true;
         }
     };
 
@@ -119,11 +93,8 @@ public class OperationalAttributeService extends BaseInterceptor
     private AttributeTypeRegistry registry;
 
     private boolean isDenormalizeOpAttrsEnabled;
-
-    /**
-     * subschemaSubentry attribute's value from Root DSE
-     */
     private LdapDN subschemaSubentryDn;
+
 
     /**
      * Creates the operational attribute management service interceptor.
@@ -133,16 +104,16 @@ public class OperationalAttributeService extends BaseInterceptor
     }
 
 
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        nexus = factoryCfg.getPartitionNexus();
-        registry = factoryCfg.getRegistries().getAttributeTypeRegistry();
-        isDenormalizeOpAttrsEnabled = factoryCfg.getStartupConfiguration().isDenormalizeOpAttrsEnabled();
+        nexus = directoryService.getPartitionNexus();
+        registry = directoryService.getRegistries().getAttributeTypeRegistry();
+        isDenormalizeOpAttrsEnabled = directoryService.isDenormalizeOpAttrsEnabled();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
-        subschemaSubentryDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
 
 
@@ -170,7 +141,8 @@ public class OperationalAttributeService extends BaseInterceptor
 
         nextInterceptor.add( opContext );
     }
-    
+
+
     public void modify( NextInterceptor nextInterceptor, ModifyOperationContext opContext )
         throws NamingException
     {
@@ -185,7 +157,7 @@ public class OperationalAttributeService extends BaseInterceptor
         // Add the operational attributes for the modifier first
         // -------------------------------------------------------------------
         
-        List<ModificationItem> modItemList = new ArrayList<ModificationItem>(2);
+        List<ModificationItemImpl> modItemList = new ArrayList<ModificationItemImpl>(2);
         
         Attribute attribute = new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT );
         attribute.add( getPrincipal().getName() );
@@ -228,7 +200,7 @@ public class OperationalAttributeService extends BaseInterceptor
         newDn.add( opContext.getNewRdn() );
         newDn.normalize( registry.getNormalizerMapping() );
         
-        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
         
@@ -250,7 +222,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
 
         ModifyOperationContext newModify = 
@@ -275,7 +247,7 @@ public class OperationalAttributeService extends BaseInterceptor
         attribute.add( DateUtils.getGeneralizedTime() );
         attributes.put( attribute );
 
-        List<ModificationItem> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
+        List<ModificationItemImpl> items = ModifyOperationContext.createModItems( attributes, DirContext.REPLACE_ATTRIBUTE );
 
         ModifyOperationContext newModify = 
             new ModifyOperationContext( 
@@ -342,6 +314,7 @@ public class OperationalAttributeService extends BaseInterceptor
      *
      * @param attributes the resultant attributes to filter
      * @return true always
+     * @throws NamingException if there are failures in evaluation
      */
     private boolean filter( Attributes attributes ) throws NamingException
     {
@@ -425,9 +398,7 @@ public class OperationalAttributeService extends BaseInterceptor
                 attr.add( denormalizeTypes( creatorsName ).getUpName() );
             }
             
-            type = null;
             type = registry.lookup( SchemaConstants.MODIFIERS_NAME_AT );
-            attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
             
             if ( attr != null )
@@ -438,9 +409,7 @@ public class OperationalAttributeService extends BaseInterceptor
                 attr.add( denormalizeTypes( modifiersName ).getUpName() );
             }
 
-            type = null;
             type = registry.lookup( ApacheSchemaConstants.SCHEMA_MODIFIERS_NAME_AT );
-            attr = null;
             attr = AttributeUtils.getAttribute( entry, type );
             
             if ( attr != null )
@@ -457,6 +426,10 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Does not create a new DN but alters existing DN by using the first
      * short name for an attributeType definition.
+     * 
+     * @param dn the normalized distinguished name
+     * @return the distinuished name denormalized
+     * @throws NamingException if there are problems denormalizing
      */
     public LdapDN denormalizeTypes( LdapDN dn ) throws NamingException
     {

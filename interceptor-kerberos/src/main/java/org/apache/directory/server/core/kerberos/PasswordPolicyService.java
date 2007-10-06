@@ -20,26 +20,26 @@
 package org.apache.directory.server.core.kerberos;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -126,7 +126,7 @@ public class PasswordPolicyService extends BaseInterceptor
     {
         LdapDN name = modContext.getDn();
 
-        List<ModificationItem> mods = modContext.getModItems();
+        List<ModificationItemImpl> mods = modContext.getModItems();
 
         String operation = null;
 

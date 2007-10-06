@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.partition;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 
 
 /**
@@ -39,8 +39,8 @@ import org.apache.directory.server.core.interceptor.context.LookupOperationConte
  */
 public abstract class AbstractPartition implements Partition
 {
-    /** {@link DirectoryServiceConfiguration} specified at {@link #init(DirectoryServiceConfiguration)}. */
-    protected DirectoryServiceConfiguration factoryCfg;
+    /** {@link DirectoryService} specified at {@link #init(DirectoryService)}. */
+    protected DirectoryService directoryService;
     /** <tt>true</tt> if and only if this partition is initialized. */
     protected boolean initialized;
 
@@ -51,13 +51,12 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Sets up default properties(<tt>factoryConfiguration</tt> and <tt>configuration</tt>) and
-     * calls {@link #doInit()} where you have to put your initialization code in.
-     * {@link #isInitialized()} will return <tt>true</tt> if {@link #doInit()} returns
-     * without any errors.  {@link #destroy()} is called automatically as a clean-up process
-     * if {@link #doInit()} throws an exception.
+     * Sets up (<tt>directoryService</tt> and calls {@link #doInit()} where you have to put your
+     * initialization code in.  {@link #isInitialized()} will return <tt>true</tt> if
+     * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
+     * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public final void init( DirectoryService directoryService ) throws NamingException
     {
         if ( initialized )
         {
@@ -65,7 +64,7 @@ public abstract class AbstractPartition implements Partition
             return;
         }
 
-        this.factoryCfg = factoryCfg;
+        this.directoryService = directoryService;
         try
         {
             doInit();
@@ -103,7 +102,7 @@ public abstract class AbstractPartition implements Partition
         finally
         {
             initialized = false;
-            factoryCfg = null;
+            directoryService = null;
         }
     }
 
@@ -126,13 +125,13 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Returns {@link DirectoryServiceConfiguration} that is provided from
-     * {@link #init(DirectoryServiceConfiguration)}.
-     * @return return the directory service
+     * Returns {@link DirectoryService} that is provided from
+     * {@link #init(DirectoryService)}.
+     * @return return the directory service core
      */
-    public final DirectoryServiceConfiguration getFactoryConfiguration()
+    public final DirectoryService getDirectoryService()
     {
-        return factoryCfg;
+        return directoryService;
     }
 
 

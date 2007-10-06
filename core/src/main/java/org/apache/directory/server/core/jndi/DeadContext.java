@@ -40,7 +40,6 @@ import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.shared.ldap.exception.LdapServiceUnavailableException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -49,10 +48,11 @@ import javax.naming.Binding;
 
 
 /**
- * A do nothing placeholder context whose methods throw ConfigurationExceptions.
- * JNDI provider returns this context when your specify {@link SyncConfiguration}
- * in JNDI environment.  By returning a non-null Context we prevent an unnecessary
- * exception being thrown by {@link InitialContext} and any one of its subclasses.
+ * A do nothing placeholder context whose methods throw ServiceUnavailableExceptions.
+ * JNDI provider returns this context when you perform JNDI operations against the
+ * core directory service that has been shutdown or not started.  By returning a
+ * non-null Context we prevent an unnecessary exception being thrown by
+ * {@link InitialContext} and any one of its subclasses.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -60,7 +60,7 @@ import javax.naming.Binding;
 public class DeadContext implements LdapContext, EventDirContext
 {
     private final String EXCEPTION_MSG = "Context operation unavailable when "
-        + "invoked after Eve provider has been shutdown";
+        + "invoked after directory service core provider has been shutdown";
 
 
     public Control[] getConnectControls() throws NamingException

@@ -21,14 +21,7 @@
 package org.apache.directory.server.dns.store.jndi;
 
 
-import java.util.Hashtable;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
@@ -40,6 +33,13 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.util.Hashtable;
+import java.util.Set;
+
 
 /**
  * A JNDI-backed search strategy implementation.  This search strategy searches a
@@ -50,23 +50,21 @@ import org.slf4j.LoggerFactory;
  */
 public class SingleBaseSearch implements SearchStrategy
 {
-    /** the log for this class */
-    private static final Logger log = LoggerFactory.getLogger( SingleBaseSearch.class );
+    /** the LOG for this class */
+    private static final Logger LOG = LoggerFactory.getLogger( SingleBaseSearch.class );
 
     private DirContext ctx;
     private Hashtable<String, Object> env = new Hashtable<String, Object>();
-    private InitialContextFactory factory;
 
 
-    SingleBaseSearch( DnsConfiguration config, InitialContextFactory factory )
+    SingleBaseSearch( DnsConfiguration config, DirectoryService directoryService )
     {
         env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
         env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
         env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
         env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
         env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
-
-        this.factory = factory;
+        env.put( DirectoryService.JNDI_KEY, directoryService );
     }
 
 
@@ -84,18 +82,18 @@ public class SingleBaseSearch implements SearchStrategy
 	        {
 	            try
 	            {
-	                ctx = ( DirContext ) factory.getInitialContext( env );
+	                ctx = new InitialDirContext( env );
 	            }
 		        catch ( LdapNameNotFoundException lnnfe )
 			    {
-			        log.debug( "Name for DNS record search does not exist.", lnnfe );
+			        LOG.debug( "Name for DNS record search does not exist.", lnnfe );
 			
 			        throw new DnsException( ResponseCode.NAME_ERROR );
 			    }
 	            catch ( NamingException ne )
 	            {
-	                log.error( ne.getMessage(), ne );
-	                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+	                LOG.error( ne.getMessage(), ne );
+	                String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
 	                throw new ServiceConfigurationException( message, ne );
 	            }
 	        }
@@ -104,7 +102,7 @@ public class SingleBaseSearch implements SearchStrategy
         }
 	    catch ( Exception e )
 	    {
-	        log.debug( "Unexpected error retrieving DNS records.", e );
+	        LOG.debug( "Unexpected error retrieving DNS records.", e );
 	        throw new DnsException( ResponseCode.SERVER_FAILURE );
 	    }
     }

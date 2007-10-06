@@ -94,7 +94,7 @@ public class NegationOperatorITest extends AbstractServerTest
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
             system.setContextEntry( systemEntry );
             
-            configuration.setSystemPartition( system );
+            apacheDS.getDirectoryService().setSystemPartition( system );
         }
         
         super.setUp();

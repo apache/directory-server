@@ -19,16 +19,7 @@
  */
 package org.apache.directory.server.tools.commands.storedprocedurecmd;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -37,6 +28,14 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.extended.StoredProcedureRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * This is the Executor Class of the Stored Procedure Command.
@@ -138,7 +137,7 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         
         if ( quietParam != null )
         {
-            setQuietEnabled( quietParam.booleanValue() );
+            setQuietEnabled( quietParam );
         }
 
         // Debug param
@@ -146,7 +145,7 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         
         if ( debugParam != null )
         {
-            setDebugEnabled( debugParam.booleanValue() );
+            setDebugEnabled( debugParam );
         }
 
         // Verbose param
@@ -154,7 +153,7 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         
         if ( verboseParam != null )
         {
-            setVerboseEnabled( verboseParam.booleanValue() );
+            setVerboseEnabled( verboseParam );
         }
 
         // Install-path param
@@ -171,12 +170,9 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
                     notifyOutputListener( "loading settings from: " + getLayout().getConfigurationFile() );
                 }
                 
-                ApplicationContext factory = null;
-                URL configUrl;
-
-                configUrl = getLayout().getConfigurationFile().toURI().toURL();
-                factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-                setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
+                URL configUrl = getLayout().getConfigurationFile().toURI().toURL();
+                ApplicationContext factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+                setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
             }
             catch ( MalformedURLException e )
             {
@@ -206,11 +202,11 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         
         if ( portParam != null )
         {
-            port = portParam.intValue();
+            port = portParam;
         }
-        else if ( getConfiguration() != null )
+        else if ( getApacheDS() != null )
         {
-            port = getConfiguration().getLdapConfiguration().getIpPort();
+            port = getApacheDS().getLdapConfiguration().getIpPort();
 
             if ( isDebugEnabled() )
             {

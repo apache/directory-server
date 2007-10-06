@@ -161,11 +161,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        List<ModificationItem> modItems = null;
+        List<ModificationItemImpl> modItems = null;
         
         if ( attrs != null )
         {
-            modItems = new ArrayList<ModificationItem>( attrs.size() );
+            modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
             NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attrs.getAll();
             int i = 0;
             
@@ -218,7 +218,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
-        List<ModificationItem> newMods = new ArrayList<ModificationItem>( mods.length );
+        List<ModificationItemImpl> newMods = new ArrayList<ModificationItemImpl>( mods.length );
         
         for ( ModificationItem mod:mods )
         {
@@ -233,7 +233,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( Name name, List<ModificationItem> mods ) throws NamingException
+    public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
     {
         doModifyOperation( buildTarget( new LdapDN( name ) ), mods );
     }

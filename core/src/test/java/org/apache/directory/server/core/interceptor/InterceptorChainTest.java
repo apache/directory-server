@@ -20,26 +20,24 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
+import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
+import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import java.io.File;
+import java.util.*;
 
 
 /**
@@ -243,46 +241,246 @@ public class InterceptorChainTest extends TestCase
     
     class MockDirectoryService extends DirectoryService
     {
-        public void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException
+        public Hashtable<String, Object> getEnvironment()
         {
-            //To change body of implemented methods use File | Settings | File Templates.
+            return null;
+        }
+
+
+        public void setEnvironment( Hashtable<String, Object> environment )
+        {
+        }
+
+
+        public PartitionNexus getPartitionNexus()
+        {
+            return null;
+        }
+
+
+        public InterceptorChain getInterceptorChain()
+        {
+            return null;
+        }
+
+
+        public void addPartition( Partition partition ) throws NamingException
+        {
+        }
+
+
+        public void removePartition( Partition partition ) throws NamingException
+        {
+        }
+
+
+        public Registries getRegistries()
+        {
+            return null;
+        }
+
+
+        public void setRegistries( Registries registries )
+        {
+        }
+
+
+        public SchemaManager getSchemaManager()
+        {
+            return null;
+        }
+
+
+        public void setSchemaManager( SchemaManager schemaManager )
+        {
+        }
+
+
+        public void startup() throws NamingException
+        {
         }
 
 
         public void shutdown() throws NamingException
         {
-            //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public void sync() throws NamingException
         {
-            //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public boolean isStarted()
         {
-            return false; //To change body of implemented methods use File | Settings | File Templates.
+            return false;
         }
 
 
-        public DirectoryServiceConfiguration getConfiguration()
+        public DirectoryService getDirectoryService()
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
 
 
         public Context getJndiContext( String baseName ) throws NamingException
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
 
 
         public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
             String authentication, String baseName ) throws NamingException
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
+        }
+
+
+        public void setInstanceId( String instanceId )
+        {
+        }
+
+
+        public String getInstanceId()
+        {
+            return null;
+        }
+
+
+        public Set<? extends Partition> getPartitions()
+        {
+            return null;
+        }
+
+
+        public void setPartitions( Set<? extends Partition> partitions )
+        {
+        }
+
+
+        public boolean isAccessControlEnabled()
+        {
+            return false;
+        }
+
+
+        public void setAccessControlEnabled( boolean accessControlEnabled )
+        {
+        }
+
+
+        public boolean isAllowAnonymousAccess()
+        {
+            return false;
+        }
+
+
+        public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
+        {
+        }
+
+
+        public List<Interceptor> getInterceptors()
+        {
+            return null;
+        }
+
+
+        public void setInterceptors( List<Interceptor> interceptors )
+        {
+        }
+
+
+        public List<Entry> getTestEntries()
+        {
+            return null;
+        }
+
+
+        public void setTestEntries( List<? extends Entry> testEntries )
+        {
+        }
+
+
+        public File getWorkingDirectory()
+        {
+            return null;
+        }
+
+
+        public void setWorkingDirectory( File workingDirectory )
+        {
+        }
+
+
+        public void validate()
+        {
+        }
+
+
+        public void setShutdownHookEnabled( boolean shutdownHookEnabled )
+        {
+        }
+
+
+        public boolean isShutdownHookEnabled()
+        {
+            return false;
+        }
+
+
+        public void setExitVmOnShutdown( boolean exitVmOnShutdown )
+        {
+        }
+
+
+        public boolean isExitVmOnShutdown()
+        {
+            return false;
+        }
+
+
+        public void setMaxSizeLimit( int maxSizeLimit )
+        {
+        }
+
+
+        public int getMaxSizeLimit()
+        {
+            return 0;
+        }
+
+
+        public void setMaxTimeLimit( int maxTimeLimit )
+        {
+        }
+
+
+        public int getMaxTimeLimit()
+        {
+            return 0;
+        }
+
+
+        public void setSystemPartition( Partition systemPartition )
+        {
+        }
+
+
+        public Partition getSystemPartition()
+        {
+            return null;
+        }
+
+
+        public boolean isDenormalizeOpAttrsEnabled()
+        {
+            return false;
+        }
+
+
+        public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+        {
         }
     }
 }

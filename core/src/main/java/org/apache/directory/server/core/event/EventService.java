@@ -20,38 +20,10 @@
 package org.apache.directory.server.core.event;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Binding;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingListener;
-import javax.naming.event.ObjectChangeListener;
-import javax.naming.directory.ModificationItem;
-
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.normalization.NormalizingVisitor;
@@ -60,18 +32,21 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.LeafNode;
-import org.apache.directory.shared.ldap.filter.NotNode;
-import org.apache.directory.shared.ldap.filter.ScopeNode;
+import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Binding;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.event.*;
+import java.util.*;
 
 
 /**
@@ -89,21 +64,21 @@ public class EventService extends BaseInterceptor
     
     private PartitionNexus nexus;
     private Map<NamingListener, Object> sources = new HashMap<NamingListener, Object>();
-    private Evaluator evaluator = null;
+    private Evaluator evaluator;
     private AttributeTypeRegistry attributeRegistry;
     private NormalizingVisitor visitor;
 
     
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( factoryCfg);
+        super.init( directoryService );
 
-        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
-        attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
+        attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         evaluator = new ExpressionEvaluator( oidRegistry, attributeRegistry );
-        nexus = factoryCfg.getPartitionNexus();
+        nexus = directoryService.getPartitionNexus();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
-        visitor = new NormalizingVisitor( ncn, factoryCfg.getRegistries().getOidRegistry() );
+        visitor = new NormalizingVisitor( ncn, directoryService.getRegistries().getOidRegistry() );
     }
 
 
@@ -115,6 +90,7 @@ public class EventService extends BaseInterceptor
      * @param filter the filter to use for evaluating event triggering
      * @param searchControls the search controls to use when evaluating triggering
      * @param namingListener the naming listener to register
+     * @throws NamingException if there are failures adding the naming listener
      */
     public void addNamingListener( EventContext ctx, Name name, ExprNode filter, SearchControls searchControls,
         NamingListener namingListener ) throws NamingException
@@ -197,7 +173,8 @@ public class EventService extends BaseInterceptor
         }
         else if ( obj instanceof List )
         {
-            List<Object> list = (List<Object>)obj;
+            //noinspection unchecked
+            List<Object> list = (List<Object>) obj;
             list.add( rec );
         }
     }
@@ -287,7 +264,7 @@ public class EventService extends BaseInterceptor
         }
 
         Iterator<EventSourceRecord> list = selecting.iterator();
-        
+
         while ( list.hasNext() )
         {
             EventSourceRecord rec = ( EventSourceRecord ) list.next();
@@ -304,7 +281,7 @@ public class EventService extends BaseInterceptor
     }
 
 
-    private void notifyOnModify( LdapDN name, List<ModificationItem> mods, Attributes oriEntry ) throws NamingException
+    private void notifyOnModify( LdapDN name, List<ModificationItemImpl> mods, Attributes oriEntry ) throws NamingException
     {
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Set<EventSourceRecord> selecting = getSelectingSources( name, entry );

@@ -55,7 +55,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Test case for Search operation. It's using JUnit 4 capabilities,
  * so the server is only launched once for the whole test case, but
- * the ldif file is loaded for each test. 
+ * the LDIF file is loaded for each test.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 569048 $
@@ -213,7 +213,7 @@ public class FastSearchTest extends AbstractServerFastTest
         }
         catch ( NamingException ne )
         {
-            // Do nothing
+            ne.printStackTrace();
         }
     }
 
@@ -259,14 +259,14 @@ public class FastSearchTest extends AbstractServerFastTest
         
         try
         {
-            NamingEnumeration ii = context.search( "", filter, controls );
+            NamingEnumeration<SearchResult> ii = context.search( "", filter, controls );
             
             // collect all results 
             HashSet<String> results = new HashSet<String>();
             
             while ( ii.hasMore() )
             {
-                SearchResult result = ( SearchResult ) ii.next();
+                SearchResult result = ii.next();
                 results.add( result.getName() );
             }
             
@@ -327,11 +327,11 @@ public class FastSearchTest extends AbstractServerFastTest
         try
         {
             // Check entry
-            NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+            NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             while ( enm.hasMore() )
             {
-                SearchResult sr = ( SearchResult ) enm.next();
+                SearchResult sr = enm.next();
                 Attributes attrs = sr.getAttributes();
                 Attribute sn = attrs.get( "sn" );
                 assertNotNull( sn );
@@ -360,7 +360,7 @@ public class FastSearchTest extends AbstractServerFastTest
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         // Search for all entries
-        NamingEnumeration results = sysRoot.search( RDN, "(cn=*)", ctls );
+        NamingEnumeration<SearchResult> results = sysRoot.search( RDN, "(cn=*)", ctls );
         assertTrue( results.hasMore() );
 
         results = sysRoot.search( RDN2, "(cn=*)", ctls );
@@ -446,19 +446,23 @@ public class FastSearchTest extends AbstractServerFastTest
         // sn="Kylie Minogue" (with quotes)
         String base = "cn=\"Tori Amos\"";
 
-        try {
+        try 
+        {
             // Check entry
-            NamingEnumeration enm = sysRoot.search( base, filter, sctls );
+            NamingEnumeration<SearchResult> enm = sysRoot.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             
-            while ( enm.hasMore() ) {
-                SearchResult sr = (SearchResult) enm.next();
+            while ( enm.hasMore() ) 
+            {
+                SearchResult sr = enm.next();
                 Attributes attrs = sr.getAttributes();
                 Attribute sn = attrs.get("sn");
-                assertNotNull(sn);
+                assertNotNull( sn );
                 assertTrue( sn.contains( "Amos" ) );
             }
-        } catch (Exception e) {
+        } 
+        catch ( Exception e ) 
+        {
             fail( e.getMessage() );
         }
     }
@@ -491,17 +495,17 @@ public class FastSearchTest extends AbstractServerFastTest
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
         
-        NamingEnumeration results = schemaRoot.search( "", "objectClass=subschema", controls );
+        NamingEnumeration<SearchResult> results = schemaRoot.search( "", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
-        SearchResult result = ( SearchResult ) results.next();
+        SearchResult result = results.next();
         assertNotNull( result );
         assertFalse( results.hasMore() );
         
-        NamingEnumeration attrs = result.getAttributes().getAll();
+        NamingEnumeration<? extends Attribute> attrs = result.getAttributes().getAll();
         
         while ( attrs.hasMoreElements() )
         {
-            Attribute attr = (Attribute)attrs.next();
+            Attribute attr = attrs.next();
             String ID = attr.getID();
             assertEquals( "objectClasses", ID );
         }

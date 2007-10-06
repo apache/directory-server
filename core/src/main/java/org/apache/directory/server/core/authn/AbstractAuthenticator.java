@@ -20,13 +20,11 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -37,7 +35,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
-    private DirectoryServiceConfiguration factoryCfg;
+    private DirectoryService directoryService;
 
     /** authenticator type */
     private final String authenticatorType;
@@ -55,13 +53,14 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Returns {@link DirectoryServiceConfiguration} of {@link InitialContextFactory}
-     * which initialized this authenticator.
+     * Returns {@link DirectoryService} for this authenticator.
+     * @return the directory service core
      */
-    public DirectoryServiceConfiguration getFactoryConfiguration()
+    public DirectoryService getDirectoryService()
     {
-        return factoryCfg;
+        return directoryService;
     }
+    
 
     public String getAuthenticatorType()
     {
@@ -70,14 +69,14 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Initializes default properties (<tt>factoryConfiguration</tt> and
-     * <tt>configuration</tt>, and calls {@link #doInit()} method.
+     * Initializes (<tt>directoryService</tt> and and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
+     * @param directoryService the directory core for this authenticator
+     * @throws NamingException if there is a problem starting up the authenticator
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg )
-        throws NamingException
+    public final void init( DirectoryService directoryService ) throws NamingException
     {
-        this.factoryCfg = factoryCfg;
+        this.directoryService = directoryService;
         doInit();
     }
 
@@ -103,7 +102,7 @@ public abstract class AbstractAuthenticator implements Authenticator
         }
         finally
         {
-            this.factoryCfg = null;
+            this.directoryService = null;
         }
     }
 

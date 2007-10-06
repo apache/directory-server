@@ -20,15 +20,14 @@
 package org.apache.directory.server.dns.store.jndi;
 
 
-import java.util.Set;
-
-import javax.naming.spi.InitialContextFactory;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.store.RecordStore;
+
+import java.util.Set;
 
 
 /**
@@ -44,7 +43,7 @@ public class JndiRecordStoreImpl implements RecordStore
     /** a handle on the configuration */
     private DnsConfiguration config;
     /** a handle on the provider factory */
-    private InitialContextFactory factory;
+    private DirectoryService directoryService;
     /** a handle on the searchh strategy */
     private SearchStrategy strategy;
 
@@ -53,12 +52,12 @@ public class JndiRecordStoreImpl implements RecordStore
      * Creates a new instance of JndiRecordStoreImpl.
      *
      * @param config
-     * @param factory
+     * @param directoryService
      */
-    public JndiRecordStoreImpl( DnsConfiguration config, InitialContextFactory factory )
+    public JndiRecordStoreImpl( DnsConfiguration config, DirectoryService directoryService )
     {
         this.config = config;
-        this.factory = factory;
+        this.directoryService = directoryService;
 
         strategy = getSearchStrategy();
     }
@@ -75,10 +74,10 @@ public class JndiRecordStoreImpl implements RecordStore
         if ( config.getCatalogBaseDn() != null )
         {
             // build catalog from factory
-            return new MultiBaseSearch( config, factory );
+            return new MultiBaseSearch( config, directoryService );
         }
 
         // use config for catalog baseDN
-        return new SingleBaseSearch( config, factory );
+        return new SingleBaseSearch( config, directoryService );
     }
 }

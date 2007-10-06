@@ -756,23 +756,6 @@ public class SessionsFrame extends JFrame
                         "Send graceful disconnect before disconnect notice?", JOptionPane.YES_NO_CANCEL_OPTION );
                     IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
                     List sessions = new ArrayList( acceptor.getManagedSessions( requestor.getServiceAddress() ) );
-                    //                    ServerLdapContext ctx;
-                    //                    try
-                    //                    {
-                    //                        ctx = ( ServerLdapContext ) SessionRegistry.getSingleton()
-                    //                            .getLdapContext( requestor, null, false );
-                    //                    }
-                    //                    catch ( NamingException ne )
-                    //                    {
-                    //                        JOptionPane.showInternalMessageDialog( SessionsFrame.this, 
-                    //                            ne.getMessage(), "Encountered an Error", JOptionPane.ERROR_MESSAGE );
-                    //                        log.warn( "Could not access requestor's context.", ne );
-                    //                        return;
-                    //                    }
-                    //                    DirectoryService service = ctx.getService();
-                    //                    StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
-                    // might add an exit vm feature using the default from the 
-                    // configuration property
 
                     if ( input == JOptionPane.CANCEL_OPTION )
                     {

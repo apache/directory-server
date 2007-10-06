@@ -25,7 +25,7 @@ import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerContextHandler;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.mina.common.IoSession;
 
 
@@ -61,10 +61,10 @@ public interface ReplicationContext
 
 
     /**
-     * Returns the {@link DirectoryServiceConfiguration} which owns the
-     * {@link ReplicationService} which is managing this context.
+     * Returns the {@link DirectoryService} which owns the {@link ReplicationService}
+     * which is managing this context.
      */
-    DirectoryServiceConfiguration getServiceConfiguration();
+    DirectoryService getDirectoryService();
 
 
     /**

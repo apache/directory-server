@@ -20,13 +20,13 @@
 package org.apache.directory.server.tools.execution;
 
 
-import java.io.File;
-
 import org.apache.directory.daemon.InstallationLayout;
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.tools.BaseToolCommand;
 import org.apache.directory.server.tools.util.ListenerParameter;
 import org.apache.directory.server.tools.util.Parameter;
+
+import java.io.File;
 
 
 /**
@@ -53,7 +53,7 @@ public abstract class BaseToolCommandExecutor extends BaseToolCommand implements
     public static final String EXCEPTIONLISTENER_PARAMETER = "exceptionListener";
 
     private InstallationLayout layout;
-    private ServerStartupConfiguration configuration;
+    private ApacheDS apacheDS;
 
 
     public BaseToolCommandExecutor( String name )
@@ -86,15 +86,15 @@ public abstract class BaseToolCommandExecutor extends BaseToolCommand implements
     }
 
 
-    public void setConfiguration( ServerStartupConfiguration configuration )
+    public void setApacheDS( ApacheDS apacheDS )
     {
-        this.configuration = configuration;
+        this.apacheDS = apacheDS;
     }
 
 
-    public ServerStartupConfiguration getConfiguration()
+    public ApacheDS getApacheDS()
     {
-        return configuration;
+        return apacheDS;
     }
 
 

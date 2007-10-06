@@ -47,7 +47,7 @@ public class DIRSERVER759ITest extends AbstractAdminTestCase
     {
         if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
         {
-            super.configuration.setDenormalizeOpAttrsEnabled( true );
+            super.service.setDenormalizeOpAttrsEnabled( true );
         }
         
         super.setUp();

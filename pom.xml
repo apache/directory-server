@@ -345,6 +345,7 @@
     <module>server-jndi</module>
     <module>kerberos-shared</module>
     <!--module>kerberos-unit</module-->
+    <module>interceptor-kerberos</module>
     <module>mitosis</module>
     <module>server-replication</module>
     <module>apacheds-xbean-spring</module>

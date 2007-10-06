@@ -31,7 +31,6 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
 import org.apache.directory.server.core.referral.ReferralService;
@@ -48,7 +47,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ServerLdapContext extends ServerDirContext implements LdapContext
 {
     /** A reference to the RTeferralService interceptor */
-    private transient ReferralService refService = null; 
+    private transient ReferralService refService; 
     
 
     /**
@@ -61,8 +60,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         super( service, env );
-        refService = (( ReferralService )service.getConfiguration()
-            .getInterceptorChain().get( ReferralService.class.getName() ) );        
+        refService = ( ( ReferralService ) service.getInterceptorChain().get( ReferralService.class.getName() ) );
     }
 
 
@@ -72,12 +70,13 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      *
      * @param principal the directory user principal that is propagated
      * @param dn the distinguished name of this context
+     * @param service the directory service core
+     * @throws NamingException if there are problems instantiating 
      */
-    ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
+    public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
-        refService = (( ReferralService )service.getConfiguration()
-            .getInterceptorChain().get( ReferralService.class.getName() ) );        
+        refService = ( ( ReferralService ) service.getInterceptorChain().get( ReferralService.class.getName() ) );
     }
 
 
@@ -188,11 +187,11 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
      * called when you create a new initial context for a new connection (on wire) or 
      * (programatic) caller.
      * 
-     * @throws NamingException
+     * @throws NamingException if there are failures encountered while unbinding
      */
     public void ldapUnbind() throws NamingException
     {
-        LdapDN principalDn = null;
+        LdapDN principalDn;
         Object principalDnValue = getEnvironment().get( Context.SECURITY_PRINCIPAL );
         
         if ( principalDnValue instanceof LdapDN )

@@ -19,50 +19,30 @@
  */
 package org.apache.directory.server.core.exception;
 
-
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchResult;
-
 import org.apache.commons.collections.map.LRUMap;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapAttributeInUseException;
-import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
-import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
+import org.apache.directory.shared.ldap.exception.*;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -104,7 +84,7 @@ public class ExceptionService extends BaseInterceptor
      * We need to be sure that frequently used DNs are always in cache, and not discarded.
      * We will use a LRU cache for this purpose. 
      */ 
-    private LRUMap notAliasCache;
+    private final LRUMap notAliasCache = new LRUMap( DEFAULT_CACHE_SIZE );
 
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
@@ -118,14 +98,13 @@ public class ExceptionService extends BaseInterceptor
     }
 
 
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        nexus = factoryCfg.getPartitionNexus();
-        normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        nexus = directoryService.getPartitionNexus();
+        normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         Attribute attr = nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT );
         subschemSubentryDn = new LdapDN( ( String ) attr.get() );
         subschemSubentryDn.normalize( normalizerMap );
-        notAliasCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
 
@@ -160,18 +139,18 @@ public class ExceptionService extends BaseInterceptor
         parentDn.remove( name.size() - 1 );
 
         // check if we're trying to add to a parent that is an alias
-        boolean notAnAlias = false;
+        boolean notAnAlias;
         
         synchronized( notAliasCache )
         {
         	notAnAlias = notAliasCache.containsKey( parentDn.getNormName() );
         }
         
-        if ( notAnAlias == false )
+        if ( ! notAnAlias )
         {
         	// We don't know if the parent is an alias or not, so we will launch a 
         	// lookup, and update the cache if it's not an alias
-            Attributes attrs = null;
+            Attributes attrs;
             
             try
             {
@@ -315,9 +294,9 @@ public class ExceptionService extends BaseInterceptor
         assertHasEntry( nextInterceptor, msg, opContext.getDn() );
 
         Attributes entry = nexus.lookup( new LookupOperationContext( opContext.getDn() ) );
-        List<ModificationItem> items = opContext.getModItems();
-        
-        for ( ModificationItem item:items )
+        List<ModificationItemImpl> items = opContext.getModItems();
+
+        for ( ModificationItemImpl item : items )
         {
             if ( item.getModificationOp() == DirContext.ADD_ATTRIBUTE )
             {
@@ -328,11 +307,11 @@ public class ExceptionService extends BaseInterceptor
                 {
                     for ( int jj = 0; jj < modAttr.size(); jj++ )
                     {
-                    	// TODO Fix DIRSERVER-832
+                        // TODO Fix DIRSERVER-832
                         if ( entryAttr.contains( modAttr.get( jj ) ) )
                         {
                             throw new LdapAttributeInUseException( "Trying to add existing value '" + modAttr.get( jj )
-                                + "' to attribute " + modAttr.getID() );
+                                    + "' to attribute " + modAttr.getID() );
                         }
                     }
                 }
@@ -525,7 +504,7 @@ public class ExceptionService extends BaseInterceptor
         {
 	        NamingEnumeration<SearchResult> result =  nextInterceptor.search( opContext );
 	        
-	        if ( result.hasMoreElements() == false )
+	        if ( ! result.hasMoreElements() )
 	        {
 	            if ( !base.isEmpty() && !( subschemSubentryDn.toNormName() ).equalsIgnoreCase( base.toNormName() ) )
 	            {
@@ -552,6 +531,7 @@ public class ExceptionService extends BaseInterceptor
      * @param msg        the message to prefix to the distinguished name for explanation
      * @param dn         the distinguished name of the entry that is asserted
      * @throws NamingException if the entry does not exist
+     * @param nextInterceptor the next interceptor in the chain
      */
     private void assertHasEntry( NextInterceptor nextInterceptor, String msg, LdapDN dn ) throws NamingException
     {

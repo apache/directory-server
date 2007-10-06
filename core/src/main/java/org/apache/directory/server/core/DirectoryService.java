@@ -20,20 +20,23 @@
 package org.apache.directory.server.core;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.configuration.Configuration;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -44,55 +47,35 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class DirectoryService
 {
-    private static final Map<String, DirectoryService> instances = new HashMap<String, DirectoryService>();
+    public static final String JNDI_KEY = DirectoryService.class.getName();
 
+    public abstract Hashtable<String,Object> getEnvironment();
 
-    /**
-     * Returns the default instance.  This method is identical with calling
-     * <tt>getInstance( Configuration.DEFAULT_INSTANCE_ID )</tt>.
-     */
-    public static DirectoryService getInstance()
-    {
-        return getInstance( Configuration.DEFAULT_INSTANCE_ID );
-    }
+    public abstract void setEnvironment( Hashtable<String,Object> environment );
 
+    public abstract PartitionNexus getPartitionNexus();
 
-    /**
-     * Returns {@link DirectoryService} with the specified instance ID.
-     */
-    public synchronized static DirectoryService getInstance( String instanceId )
-    {
-        instanceId = instanceId.trim();
-        DirectoryService service = instances.get( instanceId );
-        if ( service == null )
-        {
-            service = new DefaultDirectoryService( instanceId );
-            instances.put( instanceId, service );
-        }
+    public abstract InterceptorChain getInterceptorChain();
 
-        return service;
-    }
+    public abstract void addPartition( Partition partition ) throws NamingException;
+    
+    public abstract void removePartition( Partition partition ) throws NamingException;
 
+    public abstract Registries getRegistries();
 
-    /**
-     * Returns all instances of instantiated {@link DirectoryService}.
-     */
-    public synchronized static Set<DirectoryService> getAllInstances()
-    {
-        return new HashSet<DirectoryService>( instances.values() );
-    }
+    public abstract void setRegistries( Registries registries );
+
+    public abstract SchemaManager getSchemaManager();
+
+    public abstract void setSchemaManager( SchemaManager schemaManager );
 
 
     /**
      * Starts up this service.
      * 
-     * @param listener a listener that listens to the lifecycle of this service
-     * @param environment JNDI {@link InitialContext} environment
-     * 
      * @throws NamingException if failed to start up
      */
-    public abstract void startup( DirectoryServiceListener listener, Hashtable<String,Object> environment ) 
-        throws NamingException;
+    public abstract void startup() throws NamingException;
 
 
     /**
@@ -112,14 +95,9 @@ public abstract class DirectoryService
 
     /**
      * Returns <tt>true</tt> if this service is started.
+     * @return true if the service has started, false otherwise
      */
     public abstract boolean isStarted();
-
-
-    /**
-     * Returns the configuration of this service.
-     */
-    public abstract DirectoryServiceConfiguration getConfiguration();
 
 
     /**
@@ -141,4 +119,154 @@ public abstract class DirectoryService
      */
     public abstract Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
         String authentication, String baseName ) throws NamingException;
+
+
+    public abstract void setInstanceId( String instanceId );
+
+
+    public abstract String getInstanceId();
+
+
+    /**
+     * Gets the {@link Partition}s used by this DirectoryService.
+     *
+     * @return the set of partitions used
+     */
+    public abstract Set<? extends Partition> getPartitions();
+
+
+    /**
+     * Sets {@link Partition}s used by this DirectoryService.
+     *
+     * @param partitions the partitions to used
+     */
+    public abstract void setPartitions( Set<? extends Partition> partitions );
+
+
+    /**
+     * Returns <tt>true</tt> if access control checks are enabled.
+     *
+     * @return true if access control checks are enabled, false otherwise
+     */
+    public abstract boolean isAccessControlEnabled();
+
+
+    /**
+     * Sets whether to enable basic access control checks or not.
+     *
+     * @param accessControlEnabled true to enable access control checks, false otherwise
+     */
+    public abstract void setAccessControlEnabled( boolean accessControlEnabled );
+
+
+    /**
+     * Returns <tt>true</tt> if anonymous access is allowed on entries besides the RootDSE.
+     * If the access control subsystem is enabled then access to some entries may not be
+     * allowed even when full anonymous access is enabled.
+     *
+     * @return true if anonymous access is allowed on entries besides the RootDSE, false
+     * if anonymous access is allowed to all entries.
+     */
+    public abstract boolean isAllowAnonymousAccess();
+
+
+    /**
+     * Sets whether to allow anonymous access to entries other than the RootDSE.  If the
+     * access control subsystem is enabled then access to some entries may not be allowed
+     * even when full anonymous access is enabled.
+     *
+     * @param enableAnonymousAccess true to enable anonymous access, false to disable it
+     */
+    public abstract void setAllowAnonymousAccess( boolean enableAnonymousAccess );
+
+
+    /**
+     * Returns interceptors in the server.
+     *
+     * @return the interceptors in the server.
+     */
+    public abstract List<Interceptor> getInterceptors();
+
+
+    /**
+     * Sets the interceptors in the server.
+     *
+     * @param interceptors the interceptors to be used in the server.
+     */
+    public abstract void setInterceptors( List<Interceptor> interceptors );
+
+
+    /**
+     * Returns test directory entries({@link Entry}) to be loaded while
+     * bootstrapping.
+     *
+     * @return test entries to load during bootstrapping
+     */
+    public abstract List<Entry> getTestEntries();
+
+
+    /**
+     * Sets test directory entries({@link Attributes}) to be loaded while
+     * bootstrapping.
+     *
+     * @param testEntries the test entries to load while bootstrapping
+     */
+    public abstract void setTestEntries( List<? extends Entry> testEntries );
+
+
+    /**
+     * Returns working directory (counterpart of <tt>var/lib</tt>) where partitions are
+     * stored by default.
+     *
+     * @return the directory where partition's are stored.
+     */
+    public abstract File getWorkingDirectory();
+
+
+    /**
+     * Sets working directory (counterpart of <tt>var/lib</tt>) where partitions are stored
+     * by default.
+     *
+     * @param workingDirectory the directory where the server's partitions are stored by default.
+     */
+    public abstract void setWorkingDirectory( File workingDirectory );
+
+
+    public abstract void validate();
+
+
+    public abstract void setShutdownHookEnabled( boolean shutdownHookEnabled );
+
+
+    public abstract boolean isShutdownHookEnabled();
+
+
+    public abstract void setExitVmOnShutdown( boolean exitVmOnShutdown );
+
+
+    public abstract boolean isExitVmOnShutdown();
+
+
+    public abstract void setMaxSizeLimit( int maxSizeLimit );
+
+
+    public abstract int getMaxSizeLimit();
+
+
+    public abstract void setMaxTimeLimit( int maxTimeLimit );
+
+
+    public abstract int getMaxTimeLimit();
+
+
+    public abstract void setSystemPartition( Partition systemPartition );
+
+
+    public abstract Partition getSystemPartition();
+
+
+    public abstract boolean isDenormalizeOpAttrsEnabled();
+
+
+    public abstract void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled );
 }

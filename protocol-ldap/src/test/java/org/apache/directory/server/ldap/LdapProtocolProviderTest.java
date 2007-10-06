@@ -20,35 +20,17 @@
 package org.apache.directory.server.ldap;
 
 
-import java.util.Properties;
-
 import junit.framework.TestCase;
-
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.ldap.support.ExtendedHandler;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.AbandonRequestImpl;
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
-import org.apache.directory.shared.ldap.message.BindRequest;
-import org.apache.directory.shared.ldap.message.BindRequestImpl;
-import org.apache.directory.shared.ldap.message.CompareRequest;
-import org.apache.directory.shared.ldap.message.CompareRequestImpl;
-import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.DeleteRequestImpl;
-import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
-import org.apache.directory.shared.ldap.message.SearchRequest;
-import org.apache.directory.shared.ldap.message.SearchRequestImpl;
-import org.apache.directory.shared.ldap.message.UnbindRequest;
-import org.apache.directory.shared.ldap.message.UnbindRequestImpl;
+import org.apache.directory.shared.ldap.message.*;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+
+import java.util.Properties;
 
 
 /**
@@ -69,7 +51,9 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        LdapProtocolProvider provider = new LdapProtocolProvider( new LdapConfiguration(), new Properties() );
+        DirectoryService directoryService = new DefaultDirectoryService();
+        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService,
+                new LdapConfiguration(), new Properties() );
         assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }
@@ -116,7 +100,8 @@ public class LdapProtocolProviderTest extends TestCase
         props.setProperty( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
         props.setProperty( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
 
-        LdapProtocolProvider provider = new LdapProtocolProvider( new LdapConfiguration(), props );
+        DirectoryService directoryService = new DefaultDirectoryService();
+        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration(), props );
         assertNotNull( provider.getCodecFactory() );
         assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
     }

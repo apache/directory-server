@@ -43,7 +43,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
-    private List<ModificationItem> modItems;
+    private List<ModificationItemImpl> modItems;
     
     /**
      * 
@@ -60,7 +60,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Creates a new instance of ModifyOperationContext.
      *
      */
-    public ModifyOperationContext( LdapDN dn, List<ModificationItem> modItems )
+    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems )
     {
         super( dn );
         this.modItems = modItems;
@@ -70,7 +70,7 @@ public class ModifyOperationContext extends AbstractOperationContext
      * Set the modified attributes
      * @param modItems The modified attributes
      */
-    public void setModItems( List<ModificationItem> modItems ) 
+    public void setModItems( List<ModificationItemImpl> modItems )
     {
         this.modItems = modItems;
     }
@@ -78,16 +78,16 @@ public class ModifyOperationContext extends AbstractOperationContext
     /**
      * @return The modifications
      */
-    public List<ModificationItem> getModItems() 
+    public List<ModificationItemImpl> getModItems() 
     {
         return modItems;
     }
     
     @SuppressWarnings( value = "unchecked" )
-    public static List<ModificationItem> createModItems( Attributes attributes, int modOp ) throws NamingException
+    public static List<ModificationItemImpl> createModItems( Attributes attributes, int modOp ) throws NamingException
     {
-        List<ModificationItem> items = new ArrayList<ModificationItem>( attributes.size() );
-        NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attributes.getAll();
+        List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( attributes.size() );
+        NamingEnumeration<Attribute> e = ( NamingEnumeration<Attribute> ) attributes.getAll();
         
         while ( e.hasMore() )
         {

@@ -19,27 +19,9 @@
  */
 package org.apache.directory.mitosis.operation;
 
-
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNFactory;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.UUIDFactory;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -50,8 +32,16 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
+
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -88,14 +78,14 @@ public class OperationFactory
     private final AttributeTypeRegistry attributeRegistry;
 
 
-    public OperationFactory( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
+    public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
         this.replicaId = cfg.getReplicaId();
-        this.environment = serviceCfg.getEnvironment();
-        this.nexus = serviceCfg.getPartitionNexus();
+        this.environment = directoryService.getEnvironment();
+        this.nexus = directoryService.getPartitionNexus();
         this.uuidFactory = cfg.getUuidFactory();
         this.csnFactory = cfg.getCsnFactory();
-        this.attributeRegistry = serviceCfg.getRegistries().getAttributeTypeRegistry();
+        this.attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -164,7 +154,7 @@ public class OperationFactory
      */
     public Operation newModify( ModifyOperationContext opContext )
     {
-        List<ModificationItem> items = opContext.getModItems();
+        List<ModificationItemImpl> items = opContext.getModItems();
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();

@@ -20,40 +20,11 @@
 package org.apache.directory.server.core.authn;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
 import org.apache.directory.server.core.jndi.ServerContext;
@@ -65,6 +36,13 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+import java.util.*;
+
 
 /**
  * An {@link Interceptor} that authenticates users.
@@ -75,12 +53,12 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthenticationService extends BaseInterceptor
 {
-    private static final Logger log = LoggerFactory.getLogger( AuthenticationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
 
     /**
      * Speedup for logs
      */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private Set<Authenticator> authenticators;
     private final Map<String, Collection<Authenticator>> authenticatorsMapByType = new HashMap<String, Collection<Authenticator>>();
@@ -95,7 +73,7 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Registers and initializes all {@link Authenticator}s to this service.
      */
-    public void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
 
         if ( authenticators == null )
@@ -105,7 +83,7 @@ public class AuthenticationService extends BaseInterceptor
         // Register all authenticators
         for ( Authenticator authenticator : authenticators )
         {
-            register( authenticator, factoryCfg );
+            register( authenticator, directoryService );
         }
     }
 
@@ -153,12 +131,12 @@ public class AuthenticationService extends BaseInterceptor
      * this service.
      *
      * @param authenticator Authenticator to initialize and register by type
-     * @param factoryConfig configuration info to supply to the Authenticator during initialization
+     * @param directoryService configuration info to supply to the Authenticator during initialization
      * @throws javax.naming.NamingException if initialization fails.
      */
-    private void register( Authenticator authenticator, DirectoryServiceConfiguration factoryConfig ) throws NamingException
+    private void register( Authenticator authenticator, DirectoryService directoryService ) throws NamingException
     {
-        authenticator.init( factoryConfig );
+        authenticator.init( directoryService );
 
         Collection<Authenticator> authenticatorList = getAuthenticators( authenticator.getAuthenticatorType() );
 
@@ -196,7 +174,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Adding the entry " +
+            LOG.debug( "Adding the entry " +
                     AttributeUtils.toString( opContext.getEntry() ) +
                     " for DN = '" + opContext.getDn().getUpName() + "'" );
         }
@@ -210,7 +188,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Deleting name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.DEL_REQUEST );
@@ -223,7 +201,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Matching name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
@@ -235,7 +213,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Getting root DSE" );
+            LOG.debug( "Getting root DSE" );
         }
 
         checkAuthenticated();
@@ -247,7 +225,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Getting suffix for name = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
@@ -259,7 +237,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
+            LOG.debug( "Testing if entry name = '" + opContext.getDn().getUpName() + "' exists" );
         }
 
         checkAuthenticated();
@@ -271,7 +249,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Listing base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated();
@@ -283,7 +261,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Listing suffixes" );
+            LOG.debug( "Listing suffixes" );
         }
 
         checkAuthenticated();
@@ -300,10 +278,10 @@ public class AuthenticationService extends BaseInterceptor
             if ( ( attrIds != null ) && ( attrIds.size() != 0 ) )
             {
                 String attrs = StringTools.listToString( attrIds );
-                log.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', attributes = " + attrs );
+                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', attributes = " + attrs );
             } else
             {
-                log.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', no attributes " );
+                LOG.debug( "Lookup name = '" + opContext.getDn().getUpName() + "', no attributes " );
             }
         }
 
@@ -330,7 +308,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( opContext.toString() );
+            LOG.debug( opContext.toString() );
         }
 
         checkAuthenticated( MessageTypeEnum.MODIFY_REQUEST );
@@ -343,7 +321,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" +
+            LOG.debug( "Modifying name = '" + opContext.getDn().getUpName() + "', new RDN = '" +
                     opContext.getNewRdn() + "', " +
                     "oldRDN = '" + opContext.getDelOldDn() + "'" );
         }
@@ -359,7 +337,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" +
+            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + "' to name = '" +
                     opContext.getParent() + "', new RDN = '" +
                     opContext.getNewRdn() + "', oldRDN = '" +
                     opContext.getDelOldDn() + "'" );
@@ -375,7 +353,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" +
+            LOG.debug( "Moving name = '" + opContext.getDn().getUpName() + " to name = '" +
                     opContext.getParent().getUpName() + "'" );
         }
 
@@ -389,7 +367,7 @@ public class AuthenticationService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
+            LOG.debug( "Search for base = '" + opContext.getDn().getUpName() + "'" );
         }
 
         checkAuthenticated( MessageTypeEnum.SEARCH_REQUEST );
@@ -405,7 +383,7 @@ public class AuthenticationService extends BaseInterceptor
         }
         catch ( IllegalStateException ise )
         {
-            log.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
+            LOG.error( "Attempted operation {} by unauthenticated caller.", operation.name() );
 
             throw new IllegalStateException( "Attempted operation by unauthenticated caller." );
         }
@@ -438,7 +416,7 @@ public class AuthenticationService extends BaseInterceptor
 
         if ( IS_DEBUG )
         {
-            log.debug( "Bind operation. bindDn: " + bindUpDn );
+            LOG.debug( "Bind operation. bindDn: " + bindUpDn );
         }
 
         // check if we are already authenticated and if so we return making
@@ -447,7 +425,7 @@ public class AuthenticationService extends BaseInterceptor
 
         if ( IS_DEBUG )
         {
-            log.debug( "bind: principal: " + ctx.getPrincipal() );
+            LOG.debug( "bind: principal: " + ctx.getPrincipal() );
         }
 
         if ( ctx.getPrincipal() != null )
@@ -475,12 +453,12 @@ public class AuthenticationService extends BaseInterceptor
 
         if ( authenticators == null )
         {
-            log.debug( "No authenticators found, delegating bind to the nexus." );
+            LOG.debug( "No authenticators found, delegating bind to the nexus." );
 
             // as a last resort try binding via the nexus
             next.bind( opContext );
 
-            log.debug( "Nexus succeeded on bind operation." );
+            LOG.debug( "Nexus succeeded on bind operation." );
 
             // bind succeeded if we got this far 
             ctx.setPrincipal( new TrustedPrincipalWrapper( new LdapPrincipal( normBindDn, LdapJndiProperties
@@ -511,24 +489,24 @@ public class AuthenticationService extends BaseInterceptor
             catch ( LdapAuthenticationException e )
             {
                 // authentication failed, try the next authenticator
-                if ( log.isInfoEnabled() )
+                if ( LOG.isInfoEnabled() )
                 {
-                    log.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
+                    LOG.info( "Authenticator " + authenticator.getClass() + " failed to authenticate " + bindUpDn );
                 }
             }
             catch ( Exception e )
             {
                 // Log other exceptions than LdapAuthenticationException
-                if ( log.isWarnEnabled() )
+                if ( LOG.isWarnEnabled() )
                 {
-                    log.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
+                    LOG.warn( "Unexpected exception from " + authenticator.getClass() + " for principal " + bindUpDn, e );
                 }
             }
         }
 
-        if ( log.isInfoEnabled() )
+        if ( LOG.isInfoEnabled() )
         {
-            log.info( "Cannot bind to the server " );
+            LOG.info( "Cannot bind to the server " );
         }
 
         throw new LdapAuthenticationException();

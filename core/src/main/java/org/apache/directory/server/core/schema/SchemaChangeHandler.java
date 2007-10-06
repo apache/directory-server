@@ -20,13 +20,12 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.List;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.ModificationItem;
-
-import org.apache.directory.shared.ldap.name.LdapDN;
+import java.util.List;
 
 
 /**
@@ -47,7 +46,7 @@ public interface SchemaChangeHandler
     void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
         throws NamingException;
     
-    void modify( LdapDN name, List<ModificationItem> mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
+    void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry, Attributes targetEntry, boolean cascaded )
         throws NamingException;
     
     void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry, 

@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.authz;
 
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryService;
 import org.apache.directory.server.core.unit.AbstractTestCase;
@@ -28,13 +29,12 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.NamingException;
 import javax.naming.Name;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
 import java.util.Hashtable;
 
 
@@ -58,7 +58,7 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     public AbstractAuthorizationITest()
     {
         super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
-        super.configuration.setAccessControlEnabled( true );
+        super.service.setAccessControlEnabled( true );
     }
 
 
@@ -95,6 +95,8 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL );
         env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
+        env.put( DirContext.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        env.put( DirectoryService.JNDI_KEY, service );
         return new InitialDirContext( env );
     }
 
@@ -169,6 +171,10 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
      * Creates a simple groupOfUniqueNames under the ou=groups,ou=system
      * container.  The admin user is always a member of this newly created 
      * group.
+     *
+     * @param groupName the name of the cgroup to create
+     * @return the DN of the group as a Name object
+     * @throws NamingException if the group cannot be created
      */
     public Name createGroup( String groupName ) throws NamingException
     {
@@ -246,6 +252,8 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
         env.put( DirContext.SECURITY_PRINCIPAL, user.toString() );
         env.put( DirContext.SECURITY_CREDENTIALS, password );
+        env.put( DirContext.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        env.put( DirectoryService.JNDI_KEY, service );
         return new InitialDirContext( env );
     }
 
@@ -344,8 +352,10 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
     /**
      * Replaces values of an prescriptiveACI attribute of a subentry subordinate
      * to ou=system.
-     * @throws NamingException 
      *
+     * @param cn the common name of the aci subentry
+     * @param aciItem the new value for the ACI item
+     * @throws NamingException if the modify fails
      */
     public void changePresciptiveACI( String cn, String aciItem ) throws NamingException
     {

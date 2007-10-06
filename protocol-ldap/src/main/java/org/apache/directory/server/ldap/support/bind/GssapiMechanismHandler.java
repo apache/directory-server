@@ -20,15 +20,15 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.security.PrivilegedExceptionAction;
-import java.util.Map;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.mina.common.IoSession;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
-
-import org.apache.mina.common.IoSession;
+import java.security.PrivilegedExceptionAction;
+import java.util.Map;
 
 
 /**
@@ -37,6 +37,14 @@ import org.apache.mina.common.IoSession;
  */
 public class GssapiMechanismHandler implements MechanismHandler
 {
+    private final DirectoryService directoryService;
+
+
+    public GssapiMechanismHandler( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
     public SaslServer handleMechanism( IoSession session, Object message ) throws Exception
     {
         SaslServer ss;
@@ -52,12 +60,14 @@ public class GssapiMechanismHandler implements MechanismHandler
             final Map saslProps = ( Map ) session.getAttribute( "saslProps" );
             final String saslHost = ( String ) session.getAttribute( "saslHost" );
 
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( session, message );
+            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, message );
 
+            //noinspection unchecked
             ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction()
             {
                 public Object run() throws Exception
                 {
+                    //noinspection unchecked
                     return Sasl.createSaslServer( "GSSAPI", "ldap", saslHost, saslProps, callbackHandler );
                 }
             } );

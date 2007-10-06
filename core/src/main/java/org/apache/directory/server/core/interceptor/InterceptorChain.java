@@ -20,38 +20,8 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.ConfigurationException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -59,6 +29,13 @@ import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.ConfigurationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+import java.util.*;
 
 
 /**
@@ -69,10 +46,10 @@ import org.slf4j.LoggerFactory;
  */
 public class InterceptorChain
 {
-    private static final Logger log = LoggerFactory.getLogger( InterceptorChain.class );
+    private static final Logger LOG = LoggerFactory.getLogger( InterceptorChain.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
@@ -84,9 +61,9 @@ public class InterceptorChain
             return "FINAL";
         }
 
-        public void init( DirectoryServiceConfiguration factoryCfg )
+        public void init( DirectoryService directoryService )
         {
-            this.nexus = factoryCfg.getPartitionNexus();
+            this.nexus = directoryService.getPartitionNexus();
         }
 
 
@@ -219,7 +196,8 @@ public class InterceptorChain
 
     private Entry head;
 
-    private DirectoryServiceConfiguration factoryCfg;
+    @SuppressWarnings ( { "UnusedDeclaration" } )
+    private DirectoryService directoryService;
 
 
     /**
@@ -234,25 +212,24 @@ public class InterceptorChain
 
     /**
      * Initializes and registers all interceptors according to the specified
-     * {@link DirectoryServiceConfiguration}.
-     * @param factoryCfg Configuration to initialize with
+     * {@link DirectoryService}.
      * @throws javax.naming.NamingException if an interceptor cannot be initialized.
+     * @param directoryService the directory core
      */
-    public synchronized void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public synchronized void init( DirectoryService directoryService ) throws NamingException
     {
-        this.factoryCfg = factoryCfg;
-
         // Initialize tail first.
-        FINAL_INTERCEPTOR.init( factoryCfg);
+        this.directoryService = directoryService;
+        FINAL_INTERCEPTOR.init( directoryService );
 
         // And register and initialize all interceptors
         try
         {
-            for (Interceptor interceptor: factoryCfg.getStartupConfiguration().getInterceptors() )
+            for ( Interceptor interceptor: directoryService.getInterceptors() )
             {
                 if ( IS_DEBUG )
                 {
-                    log.debug( "Adding interceptor " + interceptor.getName() );
+                    LOG.debug( "Adding interceptor " + interceptor.getName() );
                 }
 
                 register( interceptor );
@@ -300,7 +277,7 @@ public class InterceptorChain
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " + entry.getName(), t );
+                    LOG.warn( "Failed to deregister an interceptor: " + entry.getName(), t );
                 }
             }
         }
@@ -437,8 +414,8 @@ public class InterceptorChain
     private void register0( Interceptor interceptor, Entry nextEntry ) throws NamingException
     {
         String name = interceptor.getName();
-        interceptor.init( factoryCfg);
 
+        interceptor.init( directoryService );
         Entry newEntry;
         if ( nextEntry == head )
         {

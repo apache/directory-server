@@ -55,7 +55,7 @@ public class AddITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
 
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -104,7 +104,7 @@ public class AddITest extends AbstractServerTest
      * Just a little test to check wether the person is created correctly after
      * setup.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect to the server
      */
     public void testSetUpTearDown() throws NamingException
     {
@@ -116,11 +116,9 @@ public class AddITest extends AbstractServerTest
         Attributes attributes = person.getAttributes( "" );
         Attribute ocls = attributes.get( "objectClass" );
 
-        String[] expectedOcls =
-            { "top", "person" };
-        for ( int i = 0; i < expectedOcls.length; i++ )
+        String[] expectedOcls = { "top", "person" };
+        for ( String name : expectedOcls )
         {
-            String name = expectedOcls[i];
             assertTrue( "object class " + name + " is NOT present when it should be!", ocls.contains( name ) );
         }
     }
@@ -129,7 +127,7 @@ public class AddITest extends AbstractServerTest
     /**
      * This is the original defect as in JIRA DIREVE-216.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect and perform add operations
      */
     public void testAddObjectClasses() throws NamingException
     {
@@ -149,11 +147,9 @@ public class AddITest extends AbstractServerTest
         attributes = person.getAttributes( "" );
         Attribute newOcls = attributes.get( "objectClass" );
 
-        String[] expectedOcls =
-            { "top", "person", "organizationalPerson", "inetOrgPerson" };
-        for ( int i = 0; i < expectedOcls.length; i++ )
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+        for ( String name : expectedOcls )
         {
-            String name = expectedOcls[i];
             assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
         }
     }
@@ -162,7 +158,7 @@ public class AddITest extends AbstractServerTest
     /**
      * This changes a single attribute value. Just as a reference.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect and modify the description
      */
     public void testModifyDescription() throws NamingException
     {
@@ -188,7 +184,7 @@ public class AddITest extends AbstractServerTest
     /**
      * Try to add entry with required attribute missing.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect
      */
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
@@ -224,7 +220,7 @@ public class AddITest extends AbstractServerTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
     public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
@@ -266,7 +262,7 @@ public class AddITest extends AbstractServerTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
     public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
     {
@@ -309,7 +305,7 @@ public class AddITest extends AbstractServerTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
     {
@@ -349,7 +345,7 @@ public class AddITest extends AbstractServerTest
     /**
      * Try to add entry with invalid number of values for a single-valued atribute
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
@@ -382,7 +378,7 @@ public class AddITest extends AbstractServerTest
     /**
      * Try to add entry and an alias to it. Afterwards, remove it.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      */
     public void testAddAlias() throws NamingException
     {
@@ -420,7 +416,7 @@ public class AddITest extends AbstractServerTest
      * Try to add entry and an alias to it. Afterwards, remove it. This version
      * cretes a container entry before the operations.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      */
     public void testAddAliasInContainer() throws NamingException
     {

@@ -56,7 +56,7 @@ import org.apache.mina.common.IoSession;
  */
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
-    public static final Set EXTENSION_OIDS;
+    public static final Set<String> EXTENSION_OIDS;
 
     static
     {
@@ -95,7 +95,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
-            PartitionNexus nexus = service.getConfiguration().getPartitionNexus();
+            PartitionNexus nexus = service.getPartitionNexus();
             Iterator list = nexus.listSuffixes( new ListSuffixOperationContext() );
             int launchedWindowCount = 0;
             
@@ -152,7 +152,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public Set getExtensionOids()
+    public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }

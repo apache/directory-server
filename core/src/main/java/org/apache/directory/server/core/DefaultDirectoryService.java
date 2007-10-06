@@ -20,19 +20,20 @@
 package org.apache.directory.server.core;
 
 
+import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.ConfigurationException;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.collective.CollectiveAttributeService;
+import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.exception.ExceptionService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.jndi.AbstractContextFactory;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.server.core.normalization.NormalizationService;
+import org.apache.directory.server.core.operational.OperationalAttributeService;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -40,14 +41,19 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.referral.ReferralService;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.schema.SchemaPartitionDao;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.trigger.TriggerService;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.*;
+import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
@@ -81,22 +87,15 @@ import java.util.*;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-class DefaultDirectoryService extends DirectoryService
+public class DefaultDirectoryService extends DirectoryService
 {
-    private static final Logger log = LoggerFactory.getLogger( DefaultDirectoryService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
-    private final DirectoryServiceConfiguration configuration = new DefaultDirectoryServiceConfiguration( this );
-
-    private DirectoryServiceListener serviceListener;
-    
     private SchemaManager schemaManager;
 
     /** the initial context environment that fired up the backend subsystem */
     private Hashtable<String, Object> environment;
-
-    /** the configuration */
-    private StartupConfiguration startupConfiguration;
 
     /** the registries for system schema objects */
     private Registries registries;
@@ -111,7 +110,7 @@ class DefaultDirectoryService extends DirectoryService
     private InterceptorChain interceptorChain;
 
     /** whether or not this instance has been shutdown */
-    private boolean started = false;
+    private boolean started;
 
 
     // ------------------------------------------------------------------------
@@ -122,13 +121,10 @@ class DefaultDirectoryService extends DirectoryService
     /**
      * Creates a new instance.
      */
-    public DefaultDirectoryService( String instanceId )
+    public DefaultDirectoryService()
     {
-        if ( instanceId == null )
-        {
-            throw new NullPointerException( "instanceId" );
-        }
-        this.instanceId = instanceId;
+        environment = new Hashtable<String,Object>();
+        setDefaultInterceptorConfigurations();
     }
 
 
@@ -137,31 +133,342 @@ class DefaultDirectoryService extends DirectoryService
     // ------------------------------------------------------------------------
 
 
-//    public static final int MAX_THREADS_DEFAULT = 32;
-//    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
-//    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
-//
+    public static final int MAX_SIZE_LIMIT_DEFAULT = 100;
+    public static final int MAX_TIME_LIMIT_DEFAULT = 10000;
+
     private String instanceId;
-//    private File workingDirectory = new File( "server-work" );
-//    private boolean exitVmOnShutdown = true; // allow by default
-//    private boolean shutdownHookEnabled = true; // allow by default
-//    private boolean allowAnonymousAccess = true; // allow by default
-//    private boolean accessControlEnabled; // off by default
-//    private boolean denormalizeOpAttrsEnabled; // off by default
-//    private int maxThreads = MAX_THREADS_DEFAULT; // set to default value
-//    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
-//    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
-//    private List<Interceptor> interceptors;
-//    private Partition systemPartition;
-//    private Set<? extends Partition> partitions = new HashSet<Partition>();
-//    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
+    private File workingDirectory = new File( "server-work" );
+    private boolean exitVmOnShutdown = true; // allow by default
+    private boolean shutdownHookEnabled = true; // allow by default
+    private boolean allowAnonymousAccess = true; // allow by default
+    private boolean accessControlEnabled; // off by default
+    private boolean denormalizeOpAttrsEnabled; // off by default
+    private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
+    private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
+    private List<Interceptor> interceptors;
+    private Partition systemPartition;
+    private Set<Partition> partitions = new HashSet<Partition>();
+    private List<? extends Entry> testEntries = new ArrayList<Entry>(); // List<Attributes>
 
 
+
+    public void setInstanceId( String instanceId )
+    {
+        this.instanceId = instanceId;
+    }
+
+
+    public String getInstanceId()
+    {
+        return instanceId;
+    }
+
+
+    /**
+     * Gets the {@link Partition}s used by this DirectoryService.
+     *
+     * @return the set of partitions used
+     */
+    public Set<? extends Partition> getPartitions()
+    {
+        Set<Partition> cloned = new HashSet<Partition>();
+        cloned.addAll( partitions );
+        return cloned;
+    }
+
+
+    /**
+     * Sets {@link Partition}s used by this DirectoryService.
+     *
+     * @param partitions the partitions to used
+     */
+    public void setPartitions( Set<? extends Partition> partitions )
+    {
+        Set<Partition> cloned = new HashSet<Partition>();
+        cloned.addAll( partitions );
+        Set<String> names = new HashSet<String>();
+        for ( Partition partition : cloned )
+        {
+            String id = partition.getId();
+            if ( names.contains( id ) )
+            {
+                LOG.warn( "Encountered duplicate partition {} identifier.", id );
+            }
+            names.add( id );
+        }
+
+        this.partitions = cloned;
+    }
+
+
+    /**
+     * Returns <tt>true</tt> if access control checks are enabled.
+     *
+     * @return true if access control checks are enabled, false otherwise
+     */
+    public boolean isAccessControlEnabled()
+    {
+        return accessControlEnabled;
+    }
+
+
+    /**
+     * Sets whether to enable basic access control checks or not.
+     *
+     * @param accessControlEnabled true to enable access control checks, false otherwise
+     */
+    public void setAccessControlEnabled( boolean accessControlEnabled )
+    {
+        this.accessControlEnabled = accessControlEnabled;
+    }
+
+
+    /**
+     * Returns <tt>true</tt> if anonymous access is allowed on entries besides the RootDSE.
+     * If the access control subsystem is enabled then access to some entries may not be
+     * allowed even when full anonymous access is enabled.
+     *
+     * @return true if anonymous access is allowed on entries besides the RootDSE, false
+     * if anonymous access is allowed to all entries.
+     */
+    public boolean isAllowAnonymousAccess()
+    {
+        return allowAnonymousAccess;
+    }
+
+
+    /**
+     * Sets whether to allow anonymous access to entries other than the RootDSE.  If the
+     * access control subsystem is enabled then access to some entries may not be allowed
+     * even when full anonymous access is enabled.
+     *
+     * @param enableAnonymousAccess true to enable anonymous access, false to disable it
+     */
+    public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
+    {
+        this.allowAnonymousAccess = enableAnonymousAccess;
+    }
+
+
+    /**
+     * Returns interceptors in the server.
+     *
+     * @return the interceptors in the server.
+     */
+    public List<Interceptor> getInterceptors()
+    {
+        List<Interceptor> cloned = new ArrayList<Interceptor>();
+        cloned.addAll( interceptors );
+        return cloned;
+    }
+
+
+    /**
+     * Sets the interceptors in the server.
+     *
+     * @param interceptors the interceptors to be used in the server.
+     */
+    public void setInterceptors( List<Interceptor> interceptors ) 
+    {
+        Set<String> names = new HashSet<String>();
+        for ( Interceptor interceptor : interceptors )
+        {
+            String name = interceptor.getName();
+            if ( names.contains( name ) )
+            {
+                LOG.warn( "Encountered duplicate definitions for {} interceptor", interceptor.getName() );
+            }
+            names.add( name );
+        }
+
+        this.interceptors = interceptors;
+    }
+
+
+    /**
+     * Returns test directory entries({@link Entry}) to be loaded while
+     * bootstrapping.
+     *
+     * @return test entries to load during bootstrapping
+     */
+    public List<Entry> getTestEntries()
+    {
+        List<Entry> cloned = new ArrayList<Entry>();
+        cloned.addAll( testEntries );
+        return cloned;
+    }
+
+
+    /**
+     * Sets test directory entries({@link Attributes}) to be loaded while
+     * bootstrapping.
+     *
+     * @param testEntries the test entries to load while bootstrapping
+     */
+    public void setTestEntries( List<? extends Entry> testEntries )
+    {
+        //noinspection MismatchedQueryAndUpdateOfCollection
+        List<Entry> cloned = new ArrayList<Entry>();
+        cloned.addAll( testEntries );
+        this.testEntries = testEntries;
+    }
+
+
+    /**
+     * Returns working directory (counterpart of <tt>var/lib</tt>) where partitions are
+     * stored by default.
+     *
+     * @return the directory where partition's are stored.
+     */
+    public File getWorkingDirectory()
+    {
+        return workingDirectory;
+    }
+
+
+    /**
+     * Sets working directory (counterpart of <tt>var/lib</tt>) where partitions are stored
+     * by default.
+     *
+     * @param workingDirectory the directory where the server's partitions are stored by default.
+     */
+    public void setWorkingDirectory( File workingDirectory )
+    {
+        this.workingDirectory = workingDirectory;
+    }
+
+
+    public void validate()
+    {
+        setWorkingDirectory( workingDirectory );
+    }
+
+
+    public void setShutdownHookEnabled( boolean shutdownHookEnabled )
+    {
+        this.shutdownHookEnabled = shutdownHookEnabled;
+    }
+
+
+    public boolean isShutdownHookEnabled()
+    {
+        return shutdownHookEnabled;
+    }
+
+
+    public void setExitVmOnShutdown( boolean exitVmOnShutdown )
+    {
+        this.exitVmOnShutdown = exitVmOnShutdown;
+    }
+
+
+    public boolean isExitVmOnShutdown()
+    {
+        return exitVmOnShutdown;
+    }
+
+
+    public void setMaxSizeLimit( int maxSizeLimit )
+    {
+        this.maxSizeLimit = maxSizeLimit;
+    }
+
+
+    public int getMaxSizeLimit()
+    {
+        return maxSizeLimit;
+    }
+
+
+    public void setMaxTimeLimit( int maxTimeLimit )
+    {
+        this.maxTimeLimit = maxTimeLimit;
+    }
+
+
+    public int getMaxTimeLimit()
+    {
+        return maxTimeLimit;
+    }
+
+    public void setSystemPartition( Partition systemPartition )
+    {
+        this.systemPartition = systemPartition;
+    }
+
+
+    public Partition getSystemPartition()
+    {
+        return systemPartition;
+    }
+
+
+    public boolean isDenormalizeOpAttrsEnabled()
+    {
+        return denormalizeOpAttrsEnabled;
+    }
+
+
+    public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+    {
+        this.denormalizeOpAttrsEnabled = denormalizeOpAttrsEnabled;
+    }
+
+
+    public void addPartition( Partition parition ) throws NamingException
+    {
+        partitions.add( parition );
+
+        if ( ! started )
+        {
+            return;
+        }
+
+        AddContextPartitionOperationContext addPartitionCtx = new AddContextPartitionOperationContext( parition );
+        partitionNexus.addContextPartition( addPartitionCtx );
+    }
+
+
+    public void removePartition( Partition partition ) throws NamingException
+    {
+        partitions.remove( partition );
+
+        if ( ! started )
+        {
+            return;
+        }
+
+        RemoveContextPartitionOperationContext removePartitionCtx =
+                new RemoveContextPartitionOperationContext( partition.getSuffixDn() );
+        partitionNexus.removeContextPartition( removePartitionCtx );
+    }
 
 
     // ------------------------------------------------------------------------
     // BackendSubsystem Interface Method Implemetations
     // ------------------------------------------------------------------------
+
+
+    private void setDefaultInterceptorConfigurations()
+    {
+        // Set default interceptor chains
+        List<Interceptor> list = new ArrayList<Interceptor>();
+
+        list.add( new NormalizationService() );
+        list.add( new AuthenticationService() );
+        list.add( new ReferralService() );
+        list.add( new AuthorizationService() );
+        list.add( new DefaultAuthorizationService() );
+        list.add( new ExceptionService() );
+        list.add( new OperationalAttributeService() );
+        list.add( new SchemaService() );
+        list.add( new SubentryService() );
+        list.add( new CollectiveAttributeService() );
+        list.add( new EventService() );
+        list.add( new TriggerService() );
+
+        setInterceptors( list );
+    }
 
 
     public Context getJndiContext( String rootDN ) throws NamingException
@@ -180,7 +487,8 @@ class DefaultDirectoryService extends DirectoryService
             return new DeadContext();
         }
 
-        Hashtable<String, Object> environment = getEnvironment();
+        //noinspection unchecked
+        Hashtable<String, Object> environment = ( Hashtable<String, Object> ) getEnvironment().clone();
         environment.remove( Context.SECURITY_PRINCIPAL );
         environment.remove( Context.SECURITY_CREDENTIALS );
         environment.remove( Context.SECURITY_AUTHENTICATION );
@@ -205,24 +513,20 @@ class DefaultDirectoryService extends DirectoryService
             rootDN = "";
         }
         environment.put( Context.PROVIDER_URL, rootDN );
-        
+        environment.put( DirectoryService.JNDI_KEY, this );
+
         return new ServerLdapContext( this, environment );
     }
 
 
-    @SuppressWarnings("unchecked")
-    public synchronized void startup( DirectoryServiceListener listener, Hashtable env ) throws NamingException
+    public synchronized void startup() throws NamingException
     {
         if ( started )
         {
             return;
         }
 
-        Hashtable<String,Object> envCopy = ( Hashtable ) env.clone();
-
-        StartupConfiguration cfg = ( StartupConfiguration ) Configuration.toConfiguration( env );
-
-        if ( cfg.isShutdownHookEnabled() )
+        if ( shutdownHookEnabled )
         {
             Runtime.getRuntime().addShutdownHook( new Thread( new Runnable()
             {
@@ -234,50 +538,29 @@ class DefaultDirectoryService extends DirectoryService
                     }
                     catch ( NamingException e )
                     {
-                        log.warn( "Failed to shut down the directory service: "
+                        LOG.warn( "Failed to shut down the directory service: "
                             + DefaultDirectoryService.this.instanceId, e );
                     }
                 }
             }, "ApacheDS Shutdown Hook (" + instanceId + ')' ) );
 
-            log.info( "ApacheDS shutdown hook has been registered with the runtime." );
+            LOG.info( "ApacheDS shutdown hook has been registered with the runtime." );
         }
-        else if ( log.isWarnEnabled() )
+        else if ( LOG.isWarnEnabled() )
         {
-            log.warn( "ApacheDS shutdown hook has NOT been registered with the runtime."
+            LOG.warn( "ApacheDS shutdown hook has NOT been registered with the runtime."
                 + "  This default setting for standalone operation has been overriden." );
         }
-
-        envCopy.put( Context.PROVIDER_URL, "" );
-
-        try
-        {
-            cfg.validate();
-        }
-        catch ( ConfigurationException e )
-        {
-            NamingException ne = new LdapConfigurationException( "Invalid configuration." );
-            ne.initCause( e );
-            throw ne;
-        }
-
-        this.environment = envCopy;
-        this.startupConfiguration = cfg;
-
-        listener.beforeStartup( this );
 
         initialize();
         firstStart = createBootstrapEntries();
         showSecurityWarnings();
-        this.serviceListener = listener;
         started = true;
         
-        if ( !startupConfiguration.getTestEntries().isEmpty() )
+        if ( !testEntries.isEmpty() )
         {
-            createTestEntries( env );
+            createTestEntries();
         }
-        
-        listener.afterStartup( this );
     }
 
 
@@ -288,15 +571,7 @@ class DefaultDirectoryService extends DirectoryService
             return;
         }
 
-        serviceListener.beforeSync( this );
-        try
-        {
-            this.partitionNexus.sync();
-        }
-        finally
-        {
-            serviceListener.afterSync( this );
-        }
+        this.partitionNexus.sync();
     }
 
 
@@ -307,33 +582,12 @@ class DefaultDirectoryService extends DirectoryService
             return;
         }
 
-        serviceListener.beforeShutdown( this );
-        try
-        {
-            this.partitionNexus.sync();
-            this.partitionNexus.destroy();
-            this.interceptorChain.destroy();
-            this.started = false;
-        }
-        finally
-        {
-            serviceListener.afterShutdown( this );
-            environment = null;
-            interceptorChain = null;
-            startupConfiguration = null;
-        }
-    }
-
-
-    public String getInstanceId()
-    {
-        return instanceId;
-    }
-
-
-    public DirectoryServiceConfiguration getConfiguration()
-    {
-        return configuration;
+        this.partitionNexus.sync();
+        this.partitionNexus.destroy();
+        this.interceptorChain.destroy();
+        this.started = false;
+        setDefaultInterceptorConfigurations();
+        this.environment = new Hashtable<String,Object>();
     }
 
 
@@ -344,21 +598,21 @@ class DefaultDirectoryService extends DirectoryService
     }
 
 
-    public DirectoryServiceListener getServiceListener()
+    public void setEnvironment( Hashtable<String, Object> environment )
     {
-        return serviceListener;
-    }
-
-
-    public StartupConfiguration getStartupConfiguration()
-    {
-        return startupConfiguration;
+        this.environment = environment;
     }
 
 
     public Registries getRegistries()
     {
         return registries;
+    }
+
+
+    public void setRegistries( Registries registries )
+    {
+        this.registries = registries;
     }
 
 
@@ -390,6 +644,9 @@ class DefaultDirectoryService extends DirectoryService
      * Checks to make sure security environment parameters are set correctly.
      *
      * @throws javax.naming.NamingException if the security settings are not correctly configured.
+     * @param authentication the mechanism for authentication
+     * @param credential the password
+     * @param principal the distinguished name of the principal
      */
     private void checkSecuritySettings( String principal, byte[] credential, String authentication )
         throws NamingException
@@ -449,7 +706,7 @@ class DefaultDirectoryService extends DirectoryService
                     + " property is set" );
             }
 
-            if ( !startupConfiguration.isAllowAnonymousAccess() )
+            if ( !allowAnonymousAccess )
             {
                 throw new LdapNoPermissionException( "Anonymous access disabled." );
             }
@@ -470,7 +727,8 @@ class DefaultDirectoryService extends DirectoryService
      * start of the server.  Otherwise if all entries exist, meaning none
      * had to be created, then we are not starting for the first time.
      *
-     * @throws javax.naming.NamingException
+     * @return true if the bootstrap entries had to be created, false otherwise
+     * @throws javax.naming.NamingException if entries cannot be created
      */
     private boolean createBootstrapEntries() throws NamingException
     {
@@ -512,7 +770,7 @@ class DefaultDirectoryService extends DirectoryService
         // create system users area
         // -------------------------------------------------------------------
 
-        Map<String,OidNormalizer> oidsMap = configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        Map<String,OidNormalizer> oidsMap = registries.getAttributeTypeRegistry().getNormalizerMapping();
         LdapDN userDn = new LdapDN( "ou=users,ou=system" );
         userDn.normalize( oidsMap );
         
@@ -584,13 +842,13 @@ class DefaultDirectoryService extends DirectoryService
             
             if ( authzInterceptor == null )
             {
-                log.error( "The Authorization service is null : this is not allowed" );
+                LOG.error( "The Authorization service is null : this is not allowed" );
                 throw new NamingException( "The Authorization service is null" );
             }
             
             if ( !( authzInterceptor instanceof AuthorizationService) )
             {
-                log.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor", 
+                LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
                     authzInterceptor.getClass().getName() );
                 throw new NamingException( "The Authorization service is incorrectly set" );
                 
@@ -728,6 +986,7 @@ class DefaultDirectoryService extends DirectoryService
 
     /**
      * Displays security warning messages if any possible secutiry issue is found.
+     * @throws NamingException if there are failures parsing and accessing internal structures
      */
     private void showSecurityWarnings() throws NamingException
     {
@@ -735,7 +994,7 @@ class DefaultDirectoryService extends DirectoryService
         boolean needToChangeAdminPassword = false;
 
         LdapDN adminDn = new LdapDN( PartitionNexus.ADMIN_PRINCIPAL );
-        adminDn.normalize( configuration.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
         Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( adminDn ) );
         Object userPassword = adminEntry.get( SchemaConstants.USER_PASSWORD_AT ).get();
@@ -751,46 +1010,45 @@ class DefaultDirectoryService extends DirectoryService
 
         if ( needToChangeAdminPassword )
         {
-            log.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
+            LOG.warn( "You didn't change the admin password of directory service " + "instance '" + instanceId + "'.  "
                 + "Please update the admin password as soon as possible " + "to prevent a possible security breach." );
         }
     }
 
 
-    private void createTestEntries( Hashtable<String,Object> env ) throws NamingException
+    /**
+     * @todo need to re-enable this after removing JNDI and creating means to pump
+     * requests into the core to add entries.
+     * 
+     * @throws NamingException if the creation of test entries fails.
+     */
+    private void createTestEntries() throws NamingException
     {
-        String principal = AbstractContextFactory.getPrincipal( env );
-        byte[] credential = AbstractContextFactory.getCredential( env );
-        String authentication = AbstractContextFactory.getAuthentication( env );
-        
-        LdapDN principalDn = new LdapDN( principal );
+        LdapPrincipal principal = new LdapPrincipal( new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ),
+                AuthenticationLevel.SIMPLE );
+        ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
 
-        ServerLdapContext ctx = ( ServerLdapContext ) 
-            getJndiContext( principalDn, principal, credential, authentication, "" );
-
-        Iterator<Entry> i = startupConfiguration.getTestEntries().iterator();
-        
-        while ( i.hasNext() )
+        for ( Entry testEntry : testEntries )
         {
-        	try
-        	{
-	        	Entry entry =  i.next().clone();
-	            Attributes attributes = entry.getAttributes();
-	            String dn = entry.getDn();
+            try
+            {
+                Entry entry = testEntry.clone();
+                Attributes attributes = entry.getAttributes();
+                String dn = entry.getDn();
 
-	            try
-	            {
-	                ctx.createSubcontext( dn, attributes );
-	            }
-	            catch ( Exception e )
-	            {
-	                log.warn( dn + " test entry already exists.", e );
-	            }
-        	}
-        	catch ( CloneNotSupportedException cnse )
-        	{
-                log.warn( "Cannot clone the entry ", cnse );
-        	}
+                try
+                {
+                    ctx.createSubcontext( dn, attributes );
+                }
+                catch ( Exception e )
+                {
+                    LOG.warn( dn + " test entry already exists.", e );
+                }
+            }
+            catch ( CloneNotSupportedException cnse )
+            {
+                LOG.warn( "Cannot clone the entry ", cnse );
+            }
         }
     }
 
@@ -802,9 +1060,9 @@ class DefaultDirectoryService extends DirectoryService
      */
     private void initialize() throws NamingException
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "---> Initializing the DefaultDirectoryService " );
+            LOG.debug( "---> Initializing the DefaultDirectoryService " );
         }
 
         // --------------------------------------------------------------------
@@ -815,7 +1073,7 @@ class DefaultDirectoryService extends DirectoryService
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         OidRegistry oidRegistry = new DefaultOidRegistry();
         registries = new DefaultRegistries( "bootstrap", loader, oidRegistry );
-        
+
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();
         bootstrapSchemas.add( new ApachemetaSchema() );
@@ -839,13 +1097,13 @@ class DefaultDirectoryService extends DirectoryService
         // If not present extract schema partition from jar
         // --------------------------------------------------------------------
 
-        File schemaDirectory = new File( startupConfiguration.getWorkingDirectory(), "schema" );
-        SchemaPartitionExtractor extractor = null;
+        File schemaDirectory = new File( workingDirectory, "schema" );
+        SchemaPartitionExtractor extractor;
         if ( ! schemaDirectory.exists() )
         {
             try
             {
-                extractor = new SchemaPartitionExtractor( startupConfiguration.getWorkingDirectory() );
+                extractor = new SchemaPartitionExtractor( workingDirectory );
                 extractor.extract();
             }
             catch ( IOException e )
@@ -864,7 +1122,7 @@ class DefaultDirectoryService extends DirectoryService
         schemaPartition.setId( "schema" );
         schemaPartition.setCacheSize( 1000 );
 
-        DbFileListing listing = null;
+        DbFileListing listing;
         try 
         {
             listing = new DbFileListing();
@@ -889,7 +1147,7 @@ class DefaultDirectoryService extends DirectoryService
         entry.get( SchemaConstants.OBJECT_CLASS_AT ).add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
         entry.put( SchemaConstants.OU_AT, "schema" );
         schemaPartition.setContextEntry( entry );
-        schemaPartition.init( configuration );
+        schemaPartition.init( this );
 
         // --------------------------------------------------------------------
         // Enable schemas of all indices of partition configurations 
@@ -905,22 +1163,20 @@ class DefaultDirectoryService extends DirectoryService
         SchemaPartitionDao dao = new SchemaPartitionDao( schemaPartition, registries );
         Map<String,Schema> schemaMap = dao.getSchemas();
         Set<Partition> partitions = new HashSet<Partition>();
-        partitions.add( startupConfiguration.getSystemPartition() );
-        partitions.addAll( startupConfiguration.getPartitions() );
+        partitions.add( systemPartition );
+        partitions.addAll( this.partitions );
 
         for ( Partition partition : partitions )
         {
             if ( partition instanceof BTreePartition )
             {
                 JdbmPartition btpconf = ( JdbmPartition ) partition;
-                Iterator<Index> indices = btpconf.getIndexedAttributes().iterator();
-                while ( indices.hasNext() )
+                for ( Index index : btpconf.getIndexedAttributes() )
                 {
-                    Index indexedAttr = indices.next();
-                    String schemaName = dao.findSchema( indexedAttr.getAttributeId() );
+                    String schemaName = dao.findSchema( index.getAttributeId() );
                     if ( schemaName == null )
                     {
-                        throw new NamingException( "Index on unidentified attribute: " + indexedAttr.toString() );
+                        throw new NamingException( "Index on unidentified attribute: " + index.toString() );
                     }
 
                     Schema schema = schemaMap.get( schemaName );
@@ -945,17 +1201,17 @@ class DefaultDirectoryService extends DirectoryService
         Set<String> binaries = new HashSet<String>();
         if ( this.environment.containsKey( BINARY_KEY ) )
         {
-            if ( log.isInfoEnabled() )
+            if ( LOG.isInfoEnabled() )
             {
-                log.info( "Startup environment contains " + BINARY_KEY );
+                LOG.info( "Startup environment contains " + BINARY_KEY );
             }
 
             String binaryIds = ( String ) this.environment.get( BINARY_KEY );
             if ( binaryIds == null )
             {
-                if ( log.isWarnEnabled() )
+                if ( LOG.isWarnEnabled() )
                 {
-                    log.warn( BINARY_KEY + " in startup environment contains null value.  "
+                    LOG.warn( BINARY_KEY + " in startup environment contains null value.  "
                         + "Using only schema info to set binary attributeTypes." );
                 }
             }
@@ -965,15 +1221,15 @@ class DefaultDirectoryService extends DirectoryService
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
-                    for ( int i = 0; i < binaryArray.length; i++ )
+                    for ( String aBinaryArray : binaryArray )
                     {
-                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binaryArray[i] ) ) );
+                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( aBinaryArray ) ) );
                     }
                 }
 
-                if ( log.isInfoEnabled() )
+                if ( LOG.isInfoEnabled() )
                 {
-                    log.info( "Setting binaries to union of schema defined binaries and those provided in "
+                    LOG.info( "Setting binaries to union of schema defined binaries and those provided in "
                         + BINARY_KEY );
                 }
             }
@@ -996,30 +1252,30 @@ class DefaultDirectoryService extends DirectoryService
 
                 // add the lowercased name for the names for the attributeType
                 String[] names = type.getNames();
-                
-                for ( int ii = 0; ii < names.length; ii++ )
+
+                for ( String name : names )
                 {
-                    binaries.add( StringTools.lowerCaseAscii( StringTools.trim( names[ii] ) ) );
+                    binaries.add( StringTools.lowerCaseAscii( StringTools.trim( name ) ) );
                 }
             }
         }
 
         this.environment.put( BINARY_KEY, binaries );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "binary ids used: " + binaries );
+            LOG.debug( "binary ids used: " + binaries );
         }
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
-        partitionNexus.init( configuration );
+        partitionNexus.init( this );
         partitionNexus.addContextPartition( new AddContextPartitionOperationContext( schemaPartition ) );
 
         interceptorChain = new InterceptorChain();
-        interceptorChain.init( configuration );
+        interceptorChain.init( this );
 
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "<--- DefaultDirectoryService initialized" );
+            LOG.debug( "<--- DefaultDirectoryService initialized" );
         }
     }
 
@@ -1027,5 +1283,11 @@ class DefaultDirectoryService extends DirectoryService
     public SchemaManager getSchemaManager()
     {
         return schemaManager;
+    }
+
+
+    public void setSchemaManager( SchemaManager schemaManager )
+    {
+        this.schemaManager = schemaManager;
     }
 }

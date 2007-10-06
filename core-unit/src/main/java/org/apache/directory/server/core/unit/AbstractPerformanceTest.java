@@ -20,7 +20,8 @@
 package org.apache.directory.server.core.unit;
 
 
-import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -98,18 +99,19 @@ import java.util.Iterator;
 public class AbstractPerformanceTest extends AbstractTestCase
 {
     private final Class<?> subclass;
-    private boolean isExternal = false;
-    private String prepareCommand = null;
-    private File outputDirectory = null;
-    private PrintWriter statsOut = null;
-    private long startTime = 0;
+    private boolean isExternal;
+    private String prepareCommand;
+    private PrintWriter statsOut;
+    private long startTime;
     private LdapContext testRoot;
+    private DirectoryService service;
     
     
     /**
      * Initializes the statistics log PrintWriter.
      * 
-     * @param subclass 
+     * @param subclass the subclass to use for the name
+     * @throws IOException if there are problems setting up for this test
      */
     protected AbstractPerformanceTest( Class<?> subclass ) throws IOException
     {
@@ -117,7 +119,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
         this.subclass = subclass;
         
         // Setup the statistics output writer
-        outputDirectory = new File( System.getProperty( "outputDirectory", "." ) );
+        File outputDirectory = new File( System.getProperty( "outputDirectory", "." ) );
         File statsOutFile = new File( outputDirectory, subclass.getName() + ".stats" );
         statsOut = new PrintWriter( new FileWriter( statsOutFile ) );
         
@@ -151,13 +153,15 @@ public class AbstractPerformanceTest extends AbstractTestCase
             partition.setId( "test" );
             partition.setSuffix( "ou=test" );
             partition.setContextEntry( attributes );
-            
-            configuration.setShutdownHookEnabled( false );
-            configuration.setPartitions( Collections.singleton( partition ) );
+
+            service = new DefaultDirectoryService();
+            service.setShutdownHookEnabled( false );
+            service.setPartitions( Collections.singleton( partition ) );
 
             super.setUp();
             
-            Hashtable<String, Object> env = new Hashtable<String, Object>( configuration.toJndiEnvironment() );
+            Hashtable<String, Object> env = new Hashtable<String, Object>();
+            env.put( DirectoryService.JNDI_KEY, service );
             env.put( Context.SECURITY_PRINCIPAL, username );
             env.put( Context.SECURITY_CREDENTIALS, password );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );

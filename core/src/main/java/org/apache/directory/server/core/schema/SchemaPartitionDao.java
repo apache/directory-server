@@ -561,7 +561,7 @@ public class SchemaPartitionDao
         dn.normalize( attrRegistry.getNormalizerMapping() );
         Attributes entry = partition.lookup( new LookupOperationContext( dn ) );
         Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
-        List<ModificationItem> mods = new ArrayList<ModificationItem>( 3 );
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 3 );
         
         if ( disabledAttr == null )
         {

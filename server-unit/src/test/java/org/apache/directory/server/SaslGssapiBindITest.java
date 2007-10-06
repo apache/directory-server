@@ -20,6 +20,7 @@
 package org.apache.directory.server;
 
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationService;
 import org.apache.directory.server.core.partition.Partition;
@@ -58,7 +59,7 @@ import java.util.Set;
  */
 public class SaslGssapiBindITest extends AbstractServerTest
 {
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -78,13 +79,13 @@ public class SaslGssapiBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        apacheDS.setAllowAnonymousAccess( false );
 
-        LdapConfiguration ldapConfig = configuration.getLdapConfiguration();
+        LdapConfiguration ldapConfig = apacheDS.getLdapConfiguration();
         ldapConfig.setSaslHost( "localhost" );
         ldapConfig.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
-        KdcConfiguration kdcConfig = configuration.getKdcConfiguration();
+        KdcConfiguration kdcConfig = apacheDS.getKdcConfiguration();
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.setSecurityAuthentication( "simple" );
@@ -116,17 +117,20 @@ public class SaslGssapiBindITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        configuration.setPartitions( partitions );
+        apacheDS.getDirectoryService().setPartitions( partitions );
 
-        List<Interceptor> list = configuration.getInterceptors();
-
+        List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
         list.add( new KeyDerivationService() );
-        configuration.setInterceptors( list );
+        apacheDS.getDirectoryService().setInterceptors( list );
 
-        doDelete( configuration.getWorkingDirectory() );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
         ldapConfig.setIpPort( port );
-        configuration.setShutdownHookEnabled( false );
+        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
+
+        super.setUp();
+
+
         setContexts( "uid=admin,ou=system", "secret" );
 
         // -------------------------------------------------------------------
@@ -151,7 +155,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
         }
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, apacheDS.getDirectoryService() );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -176,6 +181,12 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
     /**
      * Convenience method for creating principals.
+     * @param cn the commonName of the person
+     * @param principal the kerberos principal name for the person
+     * @param sn the surName of the person
+     * @param uid the unique identifier for the person
+     * @param userPassword the credentials of the person
+     * @return the attributes of the person principal
      */
     protected Attributes getPrincipalAttributes( String sn, String cn, String uid, String userPassword, String principal )
     {
@@ -200,6 +211,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
     /**
      * Convenience method for creating an organizational unit.
+     * @param ou the ou of the organizationalUnit
+     * @return the attributes of the organizationalUnit
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {
@@ -220,76 +233,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
     public void testSaslGssapiBind()
     {
         assertTrue( true );
-	return;
-/*	
-        // Use our custom configuration to avoid reliance on external config
-        Configuration.setConfiguration( new Krb5LoginConfiguration() );
-
-        // 1. Authenticate to Kerberos.
-        LoginContext lc = null;
-        try
-        {
-            lc = new LoginContext( SaslGssapiBindITest.class.getName(), new CallbackHandlerBean( "hnelson", "secret" ) );
-            lc.login();
-        }
-        catch ( LoginException le )
-        {
-            // Bad username:  Client not found in Kerberos database
-            // Bad password:  Integrity check on decrypted field failed
-            fail( "Authentication failed:  " + le.getMessage() );
-        }
-
-        // 2. Perform JNDI work as authenticated Subject.
-        Subject.doAs( lc.getSubject(), new PrivilegedAction()
-        {
-            public Object run()
-            {
-                try
-                {
-                    // Create the initial context
-                    Hashtable<String, String> env = new Hashtable<String, String>();
-                    env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-                    env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
-                    // Request the use of the "GSSAPI" SASL mechanism
-                    // Authenticate by using already established Kerberos credentials
-                    env.put( Context.SECURITY_AUTHENTICATION, "GSSAPI" );
-
-                    // Request privacy protection
-                    env.put( "javax.security.sasl.qop", "auth-conf" );
-
-                    // Request mutual authentication
-                    env.put( "javax.security.sasl.server.authentication", "true" );
-
-                    // Request high-strength cryptographic protection
-                    env.put( "javax.security.sasl.strength", "high" );
-
-                    DirContext ctx = new InitialDirContext( env );
-
-                    String[] attrIDs =
-                        { "uid" };
-
-                    Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-                    String uid = null;
-
-                    if ( attrs.get( "uid" ) != null )
-                    {
-                        uid = ( String ) attrs.get( "uid" ).get();
-                    }
-
-                    assertEquals( uid, "hnelson" );
-                }
-                catch ( NamingException e )
-                {
-                    fail( "Should not have caught exception:  " + e.getMessage() );
-                }
-
-                return null;
-            }
-        } );
-*/
     }
+
 
     /**
      * Tear down.

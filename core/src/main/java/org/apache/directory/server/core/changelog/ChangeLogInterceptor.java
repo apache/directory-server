@@ -1,6 +1,24 @@
 package org.apache.directory.server.core.changelog;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.BaseInterceptor;
+import org.apache.directory.server.core.interceptor.NextInterceptor;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifUtils;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -9,37 +27,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
-import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-
-import org.apache.directory.shared.ldap.ldif.ChangeType;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
- * An interceptor which maintains a change log as it intercepts changes to the
- * directory.  It mainains a changes.log file using the LDIF format for changes.
+ * An interceptor which maintains a change LOG as it intercepts changes to the
+ * directory.  It mainains a changes.LOG file using the LDIF format for changes.
  * It appends changes to this file so the entire LDIF file can be loaded to 
  * replicate the state of the server.
  * 
@@ -47,25 +38,25 @@ import org.slf4j.LoggerFactory;
 public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
 {
     /** logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
 
     /** time to wait before automatically waking up the writer thread */
     private static final long WAIT_TIMEOUT_MILLIS = 1000;
     
-    /** the changes.log file's stream which we append change log messages to */
-    private PrintWriter out = null;
+    /** the changes.LOG file's stream which we append change LOG messages to */
+    private PrintWriter out;
     
-    /** queue of string buffers awaiting serialization to the log file */
-    private Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
+    /** queue of string buffers awaiting serialization to the LOG file */
+    private final Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
     
     /** a handle on the attributeType registry to determine the binary nature of attributes */
-    private AttributeTypeRegistry registry = null;
+    private AttributeTypeRegistry registry;
     
     /** determines if this service has been activated */
-    private boolean isActive = false;
+    private boolean isActive;
     
     /** thread used to asynchronously write change logs to disk */
-    private Thread writer = null;
+    private Thread writer;
     
     
     // -----------------------------------------------------------------------
@@ -73,15 +64,15 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     // -----------------------------------------------------------------------
 
     
-    public void init( DirectoryServiceConfiguration dsConfig ) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( dsConfig );
+        super.init( directoryService );
 
         // Get a handle on the attribute registry to check if attributes are binary
-        registry = dsConfig.getRegistries().getAttributeTypeRegistry();
+        registry = directoryService.getRegistries().getAttributeTypeRegistry();
 
         // Open a print stream to use for flushing LDIFs into
-        File changes = new File( dsConfig.getStartupConfiguration().getWorkingDirectory(), "changes.log" );
+        File changes = new File( directoryService.getWorkingDirectory(), "changes.LOG" );
         
         try
         {
@@ -96,7 +87,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         }
         catch( Exception e )
         {
-            log.error( "Failed to open the change log file: " + changes, e );
+            LOG.error( "Failed to open the change LOG file: " + changes, e );
         }
         
         out.println( "# -----------------------------------------------------------------------------" );
@@ -130,7 +121,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
             }
             catch ( InterruptedException e )
             {
-                log.error( "Failed to sleep while waiting for writer to die", e );
+                LOG.error( "Failed to sleep while waiting for writer to die", e );
             }
         } while ( writer.isAlive() );
         
@@ -148,7 +139,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
             }
         }
 
-        // Print message that we're stopping log service, flush and close
+        // Print message that we're stopping LOG service, flush and close
         out.println( "# -----------------------------------------------------------------------------" );
         out.println( "# Deactivating changelog service: " + DateUtils.getGeneralizedTime() );
         out.println( "# -----------------------------------------------------------------------------" );
@@ -168,7 +159,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     {
         while ( isActive )
         {
-            StringBuilder buf = null;
+            StringBuilder buf;
 
             // Grab semphore to queue and dequeue from it
             synchronized( queue )
@@ -179,7 +170,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
                 } 
                 catch ( InterruptedException e ) 
                 { 
-                    log.error( "Failed to to wait() on queue", e ); 
+                    LOG.error( "Failed to to wait() on queue", e );
                 }
                 
                 buf = queue.poll();
@@ -230,7 +221,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
 
     /**
      * The delete operation has to be stored with a way to restore the deleted element.
-     * There is no way to do that but reading the entry and dump it into the log.
+     * There is no way to do that but reading the entry and dump it into the LOG.
      */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
@@ -285,9 +276,9 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( opContext.getDn() );
         buf.append( "\nchangetype: modify" );
 
-        List<ModificationItem> mods = opContext.getModItems();
+        List<ModificationItemImpl> mods = opContext.getModItems();
         
-        for ( ModificationItem mod:mods )
+        for ( ModificationItemImpl mod :mods )
         {
             append( buf, mod.getAttribute(), getModOpStr( mod.getModificationOp() ) );
         }
@@ -330,8 +321,8 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( "\ndn: " );
         buf.append( renameContext.getDn() );
         buf.append( "\nchangetype: modrdn" );
-        buf.append( "\nnewrdn: " + renameContext.getNewRdn() );
-        buf.append( "\ndeleteoldrdn: " + ( renameContext.getDelOldDn() ? "1" : "0" ) );
+        buf.append( "\nnewrdn: " ).append( renameContext.getNewRdn() );
+        buf.append( "\ndeleteoldrdn: " ).append( renameContext.getDelOldDn() ? "1" : "0" );
         
         buf.append( "\n" );
 
@@ -367,9 +358,9 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         buf.append( "\ndn: " );
         buf.append( moveAndRenameOperationContext.getDn() );
         buf.append( "\nchangetype: modrdn" ); // FIXME: modrdn --> moddn ?
-        buf.append( "\nnewrdn: " + moveAndRenameOperationContext.getNewRdn() );
-        buf.append( "\ndeleteoldrdn: " + ( moveAndRenameOperationContext.getDelOldDn() ? "1" : "0" ) );
-        buf.append( "\nnewsperior: " + moveAndRenameOperationContext.getParent() );
+        buf.append( "\nnewrdn: " ).append( moveAndRenameOperationContext.getNewRdn() );
+        buf.append( "\ndeleteoldrdn: " ).append( moveAndRenameOperationContext.getDelOldDn() ? "1" : "0" );
+        buf.append( "\nnewsperior: " ).append( moveAndRenameOperationContext.getParent() );
         
         buf.append( "\n" );
 
@@ -403,8 +394,8 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
         // Append the LDIF record now
         buf.append( "\ndn: " );
         buf.append( moveOperationContext.getDn() );
-        buf.append( "\nchangetype: moddn" ); 
-        buf.append( "\nnewsperior: " + moveOperationContext.getParent() );
+        buf.append( "\nchangetype: moddn" );
+        buf.append( "\nnewsperior: " ).append( moveOperationContext.getParent() );
         
         buf.append( "\n" );
 
@@ -433,7 +424,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
      */
     private StringBuilder append( StringBuilder buf, Attribute attr ) throws NamingException
     {
-        String id = ( String ) attr.getID();
+        String id = attr.getID();
         int sz = attr.size();
         boolean isBinary = ! registry.lookup( id ).getSyntax().isHumanReadable();
         
@@ -457,7 +448,7 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
                     }
                     catch ( UnsupportedEncodingException e )
                     {
-                        log.error( "can't convert to UTF-8: " + encoded, e );
+                        LOG.error( "can't convert to UTF-8: " + encoded, e );
                     }
                 }
                 else

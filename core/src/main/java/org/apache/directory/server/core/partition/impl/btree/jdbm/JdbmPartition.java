@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
@@ -145,7 +145,7 @@ public class JdbmPartition extends BTreePartition
     }
 
 
-    public final void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public final void init( DirectoryService directoryService ) throws NamingException
     {
         // setup optimizer and registries for parent
         if ( ! optimizerEnabled )
@@ -157,15 +157,14 @@ public class JdbmPartition extends BTreePartition
             optimizer = new DefaultOptimizer( this );
         }
 
-        initRegistries( factoryCfg.getRegistries() );
+        initRegistries( directoryService.getRegistries() );
         
         // initialize the store
         store.setCacheSize( cacheSize );
         store.setContextEntry( contextEntry );
         store.setName( id );
         store.setSuffixDn( suffix );
-        store.setWorkingDirectory( new File(
-            factoryCfg.getStartupConfiguration().getWorkingDirectory().getPath() + File.separator + id ) );
+        store.setWorkingDirectory( new File( directoryService.getWorkingDirectory().getPath() + File.separator + id ) );
 
         Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
         for ( Index obj : indexedAttributes )

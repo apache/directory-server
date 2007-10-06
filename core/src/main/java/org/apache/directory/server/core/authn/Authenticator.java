@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 
 /**
@@ -36,7 +36,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * {@link AuthenticationService} interceptor.
  * <p>
  * {@link AuthenticationService} authenticates users by calling
- * {@link #authenticate(ServerContext)}, and then {@link Authenticator}
+ * {@link #authenticate(LdapDN,ServerContext)}, and then {@link Authenticator}
  * checks JNDI {@link Context} environment properties
  * ({@link Context#SECURITY_PRINCIPAL} and {@link Context#SECURITY_CREDENTIALS})
  * of current {@link Context}.
@@ -58,7 +58,7 @@ public interface Authenticator
      * Called by {@link AuthenticationService} to indicate that this
      * authenticator is being placed into service.
      */
-    public void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException;
+    public void init( DirectoryService directoryService ) throws NamingException;
 
 
     /**

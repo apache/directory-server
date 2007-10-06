@@ -33,7 +33,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.normalization.NormalizationService;
@@ -115,9 +114,8 @@ public class MaxImmSubFilter implements ACITupleFilter
                 continue;
             }
 
-            for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( ProtectedItem item : tuple.getProtectedItems() )
             {
-                ProtectedItem item = j.next();
                 if ( item instanceof ProtectedItem.MaxImmSub )
                 {
                     if ( immSubCount < 0 )

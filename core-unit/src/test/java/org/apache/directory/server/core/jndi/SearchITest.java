@@ -45,14 +45,14 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
  */
 public class SearchITest extends AbstractAdminTestCase
 {
-    private static final String rdn = "cn=Heather Nova";
-    private static final String filter = "(objectclass=*)";
+    private static final String RDN = "cn=Heather Nova";
+    private static final String FILTER = "(objectclass=*)";
 
     protected void setUp() throws Exception
     {
         if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
         {
-            super.configuration.setDenormalizeOpAttrsEnabled( true );
+            super.service.setDenormalizeOpAttrsEnabled( true );
         }
         
         super.setUp();
@@ -162,10 +162,10 @@ public class SearchITest extends AbstractAdminTestCase
         heather.put( ocls );
         heather.put( "cn", "Heather Nova" );
         heather.put( "sn", "Nova" );
-        ctx = sysRoot.createSubcontext( rdn, heather );
+        ctx = sysRoot.createSubcontext( RDN, heather );
         assertNotNull( ctx );
 
-        ctx = ( DirContext ) sysRoot.lookup( rdn );
+        ctx = ( DirContext ) sysRoot.lookup( RDN );
         assertNotNull( ctx );
     }
 
@@ -329,6 +329,7 @@ public class SearchITest extends AbstractAdminTestCase
 
     /**
      * Search an entry and fetch an attribute with unknown option
+     * @throws NamingException if there are errors
      */
     public void testSearchFetchNonExistingAttributeOption() throws NamingException
     {
@@ -337,7 +338,7 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setReturningAttributes( new String[]
             { "cn", "sn;unknownOption" } );
 
-        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
+        NamingEnumeration result = sysRoot.search( RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
@@ -353,7 +354,7 @@ public class SearchITest extends AbstractAdminTestCase
         }
         else
         {
-            fail( "entry " + rdn + " not found" );
+            fail( "entry " + RDN + " not found" );
         }
 
         result.close();
@@ -361,6 +362,7 @@ public class SearchITest extends AbstractAdminTestCase
 
     /**
      * Search an entry and fetch an attribute with twice the same attributeType
+     * @throws NamingException if there are errors
      */
     public void testSearchFetchTwiceSameAttribute() throws NamingException
     {
@@ -369,7 +371,7 @@ public class SearchITest extends AbstractAdminTestCase
         ctls.setReturningAttributes( new String[]
             { "cn", "cn" } );
 
-        NamingEnumeration result = sysRoot.search( rdn, filter, ctls );
+        NamingEnumeration result = sysRoot.search( RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
@@ -382,7 +384,7 @@ public class SearchITest extends AbstractAdminTestCase
         }
         else
         {
-            fail( "entry " + rdn + " not found" );
+            fail( "entry " + RDN + " not found" );
         }
 
         result.close();

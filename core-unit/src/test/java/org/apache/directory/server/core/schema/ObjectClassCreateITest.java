@@ -29,7 +29,7 @@ import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-public class ObjectClassCreateTest extends AbstractAdminTestCase
+public class ObjectClassCreateITest extends AbstractAdminTestCase
 {
     private String testOID                               =
         "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";

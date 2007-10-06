@@ -20,25 +20,7 @@
 package org.apache.directory.mitosis.service;
 
 
-import java.net.InetSocketAddress;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationFactory;
@@ -47,22 +29,12 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientCo
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationServerProtocolHandler;
 import org.apache.directory.mitosis.store.ReplicationStore;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -79,6 +51,15 @@ import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.net.InetSocketAddress;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An {@link Interceptor} that intercepts LDAP operations and propagates the
@@ -122,7 +103,7 @@ import org.slf4j.LoggerFactory;
  * <li><tt>entryDeleted</tt> - is <tt>TRUE</tt> if and only if the entry is
  *     deleted.  The entry is not deleted immediately by a delete operation
  *     because <tt>entryCSN</tt> attribute should be retained for certain
- *     amount of time to determine whether the incoming change log, which
+ *     amount of time to determine whether the incoming change LOG, which
  *     affects an entry with the same DN, is a conflict (modification on a
  *     deleted entry) or not (creation of a new entry). You can purge old
  *     deleted entries and related change logs in {@link ReplicationStore} by
@@ -141,7 +122,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ReplicationService extends BaseInterceptor
 {
-    private static final Logger log = LoggerFactory.getLogger( ReplicationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicationService.class );
 
     /** The service name */
     public static final String NAME = "replicationService";
@@ -155,7 +136,7 @@ public class ReplicationService extends BaseInterceptor
      */
     private String name = NAME;
 
-    private DirectoryServiceConfiguration directoryServiceConfiguration;
+    private DirectoryService directoryService;
     private ReplicationConfiguration configuration;
     private PartitionNexus nexus;
     private OperationFactory operationFactory;
@@ -191,24 +172,19 @@ public class ReplicationService extends BaseInterceptor
         this.configuration = configuration;
     }
 
-    public DirectoryServiceConfiguration getFactoryConfiguration()
-    {
-        return directoryServiceConfiguration;
-    }
 
-
-    public void init(DirectoryServiceConfiguration serviceCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
         configuration.validate();
         // and then preserve frequently used ones
-        directoryServiceConfiguration = serviceCfg;
-        nexus = serviceCfg.getPartitionNexus();
+        this.directoryService = directoryService;
+        nexus = directoryService.getPartitionNexus();
         store = configuration.getStore();
-        operationFactory = new OperationFactory( serviceCfg, configuration );
-        attrRegistry = serviceCfg.getRegistries().getAttributeTypeRegistry();
+        operationFactory = new OperationFactory( directoryService, configuration );
+        attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
 
         // Initialize store and service
-        store.open( serviceCfg, configuration );
+        store.open( directoryService, configuration );
         boolean serviceStarted = false;
         try
         {
@@ -267,7 +243,7 @@ public class ReplicationService extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            log.warn( "Failed to stop the client connection manager.", e );
+            LOG.warn( "Failed to stop the client connection manager.", e );
         }
         registry.unbindAll();
     }
@@ -278,7 +254,7 @@ public class ReplicationService extends BaseInterceptor
      */
     public void replicate()
     {
-        log.info( "Forcing replication..." );
+        LOG.info( "Forcing replication..." );
         this.clientConnectionManager.replicate();
     }
 
@@ -287,7 +263,7 @@ public class ReplicationService extends BaseInterceptor
      */
     public void interruptConnectors()
     {
-        log.info( "Waking sleeping replicas..." );
+        LOG.info( "Waking sleeping replicas..." );
         this.clientConnectionManager.interruptConnectors();
     }
 
@@ -343,7 +319,7 @@ public class ReplicationService extends BaseInterceptor
             }
 
             contextName.normalize( attrRegistry.getNormalizerMapping() );
-            log.info( "Purging aged data under '" + contextName + '"' );
+            LOG.info( "Purging aged data under '" + contextName + '"' );
             purgeAgedData( contextName, filter );
         }
 
@@ -358,7 +334,7 @@ public class ReplicationService extends BaseInterceptor
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
         NamingEnumeration<SearchResult> e = nexus.search(
-            new SearchOperationContext( contextName, directoryServiceConfiguration.getEnvironment(), filter, ctrl ) );
+            new SearchOperationContext( contextName, directoryService.getEnvironment(), filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
         try
@@ -384,12 +360,12 @@ public class ReplicationService extends BaseInterceptor
             {
                 name.normalize( attrRegistry.getNormalizerMapping() );
                 Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
-                log.info( "Purge: " + name + " (" + entry + ')' );
+                LOG.info( "Purge: " + name + " (" + entry + ')' );
                 nexus.delete( new DeleteOperationContext( name ) );
             }
             catch ( NamingException ex )
             {
-                log.warn( "Failed to fetch/delete: " + name, ex );
+                LOG.warn( "Failed to fetch/delete: " + name, ex );
             }
         }
     }
@@ -556,5 +532,11 @@ public class ReplicationService extends BaseInterceptor
 
         Attribute deleted = entry.get( Constants.ENTRY_DELETED );
         return ( deleted != null && "TRUE".equalsIgnoreCase( deleted.get().toString() ) );
+    }
+
+
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
     }
 }

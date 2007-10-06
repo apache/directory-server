@@ -53,7 +53,7 @@ import java.util.Set;
  */
 public class DIRSERVER951ITest extends AbstractServerTest
 {
-    private LdapContext ctx = null;
+    private LdapContext ctx;
 
 
     /**
@@ -96,7 +96,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
         systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
         
-        configuration.setSystemPartition( systemCfg );
+        apacheDS.getDirectoryService().setSystemPartition( systemCfg );
         
         super.setUp();
         super.loadTestLdif( true );
@@ -120,6 +120,8 @@ public class DIRSERVER951ITest extends AbstractServerTest
      * Tests to make sure a negated search for OU of "test1" returns
      * those entries that do not have the OU attribute or do not have
      * a "test1" value for OU if the attribute exists.
+     * 
+     * @throws Exception on failure to search
      */
     public void testSearchNotOU() throws Exception
     {

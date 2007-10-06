@@ -63,7 +63,7 @@ public class LdapConfiguration extends ServiceConfiguration
     private int maxTimeLimit = MAX_TIME_LIMIT_DEFAULT; // set to default value (milliseconds)
 
     /** Whether LDAPS is enabled. */
-    private boolean enableLdaps = false;
+    private boolean enableLdaps;
 
     /** The path to the certificate file. */
     private File ldapsCertificateFile = new File( "server-work" + File.separator + "certificates" + File.separator

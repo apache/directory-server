@@ -60,7 +60,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -69,7 +69,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        apacheDS.setAllowAnonymousAccess( false );
 
         Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
@@ -98,17 +98,20 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        configuration.setPartitions( partitions );
+        apacheDS.getDirectoryService().setPartitions( partitions );
 
-        List<Interceptor> list = configuration.getInterceptors();
+        List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
 
         list.add( new KeyDerivationService() );
-        configuration.setInterceptors( list );
+        apacheDS.getDirectoryService().setInterceptors( list );
 
-        doDelete( configuration.getWorkingDirectory() );
+        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.getLdapConfiguration().setIpPort( port );
-        configuration.setShutdownHookEnabled( false );
+        apacheDS.getLdapConfiguration().setIpPort( port );
+        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
+
+        super.setUp();
+
         setContexts( "uid=admin,ou=system", "secret" );
 
         // -------------------------------------------------------------------
@@ -151,8 +154,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
     /**
      * Tests that the addition of an entry caused keys to be derived and added.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testAddDerivedKeys() throws NamingException, IOException
     {
@@ -221,8 +224,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * Tests that the modification of an entry caused keys to be derived and modified.  The
      * modify request contains both the 'userPassword' and the 'krb5PrincipalName'.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testModifyDerivedKeys() throws NamingException, IOException
     {
@@ -358,8 +361,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * modify request contains only the 'userPassword'.  The 'krb5PrincipalName' is to be
      * obtained from the initial add of the user principal entry.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, IOException
     {
@@ -486,9 +489,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
     /**
      * Tests that the addition of an entry caused random keys to be derived and added.
      * 
-     * @throws NamingException 
-     * @throws IOException 
-     * @throws InvalidKeyException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
+     * @throws InvalidKeyException if the incorrect key results
      */
     public void testAddRandomKeys() throws NamingException, IOException, InvalidKeyException
     {
@@ -601,6 +604,13 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
     /**
      * Convenience method for creating a person.
+     *
+     * @param cn the commonName of the person
+     * @param sn the surName of the person
+     * @param uid the unique id of the person
+     * @param userPassword the password of the person
+     * @param principal the kerberos principal name for the person
+     * @return the attributes of the person entry
      */
     protected Attributes getPersonAttributes( String sn, String cn, String uid, String userPassword, String principal )
     {
@@ -625,6 +635,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
     /**
      * Convenience method for creating an organizational unit.
+     *
+     * @param ou the organizational unit to create
+     * @return the attributes of the organizationalUnit
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {

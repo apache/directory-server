@@ -20,32 +20,10 @@
 package org.apache.directory.server.core.normalization;
 
 
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -57,6 +35,12 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+import java.util.Map;
 
 
 /**
@@ -72,24 +56,21 @@ import org.slf4j.LoggerFactory;
 public class NormalizationService extends BaseInterceptor
 {
     /** logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( NormalizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NormalizationService.class );
 
     /** a filter node value normalizer and undefined node remover */
     private NormalizingVisitor normVisitor;
-    
-    /** the attributeType registry used for normalization and determining if some filter nodes are undefined */
-    private AttributeTypeRegistry attributeRegistry;
-    
+
     /** The association between attributeTypes and their normalizers */
     private Map<String, OidNormalizer> attrNormalizers; 
 
     /**
      * Initialize the registries, normalizers. 
      */
-    public void init(DirectoryServiceConfiguration factoryCfg) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
-        attributeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
+        AttributeTypeRegistry attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeRegistry, oidRegistry );
         normVisitor = new NormalizingVisitor( ncn, oidRegistry );
         //expVisitor = new ExpandingVisitor( attributeRegistry );
@@ -165,7 +146,7 @@ public class NormalizationService extends BaseInterceptor
         
         if ( result == null )
         {
-            log.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
+            LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
             return new EmptyEnumeration<SearchResult>();
         }
         else
@@ -188,7 +169,7 @@ public class NormalizationService extends BaseInterceptor
                 buf.append( "undefined filter based on undefined attributeType '" );
                 buf.append( ln.getAttribute() );
                 buf.append( "' not evaluted at all.  Returning empty enumeration." );
-                log.warn( buf.toString() );
+                LOG.warn( buf.toString() );
                 return new EmptyEnumeration<SearchResult>();
             }
         }
@@ -209,7 +190,7 @@ public class NormalizationService extends BaseInterceptor
                         buf.append( "undefined filter based on undefined attributeType '" );
                         buf.append( ln.getAttribute() );
                         buf.append( "' not evaluted at all.  Returning empty enumeration." );
-                        log.warn( buf.toString() );
+                        LOG.warn( buf.toString() );
                         return new EmptyEnumeration<SearchResult>();
                     }
                 }
@@ -222,9 +203,9 @@ public class NormalizationService extends BaseInterceptor
             {
                 isFailure = true;
                 
-                if ( log.isWarnEnabled() )
+                if ( LOG.isWarnEnabled() )
                 {
-                    log.warn( "An undefined attribute was found within the supplied search filter.  " +
+                    LOG.warn( "An undefined attribute was found within the supplied search filter.  " +
                             "The node associated with the filter has been removed.", e.getCause() );
                 }
 
@@ -259,7 +240,7 @@ public class NormalizationService extends BaseInterceptor
             // if the remaining filter branch node has no children return an empty enumeration
             if ( child.getChildren().size() == 0 || child.get( "undefined" ) == Boolean.TRUE )
             {
-                log.warn( "Undefined branchnode filter without child nodes not " +
+                LOG.warn( "Undefined branchnode filter without child nodes not " +
                         "evaluted at all.  Returning empty enumeration." );
                 return new EmptyEnumeration<SearchResult>();
             }

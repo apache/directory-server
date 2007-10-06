@@ -19,6 +19,18 @@
  */
 package org.apache.directory.server.core.configuration;
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.ldif.LdifComposer;
+import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.MultiMap;
+import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.io.BufferedReader;
@@ -27,19 +39,6 @@ import java.io.StringReader;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.shared.ldap.ldif.LdifComposer;
-import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.MultiMap;
-import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
@@ -168,9 +167,10 @@ public class AttributesPropertyEditor extends PropertyEditorSupport
 
             return composer.compose( map );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            throw new ConfigurationException( e );
+            e.printStackTrace();
+            return null;
         }
     }
 

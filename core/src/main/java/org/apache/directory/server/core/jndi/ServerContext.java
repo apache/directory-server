@@ -50,7 +50,6 @@ import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
 import org.apache.directory.server.core.authn.AuthenticationService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
@@ -145,15 +144,14 @@ public abstract class ServerContext implements EventContext
      * correctly.
      */
     @SuppressWarnings(value={"unchecked"})
-    protected ServerContext(DirectoryService service, Hashtable<String, Object> env) throws NamingException
+    protected ServerContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         this.service = service;
 
         // set references to cloned env and the proxy
         this.nexusProxy = new PartitionNexusProxy( this, service );
 
-        DirectoryServiceConfiguration cfg = service.getConfiguration();
-        this.env = ( Hashtable<String, Object> ) cfg.getEnvironment().clone();
+        this.env = ( Hashtable<String, Object> ) service.getEnvironment().clone();
         this.env.putAll( env );
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
@@ -183,7 +181,7 @@ public abstract class ServerContext implements EventContext
         this.service = service;
         this.dn = ( LdapDN ) dn.clone();
 
-        this.env = ( Hashtable<String, Object> ) service.getConfiguration().getEnvironment().clone();
+        this.env = ( Hashtable<String, Object> ) service.getEnvironment().clone();
         this.env.put( PROVIDER_URL, dn.toString() );
         this.nexusProxy = new PartitionNexusProxy( this, service );
 
@@ -376,7 +374,7 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after modify operations.
      */
-    protected void doModifyOperation( LdapDN dn, List<ModificationItem> modItems ) throws NamingException
+    protected void doModifyOperation( LdapDN dn, List<ModificationItemImpl> modItems ) throws NamingException
     {
         // setup the op context and populate with request controls
         ModifyOperationContext opCtx = new ModifyOperationContext( dn, modItems );

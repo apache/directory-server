@@ -39,7 +39,7 @@ public class AdministratorsGroupITest extends AbstractAuthorizationITest
     {
         if ( getName().equals( "testDefaultNonAdminReadAccessToGroups" ) )
         {
-            configuration.setAccessControlEnabled( false );
+            service.setAccessControlEnabled( false );
         }
         
         super.setUp();

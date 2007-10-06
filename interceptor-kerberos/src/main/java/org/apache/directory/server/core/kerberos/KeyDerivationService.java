@@ -217,7 +217,7 @@ public class KeyDerivationService extends BaseInterceptor
     void detectPasswordModification( ModifyOperationContext modContext, ModifySubContext subContext )
         throws NamingException
     {
-        List<ModificationItem> mods = modContext.getModItems();
+        List<ModificationItemImpl> mods = modContext.getModItems();
 
         String operation = null;
 
@@ -356,7 +356,7 @@ public class KeyDerivationService extends BaseInterceptor
      */
     void deriveKeys( ModifyOperationContext modContext, ModifySubContext subContext )
     {
-        List<ModificationItem> mods = modContext.getModItems();
+        List<ModificationItemImpl> mods = modContext.getModItems();
 
         String principalName = subContext.getPrincipalName();
         String userPassword = subContext.getUserPassword();
@@ -366,10 +366,10 @@ public class KeyDerivationService extends BaseInterceptor
 
         Map<EncryptionType, EncryptionKey> keys = generateKeys( principalName, userPassword );
 
-        List<ModificationItem> newModsList = new ArrayList<ModificationItem>();
+        List<ModificationItemImpl> newModsList = new ArrayList<ModificationItemImpl>();
 
         // Make sure we preserve any other modification items.
-        for ( ModificationItem mod:mods )
+        for ( ModificationItemImpl mod:mods )
         {
             newModsList.add( mod );
         }

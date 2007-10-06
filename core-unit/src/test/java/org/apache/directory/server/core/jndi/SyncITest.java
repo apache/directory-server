@@ -22,7 +22,6 @@ package org.apache.directory.server.core.jndi;
 
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
 
@@ -42,7 +41,7 @@ public class SyncITest extends AbstractAdminTestCase
      */
     public void testSyncNoException() throws Exception
     {
-        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
+        service.sync();
         assertNotNull( sysRoot );
     }
 
@@ -55,8 +54,7 @@ public class SyncITest extends AbstractAdminTestCase
      */
     public void testPostSyncLookup() throws Exception
     {
-        setContextRoots( "uid=admin,ou=system", "secret", new SyncConfiguration() );
-
+        service.sync();
         Attributes users = sysRoot.getAttributes( "ou=users" );
 
         // assert making sure the entry is ok

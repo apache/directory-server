@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
 public class ModifyStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private LdapDN modifiedEntryName;
-    private List<ModificationItem> modifications;
+    private List<ModificationItemImpl> modifications;
     private Attributes oldEntry;
     
     

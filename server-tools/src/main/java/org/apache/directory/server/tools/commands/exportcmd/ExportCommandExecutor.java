@@ -20,30 +20,8 @@
 package org.apache.directory.server.tools.commands.exportcmd;
 
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.commons.collections.map.MultiValueMap;
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -54,6 +32,18 @@ import org.apache.directory.shared.ldap.ldif.LdifComposerImpl;
 import org.apache.directory.shared.ldap.util.MultiMap;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -262,7 +252,7 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
             while ( attributesEnumeration.hasMoreElements() )
             {
                 Attribute attr = ( Attribute ) attributesEnumeration.nextElement();
-                NamingEnumeration e2 = null;
+                NamingEnumeration e2;
 
                 e2 = attr.getAll();
 
@@ -282,7 +272,7 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
 
             if ( entriesCounter % 10 == 0 )
             {
-                notifyOutputListener( new Character( '.' ) );
+                notifyOutputListener( '.' );
             }
 
             if ( entriesCounter % 500 == 0 )
@@ -304,8 +294,9 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
 
     /**
      * Gets and returns the entries from the server.
-     * @throws ToolCommandException 
-     * @throws NamingException 
+     * 
+     * @throws ToolCommandException if there is a problem connecting
+     * @return the entries 
      */
     public NamingEnumeration connectToServerAndGetEntries() throws ToolCommandException
     {
@@ -365,21 +356,21 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
         Boolean quietParam = ( Boolean ) parameters.get( QUIET_PARAMETER );
         if ( quietParam != null )
         {
-            setQuietEnabled( quietParam.booleanValue() );
+            setQuietEnabled( quietParam );
         }
 
         // Debug param
         Boolean debugParam = ( Boolean ) parameters.get( DEBUG_PARAMETER );
         if ( debugParam != null )
         {
-            setDebugEnabled( debugParam.booleanValue() );
+            setDebugEnabled( debugParam );
         }
 
         // Verbose param
         Boolean verboseParam = ( Boolean ) parameters.get( VERBOSE_PARAMETER );
         if ( verboseParam != null )
         {
-            setVerboseEnabled( verboseParam.booleanValue() );
+            setVerboseEnabled( verboseParam );
         }
 
         // Install-path param
@@ -393,12 +384,10 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
                 {
                     notifyOutputListener( "loading settings from: " + getLayout().getConfigurationFile() );
                 }
-                ApplicationContext factory = null;
-                URL configUrl;
 
-                configUrl = getLayout().getConfigurationFile().toURI().toURL();
-                factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-                setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
+                URL configUrl = getLayout().getConfigurationFile().toURI().toURL();
+                ApplicationContext factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+                setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
             }
             catch ( MalformedURLException e )
             {
@@ -427,11 +416,11 @@ public class ExportCommandExecutor extends BaseToolCommandExecutor
         Integer portParam = ( Integer ) parameters.get( PORT_PARAMETER );
         if ( portParam != null )
         {
-            port = portParam.intValue();
+            port = portParam;
         }
-        else if ( getConfiguration() != null )
+        else if ( getApacheDS() != null )
         {
-            port = getConfiguration().getLdapConfiguration().getIpPort();
+            port = getApacheDS().getLdapConfiguration().getIpPort();
 
             if ( isDebugEnabled() )
             {

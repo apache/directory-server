@@ -55,15 +55,15 @@ import org.apache.directory.shared.ldap.message.SubentriesControl;
  */
 public class SearchTest extends AbstractServerTest
 {
-    private LdapContext ctx = null;
+    private LdapContext ctx;
     public static final String RDN = "cn=Tori Amos";
     public static final String RDN2 = "cn=Rolling-Stones";
     public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
     private static final String HEATHER_RDN = "cn=Heather Graham";
-    private static final String filter = "(objectclass=*)";
+    private static final String FILTER = "(objectclass=*)";
 
 
-    private static final byte[] jpeg = new byte[]
+    private static final byte[] JPEG = new byte[]
         {
             (byte)0xff, (byte)0xd8, (byte)0xff, (byte)0xe0, 0x00, 0x10, 0x4a, 0x46, 
             0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
@@ -125,18 +125,17 @@ public class SearchTest extends AbstractServerTest
         attributes.put( attribute );
         attributes.put( "cn", cn );
         attributes.put( "sn", sn );
-        attributes.put( "jpegPhoto", jpeg );
+        attributes.put( "jpegPhoto", JPEG );
 
         return attributes;
     }
-    
+
+
     protected void checkForAttributes( Attributes attrs, String[] attrNames )
     {
-        for ( int i = 0; i < attrNames.length; i++ )
+        for ( String attrName : attrNames )
         {
-            String attrName = attrNames[i];
-
-            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrNames[i] ) );
+            assertNotNull( "Check if attr " + attrName + " is present", attrs.get( attrName ) );
         }
     }
 
@@ -178,8 +177,6 @@ public class SearchTest extends AbstractServerTest
         heather.put( "sn", "Nova" );
 
         ctx.createSubcontext( HEATHER_RDN, heather );
-
-        
     }
 
 
@@ -262,7 +259,7 @@ public class SearchTest extends AbstractServerTest
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        String filter = "(cn=Bryan Ferry)";
+        String FILTER = "(cn=Bryan Ferry)";
 
         // sn=Ferry with BEROctetString values
         String base = "2.5.4.4=#4665727279";
@@ -270,7 +267,7 @@ public class SearchTest extends AbstractServerTest
         try
         {
             // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            NamingEnumeration enm = ctx.search( base, FILTER, sctls );
             assertTrue( enm.hasMore() );
             while ( enm.hasMore() )
             {
@@ -444,7 +441,7 @@ public class SearchTest extends AbstractServerTest
     
     /**
      * Tests for <a href="http://issues.apache.org/jira/browse/DIRSERVER-645">
-     * DIRSERVER-645<\a>: Wrong search filter evaluation with AND 
+     * DIRSERVER-645<\a>: Wrong search FILTER evaluation with AND
      * operator and undefined operands.
      */
     public void testUndefinedAvaInBranchFilters() throws Exception
@@ -458,7 +455,7 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "returned size of results", 1, results.size() );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
 
-        // if numberOfOctaves is undefined then this whole filter is undefined
+        // if numberOfOctaves is undefined then this whole FILTER is undefined
         results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 0, results.size() );
     }
@@ -735,7 +732,7 @@ public class SearchTest extends AbstractServerTest
                 {
                     byte[] jpegVal = (byte[])attr.get();
                     
-                    assertTrue( Arrays.equals( jpegVal, jpeg ) );
+                    assertTrue( Arrays.equals( jpegVal, JPEG ) );
                 }
             }
         }
@@ -1054,7 +1051,7 @@ public class SearchTest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "+" } );
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
@@ -1084,7 +1081,7 @@ public class SearchTest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "*" } );
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
@@ -1120,7 +1117,7 @@ public class SearchTest extends AbstractServerTest
         String[] opAttrNames =
             { "creatorsName", "createTimestamp" };
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+        NamingEnumeration result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
@@ -1142,7 +1139,7 @@ public class SearchTest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "*", "+" } );
 
-        result = ctx.search( HEATHER_RDN, filter, ctls );
+        result = ctx.search( HEATHER_RDN, FILTER, ctls );
 
         if ( result.hasMore() )
         {
