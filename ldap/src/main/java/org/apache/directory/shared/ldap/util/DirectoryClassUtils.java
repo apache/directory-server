@@ -43,15 +43,16 @@ public class DirectoryClassUtils
      * @return The Method found.
      * @throws NoSuchMethodException
      */
-    public static Method getAssignmentCompatibleMethod( Class clazz,
+    public static Method getAssignmentCompatibleMethod( Class<?> clazz,
                                                         String candidateMethodName,
-                                                        Class[] candidateParameterTypes
+                                                        Class<?>[] candidateParameterTypes
                                                       ) throws NoSuchMethodException
     {
         try
         {
             // Look for exactly the same signature.
             Method exactMethod = clazz.getMethod( candidateMethodName, candidateParameterTypes );
+            
             if ( exactMethod != null )
             {
                 return exactMethod;
@@ -64,10 +65,10 @@ public class DirectoryClassUtils
          * Look for the assignment-compatible signature.
          */
         
-        // Get all methods of the clazz.
+        // Get all methods of the class.
         Method[] methods = clazz.getMethods();
         
-        // For each method of the clazz...
+        // For each method of the class...
         for ( int mx = 0; mx < methods.length; mx++ )
         {
             // If the method name does not match...
@@ -78,7 +79,7 @@ public class DirectoryClassUtils
             }
             
             // ... Get parameter types list.
-            Class[] parameterTypes = methods[ mx ].getParameterTypes();
+            Class<?>[] parameterTypes = methods[ mx ].getParameterTypes();
             
             // If parameter types list length mismatch...
             if ( parameterTypes.length != candidateParameterTypes.length )
@@ -103,7 +104,5 @@ public class DirectoryClassUtils
         }
         
         throw new NoSuchMethodException( clazz.getName() + "." + candidateMethodName + "(" + Arrays.toString( candidateParameterTypes ) + ")" );
-        
     }
-
 }
