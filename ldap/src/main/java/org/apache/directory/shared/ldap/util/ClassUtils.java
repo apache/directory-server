@@ -74,7 +74,8 @@ public class ClassUtils
      * Maps primitive <code>Class</code>es to their corresponding wrapper
      * <code>Class</code>.
      */
-    private static Map<Class,Class> primitiveWrapperMap = new HashMap<Class,Class>();
+    private static Map<Class<?>,Class<?>> primitiveWrapperMap = new HashMap<Class<?>,Class<?>>();
+    
     static
     {
         primitiveWrapperMap.put( Boolean.TYPE, Boolean.class );
@@ -137,12 +138,13 @@ public class ClassUtils
      *            the class to get the short name for.
      * @return the class name without the package name or an empty string
      */
-    public static String getShortClassName( Class cls )
+    public static String getShortClassName( Class<?> cls )
     {
         if ( cls == null )
         {
             return EMPTY;
         }
+        
         return getShortClassName( cls.getName() );
     }
 
@@ -166,12 +168,15 @@ public class ClassUtils
         {
             return EMPTY;
         }
+        
         if ( className.length() == 0 )
         {
             return EMPTY;
         }
+        
         char[] chars = className.toCharArray();
         int lastDot = 0;
+        
         for ( int i = 0; i < chars.length; i++ )
         {
             if ( chars[i] == PACKAGE_SEPARATOR_CHAR )
@@ -183,6 +188,7 @@ public class ClassUtils
                 chars[i] = PACKAGE_SEPARATOR_CHAR;
             }
         }
+        
         return new String( chars, lastDot, chars.length - lastDot );
     }
 
@@ -206,6 +212,7 @@ public class ClassUtils
         {
             return valueIfNull;
         }
+        
         return getPackageName( object.getClass().getName() );
     }
 
@@ -220,12 +227,13 @@ public class ClassUtils
      *            <code>null</code>.
      * @return the package name or an empty string
      */
-    public static String getPackageName( Class cls )
+    public static String getPackageName( Class<?> cls )
     {
         if ( cls == null )
         {
             return EMPTY;
         }
+        
         return getPackageName( cls.getName() );
     }
 
@@ -252,11 +260,14 @@ public class ClassUtils
         {
             return EMPTY;
         }
+        
         int i = className.lastIndexOf( PACKAGE_SEPARATOR_CHAR );
+        
         if ( i == -1 )
         {
             return EMPTY;
         }
+        
         return className.substring( 0, i );
     }
 
@@ -273,15 +284,16 @@ public class ClassUtils
      * @return the <code>List</code> of superclasses in order going up from
      *         this one <code>null</code> if null input
      */
-    public static List getAllSuperclasses( Class cls )
+    public static List<Class<?>> getAllSuperclasses( Class<?> cls )
     {
         if ( cls == null )
         {
             return null;
         }
         
-        List<Class> classes = new ArrayList<Class>();
-        Class superclass = cls.getSuperclass();
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        
+        Class<?> superclass = cls.getSuperclass();
         
         while ( superclass != null )
         {
@@ -310,27 +322,27 @@ public class ClassUtils
      * @return the <code>List</code> of interfaces in order, <code>null</code>
      *         if null input
      */
-    public static List<Class> getAllInterfaces( Class cls )
+    public static List<Class<?>> getAllInterfaces( Class<?> cls )
     {
         if ( cls == null )
         {
             return null;
         }
         
-        List<Class> list = new ArrayList<Class>();
+        List<Class<?>> list = new ArrayList<Class<?>>();
         
         while ( cls != null )
         {
-            Class[] interfaces = cls.getInterfaces();
+            Class<?>[] interfaces = cls.getInterfaces();
             
-            for ( Class interf:interfaces )
+            for ( Class<?> interf:interfaces )
             {
                 if ( list.contains( interf ) == false )
                 {
                     list.add( interf );
                 }
                 
-                for ( Class superIntf:getAllInterfaces( interf ) )
+                for ( Class<?> superIntf:getAllInterfaces( interf ) )
                 {
                     if ( list.contains( superIntf ) == false )
                     {
@@ -341,6 +353,7 @@ public class ClassUtils
             
             cls = cls.getSuperclass();
         }
+        
         return list;
     }
 
@@ -366,14 +379,14 @@ public class ClassUtils
      * @throws ClassCastException
      *             if classNames contains a non String entry
      */
-    public static List convertClassNamesToClasses( List<String> classNames )
+    public static List<Class<?>> convertClassNamesToClasses( List<String> classNames )
     {
         if ( classNames == null )
         {
             return null;
         }
         
-        List<Class> classes = new ArrayList<Class>( classNames.size() );
+        List<Class<?>> classes = new ArrayList<Class<?>>( classNames.size() );
         
         for ( String className:classNames )
         {
@@ -409,7 +422,7 @@ public class ClassUtils
      *             if <code>classes</code> contains a non-<code>Class</code>
      *             entry
      */
-    public static List<String> convertClassesToClassNames( List<Class> classes )
+    public static List<String> convertClassesToClassNames( List<Class<?>> classes )
     {
         if ( classes == null )
         {
@@ -418,7 +431,7 @@ public class ClassUtils
         
         List<String> classNames = new ArrayList<String>( classes.size() );
         
-        for ( Class clazz:classes )
+        for ( Class<?> clazz:classes )
         {
             if ( clazz == null )
             {
@@ -478,20 +491,23 @@ public class ClassUtils
      *            <code>null</code>
      * @return <code>true</code> if assignment possible
      */
-    public static boolean isAssignable( Class[] classArray, Class[] toClassArray )
+    public static boolean isAssignable( Class<?>[] classArray, Class<?>[] toClassArray )
     {
         if ( ArrayUtils.isSameLength( classArray, toClassArray ) == false )
         {
             return false;
         }
+        
         if ( classArray == null )
         {
             classArray = ArrayUtils.EMPTY_CLASS_ARRAY;
         }
+        
         if ( toClassArray == null )
         {
             toClassArray = ArrayUtils.EMPTY_CLASS_ARRAY;
         }
+        
         for ( int i = 0; i < classArray.length; i++ )
         {
             if ( isAssignable( classArray[i], toClassArray[i] ) == false )
@@ -499,6 +515,7 @@ public class ClassUtils
                 return false;
             }
         }
+        
         return true;
     }
 
@@ -537,65 +554,78 @@ public class ClassUtils
      *            the Class to try to assign into, returns false if null
      * @return <code>true</code> if assignment possible
      */
-    public static boolean isAssignable( Class cls, Class toClass )
+    public static boolean isAssignable( Class<?> cls, Class<?> toClass )
     {
         if ( toClass == null )
         {
             return false;
         }
+        
         // have to check for null, as isAssignableFrom doesn't
         if ( cls == null )
         {
             return !( toClass.isPrimitive() );
         }
+        
         if ( cls.equals( toClass ) )
         {
             return true;
         }
+        
         if ( cls.isPrimitive() )
         {
             if ( toClass.isPrimitive() == false )
             {
                 return false;
             }
+            
             if ( Integer.TYPE.equals( cls ) )
             {
                 return Long.TYPE.equals( toClass ) || Float.TYPE.equals( toClass ) || Double.TYPE.equals( toClass );
             }
+            
             if ( Long.TYPE.equals( cls ) )
             {
                 return Float.TYPE.equals( toClass ) || Double.TYPE.equals( toClass );
             }
+            
             if ( Boolean.TYPE.equals( cls ) )
             {
                 return false;
             }
+            
             if ( Double.TYPE.equals( cls ) )
             {
                 return false;
             }
+            
             if ( Float.TYPE.equals( cls ) )
             {
                 return Double.TYPE.equals( toClass );
             }
+            
             if ( Character.TYPE.equals( cls ) )
             {
                 return Integer.TYPE.equals( toClass ) || Long.TYPE.equals( toClass ) || Float.TYPE.equals( toClass )
                     || Double.TYPE.equals( toClass );
             }
+            
             if ( Short.TYPE.equals( cls ) )
             {
                 return Integer.TYPE.equals( toClass ) || Long.TYPE.equals( toClass ) || Float.TYPE.equals( toClass )
                     || Double.TYPE.equals( toClass );
             }
+            
             if ( Byte.TYPE.equals( cls ) )
             {
                 return Short.TYPE.equals( toClass ) || Integer.TYPE.equals( toClass ) || Long.TYPE.equals( toClass )
                     || Float.TYPE.equals( toClass ) || Double.TYPE.equals( toClass );
             }
+            
             // should never get here
             return false;
         }
+        
         return toClass.isAssignableFrom( cls );
     }
 
@@ -612,13 +642,15 @@ public class ClassUtils
      *         <code>cls</code> is not a primitive. <code>null</code> if
      *         null input.
      */
-    public static Class primitiveToWrapper( Class cls )
+    public static Class<?> primitiveToWrapper( Class<?> cls )
     {
-        Class convertedClass = cls;
+        Class<?> convertedClass = cls;
+        
         if ( cls != null && cls.isPrimitive() )
         {
             convertedClass = primitiveWrapperMap.get( cls );
         }
+        
         return convertedClass;
     }
 
@@ -636,7 +668,7 @@ public class ClassUtils
      *         <code>null</code> if null input. Empty array if an empty array
      *         passed in.
      */
-    public static Class[] primitivesToWrappers( Class[] classes )
+    public static Class<?>[] primitivesToWrappers( Class<?>[] classes )
     {
         if ( classes == null )
         {
@@ -648,11 +680,13 @@ public class ClassUtils
             return ArrayUtils.EMPTY_CLASS_ARRAY;
         }
 
-        Class[] convertedClasses = new Class[classes.length];
+        Class<?>[] convertedClasses = new Class[classes.length];
+        
         for ( int i = 0; i < classes.length; i++ )
         {
             convertedClasses[i] = primitiveToWrapper( classes[i] );
         }
+        
         return convertedClasses;
     }
 
@@ -669,12 +703,13 @@ public class ClassUtils
      * @return <code>true</code> if the class is an inner or static nested
      *         class, false if not or <code>null</code>
      */
-    public static boolean isInnerClass( Class cls )
+    public static boolean isInnerClass( Class<?> cls )
     {
         if ( cls == null )
         {
             return false;
         }
+        
         return ( cls.getName().indexOf( INNER_CLASS_SEPARATOR_CHAR ) >= 0 );
     }
 
@@ -682,7 +717,7 @@ public class ClassUtils
     /**
      * Compares two <code>Class</code>s by name.
      */
-    private static class ClassNameComparator implements Comparator
+    private static class ClassNameComparator implements Comparator<Class<?>>
     {
         /**
          * Compares two <code>Class</code>s by name.
@@ -691,18 +726,18 @@ public class ClassUtils
          *             If <code>o1</code> or <code>o2</code> are not
          *             <code>Class</code> instances.
          */
-        public int compare( Object o1, Object o2 )
+        public int compare( Class<?> class1, Class<?> class2 )
         {
-            Class class1 = ( Class ) o1;
-            Class class2 = ( Class ) o2;
             if ( class1 == null )
             {
                 return class2 == null ? 0 : -1;
             }
+            
             if ( class2 == null )
             {
                 return 1;
             }
+            
             return class1.getName().compareTo( class2.getName() );
         }
     }
@@ -710,12 +745,12 @@ public class ClassUtils
     /**
      * Compares two <code>Class</code>s by name.
      */
-    public static final Comparator CLASS_NAME_COMPARATOR = new ClassNameComparator();
+    public static final Comparator<Class<?>> CLASS_NAME_COMPARATOR = new ClassNameComparator();
 
     /**
      * Compares two <code>Package</code>s by name.
      */
-    private static class PackageNameComparator implements Comparator
+    private static class PackageNameComparator implements Comparator<Package>
     {
 
         /**
@@ -725,18 +760,18 @@ public class ClassUtils
          *             If <code>o1</code> or <code>o2</code> are not
          *             <code>Package</code> instances.
          */
-        public int compare( Object o1, Object o2 )
+        public int compare( Package package1, Package package2 )
         {
-            Package package1 = ( Package ) o1;
-            Package package2 = ( Package ) o2;
             if ( package1 == null )
             {
                 return package2 == null ? 0 : -1;
             }
+
             if ( package2 == null )
             {
                 return 1;
             }
+            
             return package1.getName().compareTo( package2.getName() );
         }
     }
@@ -744,6 +779,6 @@ public class ClassUtils
     /**
      * Compares two <code>Package</code>s by name.
      */
-    public static final Comparator PACKAGE_NAME_COMPARATOR = new PackageNameComparator();
+    public static final Comparator<Package> PACKAGE_NAME_COMPARATOR = new PackageNameComparator();
 
 }
