@@ -53,7 +53,7 @@ public class SchemaUtils
      * @return the resultant entry after the modifications have taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static Attributes getTargetEntry( List<ModificationItem> mods, Attributes entry ) throws NamingException
+    public static Attributes getTargetEntry( List<? extends ModificationItem> mods, Attributes entry ) throws NamingException
     {
         Attributes targetEntry = ( Attributes ) entry.clone();
         

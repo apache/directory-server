@@ -20,23 +20,23 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.ModificationItem;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -310,7 +310,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public final static ModificationItem getModificationItem( List<ModificationItem> mods, AttributeType type )
+    public final static ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -376,7 +376,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( List<ModificationItem> mods, AttributeType type )
+    public final static Attribute getAttribute( List<ModificationItemImpl> mods, AttributeType type )
     {
         ModificationItem mod = getModificationItem( mods, type );
         
@@ -1042,7 +1042,7 @@ public class AttributeUtils
      * keychar = 'a'-z' | 'A'-'Z' / '0'-'9' / '-'
      * number = '0'-'9' / ( '1'-'9' 1*'0'-'9' )
      *
-     * @param attr The parsed attribute,
+     * @param str The parsed attribute,
      * @param pos The position of the attribute in the current string
      * @return The parsed attribute if valid
      */
