@@ -168,6 +168,7 @@ public class DefaultDirectoryService extends DirectoryService
     /**
      * Gets the {@link Partition}s used by this DirectoryService.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @return the set of partitions used
      */
     public Set<? extends Partition> getPartitions()
@@ -181,6 +182,7 @@ public class DefaultDirectoryService extends DirectoryService
     /**
      * Sets {@link Partition}s used by this DirectoryService.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.partition.Partition"
      * @param partitions the partitions to used
      */
     public void setPartitions( Set<? extends Partition> partitions )
@@ -267,6 +269,7 @@ public class DefaultDirectoryService extends DirectoryService
     /**
      * Sets the interceptors in the server.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.interceptor.Interceptor"
      * @param interceptors the interceptors to be used in the server.
      */
     public void setInterceptors( List<Interceptor> interceptors ) 
@@ -290,6 +293,7 @@ public class DefaultDirectoryService extends DirectoryService
      * Returns test directory entries({@link Entry}) to be loaded while
      * bootstrapping.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @return test entries to load during bootstrapping
      */
     public List<Entry> getTestEntries()
@@ -304,6 +308,7 @@ public class DefaultDirectoryService extends DirectoryService
      * Sets test directory entries({@link Attributes}) to be loaded while
      * bootstrapping.
      *
+     * @org.apache.xbean.Property nestedType="org.apache.directory.shared.ldap.ldif.Entry"
      * @param testEntries the test entries to load while bootstrapping
      */
     public void setTestEntries( List<? extends Entry> testEntries )

@@ -4,127 +4,63 @@
         "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-<!-- bean I didn't convert -->
-  <bean id="environment" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-    <property name="properties">
-      <props>
-        <!-- JNDI security properties used to get initial contexts.         -->
-        <prop key="java.naming.security.authentication">simple</prop>
-        <prop key="java.naming.security.principal">uid=admin,ou=system</prop>
-        <prop key="java.naming.security.credentials">secret</prop>
-      </props>
-    </property>
-  </bean>
+  <apacheDS id="apacheDS" xmlns="http://apacheds.org/config/1.0"
+                          synchPeriodMillis="15000"
+                          maxThreads="8"
+                          allowAnonymousAccess="false">
 
-  <apacheDS id="defaultApacheDS" xmlns="http://apacheds.org/config/1.0"
-                                     synchPeriodMillis="15000"
-                                     maxThreads="8"
-                                     allowAnonymousAccess="false">
-
-      <defaultDirectoryService id="defaultDirectoryService"
-                                         instanceId="default"
-                                         workingDirectory="example.com"
-                                         allowAnonymousAccess="false"
-                                         accessControlEnabled="false"
-                                         denormalizeOpAttrsEnabled="false"
-              >
+    <directoryService>
+      <defaultDirectoryService id="directoryService" instanceId="default"
+                               workingDirectory="example.com"
+                               allowAnonymousAccess="false"
+                               accessControlEnabled="false"
+                               denormalizeOpAttrsEnabled="false">
         <systemPartition>
           <!-- use the following partitionConfiguration to override defaults for -->
           <!-- the system partition                                              -->
-
-          <jdbmPartition
-            id="system"
-            cacheSize="100"
-            suffix="ou=system"
-            optimizerEnabled="true"
-            syncOnWrite="true">
+          <jdbmPartition id="system" cacheSize="100" suffix="ou=system" optimizerEnabled="true" syncOnWrite="true">
             <indexedAttributes>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.1"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.2"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.3"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.4"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.5"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.6"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.7"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="ou"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="uid"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="objectClass"
-                  cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.1" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.2" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.3" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.4" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.5" cacheSize="10"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.6" cacheSize="10"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.7" cacheSize="10"/>
+              <jdbmIndex attributeId="ou" cacheSize="100"/>
+              <jdbmIndex attributeId="uid" cacheSize="100"/>
+              <jdbmIndex attributeId="objectClass" cacheSize="100"/>
             </indexedAttributes>
             <contextEntry>
               <value xmlns="http://www.springframework.org/schema/beans">
-                objectClass: top
-                objectClass: organizationalUnit
-                objectClass: extensibleObject
-                ou: system
+                 objectClass: top
+                 objectClass: organizationalUnit
+                 objectClass: extensibleObject
+                 ou: system
               </value>
             </contextEntry>
           </jdbmPartition>
         </systemPartition>
 
         <partitions>
-          <jdbmPartition
-            id="example"
-            cacheSize="100"
-            suffix="dc=example,dc=com"
-            optimizerEnabled="true"
-            syncOnWrite="true">
+          <!-- NOTE: when specifying new partitions you need not include those   -->
+          <!-- attributes below with OID's which are the system indices, if left -->
+          <!-- out they will be automatically configured for you with defaults.  -->
+          <jdbmPartition id="example" cacheSize="100" suffix="dc=example,dc=com" optimizerEnabled="true"
+                         syncOnWrite="true">
             <indexedAttributes>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.1"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.2"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.3"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.4"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.5"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.6"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="1.3.6.1.4.1.18060.0.4.1.2.7"
-                  cacheSize="10"/>
-                <jdbmIndex
-                  attributeId="dc"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="ou"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="krb5PrincipalName"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="uid"
-                  cacheSize="100"/>
-                <jdbmIndex
-                  attributeId="objectClass"
-                  cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.1" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.2" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.3" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.4" cacheSize="100"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.5" cacheSize="10"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.6" cacheSize="10"/>
+              <jdbmIndex attributeId="1.3.6.1.4.1.18060.0.4.1.2.7" cacheSize="10"/>
+              <jdbmIndex attributeId="dc" cacheSize="100"/>
+              <jdbmIndex attributeId="ou" cacheSize="100"/>
+              <jdbmIndex attributeId="krb5PrincipalName" cacheSize="100"/>
+              <jdbmIndex attributeId="uid" cacheSize="100"/>
+              <jdbmIndex attributeId="objectClass" cacheSize="100"/>
             </indexedAttributes>
             <contextEntry>
               <value xmlns="http://www.springframework.org/schema/beans">
@@ -160,9 +96,7 @@
           <!-- Uncomment to enable replication service
           <replicationService >
             <configuration>
-              <replicationConfiguration
-                serverPort="10390"
-                peerReplicas="instance_b@localhost:10392">
+              <replicationConfiguration serverPort="10390" peerReplicas="instance_b@localhost:10392">
                 <replicaId>
                   <replicaId id="instance_a"/>
                 </replicaId>
@@ -170,91 +104,68 @@
             </configuration>
           </replicationService>
           -->
-
         </interceptors>
       </defaultDirectoryService>
+    </directoryService>
 
+    <changePasswordConfiguration>
+      <changePasswordConfiguration enabled="false" ipPort="464"/>
+    </changePasswordConfiguration>
 
-      <changePasswordConfiguration>
-        <changePasswordConfiguration
-                enabled="false"
-                ipPort="464">
-        </changePasswordConfiguration>
-      </changePasswordConfiguration>
+    <ntpConfiguration>
+      <ntpConfiguration enabled="false" ipPort="123"/>
+    </ntpConfiguration>
 
-      <ntpConfiguration>
-        <ntpConfiguration
-                enabled="false"
-                ipPort="123">
-        </ntpConfiguration>
-      </ntpConfiguration>
+    <dnsConfiguration>
+      <dnsConfiguration enabled="false" ipPort="53"/>
+    </dnsConfiguration>
 
-      <dnsConfiguration>
-        <dnsConfiguration
-                enabled="false"
-                ipPort="53">
-        </dnsConfiguration>
-      </dnsConfiguration>
+    <kdcConfiguration>
+      <kdcConfiguration enabled="false" ipPort="88"/>
+    </kdcConfiguration>
 
-      <kdcConfiguration>
-        <kdcConfiguration
-                enabled="false"
-                ipPort="88">
-        </kdcConfiguration>
-      </kdcConfiguration>
+    <ldapsConfiguration>
+      <ldapConfiguration enabled="false" ipPort="636" enableLdaps="true"/>
+    </ldapsConfiguration>
 
-      <ldapsConfiguration>
-        <ldapConfiguration id="ldapsConfiguration"
-                           enabled="false"
-                           ipPort="636"
-                           enableLdaps="true">
-        </ldapConfiguration>
-      </ldapsConfiguration>
+    <ldapConfiguration>
+      <ldapConfiguration ipPort="10389" allowAnonymousAccess="false" saslHost="ldap.example.com"
+                         saslPrincipal="ldap/ldap.example.com@EXAMPLE.COM" searchBaseDn="ou=users,ou=system"
+                         maxTimeLimit="15000" maxSizeLimit="1000">
+        <!-- The list of supported authentication mechanisms.                   -->
+        <supportedMechanisms>
+          <value xmlns="http://www.springframework.org/schema/beans">SIMPLE</value>
+          <value xmlns="http://www.springframework.org/schema/beans">CRAM-MD5</value>
+          <value xmlns="http://www.springframework.org/schema/beans">DIGEST-MD5</value>
+          <!--<value xmlns="http://www.springframework.org/schema/beans">GSSAPI</value>-->
+        </supportedMechanisms>
 
-      <ldapConfiguration>
-        <ldapConfiguration id="ldapConfiguration"
-                ipPort="10389"
-                allowAnonymousAccess="false"
-                saslHost="ldap.example.com"
-                saslPrincipal="ldap/ldap.example.com@EXAMPLE.COM"
-                searchBaseDn="ou=users,ou=system"
-                maxTimeLimit="15000"
-                maxSizeLimit="1000">
+        <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
+        <saslQop>
+          <value xmlns="http://www.springframework.org/schema/beans">auth</value>
+          <value xmlns="http://www.springframework.org/schema/beans">auth-int</value>
+          <value xmlns="http://www.springframework.org/schema/beans">auth-conf</value>
+        </saslQop>
 
-          <!-- The list of supported authentication mechanisms.                   -->
-          <supportedMechanisms>
-            <value xmlns="http://www.springframework.org/schema/beans">SIMPLE</value>
-            <value xmlns="http://www.springframework.org/schema/beans">CRAM-MD5</value>
-            <value xmlns="http://www.springframework.org/schema/beans">DIGEST-MD5</value>
-            <!--<value xmlns="http://www.springframework.org/schema/beans">GSSAPI</value>-->
-          </supportedMechanisms>
+        <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
+        <saslRealms>
+          <value xmlns="http://www.springframework.org/schema/beans">example.com</value>
+          <value xmlns="http://www.springframework.org/schema/beans">apache.org</value>
+        </saslRealms>
 
-          <!-- The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.  -->
-          <saslQop>
-            <value xmlns="http://www.springframework.org/schema/beans">auth</value>
-            <value xmlns="http://www.springframework.org/schema/beans">auth-int</value>
-            <value xmlns="http://www.springframework.org/schema/beans">auth-conf</value>
-          </saslQop>
-
-          <!-- The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI. -->
-          <saslRealms>
-            <value xmlns="http://www.springframework.org/schema/beans">example.com</value>
-            <value xmlns="http://www.springframework.org/schema/beans">apache.org</value>
-          </saslRealms>
-
-          <!-- the collection of extended operation handlers to install           -->
-          <extendedOperationHandlers>
-            <!--startTlsHandler/-->
-            <gracefulShutdownHandler/>
-            <launchDiagnosticUiHandler/>
-            <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
-            <!--storedProcedureExtendedOperationHandler/-->
-          </extendedOperationHandlers>
-        </ldapConfiguration>
+        <!-- the collection of extended operation handlers to install           -->
+        <extendedOperationHandlers>
+          <!--startTlsHandler/-->
+          <gracefulShutdownHandler/>
+          <launchDiagnosticUiHandler/>
+          <!-- The Stored Procedure Extended Operation is not stable yet and it may cause security risks.-->
+          <!--storedProcedureExtendedOperationHandler/-->
+        </extendedOperationHandlers>
       </ldapConfiguration>
+    </ldapConfiguration>
   </apacheDS>
 
-<!-- another bean I didn't convert -->
+  <!-- another bean I didn't convert -->
   <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
     <property name="customEditors">
       <map>

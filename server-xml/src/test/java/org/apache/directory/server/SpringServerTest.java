@@ -46,14 +46,7 @@ public class SpringServerTest
         File configF = new File( configURL.toURI() );
         ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURL().toString() );
         ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
-        //noinspection unchecked
-        Hashtable<String,Object> env = ( Hashtable ) factory.getBean( "environment" );
-        env.put( ApacheDS.JNDI_KEY, apacheDS );
-        env.put( Context.PROVIDER_URL, providerURL );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
-
         File workingDirFile = new File( configF.getParentFile(), "work" );
         apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
-        new InitialDirContext( env );
     }
 }
