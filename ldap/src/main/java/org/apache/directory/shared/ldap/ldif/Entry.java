@@ -38,6 +38,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 
+
 /**
  * A entry to be populated by an ldif parser.
  * 
