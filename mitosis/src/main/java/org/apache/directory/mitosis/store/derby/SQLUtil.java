@@ -20,6 +20,9 @@
 package org.apache.directory.mitosis.store.derby;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +31,8 @@ import java.sql.Statement;
 
 class SQLUtil
 {
+    private static final Logger LOG = LoggerFactory.getLogger( SQLUtil.class );
+
 
     static void cleanup( Connection con, Statement stmt, ResultSet rs )
     {
@@ -39,6 +44,7 @@ class SQLUtil
             }
             catch ( SQLException e )
             {
+                LOG.error( "Failed to close result set.", e );
             }
         }
         if ( stmt != null )
@@ -49,6 +55,7 @@ class SQLUtil
             }
             catch ( SQLException e )
             {
+                LOG.error( "Failed to close statement.", e );
             }
         }
         if ( con != null )
@@ -59,6 +66,7 @@ class SQLUtil
             }
             catch ( SQLException e )
             {
+                LOG.error( "Failed to close jdbc connection.", e );
             }
         }
     }

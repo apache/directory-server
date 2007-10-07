@@ -58,7 +58,7 @@ public class DerbyReplicationStore implements ReplicationStore
     private String metadataTableName;
     private String uuidTableName;
     private String logTableName;
-    private final Set<ReplicaId> knownReplicaIds = new HashSet<ReplicaId>();
+    private Set<ReplicaId> knownReplicaIds;
     private final Object knownReplicaIdsLock = new Object();
     private final OperationCodec operationCodec = new OperationCodec();
 
@@ -86,12 +86,12 @@ public class DerbyReplicationStore implements ReplicationStore
     }
 
 
-    public void open( DirectoryService directoryService, ReplicationConfiguration cfg )
+    public void open( DirectoryService serviceCfg, ReplicationConfiguration cfg )
     {
         replicaId = cfg.getReplicaId();
 
         // Calculate DB URI
-        dbURI = DB_URI_PREFIX + directoryService.getWorkingDirectory().getPath() + File.separator
+        dbURI = DB_URI_PREFIX + serviceCfg.getWorkingDirectory().getPath() + File.separator
             + "replication";
 
         // Create database if not exists.
@@ -239,6 +239,7 @@ public class DerbyReplicationStore implements ReplicationStore
             // Get known replica IDs.
             ps = con.prepareStatement( "SELECT DISTINCT CSN_REPLICA_ID FROM " + logTableName );
             rs = ps.executeQuery();
+            knownReplicaIds = new HashSet<ReplicaId>();
             while ( rs.next() )
             {
                 knownReplicaIds.add( new ReplicaId( rs.getString( 1 ) ) );
@@ -373,8 +374,7 @@ public class DerbyReplicationStore implements ReplicationStore
             }
             catch ( SQLException e1 )
             {
-                LOG.error( "Exception while rolling back attempt to put a UUID {} for dn {}",
-                        uuid.toString(), dn.toString() );
+                LOG.error( "Failed to rollback transaction.", e );
             }
 
             throw new ReplicationStoreException( e );
@@ -459,8 +459,9 @@ public class DerbyReplicationStore implements ReplicationStore
         {
             synchronized ( knownReplicaIdsLock )
             {
-                knownReplicaIds.clear();
-                knownReplicaIds.add( csn.getReplicaId() );
+                Set<ReplicaId> newKnownReplicaIds = new HashSet<ReplicaId>( knownReplicaIds );
+                newKnownReplicaIds.add( csn.getReplicaId() );
+                knownReplicaIds = newKnownReplicaIds;
             }
         }
     }
@@ -482,8 +483,8 @@ public class DerbyReplicationStore implements ReplicationStore
             buf.append( "WHERE " );
             for ( int i = updateVector.size();; )
             {
-                buf.append( "( CSN_REPLICA_ID = ? AND (CSN_TIMESTAMP = ? AND CSN_OP_SEQ >" )
-                        .append( inclusive ? "=" : "" ).append( " ? OR CSN_TIMESTAMP > ?) ) " );
+                buf.append( "( CSN_REPLICA_ID = ? AND (CSN_TIMESTAMP = ? AND CSN_OP_SEQ >" + ( inclusive ? "=" : "" )
+                    + " ? OR CSN_TIMESTAMP > ?) ) " );
                 i--;
                 if ( i == 0 )
                 {
@@ -699,8 +700,10 @@ public class DerbyReplicationStore implements ReplicationStore
             ps = con.prepareStatement( "SELECT CSN_TIMESTAMP, CSN_OP_SEQ FROM " + logTableName
                 + " WHERE CSN_REPLICA_ID=? ORDER BY CSN_TIMESTAMP " + ORDER + ", CSN_OP_SEQ " + ORDER );
 
-            for ( ReplicaId replicaId : knownReplicaIds )
+            Iterator<ReplicaId> it = knownReplicaIds.iterator();
+            while ( it.hasNext() )
             {
+                ReplicaId replicaId = it.next();
                 ps.setString( 1, replicaId.getId() );
                 rs = ps.executeQuery();
                 if ( rs.next() )

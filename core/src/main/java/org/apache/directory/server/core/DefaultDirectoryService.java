@@ -85,6 +85,7 @@ import java.util.*;
 /**
  * Default implementation of {@link DirectoryService}.
  * 
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class DefaultDirectoryService extends DirectoryService

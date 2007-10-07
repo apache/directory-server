@@ -804,7 +804,7 @@ public class BootstrapPlugin extends AbstractMojo
         ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
         
-        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
         mods.add( mod );
         store.modify( dn, mods );
     }

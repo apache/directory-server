@@ -48,6 +48,8 @@ public class ReplaceAttributeOperation extends AttributeOperation
      * Creates a new operation that replaces the specified attribute.
      * 
      * @param attribute an attribute to replace
+     * @param csn ??
+     * @param name ??
      */
     public ReplaceAttributeOperation( CSN csn, LdapDN name, Attribute attribute )
     {

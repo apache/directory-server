@@ -80,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Apache Directory Server top level.
  *
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
