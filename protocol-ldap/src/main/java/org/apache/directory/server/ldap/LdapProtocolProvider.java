@@ -137,14 +137,19 @@ public class LdapProtocolProvider
      *
      * @param env environment properties used to configure the provider and
      * underlying codec providers if any
+     * @param cfg the ldap configuration
+     * @param directoryService the directory service core
+     *
+     * @throws LdapNamingException if there are problems setting up the protocol provider
      */
-    public LdapProtocolProvider( DirectoryService directoryService, LdapConfiguration cfg, Hashtable env )
-            throws LdapNamingException
+    public LdapProtocolProvider( DirectoryService directoryService, LdapConfiguration cfg,
+                                 Hashtable<String,Object> env ) throws LdapNamingException
     {
         this.cfg = cfg;
         this.directoryService = directoryService;
 
-        Hashtable copy = ( Hashtable ) env.clone();
+        Hashtable<String,Object> copy = new Hashtable<String,Object>( env.size() );
+        copy.putAll( env );
         copy.put( Context.PROVIDER_URL, "" );
         copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         copy.put( DirectoryService.JNDI_KEY, directoryService );

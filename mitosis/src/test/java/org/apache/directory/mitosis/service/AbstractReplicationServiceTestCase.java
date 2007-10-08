@@ -123,6 +123,8 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
                 FileUtils.deleteDirectory( workDir );
             }
 
+            service.startup();
+            
             Hashtable env = new Hashtable();
             env.put( DirectoryService.JNDI_KEY, service );
             env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );

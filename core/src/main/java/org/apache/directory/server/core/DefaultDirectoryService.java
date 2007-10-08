@@ -66,7 +66,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -1227,9 +1226,9 @@ public class DefaultDirectoryService extends DirectoryService
                 {
                     String[] binaryArray = binaryIds.split( " " );
 
-                    for ( String aBinaryArray : binaryArray )
+                    for ( String binary : binaryArray )
                     {
-                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( aBinaryArray ) ) );
+                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binary ) ) );
                     }
                 }
 
@@ -1246,27 +1245,9 @@ public class DefaultDirectoryService extends DirectoryService
 
         // now get all the attributeTypes that are binary from the registry
         AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
-        Iterator<AttributeType> list = registry.iterator();
-        while ( list.hasNext() )
-        {
-            AttributeType type = list.next();
-            
-            if ( !type.getSyntax().isHumanReadable() )
-            {
-                // add the OID for the attributeType
-                binaries.add( type.getOid() );
-
-                // add the lowercased name for the names for the attributeType
-                String[] names = type.getNames();
-
-                for ( String name : names )
-                {
-                    binaries.add( StringTools.lowerCaseAscii( StringTools.trim( name ) ) );
-                }
-            }
-        }
-
+        binaries.addAll( registry.getBinaryAttributes() );
         this.environment.put( BINARY_KEY, binaries );
+        
         if ( LOG.isDebugEnabled() )
         {
             LOG.debug( "binary ids used: " + binaries );

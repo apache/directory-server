@@ -30,7 +30,7 @@ import org.apache.directory.shared.ldap.message.*;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
-import java.util.Properties;
+import java.util.Hashtable;
 
 
 /**
@@ -53,9 +53,9 @@ public class LdapProtocolProviderTest extends TestCase
     {
         DirectoryService directoryService = new DefaultDirectoryService();
         LdapProtocolProvider provider = new LdapProtocolProvider( directoryService,
-                new LdapConfiguration(), new Properties() );
+                new LdapConfiguration(), new Hashtable<String,Object>() );
         assertNotNull( provider.getCodecFactory() );
-        assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
+        assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
     }
 
 
@@ -68,42 +68,42 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testAlternativeConfiguration() throws LdapNamingException
     {
-        Properties props = new Properties();
+        Hashtable<String,Object> props = new Hashtable<String,Object>();
 
-        props.setProperty( AbandonRequest.class.getName(), BogusAbandonHandler.class.getName() );
-        props.setProperty( AbandonRequestImpl.class.getName(), BogusAbandonHandler.class.getName() );
+        props.put( AbandonRequest.class.getName(), BogusAbandonHandler.class.getName() );
+        props.put( AbandonRequestImpl.class.getName(), BogusAbandonHandler.class.getName() );
 
-        props.setProperty( AddRequest.class.getName(), BogusAddHandler.class.getName() );
-        props.setProperty( AddRequestImpl.class.getName(), BogusAddHandler.class.getName() );
+        props.put( AddRequest.class.getName(), BogusAddHandler.class.getName() );
+        props.put( AddRequestImpl.class.getName(), BogusAddHandler.class.getName() );
 
-        props.setProperty( BindRequest.class.getName(), BogusBindHandler.class.getName() );
-        props.setProperty( BindRequestImpl.class.getName(), BogusBindHandler.class.getName() );
+        props.put( BindRequest.class.getName(), BogusBindHandler.class.getName() );
+        props.put( BindRequestImpl.class.getName(), BogusBindHandler.class.getName() );
 
-        props.setProperty( CompareRequest.class.getName(), BogusCompareHandler.class.getName() );
-        props.setProperty( CompareRequestImpl.class.getName(), BogusCompareHandler.class.getName() );
+        props.put( CompareRequest.class.getName(), BogusCompareHandler.class.getName() );
+        props.put( CompareRequestImpl.class.getName(), BogusCompareHandler.class.getName() );
 
-        props.setProperty( DeleteRequest.class.getName(), BogusDeleteHandler.class.getName() );
-        props.setProperty( DeleteRequestImpl.class.getName(), BogusDeleteHandler.class.getName() );
+        props.put( DeleteRequest.class.getName(), BogusDeleteHandler.class.getName() );
+        props.put( DeleteRequestImpl.class.getName(), BogusDeleteHandler.class.getName() );
 
-        props.setProperty( ExtendedRequest.class.getName(), ExtendedHandler.class.getName() );
-        props.setProperty( ExtendedRequestImpl.class.getName(), ExtendedHandler.class.getName() );
+        props.put( ExtendedRequest.class.getName(), ExtendedHandler.class.getName() );
+        props.put( ExtendedRequestImpl.class.getName(), ExtendedHandler.class.getName() );
 
-        props.setProperty( ModifyRequest.class.getName(), BogusModifyHandler.class.getName() );
-        props.setProperty( ModifyRequestImpl.class.getName(), BogusModifyHandler.class.getName() );
+        props.put( ModifyRequest.class.getName(), BogusModifyHandler.class.getName() );
+        props.put( ModifyRequestImpl.class.getName(), BogusModifyHandler.class.getName() );
 
-        props.setProperty( ModifyDnRequest.class.getName(), BogusModifyDnHandler.class.getName() );
-        props.setProperty( ModifyDnRequestImpl.class.getName(), BogusModifyDnHandler.class.getName() );
+        props.put( ModifyDnRequest.class.getName(), BogusModifyDnHandler.class.getName() );
+        props.put( ModifyDnRequestImpl.class.getName(), BogusModifyDnHandler.class.getName() );
 
-        props.setProperty( SearchRequest.class.getName(), BogusSearchHandler.class.getName() );
-        props.setProperty( SearchRequestImpl.class.getName(), BogusSearchHandler.class.getName() );
+        props.put( SearchRequest.class.getName(), BogusSearchHandler.class.getName() );
+        props.put( SearchRequestImpl.class.getName(), BogusSearchHandler.class.getName() );
 
-        props.setProperty( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
-        props.setProperty( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
+        props.put( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
+        props.put( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
 
         DirectoryService directoryService = new DefaultDirectoryService();
         LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration(), props );
         assertNotNull( provider.getCodecFactory() );
-        assertTrue( provider.getName() == LdapProtocolProvider.SERVICE_NAME );
+        assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
     }
 
     public static class BogusAbandonHandler implements MessageHandler

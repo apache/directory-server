@@ -45,6 +45,7 @@ import org.apache.directory.server.ntp.NtpServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -154,6 +155,8 @@ public class ApacheDS
         {
             directoryService.startup();
         }
+        environment.put( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY,
+                directoryService.getEnvironment().get( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY ) );        
         
         if ( enableNetworking )
         {
@@ -655,7 +658,7 @@ public class ApacheDS
      * @throws NamingException if there are problems starting the LDAP provider
      * @param env the environment
      */
-    private void startLDAP( Hashtable env ) throws NamingException
+    private void startLDAP( Hashtable<String,Object> env ) throws NamingException
     {
         // Skip if disabled
         if ( ! ldapConfiguration.isEnabled() )
@@ -674,7 +677,7 @@ public class ApacheDS
      * @throws NamingException if there are problems starting the LDAPS provider
      * @param env the JNDI environment
      */
-    private void startLDAPS( Hashtable env ) throws NamingException
+    private void startLDAPS( Hashtable<String,Object> env ) throws NamingException
     {
         // Skip if disabled
         if ( !( ldapsConfiguration.isEnabled() && ldapsConfiguration.isEnableLdaps() ) )
@@ -692,12 +695,11 @@ public class ApacheDS
     }
 
 
-    private void startLDAP0( LdapConfiguration ldapConfig, Hashtable env, int port, IoFilterChainBuilder chainBuilder )
+    private void startLDAP0( LdapConfiguration ldapConfig, Hashtable<String,Object> env, int port, IoFilterChainBuilder chainBuilder )
         throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
-        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( directoryService, ldapConfig,
-                ( Hashtable ) env.clone() );
+        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( directoryService, ldapConfig, env );
 
         for ( ExtendedOperationHandler h : ldapConfig.getExtendedOperationHandlers() )
         {

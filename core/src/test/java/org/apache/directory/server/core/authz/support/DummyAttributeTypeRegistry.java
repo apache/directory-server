@@ -20,10 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import javax.naming.NamingException;
 
@@ -544,5 +541,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
     public void register( AttributeType attributeType ) throws NamingException
     {
+    }
+
+
+    public Set<String> getBinaryAttributes() throws NamingException
+    {
+        return null;
     }
 }

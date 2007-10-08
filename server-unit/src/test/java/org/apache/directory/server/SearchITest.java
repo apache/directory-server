@@ -53,7 +53,7 @@ import org.apache.directory.shared.ldap.message.SubentriesControl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchTest extends AbstractServerTest
+public class SearchITest extends AbstractServerTest
 {
     private LdapContext ctx;
     public static final String RDN = "cn=Tori Amos";
