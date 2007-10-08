@@ -20,69 +20,141 @@
 package org.apache.directory.server;
 
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
+import javax.naming.InvalidNameException;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.unit.AbstractServerFastTest;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 
 /**
  * Various del scenario tests.
  * 
+ * The tree is :
+ *  ou=system
+ *   |
+ *   +--> cn=test
+ *   
+ * Scenarios :
+ * - try to delete a non existent entry
+ * - try to delete a non valid entry
+ * - try to delete an existent entry
+ *   
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 433031 $
  */
-public class DelITest extends AbstractServerTest
+public class DelITest extends AbstractServerFastTest
 {
-    static final String HOST = "localhost";
-    static final String USER = "uid=admin,ou=system";
-    static final String PASSWORD = "secret";
-    static final String BASE = "dc=example,dc=com";
-    
-    private LDAPConnection con = null;
+    protected static final String ldif = 
+        "dn: cn=Test, ou=system\n" +
+        "objectClass: top\n" +
+        "objectClass: person\n" +
+        "objectClass: organizationalPerson\n" +
+        "objectClass: inetOrgPerson\n" +
+        "cn: Test\n" +
+        "sn: test user\n" +
+        "description: a test for delete\n";
 
-    protected void setUp() throws LDAPException, Exception {
-        super.setUp();
-        
-        con = new LDAPConnection();
-        con.connect(3, HOST, port, USER, PASSWORD);
-    }
-
-    protected void tearDown() throws LDAPException, Exception {
-        con.disconnect();
-        super.tearDown();
-    }
 
     /**
-     * Try to delete a non existing entry. Expected result code is 32
-     * (NO_SUCH_OBJECT).
+     * Performs a single level search from ou=system base and 
+     * returns the set of DNs found.
      */
-    public void testDeleteNotExisting() 
+    private NamingEnumeration<SearchResult> search( String name ) throws NamingException
     {
-        nbTests = 2;
-        
-        try 
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        return ctx.search( name, "(objectclass=*)", controls );
+    }
+    
+    /**
+     * This method is called before each test, we don't really care if 
+     * the data are loaded twice, we just don't care about the exception
+     */
+    @Before
+    public void setUp() throws NamingException
+    {
+        try
         {
-            con.delete("cn=This does not exist" + "," + BASE);
+            importLdif( rootDSE, ldif );
+        }
+        catch ( NamingException ne )
+        {
+            // Do nothing
+        }
+    }
+    
+    /**
+     * Try to delete an inexistant name.
+     * 
+     * WARNING !!! This test is valid ONLY because we have a double inexistant
+     * RDN in the context. doing the same thing with a single RDN will miserabilly 
+     * fail because of a gross misunderstanding of the RFC by SUN : JNDI is 
+     * considering that the matchedDN may be used to modify the resultCode,
+     * which is really a bad idea...
+     * 
+     * A bug report has been filled : ID 1074903
+     */
+    @Test public void testDeleteInvalidName() throws NamingException
+    {
+        try
+        {
+            ctx.destroySubcontext( "cn=This does not exist, cn=at all" );
             fail("deletion should fail");
         } 
-        catch (LDAPException e) 
+        catch ( Exception e) 
         {
-            assertTrue(e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT);
+            assertTrue( e instanceof NameNotFoundException );
         }
     }
 
     /**
-     * Try to delete an entry with invalid DN. Expected result code is 32
-     * (NO_SUCH_OBJECT) or 34 (INVALID_DN_SYNTAX).
+     * Try to delete an invalid name. 
      */
-    public void testDeleteWithIllegalName() {
-        try {
-            con.delete("This is an illegal name" + "," + BASE);
+    @Test public void testDeleteNotExistantName() throws NamingException
+    {
+        try
+        {
+            ctx.destroySubcontext( "This does not exist" );
             fail("deletion should fail");
-        } catch (LDAPException e) {
-            assertTrue(e.getLDAPResultCode() == LDAPException.INVALID_DN_SYNTAX
-                    || e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT);
+        } 
+        catch ( Exception e) 
+        {
+            assertTrue( e instanceof InvalidNameException );
+        }
+    }
+
+    /**
+     * Try to delete an existing entry with invalid DN. We expect to receive a
+     * LdapNameNotFoundException 
+     */
+    @Test public void testDeleteExistingName() 
+    {
+        try
+        {
+            ctx.destroySubcontext( "cn=test" );
+        } 
+        catch ( NamingException e) 
+        {
+            fail( "The deleton should have been successfull" );
+        }
+
+        try
+        {
+            NamingEnumeration<SearchResult> results = search( "cn=test, ou=system" );
+            assertFalse( results.hasMore() );
+        } 
+        catch ( NamingException e) 
+        {
+            assertTrue( e instanceof NameNotFoundException );
         }
     }
 }

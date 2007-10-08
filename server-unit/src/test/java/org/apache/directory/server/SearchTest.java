@@ -22,7 +22,6 @@ package org.apache.directory.server;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 import javax.naming.NameNotFoundException;
@@ -34,34 +33,126 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.unit.AbstractServerFastTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
 
 /**
- * Testcase with different modify operations on a person entry. Each includes a
- * single add op only. Created to demonstrate DIREVE-241 ("Adding an already
- * existing attribute value with a modify operation does not cause an error.").
+ * Test case for Search operation. It's using JUnit 4 capabilities,
+ * so the server is only launched once for the whole test case, but
+ * the ldif file is loaded for each test. 
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 569048 $
  */
-public class SearchTest extends AbstractServerTest
+public class SearchTest extends AbstractServerFastTest
 {
-    private LdapContext ctx = null;
+	static final String ldif = 
+		"dn: cn=Tori Amos, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"objectClass: organizationalPerson\n" +
+		"objectClass: inetOrgPerson\n" +
+		"cn: Tori Amos\n" +
+		"sn: Amos\n" +
+		"description: an American singer-songwriter\n" +
+		"jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAXQ\n" +
+		" 3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5M\n" +
+		" zg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY\n" +
+		" 2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABAwEiA\n" +
+		" AIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABUBA\n" +
+		" QEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AigC14\n" +
+		" //Z\n" +
+		"\n" +
+		"dn: cn=Rolling-Stones, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"objectClass: organizationalPerson\n" +
+		"objectClass: inetOrgPerson\n" +
+		"cn: Rolling-Stones\n" +
+		"sn: Jagger\n" +
+		"description: an American singer-songwriter\n" +
+		"jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAXQ\n" +
+		" 3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5M\n" +
+		" zg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY\n" +
+		" 2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABAwEiA\n" +
+		" AIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABUBA\n" +
+		" QEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AigC14\n" +
+		" //Z\n" +
+		"\n" +
+		"dn: cn=Kate Bush, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"objectClass: organizationalPerson\n" +
+		"objectClass: inetOrgPerson\n" +
+		"cn: Kate Bush\n" +
+		"sn: Bush\n" +
+		"jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAXQ\n" +
+		" 3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5M\n" +
+		" zg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY\n" +
+		" 2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABAwEiA\n" +
+		" AIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABUBA\n" +
+		" QEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AigC14\n" +
+		" //Z\n" +
+		"\n" +
+		"dn: cn=Heather Nova, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"cn: Heather Nova\n" +
+		"sn: Nova\n" +
+		"\n" +
+		"dn: sn=Ferry, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"objectClass: organizationalPerson\n" +
+		"objectClass: inetOrgPerson\n" +
+		"cn: Bryan Ferry\n" +
+		"sn: Ferry\n" +
+		"jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAXQ\n" +
+		" 3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5M\n" +
+		" zg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY\n" +
+		" 2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABAwEiA\n" +
+		" AIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABUBA\n" +
+		" QEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AigC14\n" +
+		" //Z\n" +
+		"\n" +
+		"dn: cn=Kate Bush+sn=Bush, ou=system\n" +
+		"objectClass: top\n" +
+		"objectClass: person\n" +
+		"objectClass: organizationalPerson\n" +
+		"objectClass: inetOrgPerson\n" +
+		"cn: Kate Bush\n" +
+		"sn: Bush\n" +
+		"jpegPhoto:: /9j/4AAQSkZJRgABAQEASABIAAD/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gAXQ\n" +
+		" 3JlYXRlZCB3aXRoIFRoZSBHSU1Q/9sAQwAQCwwODAoQDg0OEhEQExgoGhgWFhgxIyUdKDozPTw5M\n" +
+		" zg3QEhcTkBEV0U3OFBtUVdfYmdoZz5NcXlwZHhcZWdj/9sAQwEREhIYFRgvGhovY0I4QmNjY2NjY\n" +
+		" 2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Nj/8AAEQgAAQABAwEiA\n" +
+		" AIRAQMRAf/EABUAAQEAAAAAAAAAAAAAAAAAAAAF/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABUBA\n" +
+		" QEAAAAAAAAAAAAAAAAAAAUG/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AigC14\n" +
+		" //Z\n";
+		
+	
     public static final String RDN = "cn=Tori Amos";
     public static final String RDN2 = "cn=Rolling-Stones";
     public static final String PERSON_DESCRIPTION = "an American singer-songwriter";
-    private static final String HEATHER_RDN = "cn=Heather Graham";
+    private static final String HEATHER_RDN = "cn=Heather Nova";
+    private static final String KATE_BUSH_RDN = "cn=Kate Bush";
     private static final String filter = "(objectclass=*)";
-
 
     private static final byte[] jpeg = new byte[]
         {
@@ -108,13 +199,29 @@ public class SearchTest extends AbstractServerTest
             0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 
             0x3f, 0x00, (byte)0x8a, 0x00, (byte)0xb5, (byte)0xe3, (byte)0xff, (byte)0xd9,
         };
-                                            
+             
+    /**
+     * This method is called before each test, we don't really care if 
+     * the data are loaded twice, we just don't care about the exception
+     */
+    @Before
+    public void loadLdif()
+    {
+        try
+        {
+            importLdif( rootDSE, ldif );
+        }
+        catch ( NamingException ne )
+        {
+            // Do nothing
+        }
+    }
 
 
     /**
      * Creation of required attributes of a person entry.
      */
-    protected Attributes getPersonAttributes( String sn, String cn )
+    private Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attributes = new AttributesImpl();
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -130,7 +237,7 @@ public class SearchTest extends AbstractServerTest
         return attributes;
     }
     
-    protected void checkForAttributes( Attributes attrs, String[] attrNames )
+    private void checkForAttributes( Attributes attrs, String[] attrNames )
     {
         for ( int i = 0; i < attrNames.length; i++ )
         {
@@ -142,110 +249,63 @@ public class SearchTest extends AbstractServerTest
 
 
     /**
-     * Create context and a person entry.
-     */
-    public void setUp() throws Exception
-    {
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        // Create a person with description
-        Attributes attributes = this.getPersonAttributes( "Amos", "Tori Amos" );
-        attributes.put( "description", "an American singer-songwriter" );
-        ctx.createSubcontext( RDN, attributes );
-
-        // Create a second person with description
-        attributes = this.getPersonAttributes( "Jagger", "Rolling-Stones" );
-        attributes.put( "description", "an English singer-songwriter" );
-        ctx.createSubcontext( RDN2, attributes );
-        
-        // Create entry for Heather Graham
-        Attributes heather = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        heather.put( ocls );
-        heather.put( "cn", "Heather Nova" );
-        heather.put( "sn", "Nova" );
-
-        ctx.createSubcontext( HEATHER_RDN, heather );
-
-        
-    }
-
-
-    /**
-     * Remove person entry and close context.
-     */
-    public void tearDown() throws Exception
-    {
-        ctx.unbind( RDN );
-        ctx.close();
-    	
-        ctx = null;
-        super.tearDown();
-    }
-    
-    
-    /**
      * Performs a single level search from ou=system base and 
      * returns the set of DNs found.
      */
-    private Set<String> search( String filter ) throws NamingException
+    private Set<String> search( LdapContext context, String filter ) throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        NamingEnumeration ii = ctx.search( "", filter, controls );
         
-        // collect all results 
-        HashSet<String> results = new HashSet<String>();
-        while ( ii.hasMore() )
+        try
         {
-            SearchResult result = ( SearchResult ) ii.next();
-            results.add( result.getName() );
+            NamingEnumeration ii = context.search( "", filter, controls );
+            
+            // collect all results 
+            HashSet<String> results = new HashSet<String>();
+            
+            while ( ii.hasMore() )
+            {
+                SearchResult result = ( SearchResult ) ii.next();
+                results.add( result.getName() );
+            }
+            
+            return results;
         }
-        
-        return results;
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     
+    @Test
     public void testDirserver635() throws NamingException
     {
-        nbTests = 26;
-        
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
-        ctx.createSubcontext( "cn=Kate Bush", attributes );
-
         // -------------------------------------------------------------------
-        Set<String> results = search( "(|(cn=Kate*)(cn=Tori*))" );
-        assertEquals( "returned size of results", 2, results.size() );
+        Set<String> results = search( ctx, "(|(cn=Kate*)(cn=Tori*))" );
+        assertEquals( "returned size of results", 3, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertTrue( "contains cn=Kate Bush+sn=Bush", results.contains( "cn=Kate Bush+sn=Bush" ) );
 
         // -------------------------------------------------------------------
-        results = search( "(|(cn=*Amos)(cn=Kate*))" );
-        assertEquals( "returned size of results", 2, results.size() );
+        results = search( ctx, "(|(cn=*Amos)(cn=Kate*))" );
+        assertEquals( "returned size of results", 3, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertTrue( "contains cn=Kate Bush+sn=Bush", results.contains( "cn=Kate Bush+sn=Bush" ) );
 
         // -------------------------------------------------------------------
-        results = search( "(|(cn=Kate Bush)(cn=Tori*))" );
-        assertEquals( "returned size of results", 2, results.size() );
+        results = search( ctx, "(|(cn=Kate Bush)(cn=Tori*))" );
+        assertEquals( "returned size of results", 3, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertTrue( "contains cn=Kate Bush+sn=Bush", results.contains( "cn=Kate Bush+sn=Bush" ) );
 
         // -------------------------------------------------------------------
-        results = search( "(|(cn=*Amos))" );
+        results = search( ctx, "(|(cn=*Amos))" );
         assertEquals( "returned size of results", 1, results.size() );
         assertTrue( "contains cn=Tori Amos", results.contains( "cn=Tori Amos" ) );
     }
@@ -254,49 +314,9 @@ public class SearchTest extends AbstractServerTest
     /**
      * Search operation with a base DN which contains a BER encoded value.
      */
-    /*public void testSearchBEREncodedBase() throws NamingException
-    {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
-        ctx.createSubcontext( "sn=Ferry", attributes );
-
-        SearchControls sctls = new SearchControls();
-        sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
-        String filter = "(cn=Bryan Ferry)";
-
-        // sn=Ferry with BEROctetString values
-        String base = "2.5.4.4=#4665727279";
-
-        try
-        {
-            // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
-            assertTrue( enm.hasMore() );
-            while ( enm.hasMore() )
-            {
-                SearchResult sr = ( SearchResult ) enm.next();
-                Attributes attrs = sr.getAttributes();
-                Attribute sn = attrs.get( "sn" );
-                assertNotNull( sn );
-                assertTrue( sn.contains( "Ferry" ) );
-            }
-        }
-        catch ( Exception e )
-        {
-            fail( e.getMessage() );
-        }
-    }*/
-
-    
-    /**
-     * Search operation with a base DN which contains a BER encoded value.
-     */
+    @Test
     public void testSearchWithBackslashEscapedBase() throws NamingException
     {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Ferry", "Bryan Ferry" );
-        ctx.createSubcontext( "sn=Ferry", attributes );
-
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         String filter = "(cn=Bryan Ferry)";
@@ -307,7 +327,7 @@ public class SearchTest extends AbstractServerTest
         try
         {
             // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            NamingEnumeration enm = sysRoot.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             while ( enm.hasMore() )
             {
@@ -330,6 +350,7 @@ public class SearchTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testSearchValue() throws NamingException
     {
         // Setting up search controls for compare op
@@ -339,82 +360,83 @@ public class SearchTest extends AbstractServerTest
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         // Search for all entries
-        NamingEnumeration results = ctx.search( RDN, "(cn=*)", ctls );
+        NamingEnumeration results = sysRoot.search( RDN, "(cn=*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*)", ctls );
         assertTrue( results.hasMore() );
 
         // Search for all entries ending by Amos
-        results = ctx.search( RDN, "(cn=*Amos)", ctls );
+        results = sysRoot.search( RDN, "(cn=*Amos)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*Amos)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*Amos)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries ending by amos
-        results = ctx.search( RDN, "(cn=*amos)", ctls );
+        results = sysRoot.search( RDN, "(cn=*amos)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*amos)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*amos)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries starting by Tori
-        results = ctx.search( RDN, "(cn=Tori*)", ctls );
+        results = sysRoot.search( RDN, "(cn=Tori*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=Tori*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=Tori*)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries starting by tori
-        results = ctx.search( RDN, "(cn=tori*)", ctls );
+        results = sysRoot.search( RDN, "(cn=tori*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=tori*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=tori*)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries containing ori
-        results = ctx.search( RDN, "(cn=*ori*)", ctls );
+        results = sysRoot.search( RDN, "(cn=*ori*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*ori*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*ori*)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries containing o and i
-        results = ctx.search( RDN, "(cn=*o*i*)", ctls );
+        results = sysRoot.search( RDN, "(cn=*o*i*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*o*i*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*o*i*)", ctls );
         assertTrue( results.hasMore() );
 
         // Search for all entries containing o, space and o
-        results = ctx.search( RDN, "(cn=*o* *o*)", ctls );
+        results = sysRoot.search( RDN, "(cn=*o* *o*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*o* *o*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*o* *o*)", ctls );
         assertFalse( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*o*-*o*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*o*-*o*)", ctls );
         assertTrue( results.hasMore() );
 
         // Search for all entries starting by To and containing A
-        results = ctx.search( RDN, "(cn=To*A*)", ctls );
+        results = sysRoot.search( RDN, "(cn=To*A*)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=To*A*)", ctls );
+        results = sysRoot.search( RDN2, "(cn=To*A*)", ctls );
         assertFalse( results.hasMore() );
 
         // Search for all entries ending by os and containing ri
-        results = ctx.search( RDN, "(cn=*ri*os)", ctls );
+        results = sysRoot.search( RDN, "(cn=*ri*os)", ctls );
         assertTrue( results.hasMore() );
 
-        results = ctx.search( RDN2, "(cn=*ri*os)", ctls );
+        results = sysRoot.search( RDN2, "(cn=*ri*os)", ctls );
         assertFalse( results.hasMore() );
     }
     
     /**
      * Search operation with a base DN with quotes
      */
+    @Test
     public void testSearchWithQuotesInBase() throws NamingException {
 
         SearchControls sctls = new SearchControls();
@@ -426,7 +448,7 @@ public class SearchTest extends AbstractServerTest
 
         try {
             // Check entry
-            NamingEnumeration enm = ctx.search( base, filter, sctls );
+            NamingEnumeration enm = sysRoot.search( base, filter, sctls );
             assertTrue( enm.hasMore() );
             
             while ( enm.hasMore() ) {
@@ -447,40 +469,29 @@ public class SearchTest extends AbstractServerTest
      * DIRSERVER-645<\a>: Wrong search filter evaluation with AND 
      * operator and undefined operands.
      */
+    @Test
     public void testUndefinedAvaInBranchFilters() throws Exception
     {
-        // create additional entry
-        Attributes attributes = this.getPersonAttributes( "Bush", "Kate Bush" );
-        ctx.createSubcontext( "cn=Kate Bush", attributes );
-
         // -------------------------------------------------------------------
-        Set<String> results = search( "(|(sn=Bush)(numberOfOctaves=4))" );
-        assertEquals( "returned size of results", 1, results.size() );
+        Set<String> results = search( ctx, "(|(sn=Bush)(numberOfOctaves=4))" );
+        assertEquals( "returned size of results", 2, results.size() );
         assertTrue( "contains cn=Kate Bush", results.contains( "cn=Kate Bush" ) );
+        assertTrue( "contains cn=Kate Bush+sn=Bush", results.contains( "cn=Kate Bush+sn=Bush" ) );
 
         // if numberOfOctaves is undefined then this whole filter is undefined
-        results = search( "(&(sn=Bush)(numberOfOctaves=4))" );
+        results = search( sysRoot, "(&(sn=Bush)(numberOfOctaves=4))" );
         assertEquals( "returned size of results", 0, results.size() );
     }
     
     
+    @Test
     public void testSearchSchema() throws Exception
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[] { "objectClasses" } );
         
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-
-        ctx = new InitialLdapContext( env, null );
-        assertNotNull( ctx );
-
-        NamingEnumeration results = ctx.search( "cn=schema", "objectClass=subschema", controls );
+        NamingEnumeration results = schemaRoot.search( "", "objectClass=subschema", controls );
         assertTrue( results.hasMore() );
         SearchResult result = ( SearchResult ) results.next();
         assertNotNull( result );
@@ -509,17 +520,16 @@ public class SearchTest extends AbstractServerTest
      * @param aciItem the prescriptive ACI attribute value
      * @throws NamingException if there is a problem creating the subentry
      */
-    public void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
+    private void createAccessControlSubentry( String cn, String subtree, String aciItem ) throws NamingException
     {
-        DirContext adminCtx = ctx;
-
         // modify ou=system to be an AP for an A/C AA if it is not already
-        Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
+        Attributes ap = ctx.getAttributes( "", new String[] { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
+        
         if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
         {
             Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
-            adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
+            ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
         // now add the A/C subentry below ou=system
@@ -527,31 +537,48 @@ public class SearchTest extends AbstractServerTest
         Attribute objectClass = new AttributeImpl( "objectClass" );
         subentry.put( objectClass );
         objectClass.add( "top" );
-        objectClass.add( SchemaConstants.SUBENTRY_OC );
+        objectClass.add( "subentry" );
         objectClass.add( "accessControlSubentry" );
         subentry.put( "subtreeSpecification", subtree );
         subentry.put( "prescriptiveACI", aciItem );
-        adminCtx.createSubcontext( "cn=" + cn, subentry );
+        ctx.createSubcontext( "cn=" + cn, subentry );
     }
     
+    /**
+     * Creates an access control subentry under ou=system whose subtree covers
+     * the entire naming context.
+     *
+     * @param cn the common name and rdn for the subentry
+     * @param subtree the subtreeSpecification for the subentry
+     * @param aciItem the prescriptive ACI attribute value
+     * @throws NamingException if there is a problem creating the subentry
+     */
+    private void removeAccessControlSubentry( String cn ) throws NamingException
+    {
+        // modify ou=system to be an AP for an A/C AA if it is not already
+        Attributes ap = ctx.getAttributes( "", new String[] { "administrativeRole" } );
+        Attribute administrativeRole = ap.get( "administrativeRole" );
+        
+        if ( administrativeRole != null && administrativeRole.contains( SubentryService.AC_AREA ) )
+        {
+            Attribute administrativeRoleAttr = new AttributeImpl( "administrativeRole" );
+
+            Attributes changes = new AttributesImpl();
+            changes.put( administrativeRoleAttr );
+            ctx.modifyAttributes( "", DirContext.REMOVE_ATTRIBUTE, changes );
+        }
+        
+    	ctx.destroySubcontext( "cn=" + cn );
+        ctx.setRequestControls( new Control[] {} );
+    }
 
     /**
      * Test case to demonstrate DIRSERVER-705 ("object class top missing in search
      * result, if scope is base and attribute objectClass is requested explicitly").
      */
+    @Test
     public void testAddWithObjectclasses() throws NamingException
     {
-
-        // Create entry
-        Attributes heather = new AttributesImpl();
-        Attribute ocls = new AttributeImpl( "objectClass" );
-        ocls.add( "top" );
-        ocls.add( "person" );
-        heather.put( ocls );
-        heather.put( "cn", "Heather Nova" );
-        heather.put( "sn", "Nova" );
-        String rdn = "cn=Heather Nova";
-        ctx.createSubcontext( rdn, heather );
 
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -559,7 +586,8 @@ public class SearchTest extends AbstractServerTest
             { "objectclass" } );
         String filter = "(objectclass=*)";
 
-        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+        
         if ( result.hasMore() )
         {
             SearchResult entry = ( SearchResult ) result.next();
@@ -571,10 +599,8 @@ public class SearchTest extends AbstractServerTest
         }
         else
         {
-            fail( "entry " + rdn + " not found" );
+            fail( "entry " + HEATHER_RDN + " not found" );
         }
-
-        ctx.destroySubcontext( rdn );
     }
 
 
@@ -582,24 +608,17 @@ public class SearchTest extends AbstractServerTest
      * Test case to demonstrate DIRSERVER-705 ("object class top missing in search
      * result, if scope is base and attribute objectClass is requested explicitly").
      */
+    @Test
     public void testAddWithMissingObjectclasses() throws NamingException
     {
-
-        // Create entry
-        Attributes kate = new AttributesImpl();
-        kate.put( "objectClass", "organizationalperson" );
-        kate.put( "cn", "Kate Bush" );
-        kate.put( "sn", "Bush" );
-        String rdn = "cn=Kate Bush";
-        ctx.createSubcontext( rdn, kate );
-
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         ctls.setReturningAttributes( new String[]
             { "objectclass" } );
         String filter = "(objectclass=*)";
 
-        NamingEnumeration result = ctx.search( rdn, filter, ctls );
+        NamingEnumeration result = ctx.search( KATE_BUSH_RDN, filter, ctls );
+        
         if ( result.hasMore() )
         {
             SearchResult entry = ( SearchResult ) result.next();
@@ -613,63 +632,28 @@ public class SearchTest extends AbstractServerTest
         }
         else
         {
-            fail( "entry " + rdn + " not found" );
+            fail( "entry " + KATE_BUSH_RDN + " not found" );
         }
-
-        ctx.destroySubcontext( rdn );
     }
 
-
-    public void testSubentryControl() throws Exception
-    {
-        // create a real access control subentry
-        createAccessControlSubentry( "anyBodyAdd", "{}", 
-            "{ " + "identificationTag \"addAci\", " + "precedence 14, "
-            + "authenticationLevel none, " + "itemOrUserFirst userFirst: { " + "userClasses { allUsers }, "
-            + "userPermissions { { " + "protectedItems {entry, allUserAttributeTypesAndValues}, "
-            + "grantsAndDenials { grantAdd, grantBrowse } } } } }"
-        );
-        
-        // prepare the subentry control to make the subentry visible
-        SubentriesControl control = new SubentriesControl();
-        control.setVisibility( true );
-        Control[] reqControls = new Control[] { control };
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        
-        ctx.setRequestControls( reqControls );
-        NamingEnumeration enm = ctx.search( "", "(objectClass=*)", searchControls );
-        Set<String> results = new HashSet<String>();
-        while ( enm.hasMore() )
-        {
-            SearchResult result = ( SearchResult ) enm.next();
-            results.add( result.getName() );
-        }
-        
-        assertEquals( "expected results size of", 1, results.size() );
-        assertTrue( results.contains( "cn=anyBodyAdd" ) );
-    }
 
     /**
      * Create a person entry with multivalued RDN and check its content. This
      * testcase was created to demonstrate DIRSERVER-628.
      */
+    @Test
     public void testMultiValuedRdnContent() throws NamingException
     {
-        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
-        String rdn = "cn=Kate Bush+sn=Bush";
-        ctx.createSubcontext( rdn, attrs );
-
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         String filter = "(sn=Bush)";
         String base = "";
 
         NamingEnumeration enm = ctx.search( base, filter, sctls );
+
         while ( enm.hasMore() )
         {
             SearchResult sr = ( SearchResult ) enm.next();
-            attrs = sr.getAttributes();
             Attribute cn = sr.getAttributes().get( "cn" );
             assertNotNull( cn );
             assertTrue( cn.contains( "Kate Bush" ) );
@@ -677,20 +661,18 @@ public class SearchTest extends AbstractServerTest
             assertNotNull( sn );
             assertTrue( sn.contains( "Bush" ) );
         }
-
-        ctx.destroySubcontext( rdn );
     }
 
 
     /**
      * Create a person entry with multivalued RDN and check its name.
      */
+    @Test
     public void testMultiValuedRdnName() throws NamingException
     {
-        Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
+        //Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
-        DirContext entry = ctx.createSubcontext( rdn, attrs );
-        String nameInNamespace = entry.getNameInNamespace();
+        String nameInNamespace = "cn=Kate Bush+sn=Bush,ou=system";
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.OBJECT_SCOPE );
@@ -698,6 +680,7 @@ public class SearchTest extends AbstractServerTest
         String base = rdn;
 
         NamingEnumeration enm = ctx.search( base, filter, sctls );
+        
         if ( enm.hasMore() )
         {
             SearchResult sr = ( SearchResult ) enm.next();
@@ -708,10 +691,9 @@ public class SearchTest extends AbstractServerTest
         {
             fail( "Entry not found:" + nameInNamespace );
         }
-
-        ctx.destroySubcontext( rdn );
     }
     
+    @Test
     public void testSearchJpeg() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -741,6 +723,41 @@ public class SearchTest extends AbstractServerTest
         }
     }
     
+    @Test
+    public void subentryControl1() throws Exception
+    {
+        // create a real access control subentry
+        createAccessControlSubentry( "anyBodyAdd", "{}", 
+            "{ identificationTag \"addAci\", precedence 14, "
+            + "authenticationLevel none, itemOrUserFirst userFirst: { userClasses { allUsers }, "
+            + "userPermissions { { protectedItems {entry, allUserAttributeTypesAndValues}, "
+            + "grantsAndDenials { grantAdd, grantBrowse } } } } }"
+        );
+        
+        // prepare the subentry control to make the subentry visible
+        SubentriesControl control = new SubentriesControl();
+        control.setVisibility( true );
+        Control[] reqControls = new Control[] { control };
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        
+        ctx.setRequestControls( reqControls );
+        NamingEnumeration enm = ctx.search( "", "(objectClass=*)", searchControls );
+        Set<String> results = new HashSet<String>();
+        
+        while ( enm.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) enm.next();
+            results.add( result.getName() );
+        }
+        
+        assertEquals( "expected results size of", 1, results.size() );
+        assertTrue( results.contains( "cn=anyBodyAdd" ) );
+        
+        removeAccessControlSubentry( "anyBodyAdd" );
+    }
+
+    @Test
     public void testSearchOID() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -764,6 +781,7 @@ public class SearchTest extends AbstractServerTest
         assertFalse( res.hasMore() );
     }
 
+    @Test
     public void testSearchAttrCN() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -788,6 +806,7 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
 
+    @Test
     public void testSearchAttrName() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -815,6 +834,7 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "Amos", (String)attrs.get("sn").get() );
     }
 
+    @Test
     public void testSearchAttrCommonName() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -845,6 +865,7 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "Tori Amos", (String)attrs.get("cn").get() );
     }
 
+    @Test
     public void testSearchAttrOID() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -875,6 +896,7 @@ public class SearchTest extends AbstractServerTest
     }
     
     
+    @Test
     public void testSearchAttrC_L() throws NamingException
     {
         // create administrative area
@@ -927,6 +949,7 @@ public class SearchTest extends AbstractServerTest
         assertEquals( "Munich", (String)attrs.get("c-l").get() );
     }
 
+    @Test
     public void testSearchUsersAttrs() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -955,6 +978,7 @@ public class SearchTest extends AbstractServerTest
         assertNull( attrs.get( "creatorsname" ) );
     }
 
+    @Test
     public void testSearchOperationalAttrs() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -984,6 +1008,7 @@ public class SearchTest extends AbstractServerTest
         assertNotNull( attrs.get( "creatorsname" ) );
     }
     
+    @Test
     public void testSearchAllAttrs() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -1012,6 +1037,7 @@ public class SearchTest extends AbstractServerTest
         assertNotNull( attrs.get( "creatorsname" ) );
     }
 
+    @Test
     public void testSearchBadDN() throws NamingException
     {
         SearchControls controls = new SearchControls();
@@ -1027,6 +1053,7 @@ public class SearchTest extends AbstractServerTest
         }
     }
     
+    @Test
     public void testSearchInvalidDN() throws NamingException, Exception
     {
         SearchControls controls = new SearchControls();
@@ -1046,6 +1073,7 @@ public class SearchTest extends AbstractServerTest
     /**
      * Check if operational attributes are present, if "+" is requested.
      */
+    @Test
     public void testSearchOperationalAttributes() throws NamingException
     {
         SearchControls ctls = new SearchControls();
@@ -1076,6 +1104,7 @@ public class SearchTest extends AbstractServerTest
     /**
      * Check if user attributes are present, if "*" is requested.
      */
+    @Test
     public void testSearchUserAttributes() throws NamingException
     {
         SearchControls ctls = new SearchControls();
@@ -1084,7 +1113,7 @@ public class SearchTest extends AbstractServerTest
         ctls.setReturningAttributes( new String[]
             { "*" } );
 
-        NamingEnumeration result = ctx.search( HEATHER_RDN, filter, ctls );
+        NamingEnumeration result = ctx.search( "cn=Heather Nova", filter, ctls );
 
         if ( result.hasMore() )
         {
@@ -1106,6 +1135,7 @@ public class SearchTest extends AbstractServerTest
     /**
      * Check if user and operational attributes are present, if both "*" and "+" are requested.
      */
+    @Test
     public void testSearchOperationalAndUserAttributes() throws NamingException
     {
         SearchControls ctls = new SearchControls();

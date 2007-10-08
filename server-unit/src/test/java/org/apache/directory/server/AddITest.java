@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -37,42 +36,36 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
-import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.server.unit.AbstractServerFastTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-
-import java.util.Hashtable;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 
 /**
  * Various add scenario tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$
+ * @version $Rev: 569879 $
  */
-public class AddITest extends AbstractServerTest
+public class AddITest extends AbstractServerFastTest
 {
     private static final String RDN = "cn=The Person";
-
-    private DirContext ctx = null;
-
 
     /**
      * Create an entry for a person.
      */
+    @Before
     public void setUp() throws Exception
     {
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String,String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
         // Create a person
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -86,17 +79,11 @@ public class AddITest extends AbstractServerTest
 
         assertNotNull( person );
     }
-
-
-    /**
-     * Remove the person.
-     */
-    public void tearDown() throws Exception
+    
+    @After
+    public void cleanUp() throws NamingException
     {
-        ctx.unbind( RDN );
-        ctx.close();
-        ctx = null;
-        super.tearDown();
+        ctx.destroySubcontext( RDN );
     }
 
 
@@ -106,6 +93,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testSetUpTearDown() throws NamingException
     {
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -131,6 +119,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testAddObjectClasses() throws NamingException
     {
 
@@ -164,6 +153,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException
      */
+    @Test
     public void testModifyDescription() throws NamingException
     {
         String newDescription = "More info on the user ...";
@@ -190,6 +180,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
         // person without sn
@@ -226,10 +217,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws LDAPException 
      */
+    @Test
     public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        con.connect( 3, HOST, port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -268,10 +260,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws LDAPException 
      */
+    @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        con.connect( 3, HOST, port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -311,10 +304,11 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws LDAPException 
      */
+    @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, super.port, USER, PASSWORD );
+        con.connect( 3, HOST, port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -352,6 +346,7 @@ public class AddITest extends AbstractServerTest
      * @throws NamingException 
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
+    @Test
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
         // add inetOrgPerson with two displayNames
@@ -384,6 +379,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
     public void testAddAlias() throws NamingException
     {
 
@@ -422,6 +418,7 @@ public class AddITest extends AbstractServerTest
      * 
      * @throws NamingException 
      */
+    @Test
     public void testAddAliasInContainer() throws NamingException
     {
         // Create container
@@ -489,7 +486,7 @@ public class AddITest extends AbstractServerTest
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:"+super.port+"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:" + port + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry
