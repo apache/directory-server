@@ -19,17 +19,18 @@
  */
 package org.apache.directory.shared.asn1.codec;
 
+
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulEncoder;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
+
 
 /**
  * Adapts {@link StatefulEncoder} to MINA <tt>ProtocolEncoder</tt>
@@ -40,8 +41,8 @@ import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 public class Asn1CodecEncoder implements ProtocolEncoder
 {
     private final StatefulEncoder encoder;
-
     private final EncoderCallbackImpl callback = new EncoderCallbackImpl();
+
 
     public Asn1CodecEncoder( StatefulEncoder encoder )
     {
@@ -49,20 +50,23 @@ public class Asn1CodecEncoder implements ProtocolEncoder
         this.encoder = encoder;
     }
 
-    public void encode( IoSession session, Object message,
-                        ProtocolEncoderOutput out ) throws EncoderException
+
+    public void encode( IoSession session, Object message, ProtocolEncoderOutput out ) throws EncoderException
     {
         callback.encOut = out;
         encoder.encode( message );
     }
 
+
     public void dispose( IoSession session ) throws Exception
     {
     }
 
+
     private class EncoderCallbackImpl implements EncoderCallback
     {
         private ProtocolEncoderOutput encOut;
+
 
         public void encodeOccurred( StatefulEncoder codec, Object encoded )
         {
@@ -76,9 +80,9 @@ public class Asn1CodecEncoder implements ProtocolEncoder
             else if( encoded instanceof Object[] )
             {
                 Object[] bufArray = ( Object[] ) encoded;
-                for( int i = 0; i < bufArray.length; i ++ )
+                for ( Object buf : bufArray )
                 {
-                    this.encodeOccurred( codec, bufArray[ i ] );
+                    this.encodeOccurred( codec, buf );
                 }
 
                 encOut.mergeAll();
@@ -95,10 +99,9 @@ public class Asn1CodecEncoder implements ProtocolEncoder
             }
             else if( encoded instanceof Collection )
             {
-                Iterator it = ( ( Collection ) encoded ).iterator();
-                while( it.hasNext() )
+                for ( Object o : ( ( Collection ) encoded ) )
                 {
-                    this.encodeOccurred( codec, it.next() );
+                    this.encodeOccurred( codec, o );
                 }
                 
                 encOut.mergeAll();
