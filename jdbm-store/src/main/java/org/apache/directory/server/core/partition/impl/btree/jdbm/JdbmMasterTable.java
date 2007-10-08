@@ -61,8 +61,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             {
                 return 0;
             }
-            long comp = thisVal - anotherVal;
-            if ( Math.abs( comp ) == comp )
+            if (  thisVal < anotherVal )
             {
                 return 1;
             }
