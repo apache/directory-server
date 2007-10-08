@@ -160,8 +160,8 @@ public class ApacheDS
         
         if ( enableNetworking )
         {
-            startLDAP( environment );
-            startLDAPS( environment );
+            startLDAP();
+            startLDAPS();
             startKerberos();
             startChangePassword();
             startNTP();
@@ -656,9 +656,8 @@ public class ApacheDS
      * Starts up the LDAP protocol provider to service LDAP requests
      *
      * @throws NamingException if there are problems starting the LDAP provider
-     * @param env the environment
      */
-    private void startLDAP( Hashtable<String,Object> env ) throws NamingException
+    private void startLDAP() throws NamingException
     {
         // Skip if disabled
         if ( ! ldapConfiguration.isEnabled() )
@@ -667,7 +666,7 @@ public class ApacheDS
         }
 
         DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        startLDAP0( ldapConfiguration, env, ldapConfiguration.getIpPort(), chain );
+        startLDAP0( ldapConfiguration, ldapConfiguration.getIpPort(), chain );
     }
 
 
@@ -675,9 +674,8 @@ public class ApacheDS
      * Starts up the LDAPS protocol provider to service LDAPS requests
      *
      * @throws NamingException if there are problems starting the LDAPS provider
-     * @param env the JNDI environment
      */
-    private void startLDAPS( Hashtable<String,Object> env ) throws NamingException
+    private void startLDAPS() throws NamingException
     {
         // Skip if disabled
         if ( !( ldapsConfiguration.isEnabled() && ldapsConfiguration.isEnableLdaps() ) )
@@ -691,15 +689,15 @@ public class ApacheDS
         IoFilterChainBuilder chain = LdapsInitializer.init( certPasswordChars, storePath );
         ldapsStarted = true;
 
-        startLDAP0( ldapsConfiguration, env, ldapsConfiguration.getIpPort(), chain );
+        startLDAP0( ldapsConfiguration, ldapsConfiguration.getIpPort(), chain );
     }
 
 
-    private void startLDAP0( LdapConfiguration ldapConfig, Hashtable<String,Object> env, int port, IoFilterChainBuilder chainBuilder )
+    private void startLDAP0( LdapConfiguration ldapConfig, int port, IoFilterChainBuilder chainBuilder )
         throws LdapNamingException, LdapConfigurationException
     {
         // Register all extended operation handlers.
-        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( directoryService, ldapConfig, env );
+        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( directoryService, ldapConfig );
 
         for ( ExtendedOperationHandler h : ldapConfig.getExtendedOperationHandlers() )
         {

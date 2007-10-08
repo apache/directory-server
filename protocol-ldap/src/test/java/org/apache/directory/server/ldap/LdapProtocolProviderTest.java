@@ -23,14 +23,11 @@ package org.apache.directory.server.ldap;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.ldap.support.ExtendedHandler;
+import org.apache.directory.server.ldap.support.*;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.*;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
-
-import java.util.Hashtable;
 
 
 /**
@@ -52,8 +49,7 @@ public class LdapProtocolProviderTest extends TestCase
     public void testDefaultOperation() throws LdapNamingException
     {
         DirectoryService directoryService = new DefaultDirectoryService();
-        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService,
-                new LdapConfiguration(), new Hashtable<String,Object>() );
+        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration() );
         assertNotNull( provider.getCodecFactory() );
         assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
     }
@@ -68,111 +64,94 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testAlternativeConfiguration() throws LdapNamingException
     {
-        Hashtable<String,Object> props = new Hashtable<String,Object>();
-
-        props.put( AbandonRequest.class.getName(), BogusAbandonHandler.class.getName() );
-        props.put( AbandonRequestImpl.class.getName(), BogusAbandonHandler.class.getName() );
-
-        props.put( AddRequest.class.getName(), BogusAddHandler.class.getName() );
-        props.put( AddRequestImpl.class.getName(), BogusAddHandler.class.getName() );
-
-        props.put( BindRequest.class.getName(), BogusBindHandler.class.getName() );
-        props.put( BindRequestImpl.class.getName(), BogusBindHandler.class.getName() );
-
-        props.put( CompareRequest.class.getName(), BogusCompareHandler.class.getName() );
-        props.put( CompareRequestImpl.class.getName(), BogusCompareHandler.class.getName() );
-
-        props.put( DeleteRequest.class.getName(), BogusDeleteHandler.class.getName() );
-        props.put( DeleteRequestImpl.class.getName(), BogusDeleteHandler.class.getName() );
-
-        props.put( ExtendedRequest.class.getName(), ExtendedHandler.class.getName() );
-        props.put( ExtendedRequestImpl.class.getName(), ExtendedHandler.class.getName() );
-
-        props.put( ModifyRequest.class.getName(), BogusModifyHandler.class.getName() );
-        props.put( ModifyRequestImpl.class.getName(), BogusModifyHandler.class.getName() );
-
-        props.put( ModifyDnRequest.class.getName(), BogusModifyDnHandler.class.getName() );
-        props.put( ModifyDnRequestImpl.class.getName(), BogusModifyDnHandler.class.getName() );
-
-        props.put( SearchRequest.class.getName(), BogusSearchHandler.class.getName() );
-        props.put( SearchRequestImpl.class.getName(), BogusSearchHandler.class.getName() );
-
-        props.put( UnbindRequest.class.getName(), BogusUnbindHandler.class.getName() );
-        props.put( UnbindRequestImpl.class.getName(), BogusUnbindHandler.class.getName() );
-
         DirectoryService directoryService = new DefaultDirectoryService();
-        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration(), props );
+        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration() );
+        provider.setAbandonHandler( new BogusAbandonHandler() );
+        provider.setAddHandler( new BogusAddHandler() );
+        provider.setBindHandler( new BogusBindHandler() );
+        provider.setCompareHandler( new BogusCompareHandler() );
+        provider.setDeleteHandler( new BogusDeleteHandler() );
+        provider.setModifyDnHandler( new BogusModifyDnHandler() );
+        provider.setModifyHandler( new BogusModifyHandler() );
+        provider.setSearchHandler( new BogusSearchHandler() );
+        provider.setUnbindHandler( new BogusUnbindHandler() );
+
         assertNotNull( provider.getCodecFactory() );
         assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
     }
 
-    public static class BogusAbandonHandler implements MessageHandler
+    public static class BogusAbandonHandler extends AbandonHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void abandonMessageReceived( IoSession session, AbandonRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusUnbindHandler implements MessageHandler
+    public static class BogusUnbindHandler extends UnbindHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void unbindMessageReceived( IoSession session, UnbindRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusAddHandler implements MessageHandler
+    public static class BogusAddHandler extends AddHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void addMessageReceived( IoSession session, AddRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusBindHandler implements MessageHandler
+    public static class BogusBindHandler extends BindHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void setDirectoryService( DirectoryService directoryService )
+        {
+        }
+
+
+        public void bindMessageReceived( IoSession session, BindRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusCompareHandler implements MessageHandler
+    public static class BogusCompareHandler extends CompareHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void compareMessageReceived( IoSession session, CompareRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusDeleteHandler implements MessageHandler
+    public static class BogusDeleteHandler extends  DeleteHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void deleteMessageReceived( IoSession session, DeleteRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusModifyDnHandler implements MessageHandler
+    public static class BogusModifyDnHandler extends  ModifyDnHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void modifyDnMessageReceived( IoSession session, ModifyDnRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusModifyHandler implements MessageHandler
+    public static class BogusModifyHandler extends ModifyHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void modifyMessageReceived( IoSession session, ModifyRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }
     }
 
-    public static class BogusSearchHandler implements MessageHandler
+    public static class BogusSearchHandler extends SearchHandler
     {
-        public void messageReceived( IoSession session, Object request )
+        public void searchMessageReceived( IoSession session, SearchRequest request )
         {
             throw new NotImplementedException( "handler not implemented!" );
         }

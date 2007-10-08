@@ -20,14 +20,9 @@
 package org.apache.directory.server.ldap.support;
 
 
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
-import org.apache.directory.shared.ldap.message.AbandonableRequest;
-import org.apache.directory.shared.ldap.message.Request;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,56 +31,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AbandonHandler implements MessageHandler
+public abstract class AbandonHandler implements MessageHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( AbandonHandler.class );
-
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
-
-    public void messageReceived( IoSession session, Object request ) throws Exception
+    public final void messageReceived( IoSession session, Object request ) throws Exception
     {
-        AbandonRequest req = ( AbandonRequest ) request;
-        int abandonedId = req.getAbandoned();
-
-        if ( abandonedId < 0 )
-        {
-            return;
-        }
-
-        Request abandonedRequest = SessionRegistry.getSingleton().getOutstandingRequest( session, abandonedId );
-
-        if ( abandonedRequest == null )
-        {
-            if ( log.isWarnEnabled() )
-            {
-                log.warn( "Got abandon request from client " + session + " but request must have already "
-                    + "terminated.  Abandon request " + req + " had no effect." );
-            }
-            return;
-        }
-
-        if ( abandonedRequest instanceof AbandonableRequest )
-        {
-            log
-                .warn( "Abandon, Bind, Unbind, and StartTLS operations cannot be abandoned.  Abandon request will be ignored." );
-        }
-
-        ( ( AbandonableRequest ) abandonedRequest ).abandon();
-        if ( SessionRegistry.getSingleton().removeOutstandingRequest( session, abandonedId ) == null )
-        {
-            if ( log.isWarnEnabled() )
-            {
-                log.warn( "Got abandon request from client " + session + " but request must have already "
-                    + "terminated." );
-            }
-        }
-        else
-        {
-            if ( IS_DEBUG )
-            {
-                log.debug( "Abandoned request:  ", req );
-            }
-        }
+        abandonMessageReceived( session, ( AbandonRequest ) request );
     }
+
+
+    protected abstract void abandonMessageReceived( IoSession session, AbandonRequest abandonRequest ) throws Exception;
 }
