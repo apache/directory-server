@@ -305,6 +305,7 @@ public class LeafEvaluator implements Evaluator
     private Comparator getComparator( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
+
         return mrule.getComparator();
     }
 
@@ -341,16 +342,24 @@ public class LeafEvaluator implements Evaluator
             case ( EQUALITY_MATCH ):
                 mrule = type.getEquality();
                 break;
+                
             case ( SUBSTRING_MATCH ):
                 mrule = type.getSubstr();
                 break;
+                
             case ( ORDERING_MATCH ):
                 mrule = type.getOrdering();
                 break;
+                
             default:
                 throw new NamingException( "Unknown match type: " + matchType );
         }
 
+        if ( mrule == null )
+        {
+            return type.getEquality();
+        }
+        
         return mrule;
     }
 }

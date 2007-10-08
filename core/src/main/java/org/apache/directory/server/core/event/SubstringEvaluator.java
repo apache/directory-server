@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -72,7 +73,14 @@ public class SubstringEvaluator implements Evaluator
         SubstringNode snode = (SubstringNode)node;
         String oid = oidRegistry.getOid( snode.getAttribute() );
         AttributeType type = attributeTypeRegistry.lookup( oid );
-        Normalizer normalizer = type.getSubstr().getNormalizer();
+        MatchingRule matchingRule = type.getSubstr();
+        
+        if ( matchingRule == null )
+        {
+            matchingRule = type.getEquality();
+        }
+        
+        Normalizer normalizer = matchingRule.getNormalizer();
 
         // get the attribute
         Attribute attr = entry.get( snode.getAttribute() );
