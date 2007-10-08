@@ -65,17 +65,21 @@ import org.slf4j.LoggerFactory;
  */
 class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeListener, AbandonListener
 {
-    private static final Logger log = LoggerFactory.getLogger( SearchHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SearchHandler.class );
     final ServerLdapContext ctx;
     final IoSession session;
     final SearchRequest req;
     final PersistentSearchControl control;
+    final SessionRegistry registry;
+
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
-    PersistentSearchListener(ServerLdapContext ctx, IoSession session, SearchRequest req)
+
+    PersistentSearchListener( SessionRegistry registry, ServerLdapContext ctx, IoSession session, SearchRequest req )
     {
+        this.registry = registry;
         this.session = session;
         this.req = req;
         req.addAbandonListener( this );
@@ -115,7 +119,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         }
         catch ( NamingException e )
         {
-            log.error( "Attempt to remove listener from context failed", e );
+            LOG.error( "Attempt to remove listener from context failed", e );
         }
 
         /*
@@ -135,7 +139,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             return;
         }
 
-        SessionRegistry.getSingleton().removeOutstandingRequest( session, new Integer( req.getMessageId() ) );
+        registry.removeOutstandingRequest( session, new Integer( req.getMessageId() ) );
         String msg = "failed on persistent search operation";
 
         if ( IS_DEBUG )
@@ -143,7 +147,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
             msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( evt.getException() );
         }
 
-        ResultCodeEnum code = null;
+        ResultCodeEnum code;
         
         if ( evt.getException() instanceof LdapException )
         {
@@ -322,7 +326,7 @@ class PersistentSearchListener implements ObjectChangeListener, NamespaceChangeL
         }
         catch ( NamingException e )
         {
-            log.error( "failed to properly abandon this persistent search", e );
+            LOG.error( "failed to properly abandon this persistent search", e );
         }
     }
 }

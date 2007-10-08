@@ -56,7 +56,7 @@ public class DefaultExtendedHandler extends ExtendedHandler
         {
             try
             {
-                handler.handleExtendedOperation( session, SessionRegistry.getSingleton(), req );
+                handler.handleExtendedOperation( session, getSessionRegistry(), req );
             }
             catch ( Exception e )
             {

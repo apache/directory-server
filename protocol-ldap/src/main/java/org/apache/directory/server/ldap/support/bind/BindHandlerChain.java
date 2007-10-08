@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.mina.handler.chain.IoHandlerChain;
 
 
@@ -32,14 +33,16 @@ public class BindHandlerChain extends IoHandlerChain
 {
     /**
      * Creates a new instance of BindHandlerChain.
+     * @param directoryService the directory core service
+     * @param registry the session registry for MINA IoSessions
      */
-    public BindHandlerChain( DirectoryService directoryService )
+    public BindHandlerChain( DirectoryService directoryService, SessionRegistry registry )
     {
         addLast( "configureChain", new ConfigureChain() );
         addLast( "chainGuard", new ChainGuard() );
         addLast( "handleSasl", new HandleSasl( directoryService ) );
         addLast( "handleSimple", new HandleSimple() );
-        addLast( "getLdapContext", new GetLdapContext() );
+        addLast( "getLdapContext", new GetLdapContext( registry ) );
         addLast( "returnSuccess", new ReturnSuccess() );
     }
 }

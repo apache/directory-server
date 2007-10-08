@@ -59,7 +59,7 @@ public class DefaultDeleteHandler extends DeleteHandler
 
         try
         {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
                 ctx.addToEnvironment( Context.REFERRAL, "ignore" );

@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -90,7 +89,7 @@ public class DefaultModifyDnHandler extends ModifyDnHandler
         {
             try
             {
-                LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+                LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
 
                 if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
                 {

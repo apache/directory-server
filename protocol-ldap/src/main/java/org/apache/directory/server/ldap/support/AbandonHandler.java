@@ -22,7 +22,6 @@ package org.apache.directory.server.ldap.support;
 
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
@@ -31,7 +30,7 @@ import org.apache.mina.handler.demux.MessageHandler;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public abstract class AbandonHandler implements MessageHandler
+public abstract class AbandonHandler extends AbstractLdapHandler
 {
     public final void messageReceived( IoSession session, Object request ) throws Exception
     {

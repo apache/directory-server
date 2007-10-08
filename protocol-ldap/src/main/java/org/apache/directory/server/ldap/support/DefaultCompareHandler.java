@@ -26,7 +26,6 @@ import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.CompareRequest;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -59,7 +58,7 @@ public class DefaultCompareHandler extends CompareHandler
 
         try
         {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
             ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
 
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )

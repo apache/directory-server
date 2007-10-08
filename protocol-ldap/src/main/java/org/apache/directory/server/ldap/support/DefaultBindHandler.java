@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap.support;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.*;
@@ -31,7 +30,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
-import org.apache.mina.handler.demux.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +60,6 @@ public class DefaultBindHandler extends BindHandler
     /** Definition of SIMPLE and STRONG authentication constants */
     private static final String SIMPLE_AUTHENTICATION_LEVEL = "simple";
 
-    //private static final String STRONG_AUTHENTICATION_LEVEL = "strong";
-
     /** An empty Contol array used to get back the controls if any */
     private static final MutableControl[] EMPTY_CONTROL = new MutableControl[0];
 
@@ -78,7 +74,7 @@ public class DefaultBindHandler extends BindHandler
 
     public void setDirectoryService( DirectoryService directoryService )
     {
-        saslBindHandler = new BindHandlerChain( directoryService );
+        saslBindHandler = new BindHandlerChain( directoryService, getSessionRegistry() );
     }
 
 
@@ -89,8 +85,11 @@ public class DefaultBindHandler extends BindHandler
      *  - the credentials : principal's password, if auth level is 'simple'
      *  - the authentication level : either 'simple' or 'strong'
      *  - how to handle referral : either 'ignore' or 'throw'
+     * @param bindRequest the bind request object
+     * @param authenticationLevel the level of the authentication
+     * @return the environment for the session
      */
-    private Hashtable<String, Object> getEnvironment( IoSession session, BindRequest bindRequest, String authenticationLevel )
+    private Hashtable<String, Object> getEnvironment( BindRequest bindRequest, String authenticationLevel )
     {
         LdapDN principal = bindRequest.getName();
 
@@ -107,7 +106,7 @@ public class DefaultBindHandler extends BindHandler
         }
 
         // clone the environment first then add the required security settings
-        Hashtable<String, Object> env = SessionRegistry.getSingleton().getEnvironmentByCopy();
+        Hashtable<String, Object> env = getSessionRegistry().getEnvironmentByCopy();
 
         // Store the principal
         env.put( Context.SECURITY_PRINCIPAL, principal );
@@ -136,11 +135,16 @@ public class DefaultBindHandler extends BindHandler
 
     /**
      * Create the Context associated with the BindRequest.
+     *
+     * @param bindRequest the bind request
+     * @param env the environment to create the context with
+     * @param session the MINA IoSession
+     * @return the ldap context for the session
      */
     private LdapContext getLdapContext( IoSession session, BindRequest bindRequest, Hashtable<String, Object> env )
     {
         LdapResult result = bindRequest.getResultResponse().getLdapResult();
-        LdapContext ctx = null;
+        LdapContext ctx;
 
         try
         {
@@ -159,6 +163,7 @@ public class DefaultBindHandler extends BindHandler
             }
             else
             {
+                //noinspection SuspiciousToArrayCall
                 MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY_CONTROL );
                 ctx = new InitialLdapContext( env, connCtls );
             }
@@ -206,6 +211,9 @@ public class DefaultBindHandler extends BindHandler
      * This method handle a 'simple' authentication. Of course, the 'SIMPLE' mechanism
      * must have been allowed in the configuration, otherwise an error is thrown.
      *
+     * @param bindRequest the bind request
+     * @param session the mina IoSession
+     * @throws NamingException if the bind fails
      */
     private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
@@ -228,7 +236,7 @@ public class DefaultBindHandler extends BindHandler
         }
 
         // Initialize the environment which will be used to create the context
-        Hashtable<String, Object> env = getEnvironment( session, bindRequest, SIMPLE_AUTHENTICATION_LEVEL );
+        Hashtable<String, Object> env = getEnvironment( bindRequest, SIMPLE_AUTHENTICATION_LEVEL );
 
         // Now, get the context
         LdapContext ctx = getLdapContext( session, bindRequest, env );
@@ -238,7 +246,7 @@ public class DefaultBindHandler extends BindHandler
         {
             ServerLdapContext newCtx = ( ServerLdapContext ) ctx.lookup( "" );
             setRequestControls( newCtx, bindRequest );
-            SessionRegistry.getSingleton().setLdapContext( session, newCtx );
+            getSessionRegistry().setLdapContext( session, newCtx );
             bindResult.setResultCode( ResultCodeEnum.SUCCESS );
             BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
             response.addAll( newCtx.getResponseControls() );

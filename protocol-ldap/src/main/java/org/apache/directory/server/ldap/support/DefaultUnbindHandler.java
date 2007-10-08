@@ -45,11 +45,9 @@ public class DefaultUnbindHandler extends UnbindHandler
 
     public void unbindMessageReceived( IoSession session, UnbindRequest request ) throws Exception
     {
-        SessionRegistry registry = SessionRegistry.getSingleton();
-
         try
         {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, false );
+            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, false );
 
             if ( ctx != null )
             {
@@ -59,8 +57,8 @@ public class DefaultUnbindHandler extends UnbindHandler
                 }
                 ctx.close();
             }
-            registry.terminateSession( session );
-            registry.remove( session );
+            getSessionRegistry().terminateSession( session );
+            getSessionRegistry().remove( session );
         }
         catch ( NamingException e )
         {

@@ -20,7 +20,6 @@
 package org.apache.directory.server.ldap.support;
 
 
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.AbandonRequest;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.Request;
@@ -52,7 +51,7 @@ public class DefaultAbandonHandler extends AbandonHandler
             return;
         }
 
-        Request abandonedRequest = SessionRegistry.getSingleton().getOutstandingRequest( session, abandonedId );
+        Request abandonedRequest = getSessionRegistry().getOutstandingRequest( session, abandonedId );
 
         if ( abandonedRequest == null )
         {
@@ -71,7 +70,7 @@ public class DefaultAbandonHandler extends AbandonHandler
         }
 
         ( ( AbandonableRequest ) abandonedRequest ).abandon();
-        if ( SessionRegistry.getSingleton().removeOutstandingRequest( session, abandonedId ) == null )
+        if ( getSessionRegistry().removeOutstandingRequest( session, abandonedId ) == null )
         {
             if ( LOG.isWarnEnabled() )
             {

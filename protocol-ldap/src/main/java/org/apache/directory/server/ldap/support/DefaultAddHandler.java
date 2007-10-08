@@ -66,7 +66,7 @@ public class DefaultAddHandler extends AddHandler
 
         try
         {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+            LdapContext ctx = getSessionRegistry().getLdapContext( session, null, true );
 
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {

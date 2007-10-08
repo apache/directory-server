@@ -78,6 +78,7 @@ public class LdapProtocolProvider
     private SearchHandler searchHandler;
     private UnbindHandler unbindHandler;
 
+    private final SessionRegistry registry;
 
     /** the underlying provider codec factory */
     private final ProtocolCodecFactory codecFactory;
@@ -111,8 +112,7 @@ public class LdapProtocolProvider
         copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         copy.put( DirectoryService.JNDI_KEY, directoryService );
 
-        SessionRegistry.releaseSingleton();
-        new SessionRegistry( cfg, copy );
+        this.registry = new SessionRegistry( cfg, copy );
 
         this.supportedControls = new HashSet<String>();
         this.supportedControls.add( PersistentSearchControl.CONTROL_OID );
@@ -249,6 +249,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( AbandonRequest.class );
         this.abandonHandler = abandonHandler;
+        this.abandonHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( AbandonRequest.class, this.abandonHandler );
     }
@@ -264,6 +265,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( AddRequest.class );
         this.addHandler = addHandler;
+        this.addHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( AddRequest.class, this.addHandler );
     }
@@ -279,6 +281,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
+        this.bindHandler.setProtocolProvider( this );
         if ( directoryService != null )
         {
             this.bindHandler.setDirectoryService( directoryService );
@@ -298,6 +301,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( CompareRequest.class );
         this.compareHandler = compareHandler;
+        this.compareHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( CompareRequest.class, this.compareHandler );
     }
@@ -313,6 +317,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( DeleteRequest.class );
         this.deleteHandler = deleteHandler;
+        this.deleteHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( DeleteRequest.class, this.deleteHandler );
     }
@@ -328,6 +333,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( ExtendedRequest.class );
         this.extendedHandler = extendedHandler;
+        this.extendedHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( ExtendedRequest.class, this.extendedHandler );
     }
@@ -343,6 +349,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( ModifyRequest.class );
         this.modifyHandler = modifyHandler;
+        this.modifyHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( ModifyRequest.class, this.modifyHandler );
     }
@@ -358,6 +365,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( ModifyDnRequest.class );
         this.modifyDnHandler = modifyDnHandler;
+        this.modifyDnHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( ModifyDnRequest.class, this.modifyDnHandler );
     }
@@ -373,6 +381,7 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( SearchRequest.class );
         this.searchHandler = searchHandler;
+        this.searchHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( SearchRequest.class, this.searchHandler );
     }
@@ -388,8 +397,15 @@ public class LdapProtocolProvider
     {
         this.handler.removeMessageHandler( UnbindRequest.class );
         this.unbindHandler = unbindHandler;
+        this.unbindHandler.setProtocolProvider( this );
         //noinspection unchecked
         this.handler.addMessageHandler( UnbindRequest.class, this.unbindHandler );
+    }
+
+
+    public SessionRegistry getRegistry()
+    {
+        return registry;
     }
 
 
@@ -446,7 +462,7 @@ public class LdapProtocolProvider
 
         public void sessionClosed( IoSession session )
         {
-            SessionRegistry.getSingleton().remove( session );
+            registry.remove( session );
         }
 
 
@@ -511,7 +527,7 @@ public class LdapProtocolProvider
             SessionLog.warn( session,
                 "Unexpected exception forcing session to close: sending disconnect notice to client.", cause );
             session.write( NoticeOfDisconnect.PROTOCOLERROR );
-            SessionRegistry.getSingleton().remove( session );
+            registry.remove( session );
             session.close();
         }
     }

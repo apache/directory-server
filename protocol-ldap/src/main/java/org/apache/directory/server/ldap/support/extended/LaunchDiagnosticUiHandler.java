@@ -117,7 +117,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 }
             }
 
-            SessionsFrame sessions = new SessionsFrame();
+            SessionsFrame sessions = new SessionsFrame( ldapProvider.getRegistry() );
             sessions.setRequestor( requestor );
             sessions.setLdapProvider( ldapProvider.getHandler() );
             Point pos = getCenteredPosition( sessions );

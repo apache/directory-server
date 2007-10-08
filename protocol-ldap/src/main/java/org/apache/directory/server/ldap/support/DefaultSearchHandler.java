@@ -35,7 +35,6 @@ import javax.naming.ldap.LdapContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -150,7 +149,7 @@ public class DefaultSearchHandler extends SearchHandler
         retAttrs.addAll( req.getAttributes() );
 
         // add the search request to the registry of outstanding requests for this session
-        SessionRegistry.getSingleton().addOutstandingRequest( session, req );
+        getSessionRegistry().addOutstandingRequest( session, req );
 
         // check the attributes to see if a referral's ref attribute is included
         if ( retAttrs.size() > 0 && !retAttrs.contains( SchemaConstants.REF_AT ) )
@@ -174,7 +173,7 @@ public class DefaultSearchHandler extends SearchHandler
             // bypass checks to disallow anonymous binds for search on RootDSE with base obj scope
             if ( isRootDSESearch )
             {
-                LdapContext unknown = SessionRegistry.getSingleton().getLdapContextOnRootDSEAccess( session, null );
+                LdapContext unknown = getSessionRegistry().getLdapContextOnRootDSEAccess( session, null );
 
                 if ( !( unknown instanceof ServerLdapContext ) )
                 {
@@ -188,7 +187,7 @@ public class DefaultSearchHandler extends SearchHandler
             // all those search operations are subject to anonymous bind checks when anonymous binda are disallowed
             else
             {
-                LdapContext unknown = SessionRegistry.getSingleton().getLdapContext( session, null, true );
+                LdapContext unknown = getSessionRegistry().getLdapContext( session, null, true );
 
                 if ( !( unknown instanceof ServerLdapContext ) )
                 {
@@ -228,19 +227,6 @@ public class DefaultSearchHandler extends SearchHandler
                 String msg = "Bind failure: Anonymous binds have been disabled!";
                 result.setErrorMessage( msg );
                 session.write( req.getResultResponse() );
-                //TM long t1 = System.nanoTime();
-                //TM
-                //TM synchronized (lock)
-                //TM {
-                //TM     cumul += (t1 - t0);
-                //TM     count++;
-                //TM
-                //TM     if ( count % 1000L == 0)
-                //TM     {
-                //TM         System.out.println( "Search cost : " + (cumul/count) );
-                //TM         cumul = 0L;
-                //TM     }
-                //TM }
                 return;
             }
 
@@ -290,7 +276,8 @@ public class DefaultSearchHandler extends SearchHandler
                     }
                     if ( list.hasMore() )
                     {
-                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(), session );
+                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
+                                session, getSessionRegistry() );
                         while ( it.hasNext() )
                         {
                             Response resp = ( Response ) it.next();
@@ -302,20 +289,6 @@ public class DefaultSearchHandler extends SearchHandler
                                 if ( rcode != ResultCodeEnum.SUCCESS )
                                 {
                                     session.write( resp );
-                                    //TM long t1 = System.nanoTime();
-                                    //TM
-                                    //TM synchronized( lock )
-                                    //TM {
-                                    //TM     cumul += (t1 - t0);
-                                    //TM     count++;
-                                    //TM
-                                    //TM     if ( count % 1000L == 0)
-                                    //TM     {
-                                    //TM         System.out.println( "Search cost : " + (cumul/count) );
-                                    //TM         cumul = 0L;
-                                    //TM     }
-                                    //TM }
-
                                     return;
                                 }
                                 // if search was fine then we returned all entries so now
@@ -334,20 +307,9 @@ public class DefaultSearchHandler extends SearchHandler
                 }
 
                 // now we process entries for ever as they change
-                PersistentSearchListener handler = new PersistentSearchListener( ctx, session, req );
+                PersistentSearchListener handler = new PersistentSearchListener( getSessionRegistry(),
+                        ctx, session, req );
                 ctx.addNamingListener( req.getBase(), req.getFilter().toString(), controls, handler );
-                //TM long t1 = System.nanoTime();
-                //TM synchronized( lock )
-                //TM {
-                //TM     cumul += (t1 - t0);
-                //TM     count++;
-                //TM
-                //TM     if ( count % 1000L == 0)
-                //TM     {
-                //TM         System.out.println( "Search cost : " + (cumul/count) );
-                //TM         cumul = 0L;
-                //TM     }
-                //TM }
                 return;
             }
 
@@ -367,7 +329,8 @@ public class DefaultSearchHandler extends SearchHandler
 
             if ( list.hasMore() )
             {
-                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(), session );
+                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
+                        session, getSessionRegistry() );
                 while ( it.hasNext() )
                 {
                     session.write( it.next() );
@@ -398,7 +361,7 @@ public class DefaultSearchHandler extends SearchHandler
             }
             while ( e.skipReferral() );
             session.write( req.getResultResponse() );
-            SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+            getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
         }
         catch ( NamingException e )
         {
@@ -450,7 +413,7 @@ public class DefaultSearchHandler extends SearchHandler
             {
                 session.write( resultResponse );
             }
-            SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+            getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
         }
         finally
         {

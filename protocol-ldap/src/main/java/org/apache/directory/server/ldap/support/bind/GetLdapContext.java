@@ -49,18 +49,24 @@ import org.slf4j.LoggerFactory;
  */
 public class GetLdapContext implements IoHandlerCommand
 {
-    private static final Logger log = LoggerFactory.getLogger( GetLdapContext.class );
-
+    private static final Logger LOG = LoggerFactory.getLogger( GetLdapContext.class );
     private static final MutableControl[] EMPTY = new MutableControl[0];
+
+    private final SessionRegistry registry;
+
+
+    public GetLdapContext( SessionRegistry registry )
+    {
+        this.registry = registry;
+    }
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         Hashtable env = getEnvironment( session, message );
-
         BindRequest request = ( BindRequest ) message;
         LdapResult result = request.getResultResponse().getLdapResult();
-        LdapContext ctx = null;
+        LdapContext ctx;
 
         try
         {
@@ -78,11 +84,12 @@ public class GetLdapContext implements IoHandlerCommand
             }
             else
             {
+                //noinspection SuspiciousToArrayCall
                 MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
                 ctx = new InitialLdapContext( env, connCtls );
             }
 
-            SessionRegistry.getSingleton().setLdapContext( session, ctx );
+            registry.setLdapContext( session, ctx );
             
             // add the bind response controls 
             request.getResultResponse().addAll( ctx.getResponseControls() );
@@ -106,7 +113,7 @@ public class GetLdapContext implements IoHandlerCommand
 
             String msg = "Bind failed: " + e.getMessage();
 
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
                 msg += ":\n" + ExceptionUtils.getStackTrace( e );
                 msg += "\n\nBindRequest = \n" + request.toString();
@@ -121,6 +128,7 @@ public class GetLdapContext implements IoHandlerCommand
 
             result.setErrorMessage( msg );
             session.write( request.getResultResponse() );
+            //noinspection UnusedAssignment
             ctx = null;
         }
     }
@@ -138,12 +146,12 @@ public class GetLdapContext implements IoHandlerCommand
         String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
         String authenticationLevel = getAuthenticationLevel( sessionMechanism );
 
-        log.debug( "{} {}", Context.SECURITY_PRINCIPAL, principal );
-        log.debug( "{} {}", Context.SECURITY_CREDENTIALS, credentials );
-        log.debug( "{} {}", Context.SECURITY_AUTHENTICATION, authenticationLevel );
+        LOG.debug( "{} {}", Context.SECURITY_PRINCIPAL, principal );
+        LOG.debug( "{} {}", Context.SECURITY_CREDENTIALS, credentials );
+        LOG.debug( "{} {}", Context.SECURITY_AUTHENTICATION, authenticationLevel );
 
         // clone the environment first then add the required security settings
-        Hashtable<String, Object> env = SessionRegistry.getSingleton().getEnvironmentByCopy();
+        Hashtable<String, Object> env = registry.getEnvironmentByCopy();
         env.put( Context.SECURITY_PRINCIPAL, principal );
 
         if ( credentials != null )

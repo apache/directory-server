@@ -43,27 +43,34 @@ public class OutstandingRequestsDialog extends JDialog
 {
     private static final long serialVersionUID = -3777123348215825711L;
     private static final AbandonableRequest[] EMPTY_REQUEST_ARRAY = new AbandonableRequest[0];
-    private JPanel jContentPane = null;
-    private JPanel jPanel = null;
-    private JScrollPane jScrollPane = null;
-    private JTable jTable = null;
-    private JPanel jPanel1 = null;
-    private JButton jButton = null;
+    private JPanel jContentPane;
+    private JPanel jPanel;
+    private JScrollPane jScrollPane;
+    private JTable jTable;
+    private JPanel jPanel1;
+    private JButton jButton;
 
     final IoSession session;
-    private JPanel jPanel2 = null;
-    private JTextArea jTextArea = null;
-    private JButton jButton1 = null;
-    private JButton jButton2 = null;
+    final SessionRegistry registry;
+
+    private JPanel jPanel2;
+    private JTextArea jTextArea;
+    private JButton jButton1;
+    private JButton jButton2;
 
 
     /**
      * This is the default constructor
+     * @param owner the owning frame
+     * @param session the MINA IoSession to get outstanding requests for
+     * @param sessionRegistry the session registry
      */
-    public OutstandingRequestsDialog(JFrame owner, IoSession session)
+    public OutstandingRequestsDialog( JFrame owner, IoSession session, SessionRegistry sessionRegistry )
     {
         super( owner, true );
         this.session = session;
+        this.registry = sessionRegistry;
+
         StringBuffer buf = new StringBuffer();
         buf.append( "Outstanding Requests: " );
         buf.append( ( ( InetSocketAddress ) session.getRemoteAddress() ).getHostName() );
@@ -76,8 +83,6 @@ public class OutstandingRequestsDialog extends JDialog
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize()
     {
@@ -179,10 +184,11 @@ public class OutstandingRequestsDialog extends JDialog
     private void setRequestsModel()
     {
         AbandonableRequest[] requests;
-        Map reqsMap = SessionRegistry.getSingleton().getOutstandingRequests( session );
+        Map reqsMap = registry.getOutstandingRequests( session );
         if ( reqsMap != null )
         {
             requests = new AbandonableRequest[reqsMap.size()];
+            //noinspection unchecked
             requests = ( AbandonableRequest[] ) reqsMap.values().toArray( requests );
         }
         else
@@ -320,7 +326,7 @@ public class OutstandingRequestsDialog extends JDialog
                     AbandonableRequest req = ( ( OutstandingRequestsModel ) jTable.getModel() )
                         .getAbandonableRequest( row );
                     req.abandon();
-                    SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+                    registry.removeOutstandingRequest( session, req.getMessageId() );
                     setRequestsModel();
                 }
             } );
