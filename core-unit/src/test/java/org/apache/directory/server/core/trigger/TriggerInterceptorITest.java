@@ -38,7 +38,7 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class TriggerServiceITest extends AbstractAdminTestCase
+public class TriggerInterceptorITest extends AbstractAdminTestCase
 {
     private LdapContext ctx;
     LdapContext spCtx;
