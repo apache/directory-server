@@ -58,13 +58,13 @@ public interface ACITupleFilter
      * @param attrValue the value of the attribute the current user accesses
      * @param entry the {@link Attributes} of the entry the current user accesses
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
-     * 
+     * @param entryView TODO
      * @return the collection of filtered tuples
      * @throws NamingException if failed to filter the specifiec tuples
      */
     Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                        Collection userGroupNames, LdapDN userName, Attributes userEntry,
                        AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId,
-                       Object attrValue, Attributes entry, Collection microOperations )
+                       Object attrValue, Attributes entry, Collection microOperations, Attributes entryView )
         throws NamingException;
 }

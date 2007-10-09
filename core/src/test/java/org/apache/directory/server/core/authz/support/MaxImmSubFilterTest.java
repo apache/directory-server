@@ -91,10 +91,10 @@ public class MaxImmSubFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null ) );
+            null, ENTRY_NAME, null, null, ENTRY, null, null ) );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, ENTRY_NAME, null, null, ENTRY, null ) );
+            null, null, ENTRY_NAME, null, null, ENTRY, null, null ) );
     }
 
 
@@ -108,7 +108,7 @@ public class MaxImmSubFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
-            ROOTDSE_NAME, null, null, ENTRY, null ) );
+            ROOTDSE_NAME, null, null, ENTRY, null, null ) );
     }
 
 
@@ -117,7 +117,7 @@ public class MaxImmSubFilterTest extends TestCase
         MaxImmSubFilter filter = new MaxImmSubFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ENTRY, null, null, null, null, null,
-            ENTRY_NAME, null, null, ENTRY, null ).size() );
+            ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
 
@@ -130,7 +130,7 @@ public class MaxImmSubFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null,
-            ENTRY_NAME, null, null, ENTRY, null ) );
+            ENTRY_NAME, null, null, ENTRY, null, null ) );
     }
 
 
@@ -141,10 +141,10 @@ public class MaxImmSubFilterTest extends TestCase
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 1 ), null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null ).size() );
+            null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, new MockProxy( 3 ), null, null, null,
-            null, ENTRY_NAME, null, null, ENTRY, null ).size() );
+            null, ENTRY_NAME, null, null, ENTRY, null, null ).size() );
     }
 
     class MockProxy extends PartitionNexusProxy

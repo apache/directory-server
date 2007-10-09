@@ -79,10 +79,10 @@ public class RestrictedByFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
-            null, null, null, null, null, null ) );
+            null, null, null, null, null, null, null ) );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null,
-            null, null, null, null ) );
+            null, null, null, null, null ) );
     }
 
 
@@ -91,7 +91,7 @@ public class RestrictedByFilterTest extends TestCase
         RestrictedByFilter filter = new RestrictedByFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -104,7 +104,7 @@ public class RestrictedByFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "testAttr", null, ENTRY, null ) );
+            null, null, null, "testAttr", null, ENTRY, null, null ) );
     }
 
 
@@ -115,12 +115,12 @@ public class RestrictedByFilterTest extends TestCase
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, PROTECTED_ITEMS, EMPTY_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "1", ENTRY, null ).size() );
+            null, null, "choice", "1", ENTRY, null, null ).size() );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "2", ENTRY, null ).size() );
+            null, null, "choice", "2", ENTRY, null, null ).size() );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "choice", "3", ENTRY, null ).size() );
+            null, null, "choice", "3", ENTRY, null, null ).size() );
     }
 }

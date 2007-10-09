@@ -106,14 +106,15 @@ public class ACDFEngine
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
+     * @param entryView TODO
      * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN username,
                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                 Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+                                 Collection microOperations, Collection aciTuples, Attributes entry, Attributes entryView ) throws NamingException
     {
         if ( !hasPermission( proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
-            microOperations, aciTuples, entry ) )
+            microOperations, aciTuples, entry, entryView ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -150,10 +151,11 @@ public class ACDFEngine
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
+     * @param entryView TODO
      */
     public boolean hasPermission( PartitionNexusProxy proxy, Collection userGroupNames, LdapDN userName,
                                   AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                  Collection microOperations, Collection aciTuples, Attributes entry ) throws NamingException
+                                  Collection microOperations, Collection aciTuples, Attributes entry, Attributes entryView ) throws NamingException
     {
         if ( entryName == null )
         {
@@ -185,7 +187,7 @@ public class ACDFEngine
         {
             ACITupleFilter filter = filters[i];
             aciTuples = filter.filter( aciTuples, scope, proxy, userGroupNames, userName, userEntry,
-                authenticationLevel, entryName, attrId, attrValue, entry, microOperations );
+                authenticationLevel, entryName, attrId, attrValue, entry, microOperations, entryView );
         }
 
         // Deny access if no tuples left.

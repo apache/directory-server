@@ -48,6 +48,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import org.slf4j.Logger;
@@ -406,7 +407,7 @@ public class AuthorizationService extends BaseInterceptor
         // check if entry scope permission is granted
         PartitionNexusProxy proxy = invocation.getProxy();
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), normName, null, null,
-            ADD_PERMS, tuples, subentryAttrs );
+            ADD_PERMS, tuples, subentryAttrs, null );
 
         // now we must check if attribute type and value scope permission is granted
         NamingEnumeration attributeList = entry.getAll();
@@ -416,7 +417,7 @@ public class AuthorizationService extends BaseInterceptor
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), normName, attr
-                    .getID(), attr.get( ii ), ADD_PERMS, tuples, entry );
+                    .getID(), attr.get( ii ), ADD_PERMS, tuples, entry, null );
             }
         }
 
@@ -462,7 +463,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            REMOVE_PERMS, tuples, entry );
+            REMOVE_PERMS, tuples, entry, null );
 
         next.delete( name );
         tupleCache.subentryDeleted( name, entry );
@@ -503,8 +504,10 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+            Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
+        Attributes entryView = ( Attributes ) entry.clone();
+        
         NamingEnumeration attrList = mods.getAll();
         Collection perms = null;
         switch ( modOp )
@@ -533,7 +536,7 @@ public class AuthorizationService extends BaseInterceptor
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                            attr.getID(), null, perms, tuples, entry );
+                            attr.getID(), null, perms, tuples, entry, null );
                     }
                     break;
                 case ( DirContext.REMOVE_ATTRIBUTE  ):
@@ -545,17 +548,31 @@ public class AuthorizationService extends BaseInterceptor
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                attr.getID(), null, perms, tuples, entry );
+                                attr.getID(), null, perms, tuples, entry, null );
                         }
                     }
                     break;
             }
 
+            /**
+             * Update the entry view as the current modification is applied to the original entry.
+             * This is especially required for handling the MaxValueCount protected item. Number of
+             * values for an attribute after a modification should be known in advance in order to
+             * check permissions for MaxValueCount protected item. So during addition of the first
+             * value of an attribute it can be rejected if the permission denied due the the
+             * MaxValueCount protected item. This is not the perfect implementation as required by
+             * the specification because the system should reject the addition exactly on the right
+             * value of the attribute. However as we do not have that much granularity in our
+             * implementation (we consider an Attribute Addition itself a Micro Operation,
+             * not the individual Value Additions) we just handle this when the first value of an
+             * attribute is being checked for relevant permissions below. 
+             */
+            entryView = SchemaUtils.getTargetEntry( new ModificationItemImpl(modOp, attr), entryView );
             
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
-                    .getID(), attr.get( ii ), perms, tuples, entry );
+                    .getID(), attr.get( ii ), perms, tuples, entry, entryView );
             }
         }
 
@@ -599,9 +616,11 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            Collections.singleton( MicroOperation.MODIFY ), tuples, entry );
+            Collections.singleton( MicroOperation.MODIFY ), tuples, entry, null );
 
         Collection perms = null;
+        Attributes entryView = ( Attributes ) entry.clone();
+        
         for ( int ii = 0; ii < mods.length; ii++ )
         {
 
@@ -616,7 +635,7 @@ public class AuthorizationService extends BaseInterceptor
                     {
                         // ... we also need to check if adding the attribute is permitted
                         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                            attr.getID(), null, perms, tuples, entry );
+                            attr.getID(), null, perms, tuples, entry, null );
                     }
                     break;
                     
@@ -630,7 +649,7 @@ public class AuthorizationService extends BaseInterceptor
                         {
                             // ... we also need to check if removing the attribute at all is permitted
                             engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name,
-                                attr.getID(), null, perms, tuples, entry );
+                                attr.getID(), null, perms, tuples, entry, null );
                         }
                     }
                     break;
@@ -640,11 +659,25 @@ public class AuthorizationService extends BaseInterceptor
                     break;
             }
 
+            /**
+             * Update the entry view as the current modification is applied to the original entry.
+             * This is especially required for handling the MaxValueCount protected item. Number of
+             * values for an attribute after a modification should be known in advance in order to
+             * check permissions for MaxValueCount protected item. So during addition of the first
+             * value of an attribute it can be rejected if the permission denied due the the
+             * MaxValueCount protected item. This is not the perfect implementation as required by
+             * the specification because the system should reject the addition exactly on the right
+             * value of the attribute. However as we do not have that much granularity in our
+             * implementation (we consider an Attribute Addition itself a Micro Operation,
+             * not the individual Value Additions) we just handle this when the first value of an
+             * attribute is being checked for relevant permissions below. 
+             */
+            entryView = SchemaUtils.getTargetEntry( mods[ii], entryView );
             
             for ( int jj = 0; jj < attr.size(); jj++ )
             {
                 engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, attr
-                    .getID(), attr.get( jj ), perms, tuples, entry );
+                    .getID(), attr.get( jj ), perms, tuples, entry, entryView );
             }
         }
 
@@ -676,7 +709,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // check that we have browse access to the entry
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            BROWSE_PERMS, tuples, entry );
+            BROWSE_PERMS, tuples, entry, null );
 
         return next.hasEntry( name );
     }
@@ -715,7 +748,7 @@ public class AuthorizationService extends BaseInterceptor
 
         // check that we have read access to the entry
         engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, null, null,
-            LOOKUP_PERMS, tuples, entry );
+            LOOKUP_PERMS, tuples, entry, null );
 
         // check that we have read access to every attribute type and value
         NamingEnumeration attributeList = entry.getAll();
@@ -725,7 +758,7 @@ public class AuthorizationService extends BaseInterceptor
             for ( int ii = 0; ii < attr.size(); ii++ )
             {
                 engine.checkPermission( proxy, userGroups, userName, principal.getAuthenticationLevel(), dn, attr
-                    .getID(), attr.get( ii ), READ_PERMS, tuples, entry );
+                    .getID(), attr.get( ii ), READ_PERMS, tuples, entry, null );
             }
         }
     }
@@ -806,7 +839,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            RENAME_PERMS, tuples, entry );
+            RENAME_PERMS, tuples, entry, null );
 
         //        if ( deleteOldRn )
         //        {
@@ -876,7 +909,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
-            null, MOVERENAME_PERMS, tuples, entry );
+            null, MOVERENAME_PERMS, tuples, entry, null );
 
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
@@ -903,7 +936,7 @@ public class AuthorizationService extends BaseInterceptor
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
-            null, IMPORT_PERMS, destTuples, subentryAttrs );
+            null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         //        if ( deleteOldRn )
         //        {
@@ -972,7 +1005,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, oriChildName, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), oriChildName, null,
-            null, EXPORT_PERMS, tuples, entry );
+            null, EXPORT_PERMS, tuples, entry, null );
         
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
@@ -999,7 +1032,7 @@ public class AuthorizationService extends BaseInterceptor
         // Evaluate the target context to see whether it
         // allows an entry named newName to be imported as a subordinate.
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), newName, null,
-            null, IMPORT_PERMS, destTuples, subentryAttrs );
+            null, IMPORT_PERMS, destTuples, subentryAttrs, null );
 
         next.move( oriChildName, newParentName );
         tupleCache.subentryRenamed( oriChildName, newName );
@@ -1071,9 +1104,9 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( proxy, tuples, name, entry );
 
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, null, null,
-            READ_PERMS, tuples, entry );
+            READ_PERMS, tuples, entry, null );
         engine.checkPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), name, oid, value,
-            COMPARE_PERMS, tuples, entry );
+            COMPARE_PERMS, tuples, entry, null );
 
         return next.compare( name, oid, value );
     }
@@ -1109,7 +1142,7 @@ public class AuthorizationService extends BaseInterceptor
             addSubentryAciTuples( proxy, tuples, matched, entry );
 
             if ( engine.hasPermission( proxy, userGroups, principalDn, principal.getAuthenticationLevel(), matched, null,
-                null, MATCHEDNAME_PERMS, tuples, entry ) )
+                null, MATCHEDNAME_PERMS, tuples, entry, null ) )
             {
                 return matched;
             }
@@ -1144,7 +1177,7 @@ public class AuthorizationService extends BaseInterceptor
         addSubentryAciTuples( invocation.getProxy(), tuples, normName, entry );
 
         if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
-            .getAuthenticationLevel(), normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry ) )
+            .getAuthenticationLevel(), normName, null, null, SEARCH_ENTRY_PERMS, tuples, entry, null ) )
         {
             return false;
         }
@@ -1163,7 +1196,7 @@ public class AuthorizationService extends BaseInterceptor
             String id = ( String ) idList.next();
             Attribute attr = result.getAttributes().get( id );
             if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
-                .getAuthenticationLevel(), normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry ) )
+                .getAuthenticationLevel(), normName, attr.getID(), null, SEARCH_ATTRVAL_PERMS, tuples, entry, null ) )
             {
                 result.getAttributes().remove( attr.getID() );
 
@@ -1179,7 +1212,7 @@ public class AuthorizationService extends BaseInterceptor
             {
                 if ( !engine.hasPermission( invocation.getProxy(), userGroups, userDn, ctx.getPrincipal()
                     .getAuthenticationLevel(), normName, attr.getID(), attr.get( ii ), SEARCH_ATTRVAL_PERMS, tuples,
-                    entry ) )
+                    entry, null ) )
                 {
                     attr.remove( ii );
 

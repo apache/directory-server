@@ -51,7 +51,7 @@ public class MostSpecificUserClassFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                               Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations, Attributes entryView )
         throws NamingException
     {
         if ( tuples.size() <= 1 )

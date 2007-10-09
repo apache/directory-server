@@ -46,7 +46,7 @@ public class MaxValueCountFilter implements ACITupleFilter
 {
     public Collection filter( Collection tuples, OperationScope scope, PartitionNexusProxy proxy,
                               Collection userGroupNames, LdapDN userName, Attributes userEntry, AuthenticationLevel authenticationLevel,
-                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations )
+                              LdapDN entryName, String attrId, Object attrValue, Attributes entry, Collection microOperations, Attributes entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -73,7 +73,7 @@ public class MaxValueCountFilter implements ACITupleFilter
                 if ( item instanceof ProtectedItem.MaxValueCount )
                 {
                     ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
-                    if ( isRemovable( mvc, attrId, entry ) )
+                    if ( isRemovable( mvc, attrId, entryView ) )
                     {
                         i.remove();
                         break;
@@ -95,7 +95,7 @@ public class MaxValueCountFilter implements ACITupleFilter
             {
                 Attribute attr = entry.get( attrId );
                 int attrCount = attr == null ? 0 : attr.size();
-                if ( attrCount >= mvcItem.getMaxCount() )
+                if ( attrCount > mvcItem.getMaxCount() )
                 {
                     return true;
                 }

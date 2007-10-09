@@ -104,13 +104,13 @@ public class MostSpecificUserClassFilterTest extends TestCase
         MostSpecificUserClassFilter filter = new MostSpecificUserClassFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null ).size() );
 
         Collection tuples = new ArrayList();
         tuples.add( new ACITuple( EMPTY_COLLECTION, AuthenticationLevel.NONE, EMPTY_COLLECTION, EMPTY_SET, false, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -120,7 +120,7 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
         List tuples = new ArrayList( TUPLES_A );
         tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
@@ -134,7 +134,7 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
         List tuples = new ArrayList( TUPLES_B );
         tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 1, tuples.size() );
         Assert.assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
@@ -147,7 +147,7 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
         List tuples = new ArrayList( TUPLES_C );
         tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 1, tuples.size() );
         Assert.assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
@@ -160,7 +160,7 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
         List tuples = new ArrayList( TUPLES_D );
         tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 1, tuples.size() );
         Assert.assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
@@ -173,7 +173,7 @@ public class MostSpecificUserClassFilterTest extends TestCase
 
         List tuples = new ArrayList( TUPLES_E );
         tuples = ( List ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );

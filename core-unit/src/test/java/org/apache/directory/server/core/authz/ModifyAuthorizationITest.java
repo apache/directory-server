@@ -31,6 +31,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.Name;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 
 import java.util.List;
@@ -543,4 +545,64 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         deleteAccessControlSubentry( "modifyACI" );
         
     }
+    
+    
+    public void testMaxValueCountProtectedItem() throws NamingException
+    {
+        createUser( "billyd", "billyd" );
+        createAccessControlSubentry( "mvcACI",
+            " {" +
+                " identificationTag \"mvcACI\"," +
+                " precedence 10," +
+                " authenticationLevel simple," +
+                " itemOrUserFirst userFirst:" + 
+                " {" +
+                    " userClasses { allUsers }," +
+                    " userPermissions" + 
+                    " {" +
+                        " {" +
+                            " protectedItems { entry }," +
+                            " grantsAndDenials { grantModify, grantBrowse }" +
+                        " }" +
+                        " ," +
+                        " {" +
+                            " protectedItems" + 
+                            " {" +
+                                " attributeType { description }," +
+                                " allAttributeValues { description }," +
+                                " maxValueCount" + 
+                                " {" +
+                                    " { type description, maxCount 1 }" + 
+                                " }" +
+                            " }" +
+                            " ," +
+                            " grantsAndDenials" + 
+                            " {" +
+                                " grantRemove," +
+                                " grantAdd" +
+                            " }" +
+                        " }" +
+                     " }" +
+                " }" +
+            " }" );
+        
+        ModificationItemImpl[] mods = toItems( DirContext.ADD_ATTRIBUTE,
+            new BasicAttributes( "description", "description 1", true ) );
+        
+        assertTrue( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        Attributes attrs = new BasicAttributes(true);
+        Attribute attr = new BasicAttribute( "description" );
+        attr.add( "description 1" );
+        attr.add( "description 2" );
+        attrs.put( attr );
+        mods = toItems( DirContext.ADD_ATTRIBUTE, attrs );
+        
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE, attrs );
+        
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+    }
+    
 }
