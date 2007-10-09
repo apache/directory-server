@@ -30,6 +30,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.SubstringNode;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
 
@@ -79,7 +80,15 @@ public class SubstringEnumerator implements Enumerator
         Index idx = null;
         final SubstringNode snode = ( SubstringNode ) node;
         AttributeType type = attributeTypeRegistry.lookup( snode.getAttribute() );
-        Normalizer normalizer = type.getSubstr().getNormalizer();
+
+        MatchingRule matchingRule = type.getSubstr();
+
+        if ( matchingRule == null )
+        {
+            matchingRule = type.getEquality();
+        }
+        
+        Normalizer normalizer = matchingRule.getNormalizer();
 
         if ( db.hasUserIndexOn( snode.getAttribute() ) )
         {

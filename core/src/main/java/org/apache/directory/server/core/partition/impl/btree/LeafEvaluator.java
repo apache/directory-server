@@ -346,7 +346,6 @@ public class LeafEvaluator implements Evaluator
             // this attribute type : as the AT was indexed, we
             // have a direct access to the entry.
             if ( idx.hasValue( attrId, rec.getEntryId() ) )
-                ;
             {
                 return true;
             }
