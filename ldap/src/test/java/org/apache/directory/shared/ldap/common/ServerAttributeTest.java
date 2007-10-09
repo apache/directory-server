@@ -58,49 +58,49 @@ public class ServerAttributeTest
         {
             new ServerAttributeImpl( (OID)null );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (OID)null, "test" );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (OID)null, StringTools.EMPTY_BYTES );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (OID)null, new StringValue() );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (String)null );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (String)null, "test" );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try
         {
             new ServerAttributeImpl( (String)null, StringTools.EMPTY_BYTES );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
 
         try 
         { 
             new ServerAttributeImpl( (String)null, new StringValue() );
             fail();
-        } catch ( NamingException ne ) {}
+        } catch ( AssertionError ae ) {}
     }
     
     /**

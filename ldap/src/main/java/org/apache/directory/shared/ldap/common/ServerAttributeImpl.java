@@ -25,17 +25,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,8 +41,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerAttributeImpl implements ServerAttribute, Serializable, Cloneable
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ServerAttributeImpl.class );
-
     /** For serialization */
     private static final long serialVersionUID = 2L;
 
@@ -76,16 +69,12 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * Creates a ServerAttribute with an id
      * 
      * @param id the id or name of this attribute.
-     * @throws NamingException if the id is null
      */
-    public ServerAttributeImpl( String id ) throws NamingException
+    public ServerAttributeImpl( String id )
     {
-        if ( StringTools.isEmpty( id ) )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
-
+        // Use assert instead of throwing an exception
+        assert( !StringTools.isEmpty( id ) );
+        
         upId = id;
         value = null;
         values = null;
@@ -98,15 +87,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * Creates a ServerAttribute with an oid
      * 
      * @param oid the oid of this attribute.
-     * @throws NamingException if the oid is null
      */
-    public ServerAttributeImpl( OID oid ) throws NamingException
+    public ServerAttributeImpl( OID oid )
     {
-        if ( oid == null )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
+        // Use assert instead of throwing an exception
+        assert( oid != null );
 
         upId = oid.toString();
         value = null;
@@ -121,16 +106,12 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val the attribute's value
-     * @throws NamingException if the id is invalid
      */
-    public ServerAttributeImpl( String id, Value<?> val ) throws NamingException
+    public ServerAttributeImpl( String id, Value<?> val )
     {
-        if ( StringTools.isEmpty( id ) )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
-
+        // Use assert instead of throwing an exception
+        assert( !StringTools.isEmpty( id ) );
+        
         upId = id;
         value = val;
         values = null;
@@ -144,15 +125,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val the attribute's value
-     * @throws NamingException if the oid is invalid
      */
-    public ServerAttributeImpl( OID oid, Value<?> val ) throws NamingException
+    public ServerAttributeImpl( OID oid, Value<?> val )
     {
-        if ( oid == null )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
+        // Use assert instead of throwing an exception
+        assert( oid != null );
 
         upId = oid.toString();
         value = val;
@@ -167,16 +144,12 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val a value for the attribute
-     * @throws NamingException if the id string is invalid
      */
-    public ServerAttributeImpl( String id, byte[] val ) throws NamingException
+    public ServerAttributeImpl( String id, byte[] val )
     {
-        if ( StringTools.isEmpty( id ) )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
-
+        // Use assert instead of throwing an exception
+        assert( !StringTools.isEmpty( id ) );
+        
         upId = id;
         values = null;
         value = new BinaryValue( val );
@@ -190,15 +163,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val a value for the attribute
-     * @throws NamingException if the oid is invalid
      */
-    public ServerAttributeImpl( OID oid, byte[] val ) throws NamingException
+    public ServerAttributeImpl( OID oid, byte[] val )
     {
-        if ( oid == null )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
+        // Use assert instead of throwing an exception
+        assert( oid != null );
 
         upId = oid.toString();
         values = null;
@@ -213,16 +182,12 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param id the id or name of this attribute.
      * @param val a value for the attribute
-     * @throws NamingException if the id string is invalid
      */
-    public ServerAttributeImpl( String id, String val ) throws NamingException
+    public ServerAttributeImpl( String id, String val )
     {
-        if ( StringTools.isEmpty( id ) )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
-
+        // Use assert instead of throwing an exception
+        assert( !StringTools.isEmpty( id ) );
+        
         upId = id;
         values = null;
         value = new StringValue( val );
@@ -236,15 +201,11 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * 
      * @param oid the oid of this attribute.
      * @param val a value for the attribute
-     * @throws NamingException if there's no OID provided
      */
-    public ServerAttributeImpl( OID oid, String val ) throws NamingException
+    public ServerAttributeImpl( OID oid, String val )
     {
-        if ( oid == null )
-        {
-            LOG.error( "Attributes with an empty ID or OID are not allowed" );
-            throw new NamingException( "Attributes with an empty ID or OID are not allowed" );
-        }
+        // Use assert instead of throwing an exception
+        assert( oid != null );
 
         upId = oid.toString();
         values = null;
@@ -258,42 +219,48 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
      * Create a copy of an Attribute, be it an ServerAttributeImpl
      * instance of a BasicAttribute instance
      * 
-     * @param attribute the Attribute instace to copy
-     * @throws NamingException if the attribute is not an instance of BasicAttribute
-     * or ServerAttributeImpl or is null
+     * @param attribute the Attribute instance to copy
      */
-    public ServerAttributeImpl( Attribute attribute ) throws NamingException
+    public ServerAttributeImpl( ServerAttribute attribute )
     {
-        if ( attribute == null )
+        // Use assert instead of throwing an exception
+        assert( attribute != null );
+        
+        ServerAttribute copy = attribute.clone();
+        
+        upId = ((ServerAttributeImpl)copy).getID();
+        oid = ((ServerAttributeImpl)copy).getOid();
+        
+        switch ( copy.size() )
         {
-            LOG.error(  "Null attribute is not allowed" );
-            throw new NamingException( "Null attribute is not allowed" );
-        }
-        else if ( attribute instanceof ServerAttributeImpl )
-        {
-            ServerAttributeImpl copy = (ServerAttributeImpl)attribute;
-            
-            upId  = copy.upId;
-            oid = copy.oid;
-            
-            switch ( copy.size() )
-            {
-                case 0:
-                    values = null;
-                    value = null;
-                    size = 0;
-                    break;
+            case 0:
+                values = null;
+                value = null;
+                size = 0;
+                break;
 
-                case 1:
+            case 1:
+                try
+                {
                     value = getClonedValue( copy.get() );
-                    values = null;
-                    size = 1;
-                    break;
-                    
-                default :
-                    value = null;
-                    values = new ArrayList<Value<?>>( copy.size() );
-                    
+                }
+                catch ( NamingException ne )
+                {
+                    // It should not happen, but in this case,
+                    // let's create an empty Value
+                    value = new StringValue( (String)null );
+                }
+                
+                values = null;
+                size = 1;
+                break;
+                
+            default :
+                value = null;
+                values = new ArrayList<Value<?>>( copy.size() );
+                
+                try
+                {
                     Iterator<Value<?>> vals = copy.getAll();
                     
                     while ( vals.hasNext() )
@@ -301,82 +268,20 @@ public class ServerAttributeImpl implements ServerAttribute, Serializable, Clone
                         Value<?> val = vals.next();
                         values.add( val );
                     }
-                    
-                    size = copy.size();
-                    
-                    break;
-            }
+                }
+                catch ( NamingException ne )
+                {
+                    // It should not happen, but in this case,
+                    // let's create an empty Value
+                    values.add( new StringValue( (String)null ) );
+                }
+                
+                size = copy.size();
+                
+                break;
+        }
 
-            oid = null;
-        }
-        else if ( attribute instanceof BasicAttribute )
-        {
-            upId = attribute.getID();
-            oid = null;
-            
-            switch ( attribute.size() )
-            {
-                case 0 :
-                    value = null;
-                    values = null;
-                    size = 0;
-                    break;
-                    
-                case 1 :
-                    Object val = attribute.get();
-                    
-                    if ( val instanceof String )
-                    {
-                        value = new StringValue( (String)val );
-                    }
-                    else if ( val instanceof byte[] )
-                    {
-                        value = new BinaryValue( (byte[])val );
-                    }
-                    else
-                    {
-                        LOG.error( "The value's type is not String or byte[]" );
-                        throw new NamingException( "The value's type is not String or byte[]" );
-                    }
-
-                    values = null;
-                    size = 1;
-                    
-                    break;
-                    
-                default :   
-                    NamingEnumeration<?> vals = attribute.getAll();
-                    
-                    while ( vals.hasMoreElements() )
-                    {
-                        val = vals.nextElement();
-                        
-                        if ( val instanceof String )
-                        {
-                            value = new StringValue( (String)val );
-                        }
-                        else if ( val instanceof byte[] )
-                        {
-                            value = new BinaryValue( (byte[])val );
-                        }
-                        else
-                        {
-                            LOG.error( "The value's type is not String or byte[]" );
-                            throw new NamingException( "The value's type is not String or byte[]" );
-                        }
-                    }
-                    
-                    values = null;
-                    size = attribute.size();
-                    
-                    break;
-            }
-        }
-        else
-        {
-            LOG.error( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
-            throw new NamingException( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
-        }
+        oid = null;
     }
 
     
