@@ -78,10 +78,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleAuthenticator extends AbstractAuthenticator
 {
-    private static final Logger log = LoggerFactory.getLogger( SimpleAuthenticator.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SimpleAuthenticator.class );
     
     /** A speedup for logger in debug mode */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /**
      * A cache to store passwords. It's a speedup, we will be able to avoid backend lookups.
@@ -99,7 +99,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * We need to be sure that frequently used passwords be always in cache, and not discarded.
      * We will use a LRU cache for this purpose. 
      */ 
-    private LRUMap credentialCache;
+    private final LRUMap credentialCache;
     
     /** Declare a default for this cache. 100 entries seems to be enough */
     private static final int DEFAULT_CACHE_SIZE = 100;
@@ -136,15 +136,15 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     public SimpleAuthenticator()
     {
         super( "simple" );
-        
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
     /**
      * Creates a new instance, with an initial cache size
+     * @param cacheSize the size of the credential cache
      */
     @SuppressWarnings( "unchecked" )
-    public SimpleAuthenticator( int cacheSize)
+    public SimpleAuthenticator( int cacheSize )
     {
         super( "simple" );
 
@@ -189,7 +189,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     private LdapPrincipal getStoredPassword( LdapDN principalDN ) throws NamingException
     {
-        LdapPrincipal principal = null;
+        LdapPrincipal principal;
         String principalNorm = principalDN.getNormName();
         
         synchronized( credentialCache )
@@ -197,7 +197,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             principal = (LdapPrincipal)credentialCache.get( principalNorm );
         }
         
-        byte[] storedPassword = null;
+        byte[] storedPassword;
         
         if ( principal == null )
         {
@@ -224,11 +224,6 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 credentialCache.put( principalDN.getNormName(), principal );
             }
         }
-        else
-        {
-            // Found ! 
-            storedPassword = principal.getUserPassword();
-        }
         
         return principal;
     }
@@ -236,15 +231,16 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Get the user credentials from the environment. It is stored into the
      * ServcerContext.
-     * @param ctx
-     * @param principalDn
-     * @return
-     * @throws LdapAuthenticationException
+     *
+     * @param ctx the naming context to get the credentials from
+     * @return the credentials
+     * @throws LdapAuthenticationException if the there are probelms with security
+     * credentials provided
      */
-    private byte[] getCredentials( ServerContext ctx, LdapDN principalDn ) throws LdapAuthenticationException
+    private byte[] getCredentials( ServerContext ctx ) throws LdapAuthenticationException
     {
         Object creds = ctx.getEnvironment().get( Context.SECURITY_CREDENTIALS );
-        byte[] credentials = null;
+        byte[] credentials;
 
         if ( creds == null )
         {
@@ -262,7 +258,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         else
         {
-            log.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
+            LOG.info( "Incorrect credentials stored in {}", Context.SECURITY_CREDENTIALS );
             throw new LdapAuthenticationException();
         }
         
@@ -304,11 +300,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Authenticating {}", principalDn );
+            LOG.debug( "Authenticating {}", principalDn );
         }
         
         // ---- extract password from JNDI environment
-        byte[] credentials = getCredentials( ctx, principalDn );
+        byte[] credentials = getCredentials( ctx );
         
         LdapPrincipal principal = getStoredPassword( principalDn );
         
@@ -321,7 +317,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             if ( IS_DEBUG )
             {
-                log.debug( "{} Authenticated", principalDn );
+                LOG.debug( "{} Authenticated", principalDn );
             }
             
         	return principal;
@@ -350,7 +346,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 if ( IS_DEBUG )
                 {
-                    log.debug( "{} Authenticated", principalDn );
+                    LOG.debug( "{} Authenticated", principalDn );
                 }
 
                 return principal;
@@ -359,7 +355,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 // Bad password ...
                 String message = "Password not correct for user '" + principalDn.getUpName() + "'";
-                log.info( message );
+                LOG.info( message );
                 throw new LdapAuthenticationException(message);
             }
         }
@@ -367,7 +363,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             // Bad password ...
             String message = "Password not correct for user '" + principalDn.getUpName() + "'";
-            log.info( message );
+            LOG.info( message );
             throw new LdapAuthenticationException(message);
         }
     }
@@ -387,6 +383,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * 
      * @param encryptionMethod The structure to feed
      * @return The password
+     * @param credentials the credentials to split
      */
     private byte[] splitCredentials( byte[] credentials, EncryptionMethod encryptionMethod )
     {
@@ -454,6 +451,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Get the algorithm from the stored password. 
      * It can be found on the beginning of the stored password, between 
      * curly brackets.
+     * @param credentials the credentials of the user
+     * @return the name of the algorithm to use
+     * TODO use an enum for the algorithm
      */
     private String findAlgorithm( byte[] credentials )
     {
@@ -517,6 +517,11 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     /**
      * Compute the hashed password given an algorithm, the credentials and 
      * an optional salt.
+     *
+     * @param algorithm the algorithm to use
+     * @param password the credentials
+     * @param salt the optional salt
+     * @return the digested credentials
      */
     private static byte[] digest( String algorithm, byte[] password, byte[] salt )
     {
@@ -584,6 +589,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     /**
      * Local function which request the password from the backend
+     * @param principalDn the principal to lookup
+     * @return the credentials from the backend
+     * @throws NamingException if there are problems accessing backend
      */
     private byte[] lookupUserPassword( LdapDN principalDn ) throws NamingException
     {
@@ -606,7 +614,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch ( Exception cause )
         {
-            log.error( "Authentication error : " + cause.getMessage() );
+            LOG.error( "Authentication error : " + cause.getMessage() );
             LdapAuthenticationException e = new LdapAuthenticationException();
             e.setRootCause( e );
             throw e;
@@ -642,6 +650,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * 
      * @param password a byte[]
      * @return included message digest alorithm, if any
+     * @throws IllegalArgumentException if the algorithm cannot be identified
      */
     protected String getAlgorithmForHashedPassword( byte[] password ) throws IllegalArgumentException
     {
@@ -651,8 +660,8 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         String sPassword = StringTools.utf8ToString( password );
         int rightParen = sPassword.indexOf( '}' );
 
-        if ( ( sPassword != null ) && 
-             ( sPassword.length() > 2 ) && 
+        if ( ( sPassword != null ) &&
+             ( sPassword.length() > 2 ) &&
              ( sPassword.charAt( 0 ) == '{' ) &&
              ( rightParen > -1 ) )
         {
@@ -670,7 +679,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             }
             catch ( NoSuchAlgorithmException e )
             {
-                log.warn( "Unknown message digest algorithm in password: " + algorithm, e );
+                LOG.warn( "Unknown message digest algorithm in password: " + algorithm, e );
             }
         }
 
@@ -707,7 +716,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
             {
                 String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( password ), "" );
                 String crypted = saltWithCrypted.substring( 2 );
-                return '{' + algorithm + '}' + StringTools.getBytesUtf8( crypted );
+                return '{' + algorithm + '}' + Arrays.toString( StringTools.getBytesUtf8( crypted ) );
             }
             else
             {
@@ -723,7 +732,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         catch ( NoSuchAlgorithmException nsae )
         {
-            log.error( "Cannot create a digested password for algorithm '{}'", algorithm );
+            LOG.error( "Cannot create a digested password for algorithm '{}'", algorithm );
             throw new IllegalArgumentException( nsae.getMessage() );
         }
     }
