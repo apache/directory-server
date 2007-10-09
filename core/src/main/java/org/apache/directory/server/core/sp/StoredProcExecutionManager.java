@@ -94,7 +94,7 @@ public class StoredProcExecutionManager
     public StoredProcEngine getStoredProcEngineInstance( Attributes spUnitEntry ) throws NamingException
     {
 
-        String spLangId = ( String ) spUnitEntry.get( "storedProcLangId" ).get();
+        String spLangId = ( String ) spUnitEntry.get( "STORED_PROC_LANG_ID" ).get();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )
         {

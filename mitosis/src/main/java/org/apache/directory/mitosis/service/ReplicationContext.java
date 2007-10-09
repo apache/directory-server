@@ -54,14 +54,14 @@ public interface ReplicationContext
     ReplicationConfiguration getConfiguration();
 
     /**
-     * Returns the {@link ReplicationService} which is managing this
+     * Returns the {@link ReplicationInterceptor} which is managing this
      * context.
      */
-    ReplicationService getService();
+    ReplicationInterceptor getService();
 
 
     /**
-     * Returns the {@link DirectoryService} which owns the {@link ReplicationService}
+     * Returns the {@link DirectoryService} which owns the {@link ReplicationInterceptor}
      * which is managing this context.
      */
     DirectoryService getDirectoryService();

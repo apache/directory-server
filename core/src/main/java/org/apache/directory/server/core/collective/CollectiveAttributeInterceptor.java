@@ -59,7 +59,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CollectiveAttributeService extends BaseInterceptor
+public class CollectiveAttributeInterceptor extends BaseInterceptor
 {
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES_OID = "2.5.18.0";
     public static final String EXCLUDE_ALL_COLLECTIVE_ATTRIBUTES = "excludeAllCollectiveAttributes";

@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Manages all outgoing connections to remote replicas.
  * It gets the list of the peer {@link Replica}s from
- * {@link ReplicationService} and keeps trying to connect to them.
+ * {@link ReplicationInterceptor} and keeps trying to connect to them.
  * <p>
  * When the connection attempt fails, the interval between each connection
  * attempt doubles up (0, 2, 4, 8, 16, ...) to 60 seconds at maximum.
@@ -70,7 +70,7 @@ class ClientConnectionManager
 {
     private static final Logger log = LoggerFactory.getLogger( ClientConnectionManager.class );
 
-    private final ReplicationService service;
+    private final ReplicationInterceptor interceptor;
     private final IoConnector connector = new SocketConnector();
     private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
     private final Map<ReplicaId,Connection> sessions = new HashMap<ReplicaId,Connection>();
@@ -78,9 +78,9 @@ class ClientConnectionManager
     private ConnectionMonitor monitor;
 
 
-    ClientConnectionManager( ReplicationService service )
+    ClientConnectionManager( ReplicationInterceptor interceptor )
     {
-        this.service = service;
+        this.interceptor = interceptor;
 
         ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "mitosis" );
         threadModel.setExecutor( new ThreadPoolExecutor( 16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>() ) );
@@ -362,7 +362,7 @@ class ClientConnectionManager
             {
                 connectorConfig.setConnectTimeout( configuration.getResponseTimeout() );
                 ConnectFuture future = connector.connect( replica.getAddress(), new ReplicationClientProtocolHandler(
-                    service ), connectorConfig );
+                        interceptor ), connectorConfig );
 
                 future.join();
                 session = future.getSession();

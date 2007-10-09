@@ -56,7 +56,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExceptionService extends BaseInterceptor
+public class ExceptionInterceptor extends BaseInterceptor
 {
     private PartitionNexus nexus;
     private LdapDN subschemSubentryDn;
@@ -93,7 +93,7 @@ public class ExceptionService extends BaseInterceptor
     /**
      * Creates an interceptor that is also the exception handling service.
      */
-    public ExceptionService()
+    public ExceptionInterceptor()
     {
     }
 

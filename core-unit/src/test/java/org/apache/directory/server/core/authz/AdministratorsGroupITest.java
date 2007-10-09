@@ -64,7 +64,7 @@ public class AdministratorsGroupITest extends AbstractAuthorizationITest
      * Checks to make sure a non-admin user which is not in the Administrators 
      * group cannot access entries under ou=groups,ou=system.  Also check that 
      * after adding that user to the group they see those groups.  This test 
-     * does NOT use the DefaultAuthorizationService but uses the one based on
+     * does NOT use the DefaultAuthorizationInterceptor but uses the one based on
      * ACI.
      */
     public void testNonAdminReadAccessToGroups() throws Exception

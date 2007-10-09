@@ -74,27 +74,27 @@
         </partitions>
 
         <interceptors>
-          <normalizationService/>
-          <authenticationService/>
-          <referralService/>
-          <authorizationService/>
-          <defaultAuthorizationService/>
-          <exceptionService/>
-          <operationalAttributeService/>
+          <normalizationInterceptor/>
+          <authenticationInterceptor/>
+          <referralInterceptor/>
+          <aciAuthorizationInterceptor/>
+          <defaultAuthorizationInterceptor/>
+          <exceptionInterceptor/>
+          <operationalAttributeInterceptor/>
 
-          <!-- Uncomment to enable the password policy service
-          <passwordPolicyService/>
-          <keyDerivationService/>
+          <!-- Uncomment to enable the password policy interceptor
+          <passwordPolicyInterceptor/>
+          <keyDerivationInterceptor/>
           -->
 
-          <schemaService/>
-          <subentryService/>
-          <collectiveAttributeService/>
-          <eventService/>
-          <triggerService/>
+          <schemaInterceptor/>
+          <subentryInterceptor/>
+          <collectiveAttributeInterceptor/>
+          <eventInterceptor/>
+          <triggerInterceptor/>
 
-          <!-- Uncomment to enable replication service
-          <replicationService >
+          <!-- Uncomment to enable replication interceptor
+          <replicationInterceptor>
             <configuration>
               <replicationConfiguration serverPort="10390" peerReplicas="instance_b@localhost:10392">
                 <replicaId>
@@ -102,7 +102,7 @@
                 </replicaId>
               </replicationConfiguration>
             </configuration>
-          </replicationService>
+          </replicationInterceptor>
           -->
         </interceptors>
       </defaultDirectoryService>

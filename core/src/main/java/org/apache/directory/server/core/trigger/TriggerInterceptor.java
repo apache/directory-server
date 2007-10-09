@@ -34,7 +34,7 @@ import org.apache.directory.server.core.sp.StoredProcEngine;
 import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
-import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -65,10 +65,10 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class TriggerService extends BaseInterceptor
+public class TriggerInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( TriggerService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( TriggerInterceptor.class );
     /** the entry trigger attribute string: entryTrigger */
     private static final String ENTRY_TRIGGER_ATTR = "entryTriggerSpecification";
 
@@ -426,7 +426,7 @@ public class TriggerService extends BaseInterceptor
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
-        // This will certainly be fixed by the SubentryService,
+        // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
@@ -434,8 +434,8 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
-        Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         while ( attrList.hasMore() )
         {
@@ -500,7 +500,7 @@ public class TriggerService extends BaseInterceptor
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
-        // This will certainly be fixed by the SubentryService,
+        // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
         // As the target entry does not exist yet and so
@@ -508,8 +508,8 @@ public class TriggerService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
-        Attributes fakeImportedEntry = subentryService.getSubentryAttributes( newDN, importedEntry );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        Attributes fakeImportedEntry = subentryInterceptor.getSubentryAttributes( newDN, importedEntry );
         NamingEnumeration attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )

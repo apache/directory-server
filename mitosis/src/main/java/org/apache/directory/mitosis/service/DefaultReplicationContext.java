@@ -42,7 +42,7 @@ public class DefaultReplicationContext implements ReplicationContext
 {
     private static final Timer EXPIRATION_TIMER = new Timer( "ReplicationMessageExpirer" );
 
-    private final ReplicationService service;
+    private final ReplicationInterceptor interceptor;
     private final ReplicationConfiguration configuration;
     private final DirectoryService directoryService;
     private final IoSession session;
@@ -52,19 +52,19 @@ public class DefaultReplicationContext implements ReplicationContext
     private State state = State.INIT;
 
 
-    public DefaultReplicationContext( ReplicationService service, DirectoryService directoryService,
+    public DefaultReplicationContext( ReplicationInterceptor interceptor, DirectoryService directoryService,
         ReplicationConfiguration configuration, IoSession session )
     {
-        this.service = service;
+        this.interceptor = interceptor;
         this.configuration = configuration;
         this.directoryService = directoryService;
         this.session = session;
     }
 
 
-    public ReplicationService getService()
+    public ReplicationInterceptor getService()
     {
-        return service;
+        return interceptor;
     }
 
 

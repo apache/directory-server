@@ -37,7 +37,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -513,9 +513,9 @@ public class SearchITest extends AbstractServerTest
         // modify ou=system to be an AP for an A/C AA if it is not already
         Attributes ap = adminCtx.getAttributes( "", new String[] { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
-        if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new AttributesImpl( "administrativeRole", SubentryInterceptor.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 

@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcases for the SubentryService. Investigation on handling Subtree Refinement
+ * Testcases for the SubentryInterceptor. Investigation on handling Subtree Refinement
  * Selection Membership upon objectClass attribute value changes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

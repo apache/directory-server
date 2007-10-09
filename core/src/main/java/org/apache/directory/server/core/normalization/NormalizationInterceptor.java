@@ -53,10 +53,10 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class NormalizationService extends BaseInterceptor
+public class NormalizationInterceptor extends BaseInterceptor
 {
     /** logger used by this class */
-    private static final Logger LOG = LoggerFactory.getLogger( NormalizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( NormalizationInterceptor.class );
 
     /** a filter node value normalizer and undefined node remover */
     private NormalizingVisitor normVisitor;

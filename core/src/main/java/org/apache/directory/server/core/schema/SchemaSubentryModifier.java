@@ -28,15 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -72,18 +72,18 @@ public class SchemaSubentryModifier
     static
     {
         Set<String> c = new HashSet<String>();
-//        c.add( NormalizationService.class.getName() );
-        c.add( AuthenticationService.class.getName() );
-        c.add( ReferralService.class.getName() );
-        c.add( AuthorizationService.class.getName() );
-        c.add( DefaultAuthorizationService.class.getName() );
-        c.add( ExceptionService.class.getName() );
-//        c.add( OperationalAttributeService.class.getName() );
-        c.add( SchemaService.class.getName() );
-//        c.add( SubentryService.class.getName() );
-//        c.add( CollectiveAttributeService.class.getName() );
-//        c.add( EventService.class.getName() );
-//        c.add( TriggerService.class.getName() );
+//        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( ExceptionInterceptor.class.getName() );
+//        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+//        c.add( SubentryInterceptor.class.getName() );
+//        c.add( CollectiveAttributeInterceptor.class.getName() );
+//        c.add( EventInterceptor.class.getName() );
+//        c.add( TriggerInterceptor.class.getName() );
         BYPASS = Collections.unmodifiableCollection( c );
     }
     

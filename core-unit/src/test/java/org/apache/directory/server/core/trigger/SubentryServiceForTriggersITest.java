@@ -41,7 +41,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcases for the SubentryService for Triggers.
+ * Testcases for the SubentryInterceptor for Triggers.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$

@@ -70,10 +70,10 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class SchemaService extends BaseInterceptor
+public class SchemaInterceptor extends BaseInterceptor
 {
     /** The LoggerFactory used by this Interceptor */
-    private static Logger log = LoggerFactory.getLogger( SchemaService.class );
+    private static Logger log = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
@@ -139,7 +139,7 @@ public class SchemaService extends BaseInterceptor
     {
         if ( IS_DEBUG )
         {
-            log.debug( "Initializing SchemaService..." );
+            log.debug( "Initializing SchemaInterceptor..." );
         }
 
         nexus = directoryService.getPartitionNexus();
@@ -175,7 +175,7 @@ public class SchemaService extends BaseInterceptor
 
         if ( IS_DEBUG )
         {
-            log.debug( "SchemaService Initialized !" );
+            log.debug( "SchemaInterceptor Initialized !" );
         }
     }
 

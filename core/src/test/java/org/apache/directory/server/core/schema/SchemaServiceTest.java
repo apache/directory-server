@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 
 
 /**
- * Tests methods in SchemaService.
+ * Tests methods in SchemaInterceptor.
  */
 public class SchemaServiceTest extends TestCase
 {
@@ -86,7 +86,7 @@ public class SchemaServiceTest extends TestCase
 
         try
         {
-            SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+            SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
             fail( "should not get here" );
         }
         catch ( LdapNamingException e )
@@ -95,7 +95,7 @@ public class SchemaServiceTest extends TestCase
         }
 
         attr = new AttributeImpl( "objectClass" );
-        SchemaService.alterObjectClasses( attr );
+        SchemaInterceptor.alterObjectClasses( attr );
         assertEquals( 0, attr.size() );
     }
 
@@ -103,7 +103,7 @@ public class SchemaServiceTest extends TestCase
     public void testAlterObjectClassesNoAttrValue() throws NamingException
     {
         Attribute attr = new AttributeImpl( "objectClass" );
-        SchemaService.alterObjectClasses( attr );
+        SchemaInterceptor.alterObjectClasses( attr );
         assertEquals( 0, attr.size() );
     }
 
@@ -111,7 +111,7 @@ public class SchemaServiceTest extends TestCase
     public void testAlterObjectClassesTopAttrValue() throws NamingException
     {
         Attribute attr = new AttributeImpl( "objectClass", "top" );
-        SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 0, attr.size() );
     }
 
@@ -119,7 +119,7 @@ public class SchemaServiceTest extends TestCase
     public void testAlterObjectClassesInetOrgPersonAttrValue() throws NamingException
     {
         Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
-        SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 2, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -130,7 +130,7 @@ public class SchemaServiceTest extends TestCase
     {
         Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
         attr.add( "residentialPerson" );
-        SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 3, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );
@@ -143,7 +143,7 @@ public class SchemaServiceTest extends TestCase
         Attribute attr = new AttributeImpl( "objectClass", "organizationalPerson" );
         attr.add( "residentialPerson" );
         attr.add( "dSA" );
-        SchemaService.alterObjectClasses( attr, registries.getObjectClassRegistry() );
+        SchemaInterceptor.alterObjectClasses( attr, registries.getObjectClassRegistry() );
         assertEquals( 5, attr.size() );
         assertTrue( attr.contains( "person" ) );
         assertTrue( attr.contains( "organizationalPerson" ) );

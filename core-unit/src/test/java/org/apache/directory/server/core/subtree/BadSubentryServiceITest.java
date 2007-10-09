@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcases for the SubentryService. Investigation on some serious problems.
+ * Testcases for the SubentryInterceptor. Investigation on some serious problems.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

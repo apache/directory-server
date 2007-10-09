@@ -26,6 +26,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -33,7 +34,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
  * Tests to see that the binary property filtering in the schema service's
- * filter class {@link org.apache.directory.server.core.schema.SchemaService} is working
+ * filter class {@link SchemaInterceptor} is working
  * properly.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

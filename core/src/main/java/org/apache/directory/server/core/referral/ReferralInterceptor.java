@@ -21,27 +21,27 @@ package org.apache.directory.server.core.referral;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.AuthenticationService;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.enumeration.ReferralHandlingEnumeration;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
-import org.apache.directory.server.core.event.EventService;
+import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.operational.OperationalAttributeService;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.trigger.TriggerService;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.NotImplementedException;
@@ -78,9 +78,9 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReferralService extends BaseInterceptor
+public class ReferralInterceptor extends BaseInterceptor
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ReferralService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReferralInterceptor.class );
     private static final String IGNORE = "ignore";
     private static final String THROW_FINDING_BASE = "throw-finding-base";
     private static final String THROW = "throw";
@@ -101,18 +101,18 @@ public class ReferralService extends BaseInterceptor
          * partitions of the system during startup and during add/remove partition ops
          */
         Collection<String> c = new HashSet<String>();
-        c.add( NormalizationService.class.getName() );
-        c.add( AuthenticationService.class.getName() );
-        c.add( ReferralService.class.getName() );
-        c.add( AuthorizationService.class.getName() );
-        c.add( DefaultAuthorizationService.class.getName() );
-//        c.add( ExceptionService.class.getName() );
-        c.add( OperationalAttributeService.class.getName() );
-        c.add( SchemaService.class.getName() );
-        c.add( SubentryService.class.getName() );
-//        c.add( CollectiveAttributeService.class.getName() );
-        c.add( EventService.class.getName() );
-        c.add( TriggerService.class.getName() );
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+//        c.add( ExceptionInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+//        c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+        c.add( TriggerInterceptor.class.getName() );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -162,7 +162,7 @@ public class ReferralService extends BaseInterceptor
             	
             	if ( ref == null )
             	{
-            		// very unlikely, as we have already checked the entry in SchemaService
+            		// very unlikely, as we have already checked the entry in SchemaInterceptor
             		String message = "An entry with a 'referral' ObjectClass must contains a 'ref' Attribute";
             		LOG.error( message );
             		throw new NamingException( message );

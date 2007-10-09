@@ -35,7 +35,7 @@ import java.util.Map;
  * A <a href="http://www.opensymphony.com/quartz/">OpenSymphony Quartz</a>
  * {@link Job} that purges old replication logs and the old entries marked as
  * 'deleted' (i.e. {@link Constants#ENTRY_DELETED} is <tt>TRUE</tt>).  This
- * {@link Job} just calls {@link ReplicationService#purgeAgedData()} to
+ * {@link Job} just calls {@link ReplicationInterceptor#purgeAgedData()} to
  * purge old data. 
  * 
  * @author The Apache Directory Project Team
@@ -77,11 +77,11 @@ public class ReplicationLogCleanJob implements Job
     {
         for ( Interceptor interceptor : service.getInterceptorChain().getAll() )
         {
-            if ( interceptor instanceof ReplicationService )
+            if ( interceptor instanceof ReplicationInterceptor )
             {
                 try
                 {
-                    ( ( ReplicationService ) interceptor ).purgeAgedData();
+                    ( ( ReplicationInterceptor ) interceptor ).purgeAgedData();
                 }
                 catch ( NamingException e )
                 {

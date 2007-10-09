@@ -68,10 +68,10 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultAuthorizationService extends BaseInterceptor
+public class DefaultAuthorizationInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( DefaultAuthorizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultAuthorizationInterceptor.class );
 
     /**
      * the base distinguished {@link Name} for all users
@@ -107,7 +107,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
     /**
      * Creates a new instance.
      */
-    public DefaultAuthorizationService()
+    public DefaultAuthorizationInterceptor()
     {
     }
 
@@ -508,7 +508,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
             {
-                return DefaultAuthorizationService.this.isSearchable( invocation, result );
+                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
             }
         }, "Search Default Authorization filter" );
     }
@@ -530,7 +530,7 @@ public class DefaultAuthorizationService extends BaseInterceptor
             public boolean accept( Invocation invocation, SearchResult result, SearchControls controls )
                 throws NamingException
             {
-                return DefaultAuthorizationService.this.isSearchable( invocation, result );
+                return DefaultAuthorizationInterceptor.this.isSearchable( invocation, result );
             }
         }, "List Default Authorization filter" );
     }

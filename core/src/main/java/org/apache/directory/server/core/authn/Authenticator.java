@@ -33,9 +33,9 @@ import javax.naming.NamingException;
  * Authenticates users who access {@link PartitionNexus}.
  * <p>
  * {@link Authenticator}s are registered to and configured by
- * {@link AuthenticationService} interceptor.
+ * {@link AuthenticationInterceptor} interceptor.
  * <p>
- * {@link AuthenticationService} authenticates users by calling
+ * {@link AuthenticationInterceptor} authenticates users by calling
  * {@link #authenticate(LdapDN,ServerContext)}, and then {@link Authenticator}
  * checks JNDI {@link Context} environment properties
  * ({@link Context#SECURITY_PRINCIPAL} and {@link Context#SECURITY_CREDENTIALS})
@@ -55,14 +55,14 @@ public interface Authenticator
 
 
     /**
-     * Called by {@link AuthenticationService} to indicate that this
+     * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being placed into service.
      */
     public void init( DirectoryService directoryService ) throws NamingException;
 
 
     /**
-     * Called by {@link AuthenticationService} to indicate that this
+     * Called by {@link AuthenticationInterceptor} to indicate that this
      * authenticator is being removed from service.
      */
     public void destroy();

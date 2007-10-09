@@ -40,7 +40,6 @@ import javax.naming.Referenceable;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.event.EventContext;
@@ -50,7 +49,7 @@ import javax.naming.spi.DirStateFactory;
 import javax.naming.spi.DirectoryManager;
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.BindOperationContext;
@@ -459,10 +458,10 @@ public abstract class ServerContext implements EventContext
      * Sets the principal of the authenticated user which also happens to own.
      * This method can be invoked only once to keep this property safe.  This
      * method has been changed to be public but it can only be set by the
-     * AuthenticationService to prevent malicious code from changing the
+     * AuthenticationInterceptor to prevent malicious code from changing the
      * effective principal.
      */
-    public void setPrincipal( AuthenticationService.TrustedPrincipalWrapper wrapper )
+    public void setPrincipal( AuthenticationInterceptor.TrustedPrincipalWrapper wrapper )
     {
         this.principal = wrapper.getPrincipal();
     }

@@ -22,7 +22,7 @@ package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.unit.AbstractTestCase;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -296,9 +296,9 @@ public abstract class AbstractAuthorizationITest extends AbstractTestCase
         Attributes ap = adminCtx.getAttributes( "", new String[]
             { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
-        if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new AttributesImpl( "administrativeRole", SubentryInterceptor.AC_AREA, true );
             adminCtx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 

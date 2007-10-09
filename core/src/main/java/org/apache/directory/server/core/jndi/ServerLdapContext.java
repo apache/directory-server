@@ -33,7 +33,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -47,7 +47,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ServerLdapContext extends ServerDirContext implements LdapContext
 {
     /** A reference to the RTeferralService interceptor */
-    private transient ReferralService refService; 
+    private transient ReferralInterceptor refService;
     
 
     /**
@@ -60,7 +60,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, Hashtable<String, Object> env ) throws NamingException
     {
         super( service, env );
-        refService = ( ( ReferralService ) service.getInterceptorChain().get( ReferralService.class.getName() ) );
+        refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
     }
 
 
@@ -76,7 +76,7 @@ public class ServerLdapContext extends ServerDirContext implements LdapContext
     public ServerLdapContext( DirectoryService service, LdapPrincipal principal, LdapDN dn ) throws NamingException
     {
         super( service, principal, dn );
-        refService = ( ( ReferralService ) service.getInterceptorChain().get( ReferralService.class.getName() ) );
+        refService = ( ( ReferralInterceptor ) service.getInterceptorChain().get( ReferralInterceptor.class.getName() ) );
     }
 
 

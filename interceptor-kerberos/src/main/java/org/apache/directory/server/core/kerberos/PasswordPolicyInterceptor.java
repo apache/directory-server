@@ -53,10 +53,10 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class PasswordPolicyService extends BaseInterceptor
+public class PasswordPolicyInterceptor extends BaseInterceptor
 {
     /** The log for this class. */
-    private static final Logger log = LoggerFactory.getLogger( PasswordPolicyService.class );
+    private static final Logger log = LoggerFactory.getLogger( PasswordPolicyInterceptor.class );
 
     /** The service name. */
     public static final String NAME = "passwordPolicyService";

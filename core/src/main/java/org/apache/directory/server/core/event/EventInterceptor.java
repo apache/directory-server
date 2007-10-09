@@ -58,9 +58,9 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EventService extends BaseInterceptor
+public class EventInterceptor extends BaseInterceptor
 {
-    private static Logger log = LoggerFactory.getLogger( EventService.class );
+    private static Logger log = LoggerFactory.getLogger( EventInterceptor.class );
     
     private PartitionNexus nexus;
     private Map<NamingListener, Object> sources = new HashMap<NamingListener, Object>();

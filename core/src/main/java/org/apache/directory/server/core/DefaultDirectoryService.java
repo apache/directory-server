@@ -20,20 +20,20 @@
 package org.apache.directory.server.core;
 
 
-import org.apache.directory.server.core.authn.AuthenticationService;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.authz.AuthorizationService;
-import org.apache.directory.server.core.authz.DefaultAuthorizationService;
-import org.apache.directory.server.core.collective.CollectiveAttributeService;
-import org.apache.directory.server.core.event.EventService;
-import org.apache.directory.server.core.exception.ExceptionService;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.normalization.NormalizationService;
-import org.apache.directory.server.core.operational.OperationalAttributeService;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.DefaultPartitionNexus;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
@@ -41,13 +41,13 @@ import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.referral.ReferralService;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.core.schema.PartitionSchemaLoader;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.schema.SchemaPartitionDao;
-import org.apache.directory.server.core.schema.SchemaService;
-import org.apache.directory.server.core.subtree.SubentryService;
-import org.apache.directory.server.core.trigger.TriggerService;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
@@ -459,18 +459,18 @@ public class DefaultDirectoryService extends DirectoryService
         // Set default interceptor chains
         List<Interceptor> list = new ArrayList<Interceptor>();
 
-        list.add( new NormalizationService() );
-        list.add( new AuthenticationService() );
-        list.add( new ReferralService() );
-        list.add( new AuthorizationService() );
-        list.add( new DefaultAuthorizationService() );
-        list.add( new ExceptionService() );
-        list.add( new OperationalAttributeService() );
-        list.add( new SchemaService() );
-        list.add( new SubentryService() );
-        list.add( new CollectiveAttributeService() );
-        list.add( new EventService() );
-        list.add( new TriggerService() );
+        list.add( new NormalizationInterceptor() );
+        list.add( new AuthenticationInterceptor() );
+        list.add( new ReferralInterceptor() );
+        list.add( new AciAuthorizationInterceptor() );
+        list.add( new DefaultAuthorizationInterceptor() );
+        list.add( new ExceptionInterceptor() );
+        list.add( new OperationalAttributeInterceptor() );
+        list.add( new SchemaInterceptor() );
+        list.add( new SubentryInterceptor() );
+        list.add( new CollectiveAttributeInterceptor() );
+        list.add( new EventInterceptor() );
+        list.add( new TriggerInterceptor() );
 
         setInterceptors( list );
     }
@@ -843,7 +843,7 @@ public class DefaultDirectoryService extends DirectoryService
 
             partitionNexus.add( new AddOperationContext( name, attributes ) );
             
-            Interceptor authzInterceptor = interceptorChain.get( AuthorizationService.class.getName() );
+            Interceptor authzInterceptor = interceptorChain.get( AciAuthorizationInterceptor.class.getName() );
             
             if ( authzInterceptor == null )
             {
@@ -851,7 +851,7 @@ public class DefaultDirectoryService extends DirectoryService
                 throw new NamingException( "The Authorization service is null" );
             }
             
-            if ( !( authzInterceptor instanceof AuthorizationService) )
+            if ( !( authzInterceptor instanceof AciAuthorizationInterceptor ) )
             {
                 LOG.error( "The Authorization service is not set correctly : '{}' is an incorect interceptor",
                     authzInterceptor.getClass().getName() );
@@ -859,7 +859,7 @@ public class DefaultDirectoryService extends DirectoryService
                 
             }
 
-            AuthorizationService authzSrvc = ( AuthorizationService ) authzInterceptor;
+            AciAuthorizationInterceptor authzSrvc = ( AciAuthorizationInterceptor ) authzInterceptor;
             authzSrvc.cacheNewGroup( name, attributes );
 
         }

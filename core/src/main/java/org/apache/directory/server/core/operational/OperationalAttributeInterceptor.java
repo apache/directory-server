@@ -60,7 +60,7 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class OperationalAttributeService extends BaseInterceptor
+public class OperationalAttributeInterceptor extends BaseInterceptor
 {
     private final SearchResultFilter DENORMALIZING_SEARCH_FILTER = new SearchResultFilter()
     {
@@ -99,7 +99,7 @@ public class OperationalAttributeService extends BaseInterceptor
     /**
      * Creates the operational attribute management service interceptor.
      */
-    public OperationalAttributeService()
+    public OperationalAttributeInterceptor()
     {
     }
 

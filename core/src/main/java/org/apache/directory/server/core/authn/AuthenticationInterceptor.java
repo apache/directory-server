@@ -51,9 +51,9 @@ import java.util.*;
  * @version $Rev$, $Date$
  * @org.apache.xbean.XBean
  */
-public class AuthenticationService extends BaseInterceptor
+public class AuthenticationInterceptor extends BaseInterceptor
 {
-    private static final Logger LOG = LoggerFactory.getLogger( AuthenticationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AuthenticationInterceptor.class );
 
     /**
      * Speedup for logs
@@ -66,7 +66,7 @@ public class AuthenticationService extends BaseInterceptor
     /**
      * Creates an authentication service interceptor.
      */
-    public AuthenticationService()
+    public AuthenticationInterceptor()
     {
     }
 
@@ -104,7 +104,7 @@ public class AuthenticationService extends BaseInterceptor
     }
 
     /**
-     * @param authenticators authenticators to be used by this AuthenticationService
+     * @param authenticators authenticators to be used by this AuthenticationInterceptor
      * @org.apache.xbean.Property nestedType="org.apache.directory.server.core.authn.Authenticator"
      */
     public void setAuthenticators( Set<Authenticator> authenticators )

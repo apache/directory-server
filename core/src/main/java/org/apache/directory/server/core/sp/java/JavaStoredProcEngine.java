@@ -46,7 +46,7 @@ import org.apache.directory.shared.ldap.util.DirectoryClassUtils;
 public class JavaStoredProcEngine implements StoredProcEngine
 {
 
-    public static final String storedProcLangId = "Java";
+    public static final String STORED_PROC_LANG_ID = "Java";
 
     private Attributes spUnit;
 
@@ -116,7 +116,7 @@ public class JavaStoredProcEngine implements StoredProcEngine
      */
     public String getSPLangId()
     {
-        return storedProcLangId;
+        return STORED_PROC_LANG_ID;
     }
 
 

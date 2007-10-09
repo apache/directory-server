@@ -21,7 +21,7 @@ package org.apache.directory.server;
 
 
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.kerberos.KeyDerivationService;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -49,7 +49,7 @@ import java.util.*;
 
 
 /**
- * An {@link AbstractServerTest} testing the (@link {@link KeyDerivationService}'s
+ * An {@link AbstractServerTest} testing the (@link {@link KeyDerivationInterceptor}'s
  * ability to derive Kerberos symmetric keys based on userPassword and principal
  * name and to generate random keys when the special keyword "randomKey" is used.
  * 
@@ -102,7 +102,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
         List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
 
-        list.add( new KeyDerivationService() );
+        list.add( new KeyDerivationInterceptor() );
         apacheDS.getDirectoryService().setInterceptors( list );
 
         doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );

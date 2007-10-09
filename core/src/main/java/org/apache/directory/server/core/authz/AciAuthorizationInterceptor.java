@@ -34,7 +34,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
@@ -70,10 +70,10 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AuthorizationService extends BaseInterceptor
+public class AciAuthorizationInterceptor extends BaseInterceptor
 {
     /** the logger for this class */
-    private static final Logger LOG = LoggerFactory.getLogger( AuthorizationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AciAuthorizationInterceptor.class );
 
     /**
      * the multivalued op attr used to track the perscriptive access control
@@ -405,8 +405,8 @@ public class AuthorizationService extends BaseInterceptor
         }
 
         // perform checks below here for all non-admin users
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
-        Attributes subentryAttrs = subentryService.getSubentryAttributes( name, entry );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        Attributes subentryAttrs = subentryInterceptor.getSubentryAttributes( name, entry );
         NamingEnumeration<? extends Attribute> attrList = entry.getAll();
         
         while ( attrList.hasMore() )
@@ -807,7 +807,7 @@ public class AuthorizationService extends BaseInterceptor
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
-        // This will certainly be fixed by the SubentryService,
+        // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), 
             PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
@@ -817,8 +817,8 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
-        Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        Attributes subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )
@@ -883,7 +883,7 @@ public class AuthorizationService extends BaseInterceptor
         // Get the entry again without operational attributes
         // because access control subentry operational attributes
         // will not be valid at the new location.
-        // This will certainly be fixed by the SubentryService,
+        // This will certainly be fixed by the SubentryInterceptor,
         // but after this service.
         Attributes importedEntry = proxy.lookup( new LookupOperationContext( oriChildName ), 
             PartitionNexusProxy.LOOKUP_EXCLUDING_OPR_ATTRS_BYPASS );
@@ -892,8 +892,8 @@ public class AuthorizationService extends BaseInterceptor
         // we need to construct an entry to represent it
         // at least with minimal requirements which are object class
         // and access control subentry operational attributes.
-        SubentryService subentryService = ( SubentryService ) chain.get( SubentryService.class.getName() );
-        Attributes subentryAttrs = subentryService.getSubentryAttributes( newName, importedEntry );
+        SubentryInterceptor subentryInterceptor = ( SubentryInterceptor ) chain.get( SubentryInterceptor.class.getName() );
+        Attributes subentryAttrs = subentryInterceptor.getSubentryAttributes( newName, importedEntry );
         NamingEnumeration<? extends Attribute> attrList = importedEntry.getAll();
         
         while ( attrList.hasMore() )

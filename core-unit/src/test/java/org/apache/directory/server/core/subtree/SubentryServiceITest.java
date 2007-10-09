@@ -41,7 +41,7 @@ import java.util.HashMap;
 
 
 /**
- * Testcases for the SubentryService.
+ * Testcases for the SubentryInterceptor.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$

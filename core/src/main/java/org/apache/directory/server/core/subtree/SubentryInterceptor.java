@@ -26,7 +26,6 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
-import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -73,7 +72,7 @@ import java.util.Map;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubentryService extends BaseInterceptor
+public class SubentryInterceptor extends BaseInterceptor
 {
     /** the subentry control OID */
     private static final String SUBENTRY_CONTROL = SubentriesControl.CONTROL_OID;
@@ -98,7 +97,7 @@ public class SubentryService extends BaseInterceptor
     	SchemaConstants.TRIGGER_EXECUTION_SUBENTRIES_AT 
     	};
 
-    private static final Logger LOG = LoggerFactory.getLogger( SubentryService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SubentryInterceptor.class );
 
     /** the hash mapping the DN of a subentry to its SubtreeSpecification/types */
     private final SubentryCache subentryCache = new SubentryCache();

@@ -52,7 +52,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
     private static final Logger LOG = LoggerFactory.getLogger( AbstractReplicationServiceTestCase.class );
     protected Map<String, LdapContext> contexts = new HashMap<String, LdapContext>();
     protected Map<String, DirectoryService> services = new HashMap<String, DirectoryService>();
-    protected Map<String, ReplicationService> replicationServices = new HashMap<String, ReplicationService>();
+    protected Map<String, ReplicationInterceptor> replicationServices = new HashMap<String, ReplicationInterceptor>();
 
     protected void setUp() throws Exception
     {
@@ -112,9 +112,9 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
                 }
             }
 
-            ReplicationService replicationService = new ReplicationService();
-            replicationService.setConfiguration( replicationCfg );
-            interceptors.add( replicationService );
+            ReplicationInterceptor replicationInterceptor = new ReplicationInterceptor();
+            replicationInterceptor.setConfiguration( replicationCfg );
+            interceptors.add( replicationInterceptor );
 
             service.setInterceptors( interceptors );
 
@@ -138,13 +138,13 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             LdapContext context = new InitialLdapContext( env, null );
             contexts.put( replicaId, context );
             services.put( replicaId, service );
-            replicationServices.put( replicaId, replicationService );
+            replicationServices.put( replicaId, replicationInterceptor );
         }
 
         // Ensure all replicas have had a chance to connect to each other since the last one started.
-        for ( ReplicationService replicationService : replicationServices.values() )
+        for ( ReplicationInterceptor replicationInterceptor : replicationServices.values() )
         {
-            replicationService.interruptConnectors();
+            replicationInterceptor.interruptConnectors();
         }
         Thread.sleep( 5000 );
     }

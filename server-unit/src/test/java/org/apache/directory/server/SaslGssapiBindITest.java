@@ -22,7 +22,7 @@ package org.apache.directory.server;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.kerberos.KeyDerivationService;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -120,7 +120,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         apacheDS.getDirectoryService().setPartitions( partitions );
 
         List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
-        list.add( new KeyDerivationService() );
+        list.add( new KeyDerivationInterceptor() );
         apacheDS.getDirectoryService().setInterceptors( list );
 
         doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );

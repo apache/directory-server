@@ -20,7 +20,7 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import org.apache.directory.mitosis.service.ReplicationService;
+import org.apache.directory.mitosis.service.ReplicationInterceptor;
 
 /**
  * A {@link ReplicationProtocolHandler} for client-side, which uses
@@ -33,8 +33,8 @@ import org.apache.directory.mitosis.service.ReplicationService;
  */
 public class ReplicationClientProtocolHandler extends ReplicationProtocolHandler
 {
-    public ReplicationClientProtocolHandler( ReplicationService service )
+    public ReplicationClientProtocolHandler( ReplicationInterceptor interceptor )
     {
-        super( service, new ReplicationClientContextHandler() );
+        super( interceptor, new ReplicationClientContextHandler() );
     }
 }

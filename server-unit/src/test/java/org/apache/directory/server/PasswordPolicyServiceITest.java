@@ -21,7 +21,7 @@ package org.apache.directory.server;
 
 
 import org.apache.directory.server.core.interceptor.Interceptor;
-import org.apache.directory.server.core.kerberos.PasswordPolicyService;
+import org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -42,7 +42,7 @@ import java.util.Set;
 
 
 /**
- * An {@link AbstractServerTest} testing the (@link {@link PasswordPolicyService}.
+ * An {@link AbstractServerTest} testing the (@link {@link PasswordPolicyInterceptor}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -54,7 +54,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
 
     /**
-     * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyService}
+     * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyInterceptor}
      * interceptor, and create a users subcontext.
      */
     public void setUp() throws Exception
@@ -90,7 +90,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
         List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
 
-        list.add( new PasswordPolicyService() );
+        list.add( new PasswordPolicyInterceptor() );
         apacheDS.getDirectoryService().setInterceptors( list );
 
         super.setUp();

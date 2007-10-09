@@ -35,7 +35,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.subtree.SubentryService;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.unit.AbstractServerFastTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -530,9 +530,9 @@ public class FastSearchTest extends AbstractServerFastTest
         Attributes ap = ctx.getAttributes( "", new String[] { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
         
-        if ( administrativeRole == null || !administrativeRole.contains( SubentryService.AC_AREA ) )
+        if ( administrativeRole == null || !administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
-            Attributes changes = new AttributesImpl( "administrativeRole", SubentryService.AC_AREA, true );
+            Attributes changes = new AttributesImpl( "administrativeRole", SubentryInterceptor.AC_AREA, true );
             ctx.modifyAttributes( "", DirContext.ADD_ATTRIBUTE, changes );
         }
 
@@ -563,7 +563,7 @@ public class FastSearchTest extends AbstractServerFastTest
         Attributes ap = ctx.getAttributes( "", new String[] { "administrativeRole" } );
         Attribute administrativeRole = ap.get( "administrativeRole" );
         
-        if ( administrativeRole != null && administrativeRole.contains( SubentryService.AC_AREA ) )
+        if ( administrativeRole != null && administrativeRole.contains( SubentryInterceptor.AC_AREA ) )
         {
             Attribute administrativeRoleAttr = new AttributeImpl( "administrativeRole" );
 

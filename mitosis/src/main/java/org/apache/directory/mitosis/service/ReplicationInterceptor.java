@@ -87,7 +87,7 @@ import java.util.List;
  * {@link Operation} to {@link ReplicationStore}) are performed automatically
  * when
  * {@link Operation#execute(PartitionNexus, ReplicationStore, AttributeTypeRegistry)}
- * method is invoked.  {@link ReplicationService} always call it instead of
+ * method is invoked.  {@link ReplicationInterceptor} always call it instead of
  * forwarding the requested operation to the next {@link Interceptor}.
  * <p>
  * The last action takes place by {@link ReplicationClientContextHandler},
@@ -120,9 +120,9 @@ import java.util.List;
  * @author The Apache Directory Project (dev@directory.apache.org)
  * @version $Rev$, $Date$
  */
-public class ReplicationService extends BaseInterceptor
+public class ReplicationInterceptor extends BaseInterceptor
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ReplicationService.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ReplicationInterceptor.class );
 
     /** The service name */
     public static final String NAME = "replicationService";
@@ -146,7 +146,7 @@ public class ReplicationService extends BaseInterceptor
     private AttributeTypeRegistry attrRegistry;
 
 
-    public ReplicationService()
+    public ReplicationInterceptor()
     {
     }
 

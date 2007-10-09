@@ -72,7 +72,7 @@
       <version>${pom.version}</version>
       <classifier>sources</classifier>
     </dependency>
-      <!-- replication service xbean config metadata -->
+      <!-- replication interceptor xbean config metadata -->
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>mitosis</artifactId>

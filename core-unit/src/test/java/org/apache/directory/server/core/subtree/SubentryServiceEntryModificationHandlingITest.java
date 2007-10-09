@@ -40,7 +40,7 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 
 
 /**
- * Testcases for the SubentryService. Investigation on handling Subtree Refinement
+ * Testcases for the SubentryInterceptor. Investigation on handling Subtree Refinement
  * Selection Membership upon entry modifications. As we allow any LDAP filter to be
  * specified as specificationFilter in subtreeSpecifications, any modification on
  * entries can cause changes on subentry operational attributes.
