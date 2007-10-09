@@ -31,6 +31,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractAdsSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
@@ -53,25 +54,26 @@ public class SchemaUtils
      * @return the resultant entry after the modifications have taken place
      * @throws NamingException if there are problems accessing attributes
      */
-    public static Attributes getTargetEntry( List<? extends ModificationItem> mods, Attributes entry ) throws NamingException
+    public static Attributes getTargetEntry( List<? extends ModificationItem> mods, Attributes entry )
+        throws NamingException
     {
         Attributes targetEntry = ( Attributes ) entry.clone();
-        
-        for ( ModificationItem mod:mods )
+
+        for ( ModificationItem mod : mods )
         {
             String id = mod.getAttribute().getID();
 
             switch ( mod.getModificationOp() )
             {
-                case( DirContext.REPLACE_ATTRIBUTE ):
+                case ( DirContext.REPLACE_ATTRIBUTE  ):
                     targetEntry.put( mod.getAttribute() );
                     break;
-                    
-                case( DirContext.ADD_ATTRIBUTE ):
+
+                case ( DirContext.ADD_ATTRIBUTE  ):
                     Attribute combined = new AttributeImpl( id );
                     Attribute toBeAdded = mod.getAttribute();
                     Attribute existing = entry.get( id );
-                    
+
                     if ( existing != null )
                     {
                         for ( int jj = 0; jj < existing.size(); jj++ )
@@ -79,26 +81,26 @@ public class SchemaUtils
                             combined.add( existing.get( jj ) );
                         }
                     }
-                    
+
                     for ( int jj = 0; jj < toBeAdded.size(); jj++ )
                     {
                         combined.add( toBeAdded.get( jj ) );
                     }
-                    
+
                     targetEntry.put( combined );
                     break;
-                    
-                case( DirContext.REMOVE_ATTRIBUTE ):
+
+                case ( DirContext.REMOVE_ATTRIBUTE  ):
                     Attribute toBeRemoved = mod.getAttribute();
-                    
+
                     if ( toBeRemoved.size() == 0 )
                     {
                         targetEntry.remove( id );
                     }
-                    else 
+                    else
                     {
                         existing = targetEntry.get( id );
-                        
+
                         if ( existing != null )
                         {
                             for ( int jj = 0; jj < toBeRemoved.size(); jj++ )
@@ -107,18 +109,18 @@ public class SchemaUtils
                             }
                         }
                     }
-                    
+
                     break;
-                    
+
                 default:
                     throw new IllegalStateException( "undefined modification type: " + mod.getModificationOp() );
             }
         }
-        
+
         return targetEntry;
     }
 
-    
+
     /**
      * Gets the target entry as it would look after a modification operation 
      * were performed on it.
@@ -135,26 +137,26 @@ public class SchemaUtils
         NamingEnumeration<String> list = mods.getIDs();
         switch ( modOp )
         {
-            case( DirContext.REPLACE_ATTRIBUTE ):
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
                 while ( list.hasMore() )
                 {
                     targetEntry.put( mods.get( list.next() ) );
                 }
                 break;
-            case( DirContext.REMOVE_ATTRIBUTE ):
+            case ( DirContext.REMOVE_ATTRIBUTE  ):
                 while ( list.hasMore() )
                 {
                     String id = list.next();
                     Attribute toBeRemoved = mods.get( id );
-                    
+
                     if ( toBeRemoved.size() == 0 )
                     {
                         targetEntry.remove( id );
                     }
-                    else 
+                    else
                     {
                         Attribute existing = targetEntry.get( id );
-                        
+
                         if ( existing != null )
                         {
                             for ( int ii = 0; ii < toBeRemoved.size(); ii++ )
@@ -165,25 +167,25 @@ public class SchemaUtils
                     }
                 }
                 break;
-            case( DirContext.ADD_ATTRIBUTE ):
+            case ( DirContext.ADD_ATTRIBUTE  ):
                 while ( list.hasMore() )
                 {
                     String id = list.next();
                     Attribute combined = new AttributeImpl( id );
                     Attribute toBeAdded = mods.get( id );
                     Attribute existing = entry.get( id );
-                    
+
                     if ( existing != null )
                     {
                         for ( int ii = 0; ii < existing.size(); ii++ )
                         {
-                            combined.add( existing.get(ii) );
+                            combined.add( existing.get( ii ) );
                         }
                     }
-                    
+
                     for ( int ii = 0; ii < toBeAdded.size(); ii++ )
                     {
-                        combined.add( toBeAdded.get(ii) );
+                        combined.add( toBeAdded.get( ii ) );
                     }
                     targetEntry.put( combined );
                 }
@@ -191,11 +193,77 @@ public class SchemaUtils
             default:
                 throw new IllegalStateException( "undefined modification type: " + modOp );
         }
-        
+
         return targetEntry;
     }
-    
-    
+
+
+    /**
+     * Gets the target entry as it would look after a modification operation 
+     * was performed on it.
+     * 
+     * @param mod the modification
+     * @param entry the source entry that is modified
+     * @return the resultant entry after the modification has taken place
+     * @throws NamingException if there are problems accessing attributes
+     */
+    public static Attributes getTargetEntry( ModificationItemImpl mod, Attributes entry ) throws NamingException
+    {
+        Attributes targetEntry = ( Attributes ) entry.clone();
+        int modOp = mod.getModificationOp();
+        switch ( modOp )
+        {
+            case ( DirContext.REPLACE_ATTRIBUTE  ):
+                targetEntry.put( mod.getAttribute() );
+                break;
+            case ( DirContext.REMOVE_ATTRIBUTE  ):;
+                Attribute toBeRemoved = mod.getAttribute();
+
+                if ( toBeRemoved.size() == 0 )
+                {
+                    targetEntry.remove( mod.getAttribute().getID() );
+                }
+                else
+                {
+                    Attribute existing = targetEntry.get( mod.getAttribute().getID() );
+
+                    if ( existing != null )
+                    {
+                        for ( int ii = 0; ii < toBeRemoved.size(); ii++ )
+                        {
+                            existing.remove( toBeRemoved.get( ii ) );
+                        }
+                    }
+                }
+                break;
+            case ( DirContext.ADD_ATTRIBUTE  ):
+                String id = mod.getAttribute().getID();
+                Attribute combined = new AttributeImpl( id );
+                Attribute toBeAdded = mod.getAttribute();
+                Attribute existing = entry.get( id );
+
+                if ( existing != null )
+                {
+                    for ( int ii = 0; ii < existing.size(); ii++ )
+                    {
+                        combined.add( existing.get( ii ) );
+                    }
+                }
+
+                for ( int ii = 0; ii < toBeAdded.size(); ii++ )
+                {
+                    combined.add( toBeAdded.get( ii ) );
+                }
+                targetEntry.put( combined );
+                break;
+            default:
+                throw new IllegalStateException( "undefined modification type: " + modOp );
+        }
+
+        return targetEntry;
+    }
+
+
     // ------------------------------------------------------------------------
     // qdescrs rendering operations
     // ------------------------------------------------------------------------
@@ -428,7 +496,7 @@ public class SchemaUtils
         {
             buf.append( " " );
         }
-        
+
         if ( oc.getDescription() != null )
         {
             buf.append( "DESC " ).append( "'" ).append( oc.getDescription() ).append( "' " );
@@ -461,7 +529,7 @@ public class SchemaUtils
             buf.append( " MAY " );
             render( buf, oc.getMayList() );
         }
-        
+
         buf.append( " X-SCHEMA '" );
         buf.append( oc.getSchema() );
         buf.append( "'" );
@@ -537,7 +605,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( at.getOid() );
-        
+
         if ( at.getNames() != null && at.getNames().length > 0 )
         {
             buf.append( " NAME " );
@@ -688,7 +756,7 @@ public class SchemaUtils
         if ( atd.getNames() != null && atd.getNames().size() > 0 )
         {
             buf.append( " NAME " );
-            render( buf, atd.getNames().toArray( new String[ atd.getNames().size() ]) ).append( " " );
+            render( buf, atd.getNames().toArray( new String[atd.getNames().size()] ) ).append( " " );
         }
         else
         {
@@ -768,7 +836,7 @@ public class SchemaUtils
     public static StringBuffer render( Map<String, List<String>> extensions )
     {
         StringBuffer buf = new StringBuffer();
-        
+
         if ( extensions.isEmpty() )
         {
             return buf;
@@ -860,7 +928,7 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( mr.getOid() );
-        
+
         if ( mr.getNames() != null && mr.getNames().length > 0 )
         {
             buf.append( " NAME " );
@@ -934,7 +1002,7 @@ public class SchemaUtils
 
         buf.append( " X-SCHEMA '" );
         buf.append( syntax.getSchema() );
-        
+
         if ( syntax.isHumanReadable() )
         {
             buf.append( "' X-IS-HUMAN-READABLE 'true'" );
@@ -1055,36 +1123,36 @@ public class SchemaUtils
     {
         StringBuffer buf = new StringBuffer();
         buf.append( "( " ).append( description.getNumericOid() ).append( " " );
-        
+
         if ( description.getDescription() != null )
         {
             buf.append( "DESC " ).append( "'" ).append( description.getDescription() ).append( "' " );
         }
 
         buf.append( "FQCN " ).append( description.getFqcn() ).append( " " );
-        
+
         if ( description.getBytecode() != null )
         {
             buf.append( "BYTECODE " ).append( description.getBytecode() );
         }
-        
+
         buf.append( " X-SCHEMA '" );
         buf.append( getSchema( description ) );
         buf.append( "' )" );
-        
+
         return buf;
     }
-    
-    
+
+
     private static String getSchema( AbstractSchemaDescription desc )
     {
         List<String> values = desc.getExtensions().get( "X-SCHEMA" );
-        
+
         if ( values == null || values.size() == 0 )
         {
             return "other";
         }
-        
+
         return values.get( 0 );
     }
 }
