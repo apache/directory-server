@@ -56,7 +56,7 @@ public class HighestPrecedenceFilterTest extends TestCase
     {
         HighestPrecedenceFilter filter = new HighestPrecedenceFilter();
         Assert.assertEquals( 0, filter.filter( AT_EMPTY_COLLECTION, null, null, null, null, null, null, null, null, null,
-            null, null ).size() );
+            null, null, null ).size() );
     }
 
 
@@ -69,7 +69,7 @@ public class HighestPrecedenceFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
         
         Assert.assertEquals( tuples, filter.filter( tuples, null, null, null, null, null, null, null, null, null, null,
-            null ) );
+            null, null ) );
     }
 
 
@@ -88,7 +88,7 @@ public class HighestPrecedenceFilterTest extends TestCase
         tuples.add( new ACITuple( UC_EMPTY_COLLECTION, AuthenticationLevel.NONE, PI_EMPTY_COLLECTION, MO_EMPTY_SET, true,
             MAX_PRECEDENCE / 3 ) );
 
-        tuples = filter.filter( tuples, null, null, null, null, null, null, null, null, null, null, null );
+        tuples = filter.filter( tuples, null, null, null, null, null, null, null, null, null, null, null, null );
 
         for ( ACITuple tuple:tuples )
         {

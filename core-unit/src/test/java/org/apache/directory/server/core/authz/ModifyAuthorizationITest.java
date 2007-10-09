@@ -546,9 +546,6 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
     }
     
 
-    /**
-     * FIXME https://issues.apache.org/jira/browse/DIRSERVER-1062
-     * 
     public void testMaxValueCountProtectedItem() throws NamingException
     {
         createUser( "billyd", "billyd" );
@@ -570,12 +567,12 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
                         " {" +
                             " protectedItems" + 
                             " {" +
+                                " attributeType { description }," +
+                                " allAttributeValues { description }," +
                                 " maxValueCount" + 
                                 " {" +
                                     " { type description, maxCount 1 }" + 
                                 " }" +
-                                " ," +
-                                " allAttributeValues { description }" + 
                             " }" +
                             " ," +
                             " grantsAndDenials" + 
@@ -601,6 +598,11 @@ public class ModifyAuthorizationITest extends AbstractAuthorizationITest
         mods = toItems( DirContext.ADD_ATTRIBUTE, attrs );
         
         assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
+        
+        mods = toItems( DirContext.REPLACE_ATTRIBUTE, attrs );
+        
+        assertFalse( checkCanModifyAs( "billyd", "billyd", "ou=testou", mods ) );
     }
-    */
+    
+
 }

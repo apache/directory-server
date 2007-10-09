@@ -58,7 +58,8 @@ public class RestrictedByFilter implements ACITupleFilter
             String attrId, 
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )

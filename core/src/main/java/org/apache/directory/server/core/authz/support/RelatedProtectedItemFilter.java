@@ -82,7 +82,8 @@ public class RelatedProtectedItemFilter implements ACITupleFilter
             String attrId,
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException
     {
         if ( tuples.size() == 0 )

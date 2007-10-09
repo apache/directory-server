@@ -73,6 +73,7 @@ public class MaxValueCountFilterTest extends TestCase
         Attribute attr = new AttributeImpl( "testAttr" );
         attr.add( "1" );
         attr.add( "2" );
+        attr.add( "3" );
         FULL_ENTRY.put( attr );
     }
 
@@ -87,10 +88,10 @@ public class MaxValueCountFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE, null, null, null, null,
-            null, null, null, null, null, null ) );
+            null, null, null, null, null, null, null ) );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null,
-            null, null, null, null ) );
+            null, null, null, null, null ) );
     }
 
 
@@ -99,7 +100,7 @@ public class MaxValueCountFilterTest extends TestCase
         MaxValueCountFilter filter = new MaxValueCountFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
-            null, null, null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -113,9 +114,9 @@ public class MaxValueCountFilterTest extends TestCase
         tuples = Collections.unmodifiableCollection( tuples );
 
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "testAttr", null, ENTRY, null ) );
+            null, null, null, "testAttr", null, ENTRY, null, null ) );
         Assert.assertEquals( tuples, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null,
-            null, null, null, "testAttr", null, FULL_ENTRY, null ) );
+            null, null, null, "testAttr", null, FULL_ENTRY, null, null ) );
     }
 
 
@@ -127,9 +128,9 @@ public class MaxValueCountFilterTest extends TestCase
             EMPTY_MICRO_OPERATION_SET, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "testAttr", null, ENTRY, null ).size() );
+            null, null, "testAttr", null, ENTRY, null, ENTRY ).size() );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, "testAttr", null, FULL_ENTRY, null ).size() );
+            null, null, "testAttr", null, FULL_ENTRY, null, FULL_ENTRY ).size() );
     }
 }
