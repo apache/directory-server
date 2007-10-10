@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.shared.store;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.store.operations.*;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 
 import javax.naming.directory.DirContext;
 import javax.naming.NamingException;
@@ -48,14 +49,8 @@ class SingleBaseSearch implements PrincipalStore
             ctx = directoryService.getJndiContext(searchBaseDn);
         } catch ( NamingException e )
         {
-            throw new IllegalStateException("Can't get context at" + searchBaseDn);
+            throw new ServiceConfigurationException("Can't get context at" + searchBaseDn, e);
         }
-//        env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
-//        env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
-//        env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
-//        env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
-//        env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
-//        env.put( DirectoryService.JNDI_KEY, directoryService );
 
     }
 

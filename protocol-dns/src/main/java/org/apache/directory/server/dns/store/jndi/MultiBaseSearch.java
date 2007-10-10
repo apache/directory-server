@@ -22,7 +22,6 @@ package org.apache.directory.server.dns.store.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.dns.DnsConfiguration;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
@@ -31,16 +30,13 @@ import org.apache.directory.server.dns.store.jndi.operations.GetRecords;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.catalog.Catalog;
 import org.apache.directory.server.protocol.shared.catalog.GetCatalog;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import java.util.Hashtable;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -58,26 +54,23 @@ public class MultiBaseSearch implements SearchStrategy
     /** the LOG for this class */
     private static final Logger LOG = LoggerFactory.getLogger( MultiBaseSearch.class );
 
-    private Hashtable<String, Object> env = new Hashtable<String, Object>();
-    private Catalog catalog;
+    private final Catalog catalog;
+    private final DirectoryService directoryService;
 
 
-    MultiBaseSearch( DnsConfiguration config, DirectoryService directoryService )
+    MultiBaseSearch( String catalogBaseDn, DirectoryService directoryService )
     {
-        env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
-        env.put( Context.PROVIDER_URL, config.getCatalogBaseDn() );
-        env.put( DirectoryService.JNDI_KEY, directoryService );
-
+        this.directoryService = directoryService;
         try
         {
-            DirContext ctx = new InitialDirContext( env );
+            DirContext ctx = directoryService.getJndiContext(catalogBaseDn);
             //noinspection unchecked
-            catalog = new DnsCatalog( ( Map<String, Object> ) execute( ctx, new GetCatalog() ) );
+            catalog = new DnsCatalog( ( Map<String, Object> ) new GetCatalog().execute( ctx, null ) );
         }
         catch ( Exception e )
         {
             LOG.error( e.getMessage(), e );
-            String message = "Failed to get catalog context " + env.get( Context.PROVIDER_URL );
+            String message = "Failed to get catalog context " + catalogBaseDn;
             throw new ServiceConfigurationException( message, e );
         }
     }
@@ -85,14 +78,12 @@ public class MultiBaseSearch implements SearchStrategy
 
     public Set<ResourceRecord> getRecords( QuestionRecord question ) throws DnsException
     {
-        Hashtable<String, Object> cloned = new Hashtable<String, Object>();
-        cloned.putAll( env );
-        cloned.put( Context.PROVIDER_URL, catalog.getBaseDn( question.getDomainName() ) );
-
         try
         {
-            DirContext ctx = new InitialDirContext( cloned );
-            return execute( ctx, new GetRecords( question ) );
+            GetRecords getRecords = new GetRecords( question );
+            String baseDn = catalog.getBaseDn( question.getDomainName() );
+            DirContext dirContext = directoryService.getJndiContext( baseDn );
+            return getRecords.execute( dirContext, null );
         }
         catch ( LdapNameNotFoundException lnnfe )
         {
@@ -103,7 +94,7 @@ public class MultiBaseSearch implements SearchStrategy
         catch ( NamingException ne )
         {
             LOG.error( ne.getMessage(), ne );
-            String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
+            String message = "Failed to get initial context " + question.getDomainName();
             throw new ServiceConfigurationException( message, ne );
         }
         catch ( Exception e )
@@ -115,14 +106,4 @@ public class MultiBaseSearch implements SearchStrategy
     }
 
 
-    private Object execute( DirContext ctx, ContextOperation operation ) throws Exception
-    {
-        return operation.execute( ctx, null );
-    }
-
-
-    private Set<ResourceRecord> execute( DirContext ctx, DnsOperation operation ) throws Exception
-    {
-        return operation.execute( ctx, null );
-    }
 }

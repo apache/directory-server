@@ -77,7 +77,7 @@ public class DnsConfiguration extends ServiceConfiguration
      */
     public void start() throws IOException
     {
-        RecordStore store = new JndiRecordStoreImpl( this, directoryService );
+        RecordStore store = new JndiRecordStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
 
         DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
         udpConfig.setThreadModel( ThreadModel.MANUAL );
