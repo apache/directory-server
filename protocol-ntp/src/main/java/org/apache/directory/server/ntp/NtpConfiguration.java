@@ -20,7 +20,16 @@
 package org.apache.directory.server.ntp;
 
 
+import java.net.InetSocketAddress;
+import java.io.IOException;
+
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.apache.mina.common.ThreadModel;
 
 
 /**
@@ -44,14 +53,55 @@ public class NtpConfiguration extends ServiceConfiguration
     /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
+    private final ApacheDS apacheDS;
 
     /**
      * Creates a new instance of NtpConfiguration.
      */
-    public NtpConfiguration()
+    public NtpConfiguration( ApacheDS apacheDS )
     {
+        this.apacheDS = apacheDS;
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
+
+    /**
+     * @org.apache.xbean.InitMethod
+     */
+    public void start() throws IOException
+    {
+        //If appropriate, the udp and tcp servers could be enabled with boolean flags.
+        DatagramAcceptorConfig udpConfig = getUdpConfig();
+        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
+
+        SocketAcceptorConfig tcpConfig = getTcpConfig();
+        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
+    }
+
+    /**
+     * @org.apache.xbean.DestroyMethod
+     */
+    public void stop()
+    {
+        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
+        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
+    }
+
+    private SocketAcceptorConfig getTcpConfig()
+    {
+        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+        tcpConfig.setDisconnectOnUnbind( false );
+        tcpConfig.setReuseAddress( true );
+        tcpConfig.setThreadModel( ThreadModel.MANUAL );
+        return tcpConfig;
+    }
+
+    private DatagramAcceptorConfig getUdpConfig()
+    {
+        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+        udpConfig.setThreadModel( ThreadModel.MANUAL );
+        return udpConfig;
+    }
+
 }

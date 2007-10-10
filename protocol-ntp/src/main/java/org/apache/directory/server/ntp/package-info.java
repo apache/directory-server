@@ -19,8 +19,9 @@
  */
 
 /**
- * Provides the entry point to an instance of the
- * {@link org.apache.directory.server.ntp.NtpServer},
+ * Provides the entry point to instances of the
+ * {@link org.apache.directory.server.ntp.UdpNtpServer} and
+ * {@link org.apache.directory.server.ntp.TcpNtpServer},
  * as well as support for configuration and the root
  * of the exception hierarchy.
  * 

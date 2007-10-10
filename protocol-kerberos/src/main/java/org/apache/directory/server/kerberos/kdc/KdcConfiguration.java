@@ -22,11 +22,21 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.InetSocketAddress;
+import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
+import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.mina.common.ThreadModel;
+import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
 /**
@@ -132,6 +142,9 @@ public class KdcConfiguration extends ServiceConfiguration
     /** Whether to verify the body checksum. */
     private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
+    private DirectoryService directoryService;
+
+    private ApacheDS apacheDS;
 
     /**
      * Creates a new instance of KdcConfiguration.
@@ -388,6 +401,53 @@ public class KdcConfiguration extends ServiceConfiguration
     public void setBodyChecksumVerified( boolean isBodyChecksumVerified )
     {
         this.isBodyChecksumVerified = isBodyChecksumVerified;
+    }
+
+
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+    public ApacheDS getApacheDS()
+    {
+        return apacheDS;
+    }
+
+    public void setApacheDS( ApacheDS apacheDS )
+    {
+        this.apacheDS = apacheDS;
+    }
+
+    /**
+     * @org.apache.xbean.InitMethod
+     */
+    public void start() throws IOException
+    {
+        PrincipalStore store = new JndiPrincipalStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
+
+        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+        udpConfig.setThreadModel( ThreadModel.MANUAL );
+        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), udpConfig );
+
+        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+        tcpConfig.setDisconnectOnUnbind( false );
+        tcpConfig.setReuseAddress( true );
+        tcpConfig.setThreadModel( ThreadModel.MANUAL );
+        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), tcpConfig );
+    }
+
+    /**
+     * @org.apache.xbean.DestroyMethod
+     */
+    public void stop() {
+        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
     }
 
 

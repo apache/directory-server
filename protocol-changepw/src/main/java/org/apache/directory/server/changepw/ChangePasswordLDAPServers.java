@@ -22,11 +22,21 @@ package org.apache.directory.server.changepw;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.InetSocketAddress;
+import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
+import org.apache.mina.common.ThreadModel;
+import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
 /**
@@ -37,7 +47,7 @@ import org.apache.directory.server.protocol.shared.ServiceConfiguration;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordConfiguration extends ServiceConfiguration
+public class ChangePasswordLDAPServers extends ServiceConfiguration
 {
     private static final long serialVersionUID = 3509208713288140629L;
 
@@ -58,7 +68,7 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         { "des-cbc-md5" };
 
     /** The default changepw buffer size. */
-    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * MINUTE;
+    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * ServiceConfiguration.MINUTE;
 
     /** The default empty addresses. */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -102,11 +112,15 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
     /** The policy for token size. */
     private int policyTokenSize;
 
+    private DirectoryService directoryService;
+
+    private ApacheDS apacheDS;
+
 
     /**
      * Creates a new instance of ChangePasswordConfiguration.
      */
-    public ChangePasswordConfiguration()
+    public ChangePasswordLDAPServers()
     {
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setIpPort( IP_PORT_DEFAULT );
@@ -249,6 +263,52 @@ public class ChangePasswordConfiguration extends ServiceConfiguration
         return policyTokenSize;
     }
 
+
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+    public ApacheDS getApacheDS()
+    {
+        return apacheDS;
+    }
+
+    public void setApacheDS( ApacheDS apacheDS )
+    {
+        this.apacheDS = apacheDS;
+    }
+
+    /**
+     * @org.apache.xbean.InitMethod
+     */
+    public void start() throws IOException
+    {
+        PrincipalStore store = new JndiPrincipalStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
+
+        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+        udpConfig.setThreadModel( ThreadModel.MANUAL );
+        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), udpConfig );
+
+        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+        tcpConfig.setDisconnectOnUnbind( false );
+        tcpConfig.setReuseAddress( true );
+        tcpConfig.setThreadModel( ThreadModel.MANUAL );
+        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), tcpConfig );
+    }
+
+    /**
+     * @org.apache.xbean.DestroyMethod
+     */
+    public void stop() {
+        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+    }
 
     private void prepareEncryptionTypes()
     {

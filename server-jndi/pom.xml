@@ -35,23 +35,29 @@
   <packaging>jar</packaging>  
 
   <dependencies>
+<!--
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
       <version>${pom.version}</version>
     </dependency>  
+-->
 
+<!--
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-ntp</artifactId>
       <version>${pom.version}</version>
     </dependency>  
+-->
 
+<!--
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-kerberos</artifactId>
       <version>${pom.version}</version>
     </dependency>  
+-->
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -59,11 +65,13 @@
       <version>${pom.version}</version>
     </dependency>  
 
+<!--
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-dns</artifactId>
       <version>${pom.version}</version>
     </dependency>
+-->
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>

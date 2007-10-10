@@ -20,51 +20,6 @@
 package org.apache.directory.server.configuration;
 
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
-import org.apache.directory.server.changepw.ChangePasswordServer;
-import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.dns.DnsConfiguration;
-import org.apache.directory.server.dns.DnsServer;
-import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
-import org.apache.directory.server.jndi.ServerContextFactory;
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
-import org.apache.directory.server.kerberos.kdc.KerberosServer;
-import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
-import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
-import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
-import org.apache.directory.server.ntp.NtpConfiguration;
-import org.apache.directory.server.ntp.NtpServer;
-import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
-import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.apache.mina.common.*;
-import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -76,6 +31,46 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.ldap.ExtendedOperationHandler;
+import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
+import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
+import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
+import org.apache.directory.shared.ldap.util.StringTools;
+import org.apache.mina.common.ByteBuffer;
+import org.apache.mina.common.DefaultIoFilterChainBuilder;
+import org.apache.mina.common.IoAcceptor;
+import org.apache.mina.common.IoFilterChainBuilder;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.SimpleByteBufferAllocator;
+import org.apache.mina.common.ThreadModel;
+import org.apache.mina.common.WriteFuture;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -104,12 +99,8 @@ public class ApacheDS
     private File ldifDirectory;
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
-    private KdcConfiguration kdcConfiguration = new KdcConfiguration();
-    private NtpConfiguration ntpConfiguration = new NtpConfiguration();
-    private ChangePasswordConfiguration changePasswordConfiguration = new ChangePasswordConfiguration();
     private LdapConfiguration ldapConfiguration = new LdapConfiguration();
     private LdapConfiguration ldapsConfiguration = new LdapConfiguration();
-    private DnsConfiguration dnsConfiguration = new DnsConfiguration();
     private DirectoryService directoryService = new DefaultDirectoryService();
 
     private IoAcceptor tcpAcceptor;
@@ -118,15 +109,6 @@ public class ApacheDS
     protected ExecutorService logicExecutor;
     private boolean ldapsStarted;
     private boolean ldapStarted;
-    private KerberosServer tcpKdcServer;
-    private KerberosServer udpKdcServer;
-    private ChangePasswordServer tcpChangePasswordServer;
-    private ChangePasswordServer udpChangePasswordServer;
-    private NtpServer tcpNtpServer;
-    private NtpServer udpNtpServer;
-    private DnsServer tcpDnsServer;
-    private DnsServer udpDnsServer;
-
 
     public ApacheDS()
     {
@@ -162,10 +144,6 @@ public class ApacheDS
         {
             startLDAP();
             startLDAPS();
-            startKerberos();
-            startChangePassword();
-            startNTP();
-            startDNS();
         }
     }
 
@@ -188,86 +166,6 @@ public class ApacheDS
         {
             stopLDAP0( ldapsConfiguration.getIpPort() );
             ldapsStarted = false;
-        }
-
-        if ( tcpKdcServer != null )
-        {
-            tcpKdcServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of KRB5 Service (TCP) complete: " + tcpKdcServer );
-            }
-            tcpKdcServer = null;
-        }
-
-        if ( udpKdcServer != null )
-        {
-            udpKdcServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of KRB5 Service (UDP) complete: " + udpKdcServer );
-            }
-            udpKdcServer = null;
-        }
-
-        if ( tcpChangePasswordServer != null )
-        {
-            tcpChangePasswordServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of Change Password Service (TCP) complete: " + tcpChangePasswordServer );
-            }
-            tcpChangePasswordServer = null;
-        }
-
-        if ( udpChangePasswordServer != null )
-        {
-            udpChangePasswordServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of Change Password Service (UDP) complete: " + udpChangePasswordServer );
-            }
-            udpChangePasswordServer = null;
-        }
-
-        if ( tcpNtpServer != null )
-        {
-            tcpNtpServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of NTP Service (TCP) complete: " + tcpNtpServer );
-            }
-            tcpNtpServer = null;
-        }
-
-        if ( udpNtpServer != null )
-        {
-            udpNtpServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of NTP Service (UDP) complete: " + udpNtpServer );
-            }
-            udpNtpServer = null;
-        }
-
-        if ( tcpDnsServer != null )
-        {
-            tcpDnsServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of DNS Service (TCP) complete: " + tcpDnsServer );
-            }
-            tcpDnsServer = null;
-        }
-
-        if ( udpDnsServer != null )
-        {
-            udpDnsServer.destroy();
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of DNS Service (UDP) complete: " + udpDnsServer );
-            }
-            udpDnsServer = null;
         }
 
         logicExecutor.shutdown();
@@ -302,42 +200,6 @@ public class ApacheDS
     }
 
 
-    public KdcConfiguration getKdcConfiguration()
-    {
-        return kdcConfiguration;
-    }
-
-
-    public void setKdcConfiguration( KdcConfiguration kdcConfiguration )
-    {
-        this.kdcConfiguration = kdcConfiguration;
-    }
-
-
-    public NtpConfiguration getNtpConfiguration()
-    {
-        return ntpConfiguration;
-    }
-
-
-    public void setNtpConfiguration( NtpConfiguration ntpConfiguration )
-    {
-        this.ntpConfiguration = ntpConfiguration;
-    }
-
-
-    public ChangePasswordConfiguration getChangePasswordConfiguration()
-    {
-        return changePasswordConfiguration;
-    }
-
-
-    public void setChangePasswordConfiguration( ChangePasswordConfiguration changePasswordConfiguration )
-    {
-        this.changePasswordConfiguration = changePasswordConfiguration;
-    }
-
-
     public LdapConfiguration getLdapConfiguration()
     {
         return ldapConfiguration;
@@ -360,19 +222,6 @@ public class ApacheDS
     {
         this.ldapsConfiguration = ldapsConfiguration;
     }
-
-
-    public DnsConfiguration getDnsConfiguration()
-    {
-        return dnsConfiguration;
-    }
-
-
-    public void setDnsConfiguration( DnsConfiguration dnsConfiguration )
-    {
-        this.dnsConfiguration = dnsConfiguration;
-    }
-
 
     public DirectoryService getDirectoryService()
     {
@@ -469,6 +318,15 @@ public class ApacheDS
         this.ldifFilters.addAll( filters );
     }
 
+    public IoAcceptor getTcpAcceptor()
+    {
+        return tcpAcceptor;
+    }
+
+    public IoAcceptor getUdpAcceptor()
+    {
+        return udpAcceptor;
+    }
 
     // ----------------------------------------------------------------------
     // From ServerContextFactory: presently in intermediate step but these
@@ -737,127 +595,6 @@ public class ApacheDS
             throw lce;
         }
     }
-
-
-    private void startKerberos()
-    {
-        // Skip if disabled
-        if ( ! kdcConfiguration.isEnabled() )
-        {
-            return;
-        }
-
-        try
-        {
-            PrincipalStore kdcStore = new JndiPrincipalStoreImpl( kdcConfiguration, directoryService );
-
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            udpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            tcpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            tcpKdcServer = new KerberosServer( kdcConfiguration, tcpAcceptor, tcpConfig, kdcStore );
-            udpKdcServer = new KerberosServer( kdcConfiguration, udpAcceptor, udpConfig, kdcStore );
-        }
-        catch ( Throwable t )
-        {
-            LOG.error( "Failed to start the Kerberos service", t );
-        }
-    }
-
-
-    private void startChangePassword()
-    {
-        // Skip if disabled
-        if ( ! changePasswordConfiguration.isEnabled() )
-        {
-            return;
-        }
-
-        try
-        {
-            PrincipalStore store = new JndiPrincipalStoreImpl( changePasswordConfiguration, directoryService );
-
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            udpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            tcpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            tcpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration,
-                    tcpAcceptor, tcpConfig, store );
-            udpChangePasswordServer = new ChangePasswordServer( changePasswordConfiguration,
-                    udpAcceptor, udpConfig, store );
-        }
-        catch ( Throwable t )
-        {
-            LOG.error( "Failed to start the Change Password service", t );
-        }
-    }
-
-
-    private void startNTP()
-    {
-        // Skip if disabled
-        if ( ! ntpConfiguration.isEnabled() )
-        {
-            return;
-        }
-
-        try
-        {
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            udpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            tcpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            tcpNtpServer = new NtpServer( ntpConfiguration, tcpAcceptor, tcpConfig );
-            udpNtpServer = new NtpServer( ntpConfiguration, udpAcceptor, udpConfig );
-        }
-        catch ( Throwable t )
-        {
-            LOG.error( "Failed to start the NTP service", t );
-        }
-    }
-
-
-    private void startDNS()
-    {
-        // Skip if disabled
-        if ( ! dnsConfiguration.isEnabled() )
-        {
-            return;
-        }
-
-        try
-        {
-            RecordStore store = new JndiRecordStoreImpl( dnsConfiguration, directoryService );
-
-            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            udpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-            tcpConfig.setDisconnectOnUnbind( false );
-            tcpConfig.setReuseAddress( true );
-            tcpConfig.setThreadModel( ThreadModel.MANUAL );
-
-            tcpDnsServer = new DnsServer( dnsConfiguration, tcpAcceptor, tcpConfig, store );
-            udpDnsServer = new DnsServer( dnsConfiguration, udpAcceptor, udpConfig, store );
-        }
-        catch ( Throwable t )
-        {
-            LOG.error( "Failed to start the DNS service", t );
-        }
-    }
-
 
     private void stopLDAP0( int port )
     {

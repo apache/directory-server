@@ -42,6 +42,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+import javax.naming.directory.DirContext;
+
 import java.io.File;
 import java.util.*;
 
@@ -260,13 +262,13 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public Context getJndiContext( String baseName ) throws NamingException
+        public DirContext getJndiContext( String baseName ) throws NamingException
         {
             return null;
         }
 
 
-        public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        public DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
             String authentication, String baseName ) throws NamingException
         {
             return null;

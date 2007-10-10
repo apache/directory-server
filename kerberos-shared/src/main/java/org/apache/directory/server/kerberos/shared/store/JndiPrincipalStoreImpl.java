@@ -21,9 +21,9 @@ package org.apache.directory.server.kerberos.shared.store;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-
 import javax.security.auth.kerberos.KerberosPrincipal;
+
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 
 
 /**
@@ -38,25 +38,20 @@ import javax.security.auth.kerberos.KerberosPrincipal;
  */
 public class JndiPrincipalStoreImpl implements PrincipalStore
 {
-    /** a handle on the configuration */
-    private ServiceConfiguration config;
-    /** a handle on the core */
-    private DirectoryService directoryService;
     /** a handle on the search strategy */
-    private PrincipalStore store;
+    private final PrincipalStore store;
 
 
     /**
      * Creates a new instance of JndiPrincipalStoreImpl.
      *
-     * @param config the configuration
+     * @param catalogBaseDn dn for a catalog of search dns.
+     * @param searchBaseDn if no catalog, single search dn.
      * @param directoryService the core service
      */
-    public JndiPrincipalStoreImpl( ServiceConfiguration config, DirectoryService directoryService )
+    public JndiPrincipalStoreImpl( String catalogBaseDn, String searchBaseDn, DirectoryService directoryService )
     {
-        this.config = config;
-        this.directoryService = directoryService;
-        store = getStore();
+        store = getStore( catalogBaseDn, searchBaseDn, directoryService );
     }
 
 
@@ -90,15 +85,15 @@ public class JndiPrincipalStoreImpl implements PrincipalStore
     }
 
 
-    private PrincipalStore getStore()
+    private static PrincipalStore getStore( String catalogBaseDn, String searchBaseDn, DirectoryService directoryService )
     {
-        if ( config.getCatalogBaseDn() != null )
+        if ( catalogBaseDn != null )
         {
             // build a catalog from the backing store
-            return new MultiBaseSearch( config, directoryService );
+            return new MultiBaseSearch( catalogBaseDn, directoryService );
         }
 
         // search only the configured entry baseDN
-        return new SingleBaseSearch( config, directoryService );
+        return new SingleBaseSearch( searchBaseDn, directoryService );
     }
 }

@@ -31,7 +31,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
 
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordLDAPServers;
 import org.apache.directory.server.changepw.io.ChangePasswordDataEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
@@ -83,7 +83,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
     //private static final byte[] SUCCESS = new byte[]
     //    { ( byte ) 0x00, ( byte ) 0x00 };
 
-    private ChangePasswordConfiguration config;
+    private ChangePasswordLDAPServers config;
     private PrincipalStore store;
     private ChangePasswordProtocolHandler handler;
     private DummySession session;
@@ -96,7 +96,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      */
     public ChangepwProtocolHandlerTest()
     {
-        config = new ChangePasswordConfiguration();
+        config = new ChangePasswordLDAPServers();
         store = new MapPrincipalStoreImpl();
         handler = new ChangePasswordProtocolHandler( config, store );
         session = new DummySession();

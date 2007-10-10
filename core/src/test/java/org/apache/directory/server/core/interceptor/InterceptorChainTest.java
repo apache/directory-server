@@ -36,6 +36,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+
 import java.io.File;
 import java.util.*;
 
@@ -323,13 +325,13 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public Context getJndiContext( String baseName ) throws NamingException
+        public DirContext getJndiContext( String baseName ) throws NamingException
         {
             return null;
         }
 
 
-        public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        public DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
             String authentication, String baseName ) throws NamingException
         {
             return null;

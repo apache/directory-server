@@ -28,7 +28,7 @@ import java.nio.ByteBuffer;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordLDAPServers;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
@@ -58,7 +58,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
 
-    private ChangePasswordConfiguration config;
+    private ChangePasswordLDAPServers config;
     private PrincipalStore store;
     private IoHandlerCommand changepwService;
     private String contextKey = "context";
@@ -70,7 +70,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
      * @param config
      * @param store
      */
-    public ChangePasswordProtocolHandler( ChangePasswordConfiguration config, PrincipalStore store )
+    public ChangePasswordProtocolHandler( ChangePasswordLDAPServers config, PrincipalStore store )
     {
         this.config = config;
         this.store = store;

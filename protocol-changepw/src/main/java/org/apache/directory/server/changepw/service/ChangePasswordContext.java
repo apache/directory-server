@@ -22,7 +22,7 @@ package org.apache.directory.server.changepw.service;
 
 import java.net.InetAddress;
 
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordLDAPServers;
 import org.apache.directory.server.changepw.messages.AbstractPasswordMessage;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
@@ -41,7 +41,7 @@ public class ChangePasswordContext
 {
     private static final long serialVersionUID = -5124209294966799740L;
 
-    private ChangePasswordConfiguration config;
+    private ChangePasswordLDAPServers config;
     private PrincipalStore store;
     private AbstractPasswordMessage request;
     private AbstractPasswordMessage reply;
@@ -95,7 +95,7 @@ public class ChangePasswordContext
     /**
      * @return Returns the config.
      */
-    public ChangePasswordConfiguration getConfig()
+    public ChangePasswordLDAPServers getConfig()
     {
         return config;
     }
@@ -104,7 +104,7 @@ public class ChangePasswordContext
     /**
      * @param config The config to set.
      */
-    public void setConfig( ChangePasswordConfiguration config )
+    public void setConfig( ChangePasswordLDAPServers config )
     {
         this.config = config;
     }

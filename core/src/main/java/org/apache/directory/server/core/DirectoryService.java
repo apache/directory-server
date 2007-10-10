@@ -33,6 +33,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+
 import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
@@ -104,7 +106,7 @@ public abstract class DirectoryService
      * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
      * @throws NamingException if failed to create a context
      */
-    public abstract Context getJndiContext( String baseName ) throws NamingException;
+    public abstract DirContext getJndiContext( String baseName ) throws NamingException;
 
 
     /**
@@ -117,7 +119,7 @@ public abstract class DirectoryService
      * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
      * @throws NamingException if failed to create a context
      */
-    public abstract Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+    public abstract DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
         String authentication, String baseName ) throws NamingException;
 
 

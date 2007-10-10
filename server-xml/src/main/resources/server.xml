@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-        "http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans>
+<spring:beans xmlns:spring="http://xbean.apache.org/schemas/spring/1.0">
   <apacheDS id="apacheDS" xmlns="http://apacheds.org/config/1.0"
                           synchPeriodMillis="15000"
                           maxThreads="8"
@@ -108,22 +106,6 @@
       </defaultDirectoryService>
     </directoryService>
 
-    <changePasswordConfiguration>
-      <changePasswordConfiguration enabled="false" ipPort="464"/>
-    </changePasswordConfiguration>
-
-    <ntpConfiguration>
-      <ntpConfiguration enabled="false" ipPort="123"/>
-    </ntpConfiguration>
-
-    <dnsConfiguration>
-      <dnsConfiguration enabled="false" ipPort="53"/>
-    </dnsConfiguration>
-
-    <kdcConfiguration>
-      <kdcConfiguration enabled="false" ipPort="88"/>
-    </kdcConfiguration>
-
     <ldapsConfiguration>
       <ldapConfiguration enabled="false" ipPort="636" enableLdaps="true"/>
     </ldapsConfiguration>
@@ -151,7 +133,7 @@
         <saslRealms>
           <value xmlns="http://www.springframework.org/schema/beans">example.com</value>
           <value xmlns="http://www.springframework.org/schema/beans">apache.org</value>
-        </saslRealms>
+        </saslRealms>                                     
 
         <!-- the collection of extended operation handlers to install           -->
         <extendedOperationHandlers>
@@ -165,14 +147,36 @@
     </ldapConfiguration>
   </apacheDS>
 
+  <changePasswordConfiguration ipPort="80464">
+    <directoryService>#directoryService</directoryService>
+    <apacheDs>#apacheDS</apacheDs>
+  </changePasswordConfiguration>
+  <kdcConfiguration ipPort="80088">
+    <directoryService>#directoryService</directoryService>
+    <apacheDs>#apacheDS</apacheDs>
+  </kdcConfiguration>
+  <ntpConfiguration ipPort="80123">
+    <apacheDs>#apacheDS</apacheDs>
+  </ntpConfiguration>
+  <udpNtpConfiguration ipPort="81123">
+    <apacheDs>#apacheDS</apacheDs>
+  </udpNtpConfiguration>
+  <tcpNtpConfiguration ipPort="81123">
+    <apacheDs>#apacheDS</apacheDs>
+  </tcpNtpConfiguration>
+  <dnsConfiguration ipPort="8053">
+    <directoryService>#directoryService</directoryService>
+    <apacheDs>#apacheDS</apacheDs>
+  </dnsConfiguration>
+
   <!-- another bean I didn't convert -->
-  <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-    <property name="customEditors">
-      <map>
-        <entry key="javax.naming.directory.Attributes">
-          <bean class="org.apache.directory.server.core.configuration.AttributesPropertyEditor"/>
-        </entry>
-      </map>
-    </property>
-  </bean>
-</beans>
+  <spring:bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+    <spring:property name="customEditors">
+      <spring:map>
+        <spring:entry key="javax.naming.directory.Attributes">
+          <spring:bean class="org.apache.directory.server.core.configuration.AttributesPropertyEditor"/>
+        </spring:entry>
+      </spring:map>
+    </spring:property>
+  </spring:bean>
+</spring:beans>
