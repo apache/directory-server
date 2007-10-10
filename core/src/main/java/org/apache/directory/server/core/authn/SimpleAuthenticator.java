@@ -538,17 +538,17 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         String algorithm = encryptionMethod.algorithm;
         byte[] salt = encryptionMethod.salt;
         
-        if ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) || 
-             LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) )
+        if ( LdapSecurityConstants.HASH_METHOD_SHA.equalsIgnoreCase( algorithm ) || 
+             LdapSecurityConstants.HASH_METHOD_SSHA.equalsIgnoreCase( algorithm ) )
         {   
             return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
         }
-        else if ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ||
-                  LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) )
+        else if ( LdapSecurityConstants.HASH_METHOD_MD5.equalsIgnoreCase( algorithm ) ||
+                  LdapSecurityConstants.HASH_METHOD_SMD5.equalsIgnoreCase( algorithm ) )
        {            
             return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
         }
-        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) )
+        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
         {
             if ( salt == null )
             {
@@ -648,7 +648,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             String algorithm = sPassword.substring( 1, rightParen );
 
-            if ( "crypt".equals( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
             {
                 return algorithm;
             }
@@ -693,7 +693,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // create message digest object
         try
         {
-            if ( "crypt".equalsIgnoreCase( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
             {
                 String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( password ), "" );
                 String crypted = saltWithCrypted.substring( 2 );

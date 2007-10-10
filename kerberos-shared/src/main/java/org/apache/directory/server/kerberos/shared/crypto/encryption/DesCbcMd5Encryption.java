@@ -35,6 +35,7 @@ import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 
 
 /**
@@ -70,7 +71,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
     {
         try
         {
-            MessageDigest digester = MessageDigest.getInstance( "MD5" );
+            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5 );
             return digester.digest( data );
         }
         catch ( NoSuchAlgorithmException nsae )
