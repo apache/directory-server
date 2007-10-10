@@ -234,7 +234,7 @@ public class LdifUtilsTest extends TestCase
     
     
     /**
-     * Tests that unsave characters are encoded using UTF-8 charset. 
+     * Tests that unsafe characters are encoded using UTF-8 charset. 
      * 
      * @throws NamingException
      */
@@ -244,6 +244,19 @@ public class LdifUtilsTest extends TestCase
         String ldif = LdifUtils.convertToLdif( attributes );
         assertEquals( "cn:: U2FhcmJyw7xja2Vu\n", ldif );
     }
+    
+    /**
+     * Tests that null values are correctly encoded 
+     * 
+     * @throws NamingException
+     */
+    public void testConvertToLdifAttrWithNullValues() throws NamingException
+    {
+        Attributes attributes = new BasicAttributes( "cn", null );
+        String ldif = LdifUtils.convertToLdif( attributes );
+        assertEquals( "cn:\n", ldif );
+    }
+    
     
     public void testConvertEntryToLdif() throws NamingException
     {

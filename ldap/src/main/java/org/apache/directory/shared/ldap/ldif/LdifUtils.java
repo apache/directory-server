@@ -250,8 +250,12 @@ public class LdifUtils
 			
 			Object value = attr.get( i );
             
-            // Checking if the value is binary
-            if ( value instanceof byte[] )
+            // First, deal with null value (which is valid)
+            if ( value == null )
+            {
+                lineBuffer.append( ':' );
+            }
+            else if ( value instanceof byte[] )
             {
             	// It is binary, so we have to encode it using Base64 before adding it
             	char[] encoded = Base64.encode( ( byte[] ) value );
