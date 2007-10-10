@@ -355,9 +355,9 @@ public class LeafEvaluator implements Evaluator
                 throw new NamingException( "Unknown match type: " + matchType );
         }
 
-        if ( mrule == null )
+        if ( ( mrule == null ) && ( matchType != EQUALITY_MATCH ) )
         {
-            return type.getEquality();
+            mrule = type.getEquality();
         }
         
         return mrule;
