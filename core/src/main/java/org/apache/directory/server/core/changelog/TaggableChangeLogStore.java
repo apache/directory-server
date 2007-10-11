@@ -35,8 +35,10 @@ public interface TaggableChangeLogStore extends ChangeLogStore
     /**
      * Creates a tag for a snapshot of the server in a specific state at a revision.
      *
-     * @param the revision to tag the snapshot
-     * @throws NamingException
+     * @param revision the revision to tag the snapshot
+     * @throws NamingException if there is a problem taking a tag, or if
+     * the revision does not exist
+     * @return the Tag associated with the revision
      */
     Tag tag( long revision ) throws NamingException;
 
@@ -44,7 +46,7 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * Creates a snapshot of the server at the current revision.
      *
      * @return the revision at which the tag is created
-     * @throws NamingException
+     * @throws NamingException if there is a problem taking a tag
      */
     Tag tag() throws NamingException;
 }

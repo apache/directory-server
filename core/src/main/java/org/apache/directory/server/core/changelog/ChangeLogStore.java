@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
+
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
@@ -35,7 +36,7 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 public interface ChangeLogStore 
 {
     /**
-     * Get's the current revision of the server (a.k.a. the HEAD revision).
+     * Gets the current revision of the server (a.k.a. the HEAD revision).
      *
      * @return the current revision of the server
      */
@@ -49,7 +50,7 @@ public interface ChangeLogStore
      * @param forward LDIF of the change going to the next state
      * @param reverse LDIF (anti-operation): the change required to revert this change
      * @return the commit id or revision representing the change within the log
-     * @throws NamingException
+     * @throws NamingException if there are problems logging the change
      */
     long log( LdapPrincipal principal, Entry forward, Entry reverse ) throws NamingException;
 }

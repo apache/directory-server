@@ -31,7 +31,7 @@ public class Tag
 {
     /*
      * TODO should we have date in which tag was taken
-     * TODO should we have the date of the revision
+     * TODO should we have the date of the revision that was tagged
      */
     private final long revision;
     private final String description;

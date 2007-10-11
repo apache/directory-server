@@ -45,16 +45,17 @@ public class ChangeLogEvent implements Serializable
     /**
      * Creates a new instance of ChangeLogEvent.
      *
-     * @param the revision for the change
+     * @param revision the revision number for the change
      * @param committer the authorized user which triggered the change
      * @param forwardLdif the LDIF representing the change forward in time
      * @param reverseLdif an LDIF which reverts the change going reverse in time to an earlier revision
+     * @param zuluTime the timestamp for when the change occurred in generalizedTime format
      */
-    public ChangeLogEvent( long commitId, String zuluTime, LdapPrincipal committer, 
+    public ChangeLogEvent( long revision, String zuluTime, LdapPrincipal committer,
         Entry forwardLdif, Entry reverseLdif )
     {
         this.zuluTime = zuluTime;
-        this.revision = commitId;
+        this.revision = revision;
         this.forwardLdif = forwardLdif;
         this.reverseLdif = reverseLdif;
         this.committer = committer;
@@ -82,13 +83,15 @@ public class ChangeLogEvent implements Serializable
     /**
      * @return the committer
      */
-    public LdapPrincipal getCommitter()
+    public LdapPrincipal getCommitterPrincipal()
     {
         return committer;
     }
 
 
     /**
+     * Gets the revision of this event.
+     *
      * @return the revision
      */
     public long getRevision()
@@ -98,7 +101,9 @@ public class ChangeLogEvent implements Serializable
 
 
     /**
-     * @return the zuluTime
+     * Gets the generalizedTime when this event occured.
+     *
+     * @return the zuluTime when this event occured
      */
     public String getZuluTime()
     {

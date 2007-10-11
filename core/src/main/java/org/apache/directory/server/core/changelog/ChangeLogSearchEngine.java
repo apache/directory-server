@@ -76,6 +76,8 @@ public interface ChangeLogSearchEngine
      * @param revision to get a ChangeLogEvent for
      * @return the ChangeLogEvent associated with the revision
      * @throws NamingException if there are failures accessing the store
+     * @throws IllegalArgumentException if the revision is out of range (less than 0
+     * and greater than the current revision)
      */
     ChangeLogEvent lookup( long revision ) throws NamingException;
     
@@ -97,6 +99,8 @@ public interface ChangeLogSearchEngine
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents before and including some revision
      * @throws NamingException if there are failures accessing the store
+     * @throws IllegalArgumentException if the revision is out of range (less than 0
+     * and greater than the current revision)
      */
     NamingEnumeration<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws NamingException;
     
@@ -108,6 +112,8 @@ public interface ChangeLogSearchEngine
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents after and including the revision
      * @throws NamingException if there are failures accessing the store
+     * @throws IllegalArgumentException if the revision is out of range (less than 0
+     * and greater than the current revision)
      */
     NamingEnumeration<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws NamingException;
     
@@ -120,6 +126,8 @@ public interface ChangeLogSearchEngine
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents within some revision range inclusive
      * @throws NamingException if there are failures accessing the store
+     * @throws IllegalArgumentException if the start and end revisions are out of range
+     * (less than 0 and greater than the current revision), or if startRevision > endRevision
      */
     NamingEnumeration<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order ) 
         throws NamingException;
@@ -218,7 +226,7 @@ public interface ChangeLogSearchEngine
      *   <li>scope (specialized) </li>
      * </ul>
      * 
-     * @param objectClass the objectClass definition for the entries to search changes for
+     * @param filter the filter to use for finding the change
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return the set of ChangeLogEvents on entries of a particular objectClass
      * @throws NamingException if there are failures accessing the store
