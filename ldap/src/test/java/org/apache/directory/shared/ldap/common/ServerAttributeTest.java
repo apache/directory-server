@@ -338,7 +338,7 @@ public class ServerAttributeTest
             }
         });
         
-        assertEquals( null, attr.get().getNormValue() );
+        assertEquals( null, attr.get().getNormalizedValue() );
         assertEquals( null, attr.get().getValue() );
         assertEquals( "test", attr.getID() );
         assertEquals( oid, attr.getOid() );
@@ -375,13 +375,13 @@ public class ServerAttributeTest
         while ( iter.hasNext() )
         {
             Value<?> v = iter.next();
-            assertEquals( expectedLC[i], v.getNormValue() );
+            assertEquals( expectedLC[i], v.getNormalizedValue() );
             assertEquals( expectedUC[i], v.getValue() );
             
             i++;
         }
         
-        assertEquals( "test1", attr.get().getNormValue() );
+        assertEquals( "test1", attr.get().getNormalizedValue() );
         assertEquals( "TEST1", attr.get().getValue() );
         assertEquals( "test", attr.getID() );
         assertEquals( oid, attr.getOid() );
@@ -488,7 +488,7 @@ public class ServerAttributeTest
         assertEquals( 3, clone.size() );
         Value<?> v = clone.get();
         assertEquals( "TEST1", v.getValue() );
-        assertEquals( "test1", v.getNormValue() );
+        assertEquals( "test1", v.getNormalizedValue() );
         assertEquals( oid, clone.getOid() );
     }
 

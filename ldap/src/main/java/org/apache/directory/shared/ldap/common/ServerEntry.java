@@ -47,18 +47,18 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * The attribute collection is created when the directory entry is created.
  * </p>
  *
+ * @todo ALEX - Remove after resolution:
+ * Same reason as before for ServerAttribute: why not expose access to the ObjectClass
+ * that governs which attributes may and must be present within this entry?  Also we
+ * may need two kinds of put, remove and add methods where one performs schema checks
+ * and the other does not.  I don't know if this is mixing concerns but I'd like to
+ * explore the idea somewhat. 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public interface ServerEntry extends Cloneable, Serializable
 {
-    /**
-     * This constant is used during deserialization to check the version which
-     * created the serialized object.
-     */
-    static final long serialVersionUID = 2L;
-
-
     /**
      * Removes all the attributes.
      */
@@ -86,7 +86,7 @@ public interface ServerEntry extends Cloneable, Serializable
      * @return the old attribute with the same OID, if exists; otherwise
      *         <code>null</code>
      */
-    ServerAttribute copy( ServerAttribute attr );
+    ServerAttribute copy( ServerAttribute attribute );
 
 
     /**
@@ -114,7 +114,7 @@ public interface ServerEntry extends Cloneable, Serializable
      *
      * @return The entry DN
      */
-    public LdapDN getDn();
+    LdapDN getDn();
     
 
     /**
@@ -122,7 +122,7 @@ public interface ServerEntry extends Cloneable, Serializable
      * 
      * @param dn The LdapdN associated with this entry
      */
-    public void setDn( LdapDN dn);
+    void setDn( LdapDN dn);
     
 
     /**
@@ -145,7 +145,7 @@ public interface ServerEntry extends Cloneable, Serializable
      * @return the old attribute with the same OID, if exists; otherwise
      *         <code>null</code>
      */
-    ServerAttribute put( ServerAttribute attr );
+    ServerAttribute put( ServerAttribute attribute );
 
 
     /**
@@ -198,7 +198,10 @@ public interface ServerEntry extends Cloneable, Serializable
      * This method provides a mechanism to put an attribute with a
      * <code>null</code> value: the value of <code>obj</code> may be
      * <code>null</code>.
-     * 
+     *
+     * @todo ALEX - Remove after resolution:
+     * Why are we using the OID primitive ASN.1 value? 
+     *
      * @param oid the OID of the new attribute to be put
      * @param val the value of the new attribute to be put
      * @return the old attribute with the same OID, if exists; otherwise

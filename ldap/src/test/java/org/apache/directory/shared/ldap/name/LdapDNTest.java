@@ -2243,7 +2243,7 @@ public class LdapDNTest extends TestCase
        //assertEquals( "2.5.4.11=some people", rdn.getNormName() );
        assertEquals( "ou", rdn.getNormType() );
        assertEquals( "ou", rdn.getUpType() );
-       //assertEquals( "some people", rdn.getNormValue() );
+       //assertEquals( "some people", rdn.getNormalizedValue() );
        //assertEquals( "ou= Some   People   ", rdn.getUpValue() );
 
        LdapDN result = LdapDN.normalize( name, oids );
@@ -2257,7 +2257,7 @@ public class LdapDNTest extends TestCase
        //assertEquals( "2.5.4.11=some people", rdn2.getNormName() );
        assertEquals( "2.5.4.11", rdn2.getNormType() );
        assertEquals( "ou", rdn2.getUpType() );
-       //assertEquals( "some people", rdn2.getNormValue() );
+       //assertEquals( "some people", rdn2.getNormalizedValue() );
        //assertEquals( "ou= Some   People   ", rdn2.getUpValue() );
    }
 

@@ -80,7 +80,7 @@ public abstract class AbstractValue<T> implements Value<T>
      *
      * @return The stored normalized value
      */
-    public T getNormValue()
+    public T getNormalizedValue()
     {
         return normValue;
     }

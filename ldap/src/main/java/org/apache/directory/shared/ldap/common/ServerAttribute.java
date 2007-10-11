@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
+
 /**
  * This interface defines the valid operations on a particular attribute of a
  * directory entry.
@@ -59,6 +60,18 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * some methods have been removed, and which manipulates Value instead
  * of Object
  * 
+ * @todo ALEX - Remove after resolution:
+ * Why not track the AttributeType associated with the ServerAttribute as we
+ * discussed a while back at LDAPCon?  It makes sense to access the attributeType
+ * directly from the ServerAttribute instead of having to fish for it in the
+ * registries.  Perhaps the attributeType can be dynamically looked up from within
+ * implementors of this interface (to respond to schema changes) to dynamically
+ * resolve their respective type information.  Internally checks should be performed
+ * while adding values.
+ * @todo ALEX - Remove after resolution:
+ * Also I thought we would use polymorphism for the different kinds of attributes:
+ * Binary verses NonBinary.  Is there value in this?
+ *
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev: 499013 $
  */

@@ -19,15 +19,17 @@
  */
 package org.apache.directory.shared.ldap.common;
 
+
 import java.io.Serializable;
 
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
+
 /**
- * A common interface for values stored into a ServerAttribute. Thos values can 
- * be String or byte[] 
+ * A common interface for values stored into a ServerAttribute. These values can
+ * be a String or a byte[].
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -35,15 +37,26 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
 public interface Value<T> extends Serializable, Cloneable
 {
     /**
-     * Tells if the Value is a StringValue or a BinaryValue
+     * Tells if the Value is a StringValue or a BinaryValue.
      *
      * @return <code>true</code> if the Value is a BinaryVale, <code>false</code>
      * otherwise
      */
     boolean isBinary();
-    
+
     /**
-     * Get the inner value
+     * Get the non-normalized value.
+     *
+     * @todo ALEX - Remove after resolution:
+     * If this value is normalized does this method return the original non-normalized
+     * value or the normalized value? The semantics of this is very important.  Also
+     * when we serialize values in the backend I guess we use the non-normalized values
+     * within the master table for the entry.  Storing the normalized value in addition
+     * to the original value will cost double the disk space and double the memory in
+     * the entry cache and the master.db cache for partitions.  Should the on disk
+     * representation be the same as the in memory representation?  So the question boils
+     * down to is this class optimized for handling operations in the server or optimized
+     * for storage in the partition?
      *
      * @return The stored value, in its original type (String or byte[])
      */
@@ -51,34 +64,36 @@ public interface Value<T> extends Serializable, Cloneable
     
     
     /**
-     * Get the normalized inner value
+     * Get the normalized value.
      *
-     * @return The normalized stored value, in its original type (String or byte[])
+     * @return The normalized value, as either a String or byte[]
      */
-    T getNormValue();
+    T getNormalizedValue();
     
     
     /**
-     * Store a value into the object
+     * Sets the non-normalized value.
      *
-     * @param value The value to store. Should be either a String or a byte[]
+     * @param value the value to set. Should be either a String or a byte[]
      */
     void setValue( T value );
     
     /**
-     * 
-     * Normalize the value using the given normalizer
+     * Normalizes the value using the given normalizer
+     *
+     * @todo Alex - Remove after resolution:
+     * Come back to this later - I have a feeling this may be a problem to normalize
+     * this way.  Don't know for sure why yet but I'll try to figure it out.
      *
      * @param normalizer The normalizer to use
-     * @throws NamingException If the normalization fail
+     * @throws NamingException If the normalization fails
      */
     void normalize( Normalizer normalizer ) throws NamingException;
     
     /**
      * Tells if the value has been normalized. It's a speedup.
      *
-     * @return <code>true</code> if the Value has been normalized, <code>false</code>
-     * otherwise
+     * @return <code>true</code> if the Value has been normalized, <code>false</code> otherwise
      */
     boolean isNormalized();
     
