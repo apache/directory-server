@@ -43,7 +43,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 /**
  * Tests configuration of Ticket-Granting Service (TGS) policy.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -60,7 +60,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      */
     public TicketGrantingPolicyTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcConfiguration( null, null, null );
 
         /*
          * Body checksum verification must be disabled because we are bypassing
@@ -78,8 +78,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwardable tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testForwardableTicket() throws Exception
     {
@@ -127,8 +127,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when forwardable tickets are disallowed that requests for
      * forwarded tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testForwardedTicket() throws Exception
     {
@@ -176,8 +176,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when empty addresses are disallowed and forwarded tickets are requested
      * that requests with no addresses fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testForwardedNoAddressesTicket() throws Exception
     {
@@ -192,7 +192,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getByAddress( new byte[4] ) ) };
+                {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
         HostAddresses addresses = new HostAddresses( address );
         encTicketPartModifier.setClientAddresses( addresses );
 
@@ -230,8 +230,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when proxiable tickets are disallowed that requests for
      * proxiable tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testProxiableTicket() throws Exception
     {
@@ -279,8 +279,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when proxiable tickets are disallowed that requests for
      * proxy tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testProxyTicket() throws Exception
     {
@@ -316,7 +316,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         modifier.setTill( requestedEndTime );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getLocalHost() ) };
+                {new HostAddress( InetAddress.getLocalHost() )};
         HostAddresses addresses = new HostAddresses( address );
         modifier.setAddresses( addresses );
 
@@ -333,8 +333,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when empty addresses are disallowed and proxy tickets are requested
      * that requests with no addresses fail with the correct error message.
-     *  
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testProxyNoAddressesTicket() throws Exception
     {
@@ -349,7 +349,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
 
         HostAddress[] address =
-            { new HostAddress( InetAddress.getByAddress( new byte[4] ) ) };
+                {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
         HostAddresses addresses = new HostAddresses( address );
         encTicketPartModifier.setClientAddresses( addresses );
 
@@ -387,8 +387,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when postdated tickets are disallowed that requests for
      * ALLOW-POSTDATE tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testAllowPostdate() throws Exception
     {
@@ -436,8 +436,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when postdated tickets are disallowed that requests for
      * postdated tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testPostdated() throws Exception
     {
@@ -485,8 +485,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when postdated tickets are disallowed that requests for
      * validation of invalid tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testValidateInvalidTicket() throws Exception
     {
@@ -535,8 +535,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when renewable tickets are disallowed that requests for
      * renewal of tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testRenewTicket() throws Exception
     {
@@ -578,8 +578,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when renewable tickets are disallowed that requests for
      * RENEWABLE-OK tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testRenewableOk() throws Exception
     {
@@ -627,8 +627,8 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
     /**
      * Tests when renewable tickets are disallowed that requests for
      * renewable tickets fail with the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testRenewableTicket() throws Exception
     {

@@ -40,6 +40,7 @@ import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
 import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -53,7 +54,7 @@ import org.apache.mina.util.AvailablePortFinder;
  * and the Kerberos protocol.  As with any "three-headed" Kerberos
  * scenario, there are 3 principals:  1 for the test user, 1 for the
  * Kerberos ticket-granting service (TGS), and 1 for the LDAP service.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -85,7 +86,8 @@ public class SaslGssapiBindITest extends AbstractServerTest
         ldapConfig.setSaslHost( "localhost" );
         ldapConfig.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
-        KdcConfiguration kdcConfig = new KdcConfiguration();
+        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
+        KdcConfiguration kdcConfig = new KdcConfiguration( null, socketAcceptor, apacheDS.getDirectoryService() );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.setSecurityAuthentication( "simple" );
@@ -150,7 +152,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         {
             Attribute disabled = new AttributeImpl( "m-disabled" );
             ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+                    {new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled )};
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
@@ -181,10 +183,11 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
     /**
      * Convenience method for creating principals.
-     * @param cn the commonName of the person
-     * @param principal the kerberos principal name for the person
-     * @param sn the surName of the person
-     * @param uid the unique identifier for the person
+     *
+     * @param cn           the commonName of the person
+     * @param principal    the kerberos principal name for the person
+     * @param sn           the surName of the person
+     * @param uid          the unique identifier for the person
      * @param userPassword the credentials of the person
      * @return the attributes of the person principal
      */
@@ -211,6 +214,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
     /**
      * Convenience method for creating an organizational unit.
+     *
      * @param ou the ou of the organizationalUnit
      * @return the attributes of the organizationalUnit
      */

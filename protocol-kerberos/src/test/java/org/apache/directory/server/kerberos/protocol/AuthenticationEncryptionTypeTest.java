@@ -68,7 +68,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      */
     public AuthenticationEncryptionTypeTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcConfiguration( null, null, null );
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();

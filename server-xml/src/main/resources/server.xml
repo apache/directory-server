@@ -147,26 +147,28 @@
     </ldapConfiguration>
   </apacheDS>
 
+  <standardThreadPool maxThreads="8"/>
+  <datagramAcceptor executor="#standardThreadPool"/>
+  <socketAcceptor executor="#standardThreadPool"/>
+
   <changePasswordConfiguration ipPort="80464">
     <directoryService>#directoryService</directoryService>
-    <apacheDs>#apacheDS</apacheDs>
+    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
+    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </changePasswordConfiguration>
   <kdcConfiguration ipPort="80088">
     <directoryService>#directoryService</directoryService>
-    <apacheDs>#apacheDS</apacheDs>
+    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
+    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </kdcConfiguration>
   <ntpConfiguration ipPort="80123">
-    <apacheDs>#apacheDS</apacheDs>
+    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
+    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </ntpConfiguration>
-  <udpNtpConfiguration ipPort="81123">
-    <apacheDs>#apacheDS</apacheDs>
-  </udpNtpConfiguration>
-  <tcpNtpConfiguration ipPort="81123">
-    <apacheDs>#apacheDS</apacheDs>
-  </tcpNtpConfiguration>
   <dnsConfiguration ipPort="8053">
     <directoryService>#directoryService</directoryService>
-    <apacheDs>#apacheDS</apacheDs>
+    <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
+    <socketAcceptor>#socketAcceptor</socketAcceptor>
   </dnsConfiguration>
 
   <!-- another bean I didn't convert -->

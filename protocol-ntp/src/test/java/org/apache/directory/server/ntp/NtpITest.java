@@ -26,20 +26,19 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.protocol.shared.DatagramAcceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.mina.util.AvailablePortFinder;
 
 
 /**
  * An {@link AbstractServerTest} testing the Network Time Protocol (NTP).
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class NtpITest extends TestCase
 {
-    private ApacheDS apacheDS;
     private NtpConfiguration ntpConfig;
     private int port;
 
@@ -49,8 +48,8 @@ public class NtpITest extends TestCase
      */
     public void setUp() throws Exception
     {
-        apacheDS = new ApacheDS();
-        ntpConfig = new NtpConfiguration( apacheDS );
+        DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
+        ntpConfig = new NtpConfiguration( datagramAcceptor, null );
         ntpConfig.setEnabled( true );
         port = AvailablePortFinder.getNextAvailable( 10123 );
         ntpConfig.setIpPort( port );
@@ -60,8 +59,8 @@ public class NtpITest extends TestCase
 
     /**
      * Tests to make sure NTP works when enabled in the server.
-     * 
-     * @throws Exception  if there are errors
+     *
+     * @throws Exception if there are errors
      */
     public void testNtp() throws Exception
     {

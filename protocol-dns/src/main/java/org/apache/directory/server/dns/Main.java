@@ -20,20 +20,12 @@
 package org.apache.directory.server.dns;
 
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
 
-import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.dns.store.RecordStoreStub;
-import org.apache.directory.server.configuration.ApacheDS;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.mina.common.ExecutorThreadModel;
-import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.DatagramAcceptor;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,16 +56,15 @@ public class Main
     /**
      * Start an instance of the DNS server.
      */
-    public void go()
+    public void go() throws IOException
     {
-        ApacheDS apacheDS = new ApacheDS();
+        DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
+        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
         DirectoryService directoryService = new DefaultDirectoryService();
-        dnsConfiguration = new DnsConfiguration( apacheDS, directoryService );
+        dnsConfiguration = new DnsConfiguration( datagramAcceptor, socketAcceptor, directoryService );
         dnsConfiguration.setEnabled( true );
         dnsConfiguration.setIpPort( 10053 );
-
-        RecordStore store = new RecordStoreStub();
-
+        dnsConfiguration.start();
     }
 
 

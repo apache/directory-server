@@ -61,7 +61,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      */
     public PreAuthenticationTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcConfiguration( null, null, null );
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();

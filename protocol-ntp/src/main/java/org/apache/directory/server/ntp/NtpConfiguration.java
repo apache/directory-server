@@ -20,47 +20,54 @@
 package org.apache.directory.server.ntp;
 
 
-import java.net.InetSocketAddress;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
-import org.apache.directory.server.configuration.ApacheDS;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.mina.common.ThreadModel;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
+import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
 /**
  * Contains the configuration parameters for the NTP protocol provider.
  *
- * @org.apache.xbean.XBean
- *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
+ * @org.apache.xbean.XBean
  */
 public class NtpConfiguration extends ServiceConfiguration
 {
     private static final long serialVersionUID = 2961795205765175775L;
 
-    /** The default IP port. */
+    /**
+     * The default IP port.
+     */
     private static final int IP_PORT_DEFAULT = 123;
 
-    /** The default service pid. */
+    /**
+     * The default service pid.
+     */
     private static final String SERVICE_PID_DEFAULT = "org.apache.directory.server.ntp";
 
-    /** The default service name. */
+    /**
+     * The default service name.
+     */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
-    private final ApacheDS apacheDS;
+    private final DatagramAcceptor datagramAcceptor;
+    private final SocketAcceptor socketAcceptor;
 
     /**
      * Creates a new instance of NtpConfiguration.
      */
-    public NtpConfiguration( ApacheDS apacheDS )
+    public NtpConfiguration( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor )
     {
-        this.apacheDS = apacheDS;
+        this.datagramAcceptor = datagramAcceptor;
+        this.socketAcceptor = socketAcceptor;
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
@@ -72,11 +79,19 @@ public class NtpConfiguration extends ServiceConfiguration
     public void start() throws IOException
     {
         //If appropriate, the udp and tcp servers could be enabled with boolean flags.
-        DatagramAcceptorConfig udpConfig = getUdpConfig();
-        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
+        if ( datagramAcceptor != null )
+        {
+            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
+        }
 
-        SocketAcceptorConfig tcpConfig = getTcpConfig();
-        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
+        if ( socketAcceptor != null )
+        {
+            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+            tcpConfig.setDisconnectOnUnbind( false );
+            tcpConfig.setReuseAddress( true );
+            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
+        }
     }
 
     /**
@@ -84,24 +99,14 @@ public class NtpConfiguration extends ServiceConfiguration
      */
     public void stop()
     {
-        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
-        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
-    }
-
-    private SocketAcceptorConfig getTcpConfig()
-    {
-        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-        tcpConfig.setDisconnectOnUnbind( false );
-        tcpConfig.setReuseAddress( true );
-        tcpConfig.setThreadModel( ThreadModel.MANUAL );
-        return tcpConfig;
-    }
-
-    private DatagramAcceptorConfig getUdpConfig()
-    {
-        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-        udpConfig.setThreadModel( ThreadModel.MANUAL );
-        return udpConfig;
+        if ( datagramAcceptor != null )
+        {
+            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
+        if ( socketAcceptor != null )
+        {
+            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
     }
 
 }

@@ -30,7 +30,6 @@ import java.net.UnknownHostException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
-
 import org.apache.directory.server.changepw.ChangePasswordLDAPServers;
 import org.apache.directory.server.changepw.io.ChangePasswordDataEncoder;
 import org.apache.directory.server.changepw.messages.ChangePasswordError;
@@ -78,8 +77,10 @@ import org.apache.mina.common.support.BaseIoSession;
  */
 public class ChangepwProtocolHandlerTest extends TestCase
 {
-    /** The Change Password SUCCESS result code. */
-	// Never used...
+    /**
+     * The Change Password SUCCESS result code.
+     */
+    // Never used...
     //private static final byte[] SUCCESS = new byte[]
     //    { ( byte ) 0x00, ( byte ) 0x00 };
 
@@ -96,7 +97,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      */
     public ChangepwProtocolHandlerTest()
     {
-        config = new ChangePasswordLDAPServers();
+        config = new ChangePasswordLDAPServers( null, null, null );
         store = new MapPrincipalStoreImpl();
         handler = new ChangePasswordProtocolHandler( config, store );
         session = new DummySession();
@@ -137,8 +138,8 @@ public class ChangepwProtocolHandlerTest extends TestCase
     /**
      * Tests when the INITIAL flag is missing that the request is rejected with
      * the correct error message.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     public void testInitialFlagRequired() throws Exception
     {
@@ -165,7 +166,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         modifier.setSubSessionKey( subSessionKey );
 
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getSessionKey(), modifier
-            .getAuthenticator(), KeyUsage.NUMBER11 );
+                .getAuthenticator(), KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
 
@@ -189,30 +190,30 @@ public class ChangepwProtocolHandlerTest extends TestCase
     /**
      * TODO : Check if this method is important or not. It was called in
      * the testInitialFlagRequired() method above, but this call has been commented
-    private void processChangePasswordReply( ChangePasswordReply reply, EncryptionKey sessionKey,
-        EncryptionKey subSessionKey ) throws Exception
-    {
-        PrivateMessage privateMessage = reply.getPrivateMessage();
-
-        EncryptedData encPrivPart = privateMessage.getEncryptedPart();
-
-        EncKrbPrivPart privPart;
-
-        try
-        {
-            privPart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey, encPrivPart,
-                KeyUsage.NUMBER13 );
-        }
-        catch ( KerberosException ke )
-        {
-            return;
-        }
-
-        // Verify result code.
-        byte[] resultCode = privPart.getUserData();
-
-        assertTrue( "Password change returned SUCCESS (0x00 0x00).", Arrays.equals( SUCCESS, resultCode ) );
-    }
+     * private void processChangePasswordReply( ChangePasswordReply reply, EncryptionKey sessionKey,
+     * EncryptionKey subSessionKey ) throws Exception
+     * {
+     * PrivateMessage privateMessage = reply.getPrivateMessage();
+     * <p/>
+     * EncryptedData encPrivPart = privateMessage.getEncryptedPart();
+     * <p/>
+     * EncKrbPrivPart privPart;
+     * <p/>
+     * try
+     * {
+     * privPart = ( EncKrbPrivPart ) cipherTextHandler.unseal( EncKrbPrivPart.class, subSessionKey, encPrivPart,
+     * KeyUsage.NUMBER13 );
+     * }
+     * catch ( KerberosException ke )
+     * {
+     * return;
+     * }
+     * <p/>
+     * // Verify result code.
+     * byte[] resultCode = privPart.getUserData();
+     * <p/>
+     * assertTrue( "Password change returned SUCCESS (0x00 0x00).", Arrays.equals( SUCCESS, resultCode ) );
+     * }
      */
 
 
@@ -239,7 +240,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         modifier.setClientMicroSecond( 0 );
 
         EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serverKey, modifier.getAuthenticator(),
-            KeyUsage.NUMBER11 );
+                KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
 
@@ -261,7 +262,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      * Legacy kpasswd (Change Password) version.  User data is the password bytes.
      */
     private PrivateMessage getChangePasswordPrivateMessage( String newPassword, EncryptionKey subSessionKey )
-        throws UnsupportedEncodingException, KerberosException, UnknownHostException
+            throws UnsupportedEncodingException, KerberosException, UnknownHostException
     {
         // Make private message part.
         EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();
@@ -286,8 +287,8 @@ public class ChangepwProtocolHandlerTest extends TestCase
      * Set/Change Password version.  User data is an encoding of the new password and the target principal.
      */
     private PrivateMessage getSetPasswordPrivateMessage( String newPassword, EncryptionKey subSessionKey,
-        PrincipalName targetPrincipalName ) throws UnsupportedEncodingException, KerberosException,
-        UnknownHostException, IOException
+            PrincipalName targetPrincipalName ) throws UnsupportedEncodingException, KerberosException,
+            UnknownHostException, IOException
     {
         // Make private message part.
         EncKrbPrivPartModifier privPartModifier = new EncKrbPrivPartModifier();

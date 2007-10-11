@@ -38,11 +38,6 @@
       <artifactId>apacheds-kerberos-shared</artifactId>
       <version>${pom.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-server-jndi</artifactId>
-      <version>${pom.version}</version>
-    </dependency>
   </dependencies>
 </project>
 

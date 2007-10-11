@@ -39,6 +39,10 @@
       <artifactId>apacheds-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
   </dependencies>
 
 

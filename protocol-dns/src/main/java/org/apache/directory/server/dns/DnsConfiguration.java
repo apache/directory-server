@@ -23,15 +23,15 @@ package org.apache.directory.server.dns;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
-import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
-import org.apache.mina.common.ThreadModel;
 
 
 /**
@@ -55,17 +55,18 @@ public class DnsConfiguration extends ServiceConfiguration
     /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS DNS Service";
 
-    private DirectoryService directoryService;
-
-    private ApacheDS apacheDS;
+    private final DirectoryService directoryService;
+    private final DatagramAcceptor datagramAcceptor;
+    private final SocketAcceptor socketAcceptor;
 
 
     /**
      * Creates a new instance of DnsConfiguration.
      */
-    public DnsConfiguration( ApacheDS apacheDS, DirectoryService directoryService)
+    public DnsConfiguration(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
     {
-        this.apacheDS = apacheDS;
+        this.datagramAcceptor = datagramAcceptor;
+        this.socketAcceptor = socketAcceptor;
         this.directoryService = directoryService;
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
@@ -79,22 +80,32 @@ public class DnsConfiguration extends ServiceConfiguration
     {
         RecordStore store = new JndiRecordStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
 
-        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-        udpConfig.setThreadModel( ThreadModel.MANUAL );
-        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), udpConfig );
+        if ( datagramAcceptor != null )
+        {
+            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), udpConfig );
+        }
 
-        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-        tcpConfig.setDisconnectOnUnbind( false );
-        tcpConfig.setReuseAddress( true );
-        tcpConfig.setThreadModel( ThreadModel.MANUAL );
-        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
+        if ( socketAcceptor != null )
+        {
+            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+            tcpConfig.setDisconnectOnUnbind( false );
+            tcpConfig.setReuseAddress( true );
+            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
+        }
     }
 
     /**
      * @org.apache.xbean.DestroyMethod
      */
     public void stop() {
-        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
-        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+        if ( datagramAcceptor != null )
+        {
+            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
+        if ( socketAcceptor != null )
+        {
+            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
     }
 }

@@ -20,22 +20,22 @@
 package org.apache.directory.server.changepw;
 
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.net.InetSocketAddress;
-import java.io.IOException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
-import org.apache.mina.common.ThreadModel;
+import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
@@ -112,16 +112,21 @@ public class ChangePasswordLDAPServers extends ServiceConfiguration
     /** The policy for token size. */
     private int policyTokenSize;
 
-    private DirectoryService directoryService;
+    private final DirectoryService directoryService;
 
-    private ApacheDS apacheDS;
+    private final DatagramAcceptor datagramAcceptor;
+    private final SocketAcceptor socketAcceptor;
 
 
     /**
      * Creates a new instance of ChangePasswordConfiguration.
      */
-    public ChangePasswordLDAPServers()
+    public ChangePasswordLDAPServers( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService )
     {
+        this.datagramAcceptor = datagramAcceptor;
+        this.socketAcceptor = socketAcceptor;
+        this.directoryService = directoryService;
+
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
@@ -264,26 +269,6 @@ public class ChangePasswordLDAPServers extends ServiceConfiguration
     }
 
 
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    public ApacheDS getApacheDS()
-    {
-        return apacheDS;
-    }
-
-    public void setApacheDS( ApacheDS apacheDS )
-    {
-        this.apacheDS = apacheDS;
-    }
-
     /**
      * @org.apache.xbean.InitMethod
      */
@@ -291,23 +276,33 @@ public class ChangePasswordLDAPServers extends ServiceConfiguration
     {
         PrincipalStore store = new JndiPrincipalStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
 
-        DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-        udpConfig.setThreadModel( ThreadModel.MANUAL );
-        apacheDS.getUdpAcceptor().bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), udpConfig );
+        if ( datagramAcceptor != null )
+        {
+            DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
+            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), udpConfig );
+        }
 
-        SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
-        tcpConfig.setDisconnectOnUnbind( false );
-        tcpConfig.setReuseAddress( true );
-        tcpConfig.setThreadModel( ThreadModel.MANUAL );
-        apacheDS.getTcpAcceptor().bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), tcpConfig );
+        if ( socketAcceptor != null )
+        {
+            SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
+            tcpConfig.setDisconnectOnUnbind( false );
+            tcpConfig.setReuseAddress( true );
+            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), tcpConfig );
+        }
     }
 
     /**
      * @org.apache.xbean.DestroyMethod
      */
     public void stop() {
-        apacheDS.getUdpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
-        apacheDS.getTcpAcceptor().unbind( new InetSocketAddress( getIpPort() ));
+        if ( datagramAcceptor != null )
+        {
+            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
+        if ( socketAcceptor != null )
+        {
+            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+        }
     }
 
     private void prepareEncryptionTypes()
