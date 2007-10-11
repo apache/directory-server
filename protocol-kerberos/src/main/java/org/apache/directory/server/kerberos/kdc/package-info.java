@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides the entry point to an instance of the {@link KdcConfiguration}
+ * Provides the entry point to an instance of the {@link KdcServer}
  * (KDC), as well as classes common to the KDC's two services:  the
  * Authentication Service (AS) and the Ticket-Granting Service (TGS).  The
  * AS and TGS service implementations follow the Chain of Responsibility

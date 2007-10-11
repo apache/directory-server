@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -70,7 +70,7 @@ public class GenerateTicket implements IoHandlerCommand
         EncryptionType encryptionType = tgsContext.getEncryptionType();
         EncryptionKey serverKey = tgsContext.getRequestPrincipalEntry().getKeyMap().get( encryptionType );
 
-        KdcConfiguration config = tgsContext.getConfig();
+        KdcServer config = tgsContext.getConfig();
 
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
 
@@ -127,7 +127,7 @@ public class GenerateTicket implements IoHandlerCommand
     }
 
 
-    private void processFlags( KdcConfiguration config, KdcRequest request, Ticket tgt,
+    private void processFlags( KdcServer config, KdcRequest request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException
     {
         if ( tgt.getFlag( TicketFlags.PRE_AUTHENT ) )
@@ -305,7 +305,7 @@ public class GenerateTicket implements IoHandlerCommand
     }
 
 
-    private void processTimes( KdcConfiguration config, KdcRequest request, EncTicketPartModifier newTicketBody,
+    private void processTimes( KdcServer config, KdcRequest request, EncTicketPartModifier newTicketBody,
         Ticket tgt ) throws KerberosException
     {
         KerberosTime now = new KerberosTime();

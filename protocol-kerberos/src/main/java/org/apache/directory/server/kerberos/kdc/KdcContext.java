@@ -37,7 +37,7 @@ public class KdcContext
 {
     private static final long serialVersionUID = 6490030984626825108L;
 
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KdcRequest request;
     private KerberosMessage reply;
@@ -49,7 +49,7 @@ public class KdcContext
     /**
      * @return Returns the config.
      */
-    public KdcConfiguration getConfig()
+    public KdcServer getConfig()
     {
         return config;
     }
@@ -58,7 +58,7 @@ public class KdcContext
     /**
      * @param config The config to set.
      */
-    public void setConfig( KdcConfiguration config )
+    public void setConfig( KdcServer config )
     {
         this.config = config;
     }

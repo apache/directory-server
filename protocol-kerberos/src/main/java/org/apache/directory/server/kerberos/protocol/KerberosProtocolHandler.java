@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationServiceChain;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
@@ -58,7 +58,7 @@ public class KerberosProtocolHandler implements IoHandler
 {
     private static final Logger log = LoggerFactory.getLogger( KerberosProtocolHandler.class );
 
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private IoHandlerCommand authService;
     private IoHandlerCommand tgsService;
@@ -71,7 +71,7 @@ public class KerberosProtocolHandler implements IoHandler
      * @param config
      * @param store
      */
-    public KerberosProtocolHandler( KdcConfiguration config, PrincipalStore store )
+    public KerberosProtocolHandler( KdcServer config, PrincipalStore store )
     {
         this.config = config;
         this.store = store;

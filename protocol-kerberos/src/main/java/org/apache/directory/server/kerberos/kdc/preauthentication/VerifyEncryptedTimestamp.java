@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.kdc.preauthentication;
 
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -62,7 +62,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
         }
 
         log.debug( "Verifying using encrypted timestamp." );
-        KdcConfiguration config = authContext.getConfig();
+        KdcServer config = authContext.getConfig();
         KdcRequest request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();

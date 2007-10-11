@@ -39,7 +39,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @version $Rev$, $Date$
  * @org.apache.xbean.XBean
  */
-public class NtpConfiguration extends ServiceConfiguration
+public class NtpServer extends ServiceConfiguration
 {
     private static final long serialVersionUID = 2961795205765175775L;
 
@@ -64,7 +64,7 @@ public class NtpConfiguration extends ServiceConfiguration
     /**
      * Creates a new instance of NtpConfiguration.
      */
-    public NtpConfiguration( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor )
+    public NtpServer( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor )
     {
         this.datagramAcceptor = datagramAcceptor;
         this.socketAcceptor = socketAcceptor;

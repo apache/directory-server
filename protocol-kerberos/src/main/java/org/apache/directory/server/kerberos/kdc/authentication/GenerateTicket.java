@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -70,7 +70,7 @@ public class GenerateTicket implements IoHandlerCommand
 
         KerberosPrincipal ticketPrincipal = request.getServerPrincipal();
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
-        KdcConfiguration config = authContext.getConfig();
+        KdcServer config = authContext.getConfig();
 
         // The INITIAL flag indicates that a ticket was issued using the AS protocol.
         newTicketBody.setFlag( TicketFlags.INITIAL );

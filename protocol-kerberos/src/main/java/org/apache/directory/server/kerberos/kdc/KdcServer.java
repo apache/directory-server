@@ -47,7 +47,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KdcConfiguration extends ServiceConfiguration
+public class KdcServer extends ServiceConfiguration
 {
     private static final long serialVersionUID = 522567370475574165L;
 
@@ -150,7 +150,7 @@ public class KdcConfiguration extends ServiceConfiguration
     /**
      * Creates a new instance of KdcConfiguration.
      */
-    public KdcConfiguration(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
+    public KdcServer(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
     {
         this.datagramAcceptor = datagramAcceptor;
         this.socketAcceptor = socketAcceptor;

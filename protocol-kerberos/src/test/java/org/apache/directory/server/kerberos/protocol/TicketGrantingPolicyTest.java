@@ -24,7 +24,7 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -49,7 +49,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -60,7 +60,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      */
     public TicketGrantingPolicyTest()
     {
-        config = new KdcConfiguration( null, null, null );
+        config = new KdcServer( null, null, null );
 
         /*
          * Body checksum verification must be disabled because we are bypassing

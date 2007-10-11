@@ -22,7 +22,7 @@ package org.apache.directory.server.changepw.service;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.changepw.ChangePasswordLDAPServers;
+import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -42,7 +42,7 @@ public class VerifyServiceTicket implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
-        ChangePasswordLDAPServers config = changepwContext.getConfig();
+        ChangePasswordServer config = changepwContext.getConfig();
         Ticket ticket = changepwContext.getTicket();
         String primaryRealm = config.getPrimaryRealm();
         KerberosPrincipal changepwPrincipal = config.getServicePrincipal();

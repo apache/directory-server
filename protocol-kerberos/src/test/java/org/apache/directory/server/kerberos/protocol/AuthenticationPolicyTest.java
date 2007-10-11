@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
@@ -38,7 +38,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -49,7 +49,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      */
     public AuthenticationPolicyTest()
     {
-        config = new KdcConfiguration( null, null, null );
+        config = new KdcServer( null, null, null );
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();

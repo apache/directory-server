@@ -44,7 +44,7 @@ public class SelectEncryptionType implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
-        KdcConfiguration config = kdcContext.getConfig();
+        KdcServer config = kdcContext.getConfig();
 
         EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
 

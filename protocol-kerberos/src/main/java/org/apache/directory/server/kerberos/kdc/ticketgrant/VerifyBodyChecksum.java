@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -48,7 +48,7 @@ public class VerifyBodyChecksum implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
-        KdcConfiguration config = tgsContext.getConfig();
+        KdcServer config = tgsContext.getConfig();
 
         if ( config.isBodyChecksumVerified() )
         {

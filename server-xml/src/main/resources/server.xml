@@ -151,25 +151,25 @@
   <datagramAcceptor executor="#standardThreadPool"/>
   <socketAcceptor executor="#standardThreadPool"/>
 
-  <changePasswordConfiguration ipPort="80464">
+  <changePasswordServer ipPort="80464">
     <directoryService>#directoryService</directoryService>
     <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </changePasswordConfiguration>
-  <kdcConfiguration ipPort="80088">
+  </changePasswordServer>
+  <kdcServer ipPort="80088">
     <directoryService>#directoryService</directoryService>
     <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </kdcConfiguration>
-  <ntpConfiguration ipPort="80123">
+  </kdcServer>
+  <ntpServer ipPort="80123">
     <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </ntpConfiguration>
-  <dnsConfiguration ipPort="8053">
+  </ntpServer>
+  <dnsServer ipPort="8053">
     <directoryService>#directoryService</directoryService>
     <datagramAcceptor>#datagramAcceptor</datagramAcceptor>
     <socketAcceptor>#socketAcceptor</socketAcceptor>
-  </dnsConfiguration>
+  </dnsServer>
 
   <!-- another bean I didn't convert -->
   <spring:bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">

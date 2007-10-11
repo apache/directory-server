@@ -39,7 +39,7 @@ import org.apache.mina.util.AvailablePortFinder;
  */
 public class NtpITest extends TestCase
 {
-    private NtpConfiguration ntpConfig;
+    private NtpServer ntpConfig;
     private int port;
 
 
@@ -49,7 +49,7 @@ public class NtpITest extends TestCase
     public void setUp() throws Exception
     {
         DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
-        ntpConfig = new NtpConfiguration( datagramAcceptor, null );
+        ntpConfig = new NtpServer( datagramAcceptor, null );
         ntpConfig.setEnabled( true );
         port = AvailablePortFinder.getNextAvailable( 10123 );
         ntpConfig.setIpPort( port );

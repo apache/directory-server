@@ -47,7 +47,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordLDAPServers extends ServiceConfiguration
+public class ChangePasswordServer extends ServiceConfiguration
 {
     private static final long serialVersionUID = 3509208713288140629L;
 
@@ -121,7 +121,7 @@ public class ChangePasswordLDAPServers extends ServiceConfiguration
     /**
      * Creates a new instance of ChangePasswordConfiguration.
      */
-    public ChangePasswordLDAPServers( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService )
+    public ChangePasswordServer( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService )
     {
         this.datagramAcceptor = datagramAcceptor;
         this.socketAcceptor = socketAcceptor;

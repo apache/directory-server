@@ -23,7 +23,7 @@ package org.apache.directory.server.dns.protocol;
 
 import java.util.ArrayList;
 
-import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.dns.DnsServer;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.DnsMessage;
 import org.apache.directory.server.dns.messages.DnsMessageModifier;
@@ -52,7 +52,7 @@ public class DnsProtocolHandler implements IoHandler
 {
     private static final Logger log = LoggerFactory.getLogger( DnsProtocolHandler.class );
 
-    private DnsConfiguration config;
+    private DnsServer config;
     private RecordStore store;
     private IoHandlerCommand dnsService;
     private String contextKey = "context";
@@ -64,7 +64,7 @@ public class DnsProtocolHandler implements IoHandler
      * @param config
      * @param store
      */
-    public DnsProtocolHandler( DnsConfiguration config, RecordStore store )
+    public DnsProtocolHandler( DnsServer config, RecordStore store )
     {
         this.config = config;
         this.store = store;

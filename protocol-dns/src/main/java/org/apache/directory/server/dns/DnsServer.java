@@ -42,7 +42,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsConfiguration extends ServiceConfiguration
+public class DnsServer extends ServiceConfiguration
 {
     private static final long serialVersionUID = 6943138644427163149L;
 
@@ -63,7 +63,7 @@ public class DnsConfiguration extends ServiceConfiguration
     /**
      * Creates a new instance of DnsConfiguration.
      */
-    public DnsConfiguration(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
+    public DnsServer(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
     {
         this.datagramAcceptor = datagramAcceptor;
         this.socketAcceptor = socketAcceptor;

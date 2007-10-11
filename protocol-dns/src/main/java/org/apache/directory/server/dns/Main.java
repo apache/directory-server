@@ -39,7 +39,7 @@ public class Main
     /** Logger for this class */
     private static final Logger log = LoggerFactory.getLogger( Main.class );
 
-    private static DnsConfiguration dnsConfiguration;
+    private static DnsServer dnsConfiguration;
 
     /**
      * Entry point for the DNS server.
@@ -61,7 +61,7 @@ public class Main
         DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
         DirectoryService directoryService = new DefaultDirectoryService();
-        dnsConfiguration = new DnsConfiguration( datagramAcceptor, socketAcceptor, directoryService );
+        dnsConfiguration = new DnsServer( datagramAcceptor, socketAcceptor, directoryService );
         dnsConfiguration.setEnabled( true );
         dnsConfiguration.setIpPort( 10053 );
         dnsConfiguration.start();

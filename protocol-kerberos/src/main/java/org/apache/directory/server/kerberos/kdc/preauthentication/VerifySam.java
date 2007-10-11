@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.kdc.preauthentication;
 
 import javax.security.auth.kerberos.KerberosKey;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.sam.SamException;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
@@ -61,7 +61,7 @@ public class VerifySam extends VerifierBase
         log.debug( "Verifying using SAM subsystem." );
         AuthenticationContext authContext = ( AuthenticationContext ) session.getAttribute( getContextKey() );
         KdcRequest request = authContext.getRequest();
-        KdcConfiguration config = authContext.getConfig();
+        KdcServer config = authContext.getConfig();
 
         PrincipalStoreEntry clientEntry = authContext.getClientEntry();
         String clientName = clientEntry.getPrincipal().getName();

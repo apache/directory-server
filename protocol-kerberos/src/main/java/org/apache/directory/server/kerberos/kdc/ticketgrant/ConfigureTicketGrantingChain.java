@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -45,7 +45,7 @@ public class ConfigureTicketGrantingChain implements IoHandlerCommand
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
 
-        KdcConfiguration config = tgsContext.getConfig();
+        KdcServer config = tgsContext.getConfig();
         long clockSkew = config.getAllowableClockSkew();
         replayCache.setClockSkew( clockSkew );
         tgsContext.setReplayCache( replayCache );

@@ -87,7 +87,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
         ldapConfig.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
-        KdcConfiguration kdcConfig = new KdcConfiguration( null, socketAcceptor, apacheDS.getDirectoryService() );
+        KdcServer kdcConfig = new KdcServer( null, socketAcceptor, apacheDS.getDirectoryService() );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.setSecurityAuthentication( "simple" );

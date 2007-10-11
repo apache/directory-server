@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncoder;
@@ -50,7 +50,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -61,7 +61,7 @@ public class PreAuthenticationTest extends AbstractAuthenticationServiceTest
      */
     public PreAuthenticationTest()
     {
-        config = new KdcConfiguration( null, null, null );
+        config = new KdcServer( null, null, null );
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();

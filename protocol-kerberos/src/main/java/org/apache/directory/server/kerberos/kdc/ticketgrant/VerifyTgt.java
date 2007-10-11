@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -45,7 +45,7 @@ public class VerifyTgt implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
-        KdcConfiguration config = tgsContext.getConfig();
+        KdcServer config = tgsContext.getConfig();
         Ticket tgt = tgsContext.getTgt();
 
         // Check primary realm.
