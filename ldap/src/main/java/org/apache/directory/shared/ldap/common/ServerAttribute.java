@@ -64,13 +64,33 @@ import org.apache.directory.shared.ldap.schema.Normalizer;
  * Why not track the AttributeType associated with the ServerAttribute as we
  * discussed a while back at LDAPCon?  It makes sense to access the attributeType
  * directly from the ServerAttribute instead of having to fish for it in the
- * registries.  Perhaps the attributeType can be dynamically looked up from within
+ * registries.  
+ * 
+ * @todo ELE - Yeah, it seems to be a good idea, if we can get this informtion.
+ * The main pb is that this object is created during the decoding phase, so
+ * we have to see how we can provide access to the registry in codec.
+ *
+ * 
+ * @todo ALEX -
+ * Perhaps the attributeType can be dynamically looked up from within
  * implementors of this interface (to respond to schema changes) to dynamically
  * resolve their respective type information.  Internally checks should be performed
  * while adding values.
+ * 
+ * @todo ELE :
+ * I would rather prefer to be sure that we push correct values into a ServerAttribute
+ * instead of checking the correctness of those values in ServerAttribute.
+ * 
  * @todo ALEX - Remove after resolution:
  * Also I thought we would use polymorphism for the different kinds of attributes:
  * Binary verses NonBinary.  Is there value in this?
+ * 
+ * @todo ELE -
+ * yes, value are either Binary or String, but now, I'm not sure this is a good choice,
+ * because we need more types : AttributeType for ObjectClass (if we store "top", or 
+ * "person" as String into a value, we will need to convert them to OID in order to
+ * do some schema check later in the SchemaInterceptor: not really good. The pb 
+ * is the same for DistinguishedName : do we need a DNValue?
  *
  * @author <a href="mailto:dev@directory.apache.org"> Apache Directory Project</a>
  * @version $Rev: 499013 $

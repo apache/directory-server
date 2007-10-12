@@ -53,6 +53,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * may need two kinds of put, remove and add methods where one performs schema checks
  * and the other does not.  I don't know if this is mixing concerns but I'd like to
  * explore the idea somewhat. 
+ * 
+ * @todo ELE -
+ * Make sense. It will spare some access to the registry everywhere, as the instance will 
+ * be selfaware of its MAY and MUST 
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
