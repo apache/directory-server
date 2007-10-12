@@ -1064,7 +1064,7 @@ public class JdbmStore
         hierarchyIdx.add( parentId, id );
 
         // Now work on the user defined userIndices
-        NamingEnumeration list = entry.getIDs();
+        NamingEnumeration<String> list = entry.getIDs();
         
         while ( list.hasMore() )
         {
@@ -1077,7 +1077,7 @@ public class JdbmStore
                 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
-                NamingEnumeration values = entry.get( attributeId ).getAll();
+                NamingEnumeration<?> values = entry.get( attributeId ).getAll();
 
                 while ( values.hasMore() )
                 {
@@ -1108,7 +1108,7 @@ public class JdbmStore
     {
         Attributes entry = lookup( id );
         Long parentId = getParentId( id );
-        NamingEnumeration attrs = entry.getIDs();
+        NamingEnumeration<String> attrs = entry.getIDs();
 
         Attribute objectClass = AttributeUtils.getAttribute( entry, OBJECT_CLASS_AT );
         
@@ -1138,7 +1138,7 @@ public class JdbmStore
 
                 // here lookup by attributeId is ok since we got attributeId from 
                 // the entry via the enumeration - it's in there as is for sure
-                NamingEnumeration values = entry.get( attributeId ).getAll();
+                NamingEnumeration<?> values = entry.get( attributeId ).getAll();
 
                 while ( values.hasMore() )
                 {
@@ -1375,7 +1375,7 @@ public class JdbmStore
         else
         {
             Attribute entryAttr = AttributeUtils.getAttribute( entry, attrType );
-            NamingEnumeration values = mods.getAll();
+            NamingEnumeration<?> values = mods.getAll();
             
             while ( values.hasMore() )
             {
@@ -1458,7 +1458,7 @@ public class JdbmStore
 
     public void modify( LdapDN dn, int modOp, Attributes mods ) throws NamingException
     {
-        NamingEnumeration attrs;
+        NamingEnumeration<String> attrs;
         Long id = getEntryId( dn.toString() );
         Attributes entry = master.get( id );
 
@@ -1551,7 +1551,7 @@ public class JdbmStore
 
 
     /**
-     * Changes the relative distinuished name of an entry specified by a 
+     * Changes the relative distinguished name of an entry specified by a 
      * distinguished name with the optional removal of the old Rdn attribute
      * value from the entry.  Name changes propagate down as dn changes to the 
      * descendants of the entry where the Rdn changed. 
