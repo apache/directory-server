@@ -59,6 +59,7 @@ public class SaslBindITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         super.setUp();
+        setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -80,8 +81,6 @@ public class SaslBindITest extends AbstractServerTest
     @Override
     protected void configureDirectoryService()
     {
-        setAllowAnonymousAccess( false );
-        ldapServer.setSaslHost( "localhost" );
 
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();
@@ -106,6 +105,13 @@ public class SaslBindITest extends AbstractServerTest
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );
+    }
+
+
+    @Override
+    protected void configureLdapServer()
+    {
+        ldapServer.setSaslHost( "localhost" );
     }
 
     /**
