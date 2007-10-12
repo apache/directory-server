@@ -34,6 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 
 
@@ -58,35 +59,14 @@ public class LdapsITest extends AbstractServerTest
     {
         super.setUp();
 
-        int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
-        LdapServer ldapsServer = new LdapServer( socketAcceptor, directoryService );
-        ldapsServer.setEnableLdaps( true );
-        ldapsServer.setLdapsCertificatePassword( "boguspw" );
-        ldapsServer.setIpPort( ldapsPort );
-
-        // Copy the bogus certificate to the certificates directory.
-        InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
-        ldapsServer.getLdapsCertificateFile().getParentFile().mkdirs();
-
-        FileOutputStream out = new FileOutputStream( ldapsServer.getLdapsCertificateFile() );
-
-        for ( ;; )
-        {
-            int c = in.read();
-            if ( c < 0 )
-            {
-                break;
-            }
-            out.write( c );
-        }
-
-        in.close();
-        out.close();
+//        int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
+//
+//        LdapServer ldapsServer = new LdapServer( socketAcceptor, directoryService );
 
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapsPort + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
@@ -94,6 +74,40 @@ public class LdapsITest extends AbstractServerTest
         ctx = new InitialDirContext( env );
     }
 
+
+    @Override
+    protected void configureLdapServer()
+    {
+        ldapServer.setEnableLdaps( true );
+        ldapServer.setLdapsCertificatePassword( "boguspw" );
+//        ldapServer.setIpPort( ldapsPort );
+
+        // Copy the bogus certificate to the certificates directory.
+        InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
+        ldapServer.getLdapsCertificateFile().getParentFile().mkdirs();
+
+        try
+        {
+            FileOutputStream out = new FileOutputStream( ldapServer.getLdapsCertificateFile() );
+
+            for ( ;; )
+            {
+                int c = in.read();
+                if ( c < 0 )
+                {
+                    break;
+                }
+                out.write( c );
+            }
+
+            in.close();
+            out.close();
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+
+    }
 
     /**
      * Remove the person.
