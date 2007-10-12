@@ -58,6 +58,28 @@ public class SaslBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        super.setUp();
+
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        ctx = new InitialDirContext( env );
+
+        Attributes attrs = new AttributesImpl( true );
+        attrs = getOrgUnitAttributes( "users" );
+        DirContext users = ctx.createSubcontext( "ou=users", attrs );
+
+        attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret" );
+        users.createSubcontext( "uid=hnelson", attrs );
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
         setAllowAnonymousAccess( false );
         ldapServer.setSaslHost( "localhost" );
 
@@ -84,23 +106,7 @@ public class SaslBindITest extends AbstractServerTest
 
         partitions.add( partition );
         directoryService.setPartitions( partitions );
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
-        attrs = getOrgUnitAttributes( "users" );
-        DirContext users = ctx.createSubcontext( "ou=users", attrs );
-
-        attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret" );
-        users.createSubcontext( "uid=hnelson", attrs );
     }
-
 
     /**
      * Tear down.

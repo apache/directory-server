@@ -20,6 +20,22 @@
 package org.apache.directory.server;
 
 
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NoPermissionException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -34,16 +50,6 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NoPermissionException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.*;
-import javax.naming.ldap.InitialLdapContext;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
 
 
 /**
@@ -70,15 +76,21 @@ public class MiscTest extends AbstractServerTest
     public void setUp() throws Exception
     {
         if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
-             this.getName().equals( "testCompareWithoutAuthentication" ) )
+                this.getName().equals( "testCompareWithoutAuthentication" ) )
+        {
+            setAllowAnonymousAccess( false );
+        } else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
         {
             setAllowAnonymousAccess( false );
         }
-        else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
-        {
-            setAllowAnonymousAccess( false );
-        }
-        else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
+        super.setUp();
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
+        if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
             Set<Partition> partitions = new HashSet<Partition>();
             partitions.addAll( directoryService.getPartitions() );
@@ -96,8 +108,7 @@ public class MiscTest extends AbstractServerTest
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
             directoryService.setPartitions( partitions );
-        }
-        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
             // allow anonymous access
             setAllowAnonymousAccess( true );
@@ -120,10 +131,7 @@ public class MiscTest extends AbstractServerTest
             partitions.add( partition );
             directoryService.setPartitions( partitions );
         }
-
-        super.setUp();
     }
-
 
     public void testCompareWithoutAuthentication() throws LDAPException
     {
@@ -135,13 +143,13 @@ public class MiscTest extends AbstractServerTest
             conn.compare( "uid=admin,ou=system", attr );
             fail( "Compare success without authentication" );
         }
-        catch( LDAPException e )
+        catch ( LDAPException e )
         {
             assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
         }
     }
-    
-    
+
+
     /**
      * Test to make sure anonymous binds are disabled when going through
      * the wire protocol.
@@ -230,7 +238,7 @@ public class MiscTest extends AbstractServerTest
 
 
     /**
-     * Test to make sure that if anonymous binds are allowed a user may search 
+     * Test to make sure that if anonymous binds are allowed a user may search
      * within a a partition.
      *
      * @throws Exception if anything goes wrong
@@ -289,7 +297,7 @@ public class MiscTest extends AbstractServerTest
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
-            { "+" } );
+                {"+"} );
         NamingEnumeration list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
         SearchResult result = ( SearchResult ) list.next();
         list.close();
@@ -440,7 +448,7 @@ public class MiscTest extends AbstractServerTest
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
         ctx.setRequestControls( new MutableControl[]
-            { unsupported } );
+                {unsupported} );
 
         try
         {
@@ -454,6 +462,6 @@ public class MiscTest extends AbstractServerTest
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );
         assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(
-            "userPassword" ).get() ) );
+                "userPassword" ).get() ) );
     }
 }

@@ -65,22 +65,33 @@ public class NegationOperatorITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        super.setUp();
+        loadedEntries = super.loadTestLdif( true );
+        ctx = getWiredContext();
+        assertNotNull( ctx );
+        assertEquals( 5, loadedEntries.size() );
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
         if ( this.getName().indexOf( "Indexed" ) != -1 )
         {
             JdbmPartition system = new JdbmPartition();
             system.setId( "system" );
-            
+
             // @TODO need to make this configurable for the system partition
             system.setCacheSize( 500 );
-            
+
             system.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
-    
+
             // Add indexed attributes for system partition
             Set<Index> indexedAttrs = new HashSet<Index>();
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
             indexedAttrs.add( new JdbmIndex( SchemaConstants.OU_AT ) );
             system.setIndexedAttributes( indexedAttrs );
-    
+
             // Add context entry for system partition
             Attributes systemEntry = new AttributesImpl();
             Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
@@ -93,17 +104,10 @@ public class NegationOperatorITest extends AbstractServerTest
             systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
             system.setContextEntry( systemEntry );
-            
+
             directoryService.setSystemPartition( system );
         }
-        
-        super.setUp();
-        loadedEntries = super.loadTestLdif( true );
-        ctx = getWiredContext();
-        assertNotNull( ctx );
-        assertEquals( 5, loadedEntries.size() );
     }
-
 
     /**
      * Closes context and destroys server.

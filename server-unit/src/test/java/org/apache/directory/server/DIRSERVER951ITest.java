@@ -61,12 +61,22 @@ public class DIRSERVER951ITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        super.setUp();
+        super.loadTestLdif( true );
+        ctx = getWiredContext();
+        assertNotNull( ctx );
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
         JdbmPartition systemCfg = new JdbmPartition();
         systemCfg.setId( "system" );
-        
+
         // @TODO need to make this configurable for the system partition
         systemCfg.setCacheSize( 500 );
-        
+
         systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
 
         // Add indexed attributes for system partition
@@ -95,15 +105,9 @@ public class DIRSERVER951ITest extends AbstractServerTest
             NamespaceTools.getRdnValue( "ou=system" ) );
         systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
-        
-        directoryService.setSystemPartition( systemCfg );
-        
-        super.setUp();
-        super.loadTestLdif( true );
-        ctx = getWiredContext();
-        assertNotNull( ctx );
-    }
 
+        directoryService.setSystemPartition( systemCfg );
+    }
 
     /**
      * Closes context and destroys server.

@@ -237,12 +237,17 @@ public abstract class AbstractServerTest extends TestCase
         socketAcceptor = new SocketAcceptor( null );
         ldapServer = new LdapServer( socketAcceptor, directoryService );
         ldapServer.setIpPort( port );
+        configureLdapServer();
         ldapServer.start();
 
         setContexts( "uid=admin,ou=system", "secret" );
     }
 
     protected void configureDirectoryService()
+    {
+    }
+
+    protected void configureLdapServer()
     {
     }
 

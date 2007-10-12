@@ -50,12 +50,6 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
     
     public void setUp() throws Exception
     {
-        /////////////////////////////////////////////////////////
-        // Enable the Stored Procedure Extended Operation Handler
-        /////////////////////////////////////////////////////////
-        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapServer.getExtendedOperationHandlers() );
-        handlers.add( new StoredProcedureExtendedOperationHandler() );
-        ldapServer.setExtendedOperationHandlers( handlers );
 
         super.setUp();
 
@@ -73,6 +67,17 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
 
+
+    @Override
+    protected void configureLdapServer()
+    {
+        /////////////////////////////////////////////////////////
+        // Enable the Stored Procedure Extended Operation Handler
+        /////////////////////////////////////////////////////////
+        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapServer.getExtendedOperationHandlers() );
+        handlers.add( new StoredProcedureExtendedOperationHandler() );
+        ldapServer.setExtendedOperationHandlers( handlers );
+    }
 
     public void tearDown() throws Exception
     {
