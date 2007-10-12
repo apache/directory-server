@@ -109,11 +109,6 @@ public abstract class AbstractServerTest extends TestCase
             return EMPTY_LIST;
         }
         
-//        if ( ! apacheDS.isStarted() )
-//        {
-//            throw new ConfigurationException( "The server has not been started - cannot add entries." );
-//        }
-        
         LdifReader ldifReader = new LdifReader( in );
         List<Entry> entries = new ArrayList<Entry>();
         while ( ldifReader.hasNext() )
@@ -229,17 +224,16 @@ public abstract class AbstractServerTest extends TestCase
         start++;
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
+        socketAcceptor = new SocketAcceptor( null );
+        ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
+
         doDelete( directoryService.getWorkingDirectory() );
         configureDirectoryService();
         directoryService.startup();
-        port = AvailablePortFinder.getNextAvailable( 1024 );
 
-        socketAcceptor = new SocketAcceptor( null );
-        ldapServer = new LdapServer( socketAcceptor, directoryService );
-        ldapServer.setIpPort( port );
         configureLdapServer();
         ldapServer.start();
-
         setContexts( "uid=admin,ou=system", "secret" );
     }
 
