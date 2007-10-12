@@ -58,8 +58,8 @@ public class SaslBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        apacheDS.setAllowAnonymousAccess( false );
-        apacheDS.getLdapServer().setSaslHost( "localhost" );
+        setAllowAnonymousAccess( false );
+        ldapServer.setSaslHost( "localhost" );
 
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();
@@ -83,7 +83,7 @@ public class SaslBindITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        apacheDS.getDirectoryService().setPartitions( partitions );
+        directoryService.setPartitions( partitions );
         super.setUp();
 
         Hashtable<String, String> env = new Hashtable<String, String>();

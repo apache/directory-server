@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -48,10 +45,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.SimpleByteBufferAllocator;
-import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +59,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ApacheDS
 {
-    public static final String JNDI_KEY = ApacheDS.class.toString();
     public static final int MAX_THREADS_DEFAULT = 32;
 
     private static final String WINDOWSFILE_ATTR = "windowsFilePath";
@@ -74,7 +67,6 @@ public class ApacheDS
     private static final String LDIF_FILES_DN = "ou=loadedLdifFiles,ou=configuration,ou=system";
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
 
-    private int maxThreads = MAX_THREADS_DEFAULT; 
     private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
     private boolean enableNetworking = true;
     private Hashtable<String,Object> environment = new Hashtable<String,Object>();
@@ -82,25 +74,28 @@ public class ApacheDS
     private File ldifDirectory;
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
-    private LdapServer ldapServer;
-    private LdapServer ldapsServer;
-    private DirectoryService directoryService = new DefaultDirectoryService();
+    private final LdapServer ldapServer;
+    private final LdapServer ldapsServer;
+    private final DirectoryService directoryService;
 
-    private SocketAcceptor tcpAcceptor;
-    protected ExecutorService ioExecutor;
-    protected ExecutorService logicExecutor;
+//    private SocketAcceptor tcpAcceptor;
+//    protected ExecutorService ioExecutor;
+//    protected ExecutorService logicExecutor;
 
     
-    public ApacheDS()
+    public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
     {
-        ldapServer.setEnabled( true );
+        this.directoryService = directoryService == null? new DefaultDirectoryService(): directoryService;
+        this.ldapServer = ldapServer;
+        this.ldapsServer = ldapsServer;
+//        ldapServer.setEnabled( true );
 
         ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
         ByteBuffer.setUseDirectBuffers( false );
-        ioExecutor = Executors.newCachedThreadPool();
-        logicExecutor = Executors.newFixedThreadPool( maxThreads );
-        tcpAcceptor = new SocketAcceptor( Runtime.getRuntime().availableProcessors(), ioExecutor );
-        tcpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
+//        ioExecutor = Executors.newCachedThreadPool();
+//        logicExecutor = Executors.newFixedThreadPool( maxThreads );
+//        tcpAcceptor = new SocketAcceptor( Runtime.getRuntime().availableProcessors(), ioExecutor );
+//        tcpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
     }
 
 
@@ -113,6 +108,7 @@ public class ApacheDS
             directoryService.startup();
         }
 
+/*
         if ( ldapServer == null )
         {
             ldapServer = new LdapServer( tcpAcceptor );
@@ -132,17 +128,20 @@ public class ApacheDS
         {
             ldapsServer.start();
         }
+*/
     }
 
 
     public boolean isStarted()
     {
-        return ldapServer.isStarted() || ldapsServer.isStarted();
+        return true;
+//        return ldapServer.isStarted() || ldapsServer.isStarted();
     }
     
 
     public void shutdown() throws NamingException
     {
+/*
         if ( ldapServer.isStarted() )
         {
             ldapServer.stop();
@@ -180,6 +179,7 @@ public class ApacheDS
                 LOG.error( "Failed to terminate io executor", e );
             }
         }
+*/
 
         directoryService.shutdown();
     }
@@ -191,10 +191,12 @@ public class ApacheDS
     }
 
 
+/*
     public void setLdapServer( LdapServer ldapServer )
     {
         this.ldapServer = ldapServer;
     }
+*/
 
 
     public LdapServer getLdapsServer()
@@ -203,10 +205,12 @@ public class ApacheDS
     }
 
 
+/*
     public void setLdapsServer( LdapServer ldapsServer )
     {
         this.ldapsServer = ldapsServer;
     }
+*/
 
     public DirectoryService getDirectoryService()
     {
@@ -214,26 +218,12 @@ public class ApacheDS
     }
 
 
+/*
     public void setDirectoryService( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
     }
-
-
-    public int getMaxThreads()
-    {
-        return maxThreads;
-    }
-
-
-    public void setMaxThreads( int maxThreads )
-    {
-        this.maxThreads = maxThreads;
-        if ( maxThreads < 1 )
-        {
-            throw new IllegalArgumentException( "Number of max threads should be greater than 0" );
-        }
-    }
+*/
 
 
     public long getSynchPeriodMillis()
@@ -280,8 +270,14 @@ public class ApacheDS
     public void setAllowAnonymousAccess( boolean allowAnonymousAccess )
     {
         this.directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
-        this.ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
-        this.ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
+        if ( ldapServer != null )
+        {
+            this.ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
+        }
+        if ( ldapsServer != null )
+        {
+            this.ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
+        }
     }
 
 
@@ -303,10 +299,12 @@ public class ApacheDS
         this.ldifFilters.addAll( filters );
     }
 
+/*
     public IoAcceptor getTcpAcceptor()
     {
         return tcpAcceptor;
     }
+*/
 
     // ----------------------------------------------------------------------
     // From ServerContextFactory: presently in intermediate step but these
@@ -413,7 +411,8 @@ public class ApacheDS
         //noinspection unchecked
         Hashtable<String, Object> env = ( Hashtable<String, Object> ) environment.clone();
         env.put( Context.PROVIDER_URL, "" );
-        env.put( ApacheDS.JNDI_KEY, this );
+//        env.put( ApacheDS.JNDI_KEY, this );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
         DirContext root = new InitialDirContext( env );
 

@@ -35,10 +35,6 @@ import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 
 /**
  * Tests the .
@@ -66,9 +62,8 @@ public class LdapServerTest extends TestCase
         ByteBuffer.setUseDirectBuffers( false );
         tcpAcceptor = new SocketAcceptor( null );
 
-        ldapServer = new LdapServer( tcpAcceptor );
+        ldapServer = new LdapServer( tcpAcceptor, directoryService );
         ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-        ldapServer.setDirectoryService( directoryService );
         System.err.println( "********** => " + ldapServer.getIpPort() );
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {

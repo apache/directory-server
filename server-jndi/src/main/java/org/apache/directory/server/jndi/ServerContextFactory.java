@@ -40,6 +40,7 @@ import java.util.Hashtable;
  */
 public class ServerContextFactory extends CoreContextFactory
 {
+/*
     public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
     {
         Hashtable<String,Object> cloned = new Hashtable<String,Object>();
@@ -55,4 +56,5 @@ public class ServerContextFactory extends CoreContextFactory
         cloned.put( DirectoryService.JNDI_KEY, apacheDS.getDirectoryService() );
         return super.getInitialContext( cloned );
     }
+*/
 }

@@ -31,7 +31,7 @@ import org.apache.mina.common.ThreadModel;
 import org.apache.mina.filter.executor.ExecutorFilter;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  * @org.apache.xbean.XBean
  */
 public class DatagramAcceptor extends org.apache.mina.transport.socket.nio.DatagramAcceptor

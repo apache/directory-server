@@ -20,11 +20,31 @@
 package org.apache.directory.server.unit;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -32,16 +52,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.*;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 
 
 /**
@@ -68,16 +78,18 @@ public abstract class AbstractServerTest extends TestCase
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
-    protected ApacheDS apacheDS = new ApacheDS();
+//    protected ApacheDS apacheDS = new ApacheDS();
 
     protected int port = -1;
 
     private static int start;
     private static long t0;
     protected static int nbTests = 10000;
-    
+    protected DirectoryService directoryService;
+    protected SocketAcceptor socketAcceptor;
+    protected LdapServer ldapServer;
 
-    
+
     /**
      * If there is an LDIF file with the same name as the test class 
      * but with the .ldif extension then it is read and the entries 
@@ -97,10 +109,10 @@ public abstract class AbstractServerTest extends TestCase
             return EMPTY_LIST;
         }
         
-        if ( ! apacheDS.isStarted() )
-        {
-            throw new ConfigurationException( "The server has not been started - cannot add entries." );
-        }
+//        if ( ! apacheDS.isStarted() )
+//        {
+//            throw new ConfigurationException( "The server has not been started - cannot add entries." );
+//        }
         
         LdifReader ldifReader = new LdifReader( in );
         List<Entry> entries = new ArrayList<Entry>();
@@ -184,10 +196,10 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws NamingException
     {
-        if ( ! apacheDS.isStarted() )
-        {
-            throw new ConfigurationException( "The server is not online! Cannot connect to it." );
-        }
+//        if ( ! apacheDS.isStarted() )
+//        {
+//            throw new ConfigurationException( "The server is not online! Cannot connect to it." );
+//        }
         
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
@@ -215,23 +227,30 @@ public abstract class AbstractServerTest extends TestCase
         }
 
         start++;
-
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
+        directoryService = new DefaultDirectoryService();
+        directoryService.setShutdownHookEnabled( false );
+        doDelete( directoryService.getWorkingDirectory() );
+        configureDirectoryService();
+        directoryService.startup();
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        apacheDS.getLdapServer().setIpPort( port );
-        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
-        apacheDS.startup();
-        
-        try
-        {
-            setContexts( "uid=admin,ou=system", "secret" );
-        }
-        catch( Exception e )
-        {
-            throw e;
-        }
+
+        socketAcceptor = new SocketAcceptor( null );
+        ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer.setIpPort( port );
+        ldapServer.start();
+
+        setContexts( "uid=admin,ou=system", "secret" );
     }
 
+    protected void configureDirectoryService()
+    {
+    }
+
+    protected void setAllowAnonymousAccess( boolean anonymousAccess )
+    {
+        directoryService.setAllowAnonymousAccess( anonymousAccess );
+        ldapServer.setAllowAnonymousAccess( anonymousAccess );
+    }
 
     /**
      * Deletes the Eve working directory.
@@ -267,7 +286,7 @@ public abstract class AbstractServerTest extends TestCase
     protected void setContexts( String user, String passwd ) throws NamingException
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( ApacheDS.JNDI_KEY, apacheDS );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -305,10 +324,10 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-
+        ldapServer.stop();
         try
         {
-            apacheDS.shutdown();
+            directoryService.shutdown();
         }
         catch ( Exception e )
         {
@@ -316,7 +335,7 @@ public abstract class AbstractServerTest extends TestCase
         }
 
         sysRoot = null;
-        apacheDS = new ApacheDS();
+//        apacheDS = new ApacheDS();
         
         if ( start >= nbTests )
         {

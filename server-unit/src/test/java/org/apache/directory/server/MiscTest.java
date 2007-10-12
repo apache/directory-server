@@ -72,16 +72,16 @@ public class MiscTest extends AbstractServerTest
         if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
              this.getName().equals( "testCompareWithoutAuthentication" ) )
         {
-            apacheDS.setAllowAnonymousAccess( false );
+            setAllowAnonymousAccess( false );
         }
         else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
         {
-            apacheDS.setAllowAnonymousAccess( false );
+            setAllowAnonymousAccess( false );
         }
         else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
             Set<Partition> partitions = new HashSet<Partition>();
-            partitions.addAll( apacheDS.getDirectoryService().getPartitions() );
+            partitions.addAll( directoryService.getPartitions() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "aPache", true );
@@ -95,16 +95,16 @@ public class MiscTest extends AbstractServerTest
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            apacheDS.getDirectoryService().setPartitions( partitions );
+            directoryService.setPartitions( partitions );
         }
         else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
             // allow anonymous access
-            apacheDS.setAllowAnonymousAccess( true );
+            setAllowAnonymousAccess( true );
 
             // create a partition to search
             Set partitions = new HashSet();
-            partitions.addAll( apacheDS.getDirectoryService().getPartitions() );
+            partitions.addAll( directoryService.getPartitions() );
             JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "apache", true );
@@ -118,7 +118,7 @@ public class MiscTest extends AbstractServerTest
             indexedAttributes.add( new JdbmIndex( "dc" ) );
             partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            apacheDS.getDirectoryService().setPartitions( partitions );
+            directoryService.setPartitions( partitions );
         }
 
         super.setUp();

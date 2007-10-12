@@ -13,6 +13,13 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-protocol-shared</artifactId>
+      <version>${pom.version}</version>
+      <classifier>sources</classifier>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-protocol-changepw</artifactId>
       <version>${pom.version}</version>
       <classifier>sources</classifier>
@@ -79,6 +86,7 @@
       <version>${pom.version}</version>
       <classifier>sources</classifier>
     </dependency>
+
   </dependencies>
 
   <build>

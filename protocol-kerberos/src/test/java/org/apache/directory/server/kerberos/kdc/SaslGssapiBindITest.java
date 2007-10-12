@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
@@ -79,14 +80,13 @@ public class SaslGssapiBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        apacheDS.setAllowAnonymousAccess( false );
+        super.setUp();
 
-        LdapServer ldapConfig = apacheDS.getLdapServer();
-        ldapConfig.setSaslHost( "localhost" );
-        ldapConfig.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
+        setAllowAnonymousAccess( false );
+        ldapServer.setSaslHost( "localhost" );
+        ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
-        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
-        KdcServer kdcConfig = new KdcServer( null, socketAcceptor, apacheDS.getDirectoryService() );
+        KdcServer kdcConfig = new KdcServer( null, socketAcceptor, directoryService );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.setSecurityAuthentication( "simple" );
@@ -94,42 +94,11 @@ public class SaslGssapiBindITest extends AbstractServerTest
         kdcConfig.setSecurityPrincipal( "uid=admin,ou=system" );
 
         Attributes attrs;
-        Set<Partition> partitions = new HashSet<Partition>();
 
-        // Add partition 'example'
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "example" );
-        partition.setSuffix( "dc=example,dc=com" );
-
-        Set<Index> indexedAttrs = new HashSet<Index>();
-        indexedAttrs.add( new JdbmIndex( "ou" ) );
-        indexedAttrs.add( new JdbmIndex( "dc" ) );
-        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
-        partition.setIndexedAttributes( indexedAttrs );
-
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        partition.setContextEntry( attrs );
-
-        partitions.add( partition );
-        apacheDS.getDirectoryService().setPartitions( partitions );
-
-        List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
-        list.add( new KeyDerivationInterceptor() );
-        apacheDS.getDirectoryService().setInterceptors( list );
-
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
-        port = AvailablePortFinder.getNextAvailable( 1024 );
-        ldapConfig.setIpPort( port );
-        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
-
-        super.setUp();
+//        doDelete( directoryService.getWorkingDirectory() );
+//        port = AvailablePortFinder.getNextAvailable( 1024 );
+//        ldapServer.setIpPort( port );
+//        directoryService.setShutdownHookEnabled( false );
 
 
         setContexts( "uid=admin,ou=system", "secret" );
@@ -157,7 +126,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
         // Get a context, create the ou=users subcontext, then create the 3 principals.
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( DirectoryService.JNDI_KEY, apacheDS.getDirectoryService() );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( Context.PROVIDER_URL, "dc=example,dc=com" );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
@@ -177,6 +146,40 @@ public class SaslGssapiBindITest extends AbstractServerTest
 
         attrs = getPrincipalAttributes( "Service", "LDAP Service", "ldap", "randall", "ldap/localhost@EXAMPLE.COM" );
         users.createSubcontext( "uid=ldap", attrs );
+    }
+
+    protected void configureDirectoryService()
+    {
+        Attributes attrs;
+        Set<Partition> partitions = new HashSet<Partition>();
+
+        // Add partition 'example'
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
+
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
+
+        attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attrs.put( attr );
+        attr = new AttributeImpl( "dc" );
+        attr.add( "example" );
+        attrs.put( attr );
+        partition.setContextEntry( attrs );
+
+        partitions.add( partition );
+        directoryService.setPartitions( partitions );
+
+        List<Interceptor> list = directoryService.getInterceptors();
+        list.add( new KeyDerivationInterceptor() );
+        directoryService.setInterceptors( list );
     }
 
 

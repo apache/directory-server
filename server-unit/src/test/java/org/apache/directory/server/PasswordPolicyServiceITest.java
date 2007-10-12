@@ -59,7 +59,7 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        apacheDS.setAllowAnonymousAccess( false );
+        setAllowAnonymousAccess( false );
 
         Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
@@ -86,12 +86,12 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        apacheDS.getDirectoryService().setPartitions( partitions );
+        directoryService.setPartitions( partitions );
 
-        List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
+        List<Interceptor> list = directoryService.getInterceptors();
 
         list.add( new PasswordPolicyInterceptor() );
-        apacheDS.getDirectoryService().setInterceptors( list );
+        directoryService.setInterceptors( list );
 
         super.setUp();
 

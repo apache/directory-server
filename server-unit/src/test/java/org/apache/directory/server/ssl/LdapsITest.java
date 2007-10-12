@@ -56,11 +56,14 @@ public class LdapsITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
+        doDelete = false;
+        super.setUp();
+        doDelete = true;
+        doDelete( directoryService.getWorkingDirectory() );
 
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
         
-        LdapServer ldapsServer = apacheDS.getLdapsServer();
+        LdapServer ldapsServer = new LdapServer( socketAcceptor, directoryService );
         ldapsServer.setEnableLdaps( true );
         ldapsServer.setLdapsCertificatePassword( "boguspw" );
         ldapsServer.setIpPort( ldapsPort );
@@ -84,9 +87,6 @@ public class LdapsITest extends AbstractServerTest
         in.close();
         out.close();
 
-        doDelete = false;
-        super.setUp();
-        doDelete = true;
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );

@@ -20,7 +20,18 @@
 package org.apache.directory.server;
 
 
-import org.apache.directory.server.core.partition.Partition;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
@@ -32,17 +43,6 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -94,7 +94,7 @@ public class NegationOperatorITest extends AbstractServerTest
                 NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
             system.setContextEntry( systemEntry );
             
-            apacheDS.getDirectoryService().setSystemPartition( system );
+            directoryService.setSystemPartition( system );
         }
         
         super.setUp();

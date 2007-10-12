@@ -20,41 +20,97 @@
 package org.apache.directory.server.ldap;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.Control;
+
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.ldap.support.*;
+import org.apache.directory.server.ldap.support.AbandonHandler;
+import org.apache.directory.server.ldap.support.AddHandler;
+import org.apache.directory.server.ldap.support.BindHandler;
+import org.apache.directory.server.ldap.support.CompareHandler;
+import org.apache.directory.server.ldap.support.DefaultAbandonHandler;
+import org.apache.directory.server.ldap.support.DefaultAddHandler;
+import org.apache.directory.server.ldap.support.DefaultBindHandler;
+import org.apache.directory.server.ldap.support.DefaultCompareHandler;
+import org.apache.directory.server.ldap.support.DefaultDeleteHandler;
+import org.apache.directory.server.ldap.support.DefaultExtendedHandler;
+import org.apache.directory.server.ldap.support.DefaultModifyDnHandler;
+import org.apache.directory.server.ldap.support.DefaultModifyHandler;
+import org.apache.directory.server.ldap.support.DefaultSearchHandler;
+import org.apache.directory.server.ldap.support.DefaultUnbindHandler;
+import org.apache.directory.server.ldap.support.DeleteHandler;
+import org.apache.directory.server.ldap.support.ExtendedHandler;
+import org.apache.directory.server.ldap.support.ModifyDnHandler;
+import org.apache.directory.server.ldap.support.ModifyHandler;
+import org.apache.directory.server.ldap.support.SearchHandler;
+import org.apache.directory.server.ldap.support.UnbindHandler;
 import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
 import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
+import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.message.AbandonRequest;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.CascadeControl;
+import org.apache.directory.shared.ldap.message.CompareRequest;
+import org.apache.directory.shared.ldap.message.DeleteRequest;
+import org.apache.directory.shared.ldap.message.EntryChangeControl;
+import org.apache.directory.shared.ldap.message.ExtendedRequest;
+import org.apache.directory.shared.ldap.message.ExtendedRequestImpl;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.MessageDecoder;
+import org.apache.directory.shared.ldap.message.MessageEncoder;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+import org.apache.directory.shared.ldap.message.Request;
+import org.apache.directory.shared.ldap.message.ResponseCarryingMessageException;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.ResultResponseRequest;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SubentriesControl;
+import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.mina.common.*;
+import org.apache.mina.common.DefaultIoFilterChainBuilder;
+import org.apache.mina.common.IoFilterChain;
+import org.apache.mina.common.IoFilterChainBuilder;
+import org.apache.mina.common.IoHandler;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.common.ThreadModel;
+import org.apache.mina.common.WriteFuture;
 import org.apache.mina.filter.SSLFilter;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
-import org.apache.mina.util.SessionLog;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+import org.apache.mina.util.SessionLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ldap.Control;
-import java.util.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
 
 
 /**
@@ -63,6 +119,7 @@ import java.net.InetSocketAddress;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
+ * @org.apache.xbean.XBean
  */
 public class LdapServer extends ServiceConfiguration
 {
@@ -96,8 +153,6 @@ public class LdapServer extends ServiceConfiguration
 
     /** a set of supported controls */
     private Set<String> supportedControls;
-
-    private DirectoryService directoryService;
 
     /** The maximum size limit. */
     private int maxSizeLimit = MAX_SIZE_LIMIT_DEFAULT; // set to default value
@@ -158,6 +213,8 @@ public class LdapServer extends ServiceConfiguration
 
     private final SocketAcceptor socketAcceptor;
 
+    private final DirectoryService directoryService;
+
     /** tracks state of the server */
     private boolean started;
 
@@ -166,10 +223,19 @@ public class LdapServer extends ServiceConfiguration
      * Creates an LDAP protocol provider.
      *
      * @param socketAcceptor the mina socket acceptor wrapper
+     * @param directoryService
      */
-    public LdapServer( SocketAcceptor socketAcceptor  )
+    public LdapServer( SocketAcceptor socketAcceptor, DirectoryService directoryService )
     {
         this.socketAcceptor = socketAcceptor;
+        this.directoryService = directoryService;
+        this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
+        Hashtable<String,Object> copy = new Hashtable<String,Object>();
+        copy.put( Context.PROVIDER_URL, "" );
+        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        copy.put( DirectoryService.JNDI_KEY, directoryService );
+        this.registry = new SessionRegistry( this, copy );
+
         super.setIpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
         super.setServicePid( SERVICE_PID_DEFAULT );
@@ -709,24 +775,6 @@ public class LdapServer extends ServiceConfiguration
     }
 
 
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-
-        if ( bindHandler != null )
-        {
-            this.bindHandler.setDirectoryService( directoryService );
-        }
-        this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
-        Hashtable<String,Object> copy = new Hashtable<String,Object>();
-        copy.put( Context.PROVIDER_URL, "" );
-        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        copy.put( DirectoryService.JNDI_KEY, directoryService );
-        this.registry = new SessionRegistry( this, copy );
-
-    }
-
-
     public Set<String> getSupportedControls()
     {
         return supportedControls;
@@ -782,10 +830,7 @@ public class LdapServer extends ServiceConfiguration
         this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setProtocolProvider( this );
-        if ( directoryService != null )
-        {
             this.bindHandler.setDirectoryService( directoryService );
-        }
         //noinspection unchecked
         this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
     }

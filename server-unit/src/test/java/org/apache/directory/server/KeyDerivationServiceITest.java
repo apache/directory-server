@@ -34,7 +34,6 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.mina.util.AvailablePortFinder;
 
 import javax.crypto.spec.DESKeySpec;
 import javax.naming.Context;
@@ -69,8 +68,60 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        apacheDS.setAllowAnonymousAccess( false );
+        super.setUp();
+//        setAllowAnonymousAccess( false );
 
+        Attributes attrs;
+
+//        doDelete( directoryService.getWorkingDirectory() );
+//        port = AvailablePortFinder.getNextAvailable( 1024 );
+//        ldapServer.setIpPort( port );
+//        directoryService.setShutdownHookEnabled( false );
+
+
+        setContexts( "uid=admin,ou=system", "secret" );
+
+        // -------------------------------------------------------------------
+        // Enable the krb5kdc schema
+        // -------------------------------------------------------------------
+
+        // check if krb5kdc is disabled
+        Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
+        boolean isKrb5KdcDisabled = false;
+        if ( krb5kdcAttrs.get( "m-disabled" ) != null )
+        {
+            isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
+        }
+
+        // if krb5kdc is disabled then enable it
+        if ( isKrb5KdcDisabled )
+        {
+            Attribute disabled = new AttributeImpl( "m-disabled" );
+            ModificationItemImpl[] mods = new ModificationItemImpl[]
+                { new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
+        }
+
+/*
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+*/
+        ctx =   directoryService.getJndiContext( "dc=example,dc=com" );
+//                new InitialDirContext( env );
+
+        attrs = getOrgUnitAttributes( "users" );
+        DirContext users = ctx.createSubcontext( "ou=users", attrs );
+
+        attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret", "hnelson@EXAMPLE.COM" );
+        users.createSubcontext( "uid=hnelson", attrs );
+    }
+
+    protected void configureDirectoryService()
+    {
         Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
 
@@ -98,56 +149,12 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         partition.setContextEntry( attrs );
 
         partitions.add( partition );
-        apacheDS.getDirectoryService().setPartitions( partitions );
+        directoryService.setPartitions( partitions );
 
-        List<Interceptor> list = apacheDS.getDirectoryService().getInterceptors();
+        List<Interceptor> list = directoryService.getInterceptors();
 
         list.add( new KeyDerivationInterceptor() );
-        apacheDS.getDirectoryService().setInterceptors( list );
-
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
-        port = AvailablePortFinder.getNextAvailable( 1024 );
-        apacheDS.getLdapServer().setIpPort( port );
-        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
-
-        super.setUp();
-
-        setContexts( "uid=admin,ou=system", "secret" );
-
-        // -------------------------------------------------------------------
-        // Enable the krb5kdc schema
-        // -------------------------------------------------------------------
-
-        // check if krb5kdc is disabled
-        Attributes krb5kdcAttrs = schemaRoot.getAttributes( "cn=Krb5kdc" );
-        boolean isKrb5KdcDisabled = false;
-        if ( krb5kdcAttrs.get( "m-disabled" ) != null )
-        {
-            isKrb5KdcDisabled = ( ( String ) krb5kdcAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
-        }
-
-        // if krb5kdc is disabled then enable it
-        if ( isKrb5KdcDisabled )
-        {
-            Attribute disabled = new AttributeImpl( "m-disabled" );
-            ModificationItemImpl[] mods = new ModificationItemImpl[]
-                { new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
-            schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
-        }
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
-        attrs = getOrgUnitAttributes( "users" );
-        DirContext users = ctx.createSubcontext( "ou=users", attrs );
-
-        attrs = getPersonAttributes( "Nelson", "Horatio Nelson", "hnelson", "secret", "hnelson@EXAMPLE.COM" );
-        users.createSubcontext( "uid=hnelson", attrs );
+        directoryService.setInterceptors( list );
     }
 
 

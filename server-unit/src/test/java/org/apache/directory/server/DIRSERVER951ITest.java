@@ -96,7 +96,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
         systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
         
-        apacheDS.getDirectoryService().setSystemPartition( systemCfg );
+        directoryService.setSystemPartition( systemCfg );
         
         super.setUp();
         super.loadTestLdif( true );

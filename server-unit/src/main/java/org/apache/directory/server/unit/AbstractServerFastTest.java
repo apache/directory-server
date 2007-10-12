@@ -24,6 +24,10 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -82,7 +86,7 @@ public abstract class AbstractServerFastTest
     protected static final String USER = "uid=admin,ou=system";
     protected static final String PASSWORD = "secret";
     protected static final String BASE = "dc=example,dc=com";
-    protected static ApacheDS apacheDS = new ApacheDS();
+    protected static ApacheDS apacheDS;
 
 
     /**
@@ -200,14 +204,18 @@ public abstract class AbstractServerFastTest
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
+        DirectoryService directoryService = new DefaultDirectoryService();
+        doDelete( directoryService.getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        apacheDS.getLdapServer().setIpPort( port );
-        apacheDS.getDirectoryService().setShutdownHookEnabled( false );
+        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
+        LdapServer ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer.setIpPort( port );
+        directoryService.setShutdownHookEnabled( false );
+        apacheDS = new ApacheDS( directoryService, ldapServer, null );
         apacheDS.startup();
-        
+
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( ApacheDS.JNDI_KEY, apacheDS );
+        env.put( DirectoryService.JNDI_KEY, directoryService );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -317,7 +325,6 @@ public abstract class AbstractServerFastTest
 
         root = null;
         doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
-        apacheDS = new ApacheDS();
     }
 
 

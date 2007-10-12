@@ -21,7 +21,6 @@ package org.apache.directory.server;
 
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -54,10 +53,9 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         /////////////////////////////////////////////////////////
         // Enable the Stored Procedure Extended Operation Handler
         /////////////////////////////////////////////////////////
-        LdapServer ldapCfg = super.apacheDS.getLdapServer();
-        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapCfg.getExtendedOperationHandlers() );
+        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapServer.getExtendedOperationHandlers() );
         handlers.add( new StoredProcedureExtendedOperationHandler() );
-        ldapCfg.setExtendedOperationHandlers( handlers );
+        ldapServer.setExtendedOperationHandlers( handlers );
 
         super.setUp();
 
