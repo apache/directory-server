@@ -23,10 +23,8 @@ package org.apache.directory.server.configuration;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,33 +40,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.jndi.ServerContextFactory;
-import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
-import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.ByteBuffer;
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.common.IoFilterChainBuilder;
-import org.apache.mina.common.IoSession;
 import org.apache.mina.common.SimpleByteBufferAllocator;
-import org.apache.mina.common.ThreadModel;
-import org.apache.mina.common.WriteFuture;
 import org.apache.mina.filter.executor.ExecutorFilter;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,37 +82,29 @@ public class ApacheDS
     private File ldifDirectory;
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
 
-    private LdapConfiguration ldapConfiguration = new LdapConfiguration();
-    private LdapConfiguration ldapsConfiguration = new LdapConfiguration();
+    private LdapServer ldapServer;
+    private LdapServer ldapsServer;
     private DirectoryService directoryService = new DefaultDirectoryService();
 
-    private IoAcceptor tcpAcceptor;
-    protected IoAcceptor udpAcceptor;
+    private SocketAcceptor tcpAcceptor;
     protected ExecutorService ioExecutor;
     protected ExecutorService logicExecutor;
-    private boolean ldapsStarted;
-    private boolean ldapStarted;
 
+    
     public ApacheDS()
     {
-        environment.put( JNDI_KEY, this );
-        environment.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.toString() );
-        environment.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        ldapConfiguration.setEnabled( true );
+        ldapServer.setEnabled( true );
 
         ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
         ByteBuffer.setUseDirectBuffers( false );
-
         ioExecutor = Executors.newCachedThreadPool();
         logicExecutor = Executors.newFixedThreadPool( maxThreads );
-        udpAcceptor = new DatagramAcceptor();
-        udpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
         tcpAcceptor = new SocketAcceptor( Runtime.getRuntime().availableProcessors(), ioExecutor );
         tcpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
     }
 
 
-    public void startup() throws NamingException
+    public void startup() throws NamingException, IOException
     {
         loadLdifs();
 
@@ -137,35 +112,45 @@ public class ApacheDS
         {
             directoryService.startup();
         }
-        environment.put( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY,
-                directoryService.getEnvironment().get( JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY ) );        
-        
-        if ( enableNetworking )
+
+        if ( ldapServer == null )
         {
-            startLDAP();
-            startLDAPS();
+            ldapServer = new LdapServer( tcpAcceptor );
+        }
+
+        if ( ldapsServer == null )
+        {
+            ldapsServer = new LdapServer( tcpAcceptor );
+        }
+
+        if ( ! ldapServer.isStarted() )
+        {
+            ldapServer.start();
+        }
+
+        if ( ldapsServer != null && ! ldapsServer.isStarted() )
+        {
+            ldapsServer.start();
         }
     }
 
 
     public boolean isStarted()
     {
-        return ldapStarted || ldapsStarted;
+        return ldapServer.isStarted() || ldapsServer.isStarted();
     }
     
 
     public void shutdown() throws NamingException
     {
-        if ( ldapStarted )
+        if ( ldapServer.isStarted() )
         {
-            stopLDAP0( ldapConfiguration.getIpPort() );
-            ldapStarted = false;
+            ldapServer.stop();
         }
 
-        if ( ldapsStarted )
+        if ( ldapsServer.isStarted() )
         {
-            stopLDAP0( ldapsConfiguration.getIpPort() );
-            ldapsStarted = false;
+            ldapsServer.stop();
         }
 
         logicExecutor.shutdown();
@@ -200,27 +185,27 @@ public class ApacheDS
     }
 
 
-    public LdapConfiguration getLdapConfiguration()
+    public LdapServer getLdapServer()
     {
-        return ldapConfiguration;
+        return ldapServer;
     }
 
 
-    public void setLdapConfiguration( LdapConfiguration ldapConfiguration )
+    public void setLdapServer( LdapServer ldapServer )
     {
-        this.ldapConfiguration = ldapConfiguration;
+        this.ldapServer = ldapServer;
     }
 
 
-    public LdapConfiguration getLdapsConfiguration()
+    public LdapServer getLdapsServer()
     {
-        return ldapsConfiguration;
+        return ldapsServer;
     }
 
 
-    public void setLdapsConfiguration( LdapConfiguration ldapsConfiguration )
+    public void setLdapsServer( LdapServer ldapsServer )
     {
-        this.ldapsConfiguration = ldapsConfiguration;
+        this.ldapsServer = ldapsServer;
     }
 
     public DirectoryService getDirectoryService()
@@ -295,8 +280,8 @@ public class ApacheDS
     public void setAllowAnonymousAccess( boolean allowAnonymousAccess )
     {
         this.directoryService.setAllowAnonymousAccess( allowAnonymousAccess );
-        this.ldapConfiguration.setAllowAnonymousAccess( allowAnonymousAccess );
-        this.ldapsConfiguration.setAllowAnonymousAccess( allowAnonymousAccess );
+        this.ldapServer.setAllowAnonymousAccess( allowAnonymousAccess );
+        this.ldapsServer.setAllowAnonymousAccess( allowAnonymousAccess );
     }
 
 
@@ -321,11 +306,6 @@ public class ApacheDS
     public IoAcceptor getTcpAcceptor()
     {
         return tcpAcceptor;
-    }
-
-    public IoAcceptor getUdpAcceptor()
-    {
-        return udpAcceptor;
     }
 
     // ----------------------------------------------------------------------
@@ -506,149 +486,6 @@ public class ApacheDS
             int count = loader.execute();
             LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
             addFileEntry( root, ldifFile );
-        }
-    }
-
-
-    /**
-     * Starts up the LDAP protocol provider to service LDAP requests
-     *
-     * @throws NamingException if there are problems starting the LDAP provider
-     */
-    private void startLDAP() throws NamingException
-    {
-        // Skip if disabled
-        if ( ! ldapConfiguration.isEnabled() )
-        {
-            return;
-        }
-
-        DefaultIoFilterChainBuilder chain = new DefaultIoFilterChainBuilder();
-        startLDAP0( ldapConfiguration, ldapConfiguration.getIpPort(), chain );
-    }
-
-
-    /**
-     * Starts up the LDAPS protocol provider to service LDAPS requests
-     *
-     * @throws NamingException if there are problems starting the LDAPS provider
-     */
-    private void startLDAPS() throws NamingException
-    {
-        // Skip if disabled
-        if ( !( ldapsConfiguration.isEnabled() && ldapsConfiguration.isEnableLdaps() ) )
-        {
-            return;
-        }
-
-        char[] certPasswordChars = ldapsConfiguration.getLdapsCertificatePassword().toCharArray();
-        String storePath = ldapsConfiguration.getLdapsCertificateFile().getPath();
-
-        IoFilterChainBuilder chain = LdapsInitializer.init( certPasswordChars, storePath );
-        ldapsStarted = true;
-
-        startLDAP0( ldapsConfiguration, ldapsConfiguration.getIpPort(), chain );
-    }
-
-
-    private void startLDAP0( LdapConfiguration ldapConfig, int port, IoFilterChainBuilder chainBuilder )
-        throws LdapNamingException, LdapConfigurationException
-    {
-        // Register all extended operation handlers.
-        LdapProtocolProvider protocolProvider = new LdapProtocolProvider( directoryService, ldapConfig );
-
-        for ( ExtendedOperationHandler h : ldapConfig.getExtendedOperationHandlers() )
-        {
-            protocolProvider.addExtendedOperationHandler( h );
-            LOG.info( "Added Extended Request Handler: " + h.getOid() );
-            h.setLdapProvider( protocolProvider );
-            PartitionNexus nexus = directoryService.getPartitionNexus();
-            nexus.registerSupportedExtensions( h.getExtensionOids() );
-        }
-
-        try
-        {
-            SocketAcceptorConfig acceptorCfg = new SocketAcceptorConfig();
-
-            // Disable the disconnection of the clients on unbind
-            acceptorCfg.setDisconnectOnUnbind( false );
-            acceptorCfg.setReuseAddress( true );
-            acceptorCfg.setFilterChainBuilder( chainBuilder );
-            acceptorCfg.setThreadModel( ThreadModel.MANUAL );
-
-            acceptorCfg.getSessionConfig().setTcpNoDelay( true );
-
-            tcpAcceptor.bind( new InetSocketAddress( port ), protocolProvider.getHandler(), acceptorCfg );
-            ldapStarted = true;
-
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Successful bind of an LDAP Service (" + port + ") is complete." );
-            }
-        }
-        catch ( IOException e )
-        {
-            String msg = "Failed to bind an LDAP service (" + port + ") to the service registry.";
-            LdapConfigurationException lce = new LdapConfigurationException( msg );
-            lce.setRootCause( e );
-            LOG.error( msg, e );
-            throw lce;
-        }
-    }
-
-    private void stopLDAP0( int port )
-    {
-        try
-        {
-            // we should unbind the service before we begin sending the notice
-            // of disconnect so new connections are not formed while we process
-            List<WriteFuture> writeFutures = new ArrayList<WriteFuture>();
-
-            // If the socket has already been unbound as with a successful
-            // GracefulShutdownRequest then this will complain that the service
-            // is not bound - this is ok because the GracefulShutdown has already
-            // sent notices to to the existing active sessions
-            List<IoSession> sessions;
-
-            try
-            {
-                sessions = new ArrayList<IoSession>( tcpAcceptor.getManagedSessions( new InetSocketAddress( port ) ) );
-            }
-            catch ( IllegalArgumentException e )
-            {
-                LOG.warn( "Seems like the LDAP service (" + port + ") has already been unbound." );
-                return;
-            }
-
-            tcpAcceptor.unbind( new InetSocketAddress( port ) );
-
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Unbind of an LDAP service (" + port + ") is complete." );
-                LOG.info( "Sending notice of disconnect to existing clients sessions." );
-            }
-
-            // Send Notification of Disconnection messages to all connected clients.
-            if ( sessions != null )
-            {
-                for ( IoSession session:sessions )
-                {
-                    writeFutures.add( session.write( NoticeOfDisconnect.UNAVAILABLE ) );
-                }
-            }
-
-            // And close the connections when the NoDs are sent.
-            Iterator<IoSession> sessionIt = sessions.iterator();
-
-            for ( WriteFuture future:writeFutures )
-            {
-                future.join( 1000 );
-                sessionIt.next().close();
-            }
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Failed to sent NoD.", e );
         }
     }
 

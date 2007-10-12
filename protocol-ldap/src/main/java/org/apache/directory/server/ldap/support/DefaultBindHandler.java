@@ -22,7 +22,7 @@ package org.apache.directory.server.ldap.support;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.*;
@@ -217,10 +217,11 @@ public class DefaultBindHandler extends BindHandler
      */
     private void handleSimpleAuth( IoSession session, BindRequest bindRequest ) throws NamingException
     {
-        LdapConfiguration config = ( LdapConfiguration ) session.getAttribute( LdapConfiguration.class.toString() );
+        LdapServer ldapServer = ( LdapServer )
+                session.getAttribute( LdapServer.class.toString() );
 
         @SuppressWarnings( "unchecked" )
-        Set<String> supportedMechanisms = config.getSupportedMechanisms();
+        Set<String> supportedMechanisms = ldapServer.getSupportedMechanisms();
         LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
 
         // First, deal with Simple Authentication

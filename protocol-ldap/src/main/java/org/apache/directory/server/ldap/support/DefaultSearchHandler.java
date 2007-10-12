@@ -20,21 +20,9 @@
 package org.apache.directory.server.ldap.support;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -47,6 +35,17 @@ import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.ReferralException;
+import javax.naming.directory.SearchControls;
+import javax.naming.ldap.LdapContext;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
@@ -135,7 +134,8 @@ public class DefaultSearchHandler extends SearchHandler
      */
     public void searchMessageReceived( IoSession session, SearchRequest req ) throws Exception
     {
-        LdapConfiguration cfg = ( LdapConfiguration ) session.getAttribute(  LdapConfiguration.class.toString() );
+        LdapServer ldapServer = ( LdapServer )
+                session.getAttribute(  LdapServer.class.toString() );
 
     	if ( IS_DEBUG )
     	{
@@ -217,7 +217,7 @@ public class DefaultSearchHandler extends SearchHandler
             // Handle annonymous binds
             // ===============================================================
 
-            boolean allowAnonymousBinds = cfg.isAllowAnonymousAccess();
+            boolean allowAnonymousBinds = ldapServer.isAllowAnonymousAccess();
             boolean isAnonymousUser = ctx.getPrincipal().getName().trim().equals( "" );
 
             if ( isAnonymousUser && !allowAnonymousBinds && !isRootDSESearch )
@@ -235,8 +235,8 @@ public class DefaultSearchHandler extends SearchHandler
             // Set search limits differently based on user's identity
             // ===============================================================
 
-            int maxSize = cfg.getMaxSizeLimit();
-            int maxTime = cfg.getMaxTimeLimit();
+            int maxSize = ldapServer.getMaxSizeLimit();
+            int maxTime = ldapServer.getMaxTimeLimit();
 
             SearchControls controls;
             if ( isAnonymousUser )

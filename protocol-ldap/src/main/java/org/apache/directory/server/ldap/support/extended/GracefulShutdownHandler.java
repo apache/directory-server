@@ -24,7 +24,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
@@ -335,7 +335,7 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapProvider( LdapProtocolProvider provider )
+    public void setLdapProvider( LdapServer provider )
     {
     }
 }

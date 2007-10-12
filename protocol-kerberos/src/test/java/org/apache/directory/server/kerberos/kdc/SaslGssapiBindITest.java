@@ -20,17 +20,6 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
@@ -39,13 +28,23 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.mina.util.AvailablePortFinder;
+
+import javax.naming.Context;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -82,7 +81,7 @@ public class SaslGssapiBindITest extends AbstractServerTest
     {
         apacheDS.setAllowAnonymousAccess( false );
 
-        LdapConfiguration ldapConfig = apacheDS.getLdapConfiguration();
+        LdapServer ldapConfig = apacheDS.getLdapServer();
         ldapConfig.setSaslHost( "localhost" );
         ldapConfig.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 

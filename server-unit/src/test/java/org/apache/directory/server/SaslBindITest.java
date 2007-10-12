@@ -59,7 +59,7 @@ public class SaslBindITest extends AbstractServerTest
     public void setUp() throws Exception
     {
         apacheDS.setAllowAnonymousAccess( false );
-        apacheDS.getLdapConfiguration().setSaslHost( "localhost" );
+        apacheDS.getLdapServer().setSaslHost( "localhost" );
 
         Set<Partition> partitions = new HashSet<Partition>();
         JdbmPartition partition = new JdbmPartition();

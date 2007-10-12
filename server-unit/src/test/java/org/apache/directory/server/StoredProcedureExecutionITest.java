@@ -20,24 +20,23 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapConfiguration;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -55,7 +54,7 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         /////////////////////////////////////////////////////////
         // Enable the Stored Procedure Extended Operation Handler
         /////////////////////////////////////////////////////////
-        LdapConfiguration ldapCfg = super.apacheDS.getLdapConfiguration();
+        LdapServer ldapCfg = super.apacheDS.getLdapServer();
         Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapCfg.getExtendedOperationHandlers() );
         handlers.add( new StoredProcedureExtendedOperationHandler() );
         ldapCfg.setExtendedOperationHandlers( handlers );

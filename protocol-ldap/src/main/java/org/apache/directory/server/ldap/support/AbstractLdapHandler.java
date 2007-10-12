@@ -20,7 +20,7 @@
 package org.apache.directory.server.ldap.support;
 
 
-import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.MutableControl;
@@ -38,24 +38,24 @@ import javax.naming.ldap.LdapContext;
  */
 public abstract class AbstractLdapHandler implements MessageHandler
 {
-    private LdapProtocolProvider protocolProvider;
+    private LdapServer ldapServer;
 
 
-    public final LdapProtocolProvider getProtocolProvider()
+    public final LdapServer getProtocolProvider()
     {
-        return protocolProvider;
+        return ldapServer;
     }
 
 
-    public final void setProtocolProvider( LdapProtocolProvider provider )
+    public final void setProtocolProvider( LdapServer provider )
     {
-        this.protocolProvider = provider;
+        this.ldapServer = provider;
     }
 
 
     public final SessionRegistry getSessionRegistry()
     {
-        return this.protocolProvider.getRegistry();
+        return this.ldapServer.getRegistry();
     }
 
 

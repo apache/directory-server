@@ -40,7 +40,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.ldap.gui.SessionsFrame;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -66,7 +66,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
-    private LdapProtocolProvider ldapProvider;
+    private LdapServer ldapProvider;
 
 
     public String getOid()
@@ -158,7 +158,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public void setLdapProvider( LdapProtocolProvider provider )
+    public void setLdapProvider( LdapServer provider )
     {
         this.ldapProvider = provider;
     }

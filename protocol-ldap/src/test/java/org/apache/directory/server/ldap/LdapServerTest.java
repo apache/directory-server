@@ -27,7 +27,18 @@ import org.apache.directory.server.ldap.support.*;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.*;
+import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.SimpleByteBufferAllocator;
+import org.apache.mina.filter.executor.ExecutorFilter;
+import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.mina.util.AvailablePortFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -37,8 +48,83 @@ import org.apache.mina.common.IoSession;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class LdapProtocolProviderTest extends TestCase
+public class LdapServerTest extends TestCase
 {
+    private static final Logger LOG = LoggerFactory.getLogger( LdapServerTest.class.getName() );
+    LdapServer ldapServer;
+    DirectoryService directoryService;
+    ExecutorService ioExecutor;
+    ExecutorService logicExecutor;
+    SocketAcceptor tcpAcceptor;
+
+
+    public void setUp() throws Exception
+    {
+        directoryService = new DefaultDirectoryService();
+        directoryService.startup();
+
+        if ( getName().equals( "testAlternativeConfiguration" ) )
+        {
+            ldapServer.setAbandonHandler( new BogusAbandonHandler() );
+            ldapServer.setAddHandler( new BogusAddHandler() );
+            ldapServer.setBindHandler( new BogusBindHandler() );
+            ldapServer.setCompareHandler( new BogusCompareHandler() );
+            ldapServer.setDeleteHandler( new BogusDeleteHandler() );
+            ldapServer.setModifyDnHandler( new BogusModifyDnHandler() );
+            ldapServer.setModifyHandler( new BogusModifyHandler() );
+            ldapServer.setSearchHandler( new BogusSearchHandler() );
+            ldapServer.setUnbindHandler( new BogusUnbindHandler() );
+        }
+
+        ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
+        ByteBuffer.setUseDirectBuffers( false );
+        ioExecutor = Executors.newCachedThreadPool();
+        logicExecutor = Executors.newFixedThreadPool( 8 );
+        tcpAcceptor = new SocketAcceptor( Runtime.getRuntime().availableProcessors(), ioExecutor );
+        tcpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
+
+        ldapServer = new LdapServer( tcpAcceptor );
+        ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+        ldapServer.setDirectoryService( directoryService );
+        System.err.println( "********** => " + ldapServer.getIpPort() );
+        ldapServer.start();
+    }
+
+
+    public void tearDown() throws Exception
+    {
+        ldapServer.stop();
+        logicExecutor.shutdown();
+        for (;;) {
+            try {
+                if ( logicExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
+                {
+                    break;
+                }
+            }
+            catch ( InterruptedException e )
+            {
+                LOG.error( "Failed to terminate logic executor", e );
+            }
+        }
+
+        ioExecutor.shutdown();
+        for (;;) {
+            try {
+                if ( ioExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
+                {
+                    break;
+                }
+            }
+            catch ( InterruptedException e )
+            {
+                LOG.error( "Failed to terminate io executor", e );
+            }
+        }
+        directoryService.shutdown();
+    }
+
+
     /**
      * Tests to make sure all the default handlers are kicking in properly with
      * the right request type.
@@ -48,10 +134,17 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testDefaultOperation() throws LdapNamingException
     {
-        DirectoryService directoryService = new DefaultDirectoryService();
-        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration() );
-        assertNotNull( provider.getCodecFactory() );
-        assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
+        assertEquals( ldapServer.getAbandonHandler().getClass(), BogusAbandonHandler.class  );
+        assertEquals( ldapServer.getAddHandler().getClass(), BogusAddHandler.class  );
+        assertEquals( ldapServer.getBindHandler().getClass(), BogusBindHandler.class  );
+        assertEquals( ldapServer.getCompareHandler().getClass(), BogusCompareHandler.class  );
+        assertEquals( ldapServer.getDeleteHandler().getClass(), BogusDeleteHandler.class  );
+        assertEquals( ldapServer.getModifyDnHandler().getClass(), BogusModifyDnHandler.class  );
+        assertEquals( ldapServer.getModifyHandler().getClass(), BogusModifyHandler.class  );
+        assertEquals( ldapServer.getSearchHandler().getClass(), BogusSearchHandler.class  );
+        assertEquals( ldapServer.getUnbindHandler().getClass(), BogusUnbindHandler.class  );
+        assertNotNull( ldapServer.getCodecFactory() );
+        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
 
@@ -64,20 +157,8 @@ public class LdapProtocolProviderTest extends TestCase
      */
     public void testAlternativeConfiguration() throws LdapNamingException
     {
-        DirectoryService directoryService = new DefaultDirectoryService();
-        LdapProtocolProvider provider = new LdapProtocolProvider( directoryService, new LdapConfiguration() );
-        provider.setAbandonHandler( new BogusAbandonHandler() );
-        provider.setAddHandler( new BogusAddHandler() );
-        provider.setBindHandler( new BogusBindHandler() );
-        provider.setCompareHandler( new BogusCompareHandler() );
-        provider.setDeleteHandler( new BogusDeleteHandler() );
-        provider.setModifyDnHandler( new BogusModifyDnHandler() );
-        provider.setModifyHandler( new BogusModifyHandler() );
-        provider.setSearchHandler( new BogusSearchHandler() );
-        provider.setUnbindHandler( new BogusUnbindHandler() );
-
-        assertNotNull( provider.getCodecFactory() );
-        assertEquals( provider.getName(), LdapProtocolProvider.SERVICE_NAME );
+        assertNotNull( ldapServer.getCodecFactory() );
+        assertEquals( ldapServer.getName(), LdapServer.SERVICE_NAME );
     }
 
     public static class BogusAbandonHandler extends AbandonHandler

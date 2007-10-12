@@ -57,17 +57,19 @@ public class SessionRegistry
     private Hashtable<String, Object> env;
 
     /** the configuration associated with this SessionRegistry */
-    private LdapConfiguration cfg;
+    private LdapServer ldapServer;
 
 
     /**
      * Creates a singleton session state object for the system.
      *
      * @param env the properties associated with this SessionRegistry
-     * @param cfg the ldap configuration
+     * @param ldapServer the ldap configuration
      */
-    public SessionRegistry( LdapConfiguration cfg, Hashtable<String, Object> env )
+    public SessionRegistry( LdapServer ldapServer, Hashtable<String, Object> env )
     {
+        this.ldapServer = ldapServer;
+
         if ( env == null )
         {
             this.env = new Hashtable<String, Object>();
@@ -78,15 +80,6 @@ public class SessionRegistry
         {
             this.env = env;
             this.env.put( Context.PROVIDER_URL, "" );
-        }
-
-        if ( cfg == null )
-        {
-            this.cfg = new LdapConfiguration();
-        }
-        else
-        {
-            this.cfg = cfg;
         }
     }
 
@@ -262,7 +255,7 @@ public class SessionRegistry
         if ( ctx == null && allowAnonymous )
         {
             // if configuration says disable anonymous binds we throw exception
-            if ( !cfg.isAllowAnonymousAccess() )
+            if ( !ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
@@ -306,7 +299,7 @@ public class SessionRegistry
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
             // prevent the operation by blowing a NoPermissionsException
-            if ( isAnonymousUser && !cfg.isAllowAnonymousAccess() )
+            if ( isAnonymousUser && !ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }

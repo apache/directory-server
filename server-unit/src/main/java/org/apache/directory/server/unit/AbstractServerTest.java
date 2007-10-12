@@ -218,7 +218,7 @@ public abstract class AbstractServerTest extends TestCase
 
         doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
         port = AvailablePortFinder.getNextAvailable( 1024 );
-        apacheDS.getLdapConfiguration().setIpPort( port );
+        apacheDS.getLdapServer().setIpPort( port );
         apacheDS.getDirectoryService().setShutdownHookEnabled( false );
         apacheDS.startup();
         

@@ -20,14 +20,18 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
+import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
+import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
+import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -37,19 +41,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
-
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
-import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.chain.IoHandlerCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 
 /**
@@ -58,36 +50,37 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigureChain implements IoHandlerCommand
 {
-    private static final Logger log = LoggerFactory.getLogger( ConfigureChain.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ConfigureChain.class );
 
     private DirContext ctx;
 
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        LdapConfiguration config = ( LdapConfiguration ) session.getAttribute( LdapConfiguration.class.toString() );
+        LdapServer ldapServer = ( LdapServer )
+                session.getAttribute( LdapServer.class.toString() );
 
         Map<String, String> saslProps = new HashMap<String, String>();
-        saslProps.put( Sasl.QOP, getActiveQop( config ) );
-        saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( config ) );
+        saslProps.put( Sasl.QOP, getActiveQop( ldapServer ) );
+        saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapServer ) );
         session.setAttribute( "saslProps", saslProps );
 
-        session.setAttribute( "saslHost", config.getSaslHost() );
-        session.setAttribute( "baseDn", config.getSearchBaseDn() );
+        session.setAttribute( "saslHost", ldapServer.getSaslHost() );
+        session.setAttribute( "baseDn", ldapServer.getSearchBaseDn() );
 
-        Set activeMechanisms = getActiveMechanisms( config );
+        Set activeMechanisms = getActiveMechanisms( ldapServer );
 
         if ( activeMechanisms.contains( "GSSAPI" ) )
         {
             try
             {
-                Subject saslSubject = getSubject( config );
+                Subject saslSubject = getSubject( ldapServer );
                 session.setAttribute( "saslSubject", saslSubject );
             }
             catch ( ServiceConfigurationException sce )
             {
                 activeMechanisms.remove( "GSSAPI" );
-                log.warn( sce.getMessage() );
+                LOG.warn( sce.getMessage() );
             }
         }
 
@@ -97,7 +90,7 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private Set getActiveMechanisms( LdapConfiguration config )
+    private Set getActiveMechanisms( LdapServer ldapServer )
     {
         List<String> supportedMechanisms = new ArrayList<String>();
         supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
@@ -107,10 +100,8 @@ public class ConfigureChain implements IoHandlerCommand
 
         Set<String> activeMechanisms = new HashSet<String>();
 
-        Iterator it = config.getSupportedMechanisms().iterator();
-        while ( it.hasNext() )
+        for ( String desiredMechanism : ldapServer.getSupportedMechanisms() )
         {
-            String desiredMechanism = ( String ) it.next();
             if ( supportedMechanisms.contains( desiredMechanism ) )
             {
                 activeMechanisms.add( desiredMechanism );
@@ -121,7 +112,7 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private String getActiveQop( LdapConfiguration config )
+    private String getActiveQop( LdapServer ldapServer )
     {
         List<String> supportedQop = new ArrayList<String>();
         supportedQop.add( "auth" );
@@ -130,7 +121,7 @@ public class ConfigureChain implements IoHandlerCommand
 
         StringBuilder saslQop = new StringBuilder();
 
-        Iterator it = config.getSaslQop().iterator();
+        Iterator it = ldapServer.getSaslQop().iterator();
         while ( it.hasNext() )
         {
             String desiredQopLevel = ( String ) it.next();
@@ -150,11 +141,11 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private String getActiveRealms( LdapConfiguration config )
+    private String getActiveRealms( LdapServer ldapServer )
     {
         StringBuilder realms = new StringBuilder();
 
-        Iterator it = config.getSaslRealms().iterator();
+        Iterator it = ldapServer.getSaslRealms().iterator();
         while ( it.hasNext() )
         {
             String realm = ( String ) it.next();
@@ -171,9 +162,9 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private Subject getSubject( LdapConfiguration config ) throws ServiceConfigurationException
+    private Subject getSubject( LdapServer ldapServer ) throws ServiceConfigurationException
     {
-        String servicePrincipalName = config.getSaslPrincipal();
+        String servicePrincipalName = ldapServer.getSaslPrincipal();
 
         KerberosPrincipal servicePrincipal = new KerberosPrincipal( servicePrincipalName );
         GetPrincipal getPrincipal = new GetPrincipal( servicePrincipal );
@@ -182,19 +173,19 @@ public class ConfigureChain implements IoHandlerCommand
 
         try
         {
-            entry = ( PrincipalStoreEntry ) execute( config, getPrincipal );
+            entry = ( PrincipalStoreEntry ) execute( ldapServer, getPrincipal );
         }
         catch ( Exception e )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + config.getSearchBaseDn() + ".";
+                + ldapServer.getSearchBaseDn() + ".";
             throw new ServiceConfigurationException( message, e );
         }
 
         if ( entry == null )
         {
             String message = "Service principal " + servicePrincipalName + " not found at search base DN "
-                + config.getSearchBaseDn() + ".";
+                + ldapServer.getSearchBaseDn() + ".";
             throw new ServiceConfigurationException( message );
         }
 
@@ -211,9 +202,9 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private Object execute( LdapConfiguration config, ContextOperation operation ) throws Exception
+    private Object execute( LdapServer ldapServer, ContextOperation operation ) throws Exception
     {
-        Hashtable<String, Object> env = getEnvironment( config );
+        Hashtable<String, Object> env = getEnvironment( ldapServer );
 
         if ( ctx == null )
         {
@@ -223,7 +214,7 @@ public class ConfigureChain implements IoHandlerCommand
             }
             catch ( NamingException ne )
             {
-                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
+                String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
                 throw new ServiceConfigurationException( message, ne );
             }
         }
@@ -232,14 +223,14 @@ public class ConfigureChain implements IoHandlerCommand
     }
 
 
-    private Hashtable<String, Object> getEnvironment( LdapConfiguration config )
+    private Hashtable<String, Object> getEnvironment( LdapServer ldapServer )
     {
         Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
-        env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
-        env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
-        env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
-        env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, ldapServer.getInitialContextFactory() );
+        env.put( Context.PROVIDER_URL, ldapServer.getSearchBaseDn() );
+        env.put( Context.SECURITY_AUTHENTICATION, ldapServer.getSecurityAuthentication() );
+        env.put( Context.SECURITY_CREDENTIALS, ldapServer.getSecurityCredentials() );
+        env.put( Context.SECURITY_PRINCIPAL, ldapServer.getSecurityPrincipal() );
 
         return env;
     }

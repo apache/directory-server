@@ -20,22 +20,21 @@
 package org.apache.directory.server.ssl;
 
 
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.Hashtable;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ssl.support.SSLSocketFactory;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.mina.util.AvailablePortFinder;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ssl.support.SSLSocketFactory;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 
 /**
@@ -61,16 +60,16 @@ public class LdapsITest extends AbstractServerTest
 
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
         
-        LdapConfiguration ldapsCfg = apacheDS.getLdapsConfiguration();
-        ldapsCfg.setEnableLdaps( true );
-        ldapsCfg.setLdapsCertificatePassword( "boguspw" );
-        ldapsCfg.setIpPort( ldapsPort );
+        LdapServer ldapsServer = apacheDS.getLdapsServer();
+        ldapsServer.setEnableLdaps( true );
+        ldapsServer.setLdapsCertificatePassword( "boguspw" );
+        ldapsServer.setIpPort( ldapsPort );
 
         // Copy the bogus certificate to the certificates directory.
         InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
-        ldapsCfg.getLdapsCertificateFile().getParentFile().mkdirs();
+        ldapsServer.getLdapsCertificateFile().getParentFile().mkdirs();
 
-        FileOutputStream out = new FileOutputStream( ldapsCfg.getLdapsCertificateFile() );
+        FileOutputStream out = new FileOutputStream( ldapsServer.getLdapsCertificateFile() );
 
         for ( ;; )
         {

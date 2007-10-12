@@ -206,7 +206,7 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         }
         else if ( getApacheDS() != null )
         {
-            port = getApacheDS().getLdapConfiguration().getIpPort();
+            port = getApacheDS().getLdapServer().getIpPort();
 
             if ( isDebugEnabled() )
             {

@@ -70,5 +70,5 @@ public interface ExtendedOperationHandler
      * 
      * @param provider the ldap protocol provider 
      */
-    void setLdapProvider( LdapProtocolProvider provider );
+    void setLdapProvider( LdapServer provider );
 }
