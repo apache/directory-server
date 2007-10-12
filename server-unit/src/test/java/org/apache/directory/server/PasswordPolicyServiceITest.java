@@ -59,8 +59,26 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        super.setUp();
         setAllowAnonymousAccess( false );
 
+        Attributes attrs;
+
+
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        ctx = new InitialDirContext( env );
+
+        attrs = getOrgUnitAttributes( "users" );
+        users = ctx.createSubcontext( "ou=users", attrs );
+    }
+
+    protected void configureDirectoryService()
+    {
         Attributes attrs;
         Set<Partition> partitions = new HashSet<Partition>();
 
@@ -92,19 +110,6 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
         list.add( new PasswordPolicyInterceptor() );
         directoryService.setInterceptors( list );
-
-        super.setUp();
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "secret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
-
-        attrs = getOrgUnitAttributes( "users" );
-        users = ctx.createSubcontext( "ou=users", attrs );
     }
 
 
