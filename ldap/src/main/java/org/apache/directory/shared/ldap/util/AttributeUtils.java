@@ -20,9 +20,14 @@
 package org.apache.directory.shared.ldap.util;
 
 
+import org.apache.directory.shared.ldap.common.ServerAttribute;
+import org.apache.directory.shared.ldap.common.ServerAttributeImpl;
+import org.apache.directory.shared.ldap.common.ServerEntry;
+import org.apache.directory.shared.ldap.common.ServerEntryImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
@@ -1109,5 +1114,66 @@ public class AttributeUtils
     public static String toString( Attributes attributes )
     {
         return toString( "", attributes );
+    }
+    
+    
+    /**
+     * Convert a BasicAttribute or an AttributeImpl instance to a
+     * ServerAttribute instance
+     *
+     * @param attribute The attribute to convert
+     * @return A ServerAttributeImpl instance 
+     */
+    public static ServerAttribute convertAttribute( Attribute attribute ) throws NamingException
+    {
+        assert( attribute != null );
+        
+        ServerAttribute serverAttribute = new ServerAttributeImpl( attribute.getID() );
+        NamingEnumeration<?> values = attribute.getAll();
+        
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.nextElement();
+            
+            if ( value instanceof String )
+            {
+                serverAttribute.add( (String)value );
+            }
+            else if ( value instanceof byte[] )
+            {
+                serverAttribute.add( (byte[])value );
+            }
+            else
+            {
+                serverAttribute.add( (String)null );
+            }
+        }
+        
+        return serverAttribute;
+    }
+    
+    
+    /**
+     * Convert an instance of Attributes to an instance of ServerEntry
+     *
+     * @param attributes The instance to convert
+     * @return An instance of ServerEntryImpl
+     */
+    public static ServerEntry convertEntry( LdapDN dn, Attributes attributes ) throws NamingException
+    {
+        assert( dn != null );
+        assert( attributes != null );
+        
+        ServerEntry serverEntry = new ServerEntryImpl( dn );
+        
+        NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
+        
+        while ( attrs.hasMoreElements() )
+        {
+            Attribute attribute = attrs.nextElement();
+            serverEntry.put( convertAttribute( attribute ) );
+        }
+        
+        return serverEntry;
     }
 }
