@@ -107,6 +107,14 @@ public class ApacheDS
         {
             directoryService.startup();
         }
+        if ( ldapServer != null && ! ldapServer.isStarted() )
+        {
+            ldapServer.start();
+        }
+        if ( ldapsServer != null && ! ldapsServer.isStarted() )
+        {
+            ldapsServer.start();
+        }
 
 /*
         if ( ldapServer == null )
@@ -119,10 +127,6 @@ public class ApacheDS
             ldapsServer = new LdapServer( tcpAcceptor );
         }
 
-        if ( ! ldapServer.isStarted() )
-        {
-            ldapServer.start();
-        }
 
         if ( ldapsServer != null && ! ldapsServer.isStarted() )
         {
@@ -134,24 +138,27 @@ public class ApacheDS
 
     public boolean isStarted()
     {
-        return true;
-//        return ldapServer.isStarted() || ldapsServer.isStarted();
+        if (ldapServer != null || ldapsServer != null)
+        {
+             return (ldapServer != null && ldapServer.isStarted()) || (ldapsServer != null && ldapsServer.isStarted());
+        }
+        return directoryService.isStarted();
     }
     
 
     public void shutdown() throws NamingException
     {
-/*
-        if ( ldapServer.isStarted() )
+        if ( ldapServer != null && ldapServer.isStarted() )
         {
             ldapServer.stop();
         }
 
-        if ( ldapsServer.isStarted() )
+        if ( ldapsServer != null && ldapsServer.isStarted() )
         {
             ldapsServer.stop();
         }
 
+/*
         logicExecutor.shutdown();
         for (;;) {
             try {
