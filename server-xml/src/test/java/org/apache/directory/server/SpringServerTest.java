@@ -44,7 +44,7 @@ public class SpringServerTest
         URL configURL = classLoader.getResource( "server.xml" );
 
         File configF = new File( configURL.toURI() );
-        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURL().toString() );
+        ApplicationContext factory = new FileSystemXmlApplicationContext( configF.toURI().toURL().toString() );
         ApacheDS apacheDS = ( ApacheDS ) factory.getBean( "apacheDS" );
         File workingDirFile = new File( configF.getParentFile(), "work" );
         apacheDS.getDirectoryService().setWorkingDirectory( workingDirFile );
