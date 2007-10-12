@@ -231,7 +231,6 @@ public class LdapServer extends ServiceConfiguration
         else
         {
             chain = new DefaultIoFilterChainBuilder();
-            startLDAP0( getIpPort(), chain );
         }
 
         startLDAP0( getIpPort(), chain );
