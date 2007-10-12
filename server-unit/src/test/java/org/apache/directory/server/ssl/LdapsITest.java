@@ -56,13 +56,9 @@ public class LdapsITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        doDelete = false;
         super.setUp();
-        doDelete = true;
-        doDelete( directoryService.getWorkingDirectory() );
 
         int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
-        
         LdapServer ldapsServer = new LdapServer( socketAcceptor, directoryService );
         ldapsServer.setEnableLdaps( true );
         ldapsServer.setLdapsCertificatePassword( "boguspw" );
