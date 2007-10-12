@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
+import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 
 
 /**
@@ -42,7 +43,7 @@ class RsaMd5Checksum implements ChecksumEngine
     {
         try
         {
-            MessageDigest digester = MessageDigest.getInstance( "MD5" );
+            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5 );
             return digester.digest( data );
         }
         catch ( NoSuchAlgorithmException nsae )
