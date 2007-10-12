@@ -75,15 +75,16 @@ public class MiscTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
-                this.getName().equals( "testCompareWithoutAuthentication" ) )
-        {
-            setAllowAnonymousAccess( false );
-        } else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
-        {
-            setAllowAnonymousAccess( false );
-        }
         super.setUp();
+        if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
+                this.getName().equals( "testCompareWithoutAuthentication" ) ||
+                this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
+        {
+            setAllowAnonymousAccess( false );
+        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        {
+            setAllowAnonymousAccess( true );
+        }
     }
 
 
@@ -110,9 +111,6 @@ public class MiscTest extends AbstractServerTest
             directoryService.setPartitions( partitions );
         } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
-            // allow anonymous access
-            setAllowAnonymousAccess( true );
-
             // create a partition to search
             Set partitions = new HashSet();
             partitions.addAll( directoryService.getPartitions() );
