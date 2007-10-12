@@ -223,7 +223,7 @@ public class LdapServer extends ServiceConfiguration
      * Creates an LDAP protocol provider.
      *
      * @param socketAcceptor the mina socket acceptor wrapper
-     * @param directoryService
+     * @param directoryService the directory service core
      */
     public LdapServer( SocketAcceptor socketAcceptor, DirectoryService directoryService )
     {
@@ -1011,7 +1011,7 @@ public class LdapServer extends ServiceConfiguration
     {
         public void sessionCreated( IoSession session ) throws Exception
         {
-            session.setAttribute( LdapServer.class.toString(), this );
+            session.setAttribute( LdapServer.class.toString(), LdapServer.this );
             IoFilterChain filters = session.getFilterChain();
             filters.addLast( "codec", new ProtocolCodecFilter( codecFactory ) );
         }
