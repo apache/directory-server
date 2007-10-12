@@ -52,7 +52,7 @@ public class ReferralImpl implements Referral
      * 
      * @return the alternative url objects.
      */
-    public Collection getLdapUrls()
+    public Collection<String> getLdapUrls()
     {
         return Collections.unmodifiableCollection( urls );
     }
@@ -102,7 +102,7 @@ public class ReferralImpl implements Referral
 
         if ( obj instanceof Referral )
         {
-            Collection refs = ( ( Referral ) obj ).getLdapUrls();
+            Collection<String> refs = ( ( Referral ) obj ).getLdapUrls();
 
             // if their sizes do not match they are not equal
             if ( refs.size() != urls.size() )
@@ -110,7 +110,8 @@ public class ReferralImpl implements Referral
                 return false;
             }
 
-            Iterator list = urls.iterator();
+            Iterator<String> list = urls.iterator();
+            
             while ( list.hasNext() )
             {
                 // if one of our urls is not contained in the obj return false

@@ -42,6 +42,9 @@ public class LdifUtils
     /** The array that will be used to match the other chars.*/
     private static boolean[] LDIF_SAFE_OTHER_CHARS_ALPHABET = new boolean[128];
     
+    /** The default length for a line in a ldif file */
+    private static final int DEFAULT_LINE_LENGTH = 80;
+    
     static
     {
     	// Initialization of the array that will be used to match the first char.
@@ -128,14 +131,14 @@ public class LdifUtils
      */
     public static String convertToLdif( Attributes attrs ) throws NamingException
     {
-        return convertToLdif( attrs, 80 );
+        return convertToLdif( attrs, DEFAULT_LINE_LENGTH );
     }
     
     
     /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
-     * @param length the expectend line length
+     * @param length the expected line length
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
@@ -143,7 +146,7 @@ public class LdifUtils
     {
 		StringBuilder sb = new StringBuilder();
 		
-		NamingEnumeration ne = attrs.getAll();
+		NamingEnumeration<? extends Attribute> ne = attrs.getAll();
 		
 		while ( ne.hasMore() )
 		{
@@ -166,7 +169,7 @@ public class LdifUtils
      */
     public static String convertToLdif( Entry entry ) throws NamingException
     {
-        return convertToLdif( entry, 80 );
+        return convertToLdif( entry, DEFAULT_LINE_LENGTH );
     }
     
     /**
@@ -197,11 +200,11 @@ public class LdifUtils
         sb.append( '\n' );
 
         // Now, iterate through all the attributes
-        NamingEnumeration ne = entry.getAttributes().getAll();;
+        NamingEnumeration<? extends Attribute> ne = entry.getAttributes().getAll();
         
         while ( ne.hasMore() )
         {
-            Attribute attribute = (Attribute)ne.next();
+            Attribute attribute = ne.next();
             
             sb.append( convertToLdif( (Attribute) attribute, length ) );
         }
@@ -230,6 +233,7 @@ public class LdifUtils
         
         return new String( encoded );
     }
+    
 
     /**
      * Converts an Attribute as LDIF
@@ -237,7 +241,20 @@ public class LdifUtils
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
-	private static String convertToLdif( Attribute attr, int length ) throws NamingException
+    public static String convertToLdif( Attribute attr ) throws NamingException
+    {
+        return convertToLdif( attr, DEFAULT_LINE_LENGTH );
+    }
+    
+    
+    /**
+     * Converts an Attribute as LDIF
+     * @param attr the Attribute to convert
+     * @param length the expected line length
+     * @return the corresponding LDIF code as a String
+     * @throws NamingException If a naming exception is encountered.
+     */
+	public static String convertToLdif( Attribute attr, int length ) throws NamingException
 	{
 		StringBuilder sb = new StringBuilder();
 		
@@ -250,8 +267,12 @@ public class LdifUtils
 			
 			Object value = attr.get( i );
             
-            // Checking if the value is binary
-            if ( value instanceof byte[] )
+			// First, deal with null value (which is valid)
+			if ( value == null )
+			{
+                lineBuffer.append( ':' );
+			}
+			else if ( value instanceof byte[] )
             {
             	// It is binary, so we have to encode it using Base64 before adding it
             	char[] encoded = Base64.encode( ( byte[] ) value );
