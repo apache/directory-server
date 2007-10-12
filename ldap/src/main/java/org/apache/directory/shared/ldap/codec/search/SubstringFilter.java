@@ -247,11 +247,11 @@ public class SubstringFilter extends Filter
 
         if ( anySubstrings != null )
         {
-            Iterator anyIterator = anySubstrings.iterator();
+            Iterator<String> anyIterator = anySubstrings.iterator();
 
             while ( anyIterator.hasNext() )
             {
-                String any = ( String ) anyIterator.next();
+                String any = anyIterator.next();
                 int anyLength = StringTools.getBytesUtf8( any ).length; 
                 substringsFilterSequenceLength += 1 + TLV.getNbBytes( anyLength ) + anyLength;
             }
@@ -329,11 +329,11 @@ public class SubstringFilter extends Filter
             // The any substrings
             if ( anySubstrings != null )
             {
-                Iterator anyIterator = anySubstrings.iterator();
+                Iterator<String> anyIterator = anySubstrings.iterator();
 
                 while ( anyIterator.hasNext() )
                 {
-                    String any = ( String ) anyIterator.next();
+                    String any = anyIterator.next();
                     byte[] anyBytes = StringTools.getBytesUtf8( any );
                     buffer.put( ( byte ) LdapConstants.SUBSTRINGS_FILTER_ANY_TAG );
                     buffer.put( TLV.getBytes( anyBytes.length ) );

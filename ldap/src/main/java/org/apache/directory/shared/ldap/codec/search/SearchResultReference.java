@@ -123,12 +123,12 @@ public class SearchResultReference extends LdapMessage
     {
         searchResultReferenceLength = 0;
 
-        Iterator referencesIterator = searchResultReferences.iterator();
+        Iterator<LdapURL> referencesIterator = searchResultReferences.iterator();
 
         // We may have more than one reference.
         while ( referencesIterator.hasNext() )
         {
-            int ldapUrlLength = ( ( LdapURL ) referencesIterator.next() ).getNbBytes();
+            int ldapUrlLength = referencesIterator.next().getNbBytes();
             searchResultReferenceLength += 1 + TLV.getNbBytes( ldapUrlLength ) + ldapUrlLength;
         }
 
@@ -162,12 +162,12 @@ public class SearchResultReference extends LdapMessage
             buffer.put( TLV.getBytes( searchResultReferenceLength ) );
 
             // The references. We must at least have one reference
-            Iterator referencesIterator = searchResultReferences.iterator();
+            Iterator<LdapURL> referencesIterator = searchResultReferences.iterator();
 
             // We may have more than one reference.
             while ( referencesIterator.hasNext() )
             {
-                LdapURL reference = ( ( LdapURL ) referencesIterator.next() );
+                LdapURL reference = referencesIterator.next();
 
                 // Encode the reference
                 Value.encode( buffer, reference.getString() );

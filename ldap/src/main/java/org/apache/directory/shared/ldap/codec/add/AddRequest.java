@@ -243,7 +243,7 @@ public class AddRequest extends LdapMessage
 
         if ( ( attributes != null ) && ( attributes.size() != 0 ) )
         {
-            NamingEnumeration attributeIterator = attributes.getAll();
+            NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
             attributeLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
 
@@ -261,7 +261,7 @@ public class AddRequest extends LdapMessage
                 // The values
                 try
                 {
-                    NamingEnumeration values = attribute.getAll();
+                    NamingEnumeration<?> values = attribute.getAll();
 
                     if ( values.hasMoreElements() )
                     {
@@ -362,7 +362,7 @@ public class AddRequest extends LdapMessage
             // The partial attribute list
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                NamingEnumeration attributeIterator = attributes.getAll();
+                NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
                 int attributeNumber = 0;
 
                 // Compute the attributes length
@@ -385,7 +385,7 @@ public class AddRequest extends LdapMessage
 
                     try
                     {
-                        NamingEnumeration values = attribute.getAll();
+                        NamingEnumeration<?> values = attribute.getAll();
 
                         if ( values.hasMoreElements() )
                         {

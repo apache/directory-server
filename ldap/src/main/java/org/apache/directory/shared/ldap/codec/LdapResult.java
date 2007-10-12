@@ -278,14 +278,14 @@ public class LdapResult extends AbstractAsn1Object
 
         if ( ( referrals != null ) && ( referrals.size() != 0 ) )
         {
-            Iterator referralIterator = referrals.iterator();
+            Iterator<LdapURL> referralIterator = referrals.iterator();
 
             referralsLength = 0;
 
             // Each referral
             while ( referralIterator.hasNext() )
             {
-                LdapURL referral = ( LdapURL ) referralIterator.next();
+                LdapURL referral = referralIterator.next();
 
                 referralsLength += 1 + TLV.getNbBytes( referral.getNbBytes() ) + referral.getNbBytes();
             }
@@ -338,11 +338,11 @@ public class LdapResult extends AbstractAsn1Object
             buffer.put( TLV.getBytes( referralsLength ) );
 
             // Each referral
-            Iterator referralIterator = referrals.iterator();
+            Iterator<LdapURL> referralIterator = referrals.iterator();
 
             while ( referralIterator.hasNext() )
             {
-                LdapURL referral = ( LdapURL ) referralIterator.next();
+                LdapURL referral = referralIterator.next();
 
                 // Ecode the current referral
                 Value.encode( buffer, referral.getBytes() );

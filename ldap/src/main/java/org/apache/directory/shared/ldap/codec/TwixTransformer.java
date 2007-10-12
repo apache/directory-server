@@ -370,12 +370,12 @@ public class TwixTransformer implements TransformerSpi
         // Twix : ArrayList modifications -> Snickers : ArrayList mods
         if ( modifyRequest.getModifications() != null )
         {
-            Iterator modifications = modifyRequest.getModifications().iterator();
+            Iterator<ModificationItemImpl> modifications = modifyRequest.getModifications().iterator();
 
             // Loop through the modifications
             while ( modifications.hasNext() )
             {
-                snickersMessage.addModification( ( ModificationItemImpl ) modifications.next() );
+                snickersMessage.addModification( modifications.next() );
             }
         }
 
@@ -416,11 +416,11 @@ public class TwixTransformer implements TransformerSpi
                 // Loop on all AND/OR children
                 if ( filtersSet != null )
                 {
-                    Iterator filters = filtersSet.iterator();
+                    Iterator<Filter> filters = filtersSet.iterator();
 
                     while ( filters.hasNext() )
                     {
-                        branch.addNode( transformFilter( ( Filter ) filters.next() ) );
+                        branch.addNode( transformFilter( filters.next() ) );
                     }
                 }
 
@@ -632,7 +632,7 @@ public class TwixTransformer implements TransformerSpi
         // Twix : ArrayList attributes -> Snickers : ArrayList attributes
         if ( searchRequest.getAttributes() != null )
         {
-            NamingEnumeration attributes = searchRequest.getAttributes().getAll();
+            NamingEnumeration<?> attributes = searchRequest.getAttributes().getAll();
 
             if ( attributes != null )
             {
@@ -747,17 +747,17 @@ public class TwixTransformer implements TransformerSpi
         }
 
         // Transform the controls, too
-        List twixControls = twixMessage.getControls();
+        List<org.apache.directory.shared.ldap.codec.Control> twixControls = twixMessage.getControls();
 
         if ( twixControls != null )
         {
-            Iterator controls = twixControls.iterator();
+            Iterator<org.apache.directory.shared.ldap.codec.Control> controls = 
+                twixControls.iterator();
 
             while ( controls.hasNext() )
             {
                 AbstractMutableControlImpl neutralControl = null;
-                final org.apache.directory.shared.ldap.codec.Control twixControl = 
-                    ( org.apache.directory.shared.ldap.codec.Control ) controls.next();
+                final org.apache.directory.shared.ldap.codec.Control twixControl = controls.next();
 
                 if ( twixControl.getControlValue() instanceof 
                     org.apache.directory.shared.ldap.codec.controls.CascadeControl )
@@ -861,12 +861,12 @@ public class TwixTransformer implements TransformerSpi
 
         if ( snisckersReferrals != null )
         {
-            Iterator referrals = snisckersReferrals.getLdapUrls().iterator();
+            Iterator<String> referrals = snisckersReferrals.getLdapUrls().iterator();
             twixLdapResult.initReferrals();
 
             while ( referrals.hasNext() )
             {
-                String referral = ( String ) referrals.next();
+                String referral = referrals.next();
 
                 try
                 {
@@ -1112,11 +1112,11 @@ public class TwixTransformer implements TransformerSpi
         // Loop on all referals
         if ( referrals != null )
         {
-            Collection urls = referrals.getLdapUrls();
+            Collection<String> urls = referrals.getLdapUrls();
 
             if ( urls != null )
             {
-                Iterator url = urls.iterator();
+                Iterator<String> url = urls.iterator();
 
                 while ( url.hasNext() )
                 {
@@ -1221,11 +1221,11 @@ public class TwixTransformer implements TransformerSpi
      */
     private void transformControls( LdapMessage twixMessage, Message msg )
     {
-        Iterator list = msg.getControls().values().iterator();
+        Iterator<javax.naming.ldap.Control> list = msg.getControls().values().iterator();
         
         while ( list.hasNext() )
         {
-            javax.naming.ldap.Control control = ( javax.naming.ldap.Control ) list.next();
+            javax.naming.ldap.Control control = list.next();
             org.apache.directory.shared.ldap.codec.Control twixControl = new org.apache.directory.shared.ldap.codec.Control();
             twixMessage.addControl( twixControl );
             twixControl.setCriticality( control.isCritical() );

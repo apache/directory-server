@@ -492,12 +492,12 @@ public class SearchRequest extends LdapMessage
 
         if ( ( attributes != null ) && ( attributes.size() != 0 ) )
         {
-            NamingEnumeration attributeIterator = attributes.getAll();
+            NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
 
             // Compute the attributes length
             while ( attributeIterator.hasMoreElements() )
             {
-                Attribute attribute = ( AttributeImpl ) attributeIterator.nextElement();
+                Attribute attribute = attributeIterator.nextElement();
 
                 // add the attribute length to the attributes length
                 try
@@ -586,7 +586,7 @@ public class SearchRequest extends LdapMessage
 
             if ( ( attributes != null ) && ( attributes.size() != 0 ) )
             {
-                NamingEnumeration attributeIterator = attributes.getAll();
+                NamingEnumeration<? extends Attribute> attributeIterator = attributes.getAll();
 
                 // encode each attribute
                 while ( attributeIterator.hasMoreElements() )
@@ -633,14 +633,14 @@ public class SearchRequest extends LdapMessage
 
         if ( attributes != null )
         {
-            NamingEnumeration attrs = attributes.getAll();
+            NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
             boolean isFirst = true;
     
             if ( attrs != null )
             {
                 while ( attrs.hasMoreElements() )
                 {
-                    Attribute attr = ( AttributeImpl ) attrs.nextElement();
+                    Attribute attr = attrs.nextElement();
         
                     if ( isFirst )
                     {

@@ -193,7 +193,7 @@ public class StoredProcedure extends AbstractAsn1Object
             paramTypeLength = new LinkedList<Integer>();
             paramValueLength = new LinkedList<Integer>();
             
-    		Iterator params = parameters.iterator();
+    		Iterator<StoredProcedureParameter> params = parameters.iterator();
     		
     		while ( params.hasNext() )
     		{
@@ -201,7 +201,7 @@ public class StoredProcedure extends AbstractAsn1Object
     			int localParamTypeLength = 0;
     			int localParamValueLength = 0;
     			
-    			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
+    			StoredProcedureParameter spParam = params.next();
     			
     			localParamTypeLength = 1 + TLV.getNbBytes( spParam.type.length ) + spParam.type.length;
     			localParamValueLength = 1 + TLV.getNbBytes( spParam.value.length ) + spParam.value.length;
@@ -253,11 +253,11 @@ public class StoredProcedure extends AbstractAsn1Object
             if ( ( parameters != null ) && ( parameters.size() != 0 ) )
             {
             	int parameterNumber = 0;
-        		Iterator params = parameters.iterator();
+        		Iterator<StoredProcedureParameter> params = parameters.iterator();
         		
         		while ( params.hasNext() )
         		{
-        			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
+        			StoredProcedureParameter spParam = params.next();
 
                     // The parameter sequence
                     bb.put( UniversalTag.SEQUENCE_TAG );
@@ -306,7 +306,7 @@ public class StoredProcedure extends AbstractAsn1Object
         {
             sb.append( "        Parameters\n" );
 
-            Iterator params = parameters.iterator();
+            Iterator<StoredProcedureParameter> params = parameters.iterator();
             int i = 1;
     		
     		while ( params.hasNext() )

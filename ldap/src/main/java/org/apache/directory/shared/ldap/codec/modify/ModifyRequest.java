@@ -319,7 +319,7 @@ public class ModifyRequest extends LdapMessage
 
         if ( ( modifications != null ) && ( modifications.size() != 0 ) )
         {
-            Iterator modificationsIterator = modifications.iterator();
+            Iterator<ModificationItemImpl> modificationsIterator = modifications.iterator();
             modificationSequenceLength = new LinkedList<Integer>();
             modificationLength = new LinkedList<Integer>();
             valuesLength = new LinkedList<Integer>();
@@ -330,7 +330,7 @@ public class ModifyRequest extends LdapMessage
                 int localModificationSequenceLength = 1 + 1 + 1;
                 int localValuesLength = 0;
 
-                ModificationItemImpl modification = ( ModificationItemImpl ) modificationsIterator.next();
+                ModificationItemImpl modification = modificationsIterator.next();
 
                 // Modification length initialized with the type
                 int typeLength = modification.getAttribute().getID().length();
@@ -339,7 +339,7 @@ public class ModifyRequest extends LdapMessage
                 try
                 {
 
-                    NamingEnumeration values = modification.getAttribute().getAll();
+                    NamingEnumeration<?> values = modification.getAttribute().getAll();
 
                     // Get all the values
                     if ( values.hasMoreElements() )
@@ -442,13 +442,13 @@ public class ModifyRequest extends LdapMessage
             // The modifications list
             if ( ( modifications != null ) && ( modifications.size() != 0 ) )
             {
-                Iterator modificationIterator = modifications.iterator();
+                Iterator<ModificationItemImpl> modificationIterator = modifications.iterator();
                 int modificationNumber = 0;
 
                 // Compute the modifications length
                 while ( modificationIterator.hasNext() )
                 {
-                    ModificationItemImpl modification = ( ModificationItemImpl ) modificationIterator.next();
+                    ModificationItemImpl modification = modificationIterator.next();
 
                     // The modification sequence
                     buffer.put( UniversalTag.SEQUENCE_TAG );
@@ -492,7 +492,7 @@ public class ModifyRequest extends LdapMessage
 
                     try
                     {
-                        NamingEnumeration values = modification.getAttribute().getAll();
+                        NamingEnumeration<?> values = modification.getAttribute().getAll();
 
                         if ( values.hasMoreElements() )
                         {
