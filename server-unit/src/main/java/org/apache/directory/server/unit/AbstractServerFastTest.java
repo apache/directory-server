@@ -22,7 +22,6 @@ package org.apache.directory.server.unit;
 
 import junit.framework.AssertionFailedError;
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DefaultDirectoryService;
@@ -86,7 +85,9 @@ public abstract class AbstractServerFastTest
     protected static final String USER = "uid=admin,ou=system";
     protected static final String PASSWORD = "secret";
     protected static final String BASE = "dc=example,dc=com";
-    protected static ApacheDS apacheDS;
+
+    protected static DirectoryService directoryService;
+    protected static LdapServer ldapServer;
 
 
     /**
@@ -204,15 +205,15 @@ public abstract class AbstractServerFastTest
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        DirectoryService directoryService = new DefaultDirectoryService();
+        directoryService = new DefaultDirectoryService();
         doDelete( directoryService.getWorkingDirectory() );
+        directoryService.setShutdownHookEnabled( false );
+        directoryService.startup();
         port = AvailablePortFinder.getNextAvailable( 1024 );
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
-        LdapServer ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer = new LdapServer( socketAcceptor, directoryService );
         ldapServer.setIpPort( port );
-        directoryService.setShutdownHookEnabled( false );
-        apacheDS = new ApacheDS( directoryService, ldapServer, null );
-        apacheDS.startup();
+        ldapServer.start();
 
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( DirectoryService.JNDI_KEY, directoryService );
@@ -222,6 +223,30 @@ public abstract class AbstractServerFastTest
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
 
         setContexts( env );
+    }
+
+
+    /**
+     * Sets the system context root to null.
+     *
+     * @see junit.framework.TestCase#tearDown()
+     * @throws Exception if there are problems shutting down the server
+     */
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception
+    {
+        try
+        {
+            ldapServer.stop();
+            directoryService.shutdown();
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Encountered exception while trying to shutdown.", e );
+        }
+
+        root = null;
+        doDelete( directoryService.getWorkingDirectory() );
     }
 
 
@@ -302,29 +327,6 @@ public abstract class AbstractServerFastTest
 
         rootDSE = new InitialLdapContext( envTest, null );
         assertNotNull( rootDSE );
-    }
-
-
-    /**
-     * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
-     * @throws Exception if there are problems shutting down the server
-     */
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception
-    {
-        try
-        {
-            apacheDS.shutdown();
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Encountered exception while trying to shutdown.", e );
-        }
-
-        root = null;
-        doDelete( apacheDS.getDirectoryService().getWorkingDirectory() );
     }
 
 

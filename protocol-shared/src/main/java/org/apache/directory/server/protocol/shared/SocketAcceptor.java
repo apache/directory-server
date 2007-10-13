@@ -31,7 +31,7 @@ import org.apache.mina.common.ThreadModel;
 import org.apache.mina.filter.executor.ExecutorFilter;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  * @org.apache.xbean.XBean
  */
 public class SocketAcceptor extends org.apache.mina.transport.socket.nio.SocketAcceptor
@@ -39,7 +39,7 @@ public class SocketAcceptor extends org.apache.mina.transport.socket.nio.SocketA
 
     private static final int DEFAULT_THREADS = 10;
 
-    public SocketAcceptor( Executor logicExecutor)
+    public SocketAcceptor( Executor logicExecutor )
     {
         super( Runtime.getRuntime().availableProcessors(), getIOExecutor());
         if ( logicExecutor == null )
