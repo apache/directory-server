@@ -20,25 +20,19 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import java.net.InetSocketAddress;
-
+import com.sun.org.apache.bcel.internal.classfile.Unknown;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
+import org.apache.directory.mitosis.service.protocol.message.*;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.util.SessionLog;
+
+import java.net.InetSocketAddress;
 
 
 /**
@@ -117,7 +111,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     public void exceptionCaught( ReplicationContext ctx, Throwable cause ) throws Exception
     {
-        SessionLog.warn( ctx.getSession(), "Unexpected exception.", cause );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unexpected exception.", cause );
         ctx.getSession().close();
     }
 
@@ -126,7 +121,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
     {
         if ( ctx.getState() == State.INIT )
         {
-            SessionLog.warn( ctx.getSession(), "No login attempt in " + ctx.getConfiguration().getResponseTimeout()
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] No login attempt in " + ctx.getConfiguration().getResponseTimeout()
                 + " second(s)." );
             ctx.getSession().close();
         }
@@ -155,7 +151,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
                 }
                 else
                 {
-                    SessionLog.warn( ctx.getSession(), "Peer address mismatches: "
+                    SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                            + "] Peer address mismatches: "
                             + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
                     ctx.getSession().write(
                             new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
@@ -166,7 +163,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
             }
         }
 
-        SessionLog.warn( ctx.getSession(), "Unknown peer replica ID: " + message.getReplicaId() );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().write(
             new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration().getReplicaId() ) );
         ctx.getSession().close();
@@ -247,7 +245,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     private void onUnexpectedMessage( ReplicationContext ctx, Object message )
     {
-        SessionLog.warn( ctx.getSession(), "Unexpected message: " + message );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unexpected message: " + message );
         ctx.getSession().close();
     }
 }

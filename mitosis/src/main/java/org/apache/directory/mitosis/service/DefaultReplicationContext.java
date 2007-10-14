@@ -141,6 +141,7 @@ public class DefaultReplicationContext implements ReplicationContext
         task.cancel();
         return task.message;
     }
+
     
     public boolean replicate()
     {
@@ -187,6 +188,7 @@ public class DefaultReplicationContext implements ReplicationContext
         }
         return task;
     }
+
 
     private class ExpirationTask extends TimerTask
     {

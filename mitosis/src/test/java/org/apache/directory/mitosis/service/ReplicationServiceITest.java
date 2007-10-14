@@ -65,7 +65,7 @@ public class ReplicationServiceITest extends AbstractReplicationServiceTestCase
      * NOTE: This test is DISABLED as there is an occasional problem when a message is acknowledged
      * too quickly, meaning no further messages can be sent until it has timed out (DIRSERVER-998).
      *
-     * @throws Exception
+     * @throws Exception on failure
      */
     public void disabled_testTwoWayBind() throws Exception
     {

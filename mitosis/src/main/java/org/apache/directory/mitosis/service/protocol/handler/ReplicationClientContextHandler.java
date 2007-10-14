@@ -20,36 +20,14 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.AddEntryOperation;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
+import org.apache.directory.mitosis.service.protocol.message.*;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
@@ -60,6 +38,15 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.WriteFuture;
 import org.apache.mina.util.SessionLog;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.net.InetSocketAddress;
+import java.util.Map;
 
 
 /**
@@ -198,7 +185,11 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
 
     public void exceptionCaught( ReplicationContext ctx, Throwable cause ) throws Exception
     {
-        SessionLog.warn( ctx.getSession(), "Unexpected exception.", cause );
+        if ( SessionLog.isWarnEnabled( ctx.getSession() ) )
+        {
+            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId()
+                    +"] Unexpected exception.", cause );
+        }
         ctx.getSession().close();
     }
 
@@ -213,7 +204,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         if ( message.getResponseCode() != Constants.OK )
         {
-            SessionLog.warn( ctx.getSession(), "Login attempt failed: " + message.getResponseCode() );
+            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Login attempt failed: " + message.getResponseCode() );
             ctx.getSession().close();
             return;
         }
@@ -231,7 +223,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 }
                 else
                 {
-                    SessionLog.warn( ctx.getSession(), "Peer address mismatches: "
+                    SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId()
+                            + "] Peer address mismatches: "
                             + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
                     ctx.getSession().close();
                     return;
@@ -239,7 +232,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
             }
         }
 
-        SessionLog.warn( ctx.getSession(), "Unknown peer replica ID: " + message.getReplicaId() );
+        SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().close();
     }
 
@@ -269,7 +263,9 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 SessionLog.debug( ctx.getSession(), "(" +
                     ctx.getConfiguration().getReplicaId().getId() + "->" +
                     (ctx.getPeer() != null ? ctx.getPeer().getId().getId() : "null") +
-                    ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:" + ctx.getScheduledExpirations() + ", scheduledWriteRequests:" + ctx.getSession().getScheduledWriteRequests() );
+                    ") Couldn't begin replication.  State:" + ctx.getState() + ", scheduledExpirations:"
+                        + ctx.getScheduledExpirations() +
+                        ", scheduledWriteRequests:" + ctx.getSession().getScheduledWriteRequests() );
             }
         	return false;
         }
@@ -280,7 +276,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
     {
         if ( message.getResponseCode() != Constants.OK )
         {
-            SessionLog.warn( ctx.getSession(), "Remote peer failed to execute a log entry." );
+            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Remote peer failed to execute a log entry." );
             ctx.getSession().close();
         }
     }
@@ -304,7 +301,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         }
         catch ( Exception e )
         {
-            SessionLog.warn( ctx.getSession(), "Failed to get update vector.", e );
+            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Failed to get update vector.", e );
             ctx.getSession().close();
             return;
         }
@@ -314,12 +312,14 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         {
             if ( myPV.size() > 0 && yourUV.size() == 0 )
             {
-                SessionLog.warn( ctx.getSession(), "Starting a whole DIT transfer." );
+                SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Starting a whole DIT transfer." );
                 sendAllEntries( ctx );
             }
             else
             {
-                SessionLog.warn( ctx.getSession(), "Starting a partial replication log transfer." );
+                SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Starting a partial replication log transfer." );
                 sendReplicationLogs( ctx, myPV, yourUV );
             }
         }
@@ -338,7 +338,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         Attribute namingContextsAttr = rootDSE.get( "namingContexts" );
         if ( namingContextsAttr == null || namingContextsAttr.size() == 0 )
         {
-            SessionLog.warn( ctx.getSession(), "No namingContexts attributes in rootDSE." );
+            SessionLog.warn( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] No namingContexts attributes in rootDSE." );
             return;
         }
 
@@ -359,7 +360,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
                 contextName = new LdapDN( String.valueOf( value ) );
             }
 
-            SessionLog.info( ctx.getSession(), "Sending entries under '" + contextName + '\'' );
+            SessionLog.info( ctx.getSession(), "[Replica-"+ ctx.getConfiguration().getReplicaId() +
+                    "] Sending entries under '" + contextName + '\'' );
 
             Map<String, OidNormalizer> mapping = ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry()
                 .getNormalizerMapping();

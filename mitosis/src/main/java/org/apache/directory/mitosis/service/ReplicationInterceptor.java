@@ -61,6 +61,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * An {@link Interceptor} that intercepts LDAP operations and propagates the
  * changes occurred by the operations into other {@link Replica}s so the DIT
@@ -243,7 +244,8 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
         catch ( Exception e )
         {
-            LOG.warn( "Failed to stop the client connection manager.", e );
+            LOG.error( "[Replica-{}] Failed to stop the client connection manager.", configuration.getReplicaId() );
+            LOG.error( "Stop failure exception: ", e );
         }
         registry.unbindAll();
     }
@@ -254,7 +256,7 @@ public class ReplicationInterceptor extends BaseInterceptor
      */
     public void replicate()
     {
-        LOG.info( "Forcing replication..." );
+        LOG.info( "[Replica-{}] Forcing replication...", configuration.getReplicaId() );
         this.clientConnectionManager.replicate();
     }
 
@@ -263,7 +265,7 @@ public class ReplicationInterceptor extends BaseInterceptor
      */
     public void interruptConnectors()
     {
-        LOG.info( "Waking sleeping replicas..." );
+        LOG.info( "[Replica-{}] Waking sleeping replicas...", configuration.getReplicaId() );
         this.clientConnectionManager.interruptConnectors();
     }
 
@@ -319,7 +321,7 @@ public class ReplicationInterceptor extends BaseInterceptor
             }
 
             contextName.normalize( attrRegistry.getNormalizerMapping() );
-            LOG.info( "Purging aged data under '" + contextName + '"' );
+            LOG.info( "[Replica-{}] Purging aged data under '{}'", configuration.getReplicaId(), contextName );
             purgeAgedData( contextName, filter );
         }
 
@@ -360,12 +362,12 @@ public class ReplicationInterceptor extends BaseInterceptor
             {
                 name.normalize( attrRegistry.getNormalizerMapping() );
                 Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
-                LOG.info( "Purge: " + name + " (" + entry + ')' );
+                LOG.info( "[Replica-{}] Purge: " + name + " (" + entry + ')', configuration.getReplicaId() );
                 nexus.delete( new DeleteOperationContext( name ) );
             }
             catch ( NamingException ex )
             {
-                LOG.warn( "Failed to fetch/delete: " + name, ex );
+                LOG.error( "[Replica-{}] Failed to fetch/delete: " + name, configuration.getReplicaId(), ex );
             }
         }
     }

@@ -54,17 +54,19 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
     protected Map<String, DirectoryService> services = new HashMap<String, DirectoryService>();
     protected Map<String, ReplicationInterceptor> replicationServices = new HashMap<String, ReplicationInterceptor>();
 
+
     protected void setUp() throws Exception
     {
         createReplicas( new String[] { "A", "B", "C" } );
     }
+
 
     protected void tearDown() throws Exception
     {
         destroyAllReplicas();
     }
 
-    @SuppressWarnings("unchecked")
+
     protected void createReplicas( String[] names ) throws Exception
     {
         int lastAvailablePort = 1024;
@@ -72,8 +74,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
         Replica[] replicas = new Replica[ names.length ];
         for( int i = 0; i < names.length; i++ )
         {
-            int replicationPort = AvailablePortFinder
-                    .getNextAvailable( lastAvailablePort );
+            int replicationPort = AvailablePortFinder.getNextAvailable( lastAvailablePort );
             lastAvailablePort = replicationPort + 1;
 
             replicas[ i ] = new Replica( new ReplicaId( names[ i ] ),
@@ -90,10 +91,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             String replicaId = replica.getId().getId();
             DirectoryService service = new DefaultDirectoryService();
             service.setInstanceId( replicaId );
-
-            File workDir = new File( homeDirectory + File.separator
-                    + service.getInstanceId() );
-
+            File workDir = new File( homeDirectory + File.separator + service.getInstanceId() );
             service.setShutdownHookEnabled( false );
             service.setWorkingDirectory( workDir );
 
@@ -104,6 +102,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
             // Disable automatic replication to prevent unexpected behavior
             replicationCfg.setReplicationInterval( 0 );
             replicationCfg.setServerPort( replica.getAddress().getPort() );
+
             for ( Replica replica1 : replicas )
             {
                 if ( replica1 != replica )
@@ -125,14 +124,13 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
 
             service.startup();
             
-            Hashtable env = new Hashtable();
+            Hashtable<String,Object> env = new Hashtable<String,Object>();
             env.put( DirectoryService.JNDI_KEY, service );
             env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
             env.put( Context.SECURITY_CREDENTIALS, "secret" );
             env.put( Context.SECURITY_AUTHENTICATION, "simple" );
             env.put( Context.PROVIDER_URL, "" );
-            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class
-                    .getName() );
+            env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
             // Initialize the server instance.
             LdapContext context = new InitialLdapContext( env, null );
@@ -149,6 +147,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
         Thread.sleep( 5000 );
     }
 
+
     protected LdapContext getReplicaContext( String name ) throws Exception
     {
         LdapContext context = contexts.get( name );
@@ -159,6 +158,7 @@ public abstract class AbstractReplicationServiceTestCase extends TestCase
 
         return ( LdapContext ) context.lookup( "" );
     }
+
 
     @SuppressWarnings("unchecked")
     protected void destroyAllReplicas() throws Exception
