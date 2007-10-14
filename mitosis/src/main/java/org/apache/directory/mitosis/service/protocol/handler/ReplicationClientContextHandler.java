@@ -244,8 +244,8 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         // (LogEntryMessages) is received, and no write request is pending,
         // it means previous replication process ended or this is the
         // first replication attempt.
-        if ( ctx.getState() == State.READY && ctx.getScheduledExpirations() == 0
-            && ctx.getSession().getScheduledWriteRequests() == 0 )
+        if ( ctx.getState() == State.READY && ctx.getScheduledExpirations() <= 0
+            && ctx.getSession().getScheduledWriteRequests() <= 0 )
         {
         	// Initiate replication process asking update vector.
             if ( SessionLog.isDebugEnabled( ctx.getSession() ) ) {

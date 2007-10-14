@@ -386,8 +386,8 @@ class ClientConnectionManager
             }
             catch ( RuntimeIOException e )
             {
-                LOG.error( "[Replica-{}] Failed to connect to replica-" + replica.getId(),
-                        ClientConnectionManager.this.configuration.getReplicaId(), e );
+                LOG.error( "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId()
+                        + "] Failed to connect to replica-" + replica.getId(), e );
             }
             finally
             {
