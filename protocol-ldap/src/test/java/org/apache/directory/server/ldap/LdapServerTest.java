@@ -64,7 +64,6 @@ public class LdapServerTest extends TestCase
 
         ldapServer = new LdapServer( tcpAcceptor, directoryService );
         ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
-        System.err.println( "********** => " + ldapServer.getIpPort() );
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {
             ldapServer.setAbandonHandler( new BogusAbandonHandler() );
