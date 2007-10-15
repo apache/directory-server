@@ -20,6 +20,7 @@
 package org.apache.directory.server.core;
 
 
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -34,7 +35,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
 import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
@@ -103,10 +103,47 @@ public abstract class DirectoryService
 
 
     /**
-     * Returns an anonymous JNDI {@link Context} with the specified <tt>baseName</tt>
+     * Gets a JNDI {@link Context} to the RootDSE as an anonymous user.
+     * This bypasses authentication within the server.
+     *
+     * @return a JNDI context to the RootDSE
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext( String baseName ) throws NamingException;
+    public abstract DirContext getJndiContext() throws NamingException;
+
+
+    /**
+     * Gets a JNDI {@link Context} to a specific entry as an anonymous user.
+     * This bypasses authentication within the server.
+     *
+     * @param dn the distinguished name of the entry
+     * @return a JNDI context to the entry at the specified DN
+     * @throws NamingException if failed to create a context
+     */
+    public abstract DirContext getJndiContext( String dn ) throws NamingException;
+
+
+    /**
+     * Gets a JNDI {@link Context} to the RootDSE as a specific LDAP user principal.
+     * This bypasses authentication within the server.
+     *
+     * @param principal the user to associate with the context
+     * @return a JNDI context to the RootDSE as a specific user
+     * @throws NamingException if failed to create a context
+     */
+    public abstract DirContext getJndiContext( LdapPrincipal principal ) throws NamingException;
+
+
+    /**
+     * Gets a JNDI {@link Context} to a specific entry as a specific LDAP user principal.
+     * This bypasses authentication within the server.
+     *
+     * @param principal the user to associate with the context
+     * @param dn the distinguished name of the entry
+     * @return a JNDI context to the specified entry as a specific user
+     * @throws NamingException if failed to create a context
+     */
+    public abstract DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
 
 
     /**
@@ -114,13 +151,16 @@ public abstract class DirectoryService
      * (<tt>principal</tt>, <tt>credential</tt>, and <tt>authentication</tt>) and
      * <tt>baseName</tt>.
      * 
+     * @param principalDn the distinguished name of the bind principal
      * @param principal {@link Context#SECURITY_PRINCIPAL} value
      * @param credential {@link Context#SECURITY_CREDENTIALS} value
      * @param authentication {@link Context#SECURITY_AUTHENTICATION} value
+     * @param dn the distinguished name of the entry
+     * @return a JNDI context to the specified entry as a specific user
      * @throws NamingException if failed to create a context
      */
     public abstract DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
-        String authentication, String baseName ) throws NamingException;
+        String authentication, String dn ) throws NamingException;
 
 
     public abstract void setInstanceId( String instanceId );

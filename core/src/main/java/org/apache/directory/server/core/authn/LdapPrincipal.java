@@ -50,7 +50,9 @@ public final class LdapPrincipal implements Principal, Serializable
     /** the authentication level for this principal */
     private final AuthenticationLevel authenticationLevel;
     
-    /** The userPassword */
+    /** The userPassword
+     * @todo security risk remove this immediately
+     */
     private byte[] userPassword;
 
 
@@ -60,7 +62,7 @@ public final class LdapPrincipal implements Principal, Serializable
      * trusted principal.
      *
      * @param name the normalized distinguished name of the principal
-     * @param authenticationLevel
+     * @param authenticationLevel the authentication level for this principal
      */
     public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
     {
@@ -75,7 +77,7 @@ public final class LdapPrincipal implements Principal, Serializable
      * trusted principal.
      *
      * @param name the normalized distinguished name of the principal
-     * @param authenticationLevel
+     * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
     public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
@@ -90,7 +92,7 @@ public final class LdapPrincipal implements Principal, Serializable
      * Creates a principal for the no name anonymous user whose DN is the empty
      * String.
      */
-    private LdapPrincipal()
+    public LdapPrincipal()
     {
         name = new LdapDN();
         authenticationLevel = AuthenticationLevel.NONE;

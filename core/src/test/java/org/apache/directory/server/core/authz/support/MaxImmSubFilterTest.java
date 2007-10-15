@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authz.support;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
@@ -37,7 +38,6 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -256,6 +256,12 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
+        public DirContext getJndiContext() throws NamingException
+        {
+            return null;
+        }
+
+
         public DirectoryService getDirectoryService()
         {
             return null;
@@ -263,6 +269,18 @@ public class MaxImmSubFilterTest extends TestCase
 
 
         public DirContext getJndiContext( String baseName ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public DirContext getJndiContext( LdapPrincipal principal ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
         {
             return null;
         }

@@ -496,9 +496,27 @@ public class DefaultDirectoryService extends DirectoryService
     }
 
 
-    public DirContext getJndiContext( String rootDN ) throws NamingException
+    public DirContext getJndiContext() throws NamingException
     {
-        return this.getJndiContext( null, null, null, "none", rootDN );
+        return this.getJndiContext( null, null, null, "none", "" );
+    }
+
+
+    public DirContext getJndiContext( String dn ) throws NamingException
+    {
+        return this.getJndiContext( null, null, null, "none", dn );
+    }
+
+
+    public DirContext getJndiContext( LdapPrincipal principal ) throws NamingException
+    {
+        return new ServerLdapContext( this, principal, new LdapDN() );
+    }
+
+
+    public DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+    {
+        return new ServerLdapContext( this, principal, new LdapDN( dn ) );
     }
 
 

@@ -22,6 +22,7 @@ package org.apache.directory.server.core.interceptor;
 
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -319,6 +320,12 @@ public class InterceptorChainTest extends TestCase
         }
 
 
+        public DirContext getJndiContext() throws NamingException
+        {
+            return null;
+        }
+
+
         public DirectoryService getDirectoryService()
         {
             return null;
@@ -326,6 +333,18 @@ public class InterceptorChainTest extends TestCase
 
 
         public DirContext getJndiContext( String baseName ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public DirContext getJndiContext( LdapPrincipal principal ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
         {
             return null;
         }

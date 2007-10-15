@@ -98,7 +98,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param principal the principal which is propagated
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
+    public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         super( service, principal, dn );
     }

@@ -20,49 +20,10 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamingListener;
-import javax.naming.ldap.Control;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
@@ -71,8 +32,8 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
@@ -80,6 +41,16 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.naming.*;
+import javax.naming.directory.*;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamingListener;
+import javax.naming.ldap.Control;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+import java.io.Serializable;
+import java.util.*;
 
 
 /**
@@ -173,17 +144,19 @@ public abstract class ServerContext implements EventContext
      *
      * @param principal the directory user principal that is propagated
      * @param dn the distinguished name of this context
+     * @param service the directory service core
+     * @throws NamingException if there is a problem creating the new context
      */
-    @SuppressWarnings(value={"unchecked"})
-    protected ServerContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
+    public ServerContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         this.service = service;
         this.dn = ( LdapDN ) dn.clone();
 
-        this.env = ( Hashtable<String, Object> ) service.getEnvironment().clone();
+        this.env = new Hashtable<String, Object>();
+        this.env.putAll( service.getEnvironment() );
         this.env.put( PROVIDER_URL, dn.toString() );
+        this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( this, service );
-
         this.principal = principal;
     }
     
@@ -201,6 +174,8 @@ public abstract class ServerContext implements EventContext
     
     /**
      * Used to encapsulate [de]marshalling of controls before and after add operations.
+     * @param attributes
+     * @param target
      */
     protected void doAddOperation( LdapDN target, Attributes attributes ) throws NamingException
     {
@@ -219,6 +194,7 @@ public abstract class ServerContext implements EventContext
     
     /**
      * Used to encapsulate [de]marshalling of controls before and after delete operations.
+     * @param target
      */
     protected void doDeleteOperation( LdapDN target ) throws NamingException
     {
@@ -237,8 +213,13 @@ public abstract class ServerContext implements EventContext
     
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
+     * @param dn
+     * @param env
+     * @param filter
+     * @param searchControls
+     * @return
      */
-    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls ) 
+    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls )
         throws NamingException
     {
         // setup the op context and populate with request controls
@@ -430,14 +411,18 @@ public abstract class ServerContext implements EventContext
 
     
     /**
-     * Get's a handle on the root context of the DIT.  The RootDSE as the present user.
-     * @throws NamingException 
+     * Gets a handle on the root context of the DIT.  The RootDSE as the present user.
+     *
+     * @return the rootDSE context
+     * @throws NamingException if this fails
      */
     public abstract ServerContext getRootContext() throws NamingException;
     
     
     /**
-     * Returns the {@link DirectoryService} which manages this context.
+     * Gets the {@link DirectoryService} associated with this context.
+     *
+     * @return the directory service associated with this context
      */
     public DirectoryService getService()
     {
@@ -447,6 +432,8 @@ public abstract class ServerContext implements EventContext
 
     /**
      * Gets the principal of the authenticated user which also happens to own
+     *
+     * @return the principal associated with this context
      */
     public LdapPrincipal getPrincipal()
     {
@@ -460,6 +447,9 @@ public abstract class ServerContext implements EventContext
      * method has been changed to be public but it can only be set by the
      * AuthenticationInterceptor to prevent malicious code from changing the
      * effective principal.
+     *
+     * @param wrapper the wrapper - has to go
+     * @todo get ride of using this wrapper and protect this call with a security manager
      */
     public void setPrincipal( AuthenticationInterceptor.TrustedPrincipalWrapper wrapper )
     {
@@ -502,11 +492,9 @@ public abstract class ServerContext implements EventContext
      */
     public void close() throws NamingException
     {
-        Iterator list = listeners.iterator();
-        while ( list.hasNext() )
+        for ( NamingListener listener : listeners )
         {
-            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, ( NamingListener ) list
-                .next() );
+            ( ( PartitionNexusProxy ) this.nexusProxy ).removeNamingListener( this, listener );
         }
     }
 
@@ -881,7 +869,7 @@ public abstract class ServerContext implements EventContext
         Object obj;
         LdapDN target = buildTarget( name );
         
-        Attributes attributes = null;
+        Attributes attributes;
         
         if ( name.size() == 0 )
         {
