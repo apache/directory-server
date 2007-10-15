@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
 package org.apache.directory.server.protocol.shared;
+
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -30,7 +29,10 @@ import org.apache.mina.common.IoServiceConfig;
 import org.apache.mina.common.ThreadModel;
 import org.apache.mina.filter.executor.ExecutorFilter;
 
+
 /**
+ * Extension around a MINA DatagramAcceptor to facilitate better usage with Spring.
+ *
  * @version $Rev$ $Date$
  * @org.apache.xbean.XBean
  */
@@ -38,7 +40,8 @@ public class DatagramAcceptor extends org.apache.mina.transport.socket.nio.Datag
 {
     private static final int DEFAULT_THREADS = 10;
 
-    public DatagramAcceptor(Executor logicExecutor)
+
+    public DatagramAcceptor( Executor logicExecutor )
     {
         super();
         if ( logicExecutor == null )
@@ -48,11 +51,13 @@ public class DatagramAcceptor extends org.apache.mina.transport.socket.nio.Datag
         getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
     }
 
+
     public void bind( SocketAddress address, IoHandler ioHandler, IoServiceConfig udpConfig ) throws IOException
     {
         udpConfig.setThreadModel( ThreadModel.MANUAL );
         super.bind( address, ioHandler, udpConfig );
     }
+
 
     public void unbind( SocketAddress address )
     {
