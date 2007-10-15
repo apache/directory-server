@@ -58,8 +58,6 @@ import java.util.List;
  */
 public class ApacheDS
 {
-    public static final int MAX_THREADS_DEFAULT = 32;
-
     private static final String WINDOWSFILE_ATTR = "windowsFilePath";
     private static final String UNIXFILE_ATTR = "unixFilePath";
     private static final Logger LOG = LoggerFactory.getLogger( ApacheDS.class.getName() );
@@ -88,12 +86,13 @@ public class ApacheDS
 
     public void startup() throws NamingException, IOException
     {
-        loadLdifs();
 
         if ( ! directoryService.isStarted() )
         {
             directoryService.startup();
         }
+
+        loadLdifs();
 
         if ( ldapServer != null && ! ldapServer.isStarted() )
         {
@@ -104,32 +103,15 @@ public class ApacheDS
         {
             ldapsServer.start();
         }
-
-/*
-        if ( ldapServer == null )
-        {
-            ldapServer = new LdapServer( tcpAcceptor );
-        }
-
-        if ( ldapsServer == null )
-        {
-            ldapsServer = new LdapServer( tcpAcceptor );
-        }
-
-
-        if ( ldapsServer != null && ! ldapsServer.isStarted() )
-        {
-            ldapsServer.start();
-        }
-*/
     }
 
 
     public boolean isStarted()
     {
-        if (ldapServer != null || ldapsServer != null)
+        if ( ldapServer != null || ldapsServer != null )
         {
-             return (ldapServer != null && ldapServer.isStarted()) || (ldapsServer != null && ldapsServer.isStarted());
+             return ( ldapServer != null && ldapServer.isStarted() )
+                     || ( ldapsServer != null && ldapsServer.isStarted() );
         }
         
         return directoryService.isStarted();
@@ -158,39 +140,16 @@ public class ApacheDS
     }
 
 
-/*
-    public void setLdapServer( LdapServer ldapServer )
-    {
-        this.ldapServer = ldapServer;
-    }
-*/
-
-
     public LdapServer getLdapsServer()
     {
         return ldapsServer;
     }
 
 
-/*
-    public void setLdapsServer( LdapServer ldapsServer )
-    {
-        this.ldapsServer = ldapsServer;
-    }
-*/
-
     public DirectoryService getDirectoryService()
     {
         return directoryService;
     }
-
-
-/*
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-*/
 
 
     public long getSynchPeriodMillis()
@@ -254,12 +213,6 @@ public class ApacheDS
         this.ldifFilters.addAll( filters );
     }
 
-/*
-    public IoAcceptor getTcpAcceptor()
-    {
-        return tcpAcceptor;
-    }
-*/
 
     // ----------------------------------------------------------------------
     // From CoreContextFactory: presently in intermediate step but these
@@ -267,6 +220,7 @@ public class ApacheDS
     // This is here simply to start to remove the JNDI dependency then further
     // refactoring will be needed to place these where they belong.
     // ----------------------------------------------------------------------
+
 
     private void ensureLdifFileBase( DirContext root )
     {
