@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.Map;
-
 import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
@@ -53,29 +51,12 @@ public class ScopeNode extends AbstractExprNode
      * @param baseDn the search base
      * @param scope the search scope
      */
-    public ScopeNode(DerefAliasesEnum derefAliases, String baseDn, int scope)
+    public ScopeNode( DerefAliasesEnum derefAliases, String baseDn, int scope )
     {
         super();
         this.scope = scope;
         this.baseDn = baseDn;
         this.derefAliases = derefAliases;
-    }
-
-
-    /**
-     * Creates a new ScopeNode object.
-     * 
-     * @param env the JNDI environment from which to extract the alias
-     *            dereferencing mode
-     * @param baseDn the search base
-     * @param scope the search scope
-     */
-    public ScopeNode( Map<String, DerefAliasesEnum> env, String baseDn, int scope )
-    {
-        super();
-        this.scope = scope;
-        this.baseDn = baseDn;
-        derefAliases = DerefAliasesEnum.getEnum( env );
     }
 
 

@@ -81,9 +81,9 @@ public enum DerefAliasesEnum
      *            java.naming.ldap.derefAliases property
      * @return the enumeration for the environment
      */
-    public static DerefAliasesEnum getEnum( Map<String, DerefAliasesEnum> env )
+    public static DerefAliasesEnum getEnum( Map<String, Object> env )
     {
-        DerefAliasesEnum property = env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
+        String property = ( String ) env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
         
         if ( null == property )
         {
@@ -91,7 +91,28 @@ public enum DerefAliasesEnum
         }
         else
         {
-            return property;
+            if ( property.trim().equalsIgnoreCase( "always" ) )
+            {
+                return DEREF_ALWAYS;
+            }
+            else if ( property.trim().equalsIgnoreCase( "never" ) )
+            {
+                return NEVER_DEREF_ALIASES;
+            }
+            else if ( property.trim().equalsIgnoreCase( "finding" ) )
+            {
+                return DEREF_FINDING_BASE_OBJ;
+            }
+            else if ( property.trim().equalsIgnoreCase( "searching" ) )
+            {
+                return DEREF_IN_SEARCHING;
+            }
+            else
+            {
+                throw new IllegalArgumentException( "Unrecogniced value '" + property + "' for "
+                        + JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES + " JNDI property.\n"
+                        + "Expected a value of either always, never, searching, or finding." );
+            }
         }
     }
     
