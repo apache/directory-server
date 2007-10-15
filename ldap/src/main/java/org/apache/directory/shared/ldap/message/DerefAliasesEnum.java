@@ -36,20 +36,23 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 public enum DerefAliasesEnum
 {
     /** Alias handling mode value that treats aliases like entries */
-    NEVER_DEREF_ALIASES(0),
+    NEVER_DEREF_ALIASES( 0, "never" ),
 
     /** Alias handling mode value that dereferences only when searching */
-    DEREF_IN_SEARCHING(1),
+    DEREF_IN_SEARCHING( 1, "searching" ),
 
     /** Alias handling mode value that dereferences only in finding the base */
-    DEREF_FINDING_BASE_OBJ(2),
+    DEREF_FINDING_BASE_OBJ( 2, "finding" ),
 
     /** Alias handling mode value that dereferences always */
-    DEREF_ALWAYS(3);
+    DEREF_ALWAYS( 3, "always" );
 
 
     /** Stores the integer value of each element of the enumeration */
     private int value;
+    /** Stores the integer value of each element of the enumeration */
+    private String jndiValue;
+
     
     /**
      * Private constructor so no other instances can be created other than the
@@ -57,9 +60,10 @@ public enum DerefAliasesEnum
      * 
      * @param value the integer value of the enumeration.
      */
-    private DerefAliasesEnum( int value )
+    private DerefAliasesEnum( int value, String jndiValue )
     {
        this.value = value;
+       this.jndiValue = jndiValue;
     }
 
     
@@ -191,5 +195,11 @@ public enum DerefAliasesEnum
             default:
                 throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
         }
+    }
+
+
+    public String getJndiValue()
+    {
+        return jndiValue;
     }
 }
