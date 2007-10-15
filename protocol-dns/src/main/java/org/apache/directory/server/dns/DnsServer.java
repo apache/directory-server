@@ -55,22 +55,78 @@ public class DnsServer extends ServiceConfiguration
     /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS DNS Service";
 
-    private final DirectoryService directoryService;
-    private final DatagramAcceptor datagramAcceptor;
-    private final SocketAcceptor socketAcceptor;
+    /** DirectoryService backend for this server */
+    private DirectoryService directoryService;
+
+    /** DatagramAcceptor input for this server */
+    private DatagramAcceptor datagramAcceptor;
+
+    /** SocketAcceptor input for this server */
+    private SocketAcceptor socketAcceptor;
 
 
     /**
      * Creates a new instance of DnsConfiguration.
      */
-    public DnsServer(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
+    public DnsServer()
     {
-        this.datagramAcceptor = datagramAcceptor;
-        this.socketAcceptor = socketAcceptor;
-        this.directoryService = directoryService;
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
+    }
+
+    /**
+     * Returns the backend for this server
+     * @return DirectoryService backend for this server
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+    /**
+     * Set the backend for this server
+     * @param directoryService the DirectoryService backend for this server
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+    /**
+     * Returns the DatagramAcceptor input for this server
+     * @return DatagramAcceptor input for this server
+     */
+    public DatagramAcceptor getDatagramAcceptor()
+    {
+        return datagramAcceptor;
+    }
+
+    /**
+     * Set the DatagramAcceptor for this server
+     * @param datagramAcceptor the DatagramAcceptor input for this server
+     */
+    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
+    {
+        this.datagramAcceptor = datagramAcceptor;
+    }
+
+    /**
+     * Returns the SocketAcceptor for this server
+     * @return SocketAcceptor input for this server
+     */
+    public SocketAcceptor getSocketAcceptor()
+    {
+        return socketAcceptor;
+    }
+
+    /**
+     * Set the SocketAcceptor for this server
+     * @param socketAcceptor the SocketAcceptor input for this server
+     */
+    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
+    {
+        this.socketAcceptor = socketAcceptor;
     }
 
     /**

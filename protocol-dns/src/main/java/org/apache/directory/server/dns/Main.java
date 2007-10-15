@@ -61,7 +61,10 @@ public class Main
         DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
         DirectoryService directoryService = new DefaultDirectoryService();
-        dnsConfiguration = new DnsServer( datagramAcceptor, socketAcceptor, directoryService );
+        dnsConfiguration = new DnsServer();
+        dnsConfiguration.setDatagramAcceptor( datagramAcceptor );
+        dnsConfiguration.setSocketAcceptor( socketAcceptor );
+        dnsConfiguration.setDirectoryService( directoryService );
         dnsConfiguration.setEnabled( true );
         dnsConfiguration.setIpPort( 10053 );
         dnsConfiguration.start();

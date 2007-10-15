@@ -60,7 +60,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
      */
     public TicketGrantingPolicyTest()
     {
-        config = new KdcServer( null, null, null );
+        config = new KdcServer();
 
         /*
          * Body checksum verification must be disabled because we are bypassing

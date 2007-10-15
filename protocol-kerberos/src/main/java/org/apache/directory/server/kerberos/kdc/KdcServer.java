@@ -143,24 +143,80 @@ public class KdcServer extends ServiceConfiguration
     private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
 
-    private final DirectoryService directoryService;
-    private final DatagramAcceptor datagramAcceptor;
-    private final SocketAcceptor socketAcceptor;
+    /** DirectoryService backend for this server */
+    private DirectoryService directoryService;
+
+    /** DatagramAcceptor input for this server */
+    private DatagramAcceptor datagramAcceptor;
+
+    /** SocketAcceptor input for this server */
+    private SocketAcceptor socketAcceptor;
 
     /**
      * Creates a new instance of KdcConfiguration.
      */
-    public KdcServer(  DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor, DirectoryService directoryService)
+    public KdcServer()
     {
-        this.datagramAcceptor = datagramAcceptor;
-        this.socketAcceptor = socketAcceptor;
-        this.directoryService = directoryService;
         super.setServiceName( DEFAULT_NAME );
         super.setIpPort( DEFAULT_IP_PORT );
         super.setServicePid( DEFAULT_PID );
         super.setSearchBaseDn( DEFAULT_SEARCH_BASEDN );
 
         prepareEncryptionTypes();
+    }
+
+    /**
+     * Returns the backend for this server
+     * @return DirectoryService backend for this server
+     */
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+    /**
+     * Set the backend for this server
+     * @param directoryService the DirectoryService backend for this server
+     */
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+    /**
+     * Returns the DatagramAcceptor input for this server
+     * @return DatagramAcceptor input for this server
+     */
+    public DatagramAcceptor getDatagramAcceptor()
+    {
+        return datagramAcceptor;
+    }
+
+    /**
+     * Set the DatagramAcceptor for this server
+     * @param datagramAcceptor the DatagramAcceptor input for this server
+     */
+    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
+    {
+        this.datagramAcceptor = datagramAcceptor;
+    }
+
+    /**
+     * Returns the SocketAcceptor for this server
+     * @return SocketAcceptor input for this server
+     */
+    public SocketAcceptor getSocketAcceptor()
+    {
+        return socketAcceptor;
+    }
+
+    /**
+     * Set the SocketAcceptor for this server
+     * @param socketAcceptor the SocketAcceptor input for this server
+     */
+    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
+    {
+        this.socketAcceptor = socketAcceptor;
     }
 
 

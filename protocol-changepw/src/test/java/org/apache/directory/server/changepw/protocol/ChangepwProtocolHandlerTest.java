@@ -97,7 +97,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
      */
     public ChangepwProtocolHandlerTest()
     {
-        config = new ChangePasswordServer( null, null, null );
+        config = new ChangePasswordServer();
         store = new MapPrincipalStoreImpl();
         handler = new ChangePasswordProtocolHandler( config, store );
         session = new DummySession();

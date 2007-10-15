@@ -58,21 +58,58 @@ public class NtpServer extends ServiceConfiguration
      */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
-    private final DatagramAcceptor datagramAcceptor;
-    private final SocketAcceptor socketAcceptor;
+    /** DatagramAcceptor input for this server */
+    private DatagramAcceptor datagramAcceptor;
+
+    /** SocketAcceptor input for this server */
+    private SocketAcceptor socketAcceptor;
+
 
     /**
      * Creates a new instance of NtpConfiguration.
      */
-    public NtpServer( DatagramAcceptor datagramAcceptor, SocketAcceptor socketAcceptor )
+    public NtpServer()
     {
-        this.datagramAcceptor = datagramAcceptor;
-        this.socketAcceptor = socketAcceptor;
         super.setIpPort( IP_PORT_DEFAULT );
         super.setServicePid( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 
+    /**
+     * Returns the DatagramAcceptor input for this server
+     * @return DatagramAcceptor input for this server
+     */
+    public DatagramAcceptor getDatagramAcceptor()
+    {
+        return datagramAcceptor;
+    }
+
+    /**
+     * Set the DatagramAcceptor for this server
+     * @param datagramAcceptor the DatagramAcceptor input for this server
+     */
+    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
+    {
+        this.datagramAcceptor = datagramAcceptor;
+    }
+
+    /**
+     * Returns the SocketAcceptor for this server
+     * @return SocketAcceptor input for this server
+     */
+    public SocketAcceptor getSocketAcceptor()
+    {
+        return socketAcceptor;
+    }
+
+    /**
+     * Set the SocketAcceptor for this server
+     * @param socketAcceptor the SocketAcceptor input for this server
+     */
+    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
+    {
+        this.socketAcceptor = socketAcceptor;
+    }
     /**
      * @org.apache.xbean.InitMethod
      */

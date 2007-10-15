@@ -56,7 +56,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
      */
     public AuthenticationServiceTest()
     {
-        config = new KdcServer( null, null, null );
+        config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();

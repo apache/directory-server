@@ -49,7 +49,8 @@ public class NtpITest extends TestCase
     public void setUp() throws Exception
     {
         DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
-        ntpConfig = new NtpServer( datagramAcceptor, null );
+        ntpConfig = new NtpServer();
+        ntpConfig.setDatagramAcceptor( datagramAcceptor );
         ntpConfig.setEnabled( true );
         port = AvailablePortFinder.getNextAvailable( 10123 );
         ntpConfig.setIpPort( port );

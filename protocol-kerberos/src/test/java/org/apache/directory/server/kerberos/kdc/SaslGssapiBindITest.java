@@ -21,7 +21,6 @@ package org.apache.directory.server.kerberos.kdc;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
 import org.apache.directory.server.core.partition.Partition;
@@ -29,13 +28,10 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.store.KerberosAttribute;
-import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.mina.util.AvailablePortFinder;
 
 import javax.naming.Context;
 import javax.naming.directory.Attribute;
@@ -86,7 +82,9 @@ public class SaslGssapiBindITest extends AbstractServerTest
         ldapServer.setSaslHost( "localhost" );
         ldapServer.setSaslPrincipal( "ldap/localhost@EXAMPLE.COM" );
 
-        KdcServer kdcConfig = new KdcServer( null, socketAcceptor, directoryService );
+        KdcServer kdcConfig = new KdcServer();
+        kdcConfig.setSocketAcceptor( socketAcceptor );
+        kdcConfig.setDirectoryService( directoryService );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
         kdcConfig.setSecurityAuthentication( "simple" );

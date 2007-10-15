@@ -49,7 +49,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      */
     public AuthenticationPolicyTest()
     {
-        config = new KdcServer( null, null, null );
+        config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();
