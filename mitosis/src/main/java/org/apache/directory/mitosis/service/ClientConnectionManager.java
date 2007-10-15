@@ -359,7 +359,7 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    e.printStackTrace();
+                    LOG.info( "Interrupted sleeping thread.", e );  // not a bug naturally occurs
                 }
             }
 
