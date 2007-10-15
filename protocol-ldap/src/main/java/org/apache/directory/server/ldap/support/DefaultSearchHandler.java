@@ -202,7 +202,7 @@ public class DefaultSearchHandler extends SearchHandler
             // Inject controls into the context
             setRequestControls( ctx, req );
 
-            ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases() );
+            ctx.addToEnvironment( DEREFALIASES_KEY, req.getDerefAliases().getJndiValue() );
 
             if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
             {
