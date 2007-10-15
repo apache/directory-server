@@ -36,9 +36,10 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-constants</artifactId>
+      <artifactId>apacheds-core</artifactId>
       <version>${pom.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>

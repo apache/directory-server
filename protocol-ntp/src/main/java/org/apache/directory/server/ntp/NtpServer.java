@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.mina.common.ThreadModel;
 import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
@@ -41,6 +40,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class NtpServer extends ServiceConfiguration
 {
+    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 2961795205765175775L;
 
     /**
@@ -75,6 +75,7 @@ public class NtpServer extends ServiceConfiguration
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 
+    
     /**
      * Returns the DatagramAcceptor input for this server
      * @return DatagramAcceptor input for this server
@@ -83,6 +84,7 @@ public class NtpServer extends ServiceConfiguration
     {
         return datagramAcceptor;
     }
+
 
     /**
      * Set the DatagramAcceptor for this server
@@ -93,6 +95,7 @@ public class NtpServer extends ServiceConfiguration
         this.datagramAcceptor = datagramAcceptor;
     }
 
+
     /**
      * Returns the SocketAcceptor for this server
      * @return SocketAcceptor input for this server
@@ -102,6 +105,7 @@ public class NtpServer extends ServiceConfiguration
         return socketAcceptor;
     }
 
+
     /**
      * Set the SocketAcceptor for this server
      * @param socketAcceptor the SocketAcceptor input for this server
@@ -110,8 +114,11 @@ public class NtpServer extends ServiceConfiguration
     {
         this.socketAcceptor = socketAcceptor;
     }
+
+
     /**
      * @org.apache.xbean.InitMethod
+     * @throws IOException if there are issues binding
      */
     public void start() throws IOException
     {
@@ -131,6 +138,7 @@ public class NtpServer extends ServiceConfiguration
         }
     }
 
+    
     /**
      * @org.apache.xbean.DestroyMethod
      */
