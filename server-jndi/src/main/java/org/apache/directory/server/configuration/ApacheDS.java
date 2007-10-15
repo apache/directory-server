@@ -20,24 +20,11 @@
 package org.apache.directory.server.configuration;
 
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
@@ -48,6 +35,18 @@ import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**
@@ -314,7 +313,7 @@ public class ApacheDS
 */
 
     // ----------------------------------------------------------------------
-    // From ServerContextFactory: presently in intermediate step but these
+    // From CoreContextFactory: presently in intermediate step but these
     // methods will be moved to the appropriate protocol service eventually.
     // This is here simply to start to remove the JNDI dependency then further
     // refactoring will be needed to place these where they belong.
@@ -418,9 +417,8 @@ public class ApacheDS
         //noinspection unchecked
         Hashtable<String, Object> env = ( Hashtable<String, Object> ) environment.clone();
         env.put( Context.PROVIDER_URL, "" );
-//        env.put( ApacheDS.JNDI_KEY, this );
         env.put( DirectoryService.JNDI_KEY, directoryService );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         DirContext root = new InitialDirContext( env );
 
         // make sure the configuration area for loaded ldif files is present

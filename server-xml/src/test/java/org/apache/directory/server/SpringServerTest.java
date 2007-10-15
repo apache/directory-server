@@ -19,7 +19,6 @@
 package org.apache.directory.server;
 
 import org.apache.directory.server.configuration.ApacheDS;
-import org.apache.directory.server.jndi.ServerContextFactory;
 import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;

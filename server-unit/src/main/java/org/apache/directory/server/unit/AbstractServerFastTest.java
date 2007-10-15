@@ -22,9 +22,9 @@ package org.apache.directory.server.unit;
 
 import junit.framework.AssertionFailedError;
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.jndi.ServerContextFactory;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
@@ -38,7 +38,10 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.*;
+import javax.naming.Context;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.InitialLdapContext;
@@ -220,7 +223,7 @@ public abstract class AbstractServerFastTest
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
 
         setContexts( env );
     }
