@@ -27,13 +27,15 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 /**
  * Type-safe derefAliases search parameter enumeration which determines the mode
- * of alias handling. Note that the names of these ValuedEnums correspond to the
- * value for the java.naming.ldap.derefAliases JNDI LDAP specific property.
+ * of alias handling. Note that the jndi values of these ValuedEnums correspond
+ * to the string value for the java.naming.ldap.derefAliases JNDI LDAP specific
+ * property.  The integer value represents the values used in the LDAP ASN.1 for
+ * different settings.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public enum DerefAliasesEnum
+public enum AliasDerefMode
 {
     /** Alias handling mode value that treats aliases like entries */
     NEVER_DEREF_ALIASES( 0, "never" ),
@@ -60,7 +62,7 @@ public enum DerefAliasesEnum
      * 
      * @param value the integer value of the enumeration.
      */
-    private DerefAliasesEnum( int value, String jndiValue )
+    private AliasDerefMode( int value, String jndiValue )
     {
        this.value = value;
        this.jndiValue = jndiValue;
@@ -85,7 +87,7 @@ public enum DerefAliasesEnum
      *            java.naming.ldap.derefAliases property
      * @return the enumeration for the environment
      */
-    public static DerefAliasesEnum getEnum( Map<String, Object> env )
+    public static AliasDerefMode getEnum( Map<String, Object> env )
     {
         String property = ( String ) env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
         

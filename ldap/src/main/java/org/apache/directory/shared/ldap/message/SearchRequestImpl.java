@@ -61,7 +61,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
     private int timeLimit;
 
     /** Alias dereferencing mode enumeration value */
-    private DerefAliasesEnum derefAliases;
+    private AliasDerefMode aliasDerefMode;
 
     /** Attributes to return */
     private List<String> attributes = new ArrayList<String>();
@@ -147,21 +147,21 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
      * 
      * @return the alias handling parameter enumeration.
      */
-    public DerefAliasesEnum getDerefAliases()
+    public AliasDerefMode getDerefAliases()
     {
-        return derefAliases;
+        return aliasDerefMode;
     }
 
 
     /**
      * Sets the alias handling parameter.
      * 
-     * @param derefAliases
+     * @param aliasDerefAliases
      *            the alias handling parameter enumeration.
      */
-    public void setDerefAliases( DerefAliasesEnum derefAliases )
+    public void setDerefAliases( AliasDerefMode aliasDerefAliases )
     {
-        this.derefAliases = derefAliases;
+        this.aliasDerefMode = aliasDerefAliases;
     }
 
 
@@ -381,7 +381,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
             return false;
         }
 
-        if ( req.getDerefAliases() != derefAliases )
+        if ( req.getDerefAliases() != aliasDerefMode )
         {
             return false;
         }
@@ -513,7 +513,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
 
         sb.append( "        Deref Aliases : " );
 
-        switch ( derefAliases.getValue() )
+        switch ( aliasDerefMode.getValue() )
         {
             case LdapConstants.NEVER_DEREF_ALIASES:
                 sb.append( "never Deref Aliases" );
