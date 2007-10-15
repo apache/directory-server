@@ -270,7 +270,8 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = kevin spacey, dc=example, dc=org)", controls );
@@ -317,7 +318,8 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn = Kevin  Spacey , dc = example , dc = ORG)", controls );
@@ -364,7 +366,8 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
 
         NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn=cevin spacey,dc=example,dc=org)", controls );
         
@@ -398,7 +401,8 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "*" } );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(uniqueMember=cn= Kevin Spacey, dc=example, dc=org #'010101'B)", controls );

@@ -156,7 +156,8 @@ public class DIRSERVER759ITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
-        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
+                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
 
         try
         {
