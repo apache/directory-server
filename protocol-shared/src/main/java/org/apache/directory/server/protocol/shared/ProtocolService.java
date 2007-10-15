@@ -49,6 +49,14 @@ public interface ProtocolService
 
 
     /**
+     * Gets whether or not this service has been started.
+     *
+     * @return true if the service has started, false otherwise
+     */
+    boolean isStarted();
+
+
+    /**
      * If this protocol service supports UDP transport then this gets the
      * non-null MINA DatagramAcceptor it uses.
      *
@@ -183,7 +191,7 @@ public interface ProtocolService
      *
      * @param transportProtocols the transport protocols to be used by this service
      */
-    void setTransportProtocols( TransportProtocol[] transportProtocols );
+    void setTransportProtocols( Set<TransportProtocol> transportProtocols );
 
 
     /**

@@ -220,7 +220,9 @@ public abstract class AbstractServerTest extends TestCase
         directoryService = new DefaultDirectoryService();
         directoryService.setShutdownHookEnabled( false );
         socketAcceptor = new SocketAcceptor( null );
-        ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer = new LdapServer();
+        ldapServer.setSocketAcceptor( socketAcceptor );
+        ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
 
         doDelete( directoryService.getWorkingDirectory() );

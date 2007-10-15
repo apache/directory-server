@@ -214,7 +214,9 @@ public abstract class AbstractServerFastTest
         directoryService.startup();
         port = AvailablePortFinder.getNextAvailable( 1024 );
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
-        ldapServer = new LdapServer( socketAcceptor, directoryService );
+        ldapServer = new LdapServer();
+        ldapServer.setSocketAcceptor( socketAcceptor );
+        ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( port );
         ldapServer.start();
 

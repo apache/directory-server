@@ -27,15 +27,12 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
@@ -49,6 +46,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class KdcServer extends ServiceConfiguration
 {
+    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 522567370475574165L;
 
     /** The default kdc port */
@@ -70,7 +68,7 @@ public class KdcServer extends ServiceConfiguration
     private static final String DEFAULT_REALM = "EXAMPLE.COM";
 
     /** The default allowable clockskew */
-    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * MINUTE;
+    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
 
     /** The default encryption types */
     private static final String[] DEFAULT_ENCRYPTION_TYPES = new String[]
@@ -83,10 +81,10 @@ public class KdcServer extends ServiceConfiguration
     private static final boolean DEFAULT_PA_ENC_TIMESTAMP_REQUIRED = true;
 
     /** The default for the maximum ticket lifetime */
-    private static final int DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME = MINUTE * 1440;
+    private static final int DEFAULT_TGS_MAXIMUM_TICKET_LIFETIME = 60000 * 1440;
 
     /** The default for the maximum renewable lifetime */
-    private static final int DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME = MINUTE * 10080;
+    private static final int DEFAULT_TGS_MAXIMUM_RENEWABLE_LIFETIME = 60000 * 10080;
 
     /** The default for allowing forwardable tickets */
     private static final boolean DEFAULT_TGS_FORWARDABLE_ALLOWED = true;
@@ -143,15 +141,6 @@ public class KdcServer extends ServiceConfiguration
     private boolean isBodyChecksumVerified = DEFAULT_VERIFY_BODY_CHECKSUM;
 
 
-    /** DirectoryService backend for this server */
-    private DirectoryService directoryService;
-
-    /** DatagramAcceptor input for this server */
-    private DatagramAcceptor datagramAcceptor;
-
-    /** SocketAcceptor input for this server */
-    private SocketAcceptor socketAcceptor;
-
     /**
      * Creates a new instance of KdcConfiguration.
      */
@@ -159,64 +148,10 @@ public class KdcServer extends ServiceConfiguration
     {
         super.setServiceName( DEFAULT_NAME );
         super.setIpPort( DEFAULT_IP_PORT );
-        super.setServicePid( DEFAULT_PID );
+        super.setServiceId( DEFAULT_PID );
         super.setSearchBaseDn( DEFAULT_SEARCH_BASEDN );
 
         prepareEncryptionTypes();
-    }
-
-    /**
-     * Returns the backend for this server
-     * @return DirectoryService backend for this server
-     */
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
-    /**
-     * Set the backend for this server
-     * @param directoryService the DirectoryService backend for this server
-     */
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    /**
-     * Returns the DatagramAcceptor input for this server
-     * @return DatagramAcceptor input for this server
-     */
-    public DatagramAcceptor getDatagramAcceptor()
-    {
-        return datagramAcceptor;
-    }
-
-    /**
-     * Set the DatagramAcceptor for this server
-     * @param datagramAcceptor the DatagramAcceptor input for this server
-     */
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
-    {
-        this.datagramAcceptor = datagramAcceptor;
-    }
-
-    /**
-     * Returns the SocketAcceptor for this server
-     * @return SocketAcceptor input for this server
-     */
-    public SocketAcceptor getSocketAcceptor()
-    {
-        return socketAcceptor;
-    }
-
-    /**
-     * Set the SocketAcceptor for this server
-     * @param socketAcceptor the SocketAcceptor input for this server
-     */
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
-    {
-        this.socketAcceptor = socketAcceptor;
     }
 
 
@@ -466,37 +401,41 @@ public class KdcServer extends ServiceConfiguration
 
     /**
      * @org.apache.xbean.InitMethod
+     * @throws IOException if we cannot bind to the sockets
      */
     public void start() throws IOException
     {
-        PrincipalStore store = new JndiPrincipalStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
+        PrincipalStore store = new JndiPrincipalStoreImpl( getSearchBaseDn(),
+                getSearchBaseDn(), getDirectoryService() );
 
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
             DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), udpConfig );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), udpConfig );
         }
 
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
             SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
             tcpConfig.setDisconnectOnUnbind( false );
             tcpConfig.setReuseAddress( true );
-            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), tcpConfig );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new KerberosProtocolHandler( this, store ), tcpConfig );
         }
     }
 
+    
     /**
      * @org.apache.xbean.DestroyMethod
      */
-    public void stop() {
-        if ( datagramAcceptor != null )
+    public void stop()
+    {
+        if ( getDatagramAcceptor() != null )
         {
-            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
-            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
     }
 

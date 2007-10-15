@@ -23,14 +23,11 @@ package org.apache.directory.server.dns;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
@@ -44,6 +41,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class DnsServer extends ServiceConfiguration
 {
+    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 6943138644427163149L;
 
     /** The default IP port. */
@@ -55,15 +53,6 @@ public class DnsServer extends ServiceConfiguration
     /** The default service name. */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS DNS Service";
 
-    /** DirectoryService backend for this server */
-    private DirectoryService directoryService;
-
-    /** DatagramAcceptor input for this server */
-    private DatagramAcceptor datagramAcceptor;
-
-    /** SocketAcceptor input for this server */
-    private SocketAcceptor socketAcceptor;
-
 
     /**
      * Creates a new instance of DnsConfiguration.
@@ -71,83 +60,31 @@ public class DnsServer extends ServiceConfiguration
     public DnsServer()
     {
         super.setIpPort( IP_PORT_DEFAULT );
-        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 
-    /**
-     * Returns the backend for this server
-     * @return DirectoryService backend for this server
-     */
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
-    /**
-     * Set the backend for this server
-     * @param directoryService the DirectoryService backend for this server
-     */
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    /**
-     * Returns the DatagramAcceptor input for this server
-     * @return DatagramAcceptor input for this server
-     */
-    public DatagramAcceptor getDatagramAcceptor()
-    {
-        return datagramAcceptor;
-    }
-
-    /**
-     * Set the DatagramAcceptor for this server
-     * @param datagramAcceptor the DatagramAcceptor input for this server
-     */
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
-    {
-        this.datagramAcceptor = datagramAcceptor;
-    }
-
-    /**
-     * Returns the SocketAcceptor for this server
-     * @return SocketAcceptor input for this server
-     */
-    public SocketAcceptor getSocketAcceptor()
-    {
-        return socketAcceptor;
-    }
-
-    /**
-     * Set the SocketAcceptor for this server
-     * @param socketAcceptor the SocketAcceptor input for this server
-     */
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
-    {
-        this.socketAcceptor = socketAcceptor;
-    }
 
     /**
      * @org.apache.xbean.InitMethod
+     * @throws IOException if we cannot bind to the specified ports
      */
     public void start() throws IOException
     {
-        RecordStore store = new JndiRecordStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
+        RecordStore store = new JndiRecordStoreImpl( getSearchBaseDn(), getSearchBaseDn(), getDirectoryService() );
 
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
             DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), udpConfig );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), udpConfig );
         }
 
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
             SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
             tcpConfig.setDisconnectOnUnbind( false );
             tcpConfig.setReuseAddress( true );
-            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new DnsProtocolHandler( this, store ), tcpConfig );
         }
     }
 
@@ -155,13 +92,13 @@ public class DnsServer extends ServiceConfiguration
      * @org.apache.xbean.DestroyMethod
      */
     public void stop() {
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
-            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
-            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
     }
 }

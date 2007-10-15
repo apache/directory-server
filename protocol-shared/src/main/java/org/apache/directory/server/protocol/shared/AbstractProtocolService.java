@@ -35,6 +35,7 @@ import java.util.Set;
  */
 public abstract class AbstractProtocolService implements ProtocolService
 {
+    private boolean started;
     private boolean enabled;
     private String serviceId;
     private String serviceName;
@@ -44,6 +45,18 @@ public abstract class AbstractProtocolService implements ProtocolService
     private DirectoryService directoryService;
     private DatagramAcceptor datagramAcceptor;
     private SocketAcceptor socketAcceptor;
+
+
+    public boolean isStarted()
+    {
+        return started;
+    }
+
+
+    protected void setStarted( boolean started )
+    {
+        this.started = started;
+    }
 
 
     public boolean isEnabled()

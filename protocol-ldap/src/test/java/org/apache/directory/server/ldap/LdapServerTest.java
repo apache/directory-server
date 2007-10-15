@@ -32,8 +32,6 @@ import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.apache.mina.util.AvailablePortFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,11 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapServerTest extends TestCase
 {
-    private static final Logger LOG = LoggerFactory.getLogger( LdapServerTest.class.getName() );
     LdapServer ldapServer;
     DirectoryService directoryService;
-//    ExecutorService ioExecutor;
-//    ExecutorService logicExecutor;
     SocketAcceptor tcpAcceptor;
 
 
@@ -62,7 +57,9 @@ public class LdapServerTest extends TestCase
         ByteBuffer.setUseDirectBuffers( false );
         tcpAcceptor = new SocketAcceptor( null );
 
-        ldapServer = new LdapServer( tcpAcceptor, directoryService );
+        ldapServer = new LdapServer();
+        ldapServer.setSocketAcceptor( tcpAcceptor );
+        ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {

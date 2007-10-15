@@ -106,7 +106,6 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 import org.apache.mina.util.SessionLog;
 import org.slf4j.Logger;
@@ -211,34 +210,18 @@ public class LdapServer extends ServiceConfiguration
     /** the MINA protocol handler */
     private final LdapProtocolHandler handler = new LdapProtocolHandler();
 
-    private final SocketAcceptor socketAcceptor;
-
-    private final DirectoryService directoryService;
-
     /** tracks state of the server */
     private boolean started;
 
 
     /**
      * Creates an LDAP protocol provider.
-     *
-     * @param socketAcceptor the mina socket acceptor wrapper
-     * @param directoryService the directory service core
      */
-    public LdapServer( SocketAcceptor socketAcceptor, DirectoryService directoryService )
+    public LdapServer()
     {
-        this.socketAcceptor = socketAcceptor;
-        this.directoryService = directoryService;
-        this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
-        Hashtable<String,Object> copy = new Hashtable<String,Object>();
-        copy.put( Context.PROVIDER_URL, "" );
-        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        copy.put( DirectoryService.JNDI_KEY, directoryService );
-        this.registry = new SessionRegistry( this, copy );
-
         super.setIpPort( IP_PORT_DEFAULT );
         super.setEnabled( true );
-        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
         supportedMechanisms = new HashSet<String>();
@@ -324,7 +307,7 @@ public class LdapServer extends ServiceConfiguration
             try
             {
                 sessions = new ArrayList<IoSession>(
-                        socketAcceptor.getManagedSessions( new InetSocketAddress( getIpPort() ) ) );
+                        getSocketAcceptor().getManagedSessions( new InetSocketAddress( getIpPort() ) ) );
             }
             catch ( IllegalArgumentException e )
             {
@@ -332,7 +315,7 @@ public class LdapServer extends ServiceConfiguration
                 return;
             }
 
-            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ) );
+            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ) );
 
             if ( LOG.isInfoEnabled() )
             {
@@ -373,7 +356,7 @@ public class LdapServer extends ServiceConfiguration
             addExtendedOperationHandler( h );
             LOG.info( "Added Extended Request Handler: " + h.getOid() );
             h.setLdapProvider( this );
-            PartitionNexus nexus = directoryService.getPartitionNexus();
+            PartitionNexus nexus = getDirectoryService().getPartitionNexus();
             nexus.registerSupportedExtensions( h.getExtensionOids() );
         }
 
@@ -389,7 +372,7 @@ public class LdapServer extends ServiceConfiguration
 
             acceptorCfg.getSessionConfig().setTcpNoDelay( true );
 
-            socketAcceptor.bind( new InetSocketAddress( port ), getHandler(), acceptorCfg );
+            getSocketAcceptor().bind( new InetSocketAddress( port ), getHandler(), acceptorCfg );
             started = true;
 
             if ( LOG.isInfoEnabled() )
@@ -769,9 +752,15 @@ public class LdapServer extends ServiceConfiguration
     }
 
 
-    public DirectoryService getDirectoryService()
+    public void setDirectoryService( DirectoryService directoryService )
     {
-        return directoryService;
+        super.setDirectoryService( directoryService );
+        this.codecFactory = new ProtocolCodecFactoryImpl( directoryService );
+        Hashtable<String,Object> copy = new Hashtable<String,Object>();
+        copy.put( Context.PROVIDER_URL, "" );
+        copy.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        copy.put( DirectoryService.JNDI_KEY, directoryService );
+        this.registry = new SessionRegistry( this, copy );
     }
 
 
@@ -830,7 +819,7 @@ public class LdapServer extends ServiceConfiguration
         this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setProtocolProvider( this );
-            this.bindHandler.setDirectoryService( directoryService );
+            this.bindHandler.setDirectoryService( getDirectoryService() );
         //noinspection unchecked
         this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
     }

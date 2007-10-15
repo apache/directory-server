@@ -25,9 +25,7 @@ import java.net.InetSocketAddress;
 
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
@@ -58,12 +56,6 @@ public class NtpServer extends ServiceConfiguration
      */
     private static final String SERVICE_NAME_DEFAULT = "ApacheDS NTP Service";
 
-    /** DatagramAcceptor input for this server */
-    private DatagramAcceptor datagramAcceptor;
-
-    /** SocketAcceptor input for this server */
-    private SocketAcceptor socketAcceptor;
-
 
     /**
      * Creates a new instance of NtpConfiguration.
@@ -71,51 +63,11 @@ public class NtpServer extends ServiceConfiguration
     public NtpServer()
     {
         super.setIpPort( IP_PORT_DEFAULT );
-        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setServiceId( SERVICE_PID_DEFAULT );
         super.setServiceName( SERVICE_NAME_DEFAULT );
     }
 
     
-    /**
-     * Returns the DatagramAcceptor input for this server
-     * @return DatagramAcceptor input for this server
-     */
-    public DatagramAcceptor getDatagramAcceptor()
-    {
-        return datagramAcceptor;
-    }
-
-
-    /**
-     * Set the DatagramAcceptor for this server
-     * @param datagramAcceptor the DatagramAcceptor input for this server
-     */
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
-    {
-        this.datagramAcceptor = datagramAcceptor;
-    }
-
-
-    /**
-     * Returns the SocketAcceptor for this server
-     * @return SocketAcceptor input for this server
-     */
-    public SocketAcceptor getSocketAcceptor()
-    {
-        return socketAcceptor;
-    }
-
-
-    /**
-     * Set the SocketAcceptor for this server
-     * @param socketAcceptor the SocketAcceptor input for this server
-     */
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
-    {
-        this.socketAcceptor = socketAcceptor;
-    }
-
-
     /**
      * @org.apache.xbean.InitMethod
      * @throws IOException if there are issues binding
@@ -123,18 +75,18 @@ public class NtpServer extends ServiceConfiguration
     public void start() throws IOException
     {
         //If appropriate, the udp and tcp servers could be enabled with boolean flags.
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
             DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), udpConfig );
         }
 
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
             SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
             tcpConfig.setDisconnectOnUnbind( false );
             tcpConfig.setReuseAddress( true );
-            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ), new NtpProtocolHandler(), tcpConfig );
         }
     }
 
@@ -144,13 +96,13 @@ public class NtpServer extends ServiceConfiguration
      */
     public void stop()
     {
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
-            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
-            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
     }
 

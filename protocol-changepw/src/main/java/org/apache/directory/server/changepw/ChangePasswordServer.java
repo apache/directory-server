@@ -28,14 +28,11 @@ import java.util.List;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandler;
-import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
 
@@ -49,6 +46,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class ChangePasswordServer extends ServiceConfiguration
 {
+    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3509208713288140629L;
 
     /** The default change password principal name. */
@@ -68,7 +66,7 @@ public class ChangePasswordServer extends ServiceConfiguration
         { "des-cbc-md5" };
 
     /** The default changepw buffer size. */
-    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * ServiceConfiguration.MINUTE;
+    private static final long DEFAULT_ALLOWABLE_CLOCKSKEW = 5 * 60000;
 
     /** The default empty addresses. */
     private static final boolean DEFAULT_EMPTY_ADDRESSES_ALLOWED = true;
@@ -112,15 +110,6 @@ public class ChangePasswordServer extends ServiceConfiguration
     /** The policy for token size. */
     private int policyTokenSize;
 
-    /** DirectoryService backend for this server */
-    private DirectoryService directoryService;
-
-    /** DatagramAcceptor input for this server */
-    private DatagramAcceptor datagramAcceptor;
-
-    /** SocketAcceptor input for this server */
-    private SocketAcceptor socketAcceptor;
-
 
     /**
      * Creates a new instance of ChangePasswordConfiguration.
@@ -129,65 +118,12 @@ public class ChangePasswordServer extends ServiceConfiguration
     {
         super.setServiceName( SERVICE_NAME_DEFAULT );
         super.setIpPort( IP_PORT_DEFAULT );
-        super.setServicePid( SERVICE_PID_DEFAULT );
+        super.setServiceId( SERVICE_PID_DEFAULT );
         super.setSearchBaseDn( SEARCH_BASEDN_DEFAULT );
 
         prepareEncryptionTypes();
     }
 
-    /**
-     * Returns the backend for this server
-     * @return DirectoryService backend for this server
-     */
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
-    /**
-     * Set the backend for this server
-     * @param directoryService the DirectoryService backend for this server
-     */
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
-    }
-
-    /**
-     * Returns the DatagramAcceptor input for this server
-     * @return DatagramAcceptor input for this server
-     */
-    public DatagramAcceptor getDatagramAcceptor()
-    {
-        return datagramAcceptor;
-    }
-
-    /**
-     * Set the DatagramAcceptor for this server
-     * @param datagramAcceptor the DatagramAcceptor input for this server
-     */
-    public void setDatagramAcceptor( DatagramAcceptor datagramAcceptor )
-    {
-        this.datagramAcceptor = datagramAcceptor;
-    }
-
-    /**
-     * Returns the SocketAcceptor for this server
-     * @return SocketAcceptor input for this server
-     */
-    public SocketAcceptor getSocketAcceptor()
-    {
-        return socketAcceptor;
-    }
-
-    /**
-     * Set the SocketAcceptor for this server
-     * @param socketAcceptor the SocketAcceptor input for this server
-     */
-    public void setSocketAcceptor( SocketAcceptor socketAcceptor )
-    {
-        this.socketAcceptor = socketAcceptor;
-    }
 
     /**
      * Returns the primary realm.
@@ -324,44 +260,50 @@ public class ChangePasswordServer extends ServiceConfiguration
 
     /**
      * @org.apache.xbean.InitMethod
+     * @throws IOException if we cannot bind to the specified ports
      */
     public void start() throws IOException
     {
-        PrincipalStore store = new JndiPrincipalStoreImpl( getCatalogBaseDn(), getSearchBaseDn(), directoryService );
+        PrincipalStore store = new JndiPrincipalStoreImpl( getSearchBaseDn(),
+                getSearchBaseDn(), getDirectoryService() );
 
-        if ( datagramAcceptor != null )
+        if ( getDatagramAcceptor() != null )
         {
             DatagramAcceptorConfig udpConfig = new DatagramAcceptorConfig();
-            datagramAcceptor.bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), udpConfig );
+            getDatagramAcceptor().bind( new InetSocketAddress( getIpPort() ),
+                    new ChangePasswordProtocolHandler( this, store ), udpConfig );
         }
 
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
             SocketAcceptorConfig tcpConfig = new SocketAcceptorConfig();
             tcpConfig.setDisconnectOnUnbind( false );
             tcpConfig.setReuseAddress( true );
-            socketAcceptor.bind( new InetSocketAddress( getIpPort() ), new ChangePasswordProtocolHandler( this, store ), tcpConfig );
+            getSocketAcceptor().bind( new InetSocketAddress( getIpPort() ),
+                    new ChangePasswordProtocolHandler( this, store ), tcpConfig );
         }
     }
+
 
     /**
      * @org.apache.xbean.DestroyMethod
      */
-    public void stop() {
-        if ( datagramAcceptor != null )
+    public void stop()
+    {
+        if ( getDatagramAcceptor() != null )
         {
-            datagramAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
-        if ( socketAcceptor != null )
+        if ( getSocketAcceptor() != null )
         {
-            socketAcceptor.unbind( new InetSocketAddress( getIpPort() ));
+            getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
     }
+
 
     private void prepareEncryptionTypes()
     {
         String[] encryptionTypeStrings = ENCRYPTION_TYPES_DEFAULT;
-
         List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
 
         for ( String enc : encryptionTypeStrings )
@@ -376,5 +318,38 @@ public class ChangePasswordServer extends ServiceConfiguration
         }
 
         encryptionTypes = encTypes.toArray( new EncryptionType[encTypes.size()] );
+    }
+
+
+    /**
+     * Sets the policy's minimum?? password length.
+     *
+     * @param policyPasswordLength the minimum password length requirement
+     */
+    public void setPolicyPasswordLength( int policyPasswordLength )
+    {
+        this.policyPasswordLength = policyPasswordLength;
+    }
+
+
+    /**
+     * Sets the policy category count - what's this?
+     *
+     * @param policyCategoryCount the policy category count
+     */
+    public void setPolicyCategoryCount( int policyCategoryCount )
+    {
+        this.policyCategoryCount = policyCategoryCount;
+    }
+
+
+    /**
+     * Sets the policy token size - what's this?
+     *
+     * @param policyTokenSize the policy token size
+     */
+    public void setPolicyTokenSize( int policyTokenSize )
+    {
+        this.policyTokenSize = policyTokenSize;
     }
 }

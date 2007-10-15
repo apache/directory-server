@@ -20,6 +20,8 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -28,15 +30,15 @@ import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
+import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.ldap.InitialLdapContext;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -204,34 +206,21 @@ public class ConfigureChain implements IoHandlerCommand
 
     private Object execute( LdapServer ldapServer, ContextOperation operation ) throws Exception
     {
-        Hashtable<String, Object> env = getEnvironment( ldapServer );
-
         if ( ctx == null )
         {
             try
             {
-                ctx = new InitialLdapContext( env, null );
+                LdapPrincipal principal = new LdapPrincipal(
+                        new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ), AuthenticationLevel.SIMPLE );
+                ctx = ldapServer.getDirectoryService().getJndiContext( principal, ldapServer.getSearchBaseDn() );
             }
             catch ( NamingException ne )
             {
-                String message = "Failed to get initial context " + env.get( Context.PROVIDER_URL );
+                String message = "Failed to get initial context " + ldapServer.getSearchBaseDn();
                 throw new ServiceConfigurationException( message, ne );
             }
         }
 
         return operation.execute( ctx, null );
-    }
-
-
-    private Hashtable<String, Object> getEnvironment( LdapServer ldapServer )
-    {
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ldapServer.getInitialContextFactory() );
-        env.put( Context.PROVIDER_URL, ldapServer.getSearchBaseDn() );
-        env.put( Context.SECURITY_AUTHENTICATION, ldapServer.getSecurityAuthentication() );
-        env.put( Context.SECURITY_CREDENTIALS, ldapServer.getSecurityCredentials() );
-        env.put( Context.SECURITY_PRINCIPAL, ldapServer.getSecurityPrincipal() );
-
-        return env;
     }
 }

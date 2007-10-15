@@ -87,9 +87,6 @@ public class SaslGssapiBindITest extends AbstractServerTest
         kdcConfig.setDirectoryService( directoryService );
         kdcConfig.setEnabled( true );
         kdcConfig.setSearchBaseDn( "ou=users,dc=example,dc=com" );
-        kdcConfig.setSecurityAuthentication( "simple" );
-        kdcConfig.setSecurityCredentials( "secret" );
-        kdcConfig.setSecurityPrincipal( "uid=admin,ou=system" );
 
         Attributes attrs;
 
