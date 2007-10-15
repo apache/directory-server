@@ -256,8 +256,8 @@ public abstract class BTreePartition implements Partition
         NamingEnumeration underlying;
 
         underlying = searchEngine.search( 
-            opContext.getDn(), 
-            opContext.getEnv(), 
+            opContext.getDn(),
+            opContext.getAliasDerefMode(),
             opContext.getFilter(), 
             searchCtls );
 

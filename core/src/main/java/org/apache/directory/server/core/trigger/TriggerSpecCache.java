@@ -29,6 +29,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
@@ -40,7 +41,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.text.ParseException;
 import java.util.*;
 
@@ -86,12 +90,11 @@ public class TriggerSpecCache
                     return registry.getNormalizerMapping();
                 }
             });
-        Hashtable env = ( Hashtable ) directoryService.getEnvironment().clone();
-        initialize( registry, env );
+        initialize( registry );
     }
 
 
-    private void initialize(AttributeTypeRegistry registry, Hashtable<String, Object> env) throws NamingException
+    private void initialize( AttributeTypeRegistry registry ) throws NamingException
     {
         // search all naming contexts for trigger subentenries
         // generate TriggerSpecification arrays for each subentry
@@ -106,8 +109,7 @@ public class TriggerSpecCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration results = 
-                nexus.search( 
-                    new SearchOperationContext( baseDn, env, filter, ctls ) );
+                nexus.search( new SearchOperationContext( baseDn, DerefAliasesEnum.DEREF_ALWAYS, filter, ctls ) );
             
             while ( results.hasMore() )
             {

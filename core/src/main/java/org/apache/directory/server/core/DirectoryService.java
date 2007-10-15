@@ -36,7 +36,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import java.io.File;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
@@ -50,10 +49,6 @@ import java.util.Set;
 public abstract class DirectoryService
 {
     public static final String JNDI_KEY = DirectoryService.class.getName();
-
-    public abstract Hashtable<String,Object> getEnvironment();
-
-    public abstract void setEnvironment( Hashtable<String,Object> environment );
 
     public abstract PartitionNexus getPartitionNexus();
 

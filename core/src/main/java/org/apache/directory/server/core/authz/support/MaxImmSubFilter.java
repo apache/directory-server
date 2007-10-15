@@ -20,29 +20,16 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
 import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
-import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -50,7 +37,19 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
@@ -164,9 +163,8 @@ public class MaxImmSubFilter implements ACITupleFilter
         
         try
         {
-            e = proxy.search( 
-                new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ), 
-                    new HashMap<String,Object>(), childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
+            e = proxy.search( new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ),
+                    DerefAliasesEnum.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )
             {

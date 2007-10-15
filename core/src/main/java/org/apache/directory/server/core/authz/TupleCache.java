@@ -32,6 +32,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -45,7 +46,10 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import java.text.ParseException;
 import java.util.*;
 
@@ -63,9 +67,6 @@ public class TupleCache
     /** the logger for this class */
     private static final Logger LOG = LoggerFactory.getLogger( TupleCache.class );
 
-    /** cloned startup environment properties we use for subentry searching */
-    private final Map<?, ?> env;
-    
     /** a map of strings to ACITuple collections */
     private final Map<String,List<ACITuple>> tuples = new HashMap<String,List<ACITuple>>();
     
@@ -97,8 +98,7 @@ public class TupleCache
         OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
-        env = ( Map<?, ?> ) directoryService.getEnvironment().clone();
-        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
+        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         initialize();
     }
 
@@ -122,11 +122,12 @@ public class TupleCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
+            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = 
-                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
+            NamingEnumeration<SearchResult> results = nexus.search( new SearchOperationContext( baseDn,
+                    DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, ctls ) );
             
             while ( results.hasMore() )
             {
@@ -136,7 +137,8 @@ public class TupleCache
                 
                 if ( aci == null )
                 {
-                    LOG.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                    LOG.warn( "Found accessControlSubentry '" + subentryDn
+                            + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
                     continue;
                 }
 

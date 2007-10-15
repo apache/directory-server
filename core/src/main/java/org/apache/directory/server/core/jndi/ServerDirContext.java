@@ -20,48 +20,32 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidSearchFilterException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.event.EventDirContext;
-import javax.naming.event.NamingListener;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.naming.*;
+import javax.naming.directory.*;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamingListener;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -543,7 +527,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-            return doSearchOperation( target, getEnvironment(), filter, ctls );
+            DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+            return doSearchOperation( target, aliasDerefMode, filter, ctls );
         }
 
         // Handle simple filter expressions without multiple terms
@@ -567,7 +552,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     node = new EqualityNode( attr.getID(), ( String ) value );
                 }
 
-                return doSearchOperation( target, getEnvironment(), node, ctls );
+                DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+                return doSearchOperation( target, aliasDerefMode, node, ctls );
             }
         }
         
@@ -613,7 +599,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        return doSearchOperation( target, getEnvironment(), filter, ctls );
+        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filter, ctls );
     }
 
 
@@ -641,7 +628,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        return doSearchOperation( target, getEnvironment(), filter, cons );
+        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filter, cons );
     }
 
 
@@ -666,7 +654,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw isfe;
         }
 
-        return doSearchOperation( target, getEnvironment(), filterNode, cons );
+        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filterNode, cons );
     }
 
 

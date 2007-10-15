@@ -20,23 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -48,14 +31,9 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -65,9 +43,13 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
 import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.DateUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.*;
 
 
 /**
@@ -91,8 +73,8 @@ import org.slf4j.LoggerFactory;
 public class SchemaPartitionDao
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( SchemaPartitionDao.class );
-    private final static NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaPartitionDao.class );
+    private static final NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
     private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
         SchemaConstants.CREATORS_NAME_AT, 
         "m-dependencies", 
@@ -102,7 +84,6 @@ public class SchemaPartitionDao
 
 
     private final Partition partition;
-    private final Registries bootstrapRegistries;
     private final SchemaEntityFactory factory;
     private final OidRegistry oidRegistry;
     private final AttributeTypeRegistry attrRegistry;
@@ -129,16 +110,16 @@ public class SchemaPartitionDao
     /**
      * Creates a schema dao object backing information within a schema partition.
      * 
-     * @param partition
-     * @throws NamingException 
+     * @param partition the schema partition
+     * @param bootstrapRegistries the bootstrap registries that were used to start up the schema partition
+     * @throws NamingException if there are problems initializing this schema partion dao
      */
     public SchemaPartitionDao( Partition partition, Registries bootstrapRegistries ) throws NamingException
     {
         this.partition = partition;
-        this.bootstrapRegistries = bootstrapRegistries;
-        this.factory = new SchemaEntityFactory( this.bootstrapRegistries );
-        this.oidRegistry = this.bootstrapRegistries.getOidRegistry();
-        this.attrRegistry = this.bootstrapRegistries.getAttributeTypeRegistry();
+        this.factory = new SchemaEntityFactory( bootstrapRegistries );
+        this.oidRegistry = bootstrapRegistries.getOidRegistry();
+        this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
         
         this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
         this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
@@ -197,7 +178,7 @@ public class SchemaPartitionDao
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
         return partition.search( 
-            new SearchOperationContext( base, new HashMap(), filter, searchControls ) );
+            new SearchOperationContext( base, DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -209,12 +190,6 @@ public class SchemaPartitionDao
     }
 
 
-    public Schema getSchema( String schemaName, Properties schemaProperties ) throws NamingException
-    {
-        return getSchema( schemaName ); 
-    }
-    
-    
     public boolean hasMatchingRule( String oid ) throws NamingException
     {
         BranchNode filter = new AndNode();
@@ -235,8 +210,8 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -253,7 +228,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
     
@@ -278,8 +256,8 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext(
+                    partition.getSuffixDn(), DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -296,7 +274,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
     
@@ -321,8 +302,8 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -339,7 +320,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
     
@@ -364,8 +348,8 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -382,7 +366,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
     
@@ -407,8 +394,8 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(), DerefAliasesEnum.DEREF_ALWAYS,
+                        filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -425,7 +412,10 @@ public class SchemaPartitionDao
         }
         finally
         {
-            ne.close();
+            if ( ne != null )
+            {
+                ne.close();
+            }
         }
     }
     
@@ -499,8 +489,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -565,14 +555,14 @@ public class SchemaPartitionDao
         
         if ( disabledAttr == null )
         {
-            log.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
+            LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
             return;
         }
         
         boolean isDisabled = ( ( String ) disabledAttr.get() ).equalsIgnoreCase( "TRUE" );
         if ( ! isDisabled )
         {
-            log.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
+            LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
             return;
         }
         
@@ -594,7 +584,8 @@ public class SchemaPartitionDao
      * provided syntax.
      *
      * @param numericOid the numeric identifier for the entity
-     * @return
+     * @return the set of matchingRules and attributeTypes depending on a syntax
+     * @throws NamingException if the dao fails to perform search operations
      */
     public Set<SearchResult> listSyntaxDependents( String numericOid ) throws NamingException
     {
@@ -617,8 +608,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -666,8 +657,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                     DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -694,8 +685,8 @@ public class SchemaPartitionDao
         // (& (m-oid=*) (m-name=*) )
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
-        return partition.search( 
-            new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+        return partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                 DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -743,8 +734,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -791,8 +782,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -833,8 +824,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                     DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 SearchResult sr = ne.next();
@@ -913,8 +904,8 @@ public class SchemaPartitionDao
         
         try
         {
-            ne = partition.search( 
-                new SearchOperationContext( partition.getSuffixDn(), new HashMap(), filter, searchControls ) );
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );

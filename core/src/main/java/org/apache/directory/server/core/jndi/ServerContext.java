@@ -32,10 +32,7 @@ import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -121,8 +118,7 @@ public abstract class ServerContext implements EventContext
         // set references to cloned env and the proxy
         this.nexusProxy = new PartitionNexusProxy( this, service );
 
-        this.env = ( Hashtable<String, Object> ) service.getEnvironment().clone();
-        this.env.putAll( env );
+        this.env = env;
         LdapJndiProperties props = LdapJndiProperties.getLdapJndiProperties( this.env );
         dn = props.getProviderDn();
         
@@ -153,7 +149,6 @@ public abstract class ServerContext implements EventContext
         this.dn = ( LdapDN ) dn.clone();
 
         this.env = new Hashtable<String, Object>();
-        this.env.putAll( service.getEnvironment() );
         this.env.put( PROVIDER_URL, dn.toString() );
         this.env.put( DirectoryService.JNDI_KEY, service );
         this.nexusProxy = new PartitionNexusProxy( this, service );
@@ -214,16 +209,17 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      * @param dn
-     * @param env
+     * @param aliasDerefMode
      * @param filter
      * @param searchControls
      * @return
      */
-    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, Map env, ExprNode filter, SearchControls searchControls )
+    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, DerefAliasesEnum aliasDerefMode,
+                                                                 ExprNode filter, SearchControls searchControls )
         throws NamingException
     {
         // setup the op context and populate with request controls
-        SearchOperationContext opCtx = new SearchOperationContext( dn, env, filter, searchControls );
+        SearchOperationContext opCtx = new SearchOperationContext( dn, aliasDerefMode, filter, searchControls );
         opCtx.addRequestControls( requestControls );
         
         // execute search operation
@@ -1009,7 +1005,8 @@ public abstract class ServerContext implements EventContext
         PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        return doSearchOperation( base, getEnvironment(), filter, ctls );
+        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        return doSearchOperation( base, aliasDerefMode, filter, ctls );
     }
 
 

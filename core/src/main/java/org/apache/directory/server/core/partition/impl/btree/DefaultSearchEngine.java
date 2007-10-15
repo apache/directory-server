@@ -20,8 +20,6 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.Map;
-
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -61,6 +59,10 @@ public class DefaultSearchEngine implements SearchEngine
     /**
      * Creates a DefaultSearchEngine for searching a Database without setting
      * up the database.
+     * @param db the btree based partition
+     * @param enumerator an expression enumerator
+     * @param evaluator an expression evaluator
+     * @param optimizer an optimizer to use during search
      */
     public DefaultSearchEngine( BTreePartition db, ExpressionEvaluator evaluator,
         ExpressionEnumerator enumerator, Optimizer optimizer )
@@ -83,16 +85,12 @@ public class DefaultSearchEngine implements SearchEngine
     }
 
 
-    /**
-     * @see SearchEngine#search(Name, Map, ExprNode,SearchControls)
-     */
-    public NamingEnumeration search( Name base, Map env, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( Name base, DerefAliasesEnum aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
-        Name effectiveBase = null;
+        Name effectiveBase;
         Long baseId = db.getEntryId( base.toString() );
         String aliasedBase = ( String ) db.getAliasIndex().reverseLookup( baseId );
-        DerefAliasesEnum mode = DerefAliasesEnum.getEnum( env );
 
         // --------------------------------------------------------------------
         // Determine the eective base with aliases
@@ -103,30 +101,24 @@ public class DefaultSearchEngine implements SearchEngine
          * occur on finding the base then we set the effective base to the
          * given base.
          */
-        if ( ( null == aliasedBase ) || !mode.isDerefFindingBase() )
-        {
-            effectiveBase = base;
-        }
-        /*
-         * I the base is an alias and alias dereerencing does occur on
-         * inding the base then we set the eective base to the alias target
-         * gotten rom the alias index.
-         */
-        else if ( null != aliasedBase ) // mode = FINDING || ALWAYS
-        {
-            effectiveBase = new LdapDN( aliasedBase );
-        }
-        /*
-         * I the base not an alias the we just set the base to the given base
-         */
-        else
+        if ( ( null == aliasedBase ) || ! aliasDerefMode.isDerefFindingBase() )
         {
             effectiveBase = base;
         }
 
+        /*
+         * If the base is an alias and alias dereerencing does occur on
+         * inding the base then we set the eective base to the alias target
+         * gotten rom the alias index.
+         */
+        else
+        {
+            effectiveBase = new LdapDN( aliasedBase );
+        }
+        
         // Add the scope node using the eective base to the ilter
         BranchNode root = new AndNode();
-        ExprNode node = new ScopeNode( env, effectiveBase.toString(), searchCtls.getSearchScope() );
+        ExprNode node = new ScopeNode( aliasDerefMode, effectiveBase.toString(), searchCtls.getSearchScope() );
         root.getChildren().add( node );
         root.getChildren().add( filter );
 
@@ -137,7 +129,7 @@ public class DefaultSearchEngine implements SearchEngine
 
 
     /**
-     * @see SearchEngine#evaluate(ExprNode, BigInteger)
+     * @see SearchEngine#evaluate(ExprNode, Long)
      */
     public boolean evaluate( ExprNode ilter, Long id ) throws NamingException
     {

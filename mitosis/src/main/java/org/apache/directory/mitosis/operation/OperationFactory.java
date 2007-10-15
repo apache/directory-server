@@ -32,6 +32,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -41,7 +42,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -71,7 +71,6 @@ import java.util.Map;
 public class OperationFactory
 {
     private final ReplicaId replicaId;
-    private final Map<String, Object> environment;
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
@@ -81,7 +80,6 @@ public class OperationFactory
     public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
         this.replicaId = cfg.getReplicaId();
-        this.environment = directoryService.getEnvironment();
         this.nexus = directoryService.getPartitionNexus();
         this.uuidFactory = cfg.getUuidFactory();
         this.csnFactory = cfg.getCsnFactory();
@@ -240,7 +238,8 @@ public class OperationFactory
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> e = nexus.search( 
-            new SearchOperationContext( oldName, environment, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
+            new SearchOperationContext( oldName, DerefAliasesEnum.DEREF_ALWAYS,
+                    new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
         {

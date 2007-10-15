@@ -43,6 +43,7 @@ import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.filter.LoggingFilter;
@@ -336,7 +337,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         ctrl.setReturningAttributes( new String[] { "entryCSN", "entryDeleted" } );
 
         NamingEnumeration<SearchResult> e = nexus.search(
-            new SearchOperationContext( contextName, directoryService.getEnvironment(), filter, ctrl ) );
+            new SearchOperationContext( contextName, DerefAliasesEnum.DEREF_ALWAYS, filter, ctrl ) );
 
         List<LdapDN> names = new ArrayList<LdapDN>();
         try
@@ -485,7 +486,7 @@ public class ReplicationInterceptor extends BaseInterceptor
 
     	NamingEnumeration<SearchResult> result = nextInterceptor.search(
 	            new SearchOperationContext(
-	                opContext.getDn(), ctx.getEnvironment(),
+	                opContext.getDn(), opContext.getAliasDerefMode(),
 	                new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ),
 	                new SearchControls() ) );
 
@@ -509,7 +510,7 @@ public class ReplicationInterceptor extends BaseInterceptor
         }
 
     	NamingEnumeration<SearchResult> result = nextInterceptor.search(
-            new SearchOperationContext( opContext.getDn(), opContext.getEnv(), opContext.getFilter(), searchControls ) );
+            new SearchOperationContext( opContext.getDn(), opContext.getAliasDerefMode(), opContext.getFilter(), searchControls ) );
         return new SearchResultFilteringEnumeration( result, searchControls, InvocationStack.getInstance().peek(),
             Constants.DELETED_ENTRIES_FILTER, "Search Replication filter" );
     }

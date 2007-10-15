@@ -76,13 +76,11 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
@@ -96,7 +94,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,12 +107,8 @@ import org.slf4j.LoggerFactory;
 public class DefaultDirectoryService extends DirectoryService
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
-    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
 
     private SchemaManager schemaManager;
-
-    /** the initial context environment that fired up the backend subsystem */
-    private Hashtable<String, Object> environment;
 
     /** the registries for system schema objects */
     private Registries registries;
@@ -143,7 +136,6 @@ public class DefaultDirectoryService extends DirectoryService
      */
     public DefaultDirectoryService()
     {
-        environment = new Hashtable<String,Object>();
         setDefaultInterceptorConfigurations();
     }
 
@@ -531,7 +523,7 @@ public class DefaultDirectoryService extends DirectoryService
         }
 
         //noinspection unchecked
-        Hashtable<String, Object> environment = ( Hashtable<String, Object> ) getEnvironment().clone();
+        Hashtable<String, Object> environment = new Hashtable<String, Object>();
         environment.remove( Context.SECURITY_PRINCIPAL );
         environment.remove( Context.SECURITY_CREDENTIALS );
         environment.remove( Context.SECURITY_AUTHENTICATION );
@@ -637,20 +629,6 @@ public class DefaultDirectoryService extends DirectoryService
         this.interceptorChain.destroy();
         this.started = false;
         setDefaultInterceptorConfigurations();
-        this.environment = new Hashtable<String,Object>();
-    }
-
-
-    @SuppressWarnings("unchecked")
-    public Hashtable<String, Object> getEnvironment()
-    {
-        return ( Hashtable ) environment.clone();
-    }
-
-
-    public void setEnvironment( Hashtable<String, Object> environment )
-    {
-        this.environment = environment;
     }
 
 
@@ -1067,8 +1045,9 @@ public class DefaultDirectoryService extends DirectoryService
 
 
     /**
-     * @todo need to re-enable this after removing JNDI and creating means to pump
-     * requests into the core to add entries.
+     * Adds test entries into the core.
+     *
+     * @todo this may no longer be needed when JNDI is not used for bootstrapping
      * 
      * @throws NamingException if the creation of test entries fails.
      */
@@ -1248,55 +1227,8 @@ public class DefaultDirectoryService extends DirectoryService
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
         
-        Set<String> binaries = new HashSet<String>();
-        if ( this.environment.containsKey( BINARY_KEY ) )
-        {
-            if ( LOG.isInfoEnabled() )
-            {
-                LOG.info( "Startup environment contains " + BINARY_KEY );
-            }
-
-            String binaryIds = ( String ) this.environment.get( BINARY_KEY );
-            if ( binaryIds == null )
-            {
-                if ( LOG.isWarnEnabled() )
-                {
-                    LOG.warn( BINARY_KEY + " in startup environment contains null value.  "
-                        + "Using only schema info to set binary attributeTypes." );
-                }
-            }
-            else
-            {
-                if ( !StringTools.isEmpty( binaryIds ) )
-                {
-                    String[] binaryArray = binaryIds.split( " " );
-
-                    for ( String binary : binaryArray )
-                    {
-                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binary ) ) );
-                    }
-                }
-
-                if ( LOG.isInfoEnabled() )
-                {
-                    LOG.info( "Setting binaries to union of schema defined binaries and those provided in "
-                        + BINARY_KEY );
-                }
-            }
-        }
-        
-        schemaManager = new SchemaManager( globalRegistries, schemaLoader, 
+        schemaManager = new SchemaManager( globalRegistries, schemaLoader,
             new SchemaPartitionDao( schemaPartition, registries ) );
-
-        // now get all the attributeTypes that are binary from the registry
-        AttributeTypeRegistry registry = registries.getAttributeTypeRegistry();
-        binaries.addAll( registry.getBinaryAttributes() );
-        this.environment.put( BINARY_KEY, binaries );
-        
-        if ( LOG.isDebugEnabled() )
-        {
-            LOG.debug( "binary ids used: " + binaries );
-        }
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( this );

@@ -101,8 +101,6 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private Registries registries;
 
-    private Set<String> binaries;
-
     /** A normalized form for the SubschemaSubentry DN */
     private String subschemaSubentryDnNorm;
 
@@ -148,14 +146,6 @@ public class SchemaInterceptor extends BaseInterceptor
         topFilter = new TopFilter();
         filters.add( binaryAttributeFilter );
         filters.add( topFilter );
-        binaries = ( Set<String> ) directoryService.getEnvironment().get( BINARY_KEY );
-
-        if ( binaries == null )
-        {
-            binaries = new HashSet<String>();
-        }
-
-
 
         schemaBaseDN = new LdapDN( "ou=schema" );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
@@ -1575,7 +1565,6 @@ public class SchemaInterceptor extends BaseInterceptor
         {
             String id = ( String ) list.next();
             AttributeType type = null;
-            boolean asBinary = false;
 
             if ( registries.getAttributeTypeRegistry().hasAttributeType( id ) )
             {
@@ -1586,11 +1575,7 @@ public class SchemaInterceptor extends BaseInterceptor
                 continue;
             }
 
-            asBinary = !type.getSyntax().isHumanReadable();
-            asBinary = asBinary || ( ( binaries != null ) && ( binaries.contains( type ) ) );
-            asBinary = asBinary || binaries.contains( type );
-
-            if ( asBinary )
+            if ( !type.getSyntax().isHumanReadable() )
             {
                 Attribute attribute = entry.get( id );
                 Attribute binary = new AttributeImpl( id );
@@ -1615,6 +1600,7 @@ public class SchemaInterceptor extends BaseInterceptor
         }
     }
 
+    
     /**
      * A special filter over entry attributes which replaces Attribute String values with their respective byte[]
      * representations using schema information and the value held in the JNDI environment property:

@@ -52,6 +52,7 @@ import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapReferralException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -89,7 +90,6 @@ public class ReferralInterceptor extends BaseInterceptor
 
     private ReferralLut lut = new ReferralLut();
     private PartitionNexus nexus;
-    private Hashtable<String, Object> env;
     private AttributeTypeRegistry attrRegistry;
     private OidRegistry oidRegistry;
 
@@ -263,16 +263,14 @@ public class ReferralInterceptor extends BaseInterceptor
         nexus = directoryService.getPartitionNexus();
         attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         oidRegistry = directoryService.getRegistries().getOidRegistry();
-        env = directoryService.getEnvironment();
 
         Iterator<String> suffixes = nexus.listSuffixes( null );
         
         while ( suffixes.hasNext() )
         {
             LdapDN suffix = new LdapDN( suffixes.next() );
-            addReferrals( 
-                nexus.search( 
-                    new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ) ), suffix );
+            addReferrals( nexus.search( new SearchOperationContext(
+                    suffix, DerefAliasesEnum.DEREF_ALWAYS, getReferralFilter(), getControls() ) ), suffix );
         }
     }
 
@@ -877,9 +875,8 @@ public class ReferralInterceptor extends BaseInterceptor
         Partition partition = opContext.getPartition();
         LdapDN suffix = partition.getSuffixDn();
         Invocation invocation = InvocationStack.getInstance().peek();
-        NamingEnumeration<SearchResult> list = invocation.getProxy().search( 
-            new SearchOperationContext( suffix, env, getReferralFilter(), getControls() ),
-            SEARCH_BYPASS );
+        NamingEnumeration<SearchResult> list = invocation.getProxy().search( new SearchOperationContext( suffix,
+                DerefAliasesEnum.DEREF_ALWAYS, getReferralFilter(), getControls() ), SEARCH_BYPASS );
         addReferrals( list, suffix );
     }
 
@@ -889,15 +886,10 @@ public class ReferralInterceptor extends BaseInterceptor
         // remove referrals immediately before removing the partition
         Invocation invocation = InvocationStack.getInstance().peek();
         NamingEnumeration<SearchResult> list = invocation.getProxy().search( 
-            new SearchOperationContext( 
-                opContext.getDn(), 
-                env, 
-                getReferralFilter(), 
-                getControls() ),
-            SEARCH_BYPASS );
+            new SearchOperationContext( opContext.getDn(), DerefAliasesEnum.DEREF_ALWAYS,
+                    getReferralFilter(), getControls() ), SEARCH_BYPASS );
         
         deleteReferrals( list, opContext.getDn() );
-
         next.removeContextPartition( opContext );
     }
 

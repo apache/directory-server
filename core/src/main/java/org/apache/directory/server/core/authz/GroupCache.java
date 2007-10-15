@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -63,9 +64,6 @@ public class GroupCache
     /** a handle on the partition nexus */
     private final PartitionNexus nexus;
     
-    /** the env to use for searching */
-    private final Map<?, ?> env;
-
     /** A storage for the member attributeType */
     private AttributeType memberAT;
 
@@ -92,7 +90,6 @@ public class GroupCache
     {
     	normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
         nexus = directoryService.getPartitionNexus();
-        env = ( Map<?, ?> ) directoryService.getEnvironment().clone();
         AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
         
         memberAT = attributeTypeRegistry.lookup( SchemaConstants.MEMBER_AT_OID ); 
@@ -130,8 +127,8 @@ public class GroupCache
             LdapDN baseDn = new LdapDN( suffix );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = 
-                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
+            NamingEnumeration<SearchResult> results = nexus.search(
+                    new SearchOperationContext( baseDn, DerefAliasesEnum.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.hasMore() )
             {

@@ -645,11 +645,7 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-
-        env.put( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.DEREF_ALWAYS );
-
-        NamingEnumeration cursor = eng.search( new LdapDN( base ), env, root, ctls );
+        NamingEnumeration cursor = eng.search( new LdapDN( base ), DerefAliasesEnum.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
