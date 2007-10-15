@@ -214,7 +214,7 @@ public abstract class ServerContext implements EventContext
      * @param searchControls
      * @return
      */
-    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, DerefAliasesEnum aliasDerefMode,
+    protected NamingEnumeration<SearchResult> doSearchOperation( LdapDN dn, AliasDerefMode aliasDerefMode,
                                                                  ExprNode filter, SearchControls searchControls )
         throws NamingException
     {
@@ -1005,7 +1005,7 @@ public abstract class ServerContext implements EventContext
         PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
-        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         return doSearchOperation( base, aliasDerefMode, filter, ctls );
     }
 

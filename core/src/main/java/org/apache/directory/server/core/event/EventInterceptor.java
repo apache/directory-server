@@ -33,7 +33,7 @@ import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.filter.*;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.NameComponentNormalizer;
@@ -142,7 +142,7 @@ public class EventInterceptor extends BaseInterceptor
         }
         
         
-        ScopeNode scope = new ScopeNode( DerefAliasesEnum.NEVER_DEREF_ALIASES, normalizedBaseDn.toNormName(), 
+        ScopeNode scope = new ScopeNode( AliasDerefMode.NEVER_DEREF_ALIASES, normalizedBaseDn.toNormName(),
             searchControls.getSearchScope() );
         
         if ( filter != null )

@@ -26,7 +26,7 @@ import org.apache.directory.server.core.interceptor.context.EntryOperationContex
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.*;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -527,7 +527,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-            DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+            AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
             return doSearchOperation( target, aliasDerefMode, filter, ctls );
         }
 
@@ -552,7 +552,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     node = new EqualityNode( attr.getID(), ( String ) value );
                 }
 
-                DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+                AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
                 return doSearchOperation( target, aliasDerefMode, node, ctls );
             }
         }
@@ -599,7 +599,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         return doSearchOperation( target, aliasDerefMode, filter, ctls );
     }
 
@@ -628,7 +628,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         return doSearchOperation( target, aliasDerefMode, filter, cons );
     }
 
@@ -654,7 +654,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw isfe;
         }
 
-        DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.getEnum( getEnvironment() );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
         return doSearchOperation( target, aliasDerefMode, filterNode, cons );
     }
 

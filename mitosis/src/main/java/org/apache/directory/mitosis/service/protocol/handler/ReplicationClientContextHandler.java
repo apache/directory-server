@@ -33,7 +33,7 @@ import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.mina.common.IdleStatus;
@@ -378,7 +378,7 @@ public class ReplicationClientContextHandler implements ReplicationContextHandle
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration e = ctx.getDirectoryService().getPartitionNexus().search(
-            new SearchOperationContext( contextName, DerefAliasesEnum.DEREF_ALWAYS,
+            new SearchOperationContext( contextName, AliasDerefMode.DEREF_ALWAYS,
             new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         try

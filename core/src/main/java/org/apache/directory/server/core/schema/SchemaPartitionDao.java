@@ -33,7 +33,7 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
@@ -178,7 +178,7 @@ public class SchemaPartitionDao
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
         return partition.search( 
-            new SearchOperationContext( base, DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+            new SearchOperationContext( base, AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -211,7 +211,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -257,7 +257,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext(
-                    partition.getSuffixDn(), DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -303,7 +303,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -349,7 +349,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -394,7 +394,7 @@ public class SchemaPartitionDao
 
         try
         {
-            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(), DerefAliasesEnum.DEREF_ALWAYS,
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS,
                         filter, searchControls ) );
             
             if ( ! ne.hasMore() )
@@ -490,7 +490,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             
             if ( ! ne.hasMore() )
             {
@@ -609,7 +609,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -658,7 +658,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                     DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -686,7 +686,7 @@ public class SchemaPartitionDao
         filter.addNode( new PresenceNode( M_OID_OID ) );
         filter.addNode( new PresenceNode( M_NAME_OID ) );
         return partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                 DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
     }
 
 
@@ -735,7 +735,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -783,7 +783,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );
@@ -825,7 +825,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                     DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 SearchResult sr = ne.next();
@@ -905,7 +905,7 @@ public class SchemaPartitionDao
         try
         {
             ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
-                    DerefAliasesEnum.DEREF_ALWAYS, filter, searchControls ) );
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
             while( ne.hasMore() )
             {
                 set.add( ne.next() );

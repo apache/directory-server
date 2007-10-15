@@ -29,7 +29,7 @@ import org.apache.directory.shared.ldap.filter.AndNode;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -85,7 +85,7 @@ public class DefaultSearchEngine implements SearchEngine
     }
 
 
-    public NamingEnumeration search( Name base, DerefAliasesEnum aliasDerefMode, ExprNode filter, SearchControls searchCtls )
+    public NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter, SearchControls searchCtls )
         throws NamingException
     {
         Name effectiveBase;

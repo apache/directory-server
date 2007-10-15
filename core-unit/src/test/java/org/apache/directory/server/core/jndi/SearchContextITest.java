@@ -39,7 +39,7 @@ import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
 /**
@@ -164,7 +164,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String,Attributes> map = new HashMap<String,Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
@@ -187,7 +187,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
@@ -213,7 +213,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "1.1" } );
         
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=testing02)", controls );
@@ -237,7 +237,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(objectClass=organ*)", controls );
@@ -263,7 +263,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(|(ou={0})(ou={1}))", new Object[]
@@ -287,7 +287,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setCountLimit( 7 );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
@@ -315,7 +315,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setTimeLimit( 200 );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(ou=*)", controls );
@@ -359,7 +359,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=testing00)", controls );
@@ -379,7 +379,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );
@@ -412,7 +412,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(|(name=testing00)(name=testing01))", controls );
@@ -433,7 +433,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         NamingEnumeration list = sysRoot.search( "", "(name=testing*)", controls );
@@ -455,7 +455,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
         String filter = "(|(2.5.4.11.1=testing*)(2.5.4.54=testing*)(2.5.4.10=testing*)" +
@@ -483,7 +483,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "creatorsName" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
@@ -508,7 +508,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         controls.setDerefLinkFlag( false );
         controls.setReturningAttributes( new String[] { "creatorsName" } );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         HashMap<String, Attributes> map = new HashMap<String, Attributes>();
 
         NamingEnumeration list = sysRoot.search( "", "(ou=testing00)", controls );
@@ -584,7 +584,7 @@ public class SearchContextITest extends AbstractAdminTestCase
 //        SearchControls controls = new SearchControls();
 //        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 //        controls.setDerefLinkFlag( false );
-//        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, DerefAliasesEnum.NEVER_DEREF_ALIASES );
+//        sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES, AliasDerefMode.NEVER_DEREF_ALIASES );
 //        
 //        List map = new ArrayList();
 //        NamingEnumeration list = sysRoot.search( "", "(name=*)", controls );

@@ -28,7 +28,7 @@ import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.filter.BranchNode;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.OrNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
@@ -128,7 +128,7 @@ public class GroupCache
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             NamingEnumeration<SearchResult> results = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.DEREF_ALWAYS, filter, ctls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.DEREF_ALWAYS, filter, ctls ) );
 
             while ( results.hasMore() )
             {

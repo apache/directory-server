@@ -37,7 +37,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.junit.Test;
 
@@ -116,7 +116,7 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
             { "ou", "createTimestamp", "creatorsName" } );
 
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
         NamingEnumeration<SearchResult> list;
         list = sysRoot.search( "", "(ou=testing00)", ctls );
         SearchResult result = list.next();

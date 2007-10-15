@@ -25,7 +25,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.ScopeNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
 /**
@@ -89,7 +89,7 @@ public class ScopeEvaluator implements Evaluator
     public boolean assertSubtreeScope( final ScopeNode node, final Long id ) throws NamingException
     {
         String dn = db.getEntryDn( id );
-        DerefAliasesEnum mode = node.getDerefAliases();
+        AliasDerefMode mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
         boolean isDescendant = dn.endsWith( node.getBaseDn() );
 
@@ -155,7 +155,7 @@ public class ScopeEvaluator implements Evaluator
      */
     public boolean assertOneLevelScope( final ScopeNode node, final Long id ) throws NamingException
     {
-        DerefAliasesEnum mode = node.getDerefAliases();
+        AliasDerefMode mode = node.getDerefAliases();
         Object baseId = db.getEntryId( node.getBaseDn() );
         Index idx = db.getHierarchyIndex();
         boolean isChild = idx.hasValue( baseId, id );

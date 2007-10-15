@@ -22,7 +22,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -84,7 +84,7 @@ public interface SearchEngine
      * @return enumeration over SearchResults
      * @throws NamingException if the search fails
      */
-    NamingEnumeration search( Name base, DerefAliasesEnum aliasDerefMode, ExprNode filter,
+    NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
                               SearchControls searchCtls ) throws NamingException;
 
 

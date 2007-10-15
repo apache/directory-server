@@ -37,7 +37,7 @@ import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Name;
@@ -164,7 +164,7 @@ public class MaxImmSubFilter implements ACITupleFilter
         try
         {
             e = proxy.search( new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ),
-                    DerefAliasesEnum.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
+                    AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )
             {

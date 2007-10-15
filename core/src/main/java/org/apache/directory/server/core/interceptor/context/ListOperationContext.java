@@ -20,7 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 /**
  * A ListContext context used for Interceptors. It contains all the informations
@@ -31,7 +31,7 @@ import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
  */
 public class ListOperationContext  extends AbstractOperationContext
 {
-    private DerefAliasesEnum aliasDerefMode = DerefAliasesEnum.DEREF_ALWAYS;
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
 
 
     /**
@@ -60,7 +60,7 @@ public class ListOperationContext  extends AbstractOperationContext
      * @param dn The DN to get the suffix from
      * @param aliasDerefMode the alias dereferencing mode to use
      */
-    public ListOperationContext( LdapDN dn, DerefAliasesEnum aliasDerefMode )
+    public ListOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode )
     {
         super( dn );
         this.aliasDerefMode = aliasDerefMode;
@@ -76,7 +76,7 @@ public class ListOperationContext  extends AbstractOperationContext
     }
 
 
-    public DerefAliasesEnum getAliasDerefMode()
+    public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
     }

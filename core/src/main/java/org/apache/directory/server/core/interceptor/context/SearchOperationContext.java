@@ -21,7 +21,7 @@ package org.apache.directory.server.core.interceptor.context;
 
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.directory.SearchControls;
@@ -42,7 +42,7 @@ public class SearchOperationContext extends AbstractOperationContext
     /** The controls */
     private SearchControls searchControls;
 
-    private DerefAliasesEnum aliasDerefMode;
+    private AliasDerefMode aliasDerefMode;
 
 
     /**
@@ -61,7 +61,7 @@ public class SearchOperationContext extends AbstractOperationContext
      * @param filter the filter AST to use for the search
      * @param searchControls the search controls
      */
-    public SearchOperationContext( LdapDN dn, DerefAliasesEnum aliasDerefMode, ExprNode filter,
+    public SearchOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
                                    SearchControls searchControls )
     {
         super( dn );
@@ -105,13 +105,13 @@ public class SearchOperationContext extends AbstractOperationContext
     }
 
 
-    public DerefAliasesEnum getAliasDerefMode()
+    public AliasDerefMode getAliasDerefMode()
     {
         return aliasDerefMode;
     }
 
 
-    public void setAliasDerefMode( DerefAliasesEnum aliasDerefMode )
+    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
     {
         this.aliasDerefMode = aliasDerefMode;
     }

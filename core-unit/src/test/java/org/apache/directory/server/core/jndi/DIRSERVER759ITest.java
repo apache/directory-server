@@ -32,7 +32,7 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
 /**
@@ -157,7 +157,7 @@ public class DIRSERVER759ITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
         sysRoot.addToEnvironment( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES,
-                DerefAliasesEnum.NEVER_DEREF_ALIASES.getJndiValue() );
+                AliasDerefMode.NEVER_DEREF_ALIASES.getJndiValue() );
 
         try
         {

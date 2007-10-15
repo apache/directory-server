@@ -145,7 +145,7 @@ public class SubentryInterceptor extends BaseInterceptor
             //suffix = LdapDN.normalize( suffix, registry.getNormalizerMapping() );
             suffix.normalize( attrRegistry.getNormalizerMapping() );
             NamingEnumeration<SearchResult> subentries = nexus.search( 
-                new SearchOperationContext( suffix, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                new SearchOperationContext( suffix, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -441,7 +441,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
             while ( subentries.hasMore() )
             {
@@ -567,7 +567,7 @@ public class SubentryInterceptor extends BaseInterceptor
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
 
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -608,7 +608,7 @@ public class SubentryInterceptor extends BaseInterceptor
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration<SearchResult> aps = nexus.search(
-                new SearchOperationContext( name, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                new SearchOperationContext( name, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
 
         if ( aps.hasMore() )
         {
@@ -727,7 +727,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -807,7 +807,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
             controls.setReturningAttributes( new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -881,7 +881,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( baseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( baseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -1012,7 +1012,7 @@ public class SubentryInterceptor extends BaseInterceptor
             controls.setReturningAttributes( new String[]
                 { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES } );
             NamingEnumeration<SearchResult> subentries = nexus.search(
-                    new SearchOperationContext( oldBaseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( oldBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             
             while ( subentries.hasMore() )
             {
@@ -1033,7 +1033,7 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN newBaseDn = ( LdapDN ) apName.clone();
             newBaseDn.addAll( ssNew.getBase() );
             subentries = nexus.search(
-                    new SearchOperationContext( newBaseDn, DerefAliasesEnum.NEVER_DEREF_ALIASES, filter, controls ) );
+                    new SearchOperationContext( newBaseDn, AliasDerefMode.NEVER_DEREF_ALIASES, filter, controls ) );
             while ( subentries.hasMore() )
             {
                 SearchResult result = subentries.next();
