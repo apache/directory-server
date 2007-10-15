@@ -24,28 +24,28 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
+import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.SimpleByteBufferAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 
@@ -67,8 +67,6 @@ public class ApacheDS
     private static final long DEFAULT_SYNC_PERIOD_MILLIS = 20000;
 
     private long synchPeriodMillis = DEFAULT_SYNC_PERIOD_MILLIS;
-    private boolean enableNetworking = true;
-    private Hashtable<String,Object> environment = new Hashtable<String,Object>();
 
     private File ldifDirectory;
     private final List<LdifLoadFilter> ldifFilters = new ArrayList<LdifLoadFilter>();
@@ -77,24 +75,14 @@ public class ApacheDS
     private final LdapServer ldapsServer;
     private final DirectoryService directoryService;
 
-//    private SocketAcceptor tcpAcceptor;
-//    protected ExecutorService ioExecutor;
-//    protected ExecutorService logicExecutor;
 
-    
     public ApacheDS( DirectoryService directoryService, LdapServer ldapServer, LdapServer ldapsServer )
     {
         this.directoryService = directoryService == null? new DefaultDirectoryService(): directoryService;
         this.ldapServer = ldapServer;
         this.ldapsServer = ldapsServer;
-//        ldapServer.setEnabled( true );
-
         ByteBuffer.setAllocator( new SimpleByteBufferAllocator() );
         ByteBuffer.setUseDirectBuffers( false );
-//        ioExecutor = Executors.newCachedThreadPool();
-//        logicExecutor = Executors.newFixedThreadPool( maxThreads );
-//        tcpAcceptor = new SocketAcceptor( Runtime.getRuntime().availableProcessors(), ioExecutor );
-//        tcpAcceptor.getFilterChain().addLast( "executor", new ExecutorFilter( logicExecutor ) );
     }
 
 
@@ -106,10 +94,12 @@ public class ApacheDS
         {
             directoryService.startup();
         }
+
         if ( ldapServer != null && ! ldapServer.isStarted() )
         {
             ldapServer.start();
         }
+
         if ( ldapsServer != null && ! ldapsServer.isStarted() )
         {
             ldapsServer.start();
@@ -141,6 +131,7 @@ public class ApacheDS
         {
              return (ldapServer != null && ldapServer.isStarted()) || (ldapsServer != null && ldapsServer.isStarted());
         }
+        
         return directoryService.isStarted();
     }
     
@@ -156,36 +147,6 @@ public class ApacheDS
         {
             ldapsServer.stop();
         }
-
-/*
-        logicExecutor.shutdown();
-        for (;;) {
-            try {
-                if ( logicExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
-                {
-                    break;
-                }
-            }
-            catch ( InterruptedException e )
-            {
-                LOG.error( "Failed to terminate logic executor", e );
-            }
-        }
-
-        ioExecutor.shutdown();
-        for (;;) {
-            try {
-                if ( ioExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
-                {
-                    break;
-                }
-            }
-            catch ( InterruptedException e )
-            {
-                LOG.error( "Failed to terminate io executor", e );
-            }
-        }
-*/
 
         directoryService.shutdown();
     }
@@ -241,18 +202,6 @@ public class ApacheDS
     public void setSynchPeriodMillis( long synchPeriodMillis )
     {
         this.synchPeriodMillis = synchPeriodMillis;
-    }
-
-
-    public boolean isEnableNetworking()
-    {
-        return enableNetworking;
-    }
-
-
-    public void setEnableNetworking( boolean enableNetworking )
-    {
-        this.enableNetworking = enableNetworking;
     }
 
 
@@ -352,6 +301,7 @@ public class ApacheDS
         return buf.toString();
     }
 
+    
     private void addFileEntry( DirContext root, File ldif ) throws NamingException
     {
 		String rdnAttr = File.separatorChar == '\\' ? WINDOWSFILE_ATTR : UNIXFILE_ATTR;
@@ -413,15 +363,10 @@ public class ApacheDS
             return;
         }
 
-        // get an initial context to the rootDSE for creating the LDIF entries
-        //noinspection unchecked
-        Hashtable<String, Object> env = ( Hashtable<String, Object> ) environment.clone();
-        env.put( Context.PROVIDER_URL, "" );
-        env.put( DirectoryService.JNDI_KEY, directoryService );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        DirContext root = new InitialDirContext( env );
 
-        // make sure the configuration area for loaded ldif files is present
+        LdapPrincipal admin = new LdapPrincipal( new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ),
+                AuthenticationLevel.STRONG );
+        DirContext root = directoryService.getJndiContext( admin );
         ensureLdifFileBase( root );
 
         // if ldif directory is a file try to load it
@@ -491,17 +436,5 @@ public class ApacheDS
             LOG.info( "Loaded " + count + " entries from LDIF file '" + getCanonical( ldifFile ) + "'" );
             addFileEntry( root, ldifFile );
         }
-    }
-
-
-    public Hashtable<String, Object> getEnvironment()
-    {
-        return environment;
-    }
-
-
-    public void setEnvironment( Hashtable<String, Object> environment )
-    {
-        this.environment = environment;
     }
 }
