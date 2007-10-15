@@ -8,10 +8,10 @@
   <inceptionYear>2004</inceptionYear>
   <packaging>pom</packaging>
   <modules>
+    <module>project</module>
     <module>apacheds</module>
     <module>shared</module>
     <module>daemon</module>
-    <module>project</module>
     <module>installers</module>
   </modules>
 </project>
