@@ -322,7 +322,6 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    LOG.warn( "[Replica-{}] Unexpected exception.", configuration.getReplicaId(), e );
                 }
             }
         }
@@ -359,7 +358,6 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    LOG.info( "Interrupted sleeping thread.", e );  // not a bug naturally occurs
                 }
             }
 
