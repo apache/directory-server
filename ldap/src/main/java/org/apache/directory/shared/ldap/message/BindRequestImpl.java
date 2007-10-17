@@ -388,7 +388,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
         sb.append( "    BindRequest\n" );
         sb.append( "        Version : '" ).append( isVersion3 ? "3" : "2" ).append( "'\n" );
 
-        if ( StringTools.isEmpty( name.toString() ) )
+        if ( StringTools.isEmpty( name.toString() ) && isSimple )
         {
             sb.append( "        Name : anonymous\n" );
         }
@@ -405,9 +405,19 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
             {
                 sb.append( "        Sasl credentials\n" );
                 sb.append( "            Mechanism :'" ).append( mechanism ).append( "'\n" );
-
-                sb.append( "            Credentials : '" ).append( StringTools.utf8ToString( credentials ) ).append(
-                    '/' ).append( StringTools.dumpBytes( credentials ) ).append( "'\n" );
+                
+                if ( credentials == null )
+                {
+                    sb.append( "            Credentials : null" );
+                }
+                else
+                {
+                    sb.append( "            Credentials : '" ).
+                        append( StringTools.utf8ToString( credentials ) ).
+                        append( '/' ).
+                        append( StringTools.dumpBytes( credentials ) ).
+                        append( "'\n" );
+                }
             }
         }
 
