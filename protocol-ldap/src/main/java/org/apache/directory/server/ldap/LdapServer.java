@@ -38,8 +38,6 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.ldap.constants.SaslQoP;
-import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
 import org.apache.directory.server.ldap.support.BindHandler;
@@ -66,6 +64,8 @@ import org.apache.directory.server.protocol.shared.ServiceConfigurationException
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
 import org.apache.directory.shared.asn1.codec.Asn1CodecEncoder;
+import org.apache.directory.shared.ldap.constants.SaslQoP;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.AbandonRequest;

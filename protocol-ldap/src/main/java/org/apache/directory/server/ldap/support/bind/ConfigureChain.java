@@ -20,6 +20,12 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -28,9 +34,10 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -39,13 +46,15 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.sasl.Sasl;
-import java.util.*;
+import javax.security.sasl.SaslException;
+import javax.security.sasl.SaslServer;
 
 
 /**
@@ -58,6 +67,20 @@ public class ConfigureChain implements IoHandlerCommand
 
     private DirContext ctx;
 
+    /**
+     * A Hashed Adapter mapping SASL mechanisms to their handlers.
+     */
+    private final Map<String, MechanismHandler> handlers;
+
+    public ConfigureChain( DirectoryService directoryService )
+    {
+        Map<String, MechanismHandler> map = new HashMap<String, MechanismHandler>();
+        map.put( SupportedSASLMechanisms.CRAM_MD5, new CramMd5MechanismHandler( directoryService ) );
+        map.put( SupportedSASLMechanisms.DIGEST_MD5, new DigestMd5MechanismHandler( directoryService ) );
+        map.put( SupportedSASLMechanisms.GSSAPI, new GssapiMechanismHandler( directoryService ) );
+        handlers = Collections.unmodifiableMap( map );
+        
+    }
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
@@ -74,7 +97,7 @@ public class ConfigureChain implements IoHandlerCommand
 
         Set<String> activeMechanisms = ldapServer.getSupportedMechanisms();
 
-        if ( activeMechanisms.contains( "GSSAPI" ) )
+        if ( activeMechanisms.contains( SupportedSASLMechanisms.GSSAPI ) )
         {
             try
             {
@@ -109,10 +132,96 @@ public class ConfigureChain implements IoHandlerCommand
          */
         session.setAttribute( "sessionMechanism", bindRequest.getSaslMechanism() );
 
-        next.execute( session, message );
+        handleSasl( next, session, bindRequest );
     }
 
+    
+    /**
+     * Deal with a SASL bind request
+     */
+    public void handleSasl( NextCommand next, IoSession session, BindRequest bindRequest ) throws Exception
+    {
+        String sessionMechanism = bindRequest.getSaslMechanism();
 
+        if ( sessionMechanism.equals( SupportedSASLMechanisms.SIMPLE ) )
+        {
+            /*
+             * This is the principal name that will be used to bind to the DIT.
+             */
+            session.setAttribute( Context.SECURITY_PRINCIPAL, bindRequest.getName() );
+
+            /*
+             * These are the credentials that will be used to bind to the DIT.
+             * For the simple mechanism, this will be a password, possibly one-way hashed.
+             */
+            session.setAttribute( Context.SECURITY_CREDENTIALS, bindRequest.getCredentials() );
+
+            next.execute( session, bindRequest );
+        }
+        else
+        {
+            MechanismHandler mechanismHandler = handlers.get( sessionMechanism );
+
+            if ( mechanismHandler == null )
+            {
+                LOG.error( "Handler unavailable for " + sessionMechanism );
+                throw new IllegalArgumentException( "Handler unavailable for " + sessionMechanism );
+            }
+
+            SaslServer ss = mechanismHandler.handleMechanism( session, bindRequest );
+            
+            LdapResult result = bindRequest.getResultResponse().getLdapResult();
+
+            if ( !ss.isComplete() )
+            {
+                try
+                {
+                    /*
+                     * SaslServer will throw an exception if the credentials are null.
+                     */
+                    if ( bindRequest.getCredentials() == null )
+                    {
+                        bindRequest.setCredentials( new byte[0] );
+                    }
+
+                    byte[] tokenBytes = ss.evaluateResponse( bindRequest.getCredentials() );
+
+                    if ( ss.isComplete() )
+                    {
+                        /*
+                         * There may be a token to return to the client.  We set it here
+                         * so it will be returned in a SUCCESS message, after an LdapContext
+                         * has been initialized for the client.
+                         */
+                        session.setAttribute( "saslCreds", tokenBytes );
+
+                        /*
+                         * If we got here, we're ready to try getting an initial LDAP context.
+                         */
+                        next.execute( session, bindRequest );
+                    }
+                    else
+                    {
+                        LOG.info( "Continuation token had length " + tokenBytes.length );
+                        result.setResultCode( ResultCodeEnum.SASL_BIND_IN_PROGRESS );
+                        BindResponse resp = ( BindResponse ) bindRequest.getResultResponse();
+                        resp.setServerSaslCreds( tokenBytes );
+                        session.write( resp );
+                        LOG.debug( "Returning final authentication data to client to complete context." );
+                    }
+                }
+                catch ( SaslException se )
+                {
+                    LOG.error( se.getMessage() );
+                    result.setResultCode( ResultCodeEnum.INVALID_CREDENTIALS );
+                    result.setErrorMessage( se.getMessage() );
+                    session.write( bindRequest.getResultResponse() );
+                }
+            }
+        }
+    }
+
+    
     /**
      * Create a list of all the configured realms.
      */
@@ -150,7 +259,7 @@ public class ConfigureChain implements IoHandlerCommand
 
         try
         {
-            entry = ( PrincipalStoreEntry ) execute( ldapServer, getPrincipal );
+            entry = findPrincipal( ldapServer, getPrincipal );
         }
         catch ( Exception e )
         {
@@ -178,7 +287,7 @@ public class ConfigureChain implements IoHandlerCommand
         return subject;
     }
     
-    private Object execute( LdapServer ldapServer, ContextOperation operation ) throws Exception
+    private PrincipalStoreEntry findPrincipal( LdapServer ldapServer, GetPrincipal getPrincipal ) throws Exception
     {
         if ( ctx == null )
         {
@@ -195,6 +304,6 @@ public class ConfigureChain implements IoHandlerCommand
             }
         }
 
-        return operation.execute( ctx, null );
+        return (PrincipalStoreEntry)getPrincipal.execute( ctx, null );
     }    
 }

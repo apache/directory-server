@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
@@ -60,7 +61,7 @@ public class DigestMd5MechanismHandler implements MechanismHandler
 
             CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, session, bindRequest );
 
-            ss = Sasl.createSaslServer( "DIGEST-MD5", "ldap", saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( SupportedSASLMechanisms.DIGEST_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 

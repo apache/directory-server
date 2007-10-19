@@ -23,7 +23,7 @@ package org.apache.directory.server.core.authn;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -43,7 +43,7 @@ public class StrongAuthenticator extends AbstractAuthenticator
      */
     public StrongAuthenticator()
     {
-        super( "strong" );
+        super( AuthenticationLevel.STRONG.toString() );
     }
 
 

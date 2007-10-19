@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
@@ -66,7 +67,7 @@ public class CramMd5MechanismHandler implements MechanismHandler
 
             CallbackHandler callbackHandler = new CramMd5CallbackHandler( directoryService, session, bindRequest );
 
-            ss = Sasl.createSaslServer( "CRAM-MD5", "ldap", saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( SupportedSASLMechanisms.CRAM_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 

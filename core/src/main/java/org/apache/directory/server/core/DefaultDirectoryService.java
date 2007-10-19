@@ -80,7 +80,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
@@ -490,13 +490,13 @@ public class DefaultDirectoryService extends DirectoryService
 
     public DirContext getJndiContext() throws NamingException
     {
-        return this.getJndiContext( null, null, null, "none", "" );
+        return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), "" );
     }
 
 
     public DirContext getJndiContext( String dn ) throws NamingException
     {
-        return this.getJndiContext( null, null, null, "none", dn );
+        return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), dn );
     }
 
 
@@ -688,7 +688,7 @@ public class DefaultDirectoryService extends DirectoryService
          * If bind is strong make sure we have the principal name
          * set within the environment, otherwise complain
          */
-        if ( "strong".equalsIgnoreCase( authentication ) )
+        if ( AuthenticationLevel.STRONG.toString().equalsIgnoreCase( authentication ) )
         {
             if ( principal == null )
             {
@@ -700,7 +700,7 @@ public class DefaultDirectoryService extends DirectoryService
          * If bind is simple make sure we have the credentials and the
          * principal name set within the environment, otherwise complain
          */
-        else if ( "simple".equalsIgnoreCase( authentication ) )
+        else if ( AuthenticationLevel.SIMPLE.toString().equalsIgnoreCase( authentication ) )
         {
             if ( credential == null )
             {
@@ -718,7 +718,7 @@ public class DefaultDirectoryService extends DirectoryService
          * If bind is none make sure credentials and the principal
          * name are NOT set within the environment, otherwise complain
          */
-        else if ( "none".equalsIgnoreCase( authentication ) )
+        else if ( AuthenticationLevel.NONE.toString().equalsIgnoreCase( authentication ) )
         {
             if ( credential != null )
             {

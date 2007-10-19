@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
@@ -67,7 +68,7 @@ public class GssapiMechanismHandler implements MechanismHandler
             {
                 public SaslServer run() throws Exception
                 {
-                    return Sasl.createSaslServer( "GSSAPI", "ldap", saslHost, saslProps, callbackHandler );
+                    return Sasl.createSaslServer( SupportedSASLMechanisms.GSSAPI, "ldap", saslHost, saslProps, callbackHandler );
                 }
             } );
 

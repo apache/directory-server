@@ -52,7 +52,7 @@ import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.LdapSecurityConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationException;
@@ -132,10 +132,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Creates a new instance.
      * @
      */
-    @SuppressWarnings( "unchecked" )
     public SimpleAuthenticator()
     {
-        super( "simple" );
+        super( AuthenticationLevel.SIMPLE.toString() );
         credentialCache = new LRUMap( DEFAULT_CACHE_SIZE );
     }
 
@@ -143,10 +142,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * Creates a new instance, with an initial cache size
      * @param cacheSize the size of the credential cache
      */
-    @SuppressWarnings( "unchecked" )
     public SimpleAuthenticator( int cacheSize )
     {
-        super( "simple" );
+        super( AuthenticationLevel.SIMPLE.toString() );
 
         credentialCache = new LRUMap( cacheSize > 0 ? cacheSize : DEFAULT_CACHE_SIZE );
     }

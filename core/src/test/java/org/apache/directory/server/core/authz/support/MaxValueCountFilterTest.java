@@ -35,11 +35,11 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.authz.support.MaxValueCountFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 

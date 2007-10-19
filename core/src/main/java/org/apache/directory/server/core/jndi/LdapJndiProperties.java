@@ -28,7 +28,7 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -82,11 +82,11 @@ public class LdapJndiProperties
         }
         else
         {
-            if ( "none".equals( authentication ) )
+            if ( AuthenticationLevel.NONE.toString().equals( authentication ) )
             {
                 level = AuthenticationLevel.NONE;
             }
-            else if ( "simple".equals( authentication ) )
+            else if ( AuthenticationLevel.SIMPLE.toString().equals( authentication ) )
             {
                 level = AuthenticationLevel.SIMPLE;
             }
@@ -150,12 +150,12 @@ public class LdapJndiProperties
             if ( credobj == null )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( "none" );
+                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
             else
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( "simple" );
+                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
         }
         else if ( !( authentication instanceof String ) )
@@ -165,15 +165,15 @@ public class LdapJndiProperties
         }
         else
         {
-            if ( "none".equals( authentication ) )
+            if ( AuthenticationLevel.NONE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( "none" );
+                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
-            else if ( "simple".equals( authentication ) )
+            else if ( AuthenticationLevel.SIMPLE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( "simple" );
+                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
             else
             {

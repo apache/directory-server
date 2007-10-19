@@ -24,6 +24,8 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.support.bind.BindHandlerChain;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -56,9 +58,6 @@ public class DefaultBindHandler extends BindHandler
 
     /** A class to handle SASL bind requests */
     private IoHandlerCommand saslBindHandler;
-
-    /** Definition of SIMPLE and STRONG authentication constants */
-    private static final String SIMPLE_AUTHENTICATION_LEVEL = "simple";
 
     /** An empty Contol array used to get back the controls if any */
     private static final MutableControl[] EMPTY_CONTROL = new MutableControl[0];
@@ -226,7 +225,7 @@ public class DefaultBindHandler extends BindHandler
 
         // First, deal with Simple Authentication
         // Guard clause:  Reject SIMPLE mechanism.
-        if ( !supportedMechanisms.contains( "SIMPLE" ) )
+        if ( !supportedMechanisms.contains( SupportedSASLMechanisms.SIMPLE ) )
         {
             LOG.error( "Bind error : SIMPLE authentication not supported. Please check the server.xml configuration file (supportedMechanisms field)" );
 
@@ -237,7 +236,7 @@ public class DefaultBindHandler extends BindHandler
         }
 
         // Initialize the environment which will be used to create the context
-        Hashtable<String, Object> env = getEnvironment( bindRequest, SIMPLE_AUTHENTICATION_LEVEL );
+        Hashtable<String, Object> env = getEnvironment( bindRequest, AuthenticationLevel.SIMPLE.toString() );
 
         // Now, get the context
         LdapContext ctx = getLdapContext( session, bindRequest, env );

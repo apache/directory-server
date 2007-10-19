@@ -46,7 +46,7 @@ public abstract class AbstractAuthenticator implements Authenticator
      *
      * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
      */
-    protected AbstractAuthenticator(String type)
+    protected AbstractAuthenticator( String type )
     {
         this.authenticatorType = type;
     }

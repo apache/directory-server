@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
@@ -72,7 +73,8 @@ public class ReturnSuccess implements IoHandlerCommand
         /*
          * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
          */
-        if ( sessionMechanism.equals( "DIGEST-MD5" ) || sessionMechanism.equals( "GSSAPI" ) )
+        if ( sessionMechanism.equals( SupportedSASLMechanisms.DIGEST_MD5 ) || 
+             sessionMechanism.equals( SupportedSASLMechanisms.GSSAPI ) )
         {
             log.debug( "Inserting SaslFilter to engage negotiated security layer." );
 

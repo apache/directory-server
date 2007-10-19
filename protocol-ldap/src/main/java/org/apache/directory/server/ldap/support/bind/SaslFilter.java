@@ -24,7 +24,7 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
-import org.apache.directory.server.ldap.constants.SaslQoP;
+import org.apache.directory.shared.ldap.constants.SaslQoP;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoFilterAdapter;
 import org.apache.mina.common.IoSession;

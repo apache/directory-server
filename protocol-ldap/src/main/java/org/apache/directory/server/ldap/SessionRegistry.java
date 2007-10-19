@@ -33,6 +33,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.Request;
@@ -275,7 +276,7 @@ public class SessionRegistry
             {
                 //noinspection unchecked
                 Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
-                cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
+                cloned.put( Context.SECURITY_AUTHENTICATION, AuthenticationLevel.NONE.toString() );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
                 ctx = new InitialLdapContext( cloned, connCtls );
@@ -345,7 +346,7 @@ public class SessionRegistry
             {
                 //noinspection unchecked
                 Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
-                cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
+                cloned.put( Context.SECURITY_AUTHENTICATION, AuthenticationLevel.NONE.toString() );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
                 ctx = new InitialLdapContext( cloned, connCtls );

@@ -28,6 +28,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.MutableControl;
@@ -161,13 +163,13 @@ public class GetLdapContext implements IoHandlerCommand
 
     private String getAuthenticationLevel( String sessionMechanism )
     {
-        if ( sessionMechanism.equals( "SIMPLE" ) )
+        if ( sessionMechanism.equals( SupportedSASLMechanisms.SIMPLE ) )
         {
-            return "simple";
+            return AuthenticationLevel.SIMPLE.toString();
         }
         else
         {
-            return "strong";
+            return AuthenticationLevel.STRONG.toString();
         }
     }
 }
