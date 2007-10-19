@@ -61,6 +61,7 @@ public class LdapServerTest extends TestCase
         ldapServer.setSocketAcceptor( tcpAcceptor );
         ldapServer.setDirectoryService( directoryService );
         ldapServer.setIpPort( AvailablePortFinder.getNextAvailable( 1024 ) );
+        
         if ( getName().equals( "testAlternativeConfiguration" ) )
         {
             ldapServer.setAbandonHandler( new BogusAbandonHandler() );
@@ -81,34 +82,6 @@ public class LdapServerTest extends TestCase
     public void tearDown() throws Exception
     {
         ldapServer.stop();
-/*
-        for (;;) {
-            try {
-                if ( logicExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
-                {
-                    break;
-                }
-            }
-            catch ( InterruptedException e )
-            {
-                LOG.error( "Failed to terminate logic executor", e );
-            }
-        }
-
-        ioExecutor.shutdown();
-        for (;;) {
-            try {
-                if ( ioExecutor.awaitTermination( Integer.MAX_VALUE, TimeUnit.SECONDS ) )
-                {
-                    break;
-                }
-            }
-            catch ( InterruptedException e )
-            {
-                LOG.error( "Failed to terminate io executor", e );
-            }
-        }
-*/
         directoryService.shutdown();
     }
 

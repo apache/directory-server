@@ -38,6 +38,8 @@ import javax.naming.ldap.Control;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.ldap.constants.SaslQoP;
+import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.ldap.support.AbandonHandler;
 import org.apache.directory.server.ldap.support.AddHandler;
 import org.apache.directory.server.ldap.support.BindHandler;
@@ -122,7 +124,6 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapServer extends ServiceConfiguration
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3757127143811666817L;
 
     /** logger for this class */
@@ -185,7 +186,8 @@ public class LdapServer extends ServiceConfiguration
     private String saslPrincipal = "ldap/ldap.example.com@EXAMPLE.COM";
 
     /** The quality of protection (QoP), used by DIGEST-MD5 and GSSAPI. */
-    private List<String> saslQop;
+    private Set<String> saslQop;
+    private String      saslQopString;
 
     /** The list of realms serviced by this host. */
     private List<String> saslRealms;
@@ -225,15 +227,16 @@ public class LdapServer extends ServiceConfiguration
         super.setServiceName( SERVICE_NAME_DEFAULT );
 
         supportedMechanisms = new HashSet<String>();
-        supportedMechanisms.add( "SIMPLE" );
-        supportedMechanisms.add( "CRAM-MD5" );
-        supportedMechanisms.add( "DIGEST-MD5" );
-        supportedMechanisms.add( "GSSAPI" );
+        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
+        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
+        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
 
-        saslQop = new ArrayList<String>();
-        saslQop.add( "auth" );
-        saslQop.add( "auth-int" );
-        saslQop.add( "auth-conf" );
+        saslQop = new HashSet<String>();
+        saslQop.add( SaslQoP.QOP_AUTH );
+        saslQop.add( SaslQoP.QOP_AUTH_INT );
+        saslQop.add( SaslQoP.QOP_AUTH_CONF );
+        saslQopString = SaslQoP.QOP_AUTH + ',' + SaslQoP.QOP_AUTH_INT + ',' + SaslQoP.QOP_AUTH_CONF;
 
         saslRealms = new ArrayList<String>();
         saslRealms.add( "example.com" );
@@ -244,19 +247,63 @@ public class LdapServer extends ServiceConfiguration
         this.supportedControls.add( SubentriesControl.CONTROL_OID );
         this.supportedControls.add( ManageDsaITControl.CONTROL_OID );
         this.supportedControls.add( CascadeControl.CONTROL_OID );
-
-        setAbandonHandler( new DefaultAbandonHandler() );
-        setAddHandler( new DefaultAddHandler() );
-        setBindHandler( new DefaultBindHandler() );
-        setCompareHandler( new DefaultCompareHandler() );
-        setDeleteHandler( new DefaultDeleteHandler() );
-        setExtendedHandler( new DefaultExtendedHandler() );
-        setModifyHandler( new DefaultModifyHandler() );
-        setModifyDnHandler( new DefaultModifyDnHandler() );
-        setSearchHandler( new DefaultSearchHandler() );
-        setUnbindHandler( new DefaultUnbindHandler() );
     }
 
+    /**
+     * Install the LDAP request handlers.
+     */
+    private void installDefaultHandlers()
+    {
+        if ( getAbandonHandler() == null )
+        {
+            setAbandonHandler( new DefaultAbandonHandler() );
+        }
+        
+        if ( getAddHandler() == null )
+        {
+            setAddHandler( new DefaultAddHandler() );
+        }
+        
+        if ( getBindHandler() == null )
+        {
+            setBindHandler( new DefaultBindHandler() );
+        }
+        
+        if ( getCompareHandler() == null )
+        {
+            setCompareHandler( new DefaultCompareHandler() );
+        }
+        
+        if ( getDeleteHandler() == null )
+        {
+            setDeleteHandler( new DefaultDeleteHandler() );
+        }
+        
+        if ( getExtendedHandler() == null )
+        {
+            setExtendedHandler( new DefaultExtendedHandler() );
+        }
+        
+        if ( getModifyHandler() == null )
+        {
+            setModifyHandler( new DefaultModifyHandler() );
+        }
+        
+        if ( getModifyDnHandler() == null )
+        {
+            setModifyDnHandler( new DefaultModifyDnHandler() );
+        }
+        
+        if ( getSearchHandler() == null )
+        {
+            setSearchHandler( new DefaultSearchHandler() );
+        }
+        
+        if ( getUnbindHandler() == null )
+        {
+            setUnbindHandler( new DefaultUnbindHandler() );
+        }
+    }
 
     /**
      * @org.apache.xbean.InitMethod
@@ -271,6 +318,7 @@ public class LdapServer extends ServiceConfiguration
         }
 
         IoFilterChainBuilder chain;
+        
         if ( isEnableLdaps() )
         {
             char[] certPasswordChars = getLdapsCertificatePassword().toCharArray();
@@ -282,7 +330,15 @@ public class LdapServer extends ServiceConfiguration
             chain = new DefaultIoFilterChainBuilder();
         }
 
+        /*
+         * The serveur is now initialized, we can
+         * install the default requests handlers, which need 
+         * access to the DirectoryServer instance.
+         */ 
+        installDefaultHandlers();      
+
         startLDAP0( getIpPort(), chain );
+        
         started = true;
     }
 
@@ -681,11 +737,22 @@ public class LdapServer extends ServiceConfiguration
 
 
     /**
-     * Returns the desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
+     * Returns the quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      *
-     * @return The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
+     * @return The quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      */
-    public List<String> getSaslQop()
+    public String getSaslQopString()
+    {
+        return saslQopString;
+    }
+
+
+    /**
+     * Returns the Set of quality-of-protection, used by DIGEST-MD5 and GSSAPI.
+     *
+     * @return The quality-of-protection, used by DIGEST-MD5 and GSSAPI.
+     */
+    public Set<String> getSaslQop()
     {
         return saslQop;
     }
@@ -693,13 +760,33 @@ public class LdapServer extends ServiceConfiguration
 
     /**
      * Sets the desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
+     * 
+     * We build a string from this list, where QoP are comma delimited 
      *
      * @org.apache.xbean.Property nestedType="java.lang.String"
      *
      * @param saslQop The desired quality-of-protection, used by DIGEST-MD5 and GSSAPI.
      */
-    public void setSaslQop( List<String> saslQop )
+    public void setSaslQop( Set<String> saslQop )
     {
+        StringBuilder qopList = new StringBuilder();
+        boolean isFirst = true;
+
+        for ( String qop:saslQop )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                qopList.append( ',' );
+            }
+            
+            qopList.append( qop );
+        }
+
+        this.saslQopString = qopList.toString();
         this.saslQop = saslQop;
     }
 
@@ -709,7 +796,7 @@ public class LdapServer extends ServiceConfiguration
      *
      * @return The realms serviced by this SASL host, used by DIGEST-MD5 and GSSAPI.
      */
-    public List getSaslRealms()
+    public List<String> getSaslRealms()
     {
         return saslRealms;
     }
@@ -819,7 +906,7 @@ public class LdapServer extends ServiceConfiguration
         this.handler.removeMessageHandler( BindRequest.class );
         this.bindHandler = bindHandler;
         this.bindHandler.setProtocolProvider( this );
-            this.bindHandler.setDirectoryService( getDirectoryService() );
+        this.bindHandler.setDirectoryService( getDirectoryService() );
         //noinspection unchecked
         this.handler.addMessageHandler( BindRequest.class, this.bindHandler );
     }
