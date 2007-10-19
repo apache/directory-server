@@ -72,7 +72,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     {
         LOG.debug( "Processing conversion of principal name to DN." );
 
-        Hashtable env = getEnvironment( session );
+        Hashtable<String, Object> env = getEnvironment( session );
 
         LdapContext ctx = getContext( session, message, env );
 

@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
 import javax.security.auth.Subject;
@@ -45,7 +46,7 @@ public class GssapiMechanismHandler implements MechanismHandler
         this.directoryService = directoryService;
     }
 
-    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception
+    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
@@ -57,17 +58,15 @@ public class GssapiMechanismHandler implements MechanismHandler
         {
             Subject subject = ( Subject ) session.getAttribute( "saslSubject" );
 
-            final Map saslProps = ( Map ) session.getAttribute( "saslProps" );
+            final Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
             final String saslHost = ( String ) session.getAttribute( "saslHost" );
 
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, message );
+            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, bindRequest );
 
-            //noinspection unchecked
-            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction()
+            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
-                public Object run() throws Exception
+                public SaslServer run() throws Exception
                 {
-                    //noinspection unchecked
                     return Sasl.createSaslServer( "GSSAPI", "ldap", saslHost, saslProps, callbackHandler );
                 }
             } );

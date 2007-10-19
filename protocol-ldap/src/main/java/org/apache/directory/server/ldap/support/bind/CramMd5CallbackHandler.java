@@ -63,7 +63,7 @@ public class CramMd5CallbackHandler extends AbstractSaslCallbackHandler
 
     protected String lookupPassword( String username, String realm )
     {
-        Hashtable env = getEnvironment( session );
+        Hashtable<String, Object> env = getEnvironment( session );
 
         LdapContext ctx = getContext( session, message, env );
 

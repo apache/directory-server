@@ -36,7 +36,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import javax.naming.spi.InitialContextFactory;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -196,7 +195,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * @param env An environment to be used to acquire an {@link LdapContext}.
      * @return An {@link LdapContext} for the client.
      */
-    protected LdapContext getContext( IoSession session, Object message, Hashtable env )
+    protected LdapContext getContext( IoSession session, Object message, Hashtable<String, Object> env )
     {
         BindRequest request = ( BindRequest ) message;
         LdapResult result = request.getResultResponse().getLdapResult();
@@ -205,24 +204,9 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
         try
         {
-            if ( env.containsKey( "server.use.factory.instance" ) )
-            {
-                InitialContextFactory factory = ( InitialContextFactory ) env.get( "server.use.factory.instance" );
-
-                if ( factory == null )
-                {
-                    throw new NullPointerException( "server.use.factory.instance was set in env but was null" );
-                }
-
-                // Bind is a special case where we have to use the referral property to deal
-                ctx = ( LdapContext ) factory.getInitialContext( env );
-            }
-            else
-            {
-                MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
-                env.put( DirectoryService.JNDI_KEY, directoryService );
-                ctx = new InitialLdapContext( env, connCtls );
-            }
+            MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
+            env.put( DirectoryService.JNDI_KEY, directoryService );
+            ctx = new InitialLdapContext( env, connCtls );
         }
         catch ( NamingException e )
         {

@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
 
@@ -49,5 +50,5 @@ public interface MechanismHandler
      * @return The {@link SaslServer} to use for the duration of the bound session.
      * @throws Exception
      */
-    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception;
+    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception;
 }

@@ -26,7 +26,6 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -63,31 +62,15 @@ public class GetLdapContext implements IoHandlerCommand
 
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
-        Hashtable env = getEnvironment( session, message );
+        Hashtable<String, Object> env = getEnvironment( session, message );
         BindRequest request = ( BindRequest ) message;
         LdapResult result = request.getResultResponse().getLdapResult();
         LdapContext ctx;
 
         try
         {
-            if ( env.containsKey( "server.use.factory.instance" ) )
-            {
-                InitialContextFactory factory = ( InitialContextFactory ) env.get( "server.use.factory.instance" );
-
-                if ( factory == null )
-                {
-                    throw new NullPointerException( "server.use.factory.instance was set in env but was null" );
-                }
-
-                // Bind is a special case where we have to use the referral property to deal
-                ctx = ( LdapContext ) factory.getInitialContext( env );
-            }
-            else
-            {
-                //noinspection SuspiciousToArrayCall
-                MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
-                ctx = new InitialLdapContext( env, connCtls );
-            }
+            MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
+            ctx = new InitialLdapContext( env, connCtls );
 
             registry.setLdapContext( session, ctx );
             
@@ -128,13 +111,13 @@ public class GetLdapContext implements IoHandlerCommand
 
             result.setErrorMessage( msg );
             session.write( request.getResultResponse() );
-            //noinspection UnusedAssignment
+
             ctx = null;
         }
     }
 
 
-    private Hashtable getEnvironment( IoSession session, Object message )
+    private Hashtable<String, Object> getEnvironment( IoSession session, Object message )
     {
         Object principal = session.getAttribute( Context.SECURITY_PRINCIPAL );
 

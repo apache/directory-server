@@ -27,10 +27,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
-import org.apache.directory.server.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.protocol.shared.store.ContextOperation;
 import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -63,14 +65,14 @@ public class ConfigureChain implements IoHandlerCommand
                 session.getAttribute( LdapServer.class.toString() );
 
         Map<String, String> saslProps = new HashMap<String, String>();
-        saslProps.put( Sasl.QOP, getActiveQop( ldapServer ) );
+        saslProps.put( Sasl.QOP, ldapServer.getSaslQopString() );
         saslProps.put( "com.sun.security.sasl.digest.realm", getActiveRealms( ldapServer ) );
         session.setAttribute( "saslProps", saslProps );
 
         session.setAttribute( "saslHost", ldapServer.getSaslHost() );
         session.setAttribute( "baseDn", ldapServer.getSearchBaseDn() );
 
-        Set activeMechanisms = getActiveMechanisms( ldapServer );
+        Set<String> activeMechanisms = ldapServer.getSupportedMechanisms();
 
         if ( activeMechanisms.contains( "GSSAPI" ) )
         {
@@ -86,78 +88,51 @@ public class ConfigureChain implements IoHandlerCommand
             }
         }
 
-        session.setAttribute( "supportedMechanisms", activeMechanisms );
+        BindRequest bindRequest = ( BindRequest ) message;
+
+        // Guard clause:  Reject unsupported SASL mechanisms.
+        if ( !ldapServer.getSupportedMechanisms().contains( bindRequest.getSaslMechanism() ) )
+        {
+            LOG.error( "Bind error : {} mechanism not supported. Please check the server.xml configuration file (supportedMechanisms field)", 
+                bindRequest.getSaslMechanism() );
+
+            LdapResult bindResult = bindRequest.getResultResponse().getLdapResult();
+            bindResult.setResultCode( ResultCodeEnum.AUTH_METHOD_NOT_SUPPORTED );
+            bindResult.setErrorMessage( bindRequest.getSaslMechanism() + " is not a supported mechanism." );
+            session.write( bindRequest.getResultResponse() );
+            return;
+        }
+
+        /**
+         * We now have a canonicalized authentication mechanism for this session,
+         * suitable for use in Hashed Adapter's, aka Demux HashMap's.
+         */
+        session.setAttribute( "sessionMechanism", bindRequest.getSaslMechanism() );
 
         next.execute( session, message );
     }
 
 
-    private Set getActiveMechanisms( LdapServer ldapServer )
-    {
-        List<String> supportedMechanisms = new ArrayList<String>();
-        supportedMechanisms.add( SupportedSASLMechanisms.SIMPLE );
-        supportedMechanisms.add( SupportedSASLMechanisms.CRAM_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.DIGEST_MD5 );
-        supportedMechanisms.add( SupportedSASLMechanisms.GSSAPI );
-
-        Set<String> activeMechanisms = new HashSet<String>();
-
-        for ( String desiredMechanism : ldapServer.getSupportedMechanisms() )
-        {
-            if ( supportedMechanisms.contains( desiredMechanism ) )
-            {
-                activeMechanisms.add( desiredMechanism );
-            }
-        }
-
-        return activeMechanisms;
-    }
-
-
-    private String getActiveQop( LdapServer ldapServer )
-    {
-        List<String> supportedQop = new ArrayList<String>();
-        supportedQop.add( "auth" );
-        supportedQop.add( "auth-int" );
-        supportedQop.add( "auth-conf" );
-
-        StringBuilder saslQop = new StringBuilder();
-
-        Iterator it = ldapServer.getSaslQop().iterator();
-        while ( it.hasNext() )
-        {
-            String desiredQopLevel = ( String ) it.next();
-            if ( supportedQop.contains( desiredQopLevel ) )
-            {
-                saslQop.append( desiredQopLevel );
-            }
-
-            if ( it.hasNext() )
-            {
-                // QOP is comma-delimited
-                saslQop.append( "," );
-            }
-        }
-
-        return saslQop.toString();
-    }
-
-
+    /**
+     * Create a list of all the configured realms.
+     */
     private String getActiveRealms( LdapServer ldapServer )
     {
         StringBuilder realms = new StringBuilder();
+        boolean isFirst = true;
 
-        Iterator it = ldapServer.getSaslRealms().iterator();
-        while ( it.hasNext() )
+        for ( String realm:ldapServer.getSaslRealms() )
         {
-            String realm = ( String ) it.next();
-            realms.append( realm );
-
-            if ( it.hasNext() )
+            if ( isFirst )
             {
-                // realms are space-delimited
-                realms.append( " " );
+                isFirst = false;
             }
+            else
+            {
+                realms.append( ' ' );
+            }
+            
+            realms.append( realm );
         }
 
         return realms.toString();
@@ -202,8 +177,7 @@ public class ConfigureChain implements IoHandlerCommand
 
         return subject;
     }
-
-
+    
     private Object execute( LdapServer ldapServer, ContextOperation operation ) throws Exception
     {
         if ( ctx == null )
@@ -222,5 +196,5 @@ public class ConfigureChain implements IoHandlerCommand
         }
 
         return operation.execute( ctx, null );
-    }
+    }    
 }

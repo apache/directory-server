@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -44,7 +45,7 @@ public class DigestMd5MechanismHandler implements MechanismHandler
     }
 
     
-    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception
+    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
@@ -55,10 +56,9 @@ public class DigestMd5MechanismHandler implements MechanismHandler
         else
         {
             String saslHost = ( String ) session.getAttribute( "saslHost" );
-            //noinspection unchecked
-            Map<String, String> saslProps = ( Map<String,String> ) session.getAttribute( "saslProps" );
+            Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
 
-            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, session, message );
+            CallbackHandler callbackHandler = new DigestMd5CallbackHandler( directoryService, session, bindRequest );
 
             ss = Sasl.createSaslServer( "DIGEST-MD5", "ldap", saslHost, saslProps, callbackHandler );
             session.setAttribute( SASL_CONTEXT, ss );

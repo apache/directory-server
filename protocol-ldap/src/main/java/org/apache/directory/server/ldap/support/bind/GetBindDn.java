@@ -103,11 +103,11 @@ public class GetBindDn implements ContextOperation
 
         try
         {
-            NamingEnumeration answer = ctx.search( "", matchAttrs, attrIDs );
+            NamingEnumeration<SearchResult> answer = ctx.search( "", matchAttrs, attrIDs );
 
             if ( answer.hasMore() )
             {
-                SearchResult result = ( SearchResult ) answer.next();
+                SearchResult result = answer.next();
 
                 // Changed from original GetPrincipal, along with accessor and member variable.
                 bindDn = result.getName();

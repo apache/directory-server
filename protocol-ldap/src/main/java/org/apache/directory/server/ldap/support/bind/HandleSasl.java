@@ -30,6 +30,7 @@ import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 import java.util.Collections;
@@ -48,7 +49,7 @@ public class HandleSasl implements IoHandlerCommand
     /**
      * A Hashed Adapter mapping SASL mechanisms to their handlers.
      */
-    private final Map handlers;
+    private final Map<String, MechanismHandler> handlers;
 
 
     public HandleSasl( DirectoryService directoryService )
@@ -65,29 +66,37 @@ public class HandleSasl implements IoHandlerCommand
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         String sessionMechanism = ( String ) session.getAttribute( "sessionMechanism" );
+        BindRequest bindRequest = (BindRequest)message;
 
-        if ( handlers.containsKey( sessionMechanism ) )
+        if ( sessionMechanism.equals( "SIMPLE" ) )
         {
-            SaslServer ss = handleMechanism( sessionMechanism, session, message );
-            handleMechanism( ss, next, session, message );
+            /*
+             * This is the principal name that will be used to bind to the DIT.
+             */
+            session.setAttribute( Context.SECURITY_PRINCIPAL, bindRequest.getName() );
+
+            /*
+             * These are the credentials that will be used to bind to the DIT.
+             * For the simple mechanism, this will be a password, possibly one-way hashed.
+             */
+            session.setAttribute( Context.SECURITY_CREDENTIALS, bindRequest.getCredentials() );
+
+            next.execute( session, bindRequest );
         }
         else
         {
-            next.execute( session, message );
+            MechanismHandler mechanismHandler = ( MechanismHandler ) handlers.get( sessionMechanism );
+
+            if ( mechanismHandler == null )
+            {
+                LOG.error( "Handler unavailable for " + sessionMechanism );
+                throw new IllegalArgumentException( "Handler unavailable for " + sessionMechanism );
+            }
+
+            SaslServer ss = mechanismHandler.handleMechanism( session, bindRequest );
+            
+            handleMechanism( ss, next, session, bindRequest );
         }
-    }
-
-
-    private SaslServer handleMechanism( String mechanism, IoSession session, Object message ) throws Exception
-    {
-        MechanismHandler mechanismHandler = ( MechanismHandler ) handlers.get( mechanism );
-
-        if ( mechanismHandler == null )
-        {
-            throw new IllegalArgumentException( "Handler unavailable for " + mechanism );
-        }
-
-        return mechanismHandler.handleMechanism( session, message );
     }
 
 

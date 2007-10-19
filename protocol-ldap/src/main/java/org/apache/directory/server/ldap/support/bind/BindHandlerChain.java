@@ -39,9 +39,7 @@ public class BindHandlerChain extends IoHandlerChain
     public BindHandlerChain( DirectoryService directoryService, SessionRegistry registry )
     {
         addLast( "configureChain", new ConfigureChain() );
-        addLast( "chainGuard", new ChainGuard() );
         addLast( "handleSasl", new HandleSasl( directoryService ) );
-        addLast( "handleSimple", new HandleSimple() );
         addLast( "getLdapContext", new GetLdapContext( registry ) );
         addLast( "returnSuccess", new ReturnSuccess() );
     }
