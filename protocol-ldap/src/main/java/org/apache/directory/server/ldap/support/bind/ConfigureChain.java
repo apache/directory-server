@@ -22,6 +22,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,14 +34,20 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
 import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.directory.shared.ldap.message.BindResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.MutableControl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.util.ExceptionUtils;
+import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
@@ -49,6 +56,8 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -72,7 +81,19 @@ public class ConfigureChain implements IoHandlerCommand
      */
     private final Map<String, MechanismHandler> handlers;
 
-    public ConfigureChain( DirectoryService directoryService )
+    private static final MutableControl[] EMPTY = new MutableControl[0];
+    
+    private final SessionRegistry registry;
+    
+
+    /**
+     * Creates a new instance of ConfigureChain.
+     * 
+     * Initialize the mechanism handlers.
+     *
+     * @param directoryService
+     */
+    public ConfigureChain( DirectoryService directoryService, SessionRegistry registry )
     {
         Map<String, MechanismHandler> map = new HashMap<String, MechanismHandler>();
         map.put( SupportedSASLMechanisms.CRAM_MD5, new CramMd5MechanismHandler( directoryService ) );
@@ -80,8 +101,10 @@ public class ConfigureChain implements IoHandlerCommand
         map.put( SupportedSASLMechanisms.GSSAPI, new GssapiMechanismHandler( directoryService ) );
         handlers = Collections.unmodifiableMap( map );
         
+        this.registry = registry;
     }
 
+    
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         LdapServer ldapServer = ( LdapServer )
@@ -126,12 +149,6 @@ public class ConfigureChain implements IoHandlerCommand
             return;
         }
 
-        /**
-         * We now have a canonicalized authentication mechanism for this session,
-         * suitable for use in Hashed Adapter's, aka Demux HashMap's.
-         */
-        session.setAttribute( "sessionMechanism", bindRequest.getSaslMechanism() );
-
         handleSasl( next, session, bindRequest );
     }
 
@@ -156,7 +173,7 @@ public class ConfigureChain implements IoHandlerCommand
              */
             session.setAttribute( Context.SECURITY_CREDENTIALS, bindRequest.getCredentials() );
 
-            next.execute( session, bindRequest );
+            getLdapContext( next, session, bindRequest );
         }
         else
         {
@@ -198,7 +215,7 @@ public class ConfigureChain implements IoHandlerCommand
                         /*
                          * If we got here, we're ready to try getting an initial LDAP context.
                          */
-                        next.execute( session, bindRequest );
+                        getLdapContext( next, session, bindRequest );
                     }
                     else
                     {
@@ -306,4 +323,164 @@ public class ConfigureChain implements IoHandlerCommand
 
         return (PrincipalStoreEntry)getPrincipal.execute( ctx, null );
     }    
+    
+    
+    private Hashtable<String, Object> getEnvironment( IoSession session, BindRequest bindRequest )
+    {
+        Object principal = session.getAttribute( Context.SECURITY_PRINCIPAL );
+
+        /**
+         * For simple, this is a password.  For strong, this is unused.
+         */
+        Object credentials = session.getAttribute( Context.SECURITY_CREDENTIALS );
+
+        String sessionMechanism = bindRequest.getSaslMechanism();
+        String authenticationLevel = getAuthenticationLevel( sessionMechanism );
+
+        LOG.debug( "{} {}", Context.SECURITY_PRINCIPAL, principal );
+        LOG.debug( "{} {}", Context.SECURITY_CREDENTIALS, credentials );
+        LOG.debug( "{} {}", Context.SECURITY_AUTHENTICATION, authenticationLevel );
+
+        // clone the environment first then add the required security settings
+        Hashtable<String, Object> env = registry.getEnvironmentByCopy();
+        env.put( Context.SECURITY_PRINCIPAL, principal );
+
+        if ( credentials != null )
+        {
+            env.put( Context.SECURITY_CREDENTIALS, credentials );
+        }
+
+        env.put( Context.SECURITY_AUTHENTICATION, authenticationLevel );
+
+        if ( bindRequest.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
+        {
+            env.put( Context.REFERRAL, "ignore" );
+        }
+        else
+        {
+            env.put( Context.REFERRAL, "throw" );
+        }
+
+        return env;
+    }
+    
+    
+    private void getLdapContext( NextCommand next, IoSession session, BindRequest bindRequest ) throws Exception
+    {
+        Hashtable<String, Object> env = getEnvironment( session, bindRequest );
+        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+        LdapContext ctx;
+
+        try
+        {
+            MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
+            ctx = new InitialLdapContext( env, connCtls );
+
+            registry.setLdapContext( session, ctx );
+            
+            // add the bind response controls 
+            bindRequest.getResultResponse().addAll( ctx.getResponseControls() );
+            
+            returnSuccess( next, session, bindRequest );
+        }
+        catch ( NamingException e )
+        {
+            ResultCodeEnum code;
+
+            if ( e instanceof LdapException )
+            {
+                code = ( ( LdapException ) e ).getResultCode();
+                result.setResultCode( code );
+            }
+            else
+            {
+                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
+                result.setResultCode( code );
+            }
+
+            String msg = "Bind failed: " + e.getMessage();
+
+            if ( LOG.isDebugEnabled() )
+            {
+                msg += ":\n" + ExceptionUtils.getStackTrace( e );
+                msg += "\n\nBindRequest = \n" + bindRequest.toString();
+            }
+
+            if ( ( e.getResolvedName() != null )
+                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
+                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
+            {
+                result.setMatchedDn( ( LdapDN ) e.getResolvedName() );
+            }
+
+            result.setErrorMessage( msg );
+            session.write( bindRequest.getResultResponse() );
+
+            ctx = null;
+        }
+    }
+
+    
+    private void returnSuccess( NextCommand next, IoSession session, BindRequest bindRequest ) throws Exception
+    {
+        /*
+         * We have now both authenticated the client and retrieved a JNDI context for them.
+         * We can return a success message to the client.
+         */
+        LdapResult result = bindRequest.getResultResponse().getLdapResult();
+
+        byte[] tokenBytes = ( byte[] ) session.getAttribute( "saslCreds" );
+
+        result.setResultCode( ResultCodeEnum.SUCCESS );
+        BindResponse response = ( BindResponse ) bindRequest.getResultResponse();
+        response.setServerSaslCreds( tokenBytes );
+
+        String sessionMechanism = bindRequest.getSaslMechanism();
+
+        /*
+         * If the SASL mechanism is DIGEST-MD5 or GSSAPI, we insert a SASLFilter.
+         */
+        if ( sessionMechanism.equals( SupportedSASLMechanisms.DIGEST_MD5 ) || 
+             sessionMechanism.equals( SupportedSASLMechanisms.GSSAPI ) )
+        {
+            LOG.debug( "Inserting SaslFilter to engage negotiated security layer." );
+
+            IoFilterChain chain = session.getFilterChain();
+            if ( !chain.contains( "SASL" ) )
+            {
+                SaslServer saslContext = ( SaslServer ) session.getAttribute( MechanismHandler.SASL_CONTEXT );
+                chain.addBefore( "codec", "SASL", new SaslFilter( saslContext ) );
+            }
+
+            /*
+             * We disable the SASL security layer once, to write the outbound SUCCESS
+             * message without SASL security layer processing.
+             */
+            session.setAttribute( SaslFilter.DISABLE_SECURITY_LAYER_ONCE, Boolean.TRUE );
+        }
+
+        session.write( response );
+        LOG.debug( "Returned SUCCESS message." );
+
+        next.execute( session, bindRequest );
+    }
+
+    
+    /**
+     * Convert a SASL mechanism to an Authentication level
+     *
+     * @param sessionMechanism The resquested mechanism
+     * @return The corresponding authentication level
+     */
+    private String getAuthenticationLevel( String sessionMechanism )
+    {
+        if ( sessionMechanism.equals( SupportedSASLMechanisms.SIMPLE ) )
+        {
+            return AuthenticationLevel.SIMPLE.toString();
+        }
+        else
+        {
+            return AuthenticationLevel.STRONG.toString();
+        }
+    }
 }
