@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+
 
 /**
  * An {@link ACIItem} which specifies {@link UserClass}es first and then

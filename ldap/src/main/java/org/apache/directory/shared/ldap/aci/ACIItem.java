@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+
 
 /**
  * An abstract class that provides common properties and operations for
