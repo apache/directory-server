@@ -266,7 +266,7 @@ public class LdapServer extends ServiceConfiguration
         
         if ( getBindHandler() == null )
         {
-            setBindHandler( new DefaultBindHandler() );
+            setBindHandler( new DefaultBindHandler( getDirectoryService(), registry ) );
         }
         
         if ( getCompareHandler() == null )
