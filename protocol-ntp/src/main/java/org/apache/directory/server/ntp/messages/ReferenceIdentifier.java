@@ -43,7 +43,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ReferenceIdentifier implements Comparable
+public class ReferenceIdentifier implements Comparable<ReferenceIdentifier>
 {
     /**
      * Constant for the "INIT" reference identifier type.
@@ -151,7 +151,7 @@ public class ReferenceIdentifier implements Comparable
     /**
      * A list of all the reference identifier type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<ReferenceIdentifier> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The value/code for the reference identifier type.
@@ -242,9 +242,9 @@ public class ReferenceIdentifier implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( ReferenceIdentifier that )
     {
-        return ordinal - ( ( ReferenceIdentifier ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

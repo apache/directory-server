@@ -38,7 +38,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class NtpServer extends ServiceConfiguration
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 2961795205765175775L;
 
     /**

@@ -44,7 +44,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class ModeType implements Comparable
+public final class ModeType implements Comparable<ModeType>
 {
     /**
      * Constant for the "Reserved mode" mode type.
@@ -96,7 +96,7 @@ public final class ModeType implements Comparable
     /**
      * A list of all the mode type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<ModeType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the mode type.
@@ -149,9 +149,9 @@ public final class ModeType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( ModeType that )
     {
-        return ordinal - ( ( ModeType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 
