@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap.support;
 
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;

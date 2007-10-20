@@ -41,6 +41,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,6 +107,7 @@ public class DefaultSearchHandler extends SearchHandler
         controls.setReturningObjFlag( req.getTypesOnly() );
         controls.setReturningAttributes( ids );
         controls.setDerefLinkFlag( true );
+        
         return controls;
     }
 
@@ -121,10 +123,12 @@ public class DefaultSearchHandler extends SearchHandler
         boolean isBaseIsRoot = req.getBase().isEmpty();
         boolean isBaseScope = req.getScope() == ScopeEnum.BASE_OBJECT;
         boolean isRootDSEFilter = false;
+        
         if ( req.getFilter() instanceof PresenceNode )
         {
             isRootDSEFilter = ( ( PresenceNode ) req.getFilter() ).getAttribute().equalsIgnoreCase( SchemaConstants.OBJECT_CLASS_AT );
         }
+        
         return isBaseIsRoot && isBaseScope && isRootDSEFilter;
     }
 
@@ -143,7 +147,7 @@ public class DefaultSearchHandler extends SearchHandler
     	}
 
     	ServerLdapContext ctx;
-        NamingEnumeration list = null;
+        NamingEnumeration<SearchResult> list = null;
         String[] ids = null;
         Collection<String> retAttrs = new HashSet<String>();
         retAttrs.addAll( req.getAttributes() );
@@ -239,6 +243,7 @@ public class DefaultSearchHandler extends SearchHandler
             int maxTime = ldapServer.getMaxTimeLimit();
 
             SearchControls controls;
+            
             if ( isAnonymousUser )
             {
                 controls = getSearchControls( req, ids, false, maxSize, maxTime );
@@ -260,6 +265,7 @@ public class DefaultSearchHandler extends SearchHandler
 
             PersistentSearchControl psearchControl = ( PersistentSearchControl ) req.getControls().get(
                 PersistentSearchControl.CONTROL_OID );
+            
             if ( psearchControl != null )
             {
                 // there are no limits for psearch processing
@@ -270,17 +276,21 @@ public class DefaultSearchHandler extends SearchHandler
                 {
                     list = ctx.search( req.getBase(), req.getFilter(),
                         controls );
+                    
                     if ( list instanceof AbandonListener )
                     {
                         req.addAbandonListener( ( AbandonListener ) list );
                     }
+                    
                     if ( list.hasMore() )
                     {
-                        Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
+                        Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
                                 session, getSessionRegistry() );
+                        
                         while ( it.hasNext() )
                         {
-                            Response resp = ( Response ) it.next();
+                            Response resp = it.next();
+                            
                             if ( resp instanceof SearchResponseDone )
                             {
                                 // ok if normal search beforehand failed somehow quickly abandon psearch
@@ -296,7 +306,9 @@ public class DefaultSearchHandler extends SearchHandler
                                 // loop and user the notification listener to send back
                                 // notificationss to the client in never ending search
                                 else
+                                {
                                     break;
+                                }
                             }
                             else
                             {
@@ -322,6 +334,7 @@ public class DefaultSearchHandler extends SearchHandler
              * for each search result returned.
              */
             list = ctx.search( req.getBase(), req.getFilter(), controls );
+            
             if ( list instanceof AbandonListener )
             {
                 req.addAbandonListener( ( AbandonListener ) list );
@@ -329,8 +342,9 @@ public class DefaultSearchHandler extends SearchHandler
 
             if ( list.hasMore() )
             {
-                Iterator it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
+                Iterator<Response> it = new SearchResponseIterator( req, ctx, list, controls.getSearchScope(),
                         session, getSessionRegistry() );
+                
                 while ( it.hasNext() )
                 {
                     session.write( it.next() );
@@ -340,6 +354,7 @@ public class DefaultSearchHandler extends SearchHandler
             {
                 list.close();
                 req.getResultResponse().getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
+                
                 for ( ResultResponse resultResponse : Collections.singleton( req.getResultResponse() ) )
                 {
                     session.write( resultResponse );
@@ -353,13 +368,13 @@ public class DefaultSearchHandler extends SearchHandler
             result.setReferral( refs );
             result.setResultCode( ResultCodeEnum.REFERRAL );
             result.setErrorMessage( "Encountered referral attempting to handle add request." );
-            /* coming up null causing a NPE */
-            // result.setMatchedDn( e.getResolvedName().toString() );
+
             do
             {
                 refs.addLdapUrl( ( String ) e.getReferralInfo() );
             }
             while ( e.skipReferral() );
+            
             session.write( req.getResultResponse() );
             getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
         }
@@ -383,12 +398,14 @@ public class DefaultSearchHandler extends SearchHandler
             }
 
             String msg = "failed on search operation: " + e.getMessage();
+            
             if ( LOG.isDebugEnabled() )
             {
                 msg += ":\n" + req + ":\n" + ExceptionUtils.getStackTrace( e );
             }
 
             ResultCodeEnum code;
+            
             if ( e instanceof LdapException )
             {
                 code = ( ( LdapException ) e ).getResultCode();
@@ -413,6 +430,7 @@ public class DefaultSearchHandler extends SearchHandler
             {
                 session.write( resultResponse );
             }
+            
             getSessionRegistry().removeOutstandingRequest( session, req.getMessageId() );
         }
         finally

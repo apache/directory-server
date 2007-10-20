@@ -96,13 +96,14 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
             PartitionNexus nexus = service.getPartitionNexus();
-            Iterator list = nexus.listSuffixes( new ListSuffixOperationContext() );
+            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext() );
             int launchedWindowCount = 0;
             
             while ( list.hasNext() )
             {
-                LdapDN dn = new LdapDN( ( String ) list.next() );
+                LdapDN dn = new LdapDN( list.next() );
                 Partition partition = nexus.getPartition( dn );
+                
                 if ( partition instanceof BTreePartition )
                 {
                     BTreePartition btPartition = ( BTreePartition ) partition;

@@ -25,7 +25,6 @@ import javax.naming.NamingException;
 import javax.naming.ReferralException;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.LdapResult;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;

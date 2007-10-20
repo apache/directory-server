@@ -21,7 +21,6 @@ package org.apache.directory.server.ldap.support;
 
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
 import org.apache.directory.shared.ldap.message.ExtendedResponse;
 import org.apache.directory.shared.ldap.message.LdapResult;

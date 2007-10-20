@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
@@ -62,17 +63,17 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class SearchResponseIterator implements Iterator
+class SearchResponseIterator implements Iterator<Response>
 {
     private static final Logger LOG = LoggerFactory.getLogger( SearchResponseIterator.class );
     private final SearchRequest req;
     private final ServerLdapContext ctx;
-    private final NamingEnumeration underlying;
+    private final NamingEnumeration<SearchResult> underlying;
     private final IoSession session;
     private final SessionRegistry registry;
     private SearchResponseDone respDone;
     private boolean done;
-    private Object prefetched;
+    private Response prefetched;
     private final int scope;
 
     /** Speedup for logs */
@@ -90,7 +91,7 @@ class SearchResponseIterator implements Iterator
      * @param scope the scope of the search
      * @param session the session of the issuer of the search
      */
-    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope,
+    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration<SearchResult> underlying, int scope,
         IoSession session, SessionRegistry registry )
     {
         this.req = req;
@@ -182,9 +183,9 @@ class SearchResponseIterator implements Iterator
     }
 
 
-    public Object next()
+    public Response next()
     {
-        Object next = prefetched;
+        Response next = prefetched;
         
         try
         {
@@ -234,12 +235,12 @@ class SearchResponseIterator implements Iterator
         try
         {
             /*
-             * If we have more results from the underlying cursorr then
+             * If we have more results from the underlying cursor then
              * we just set the result and build the response object below.
              */
             if ( underlying.hasMore() )
             {
-                result = ( SearchResult ) underlying.next();
+                result = underlying.next();
             }
             else
             {

@@ -276,13 +276,14 @@ public class GracefulShutdownHandler implements ExtendedOperationHandler
         }
 
         // And close the connections when the NoDs are sent.
-        Iterator sessionIt = sessions.iterator();
+        Iterator<IoSession> sessionIt = sessions.iterator();
+        
         for ( WriteFuture future : writeFutures )
         {
             try
             {
                 future.join( 1000 );
-                ( ( IoSession ) sessionIt.next() ).close();
+                sessionIt.next().close();
             }
             catch ( Exception e )
             {

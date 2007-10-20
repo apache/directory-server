@@ -69,6 +69,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
+    
     public StoredProcedureExtendedOperationHandler()
     {
         super();
@@ -102,20 +103,24 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
-        List valueList = new ArrayList( spBean.getParameters().size() );
+        List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
         Iterator<StoredProcedureParameter> it = spBean.getParameters().iterator();
+        
         while ( it.hasNext() )
         {
             StoredProcedureParameter pPojo = it.next();
             byte[] serializedValue = pPojo.getValue();
             Object value = SerializationUtils.deserialize( serializedValue );
+            
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
                 value = ctx.lookup( paramCtx );
             }
+            
             valueList.add( value );
         }
+        
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         
         Object response = engine.invokeProcedure( ctx, procedure, values );
@@ -153,7 +158,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    private static final Set EXTENSION_OIDS;
+    private static final Set<String> EXTENSION_OIDS;
+    
     static
     {
         Set<String> s = new HashSet<String>();
@@ -163,7 +169,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
     
     
-    public Set getExtensionOids()
+    public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
