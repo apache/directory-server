@@ -64,7 +64,7 @@ public class HostAddressesEncoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( host.getAddressType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( host.getAddrType().getOrdinal() ) ) );
         sequence.add( new DERTaggedObject( 1, new DEROctetString( host.getAddress() ) ) );
 
         return sequence;
