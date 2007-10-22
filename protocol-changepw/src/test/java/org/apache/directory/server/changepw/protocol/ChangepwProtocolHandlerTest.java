@@ -55,8 +55,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.TicketFactory;
 import org.apache.mina.common.IoFilterChain;
@@ -320,13 +319,13 @@ public class ChangepwProtocolHandlerTest extends TestCase
     }
 
 
-    private PrincipalName getPrincipalName( String principalName )
+    private PrincipalName getPrincipalName( String name )
     {
-        PrincipalNameModifier principalNameModifier = new PrincipalNameModifier();
-        principalNameModifier.addName( principalName );
-        principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
+        PrincipalName principalName = new PrincipalName();
+        principalName.addName( name );
+        principalName.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
 
-        return principalNameModifier.getPrincipalName();
+        return principalName;
     }
 
     private static class DummySession extends BaseIoSession

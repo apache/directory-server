@@ -57,11 +57,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticat
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameType;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoService;
@@ -322,13 +321,13 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
     }
 
 
-    protected PrincipalName getPrincipalName( String principalName )
+    protected PrincipalName getPrincipalName( String name )
     {
-        PrincipalNameModifier principalNameModifier = new PrincipalNameModifier();
-        principalNameModifier.addName( principalName );
-        principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
+        PrincipalName principalName = new PrincipalName();
+        principalName.addName( name );
+        principalName.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
 
-        return principalNameModifier.getPrincipalName();
+        return principalName;
     }
 
     protected static class DummySession extends BaseIoSession
