@@ -90,7 +90,7 @@ public interface EntryAttribute
      *
      * @return a deep clone of this attribute
      */
-    EntryAttribute clone();
+    EntryAttribute clone() throws CloneNotSupportedException;
 
 
     /**

@@ -68,7 +68,12 @@ public class StringValue implements Value<String>
      */
     public int hashCode()
     {
-        return wrapped.hashCode();
+        if ( wrapped != null )
+        {
+            return wrapped.hashCode();
+        }
+
+        return super.hashCode();
     }
 
 
