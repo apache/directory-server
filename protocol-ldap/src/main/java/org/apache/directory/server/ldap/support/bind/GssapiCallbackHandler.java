@@ -23,6 +23,7 @@ package org.apache.directory.server.ldap.support.bind;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( GssapiCallbackHandler.class );
 
     private IoSession session;
-    private Object message;
+    private BindRequest bindRequest;
 
 
     /**
@@ -53,11 +54,11 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
      * @param message the bind message
      * @param directoryService the directory service core
      */
-    public GssapiCallbackHandler( DirectoryService directoryService, IoSession session, Object message )
+    public GssapiCallbackHandler( DirectoryService directoryService, IoSession session, BindRequest bindRequest )
     {
         super( directoryService );
         this.session = session;
-        this.message = message;
+        this.bindRequest = bindRequest;
     }
 
 
@@ -74,7 +75,7 @@ public class GssapiCallbackHandler extends AbstractSaslCallbackHandler
 
         Hashtable<String, Object> env = getEnvironment( session );
 
-        LdapContext ctx = getContext( session, message, env );
+        LdapContext ctx = getContext( session, bindRequest, env );
 
         String username = authorizeCB.getAuthorizationID();
 

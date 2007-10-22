@@ -21,6 +21,7 @@ package org.apache.directory.server.ldap.support.bind;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.message.BindRequest;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     private static final Logger LOG = LoggerFactory.getLogger( DigestMd5CallbackHandler.class );
 
     private IoSession session;
-    private Object message;
+    private BindRequest bindRequest;
 
     private String bindDn;
     private String userPassword;
@@ -53,11 +54,11 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
      * @param message the message
      * @param directoryService the directory service core
      */
-    public DigestMd5CallbackHandler( DirectoryService directoryService, IoSession session, Object message )
+    public DigestMd5CallbackHandler( DirectoryService directoryService, IoSession session, BindRequest bindRequest )
     {
         super( directoryService );
         this.session = session;
-        this.message = message;
+        this.bindRequest = bindRequest;
     }
 
 
@@ -65,7 +66,7 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     {
         Hashtable<String, Object> env = getEnvironment( session );
 
-        LdapContext ctx = getContext( session, message, env );
+        LdapContext ctx = getContext( session, bindRequest, env );
 
         // TODO - Use realm with multi-realm support.
 

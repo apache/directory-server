@@ -56,19 +56,26 @@ import java.util.Hashtable;
  */
 public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
+    /** The logger instance */
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractSaslCallbackHandler.class );
 
+    /** An empty control array */ 
     private static final MutableControl[] EMPTY = new MutableControl[0];
 
     private String username;
     private String realm;
+    protected final DirectoryService directoryService;
 
 
+    /**
+     * Creates a new instance of AbstractSaslCallbackHandler.
+     *
+     * @param directoryService
+     */
     protected AbstractSaslCallbackHandler( DirectoryService directoryService )
     {
         this.directoryService = directoryService;
     }
-
 
 
     /**
@@ -91,8 +98,6 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
     {
         return realm;
     }
-
-    protected final DirectoryService directoryService;
 
     /**
      * Implementors set the password based on a lookup, using the username and
@@ -133,23 +138,23 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         {
             Callback callback = callbacks[i];
 
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                log.debug( "Processing callback " + ( i + 1 ) + " of " + callbacks.length + ":  "
+                LOG.debug( "Processing callback " + ( i + 1 ) + " of " + callbacks.length + ":  "
                         + callback.getClass().toString() );
             }
 
             if ( callback instanceof NameCallback )
             {
                 NameCallback nameCB = ( NameCallback ) callback;
-                log.debug( "NameCallback default name:  {}", nameCB.getDefaultName() );
+                LOG.debug( "NameCallback default name:  {}", nameCB.getDefaultName() );
 
                 username = nameCB.getDefaultName();
             }
             else if ( callback instanceof RealmCallback )
             {
                 RealmCallback realmCB = ( RealmCallback ) callback;
-                log.debug( "RealmCallback default text:  {}", realmCB.getDefaultText() );
+                LOG.debug( "RealmCallback default text:  {}", realmCB.getDefaultText() );
 
                 realm = realmCB.getDefaultText();
             }
@@ -169,17 +174,17 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
 
                 // hnelson (CRAM-MD5, DIGEST-MD5)
                 // hnelson@EXAMPLE.COM (GSSAPI)
-                log.debug( "AuthorizeCallback authnID:  {}", authorizeCB.getAuthenticationID() );
+                LOG.debug( "AuthorizeCallback authnID:  {}", authorizeCB.getAuthenticationID() );
 
                 // hnelson (CRAM-MD5, DIGEST-MD5)
                 // hnelson@EXAMPLE.COM (GSSAPI)
-                log.debug( "AuthorizeCallback authzID:  {}", authorizeCB.getAuthorizationID() );
+                LOG.debug( "AuthorizeCallback authzID:  {}", authorizeCB.getAuthorizationID() );
 
                 // null (CRAM-MD5, DIGEST-MD5, GSSAPI)
-                log.debug( "AuthorizeCallback authorizedID:  {}", authorizeCB.getAuthorizedID() );
+                LOG.debug( "AuthorizeCallback authorizedID:  {}", authorizeCB.getAuthorizedID() );
 
                 // false (CRAM-MD5, DIGEST-MD5, GSSAPI)
-                log.debug( "AuthorizeCallback isAuthorized:  {}", authorizeCB.isAuthorized() );
+                LOG.debug( "AuthorizeCallback isAuthorized:  {}", authorizeCB.isAuthorized() );
 
                 authorize( authorizeCB );
             }
@@ -192,20 +197,19 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
      * duration of a session.
      * 
      * @param session The current session.
-     * @param message The current message.
+     * @param bindRequest The current BindRequest.
      * @param env An environment to be used to acquire an {@link LdapContext}.
      * @return An {@link LdapContext} for the client.
      */
-    protected LdapContext getContext( IoSession session, Object message, Hashtable<String, Object> env )
+    protected LdapContext getContext( IoSession session, BindRequest bindRequest, Hashtable<String, Object> env )
     {
-        BindRequest request = ( BindRequest ) message;
-        LdapResult result = request.getResultResponse().getLdapResult();
+        LdapResult result = bindRequest.getResultResponse().getLdapResult();
 
         LdapContext ctx = null;
 
         try
         {
-            MutableControl[] connCtls = request.getControls().values().toArray( EMPTY );
+            MutableControl[] connCtls = bindRequest.getControls().values().toArray( EMPTY );
             env.put( DirectoryService.JNDI_KEY, directoryService );
             ctx = new InitialLdapContext( env, connCtls );
         }
@@ -220,16 +224,16 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             }
             else
             {
-                code = ResultCodeEnum.getBestEstimate( e, request.getType() );
+                code = ResultCodeEnum.getBestEstimate( e, bindRequest.getType() );
                 result.setResultCode( code );
             }
 
             String msg = "Bind failed: " + e.getMessage();
 
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
                 msg += ":\n" + ExceptionUtils.getStackTrace( e );
-                msg += "\n\nBindRequest = \n" + request.toString();
+                msg += "\n\nBindRequest = \n" + bindRequest.toString();
             }
 
             if ( ( e.getResolvedName() != null )
@@ -240,7 +244,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
             }
 
             result.setErrorMessage( msg );
-            session.write( request.getResultResponse() );
+            session.write( bindRequest.getResultResponse() );
             ctx = null;
         }
 
