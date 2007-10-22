@@ -31,7 +31,7 @@ import org.apache.directory.server.kerberos.protocol.KerberosProtocolHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
@@ -44,7 +44,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class KdcServer extends ServiceConfiguration
+public class KdcServer extends DirectoryBackedService
 {
     @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 522567370475574165L;

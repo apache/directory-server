@@ -42,9 +42,22 @@ public abstract class AbstractProtocolService implements ProtocolService
     private String ipAddress;
     private int ipPort = -1;
     private Set<TransportProtocol> transportProtocols;
-    private DirectoryService directoryService;
     private DatagramAcceptor datagramAcceptor;
     private SocketAcceptor socketAcceptor;
+    /** directory service core where protocol data is backed */
+    private DirectoryService directoryService;
+
+
+    public DirectoryService getDirectoryService()
+    {
+        return directoryService;
+    }
+
+
+    public void setDirectoryService( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
 
 
     public boolean isStarted()
@@ -135,18 +148,6 @@ public abstract class AbstractProtocolService implements ProtocolService
         Set<TransportProtocol> copy = new HashSet<TransportProtocol>( transportProtocols.size() );
         copy.addAll( transportProtocols );
         this.transportProtocols = Collections.unmodifiableSet( copy );
-    }
-
-
-    public DirectoryService getDirectoryService()
-    {
-        return directoryService;
-    }
-
-
-    public void setDirectoryService( DirectoryService directoryService )
-    {
-        this.directoryService = directoryService;
     }
 
 

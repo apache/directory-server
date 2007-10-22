@@ -26,14 +26,18 @@ package org.apache.directory.server.protocol.shared;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class ServiceConfiguration extends AbstractProtocolService
+public abstract class DirectoryBackedService extends AbstractProtocolService
 {
     /**
-     * The single location where entries are stored.  If this
-     * property is not set the store will search the system
-     * partition configuration for catalog entries.
+     * The single location where entries are stored.  If this service
+     * is catalog based the store will search the system partition
+     * configuration for catalog entries.  Otherwise it will use this
+     * search base as a single point of searching the DIT.
      */
     private String searchBaseDn = "ou=users,dc=example,dc=com";
+    /** determines if the search base is pointer to a catelog or a single entry point */
+    private boolean catelogBased;
+
 
     /**
      * Returns the search base DN.
@@ -52,5 +56,29 @@ public abstract class ServiceConfiguration extends AbstractProtocolService
     public void setSearchBaseDn( String searchBaseDn )
     {
         this.searchBaseDn = searchBaseDn;
+    }
+
+
+    /**
+     * Gets true if this service uses a catelog for searching different
+     * regions of the DIT for its data.
+     *
+     * @return true if the search base dn is for a catelog, false otherwise
+     */
+    public boolean isCatelogBased()
+    {
+        return catelogBased;
+    }
+
+
+    /**
+     * Set true if this service uses a catelog for searching different
+     * regions of the DIT for its data.
+     *
+     * @param  catelogBased if the search base dn is for a catelog, false otherwise
+     */
+    public void setCatelogBased( boolean catelogBased )
+    {
+        this.catelogBased = catelogBased;
     }
 }

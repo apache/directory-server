@@ -320,12 +320,13 @@
     <module>utils</module>
     <module>schema-registries</module>
     <module>jdbm-store</module>
-    <module>constants</module>
     <module>btree-base</module>
     <module>core</module>
+    <module>core-constants</module>
     <module>core-shared</module>
     <module>core-plugin</module>
     <module>core-unit</module>
+    <module>core-entry</module>
     <module>protocol-shared</module>
     <module>protocol-ntp</module>
     <module>protocol-ldap</module>

@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 import org.apache.directory.server.dns.protocol.DnsProtocolHandler;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.directory.server.dns.store.jndi.JndiRecordStoreImpl;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
@@ -39,7 +39,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DnsServer extends ServiceConfiguration
+public class DnsServer extends DirectoryBackedService
 {
     @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 6943138644427163149L;

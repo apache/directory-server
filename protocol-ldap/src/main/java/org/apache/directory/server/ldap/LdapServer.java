@@ -59,7 +59,7 @@ import org.apache.directory.server.ldap.support.ModifyHandler;
 import org.apache.directory.server.ldap.support.SearchHandler;
 import org.apache.directory.server.ldap.support.UnbindHandler;
 import org.apache.directory.server.ldap.support.ssl.LdapsInitializer;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.asn1.codec.Asn1CodecDecoder;
@@ -122,7 +122,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$
  * @org.apache.xbean.XBean
  */
-public class LdapServer extends ServiceConfiguration
+public class LdapServer extends DirectoryBackedService
 {
     private static final long serialVersionUID = 3757127143811666817L;
 

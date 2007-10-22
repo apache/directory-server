@@ -23,8 +23,6 @@ package org.apache.directory.server.kerberos.shared.store;
 import org.apache.directory.server.core.DirectoryService;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
-
 
 /**
  * A JNDI-backed implementation of the PrincipalStore interface.  This PrincipalStore uses

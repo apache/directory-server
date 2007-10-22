@@ -31,7 +31,7 @@ import org.apache.directory.server.changepw.protocol.ChangePasswordProtocolHandl
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.store.JndiPrincipalStoreImpl;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.protocol.shared.DirectoryBackedService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
 
@@ -44,7 +44,7 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ChangePasswordServer extends ServiceConfiguration
+public class ChangePasswordServer extends DirectoryBackedService
 {
     @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3509208713288140629L;
