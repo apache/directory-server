@@ -109,7 +109,7 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "principal              " + ticketPrincipal.getPrincipal() );
                 sb.append( "\n\t" + "SAM type               " + ticketPrincipal.getSamType() );
 
-                EncryptionType encryptionType = tgsContext.getTgt().getEncPart().getEncryptionType();
+                EncryptionType encryptionType = tgsContext.getTgt().getEncPart().getEType();
                 int keyVersion = ticketPrincipal.getKeyMap().get( encryptionType ).getKeyVersion();
                 sb.append( "\n\t" + "Ticket key type        " + encryptionType );
                 sb.append( "\n\t" + "Service key version    " + keyVersion );

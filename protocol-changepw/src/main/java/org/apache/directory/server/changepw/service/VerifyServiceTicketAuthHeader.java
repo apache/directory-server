@@ -54,7 +54,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
         ApplicationRequest authHeader = changepwContext.getAuthHeader();
         Ticket ticket = changepwContext.getTicket();
 
-        EncryptionType encryptionType = ticket.getEncPart().getEncryptionType();
+        EncryptionType encryptionType = ticket.getEncPart().getEType();
         EncryptionKey serverKey = changepwContext.getServerEntry().getKeyMap().get( encryptionType );
 
         long clockSkew = changepwContext.getConfig().getAllowableClockSkew();

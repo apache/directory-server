@@ -92,7 +92,7 @@ public class DesCbcCrcEncryption extends EncryptionEngine
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         // decrypt the data
-        byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
+        byte[] decryptedData = decrypt( data.getCipher(), key.getKeyValue() );
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];

@@ -46,7 +46,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class ChangePasswordServer extends DirectoryBackedService
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 3509208713288140629L;
 
     /** The default change password principal name. */
@@ -308,7 +307,7 @@ public class ChangePasswordServer extends DirectoryBackedService
 
         for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.VALUES )
+            for ( EncryptionType type : EncryptionType.getEncryptionTypes() )
             {
                 if ( type.toString().equalsIgnoreCase( enc ) )
                 {

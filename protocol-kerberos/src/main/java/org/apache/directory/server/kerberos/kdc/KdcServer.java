@@ -46,7 +46,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class KdcServer extends DirectoryBackedService
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 522567370475574165L;
 
     /** The default kdc port */
@@ -448,7 +447,7 @@ public class KdcServer extends DirectoryBackedService
 
         for ( String enc : encryptionTypeStrings )
         {
-            for ( EncryptionType type : EncryptionType.VALUES )
+            for ( EncryptionType type : EncryptionType.getEncryptionTypes() )
             {
                 if ( type.getName().equalsIgnoreCase( enc ) )
                 {

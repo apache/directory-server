@@ -86,7 +86,7 @@ abstract class AesCtsSha1Encryption extends EncryptionEngine implements Checksum
     {
         byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 128, getKeyLength() );
 
-        byte[] encryptedData = data.getCipherText();
+        byte[] encryptedData = data.getCipher();
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];

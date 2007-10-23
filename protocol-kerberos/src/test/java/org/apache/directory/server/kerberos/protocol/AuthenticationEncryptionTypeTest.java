@@ -108,7 +108,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
 
 
@@ -159,7 +159,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getFlags().get( TicketFlags.PRE_AUTHENT ) );
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
     }
 
 
@@ -211,7 +211,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
         assertTrue( "PRE_AUTHENT flag", reply.getTicket().getFlags().get( TicketFlags.PRE_AUTHENT ) );
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
 
         assertEquals( "Nonce", nonce, reply.getNonce() );
     }

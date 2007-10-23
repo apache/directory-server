@@ -19,10 +19,9 @@
  */
 package org.apache.directory.server.kerberos.shared.crypto.encryption;
 
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -31,170 +30,189 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class EncryptionType implements Comparable<EncryptionType>
+public enum EncryptionType
 {
     /**
      * The "unknown" encryption type.
      */
-    public static final EncryptionType UNKNOWN = new EncryptionType( -1, "UNKNOWN" );
+    UNKNOWN( -1 ),
 
     /**
      * The "null" encryption type.
      */
-    public static final EncryptionType NULL = new EncryptionType( 0, "NULL" );
+    NULL( 0 ),
 
     /**
      * The des-cbc-crc encryption type.
      */
-    public static final EncryptionType DES_CBC_CRC = new EncryptionType( 1, "des-cbc-crc" );
+    DES_CBC_CRC( 1 ),
 
     /**
      * The des-cbc-md4 encryption type.
      */
-    public static final EncryptionType DES_CBC_MD4 = new EncryptionType( 2, "des-cbc-md4" );
+    DES_CBC_MD4( 2 ),
 
     /**
      * The des-cbc-md5 encryption type.
      */
-    public static final EncryptionType DES_CBC_MD5 = new EncryptionType( 3, "des-cbc-md5" );
+    DES_CBC_MD5( 3 ),
 
     /**
      * The reserved (4) encryption type.
      */
-    public static final EncryptionType RESERVED4 = new EncryptionType( 4, "[reserved]" );
+    RESERVED4( 4 ),
 
     /**
      * The des3-cbc-md5 encryption type.
      */
-    public static final EncryptionType DES3_CBC_MD5 = new EncryptionType( 5, "des3-cbc-md5" );
+    DES3_CBC_MD5( 5 ),
 
     /**
      * The reserved (6) encryption type.
      */
-    public static final EncryptionType RESERVED6 = new EncryptionType( 6, "[reserved]" );
+    RESERVED6( 6 ),
 
     /**
      * The des3-cbc-sha1 encryption type.
      */
-    public static final EncryptionType DES3_CBC_SHA1 = new EncryptionType( 7, "des3-cbc-sha1" );
+    DES3_CBC_SHA1( 7 ),
 
     /**
-     * The id-dsa-with-sha1-CmsOID encryption type.
+     * The dsaWithSHA1-CmsOID encryption type.
      */
-    public static final EncryptionType ID_DSA_WITH_SHA1_CMSOID = new EncryptionType( 9, "id-dsa-with-sha1-CmsOID" );
+    DSAWITHSHA1_CMSOID( 9 ),
 
     /**
      * The md5WithRSAEncryption-CmsOID encryption type.
      */
-    public static final EncryptionType MD5WITHRSAENCRYPTION_CMSOID = new EncryptionType( 10,
-        "md5WithRSAEncryption-CmsOID" );
+    MD5WITHRSAENCRYPTION_CMSOID( 10 ),
 
     /**
-     * The sha-1WithRSAEncryption-CmsOID encryption type.
+     * The sha1WithRSAEncryption-CmsOID encryption type.
      */
-    public static final EncryptionType SHA_1WITHRSAENCRYPTION_CMSOID = new EncryptionType( 11,
-        "sha-1WithRSAEncryption-CmsOID" );
+    SHA1WITHRSAENCRYPTION_CMSOID( 11 ),
 
     /**
-     * The rc2-cbc-EnvOID encryption type.
+     * The rc2CBC-EnvOID encryption type.
      */
-    public static final EncryptionType RC2_CBC_ENVOID = new EncryptionType( 12, "rc2-cbc-EnvOID" );
+    RC2CBC_ENVOID( 12 ),
 
     /**
      * The rsaEncryption-EnvOID encryption type.
      */
-    public static final EncryptionType RSAENCRYPTION_ENVOID = new EncryptionType( 13, "rsaEncryption-EnvOID" );
+    RSAENCRYPTION_ENVOID( 13 ),
 
     /**
-     * The id-RSAES-OAEP-EnvOID encryption type.
+     * The rsaES-OAEP-ENV-OID encryption type.
      */
-    public static final EncryptionType ID_RSAES_OAEP_ENVOID = new EncryptionType( 14, "id-RSAES-OAEP-EnvOID" );
+    RSAES_OAEP_ENV_OID( 14 ),
 
     /**
-     * The des-ede3-cbc-EnvOID encryption type.
+     * The des-ede3-cbc-Env-OID encryption type.
      */
-    public static final EncryptionType DES_EDE3_CBC_ENVOID = new EncryptionType( 15, "des-ede3-cbc-EnvOID" );
+    DES_EDE3_CBC_ENV_OID( 15 ),
 
     /**
      * The des3-cbc-sha1-kd encryption type.
      */
-    public static final EncryptionType DES3_CBC_SHA1_KD = new EncryptionType( 16, "des3-cbc-sha1-kd" );
+    DES3_CBC_SHA1_KD( 16 ),
 
     /**
      * The aes128-cts-hmac-sha1-96 encryption type.
      */
-    public static final EncryptionType AES128_CTS_HMAC_SHA1_96 = new EncryptionType( 17, "aes128-cts-hmac-sha1-96" );
+    AES128_CTS_HMAC_SHA1_96( 17 ),
 
     /**
      * The aes256-cts-hmac-sha1-96 encryption type.
      */
-    public static final EncryptionType AES256_CTS_HMAC_SHA1_96 = new EncryptionType( 18, "aes256-cts-hmac-sha1-96" );
+    AES256_CTS_HMAC_SHA1_96( 18 ),
 
     /**
      * The rc4-hmac encryption type.
      */
-    public static final EncryptionType RC4_HMAC = new EncryptionType( 23, "rc4-hmac" );
+    RC4_HMAC( 23 ),
 
     /**
      * The rc4-hmac-exp encryption type.
      */
-    public static final EncryptionType RC4_HMAC_EXP = new EncryptionType( 24, "rc4-hmac-exp" );
+    RC4_HMAC_EXP( 24 ),
 
     /**
      * The subkey-keymaterial encryption type.
      */
-    public static final EncryptionType SUBKEY_KEYMATERIAL = new EncryptionType( 65, "subkey-keymaterial" );
+    SUBKEY_KEYMATERIAL( 65 ),
 
     /**
      * The rc4-md4 encryption type.
      */
-    public static final EncryptionType RC4_MD4 = new EncryptionType( -128, "rc4-md4" );
+    RC4_MD4( -128 ),
 
     /**
      * The c4-hmac-old encryption type.
      */
-    public static final EncryptionType RC4_HMAC_OLD = new EncryptionType( -133, "rc4-hmac-old" );
+    RC4_HMAC_OLD( -133 ),
 
     /**
      * The rc4-hmac-old-exp encryption type.
      */
-    public static final EncryptionType RC4_HMAC_OLD_EXP = new EncryptionType( -135, "rc4-hmac-old-exp" );
-
-    /**
-     * Array for building a List of VALUES.
-     */
-    private static final EncryptionType[] values =
-        { UNKNOWN, NULL, DES_CBC_CRC, DES_CBC_MD4, DES_CBC_MD5, RESERVED4, DES3_CBC_MD5, RESERVED6, DES3_CBC_SHA1,
-            ID_DSA_WITH_SHA1_CMSOID, MD5WITHRSAENCRYPTION_CMSOID, SHA_1WITHRSAENCRYPTION_CMSOID, RC2_CBC_ENVOID,
-            RSAENCRYPTION_ENVOID, ID_RSAES_OAEP_ENVOID, DES_EDE3_CBC_ENVOID, DES3_CBC_SHA1_KD, AES128_CTS_HMAC_SHA1_96,
-            AES256_CTS_HMAC_SHA1_96, RC4_HMAC, RC4_HMAC_EXP, SUBKEY_KEYMATERIAL, RC4_MD4, RC4_HMAC_OLD,
-            RC4_HMAC_OLD_EXP };
-
-    /**
-     * A List of all the encryption type constants.
-     */
-    public static final List<EncryptionType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
-
-    /**
-     * The name of the encryption type.
-     */
-    private final String name;
+    RC4_HMAC_OLD_EXP( -135 );
 
     /**
      * The value/code for the encryption type.
      */
     private final int ordinal;
 
+    /** A map containing all the values */
+    private static Map<String, EncryptionType> encryptionTypes = new HashMap<String, EncryptionType>();
+    
+    /** Initialization of the previous map */
+    static
+    {
+        encryptionTypes.put( "null", NULL );
+        encryptionTypes.put( "des-cbc-crc", DES_CBC_CRC ); 
+        encryptionTypes.put( "des-cbc-md4", DES_CBC_MD4 );          
+        encryptionTypes.put( "des-cbc-md5", DES_CBC_MD5 );          
+        encryptionTypes.put( "[reserved]", RESERVED4 );         
+        encryptionTypes.put( "des3-cbc-md5", DES3_CBC_MD5 );            
+        encryptionTypes.put( "[reserved]", RESERVED6 );         
+        encryptionTypes.put( "des3-cbc-sha1", DES3_CBC_SHA1 );          
+        encryptionTypes.put( "dsaWithSHA1-CmsOID", DSAWITHSHA1_CMSOID );            
+        encryptionTypes.put( "md5WithRSAEncryption-CmsOID", MD5WITHRSAENCRYPTION_CMSOID );          
+        encryptionTypes.put( "sha1WithRSAEncryption-CmsOID", SHA1WITHRSAENCRYPTION_CMSOID );            
+        encryptionTypes.put( "rc2CBC-EnvOID", RC2CBC_ENVOID );          
+        encryptionTypes.put( "rsaEncryption-EnvOID", RSAENCRYPTION_ENVOID );            
+        encryptionTypes.put( "rsaES-OAEP-ENV-OID", RSAES_OAEP_ENV_OID );        
+        encryptionTypes.put( "des-ede3-cbc-Env-OID", DES_EDE3_CBC_ENV_OID );            
+        encryptionTypes.put( "des3-cbc-sha1-kd", DES3_CBC_SHA1_KD );        
+        encryptionTypes.put( "aes128-cts-hmac-sha1-96", AES128_CTS_HMAC_SHA1_96 );          
+        encryptionTypes.put( "aes256-cts-hmac-sha1-96", AES256_CTS_HMAC_SHA1_96 );          
+        encryptionTypes.put( "rc4-hmac", RC4_HMAC );            
+        encryptionTypes.put( "rc4-hmac-exp", RC4_HMAC_EXP );            
+        encryptionTypes.put( "subkey-keymaterial", SUBKEY_KEYMATERIAL );            
+        encryptionTypes.put( "rc4-md4", RC4_MD4 );      
+        encryptionTypes.put( "rc4-hmac-old", RC4_HMAC_OLD );            
+        encryptionTypes.put( "rc4-hmac-old-exp", RC4_HMAC_OLD_EXP );            
+        encryptionTypes.put( "UNKNOWN", UNKNOWN );
+    }
 
     /**
      * Private constructor prevents construction outside of this class.
      */
-    private EncryptionType( int ordinal, String name )
+    private EncryptionType( int ordinal )
     {
         this.ordinal = ordinal;
-        this.name = name;
     }
 
+    
+    /**
+     * Get all the encryption types
+     *
+     * @return A set of encryption types.
+     */
+    public static Collection<EncryptionType> getEncryptionTypes()
+    {
+        return encryptionTypes.values();
+    }
 
     /**
      * Returns the encryption type when specified by its ordinal.
@@ -204,15 +222,34 @@ public final class EncryptionType implements Comparable<EncryptionType>
      */
     public static EncryptionType getTypeByOrdinal( int type )
     {
-        for ( int ii = 0; ii < values.length; ii++ )
+        switch ( type )
         {
-            if ( values[ii].ordinal == type )
-            {
-                return values[ii];
-            }
+            case 0 : return NULL; 
+            case 1 : return DES_CBC_CRC; 
+            case 2 : return DES_CBC_MD4; 
+            case 3 : return DES_CBC_MD5; 
+            case 4 : return RESERVED4; 
+            case 5 : return DES3_CBC_MD5; 
+            case 6 : return RESERVED6; 
+            case 7 : return DES3_CBC_SHA1; 
+            case 9 : return DSAWITHSHA1_CMSOID; 
+            case 10 : return MD5WITHRSAENCRYPTION_CMSOID; 
+            case 11 : return SHA1WITHRSAENCRYPTION_CMSOID; 
+            case 12 : return RC2CBC_ENVOID; 
+            case 13 : return RSAENCRYPTION_ENVOID; 
+            case 14 : return RSAES_OAEP_ENV_OID; 
+            case 15 : return DES_EDE3_CBC_ENV_OID; 
+            case 16 : return DES3_CBC_SHA1_KD; 
+            case 17 : return AES128_CTS_HMAC_SHA1_96; 
+            case 18 : return AES256_CTS_HMAC_SHA1_96; 
+            case 23 : return RC4_HMAC; 
+            case 24 : return RC4_HMAC_EXP; 
+            case 65 : return SUBKEY_KEYMATERIAL; 
+            case -128 : return RC4_MD4; 
+            case -133 : return RC4_HMAC_OLD; 
+            case -135 : return RC4_HMAC_OLD_EXP; 
+            default : return UNKNOWN; 
         }
-
-        return UNKNOWN;
     }
 
 
@@ -234,18 +271,67 @@ public final class EncryptionType implements Comparable<EncryptionType>
      */
     public String getName()
     {
-        return name;
+        switch (this )
+        {
+            case NULL                           : return "NULL"; 
+            case DES_CBC_CRC                    : return "des-cbc-crc"; 
+            case DES_CBC_MD4                    : return "des-cbc-md4";          
+            case DES_CBC_MD5                    : return "des-cbc-md5";          
+            case RESERVED4                      : return "[reserved]";           
+            case DES3_CBC_MD5                   : return "des3-cbc-md5";         
+            case RESERVED6                      : return "[reserved]";           
+            case DES3_CBC_SHA1                  : return "des3-cbc-sha1";            
+            case DSAWITHSHA1_CMSOID             : return "dsaWithSHA1-CmsOID";           
+            case MD5WITHRSAENCRYPTION_CMSOID    : return "md5WithRSAEncryption-CmsOID";          
+            case SHA1WITHRSAENCRYPTION_CMSOID   : return "sha1WithRSAEncryption-CmsOID";         
+            case RC2CBC_ENVOID                  : return "rc2CBC-EnvOID";            
+            case RSAENCRYPTION_ENVOID           : return "rsaEncryption-EnvOID";         
+            case RSAES_OAEP_ENV_OID             : return "rsaES-OAEP-ENV-OID";       
+            case DES_EDE3_CBC_ENV_OID           : return "des-ede3-cbc-Env-OID";         
+            case DES3_CBC_SHA1_KD               : return "des3-cbc-sha1-kd";     
+            case AES128_CTS_HMAC_SHA1_96        : return "aes128-cts-hmac-sha1-96";          
+            case AES256_CTS_HMAC_SHA1_96        : return "aes256-cts-hmac-sha1-96";          
+            case RC4_HMAC                       : return "rc4-hmac";         
+            case RC4_HMAC_EXP                   : return "rc4-hmac-exp";         
+            case SUBKEY_KEYMATERIAL             : return "subkey-keymaterial";           
+            case RC4_MD4                        : return "rc4-md4";      
+            case RC4_HMAC_OLD                   : return "rc4-hmac-old";         
+            case RC4_HMAC_OLD_EXP               : return "rc4-hmac-old-exp";         
+            case UNKNOWN                        : return "UNKNOWN";
+            default                             : return "UNKNOWN";
+        }
     }
 
-
-    public int compareTo( EncryptionType that )
+    /**
+     * Get the EncryptionType given a String.
+     * @param type The encryption string we want to find
+     * @return The found EncryptionType, or UNKNOWN
+     */
+    public static EncryptionType getByName( String type )
     {
-        return ordinal - that.ordinal;
+        if ( type == null )
+        {
+            return UNKNOWN;
+        }
+        
+        String lcType = type.toLowerCase();
+        
+        if ( encryptionTypes.containsKey( lcType ) )
+        {
+            return encryptionTypes.get( lcType );
+        }
+        else
+        {
+            return UNKNOWN;
+        }
     }
-
-
+    
+    
+    /**
+     * @see Object#toString()
+     */
     public String toString()
     {
-        return name + " (" + ordinal + ")";
+        return getName() + " (" + ordinal + ")";
     }
 }

@@ -50,7 +50,7 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         
         boolean isValidate = tgsContext.getRequest().getKdcOptions().get( KdcOptions.VALIDATE );
 
-        EncryptionType encryptionType = tgt.getEncPart().getEncryptionType();
+        EncryptionType encryptionType = tgt.getEncPart().getEType();
         EncryptionKey serverKey = tgsContext.getTicketPrincipalEntry().getKeyMap().get( encryptionType );
 
         long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
