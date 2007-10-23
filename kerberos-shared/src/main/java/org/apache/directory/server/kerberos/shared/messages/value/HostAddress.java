@@ -52,10 +52,10 @@ import org.slf4j.LoggerFactory;
 public class HostAddress extends AbstractAsn1Object
 {
     /** The logger */
-    private static final Logger log = LoggerFactory.getLogger( HostAddress.class );
+    private static final Logger LOG = LoggerFactory.getLogger( HostAddress.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     /** The host address type. One of :
      *    Address Type                   Value
@@ -73,7 +73,7 @@ public class HostAddress extends AbstractAsn1Object
     private HostAddrType addrType;
 
     /** The address */
-    private byte[] addresse;
+    private byte[] address;
 
     // Storage for computed lengths
     private transient int addrTypeLength;
@@ -88,10 +88,10 @@ public class HostAddress extends AbstractAsn1Object
      * @param addrType
      * @param addr
      */
-    public HostAddress( HostAddrType addrType, byte[] addresse )
+    public HostAddress( HostAddrType addrType, byte[] address )
     {
         this.addrType = addrType;
-        this.addresse = addresse;
+        this.address = address;
     }
 
 
@@ -104,8 +104,8 @@ public class HostAddress extends AbstractAsn1Object
     {
         addrType = HostAddrType.ADDRTYPE_INET;
         byte[] newAddress = internetAddress.getAddress();
-        addresse = new byte[newAddress.length];
-        System.arraycopy( newAddress, 0, addresse, 0, newAddress.length );
+        address = new byte[newAddress.length];
+        System.arraycopy( newAddress, 0, address, 0, newAddress.length );
     }
 
 
@@ -115,24 +115,36 @@ public class HostAddress extends AbstractAsn1Object
      * @param that The {@link HostAddress} to compare with
      * @return true if the {@link HostAddress}'s are equal.
      */
-    public boolean equals( HostAddress that )
+    public boolean equals( Object that )
     {
-        if ( this.addrType != that.addrType || ( this.addresse != null && that.addresse == null )
-            || ( this.addresse == null && that.addresse != null ) )
+        if ( this == that )
+        {
+            return true;
+        }
+        
+        if ( !(that instanceof HostAddress ) )
+        {
+            return false;
+        }
+        
+        HostAddress hostAddress = (HostAddress)that;
+        
+        if ( addrType != hostAddress.addrType || ( address != null && hostAddress.address == null )
+            || ( address == null && hostAddress.address != null ) )
         {
             return false;
         }
 
-        if ( this.addresse != null && that.addresse != null )
+        if ( address != null && hostAddress.address != null )
         {
-            if ( this.addresse.length != that.addresse.length )
+            if ( address.length != hostAddress.address.length )
             {
                 return false;
             }
 
-            for ( int ii = 0; ii < this.addresse.length; ii++ )
+            for ( int ii = 0; ii < address.length; ii++ )
             {
-                if ( this.addresse[ii] != that.addresse[ii] )
+                if ( address[ii] != hostAddress.address[ii] )
                 {
                     return false;
                 }
@@ -150,7 +162,18 @@ public class HostAddress extends AbstractAsn1Object
      */
     public byte[] getAddress()
     {
-        return addresse;
+        return address;
+    }
+
+
+    /**
+     * Set the address 
+     *
+     * @param addresse The address
+     */
+    public void setAddress( byte[] addresse )
+    {
+        this.address = addresse;
     }
 
 
@@ -182,13 +205,13 @@ public class HostAddress extends AbstractAsn1Object
         hostAddressLength = 1 + TLV.getNbBytes( addrTypeLength ) + addrTypeLength;
 
         // Compute the keyValue
-        if ( addresse == null )
+        if ( address == null )
         {
             addressLength = 1 + 1;
         }
         else
         {
-            addressLength = 1 + TLV.getNbBytes( addresse.length ) + addresse.length;
+            addressLength = 1 + TLV.getNbBytes( address.length ) + address.length;
         }
 
         hostAddressLength += 1 + TLV.getNbBytes( addressLength ) + addressLength;
@@ -236,11 +259,11 @@ public class HostAddress extends AbstractAsn1Object
             // The address, first the tag, then the value
             buffer.put( ( byte ) 0xA1 );
             buffer.put( TLV.getBytes( addressLength ) );
-            Value.encode( buffer, addresse );
+            Value.encode( buffer, address );
         }
         catch ( BufferOverflowException boe )
         {
-            log.error(
+            LOG.error(
                 "Cannot encode the HostAddress object, the PDU size is {} when only {} bytes has been allocated", 1
                     + TLV.getNbBytes( hostAddressLength ) + hostAddressLength, buffer.capacity() );
             throw new EncoderException( "The PDU buffer size is too small !" );
@@ -248,8 +271,8 @@ public class HostAddress extends AbstractAsn1Object
 
         if ( IS_DEBUG )
         {
-            log.debug( "Checksum encoding : {}", StringTools.dumpBytes( buffer.array() ) );
-            log.debug( "Checksum initial value : {}", toString() );
+            LOG.debug( "Checksum encoding : {}", StringTools.dumpBytes( buffer.array() ) );
+            LOG.debug( "Checksum initial value : {}", toString() );
         }
 
         return buffer;
@@ -268,6 +291,28 @@ public class HostAddress extends AbstractAsn1Object
 
 
     /**
+     * Set the addr-type field
+     *
+     * @param addrType The address type
+     */
+    public void setAddrType( HostAddrType addrType )
+    {
+        this.addrType = addrType;
+    }
+
+
+    /**
+     * Set the addr-type field
+     *
+     * @param addrType The address type
+     */
+    public void setAddrType( int addrType )
+    {
+        this.addrType = HostAddrType.getTypeByOrdinal( addrType );
+    }
+
+
+    /**
      * @see Object#toString()
      */
     public String toString()
@@ -276,7 +321,7 @@ public class HostAddress extends AbstractAsn1Object
 
         try
         {
-            result = InetAddress.getByAddress( addresse ).getHostAddress();
+            result = InetAddress.getByAddress( address ).getHostAddress();
         }
         catch ( UnknownHostException uhe )
         {

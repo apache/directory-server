@@ -21,6 +21,29 @@ package org.apache.directory.server.kerberos.shared.messages.value.types;
 
 
 /**
+ * Host Address type. Theyare described in RFC 4120, chap. 7.5.3.
+ * 
+ * Only a few of them are declared :
+ * 
+ *   Address Type                   Value
+ *
+ *   IPv4                             2
+ *   Directional                      3
+ *   ChaosNet                         5
+ *   XNS                              6
+ *   ISO                              7
+ *   DECNET Phase IV                 12
+ *   AppleTalk DDP                   16
+ *   NetBios                         20
+ *   IPv6                            24
+ *
+ * The other address types are simply ignored. They are part of a Unix
+ * include file. 
+ * 
+ * @TODO find the original include where those ignored values come from 
+ * 
+ * To be realistic, we may encounter IPv4, IPv6 and NetBios addresses in the real world...
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 540371 $, $Date: 2007-05-22 02:00:43 +0200 (Tue, 22 May 2007) $
  */
