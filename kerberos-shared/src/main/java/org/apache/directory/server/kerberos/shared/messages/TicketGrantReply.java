@@ -24,7 +24,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 
 
 /**
@@ -50,7 +50,7 @@ public class TicketGrantReply extends KdcReply
      * @param ticket
      * @param encPart
      */
-    public TicketGrantReply( PreAuthenticationData[] pAData, KerberosPrincipal clientPrincipal, Ticket ticket,
+    public TicketGrantReply( PaData[] pAData, KerberosPrincipal clientPrincipal, Ticket ticket,
         EncryptedData encPart )
     {
         super( pAData, clientPrincipal, ticket, encPart, MessageType.KRB_TGS_REP );

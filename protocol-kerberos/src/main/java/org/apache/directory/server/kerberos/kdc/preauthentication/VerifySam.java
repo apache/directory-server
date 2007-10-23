@@ -32,8 +32,8 @@ import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class VerifySam extends VerifierBase
                 log.debug( "Entry for client principal {} has a valid SAM type.  Invoking SAM subsystem for pre-authentication.", clientName );
             }
 
-            PreAuthenticationData[] preAuthData = request.getPreAuthData();
+            PaData[] preAuthData = request.getPreAuthData();
 
             if ( preAuthData == null || preAuthData.length == 0 )
             {
@@ -87,10 +87,10 @@ public class VerifySam extends VerifierBase
             {
                 for ( int ii = 0; ii < preAuthData.length; ii++ )
                 {
-                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData[ii].getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         KerberosKey samKey = SamSubsystem.getInstance().verify( clientEntry,
-                            preAuthData[ii].getDataValue() );
+                            preAuthData[ii].getPaDataValue() );
                         clientKey = new EncryptionKey( EncryptionType.getTypeByOrdinal( samKey.getKeyType() ), samKey
                             .getEncoded() );
                     }

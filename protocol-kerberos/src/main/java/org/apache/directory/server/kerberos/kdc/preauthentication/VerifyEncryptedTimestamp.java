@@ -34,8 +34,8 @@ import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
 import org.apache.mina.common.IoSession;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class VerifyEncryptedTimestamp extends VerifierBase
 
             if ( config.isPaEncTimestampRequired() )
             {
-                PreAuthenticationData[] preAuthData = request.getPreAuthData();
+                PaData[] preAuthData = request.getPreAuthData();
 
                 if ( preAuthData == null )
                 {
@@ -101,13 +101,13 @@ public class VerifyEncryptedTimestamp extends VerifierBase
 
                 for ( int ii = 0; ii < preAuthData.length; ii++ )
                 {
-                    if ( preAuthData[ii].getDataType().equals( PreAuthenticationDataType.PA_ENC_TIMESTAMP ) )
+                    if ( preAuthData[ii].getPaDataType().equals( PaDataType.PA_ENC_TIMESTAMP ) )
                     {
                         EncryptedData dataValue;
 
                         try
                         {
-                            dataValue = EncryptedDataDecoder.decode( preAuthData[ii].getDataValue() );
+                            dataValue = EncryptedDataDecoder.decode( preAuthData[ii].getPaDataValue() );
                         }
                         catch ( IOException ioe )
                         {

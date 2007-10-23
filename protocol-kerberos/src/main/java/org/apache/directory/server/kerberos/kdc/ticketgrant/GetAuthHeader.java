@@ -28,8 +28,8 @@ import org.apache.directory.server.kerberos.shared.io.decoder.ApplicationRequest
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
@@ -66,7 +66,7 @@ public class GetAuthHeader implements IoHandlerCommand
 
     protected ApplicationRequest getAuthHeader( KdcRequest request ) throws KerberosException, IOException
     {
-        PreAuthenticationData[] preAuthData = request.getPreAuthData();
+        PaData[] preAuthData = request.getPreAuthData();
 
         if ( preAuthData == null || preAuthData.length < 1 )
         {
@@ -77,9 +77,9 @@ public class GetAuthHeader implements IoHandlerCommand
 
         for ( int ii = 0; ii < preAuthData.length; ii++ )
         {
-            if ( preAuthData[ii].getDataType() == PreAuthenticationDataType.PA_TGS_REQ )
+            if ( preAuthData[ii].getPaDataType() == PaDataType.PA_TGS_REQ )
             {
-                undecodedAuthHeader = preAuthData[ii].getDataValue();
+                undecodedAuthHeader = preAuthData[ii].getPaDataValue();
             }
         }
 

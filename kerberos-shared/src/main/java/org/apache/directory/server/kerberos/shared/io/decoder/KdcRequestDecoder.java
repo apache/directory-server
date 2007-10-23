@@ -27,7 +27,7 @@ import java.util.Enumeration;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
@@ -81,7 +81,7 @@ public class KdcRequestDecoder
         int pvno = 5;
         MessageType msgType = MessageType.NULL;
 
-        PreAuthenticationData[] paData = null;
+        PaData[] paData = null;
         RequestBody requestBody = null;
         byte[] bodyBytes = null;
 

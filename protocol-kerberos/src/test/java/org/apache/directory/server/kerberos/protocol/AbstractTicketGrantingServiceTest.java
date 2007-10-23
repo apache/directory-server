@@ -53,13 +53,12 @@ import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
@@ -235,7 +234,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
 
         EncryptedData authenticator = getAuthenticator( tgt.getClientPrincipal(), requestBody, checksumType );
 
-        PreAuthenticationData[] paData = getPreAuthenticationData( tgt, authenticator );
+        PaData[] paData = getPreAuthenticationData( tgt, authenticator );
 
         return new KdcRequest( 5, MessageType.KRB_TGS_REQ, paData, requestBody );
     }
@@ -295,7 +294,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
      * @return
      * @throws IOException
      */
-    protected PreAuthenticationData[] getPreAuthenticationData( Ticket ticket, EncryptedData authenticator )
+    protected PaData[] getPreAuthenticationData( Ticket ticket, EncryptedData authenticator )
         throws IOException
     {
         ApplicationRequest applicationRequest = new ApplicationRequest();
@@ -308,14 +307,13 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         ApplicationRequestEncoder encoder = new ApplicationRequestEncoder();
         byte[] encodedApReq = encoder.encode( applicationRequest );
 
-        PreAuthenticationData[] paData = new PreAuthenticationData[1];
+        PaData[] paData = new PaData[1];
 
-        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
-        preAuth.setDataType( PreAuthenticationDataType.PA_TGS_REQ );
+        PaData preAuth = new PaData();
+        preAuth.setPaDataType( PaDataType.PA_TGS_REQ );
+        preAuth.setPaDataValue( encodedApReq );
 
-        preAuth.setDataValue( encodedApReq );
-
-        paData[0] = preAuth.getPreAuthenticationData();
+        paData[0] = preAuth;
 
         return paData;
     }

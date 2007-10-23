@@ -26,9 +26,8 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionT
 import org.apache.directory.server.kerberos.shared.io.encoder.EncryptionTypeInfoEncoder;
 import org.apache.directory.server.kerberos.shared.io.encoder.PreAuthenticationDataEncoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionTypeInfoEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
@@ -50,13 +49,13 @@ public abstract class VerifierBase implements IoHandlerCommand
      */
     public byte[] preparePreAuthenticationError( EncryptionType[] encryptionTypes )
     {
-        PreAuthenticationData[] paDataSequence = new PreAuthenticationData[2];
+        PaData[] paDataSequence = new PaData[2];
 
-        PreAuthenticationDataModifier modifier = new PreAuthenticationDataModifier();
-        modifier.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        modifier.setDataValue( new byte[0] );
+        PaData paData = new PaData();
+        paData.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
+        paData.setPaDataValue( new byte[0] );
 
-        paDataSequence[0] = modifier.getPreAuthenticationData();
+        paDataSequence[0] = paData;
 
         EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[encryptionTypes.length];
         for ( int ii = 0; ii < encryptionTypes.length; ii++ )
@@ -75,11 +74,11 @@ public abstract class VerifierBase implements IoHandlerCommand
             return null;
         }
 
-        PreAuthenticationDataModifier encTypeModifier = new PreAuthenticationDataModifier();
-        encTypeModifier.setDataType( PreAuthenticationDataType.PA_ETYPE_INFO );
-        encTypeModifier.setDataValue( encTypeInfo );
+        PaData encType = new PaData();
+        encType.setPaDataType( PaDataType.PA_ENCTYPE_INFO );
+        encType.setPaDataValue( encTypeInfo );
 
-        paDataSequence[1] = encTypeModifier.getPreAuthenticationData();
+        paDataSequence[1] = encType;
 
         try
         {

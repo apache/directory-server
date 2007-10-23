@@ -23,9 +23,8 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -41,13 +40,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class PreAuthenticationDataDecoder
 {
     /**
-     * Decodes a byte array into {@link PreAuthenticationData}.
+     * Decodes a byte array into {@link PaData}.
      *
      * @param encodedPreAuthData
-     * @return The {@link PreAuthenticationData}.
+     * @return The {@link PaData}.
      * @throws IOException
      */
-    public PreAuthenticationData decode( byte[] encodedPreAuthData ) throws IOException
+    public PaData decode( byte[] encodedPreAuthData ) throws IOException
     {
         ASN1InputStream ais = new ASN1InputStream( encodedPreAuthData );
 
@@ -65,15 +64,16 @@ public class PreAuthenticationDataDecoder
      *            req-body[4]           KDC-REQ-BODY
      * }
      */
-    protected static PreAuthenticationData[] decodeSequence( DERSequence sequence )
+    protected static PaData[] decodeSequence( DERSequence sequence )
     {
-        PreAuthenticationData[] paDataSequence = new PreAuthenticationData[sequence.size()];
+        PaData[] paDataSequence = new PaData[sequence.size()];
 
         int ii = 0;
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERSequence object = ( DERSequence ) e.nextElement();
-            PreAuthenticationData paData = PreAuthenticationDataDecoder.decode( object );
+            PaData paData = PreAuthenticationDataDecoder.decode( object );
             paDataSequence[ii] = paData;
             ii++;
         }
@@ -89,11 +89,11 @@ public class PreAuthenticationDataDecoder
      *                          -- might be encoded AP-REQ
      * }
      */
-    protected static PreAuthenticationData decode( DERSequence sequence )
+    protected static PaData decode( DERSequence sequence )
     {
-        PreAuthenticationDataModifier modifier = new PreAuthenticationDataModifier();
+        PaData paData = new PaData();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -103,16 +103,16 @@ public class PreAuthenticationDataDecoder
             {
                 case 1:
                     DERInteger padataType = ( DERInteger ) derObject;
-                    PreAuthenticationDataType type = PreAuthenticationDataType.getTypeByOrdinal( padataType.intValue() );
-                    modifier.setDataType( type );
+                    PaDataType type = PaDataType.getTypeByOrdinal( padataType.intValue() );
+                    paData.setPaDataType( type );
                     break;
                 case 2:
                     DEROctetString padataValue = ( DEROctetString ) derObject;
-                    modifier.setDataValue( padataValue.getOctets() );
+                    paData.setPaDataValue( padataValue.getOctets() );
                     break;
             }
         }
 
-        return modifier.getPreAuthenticationData();
+        return paData;
     }
 }

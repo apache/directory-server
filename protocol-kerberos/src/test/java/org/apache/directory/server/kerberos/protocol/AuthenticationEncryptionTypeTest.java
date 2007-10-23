@@ -41,11 +41,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeS
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -101,7 +100,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -150,7 +149,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         EncryptionKey clientKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         KerberosTime timeStamp = new KerberosTime();
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -202,7 +201,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         EncryptionKey clientKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         KerberosTime timeStamp = new KerberosTime();
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -244,7 +243,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
         KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
 
@@ -255,10 +254,10 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     }
 
 
-    protected PreAuthenticationData[] getPreAuthEncryptedTimeStamp( EncryptionKey clientKey, KerberosTime timeStamp )
+    protected PaData[] getPreAuthEncryptedTimeStamp( EncryptionKey clientKey, KerberosTime timeStamp )
         throws Exception
     {
-        PreAuthenticationData[] paData = new PreAuthenticationData[1];
+        PaData[] paData = new PaData[1];
 
         EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
 
@@ -266,11 +265,11 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
 
-        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
-        preAuth.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        preAuth.setDataValue( encodedEncryptedData );
+        PaData preAuth = new PaData();
+        preAuth.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
+        preAuth.setPaDataValue( encodedEncryptedData );
 
-        paData[0] = preAuth.getPreAuthenticationData();
+        paData[0] = preAuth;
 
         return paData;
     }
