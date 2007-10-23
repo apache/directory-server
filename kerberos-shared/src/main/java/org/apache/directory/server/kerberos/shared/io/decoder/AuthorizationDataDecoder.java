@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationDataEntry;
-import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.AuthorizationType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -67,7 +67,7 @@ public class AuthorizationDataDecoder implements Decoder, DecoderFactory
     {
         AuthorizationData authData = new AuthorizationData();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERSequence object = ( DERSequence ) e.nextElement();
             AuthorizationDataEntry entry = decodeAuthorizationEntry( object );
@@ -83,7 +83,7 @@ public class AuthorizationDataDecoder implements Decoder, DecoderFactory
         AuthorizationType type = AuthorizationType.NULL;
         byte[] data = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -95,6 +95,7 @@ public class AuthorizationDataDecoder implements Decoder, DecoderFactory
                     DERInteger tag0 = ( DERInteger ) derObject;
                     type = AuthorizationType.getTypeByOrdinal( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DEROctetString tag1 = ( DEROctetString ) derObject;
                     data = tag1.getOctets();

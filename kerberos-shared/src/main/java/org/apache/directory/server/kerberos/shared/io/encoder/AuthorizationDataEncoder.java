@@ -20,8 +20,6 @@
 package org.apache.directory.server.kerberos.shared.io.encoder;
 
 
-import java.util.Iterator;
-
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationDataEntry;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -44,16 +42,13 @@ public class AuthorizationDataEncoder
      */
     protected static DERSequence encode( AuthorizationData data )
     {
-        Iterator it = data.iterator();
         DERSequence outerSequence = new DERSequence();
 
-        while ( it.hasNext() )
+        for ( AuthorizationDataEntry entry: data.getEntries() )
         {
-            AuthorizationDataEntry entry = ( AuthorizationDataEntry ) it.next();
             DERSequence sequence = new DERSequence();
-            sequence
-                .add( new DERTaggedObject( 0, DERInteger.valueOf( entry.getAuthorizationDataType().getOrdinal() ) ) );
-            sequence.add( new DERTaggedObject( 1, new DEROctetString( entry.getAuthorizationData() ) ) );
+            sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( entry.getAdType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 1, new DEROctetString( entry.getAdData() ) ) );
             outerSequence.add( sequence );
         }
 
