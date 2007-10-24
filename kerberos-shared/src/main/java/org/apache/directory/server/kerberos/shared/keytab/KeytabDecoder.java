@@ -138,7 +138,7 @@ class KeytabDecoder
         byte[] keyblock = getCountedBytes( buffer );
 
         EncryptionType encryptionType = EncryptionType.getTypeByOrdinal( type );
-        EncryptionKey key = new EncryptionKey( encryptionType, keyblock, keyVersion );
+        EncryptionKey key = new EncryptionKey( encryptionType, keyblock );
 
         return key;
     }
