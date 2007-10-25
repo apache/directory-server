@@ -49,6 +49,11 @@ public class ServerBinaryValue extends BinaryValue implements Value<byte[]>
 
     public ServerBinaryValue( AttributeType attributeType ) throws NamingException
     {
+        if ( attributeType == null )
+        {
+            throw new NullPointerException( "attributeType cannot be null" );
+        }
+
         if ( attributeType.getSyntax().isHumanReadable() )
         {
             LOG.warn( "Treating a value of a human readible attribute {} as binary: ", attributeType.getName() );
@@ -60,6 +65,11 @@ public class ServerBinaryValue extends BinaryValue implements Value<byte[]>
 
     public ServerBinaryValue( AttributeType attributeType, byte[] wrapped )
     {
+        if ( attributeType == null )
+        {
+            throw new NullPointerException( "attributeType cannot be null" );
+        }
+
         this.attributeType = attributeType;
         super.set( wrapped );
     }

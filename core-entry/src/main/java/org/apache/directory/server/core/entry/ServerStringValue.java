@@ -54,6 +54,10 @@ public class ServerStringValue extends StringValue implements Value<String>
 
     public ServerStringValue( AttributeType attributeType )
     {
+        if ( attributeType == null )
+        {
+            throw new NullPointerException( "attributeType cannot be null" );
+        }
         this.attributeType = attributeType;
         this.oid = attributeType.getOid();
     }
@@ -61,6 +65,10 @@ public class ServerStringValue extends StringValue implements Value<String>
 
     public ServerStringValue( AttributeType attributeType, String wrapped )
     {
+        if ( attributeType == null )
+        {
+            throw new NullPointerException( "attributeType cannot be null" );
+        }
         this.attributeType = attributeType;
         this.oid = attributeType.getOid();
         super.set( wrapped );
