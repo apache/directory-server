@@ -44,7 +44,7 @@ public class TransitedEncodingEncoder
 
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( te.getType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( te.getTrType().getOrdinal() ) ) );
         sequence.add( new DERTaggedObject( 1, new DEROctetString( te.getContents() ) ) );
 
         return sequence;

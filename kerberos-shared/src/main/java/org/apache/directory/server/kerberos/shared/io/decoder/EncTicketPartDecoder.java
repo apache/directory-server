@@ -28,7 +28,7 @@ import org.apache.directory.server.kerberos.shared.messages.components.EncTicket
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
-import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncodingType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.TransitedEncodingType;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DERBitString;
@@ -84,7 +84,7 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
     {
         EncTicketPartModifier modifier = new EncTicketPartModifier();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -96,42 +96,52 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
                     DERBitString tag0 = ( DERBitString ) derObject;
                     modifier.setFlags( new TicketFlags( tag0.getOctets() ) );
                     break;
+                    
                 case 1:
                     DERSequence tag1 = ( DERSequence ) derObject;
                     modifier.setSessionKey( EncryptionKeyDecoder.decode( tag1 ) );
                     break;
+                    
                 case 2:
                     DERGeneralString tag2 = ( DERGeneralString ) derObject;
                     modifier.setClientRealm( tag2.getString() );
                     break;
+                    
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
                     modifier.setClientName( PrincipalNameDecoder.decode( tag3 ) );
                     break;
+                    
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
                     modifier.setTransitedEncoding( decodeTransitedEncoding( tag4 ) );
                     break;
+                    
                 case 5:
                     DERGeneralizedTime tag5 = ( DERGeneralizedTime ) derObject;
                     modifier.setAuthTime( KerberosTimeDecoder.decode( tag5 ) );
                     break;
+                    
                 case 6:
                     DERGeneralizedTime tag6 = ( DERGeneralizedTime ) derObject;
                     modifier.setStartTime( KerberosTimeDecoder.decode( tag6 ) );
                     break;
+                    
                 case 7:
                     DERGeneralizedTime tag7 = ( DERGeneralizedTime ) derObject;
                     modifier.setEndTime( KerberosTimeDecoder.decode( tag7 ) );
                     break;
+                    
                 case 8:
                     DERGeneralizedTime tag8 = ( DERGeneralizedTime ) derObject;
                     modifier.setRenewTill( KerberosTimeDecoder.decode( tag8 ) );
                     break;
+                    
                 case 9:
                     DERSequence tag9 = ( DERSequence ) derObject;
                     modifier.setClientAddresses( HostAddressDecoder.decodeSequence( tag9 ) );
                     break;
+                    
                 case 10:
                     DERSequence tag10 = ( DERSequence ) derObject;
                     modifier.setAuthorizationData( AuthorizationDataDecoder.decodeSequence( tag10 ) );
@@ -153,7 +163,7 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
         TransitedEncodingType type = TransitedEncodingType.NULL;
         byte[] contents = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -165,6 +175,7 @@ public class EncTicketPartDecoder implements Decoder, DecoderFactory
                     DERInteger tag0 = ( DERInteger ) derObject;
                     type = TransitedEncodingType.getTypeByOrdinal( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DEROctetString tag1 = ( DEROctetString ) derObject;
                     contents = tag1.getOctets();
