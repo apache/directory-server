@@ -30,7 +30,7 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Value<T> extends Serializable, Cloneable
+public interface Value<T> extends Serializable, Cloneable, Comparable<Value<T>>
 {
     /**
      * Get the wrapped value.
@@ -46,13 +46,4 @@ public interface Value<T> extends Serializable, Cloneable
      * @param wrapped the value to set. Should be either a String, URI, or a byte[]
      */
     void set( T wrapped );
-
-
-    /**
-     * Makes a deep copy of this Value.
-     *
-     * @return a deep copy of this Value
-     * @throws CloneNotSupportedException if the clone operation is not supported
-     */
-    Value<?> clone() throws CloneNotSupportedException;
 }

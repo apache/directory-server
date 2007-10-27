@@ -99,16 +99,23 @@ public class StreamedValue implements Value<URI>
     }
 
 
-    /**
-     * A shallow clone however note this is the same as a deep clone since the
-     * URI is immutable.
-     *
-     * @return a copy of this StreamedValue
-     * @throws CloneNotSupportedException
-     */
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
-    public StreamedValue clone() throws CloneNotSupportedException
+    public int compareTo( Value<URI> value )
     {
-        return new StreamedValue( wrapped );
+        if ( value == null && get() == null )
+        {
+            return 0;
+        }
+
+        if ( value == null )
+        {
+            return 1;
+        }
+
+        if ( value.get() == null )
+        {
+            return -1;
+        }
+
+        return wrapped.compareTo( value.get() );
     }
 }

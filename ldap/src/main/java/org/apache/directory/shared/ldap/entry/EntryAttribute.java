@@ -28,7 +28,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface EntryAttribute
+public interface EntryAttribute<E extends Value<?>>
 {
     /**
      * Adds a value to this attribute. If the new value is already present in
@@ -43,7 +43,7 @@ public interface EntryAttribute
      * @param val a new value to be added which may be null
      * @return true if a value was added, otherwise false
      */
-    boolean add( Value<?> val );
+    boolean add( E val );
 
 
     /**
@@ -85,21 +85,12 @@ public interface EntryAttribute
 
 
     /**
-     * Returns a deep copy of the attribute containing all the same values. The
-     * values <b>are</b> cloned.
-     *
-     * @return a deep clone of this attribute
-     */
-    EntryAttribute clone() throws CloneNotSupportedException;
-
-
-    /**
      * Indicates whether the specified value is one of the attribute's values.
      *
      * @param val the value which may be null
      * @return true if this attribute contains the value, otherwise false
      */
-    boolean contains( Value<?> val );
+    boolean contains( E val );
 
 
     /**
@@ -145,7 +136,7 @@ public interface EntryAttribute
      *
      * @return an enumeration of all values of the attribute
      */
-    Iterator<Value<?>> getAll();
+    Iterator<? extends E> getAll();
 
 
    /**
@@ -167,7 +158,7 @@ public interface EntryAttribute
      * @param val the value to be removed
      * @return true if the value is removed, otherwise false
      */
-    boolean remove( Value<?> val );
+    boolean remove( E val );
 
 
     /**

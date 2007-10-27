@@ -20,9 +20,11 @@
 package org.apache.directory.shared.ldap.entry;
 
 
-import java.util.Arrays;
-
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 
 /**
@@ -33,6 +35,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class BinaryValue implements Value<byte[]>
 {
+    private static final Comparator<byte[]> BYTE_ARRAY_COMPARATOR = new ByteArrayComparator();
     /** the wrapped binary value */
     private byte[] wrapped;
 
@@ -141,5 +144,26 @@ public class BinaryValue implements Value<byte[]>
         }
 
         return Arrays.equals( this.wrapped, binaryValue.wrapped );
+    }
+
+
+    public int compareTo( Value<byte[]> value )
+    {
+        if ( value == null && get() == null )
+        {
+            return 0;
+        }
+
+        if ( value == null )
+        {
+            return 1;
+        }
+
+        if ( value.get() == null )
+        {
+            return -1;
+        }
+
+        return BYTE_ARRAY_COMPARATOR.compare( wrapped, value.get() );
     }
 }

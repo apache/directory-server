@@ -28,9 +28,6 @@ package org.apache.directory.shared.ldap.entry;
  */
 public class StringValue implements Value<String>
 {
-    @SuppressWarnings ( { "AnalyzingVariableNaming" } )
-    static final long serialVersionUID = 2L;
-
     /** the wrapped string value */
     private String wrapped;
 
@@ -127,20 +124,27 @@ public class StringValue implements Value<String>
     }
 
 
-    /**
-     * This is a shallow copy but in this case since the String is immutable
-     * and thus it makes no difference if the clone is shallow or deep.
-     *
-     * @return a shallow copy
-     */
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
-    public Value<String> clone() throws CloneNotSupportedException
+    public int compareTo( Value<String> value )
     {
-        if ( wrapped == null )
+        if ( value == null && wrapped == null )
         {
-            return new StringValue();
+            return 0;
         }
 
-        return new StringValue( wrapped );
+        if ( value != null && wrapped == null )
+        {
+            if ( value.get() == null )
+            {
+                return 0;
+            }
+            return -1;
+        }
+
+        if ( value == null || value.get() == null )
+        {
+            return 1;
+        }
+
+        return wrapped.compareTo( value.get() );
     }
 }
