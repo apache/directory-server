@@ -18,8 +18,8 @@
  */
 package org.apache.directory.server.core.entry;
 
+
 import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.server.core.entry.InvalidValueException;
 
 import javax.naming.NamingException;
 
@@ -30,17 +30,18 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerValue<T> extends Value
+public interface ServerValue<T> extends Value<T>
 {
     /**
      * Gets the normalized representation for the wrapped value of this ServerValue
      * wrapper. Implementations
      *
      * @return the normalized wrapped value
-     * @throws InvalidValueException if the value is not valid
-     * @throws NamingException if resolution of needed schema entities fail
+     * @throws NamingException if resolution of needed schema entities fails or normalization fails
      */
-    T getNormalizedValue() throws InvalidValueException, NamingException;
+    T getNormalizedValue() throws NamingException;
 
     boolean isValid() throws NamingException;
+
+    int compareTo( ServerValue<T> value );
 }

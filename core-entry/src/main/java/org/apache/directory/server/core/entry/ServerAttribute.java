@@ -19,14 +19,13 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
 import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
+import javax.naming.NamingException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -35,9 +34,9 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerAttribute implements EntryAttribute
+public class ServerAttribute implements EntryAttribute<ServerValue<?>>
 {
-    private Set<Value<?>> values = new HashSet<Value<?>>();
+    private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
     private AttributeType attributeType;
 
 
@@ -62,14 +61,28 @@ public class ServerAttribute implements EntryAttribute
      * Checks to see if this attribute is valid along with the values it contains.
      *
      * @return true if the attribute and it's values are valid, false otherwise
+     * @throws NamingException if there is a failure to check syntaxes of values
      */
-    boolean isValid()
+    public boolean isValid() throws NamingException
     {
-        throw new NotImplementedException();
+        if ( attributeType.isSingleValue() && values.size() > 1 )
+        {
+            return false;
+        }
+
+        for ( ServerValue value : values )
+        {
+            if ( ! value.isValid() )
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
-    public boolean add( Value<?> val )
+    public boolean add( ServerValue<?> val )
     {
         return values.add( val );
     }
@@ -93,22 +106,7 @@ public class ServerAttribute implements EntryAttribute
     }
 
 
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
-    public ServerAttribute clone() throws CloneNotSupportedException
-    {
-        Set<Value<?>> clonedValues = new HashSet<Value<?>>();
-        for ( Value value : values )
-        {
-            clonedValues.add( value.clone() );
-        }
-
-        ServerAttribute cloned = new ServerAttribute( attributeType );
-        cloned.values = clonedValues;
-        return cloned;
-    }
-
-
-    public boolean contains( Value<?> val )
+    public boolean contains( ServerValue<?> val )
     {
         return values.contains( val );
     }
@@ -139,7 +137,7 @@ public class ServerAttribute implements EntryAttribute
     }
 
 
-    public Iterator<Value<?>> getAll()
+    public Iterator<? extends ServerValue<?>> getAll()
     {
         return values.iterator();
     }
@@ -151,7 +149,7 @@ public class ServerAttribute implements EntryAttribute
     }
 
 
-    public boolean remove( Value<?> val )
+    public boolean remove( ServerValue<?> val )
     {
         return values.remove( val );
     }

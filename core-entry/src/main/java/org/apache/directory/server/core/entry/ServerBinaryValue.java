@@ -20,14 +20,15 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.BinaryValue;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
+import java.util.Comparator;
 
 
 /**
@@ -36,7 +37,7 @@ import java.util.Arrays;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerBinaryValue extends BinaryValue implements Value<byte[]>
+public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]>
 {
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
@@ -84,22 +85,8 @@ public class ServerBinaryValue extends BinaryValue implements Value<byte[]>
 
         if ( normalizedValue == null )
         {
-            // search for matchingRules with a normalizer we can use based on
-            // the parent attribute type this attribute value is intended for
-            Normalizer normalizer = attributeType.getEquality().getNormalizer();
+            Normalizer normalizer = getNormalizer();
 
-            if ( normalizer == null )
-            {
-                normalizer = attributeType.getOrdering().getNormalizer();
-            }
-
-            if ( normalizer == null )
-            {
-                normalizer = attributeType.getSubstr().getNormalizer();
-            }
-
-            // at this point if we still have no normalizer then presume as-is
-            // normalization - the value is the same as the normalized value
             if ( normalizer == null )
             {
                 normalizedValue = get();
@@ -124,6 +111,64 @@ public class ServerBinaryValue extends BinaryValue implements Value<byte[]>
     public final boolean isValid() throws NamingException
     {
         return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+    }
+
+
+    public int compareTo( ServerValue<byte[]> value )
+    {
+        try
+        {
+            //noinspection unchecked
+            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
+        }
+        catch ( Exception e )
+        {
+            throw new IllegalStateException( "Failed to normalize values.", e );
+        }
+    }
+
+
+    private Normalizer getNormalizer() throws NamingException
+    {
+        MatchingRule mr = getMatchingRule();
+
+        if ( mr == null )
+        {
+            return null;
+        }
+
+        return mr.getNormalizer();
+    }
+
+
+    private MatchingRule getMatchingRule() throws NamingException
+    {
+        MatchingRule mr = attributeType.getEquality();
+
+        if ( mr == null )
+        {
+            mr = attributeType.getOrdering();
+        }
+
+        if ( mr == null )
+        {
+            mr = attributeType.getSubstr();
+        }
+
+        return mr;
+    }
+
+
+    private Comparator getComparator() throws NamingException
+    {
+        MatchingRule mr = getMatchingRule();
+
+        if ( mr == null )
+        {
+            return null;
+        }
+
+        return mr.getComparator();
     }
 
 

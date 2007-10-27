@@ -19,29 +19,62 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.Value;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.entry.StreamedValue;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
+import java.net.URI;
 import java.util.Comparator;
 
 
 /**
- * A server side value which is also a StringValue.
+ * A large streamed value within the server.  For all practical purposes
+ * values of this type are treated like referrals.  They reference some
+ * value which could not fit without issue into main memory.  Instead the
+ * value is referred to.  This has implications on the semantics of various
+ * Value operations:
+ *
+ * <ul>
+ *   <li>
+ *     URI get() does not return the value but a URI referring to the value located
+ *     in some streamable target location.
+ *   </li>
+ *   <li>
+ *     set(URI) likewise sets the location target where the value can be streamed
+ *     from rather than setting the actual value.
+ *   </li>
+ *   <li>
+ *     @todo need to reflect upon this some more
+ *     Don't know if getNormalizedValue() is even relavent but I guess the
+ *     same URI can be represented in many ways if it is not already in canonical form
+ *   </li>
+ *   <li>
+ *     @todo need to reflect upon this some more
+ *     isValid() is also uncessary since really this does not mean the actual value
+ *     stored where pointed to by the URI is actually valid.  I think this is a reason
+ *     why the server must suspend certain checks for blobs like this.  Blobs should be
+ *     binary and cannot be used for naming.  Hence because they cannot be used for
+ *     naming then they should not need to have matchingRules and can just use the
+ *     default binary matching.
+ *   </li>
+ *   <li>
+ *     compareTo() is relative to the URI and not the actual streamed value stored at
+ *     the URI target.  This means another means is needed to determine ordering for
+ *     the wrapped streamed values.
+ *   </li>
+ * </ul>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValue extends StringValue implements ServerValue<String>
+public class ServerStreamedValue extends StreamedValue implements ServerValue<URI>
 {
-    private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
-
-    private String normalizedValue;
+    private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
+    private URI normalizedValue;
 
     // use this to lookup the attributeType when deserializing
     @SuppressWarnings ( { "UnusedDeclaration" } )
@@ -50,8 +83,8 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     // do not serialize the schema entity graph associated with the type
     private transient AttributeType attributeType;
 
-
-    public ServerStringValue( AttributeType attributeType )
+    
+    public ServerStreamedValue( AttributeType attributeType )
     {
         if ( attributeType == null )
         {
@@ -62,7 +95,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
-    public ServerStringValue( AttributeType attributeType, String wrapped )
+    public ServerStreamedValue( AttributeType attributeType, URI wrapped )
     {
         if ( attributeType == null )
         {
@@ -74,7 +107,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
-    public String getNormalizedValue() throws NamingException
+    public URI getNormalizedValue() throws NamingException
     {
         if ( get() == null )
         {
@@ -91,38 +124,11 @@ public class ServerStringValue extends StringValue implements ServerValue<String
             }
             else
             {
-                normalizedValue = ( String ) normalizer.normalize( get() );
+                normalizedValue = ( URI ) normalizer.normalize( get() );
             }
         }
 
         return normalizedValue;
-    }
-
-
-    public final void set( String wrapped )
-    {
-        normalizedValue = null;
-        super.set( wrapped );
-    }
-
-
-    public final boolean isValid() throws NamingException
-    {
-        return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
-    }
-
-
-    public int compareTo( ServerValue<String> value )
-    {
-        try
-        {
-            //noinspection unchecked
-            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
-        }
-        catch ( Exception e )
-        {
-            throw new IllegalStateException( "Failed to normalize values.", e );
-        }
     }
 
 
@@ -170,13 +176,19 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
+    public boolean isValid() throws NamingException
+    {
+        return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+    }
+
+
     /**
      * @see Object#hashCode()
      */
     public int hashCode()
     {
         // return zero if the value is null so only one null value can be
-        // stored in an attribute - the binary version does the same 
+        // stored in an attribute - the binary version does the same
         if ( get() == null )
         {
             return 0;
@@ -195,8 +207,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         }
     }
 
-
-    public int compareTo( Value<String> value )
+    public int compareTo( ServerValue<URI> value )
     {
         if ( value == null && get() == null )
         {
@@ -220,11 +231,10 @@ public class ServerStringValue extends StringValue implements ServerValue<String
 
         try
         {
-            if ( value instanceof ServerStringValue )
+            if ( value instanceof ServerStreamedValue )
             {
                 //noinspection unchecked
-                return getComparator().compare( getNormalizedValue(),
-                        ( ( ServerStringValue ) value ).getNormalizedValue() );
+                return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
             }
 
             //noinspection unchecked
@@ -233,57 +243,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         catch ( NamingException e )
         {
             throw new IllegalStateException( "Normalization failed when it should have succeeded", e );
-        }
-    }
-
-
-    /**
-     * @see Object#equals(Object)
-     */
-    public boolean equals( Object obj )
-    {
-        if ( this == obj )
-        {
-            return true;
-        }
-
-        if ( obj == null )
-        {
-            return false;
-        }
-
-        if ( ! ( obj instanceof ServerStringValue ) )
-        {
-            return false;
-        }
-
-        ServerStringValue other = ( ServerStringValue ) obj;
-        if ( get() == null && other.get() == null )
-        {
-            return true;
-        }
-
-        //noinspection SimplifiableIfStatement
-        if ( get() == null && other.get() != null ||
-             get() != null && other.get() == null )
-        {
-            return false;
-        }
-
-        // now unlike regular values we have to compare the normalized values
-        try
-        {
-            return getNormalizedValue().equals( other.getNormalizedValue() );
-        }
-        catch ( NamingException e )
-        {
-            // 1st this is a warning because we're recovering from it and secondly
-            // we build big string since waste is not an issue when exception handling
-            LOG.warn( "Failed to get normalized value while trying to compare StringValues: "
-                    + toString() + " and " + other.toString() , e );
-
-            // recover by comparing non-normalized values
-            return get().equals( other.get() );
         }
     }
 }

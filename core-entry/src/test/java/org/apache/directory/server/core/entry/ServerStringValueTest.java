@@ -125,10 +125,16 @@ public class ServerStringValueTest extends TestCase
         // check equals
         assertTrue( v0.equals( v1 ) );
         assertTrue( v1.equals( v0 ) );
+        assertEquals( 0, v0.compareTo( v1 ) );
+
         assertTrue( v4.equals( v5 ) );
         assertTrue( v5.equals( v4 ) );
+        assertEquals( 0, v4.compareTo( v5 ) );
+
         assertFalse( v2.equals( v3 ) );
         assertFalse( v3.equals( v2 ) );
+        assertTrue( v2.compareTo( v3 ) < 0 );
+        assertTrue( v3.compareTo( v2 ) > 0 );
 
         // add all except v1 and v5 to a set
         HashSet<ServerStringValue> set = new HashSet<ServerStringValue>();
@@ -150,42 +156,8 @@ public class ServerStringValueTest extends TestCase
         list.add( v2 );
         list.add( v4 );
 
-        Comparator<ServerStringValue> c = new Comparator<ServerStringValue>()
-        {
-            public int compare( ServerStringValue o1, ServerStringValue o2 )
-            {
-                if ( o1 == null && o2 == null )
-                {
-                    return 0;
-                }
-
-                //noinspection ConstantConditions
-                if ( o1 == null && o2 != null )
-                {
-                    if ( o2.get() == null )
-                    {
-                        return 0;
-                    }
-                    return -1;
-                }
-
-                //noinspection ConstantConditions
-                if ( o1 != null && o2 == null )
-                {
-                    if ( o1.get() == null )
-                    {
-                        return 0;
-                    }
-                    return 1;
-                }
-
-                //noinspection unchecked
-                return mr.comparator.compare( o1.get(), o2.get() );
-            }
-        };
-
         //noinspection unchecked
-        Collections.sort( list, c );
+        Collections.sort( list );
 
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 0 ).equals( v4 ) );
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 0 ).equals( v5 ) );
