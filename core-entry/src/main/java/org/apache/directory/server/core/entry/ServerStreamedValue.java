@@ -19,24 +19,23 @@
 package org.apache.directory.server.core.entry;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.StreamedValue;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.net.URI;
-import java.util.Comparator;
 
 
 /**
- * A large streamed value within the server.  For all practical purposes
- * values of this type are treated like referrals.  They reference some
- * value which could not fit without issue into main memory.  Instead the
- * value is referred to.  This has implications on the semantics of various
- * Value operations:
+ * A server side schema aware wrapper around a large streamed value.
+ * For all practical purposes values of this type are treated like
+ * referrals.  They reference some value which could not fit without
+ * issue into main memory.  Instead the value is referred to using a
+ * URI.  This has implications on the semantics of various Value
+ * operations:
  *
  * <ul>
  *   <li>
@@ -68,22 +67,30 @@ import java.util.Comparator;
  *   </li>
  * </ul>
  *
+ * NOTE: this implementation of ServerValue<T> is still a work in progress!!!
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ServerStreamedValue extends StreamedValue implements ServerValue<URI>
 {
+    /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
-    private URI normalizedValue;
 
     // use this to lookup the attributeType when deserializing
-    @SuppressWarnings ( { "UnusedDeclaration" } )
+    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private final String oid;
 
     // do not serialize the schema entity graph associated with the type
+    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private transient AttributeType attributeType;
 
-    
+
+    /**
+     * Creates a ServerStreamedValue without an initial wrapped value.
+     *
+     * @param attributeType the schema type associated with this ServerBinaryValue
+     */
     public ServerStreamedValue( AttributeType attributeType )
     {
         if ( attributeType == null )
@@ -95,18 +102,62 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
     }
 
 
+    /**
+     * Creates a ServerStreamedValue with a wrapped URI referring to the
+     * streamed binary value.
+     *
+     * @param attributeType the schema type associated with this ServerStreamedValue
+     * @param wrapped the URI value to wrap which may be null
+     */
     public ServerStreamedValue( AttributeType attributeType, URI wrapped )
     {
-        if ( attributeType == null )
-        {
-            throw new NullPointerException( "attributeType cannot be null" );
-        }
-        this.attributeType = attributeType;
-        this.oid = attributeType.getOid();
+        this( attributeType );
         super.set( wrapped );
     }
 
 
+    // -----------------------------------------------------------------------
+    // Value<String> Methods
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Sets the wrapped URI value.  Has the side effect of setting the
+     * normalizedValue and the valid flags to null if the wrapped value is
+     * different than what is already set.  These cached values must be
+     * recomputed to be correct with different values.
+     *
+     * @see ServerValue#set(Object)
+     */
+    public final void set( URI wrapped )
+    {
+        // Why should we invalidate the normalized value if it's we're setting the
+        // wrapper to it's current value?
+        if ( wrapped.equals( get() ) )
+        {
+            return;
+        }
+
+        super.set( wrapped );
+    }
+
+
+    // -----------------------------------------------------------------------
+    // ServerValue<String> Methods
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Throws NotImplementedException. To normalize the value and return it
+     * we would have to work on the data on disk.  Normalizing the URI probably
+     * has no value since the Normalizer will not be geared for it but rather
+     * the data stored for streaming.  Perhaps this is a completely wrong value
+     * representation paradigmn for streamed values.
+     *
+     * @todo if URI is already cannonical this method may be useless
+     * @todo consider this while figuring out how to deal with streamed values
+     * @see ServerValue#getNormalizedValue()
+     */
     public URI getNormalizedValue() throws NamingException
     {
         if ( get() == null )
@@ -114,71 +165,25 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
             return null;
         }
 
-        if ( normalizedValue == null )
-        {
-            Normalizer normalizer = getNormalizer();
-
-            if ( normalizer == null )
-            {
-                normalizedValue = get();
-            }
-            else
-            {
-                normalizedValue = ( URI ) normalizer.normalize( get() );
-            }
-        }
-
-        return normalizedValue;
+        throw new NotImplementedException();
     }
 
 
-    private MatchingRule getMatchingRule() throws NamingException
-    {
-        MatchingRule mr = attributeType.getEquality();
-
-        if ( mr == null )
-        {
-            mr = attributeType.getOrdering();
-        }
-
-        if ( mr == null )
-        {
-            mr = attributeType.getSubstr();
-        }
-
-        return mr;
-    }
-
-
-    private Normalizer getNormalizer() throws NamingException
-    {
-        MatchingRule mr = getMatchingRule();
-
-        if ( mr == null )
-        {
-            return null;
-        }
-
-        return mr.getNormalizer();
-    }
-
-
-    private Comparator getComparator() throws NamingException
-    {
-        MatchingRule mr = getMatchingRule();
-
-        if ( mr == null )
-        {
-            return null;
-        }
-
-        return mr.getComparator();
-    }
-
-
+    /**
+     * Throws NotImplementedException always.
+     *
+     * We cannot attempt to check the syntax of what is wrapped since what is
+     * wrapped is the URI referring to the actual value.  Perhaps the only
+     * allowable syntax should be the binary syntax?  But that does not make
+     * sense since we want to switch to streaming for values (which can be any
+     * kind) in memory when they are greater than some threshold.
+     *
+     * @todo this is totally bogus
+     * @see ServerValue#isValid()
+     */
     public boolean isValid() throws NamingException
     {
-        return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+        throw new NotImplementedException();
     }
 
 
@@ -207,42 +212,15 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
         }
     }
 
+
+    /**
+     * Again the semantics of this operation are completely screwed up since with
+     * normal processing the comparators and normalizers used would be for the data
+     * type streamed to disk rather than the URI value we have in memory.  So the
+     * comparisons would fail.
+     */
     public int compareTo( ServerValue<URI> value )
     {
-        if ( value == null && get() == null )
-        {
-            return 0;
-        }
-
-        if ( value != null && get() == null )
-        {
-            if ( value.get() == null )
-            {
-                return 0;
-            }
-            return -1;
-        }
-
-        if ( value == null )
-        {
-            return 1;
-        }
-
-
-        try
-        {
-            if ( value instanceof ServerStreamedValue )
-            {
-                //noinspection unchecked
-                return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
-            }
-
-            //noinspection unchecked
-            return getComparator().compare( getNormalizedValue(), value.get() );
-        }
-        catch ( NamingException e )
-        {
-            throw new IllegalStateException( "Normalization failed when it should have succeeded", e );
-        }
+        throw new NotImplementedException();
     }
 }

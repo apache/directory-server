@@ -51,7 +51,7 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerValue<T> extends Value<T>
+public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
 {
     /**
      * Gets the normalized representation for the wrapped value of this

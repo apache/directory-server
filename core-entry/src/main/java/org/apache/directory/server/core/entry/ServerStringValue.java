@@ -31,10 +31,10 @@ import java.util.Comparator;
 
 
 /**
- * A server side schema aware wrapper around a String value.  This value
- * wrapper uses schema information to syntax check values, and to compare
- * them for equality and ordering.  It caches results and invalidates
- * them when the wrapped value changes.
+ * A server side schema aware wrapper around a String attribute value.
+ * This value wrapper uses schema information to syntax check values,
+ * and to compare them for equality and ordering.  It caches results
+ * and invalidates them when the wrapped value changes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
@@ -45,13 +45,13 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
     /** used to dynamically lookup the attributeType when/if deserializing */
-    @SuppressWarnings ( { "UnusedDeclaration" } )
+    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private final String oid;
 
     /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
-    /** the canonical representation of the wrapped value */
+    /** the canonical representation of the wrapped String value */
     private transient String normalizedValue;
 
     /** cached results of the isValid() method call */
@@ -69,32 +69,48 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         {
             throw new NullPointerException( "attributeType cannot be null" );
         }
+
+        try
+        {
+            if ( ! attributeType.getSyntax().isHumanReadable() )
+            {
+                LOG.warn( "Treating a value of a binary attribute {} as a String: " +
+                        "\nthis could cause data corruption!", attributeType.getName() );
+            }
+        }
+        catch( NamingException e )
+        {
+            LOG.error( "Failed to resolve syntax for attributeType {}", attributeType, e );
+        }
+
         this.attributeType = attributeType;
         this.oid = attributeType.getOid();
     }
 
 
     /**
-     * Creates a ServerStringValue with an initial wrapped value.
+     * Creates a ServerStringValue with an initial wrapped String value.
      *
      * @param attributeType the schema type associated with this ServerStringValue
      * @param wrapped the value to wrap which can be null
      */
     public ServerStringValue( AttributeType attributeType, String wrapped )
     {
-        if ( attributeType == null )
-        {
-            throw new NullPointerException( "attributeType cannot be null" );
-        }
-        this.attributeType = attributeType;
-        this.oid = attributeType.getOid();
+        this( attributeType );
         super.set( wrapped );
     }
 
 
+    // -----------------------------------------------------------------------
+    // Value<String> Methods
+    // -----------------------------------------------------------------------
+
+
     /**
-     * The normalizedValue will be invalidated (set to null) when a new different
-     * wrapper value is set.
+     * Sets the wrapped String value.  Has the side effect of setting the
+     * normalizedValue and the valid flags to null if the wrapped value is
+     * different than what is already set.  These cached values must be
+     * recomputed to be correct with different values.
      *
      * @see ServerValue#set(Object)
      */
@@ -160,6 +176,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * change. Syntax checks only result on the first check, and when the wrapped
      * value changes.
      *
+     * @todo can go into a base class
      * @see ServerValue#isValid()
      */
     public final boolean isValid() throws NamingException
@@ -310,6 +327,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * available: SUBSTR, and ORDERING.  If a matchingRule cannot be found null is
      * returned.
      *
+     * @todo can go into a base class
      * @return a matchingRule or null if one cannot be found for the attributeType
      * @throws NamingException if resolution of schema entities fail
      */
@@ -335,6 +353,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * Gets a normalizer using getMatchingRule() to resolve the matchingRule
      * that the normalizer is extracted from.
      *
+     * @todo can go into a base class
      * @return a normalizer associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
@@ -355,6 +374,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * Gets a comparator using getMatchingRule() to resolve the matching
      * that the comparator is extracted from.
      *
+     * @todo can go into a base class
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */

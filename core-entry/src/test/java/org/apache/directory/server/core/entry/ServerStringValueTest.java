@@ -29,6 +29,126 @@ import java.util.HashSet;
  */
 public class ServerStringValueTest extends TestCase
 {
+    private AttributeType getCaseIgnoringAttributeNoNumbersType()
+    {
+        S s = new S( "1.1.1.1", true );
+
+        s.setSyntaxChecker( new SyntaxChecker(){
+            public String getSyntaxOid()
+            {
+                return "1.1.1.1";
+            }
+            public boolean isValidSyntax( Object value )
+            {
+                if ( !( value instanceof String ) )
+                {
+                    return false;
+                }
+
+                String strval = ( String ) value;
+                for ( int ii = 0; ii < strval.length(); ii++ )
+                {
+                    if ( Character.isDigit( strval.charAt( ii ) ) )
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public void assertSyntax( Object value ) throws NamingException
+            {
+                if ( ! isValidSyntax( value ) )
+                {
+                    throw new InvalidAttributeValueException();
+                }
+            }
+        } );
+
+        final MR mr = new MR( "1.1.2.1" );
+        mr.syntax = s;
+        mr.comparator = new Comparator<String>()
+        {
+            public int compare( String o1, String o2 )
+            {
+                if ( o1 == null && o2 == null )
+                {
+                    return 0;
+                }
+
+                //noinspection ConstantConditions
+                if ( o1 == null && o2 != null )
+                {
+                    return -1;
+                }
+
+                //noinspection ConstantConditions
+                if ( o1 != null && o2 == null )
+                {
+                    return 1;
+                }
+
+                return o1.compareTo( o2 );
+            }
+
+            int getValue( String val )
+            {
+                if ( val.equals( "LOW" ) ) return 0;
+                if ( val.equals( "MEDIUM" ) ) return 1;
+                if ( val.equals( "HIGH" ) ) return 2;
+                throw new IllegalArgumentException( "Not a valid value" );
+            }
+        };
+        mr.normalizer = new Normalizer(){
+
+            public Object normalize( Object value ) throws NamingException
+            {
+                if ( value instanceof String )
+                {
+                    return ( ( String ) value ).toLowerCase();
+                }
+
+                throw new IllegalStateException( "expected string to normalize" );
+            }
+        };
+        AT at = new AT( "1.1.3.1" );
+        at.setEquality( mr );
+        at.setSyntax( s );
+        return at;
+    }
+
+
+    /**
+     * Tests to make sure the hashCode method is working properly.
+     * @throws Exception on errors
+     */
+    public void testHashCodeValidEquals() throws Exception
+    {
+        AttributeType at = getCaseIgnoringAttributeNoNumbersType();
+        ServerStringValue v0 = new ServerStringValue( at, "Alex" );
+        ServerStringValue v1 = new ServerStringValue( at, "ALEX" );
+        ServerStringValue v2 = new ServerStringValue( at, "alex" );
+        assertEquals( v0.hashCode(), "alex".hashCode() );
+        assertEquals( v1.hashCode(), "alex".hashCode() );
+        assertEquals( v2.hashCode(), "alex".hashCode() );
+        assertEquals( v0, v1 );
+        assertEquals( v0, v2 );
+        assertEquals( v1, v2 );
+        assertTrue( v0.isValid() );
+        assertTrue( v1.isValid() );
+        assertTrue( v2.isValid() );
+
+        ServerStringValue v3 = new ServerStringValue( at, "Timber" );
+        assertFalse( v3.equals( v0 ) );
+        assertFalse( v3.equals( v1 ) );
+        assertFalse( v3.equals( v2 ) );
+        assertTrue( v3.isValid() );
+
+        ServerStringValue v4 = new ServerStringValue( at, "Timber123" );
+        assertFalse( v4.isValid() );
+    }
+
+
     /**
      * Presumes an attribute which constrains it's values to some constant
      * strings: LOW, MEDUIM, HIGH.  Normalization does nothing. MatchingRules
@@ -148,7 +268,7 @@ public class ServerStringValueTest extends TestCase
         assertTrue( "since v4.equals( v5 ) and v4 was added then this should be true", set.contains( v5 ) );
 
         // check ordering based on the comparator
-        ArrayList<ServerStringValue> list = new ArrayList<ServerStringValue>();
+        ArrayList<ServerValue<String>> list = new ArrayList<ServerValue<String>>();
         list.add( v1 );
         list.add( v3 );
         list.add( v5 );
@@ -159,16 +279,19 @@ public class ServerStringValueTest extends TestCase
         //noinspection unchecked
         Collections.sort( list );
 
+        // null ones are at first 2 indices
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 0 ).equals( v4 ) );
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 0 ).equals( v5 ) );
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 1 ).equals( v4 ) );
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 1 ).equals( v5 ) );
 
+        // low ones are at the 3rd and 4th indices
         assertTrue( "since v0 equals v1 either could be at index 2 & 3", list.get( 2 ).equals( v0 ) );
         assertTrue( "since v0 equals v1 either could be at index 2 & 3", list.get( 2 ).equals( v1 ) );
         assertTrue( "since v0 equals v1 either could be at index 2 & 3", list.get( 3 ).equals( v0 ) );
         assertTrue( "since v0 equals v1 either could be at index 2 & 3", list.get( 3 ).equals( v1 ) );
 
+        // medium then high next
         assertTrue( "since v2 \"MEDIUM\" should be at index 4", list.get( 4 ).equals( v2 ) );
         assertTrue( "since v3 \"HIGH\" should be at index 5", list.get( 5 ).equals( v3 ) );
 
