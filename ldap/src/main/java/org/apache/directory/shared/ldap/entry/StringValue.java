@@ -124,27 +124,27 @@ public class StringValue implements Value<String>
     }
 
 
-    public int compareTo( Value<String> value )
-    {
-        if ( value == null && wrapped == null )
-        {
-            return 0;
-        }
-
-        if ( value != null && wrapped == null )
-        {
-            if ( value.get() == null )
-            {
-                return 0;
-            }
-            return -1;
-        }
-
-        if ( value == null || value.get() == null )
-        {
-            return 1;
-        }
-
-        return wrapped.compareTo( value.get() );
-    }
+//    public int compareTo( Value<String> value )
+//    {
+//        if ( value == null && wrapped == null )
+//        {
+//            return 0;
+//        }
+//
+//        if ( value != null && wrapped == null )
+//        {
+//            if ( value.get() == null )
+//            {
+//                return 0;
+//            }
+//            return -1;
+//        }
+//
+//        if ( value == null || value.get() == null )
+//        {
+//            return 1;
+//        }
+//
+//        return wrapped.compareTo( value.get() );
+//    }
 }
