@@ -21,6 +21,7 @@ package org.apache.directory.shared.ldap.entry;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+import javax.naming.NamingException;
 import java.util.Iterator;
 
 
@@ -30,7 +31,7 @@ import java.util.Iterator;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface Entry
+public interface Entry<T extends EntryAttribute<?>>
 {
     /**
      * Removes all the attributes.
@@ -61,7 +62,7 @@ public interface Entry
      *
      * @return an enumeration of all contained attributes
      */
-    Iterator<? extends EntryAttribute> getAll();
+    Iterator<T> iterator();
 
 
     /**
@@ -74,7 +75,7 @@ public interface Entry
      * @return the old attribute with the same OID, if exists; otherwise
      *         <code>null</code>
      */
-    EntryAttribute put( EntryAttribute attribute );
+    T put( T attribute ) throws NamingException;
 
 
     /**
@@ -85,7 +86,7 @@ public interface Entry
       * @param attribute the attribute to be removed
       * @return the removed attribute, if exists; otherwise <code>null</code>
       */
-    EntryAttribute remove( EntryAttribute attribute );
+    T remove( T attribute ) throws NamingException;
 
 
     /**
