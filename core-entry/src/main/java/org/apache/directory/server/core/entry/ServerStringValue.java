@@ -20,7 +20,6 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.StringValue;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
@@ -32,25 +31,38 @@ import java.util.Comparator;
 
 
 /**
- * A server side value which is also a StringValue.
+ * A server side schema aware wrapper around a String value.  This value
+ * wrapper uses schema information to syntax check values, and to compare
+ * them for equality and ordering.  It caches results and invalidates
+ * them when the wrapped value changes.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class ServerStringValue extends StringValue implements ServerValue<String>
 {
+    /** logger for reporting errors that might not be handled properly upstream */
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
-    private String normalizedValue;
-
-    // use this to lookup the attributeType when deserializing
+    /** used to dynamically lookup the attributeType when/if deserializing */
     @SuppressWarnings ( { "UnusedDeclaration" } )
     private final String oid;
 
-    // do not serialize the schema entity graph associated with the type
+    /** reference to the attributeType which is not serialized */
     private transient AttributeType attributeType;
 
+    /** the canonical representation of the wrapped value */
+    private transient String normalizedValue;
 
+    /** cached results of the isValid() method call */
+    private transient Boolean valid;
+
+
+    /**
+     * Creates a ServerStringValue without an initial wrapped value.
+     *
+     * @param attributeType the schema type associated with this ServerStringValue
+     */
     public ServerStringValue( AttributeType attributeType )
     {
         if ( attributeType == null )
@@ -62,6 +74,12 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
+    /**
+     * Creates a ServerStringValue with an initial wrapped value.
+     *
+     * @param attributeType the schema type associated with this ServerStringValue
+     * @param wrapped the value to wrap which can be null
+     */
     public ServerStringValue( AttributeType attributeType, String wrapped )
     {
         if ( attributeType == null )
@@ -74,6 +92,42 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
+    /**
+     * The normalizedValue will be invalidated (set to null) when a new different
+     * wrapper value is set.
+     *
+     * @see ServerValue#set(Object)
+     */
+    public final void set( String wrapped )
+    {
+        // Why should we invalidate the normalized value if it's we're setting the
+        // wrapper to it's current value?
+        if ( wrapped.equals( get() ) )
+        {
+            return;
+        }
+
+        normalizedValue = null;
+        valid = null;
+        super.set( wrapped );
+    }
+
+
+    // -----------------------------------------------------------------------
+    // ServerValue<String> Methods
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Gets the normalized (cannonical) representation for the wrapped string.
+     * If the wrapped String is null, null is returned, otherwise the normalized
+     * form is returned.  If no the normalizedValue is null, then this method
+     * will attempt to generate it from the wrapped value: repeated calls to
+     * this method do not unnecessarily normalize the wrapped value.  Only changes
+     * to the wrapped value result in attempts to normalize the wrapped value.
+     *
+     * @see ServerValue#getNormalizedValue()
+     */
     public String getNormalizedValue() throws NamingException
     {
         if ( get() == null )
@@ -99,104 +153,33 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     }
 
 
-    public final void set( String wrapped )
-    {
-        normalizedValue = null;
-        super.set( wrapped );
-    }
-
-
+    /**
+     * Uses the syntaxChecker associated with the attributeType to check if the
+     * value is valid.  Repeated calls to this method do not attempt to re-check
+     * the syntax of the wrapped value every time if the wrapped value does not
+     * change. Syntax checks only result on the first check, and when the wrapped
+     * value changes.
+     *
+     * @see ServerValue#isValid()
+     */
     public final boolean isValid() throws NamingException
     {
-        return attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
-    }
-
-
-    public int compareTo( ServerValue<String> value )
-    {
-        try
+        if ( valid != null )
         {
-            //noinspection unchecked
-            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
-        }
-        catch ( Exception e )
-        {
-            throw new IllegalStateException( "Failed to normalize values.", e );
-        }
-    }
-
-
-    private MatchingRule getMatchingRule() throws NamingException
-    {
-        MatchingRule mr = attributeType.getEquality();
-
-        if ( mr == null )
-        {
-            mr = attributeType.getOrdering();
+            return valid;
         }
 
-        if ( mr == null )
-        {
-            mr = attributeType.getSubstr();
-        }
-
-        return mr;
-    }
-
-
-    private Normalizer getNormalizer() throws NamingException
-    {
-        MatchingRule mr = getMatchingRule();
-
-        if ( mr == null )
-        {
-            return null;
-        }
-
-        return mr.getNormalizer();
-    }
-
-
-    private Comparator getComparator() throws NamingException
-    {
-        MatchingRule mr = getMatchingRule();
-
-        if ( mr == null )
-        {
-            return null;
-        }
-
-        return mr.getComparator();
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+        return valid;
     }
 
 
     /**
-     * @see Object#hashCode()
+     * @see ServerValue#compareTo(ServerValue)
+     * @throws IllegalStateException on failures to extract the comparator, or the
+     * normalizers needed to perform the required comparisons based on the schema
      */
-    public int hashCode()
-    {
-        // return zero if the value is null so only one null value can be
-        // stored in an attribute - the binary version does the same 
-        if ( get() == null )
-        {
-            return 0;
-        }
-
-        try
-        {
-            return getNormalizedValue().hashCode();
-        }
-        catch ( NamingException e )
-        {
-            LOG.warn( "Failed to get normalized value while trying to get hashCode: {}", toString() , e );
-
-            // recover by using non-normalized values
-            return get().hashCode();
-        }
-    }
-
-
-    public int compareTo( Value<String> value )
+    public int compareTo( ServerValue<String> value )
     {
         if ( value == null && get() == null )
         {
@@ -217,28 +200,59 @@ public class ServerStringValue extends StringValue implements ServerValue<String
             return 1;
         }
 
-
         try
         {
-            if ( value instanceof ServerStringValue )
-            {
-                //noinspection unchecked
-                return getComparator().compare( getNormalizedValue(),
-                        ( ( ServerStringValue ) value ).getNormalizedValue() );
-            }
-
             //noinspection unchecked
-            return getComparator().compare( getNormalizedValue(), value.get() );
+            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
         }
         catch ( NamingException e )
         {
-            throw new IllegalStateException( "Normalization failed when it should have succeeded", e );
+            String msg = "Failed to compare normalized values for " + get() + " and " + value.get();
+            LOG.error( msg, e );
+            throw new IllegalStateException( msg, e );
+        }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Object Methods
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * @see Object#hashCode()
+     * @throws IllegalStateException on failures to extract the comparator, or the
+     * normalizers needed to perform the required comparisons based on the schema
+     */
+    public int hashCode()
+    {
+        // return zero if the value is null so only one null value can be
+        // stored in an attribute - the binary version does the same 
+        if ( get() == null )
+        {
+            return 0;
+        }
+
+        try
+        {
+            return getNormalizedValue().hashCode();
+        }
+        catch ( NamingException e )
+        {
+            String msg = "Failed to normalize \"" + get() + "\" while trying to get hashCode()";
+            LOG.error( msg, e );
+            throw new IllegalStateException( msg, e );
         }
     }
 
 
     /**
-     * @see Object#equals(Object)
+     * Checks to see if this ServerStringValue equals the supplied object.
+     *
+     * This equals implementation overrides the StringValue implementation which
+     * is not schema aware.
+     * @throws IllegalStateException on failures to extract the comparator, or the
+     * normalizers needed to perform the required comparisons based on the schema
      */
     public boolean equals( Object obj )
     {
@@ -277,13 +291,82 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         }
         catch ( NamingException e )
         {
-            // 1st this is a warning because we're recovering from it and secondly
-            // we build big string since waste is not an issue when exception handling
-            LOG.warn( "Failed to get normalized value while trying to compare StringValues: "
-                    + toString() + " and " + other.toString() , e );
-
-            // recover by comparing non-normalized values
-            return get().equals( other.get() );
+            String msg = "Failed to normalize while testing for equality on String values: \"";
+            msg += get() + "\"" + " and \"" + other.get() + "\"" ;
+            LOG.error( msg, e );
+            throw new IllegalStateException( msg, e );
         }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Private Helper Methods (might be put into abstract base class)
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Find a matchingRule to use for normalization and comparison.  If an equality
+     * matchingRule cannot be found it checks to see if other matchingRules are
+     * available: SUBSTR, and ORDERING.  If a matchingRule cannot be found null is
+     * returned.
+     *
+     * @return a matchingRule or null if one cannot be found for the attributeType
+     * @throws NamingException if resolution of schema entities fail
+     */
+    private MatchingRule getMatchingRule() throws NamingException
+    {
+        MatchingRule mr = attributeType.getEquality();
+
+        if ( mr == null )
+        {
+            mr = attributeType.getOrdering();
+        }
+
+        if ( mr == null )
+        {
+            mr = attributeType.getSubstr();
+        }
+
+        return mr;
+    }
+
+
+    /**
+     * Gets a normalizer using getMatchingRule() to resolve the matchingRule
+     * that the normalizer is extracted from.
+     *
+     * @return a normalizer associated with the attributeType or null if one cannot be found
+     * @throws NamingException if resolution of schema entities fail
+     */
+    private Normalizer getNormalizer() throws NamingException
+    {
+        MatchingRule mr = getMatchingRule();
+
+        if ( mr == null )
+        {
+            return null;
+        }
+
+        return mr.getNormalizer();
+    }
+
+
+    /**
+     * Gets a comparator using getMatchingRule() to resolve the matching
+     * that the comparator is extracted from.
+     *
+     * @return a comparator associated with the attributeType or null if one cannot be found
+     * @throws NamingException if resolution of schema entities fail
+     */
+    private Comparator getComparator() throws NamingException
+    {
+        MatchingRule mr = getMatchingRule();
+
+        if ( mr == null )
+        {
+            return null;
+        }
+
+        return mr.getComparator();
     }
 }
