@@ -20,7 +20,6 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.EntryAttribute;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
@@ -29,15 +28,19 @@ import java.util.Iterator;
 
 
 /**
- * Document me!
+ * A server side entry attribute aware of schema.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerAttribute implements EntryAttribute<ServerValue<?>>
+public class ServerAttribute implements EntryAttribute<ServerValue<?>>, Iterable<ServerValue<?>>
 {
     private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
     private AttributeType attributeType;
+
+
+    // maybe have some additional convenience constructors which take
+    // an initial value as a string or a byte[]
 
 
     public ServerAttribute( AttributeType attributeType )
@@ -126,7 +129,7 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>
     }
 
 
-    public Value<?> get()
+    public ServerValue<?> get()
     {
         if ( values.isEmpty() )
         {
@@ -139,7 +142,7 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>
 
     public Iterator<? extends ServerValue<?>> getAll()
     {
-        return values.iterator();
+        return iterator();
     }
 
 
@@ -166,5 +169,11 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>
     {
         ServerStringValue ssv = new ServerStringValue( attributeType, val );
         return values.remove( ssv );
+    }
+
+
+    public Iterator<ServerValue<?>> iterator()
+    {
+        return values.iterator();
     }
 }

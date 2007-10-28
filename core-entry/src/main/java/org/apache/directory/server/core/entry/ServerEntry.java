@@ -21,20 +21,20 @@ package org.apache.directory.server.core.entry;
 
 import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.Entry;
-import org.apache.directory.shared.ldap.entry.Value;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
 
+import javax.naming.NamingException;
 import java.util.Set;
 
 
 /**
- * Document me!
+ * A server side entry which is schema aware.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ServerEntry extends Entry
+public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttribute>
 {
     // -----------------------------------------------------------------------
     // Schema Related Methods
@@ -79,7 +79,7 @@ public interface ServerEntry extends Entry
      *
      * @return the combinded set of all required attributes
      */
-    Set<ServerAttribute> getMustList();
+    Set<AttributeType> getMustList();
 
 
     /**
@@ -88,7 +88,7 @@ public interface ServerEntry extends Entry
      *
      * @return the combined set of all optional attributes
      */
-    Set<ServerAttribute> getMayList();
+    Set<AttributeType> getMayList();
 
 
     /**
@@ -126,7 +126,7 @@ public interface ServerEntry extends Entry
      * @return the old attribute with the same OID, if exists; otherwise
      *         <code>null</code>
      */
-    ServerAttribute put( ServerAttribute attribute );
+    ServerAttribute put( ServerAttribute attribute ) throws NamingException;
 
 
     /**
@@ -144,8 +144,9 @@ public interface ServerEntry extends Entry
      * @param val the value of the new attribute to be put
      * @return the old attribute with the same OID, if exists; otherwise
      *         <code>null</code>
+     * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, Value<?> val );
+    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
 
     /**
@@ -163,8 +164,9 @@ public interface ServerEntry extends Entry
      * @param val the value of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      *         <code>null</code>
+     * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, String val );
+    ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
 
 
     /**
@@ -182,8 +184,9 @@ public interface ServerEntry extends Entry
      * @param val the value of the new attribute to be put
      * @return the old attribute with the same identifier, if exists; otherwise
      *         <code>null</code>
+     * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, byte[] val );
+    ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
 
 
     /**
@@ -193,6 +196,7 @@ public interface ServerEntry extends Entry
      *
      * @param oid the numeric object identifier of the attribute to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
+     * @throws NamingException if there are failures
      */
-    ServerAttribute remove( OID oid );
+    ServerAttribute remove( OID oid ) throws NamingException;
 }
