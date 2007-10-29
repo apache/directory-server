@@ -40,7 +40,7 @@ public class GetServerEntry extends GetPrincipalStoreEntry
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
-        KerberosPrincipal principal = changepwContext.getTicket().getServerPrincipal();
+        KerberosPrincipal principal =  changepwContext.getTicket().getServerPrincipal();
         PrincipalStore store = changepwContext.getStore();
 
         changepwContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );

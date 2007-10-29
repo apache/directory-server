@@ -23,6 +23,7 @@ package org.apache.directory.server.changepw.service;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.changepw.ChangePasswordServer;
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -46,8 +47,9 @@ public class VerifyServiceTicket implements IoHandlerCommand
         Ticket ticket = changepwContext.getTicket();
         String primaryRealm = config.getPrimaryRealm();
         KerberosPrincipal changepwPrincipal = config.getServicePrincipal();
+        KerberosPrincipal serverPrincipal = ticket.getServerPrincipal(); 
 
-        if ( !ticket.getRealm().equals( primaryRealm ) || !ticket.getServerPrincipal().equals( changepwPrincipal ) )
+        if ( !ticket.getRealm().equals( primaryRealm ) || !serverPrincipal.equals( changepwPrincipal ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_NOT_US );
         }

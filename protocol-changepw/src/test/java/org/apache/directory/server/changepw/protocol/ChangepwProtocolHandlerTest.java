@@ -36,6 +36,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordError;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.value.ChangePasswordData;
 import org.apache.directory.server.changepw.value.ChangePasswordDataModifier;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -43,7 +44,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFa
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKrbPrivPart;
@@ -164,7 +164,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
 
         modifier.setSubSessionKey( subSessionKey );
 
-        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getSessionKey(), modifier
+        EncryptedData encryptedAuthenticator = cipherTextHandler.seal( serviceTicket.getEncTicketPart().getSessionKey(), modifier
                 .getAuthenticator(), KeyUsage.NUMBER11 );
 
         ApplicationRequest apReq = new ApplicationRequest( apOptions, serviceTicket, encryptedAuthenticator );
@@ -275,7 +275,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();
         privateMessage.setProtocolVersionNumber( 5 );
-        privateMessage.setMessageType( MessageType.ENC_PRIV_PART );
+        privateMessage.setMessageType( KerberosMessageType.ENC_PRIV_PART );
         privateMessage.setEncryptedPart( encryptedPrivPart );
 
         return privateMessage;
@@ -312,7 +312,7 @@ public class ChangepwProtocolHandlerTest extends TestCase
         // Make private message with private message part.
         PrivateMessage privateMessage = new PrivateMessage();
         privateMessage.setProtocolVersionNumber( 5 );
-        privateMessage.setMessageType( MessageType.ENC_PRIV_PART );
+        privateMessage.setMessageType( KerberosMessageType.ENC_PRIV_PART );
         privateMessage.setEncryptedPart( encryptedPrivPart );
 
         return privateMessage;

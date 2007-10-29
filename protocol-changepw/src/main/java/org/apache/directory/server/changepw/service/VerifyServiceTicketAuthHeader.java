@@ -68,7 +68,7 @@ public class VerifyServiceTicketAuthHeader extends VerifyAuthHeader
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
-        if ( request.getVersionNumber() == 1 && !ticket.getFlag( TicketFlags.INITIAL ) )
+        if ( request.getVersionNumber() == 1 && !ticket.getEncTicketPart().getFlags().get( TicketFlags.INITIAL ) )
         {
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_INITIAL_FLAG_NEEDED );
         }

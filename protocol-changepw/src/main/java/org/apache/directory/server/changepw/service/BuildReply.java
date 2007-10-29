@@ -101,7 +101,7 @@ public class BuildReply implements IoHandlerCommand
 
         try
         {
-            encRepPart = cipherTextHandler.seal( ticket.getSessionKey(), repPart, KeyUsage.NUMBER12 );
+            encRepPart = cipherTextHandler.seal( ticket.getEncTicketPart().getSessionKey(), repPart, KeyUsage.NUMBER12 );
         }
         catch ( KerberosException ke )
         {

@@ -71,13 +71,13 @@ public class MonitorContext implements IoHandlerCommand
                 String desiredPassword = changepwContext.getPassword();
 
                 InetAddress clientAddress = changepwContext.getClientAddress();
-                HostAddresses clientAddresses = ticket.getClientAddresses();
+                HostAddresses clientAddresses = ticket.getEncTicketPart().getClientAddresses();
 
                 boolean caddrContainsSender = false;
 
-                if ( ticket.getClientAddresses() != null )
+                if ( ticket.getEncTicketPart().getClientAddresses() != null )
                 {
-                    caddrContainsSender = ticket.getClientAddresses().contains( new HostAddress( clientAddress ) );
+                    caddrContainsSender = ticket.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) );
                 }
 
                 StringBuffer sb = new StringBuffer();
@@ -92,11 +92,10 @@ public class MonitorContext implements IoHandlerCommand
                 sb.append( "\n\t" + "clientAddress          " + clientAddress );
                 sb.append( "\n\t" + "clientAddresses        " + clientAddresses );
                 sb.append( "\n\t" + "caddr contains sender  " + caddrContainsSender );
-
-                KerberosPrincipal ticketServerPrincipal = ticket.getServerPrincipal();
-                sb.append( "\n\t" + "Ticket principal       " + ticketServerPrincipal );
+                sb.append( "\n\t" + "Ticket principal       " + ticket.getServerPrincipal() );
 
                 PrincipalStoreEntry ticketPrincipal = changepwContext.getServerEntry();
+                
                 sb.append( "\n\t" + "cn                     " + ticketPrincipal.getCommonName() );
                 sb.append( "\n\t" + "realm                  " + ticketPrincipal.getRealmName() );
                 sb.append( "\n\t" + "Service principal      " + ticketPrincipal.getPrincipal() );
