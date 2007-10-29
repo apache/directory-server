@@ -56,7 +56,7 @@ public class SealReply implements IoHandlerCommand
         }
         else
         {
-            encryptedData = cipherTextHandler.seal( tgt.getSessionKey(), reply, KeyUsage.NUMBER8 );
+            encryptedData = cipherTextHandler.seal( tgt.getEncTicketPart().getSessionKey(), reply, KeyUsage.NUMBER8 );
         }
 
         reply.setEncPart( encryptedData );

@@ -30,6 +30,8 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import junit.framework.TestCase;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumHandler;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
@@ -41,13 +43,11 @@ import org.apache.directory.server.kerberos.shared.io.encoder.ApplicationRequest
 import org.apache.directory.server.kerberos.shared.io.encoder.KdcRequestEncoder;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.AuthenticatorModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.components.TicketModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -75,7 +75,9 @@ import org.apache.mina.common.support.BaseIoSession;
  * for generating message components.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ * @version $Rev$, $Date$        Ticket ticket = ticketModifier.getTicket();
+
+
  */
 public abstract class AbstractTicketGrantingServiceTest extends TestCase
 {
@@ -154,12 +156,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
 
         EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
-        TicketModifier ticketModifier = new TicketModifier();
-        ticketModifier.setTicketVersionNumber( 5 );
-        ticketModifier.setServerPrincipal( serverPrincipal );
-        ticketModifier.setEncPart( encryptedTicketPart );
-
-        Ticket ticket = ticketModifier.getTicket();
+        Ticket ticket = new Ticket( KerberosConstants.KERBEROS_V5, serverPrincipal, encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
 
@@ -200,12 +197,10 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
 
         EncryptedData encryptedTicketPart = lockBox.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
-        TicketModifier ticketModifier = new TicketModifier();
-        ticketModifier.setTicketVersionNumber( 5 );
-        ticketModifier.setServerPrincipal( serverPrincipal );
-        ticketModifier.setEncPart( encryptedTicketPart );
-
-        Ticket ticket = ticketModifier.getTicket();
+        Ticket ticket = new Ticket();
+        ticket.setTktVno( 5 );
+        ticket.setServerPrincipal( serverPrincipal );
+        ticket.setEncPart( encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
 
@@ -226,17 +221,17 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         throws Exception
     {
         // Get the session key from the service ticket.
-        sessionKey = tgt.getSessionKey();
+        sessionKey = tgt.getEncTicketPart().getSessionKey();
 
         // Generate a new sequence number.
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        EncryptedData authenticator = getAuthenticator( tgt.getClientPrincipal(), requestBody, checksumType );
+        EncryptedData authenticator = getAuthenticator( tgt.getEncTicketPart().getClientPrincipal(), requestBody, checksumType );
 
         PaData[] paData = getPreAuthenticationData( tgt, authenticator );
 
-        return new KdcRequest( 5, MessageType.KRB_TGS_REQ, paData, requestBody );
+        return new KdcRequest( 5, KerberosMessageType.TGS_REQ, paData, requestBody );
     }
 
 
@@ -298,7 +293,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         throws IOException
     {
         ApplicationRequest applicationRequest = new ApplicationRequest();
-        applicationRequest.setMessageType( MessageType.KRB_AP_REQ );
+        applicationRequest.setMessageType( KerberosMessageType.AP_REQ );
         applicationRequest.setProtocolVersionNumber( 5 );
         applicationRequest.setApOptions( new ApOptions() );
         applicationRequest.setTicket( ticket );

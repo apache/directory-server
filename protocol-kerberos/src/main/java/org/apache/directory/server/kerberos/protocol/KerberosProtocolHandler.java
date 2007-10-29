@@ -27,9 +27,10 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
-import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationServiceChain;
+import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
@@ -60,7 +61,6 @@ public class KerberosProtocolHandler implements IoHandler
 
     private KdcServer config;
     private PrincipalStore store;
-    private IoHandlerCommand authService;
     private IoHandlerCommand tgsService;
     private String contextKey = "context";
 
@@ -76,7 +76,6 @@ public class KerberosProtocolHandler implements IoHandler
         this.config = config;
         this.store = store;
 
-        authService = new AuthenticationServiceChain();
         tgsService = new TicketGrantingServiceChain();
     }
 
@@ -145,13 +144,13 @@ public class KerberosProtocolHandler implements IoHandler
         InetAddress clientAddress = ( ( InetSocketAddress ) session.getRemoteAddress() ).getAddress();
         KdcRequest request = ( KdcRequest ) message;
 
-        int messageType = request.getMessageType().getOrdinal();
+        KerberosMessageType messageType = request.getMessageType();
 
         try
         {
             switch ( messageType )
             {
-                case 10:
+                case AS_REQ :
                     AuthenticationContext authContext = new AuthenticationContext();
                     authContext.setConfig( config );
                     authContext.setStore( store );
@@ -159,12 +158,12 @@ public class KerberosProtocolHandler implements IoHandler
                     authContext.setRequest( request );
                     session.setAttribute( getContextKey(), authContext );
 
-                    authService.execute( null, session, message );
+                    AuthenticationService.execute( session, authContext, message );
 
                     session.write( authContext.getReply() );
                     break;
 
-                case 12:
+                case TGS_REQ:
                     TicketGrantingContext tgsContext = new TicketGrantingContext();
                     tgsContext.setConfig( config );
                     tgsContext.setStore( store );
@@ -177,8 +176,8 @@ public class KerberosProtocolHandler implements IoHandler
                     session.write( tgsContext.getReply() );
                     break;
 
-                case 11:
-                case 13:
+                case AS_REP:
+                case TGS_REP:
                     throw new KerberosException( ErrorType.KRB_AP_ERR_BADDIRECTION );
 
                 default:

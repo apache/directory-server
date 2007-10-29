@@ -74,20 +74,20 @@ public class GenerateTicket implements IoHandlerCommand
 
         EncTicketPartModifier newTicketBody = new EncTicketPartModifier();
 
-        newTicketBody.setClientAddresses( tgt.getClientAddresses() );
+        newTicketBody.setClientAddresses( tgt.getEncTicketPart().getClientAddresses() );
 
         processFlags( config, request, tgt, newTicketBody );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( tgsContext.getEncryptionType() );
         newTicketBody.setSessionKey( sessionKey );
 
-        newTicketBody.setClientPrincipal( tgt.getClientPrincipal() );
+        newTicketBody.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
 
         if ( request.getEncAuthorizationData() != null )
         {
             AuthorizationData authData = ( AuthorizationData ) cipherTextHandler.unseal( AuthorizationData.class,
                 authenticator.getSubSessionKey(), request.getEncAuthorizationData(), KeyUsage.NUMBER4 );
-            authData.add( tgt.getAuthorizationData() );
+            authData.add( tgt.getEncTicketPart().getAuthorizationData() );
             newTicketBody.setAuthorizationData( authData );
         }
 
@@ -130,7 +130,7 @@ public class GenerateTicket implements IoHandlerCommand
     private void processFlags( KdcServer config, KdcRequest request, Ticket tgt,
         EncTicketPartModifier newTicketBody ) throws KerberosException
     {
-        if ( tgt.getFlag( TicketFlags.PRE_AUTHENT ) )
+        if ( tgt.getEncTicketPart().getFlags().get( TicketFlags.PRE_AUTHENT ) )
         {
             newTicketBody.setFlag( TicketFlags.PRE_AUTHENT );
         }
@@ -142,7 +142,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.FORWARDABLE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.FORWARDABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -157,7 +157,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.FORWARDABLE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.FORWARDABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -178,7 +178,7 @@ public class GenerateTicket implements IoHandlerCommand
             newTicketBody.setFlag( TicketFlags.FORWARDED );
         }
 
-        if ( tgt.getFlag( TicketFlags.FORWARDED ) )
+        if ( tgt.getEncTicketPart().getFlags().get( TicketFlags.FORWARDED ) )
         {
             newTicketBody.setFlag( TicketFlags.FORWARDED );
         }
@@ -190,7 +190,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.PROXIABLE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.PROXIABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -205,7 +205,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.PROXIABLE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.PROXIABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -233,7 +233,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -258,7 +258,7 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.MAY_POSTDATE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
@@ -276,23 +276,19 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.INVALID ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.INVALID ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            KerberosTime startTime = ( tgt.getStartTime() != null ) ? tgt.getStartTime() : tgt.getAuthTime();
+            KerberosTime startTime = ( tgt.getEncTicketPart().getStartTime() != null ) ? 
+                    tgt.getEncTicketPart().getStartTime() : 
+                        tgt.getEncTicketPart().getAuthTime();
 
             if ( startTime.greaterThan( new KerberosTime() ) )
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
             }
-
-            /*
-             * if (check_hot_list(tgt)) then
-             *         error_out(KRB_AP_ERR_REPEAT);
-             * endif
-             */
 
             echoTicket( newTicketBody, tgt );
             newTicketBody.clearFlag( TicketFlags.INVALID );
@@ -310,7 +306,7 @@ public class GenerateTicket implements IoHandlerCommand
     {
         KerberosTime now = new KerberosTime();
 
-        newTicketBody.setAuthTime( tgt.getAuthTime() );
+        newTicketBody.setAuthTime( tgt.getEncTicketPart().getAuthTime() );
 
         KerberosTime startTime = request.getFrom();
 
@@ -334,7 +330,7 @@ public class GenerateTicket implements IoHandlerCommand
          */
         if ( startTime != null && startTime.greaterThan( now )
             && !startTime.isInClockSkew( config.getAllowableClockSkew() )
-            && ( !request.getOption( KdcOptions.POSTDATED ) || !tgt.getFlag( TicketFlags.MAY_POSTDATE ) ) )
+            && ( !request.getOption( KdcOptions.POSTDATED ) || !tgt.getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) ) )
         {
             throw new KerberosException( ErrorType.KDC_ERR_CANNOT_POSTDATE );
         }
@@ -349,12 +345,12 @@ public class GenerateTicket implements IoHandlerCommand
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            if ( !tgt.getFlag( TicketFlags.RENEWABLE ) )
+            if ( !tgt.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
             {
                 throw new KerberosException( ErrorType.KDC_ERR_BADOPTION );
             }
 
-            if ( tgt.getRenewTill().lessThan( now ) )
+            if ( tgt.getEncTicketPart().getRenewTill().lessThan( now ) )
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
             }
@@ -363,11 +359,13 @@ public class GenerateTicket implements IoHandlerCommand
 
             newTicketBody.setStartTime( now );
 
-            KerberosTime tgtStartTime = ( tgt.getStartTime() != null ) ? tgt.getStartTime() : tgt.getAuthTime();
+            KerberosTime tgtStartTime = ( tgt.getEncTicketPart().getStartTime() != null ) ? 
+                tgt.getEncTicketPart().getStartTime() : 
+                    tgt.getEncTicketPart().getAuthTime();
 
-            long oldLife = tgt.getEndTime().getTime() - tgtStartTime.getTime();
+            long oldLife = tgt.getEncTicketPart().getEndTime().getTime() - tgtStartTime.getTime();
 
-            kerberosEndTime = new KerberosTime( Math.min( tgt.getRenewTill().getTime(), now.getTime() + oldLife ) );
+            kerberosEndTime = new KerberosTime( Math.min( tgt.getEncTicketPart().getRenewTill().getTime(), now.getTime() + oldLife ) );
             newTicketBody.setEndTime( kerberosEndTime );
         }
         else
@@ -395,13 +393,13 @@ public class GenerateTicket implements IoHandlerCommand
             List<KerberosTime> minimizer = new ArrayList<KerberosTime>();
             minimizer.add( till );
             minimizer.add( new KerberosTime( startTime.getTime() + config.getMaximumTicketLifetime() ) );
-            minimizer.add( tgt.getEndTime() );
+            minimizer.add( tgt.getEncTicketPart().getEndTime() );
             kerberosEndTime = Collections.min( minimizer );
 
             newTicketBody.setEndTime( kerberosEndTime );
 
             if ( request.getOption( KdcOptions.RENEWABLE_OK ) && kerberosEndTime.lessThan( request.getTill() )
-                && tgt.getFlag( TicketFlags.RENEWABLE ) )
+                && tgt.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
             {
                 if ( !config.isRenewableAllowed() )
                 {
@@ -410,7 +408,7 @@ public class GenerateTicket implements IoHandlerCommand
 
                 // We set the RENEWABLE option for later processing.                           
                 request.setOption( KdcOptions.RENEWABLE );
-                long rtime = Math.min( request.getTill().getTime(), tgt.getRenewTill().getTime() );
+                long rtime = Math.min( request.getTill().getTime(), tgt.getEncTicketPart().getRenewTill().getTime() );
                 renewalTime = new KerberosTime( rtime );
             }
         }
@@ -430,7 +428,7 @@ public class GenerateTicket implements IoHandlerCommand
             rtime = renewalTime;
         }
 
-        if ( request.getOption( KdcOptions.RENEWABLE ) && tgt.getFlag( TicketFlags.RENEWABLE ) )
+        if ( request.getOption( KdcOptions.RENEWABLE ) && tgt.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
         {
             if ( !config.isRenewableAllowed() )
             {
@@ -455,7 +453,7 @@ public class GenerateTicket implements IoHandlerCommand
             }
 
             minimizer.add( new KerberosTime( startTime.getTime() + config.getMaximumRenewableLifetime() ) );
-            minimizer.add( tgt.getRenewTill() );
+            minimizer.add( tgt.getEncTicketPart().getRenewTill() );
             newTicketBody.setRenewTill( Collections.min( minimizer ) );
         }
 
@@ -493,21 +491,22 @@ public class GenerateTicket implements IoHandlerCommand
     private void processTransited( EncTicketPartModifier newTicketBody, Ticket tgt )
     {
         // TODO - currently no transited support other than local
-        newTicketBody.setTransitedEncoding( tgt.getTransitedEncoding() );
+        newTicketBody.setTransitedEncoding( tgt.getEncTicketPart().getTransitedEncoding() );
     }
 
 
     protected void echoTicket( EncTicketPartModifier newTicketBody, Ticket tgt )
     {
-        newTicketBody.setAuthorizationData( tgt.getAuthorizationData() );
-        newTicketBody.setAuthTime( tgt.getAuthTime() );
-        newTicketBody.setClientAddresses( tgt.getClientAddresses() );
-        newTicketBody.setClientPrincipal( tgt.getClientPrincipal() );
-        newTicketBody.setEndTime( tgt.getEndTime() );
-        newTicketBody.setFlags( tgt.getFlags() );
-        newTicketBody.setRenewTill( tgt.getRenewTill() );
-        newTicketBody.setSessionKey( tgt.getSessionKey() );
-        newTicketBody.setTransitedEncoding( tgt.getTransitedEncoding() );
+        EncTicketPart encTicketpart = tgt.getEncTicketPart();
+        newTicketBody.setAuthorizationData( encTicketpart.getAuthorizationData() );
+        newTicketBody.setAuthTime( encTicketpart.getAuthTime() );
+        newTicketBody.setClientAddresses( encTicketpart.getClientAddresses() );
+        newTicketBody.setClientPrincipal( encTicketpart.getClientPrincipal() );
+        newTicketBody.setEndTime( encTicketpart.getEndTime() );
+        newTicketBody.setFlags( encTicketpart.getFlags() );
+        newTicketBody.setRenewTill( encTicketpart.getRenewTill() );
+        newTicketBody.setSessionKey( encTicketpart.getSessionKey() );
+        newTicketBody.setTransitedEncoding( encTicketpart.getTransitedEncoding() );
     }
 
 

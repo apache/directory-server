@@ -25,6 +25,7 @@ import java.net.InetAddress;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.checksum.ChecksumType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -32,7 +33,6 @@ import org.apache.directory.server.kerberos.shared.crypto.encryption.RandomKeyFa
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.TicketGrantReply;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -138,7 +138,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         modifier.setRealm( "EXAMPLE.COM" );
         modifier.setEType( config.getEncryptionTypes() );
 
-        KdcRequest message = new KdcRequest( 4, MessageType.KRB_TGS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 4, KerberosMessageType.TGS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -219,13 +219,13 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         RequestBody requestBody = modifier.getRequestBody();
 
         // Get the session key from the service ticket.
-        sessionKey = tgt.getSessionKey();
+        sessionKey = tgt.getEncTicketPart().getSessionKey();
 
         // Generate a new sequence number.
         sequenceNumber = random.nextInt();
         now = new KerberosTime();
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_TGS_REQ, null, requestBody );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, requestBody );
 
         handler.messageReceived( session, message );
 
@@ -430,7 +430,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        KerberosTime expectedRenewTillTime = tgt.getRenewTill();
+        KerberosTime expectedRenewTillTime = tgt.getEncTicketPart().getRenewTill();
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
         assertTrue( "Expected renew till time", isClose );
     }
@@ -480,7 +480,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        KerberosTime expectedRenewTillTime = tgt.getRenewTill();
+        KerberosTime expectedRenewTillTime = tgt.getEncTicketPart().getRenewTill();
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
         assertTrue( "Expected renew till time", isClose );
     }
@@ -537,10 +537,10 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "PROXY flag", reply.getFlags().get( TicketFlags.PROXY ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "PROXY flag", reply.getTicket().getFlags().get( TicketFlags.PROXY ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXY flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PROXY ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
 
-        assertNotNull( reply.getTicket().getClientAddresses() );
+        assertNotNull( reply.getTicket().getEncTicketPart().getClientAddresses() );
     }
 
 
@@ -595,10 +595,10 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "FORWARDED flag", reply.getFlags().get( TicketFlags.FORWARDED ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "FORWARDED flag", reply.getTicket().getFlags().get( TicketFlags.FORWARDED ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDED flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.FORWARDED ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
 
-        assertNotNull( reply.getTicket().getClientAddresses() );
+        assertNotNull( reply.getTicket().getEncTicketPart().getClientAddresses() );
     }
 
 
@@ -741,7 +741,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        KerberosTime expectedEndTime = tgt.getEndTime();
+        KerberosTime expectedEndTime = tgt.getEncTicketPart().getEndTime();
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
         assertTrue( "Expected renew till time", isClose );
     }
@@ -825,7 +825,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_TGS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( 5, KerberosMessageType.TGS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -1262,10 +1262,10 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "POSTDATED flag", reply.getFlags().get( TicketFlags.POSTDATED ) );
         assertTrue( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getStartTime() ) );
+        assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "POSTDATED flag", reply.getTicket().getFlags().get( TicketFlags.POSTDATED ) );
-        assertTrue( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.POSTDATED ) );
+        assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
     }
 
 
@@ -1311,7 +1311,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getFlags().get( TicketFlags.PRE_AUTHENT ) );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PRE_AUTHENT ) );
     }
 
 
@@ -1576,8 +1576,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "FORWARDABLE flag", reply.getFlags().get( TicketFlags.FORWARDABLE ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "FORWARDABLE flag", reply.getTicket().getFlags().get( TicketFlags.FORWARDABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.FORWARDABLE ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
     }
 
 
@@ -1630,8 +1630,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "MAY_POSTDATE flag", reply.getFlags().get( TicketFlags.MAY_POSTDATE ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getFlags().get( TicketFlags.MAY_POSTDATE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
     }
 
 
@@ -1684,8 +1684,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "PROXIABLE flag", reply.getFlags().get( TicketFlags.PROXIABLE ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "PROXIABLE flag", reply.getTicket().getFlags().get( TicketFlags.PROXIABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXIABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PROXIABLE ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
     }
 
 
@@ -1744,8 +1744,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
 
         assertTrue( "Requested renew-till time", requestedRenewTillTime.equals( reply.getRenewTill() ) );
     }
@@ -1807,8 +1807,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
 
         KerberosTime expectedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK );
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -1861,7 +1861,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
         assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
-        assertFalse( "INVALID flag", reply.getTicket().getFlags().get( TicketFlags.INVALID ) );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
     }
 
 

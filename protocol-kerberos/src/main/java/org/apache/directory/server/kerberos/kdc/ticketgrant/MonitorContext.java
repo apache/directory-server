@@ -73,12 +73,12 @@ public class MonitorContext implements IoHandlerCommand
                 long clockSkew = tgsContext.getConfig().getAllowableClockSkew();
                 ChecksumType checksumType = tgsContext.getAuthenticator().getChecksum().getChecksumType();
                 InetAddress clientAddress = tgsContext.getClientAddress();
-                HostAddresses clientAddresses = tgt.getClientAddresses();
+                HostAddresses clientAddresses = tgt.getEncTicketPart().getClientAddresses();
 
                 boolean caddrContainsSender = false;
-                if ( tgt.getClientAddresses() != null )
+                if ( tgt.getEncTicketPart().getClientAddresses() != null )
                 {
-                    caddrContainsSender = tgt.getClientAddresses().contains( new HostAddress( clientAddress ) );
+                    caddrContainsSender = tgt.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) );
                 }
 
                 StringBuffer sb = new StringBuffer();

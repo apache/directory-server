@@ -46,22 +46,22 @@ public class BuildReply implements IoHandlerCommand
         Ticket newTicket = tgsContext.getNewTicket();
 
         TicketGrantReply reply = new TicketGrantReply();
-        reply.setClientPrincipal( tgt.getClientPrincipal() );
+        reply.setClientPrincipal( tgt.getEncTicketPart().getClientPrincipal() );
         reply.setTicket( newTicket );
-        reply.setKey( newTicket.getSessionKey() );
+        reply.setKey( newTicket.getEncTicketPart().getSessionKey() );
         reply.setNonce( request.getNonce() );
         // TODO - resp.last-req := fetch_last_request_info(client); requires store
         reply.setLastRequest( new LastRequest() );
-        reply.setFlags( newTicket.getFlags() );
-        reply.setClientAddresses( newTicket.getClientAddresses() );
-        reply.setAuthTime( newTicket.getAuthTime() );
-        reply.setStartTime( newTicket.getStartTime() );
-        reply.setEndTime( newTicket.getEndTime() );
+        reply.setFlags( newTicket.getEncTicketPart().getFlags() );
+        reply.setClientAddresses( newTicket.getEncTicketPart().getClientAddresses() );
+        reply.setAuthTime( newTicket.getEncTicketPart().getAuthTime() );
+        reply.setStartTime( newTicket.getEncTicketPart().getStartTime() );
+        reply.setEndTime( newTicket.getEncTicketPart().getEndTime() );
         reply.setServerPrincipal( newTicket.getServerPrincipal() );
 
-        if ( newTicket.getFlag( TicketFlags.RENEWABLE ) )
+        if ( newTicket.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
         {
-            reply.setRenewTill( newTicket.getRenewTill() );
+            reply.setRenewTill( newTicket.getEncTicketPart().getRenewTill() );
         }
 
         tgsContext.setReply( reply );
