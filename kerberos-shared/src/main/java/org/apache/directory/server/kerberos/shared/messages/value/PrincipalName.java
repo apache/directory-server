@@ -108,7 +108,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A principal Name, componsed of a type and N names.
+ * A principal Name, composed of a type and N names.
  * 
  * PrincipalName   ::= SEQUENCE {
  *        name-type       [0] Int32,
@@ -159,9 +159,16 @@ public class PrincipalName extends AbstractAsn1Object
      *
      * @param principal A Sun kerberosPrincipal instance
      */
-    public PrincipalName( KerberosPrincipal principal ) throws ParseException
+    public PrincipalName( KerberosPrincipal principal )
     {
-        nameString = KerberosUtils.getNames( principal );
+        try
+        {
+            nameString = KerberosUtils.getNames( principal );
+        }
+        catch ( ParseException pe )
+        {
+            nameString = KerberosUtils.EMPTY_PRINCIPAL_NAME;
+        }
 
         this.nameType = PrincipalNameType.getTypeByOrdinal( principal.getNameType() );
     }

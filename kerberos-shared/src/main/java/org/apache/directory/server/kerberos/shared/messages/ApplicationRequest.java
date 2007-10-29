@@ -20,6 +20,7 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -41,7 +42,7 @@ public class ApplicationRequest extends KerberosMessage
      */
     public ApplicationRequest()
     {
-        super( MessageType.KRB_AP_REQ );
+        super( KerberosMessageType.AP_REQ );
         // used by ASN1 decoder
     }
 
@@ -55,7 +56,7 @@ public class ApplicationRequest extends KerberosMessage
      */
     public ApplicationRequest( ApOptions apOptions, Ticket ticket, EncryptedData encPart )
     {
-        super( MessageType.KRB_AP_REQ );
+        super( KerberosMessageType.AP_REQ );
         this.apOptions = apOptions;
         this.ticket = ticket;
         this.encPart = encPart;

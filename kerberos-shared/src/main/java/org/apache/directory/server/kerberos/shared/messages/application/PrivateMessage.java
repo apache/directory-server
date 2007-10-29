@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 
 
@@ -39,7 +39,7 @@ public class PrivateMessage extends KerberosMessage
      */
     public PrivateMessage()
     {
-        super( MessageType.KRB_PRIV );
+        super( KerberosMessageType.KRB_PRIV );
         // used by ASN.1 decoder
     }
 
@@ -51,7 +51,7 @@ public class PrivateMessage extends KerberosMessage
      */
     public PrivateMessage( EncryptedData encryptedPart )
     {
-        super( MessageType.KRB_PRIV );
+        super( KerberosMessageType.KRB_PRIV );
         this.encryptedPart = encryptedPart;
     }
 

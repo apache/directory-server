@@ -17,42 +17,21 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.application;
-
-
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
-import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-
+package org.apache.directory.server.kerberos.shared.messages.value.flags;
 
 /**
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ *
  */
-public class ApplicationReply extends KerberosMessage
+public interface KerberosFlags
 {
-    private EncryptedData encryptedPart;
-
-
-    /**
-     * Creates a new instance of ApplicationReply.
-     *
-     * @param encPart
-     */
-    public ApplicationReply( EncryptedData encPart )
-    {
-        super( KerberosMessageType.AP_REP );
-        encryptedPart = encPart;
-    }
-
-
-    /**
-     * Returns the {@link EncryptedData}.
-     *
-     * @return The {@link EncryptedData}.
-     */
-    public EncryptedData getEncPart()
-    {
-        return encryptedPart;
-    }
+    public byte[] getBytes();
+    public int getIntValue();
+    public boolean isFlagSet( KerberosFlag flag );
+    public boolean isFlagSet( int flag );
+    public void setFlag( KerberosFlag flag );
+    public void setFlag( int flag );
+    public void clearFlag( KerberosFlag flag );
+    public void clearFlag( int flag );
 }

@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -51,7 +52,7 @@ public class KdcRequest extends KerberosMessage
      * @param preAuthData
      * @param requestBody
      */
-    public KdcRequest( int pvno, MessageType messageType, PaData[] preAuthData, RequestBody requestBody )
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody )
     {
         super( pvno, messageType );
         this.preAuthData = preAuthData;
@@ -68,7 +69,7 @@ public class KdcRequest extends KerberosMessage
      * @param requestBody
      * @param bodyBytes
      */
-    public KdcRequest( int pvno, MessageType messageType, PaData[] preAuthData, RequestBody requestBody,
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody,
         byte[] bodyBytes )
     {
         this( pvno, messageType, preAuthData, requestBody );

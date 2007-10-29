@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -52,7 +53,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @param msgType
      */
-    public KdcReply( MessageType msgType )
+    public KdcReply( KerberosMessageType msgType )
     {
         super( msgType );
     }
@@ -68,7 +69,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      * @param msgType
      */
     public KdcReply( PaData[] paData, KerberosPrincipal clientPrincipal, Ticket ticket,
-        EncryptedData encPart, MessageType msgType )
+        EncryptedData encPart, KerberosMessageType msgType )
     {
         this( msgType );
         this.paData = paData;

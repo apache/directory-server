@@ -23,8 +23,8 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.ApOptions;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
@@ -74,7 +74,7 @@ public class ApplicationRequestDecoder
     {
         ApplicationRequest authHeader = new ApplicationRequest();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( ( DERTaggedObject ) e.nextElement() );
             int tag = object.getTagNo();
@@ -86,10 +86,12 @@ public class ApplicationRequestDecoder
                     DERInteger tag0 = ( DERInteger ) derObject;
                     authHeader.setProtocolVersionNumber( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    authHeader.setMessageType( MessageType.getTypeByOrdinal( tag1.intValue() ) );
+                    authHeader.setMessageType( KerberosMessageType.getTypeByOrdinal( tag1.intValue() ) );
                     break;
+                    
                 case 2:
                     DERBitString apOptions = ( DERBitString ) derObject;
                     authHeader.setApOptions( new ApOptions( apOptions.getOctets() ) );
@@ -98,6 +100,7 @@ public class ApplicationRequestDecoder
                     DERApplicationSpecific tag3 = ( DERApplicationSpecific ) derObject;
                     authHeader.setTicket( TicketDecoder.decode( tag3 ) );
                     break;
+                    
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
                     authHeader.setEncPart( EncryptedDataDecoder.decode( tag4 ) );

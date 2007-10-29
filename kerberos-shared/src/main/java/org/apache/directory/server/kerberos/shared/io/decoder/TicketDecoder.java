@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.components.TicketModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
 import org.apache.directory.shared.asn1.der.DEREncodable;
@@ -69,7 +68,7 @@ public class TicketDecoder
         Ticket[] tickets = new Ticket[sequence.size()];
 
         int ii = 0;
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERApplicationSpecific object = ( DERApplicationSpecific ) e.nextElement();
             tickets[ii] = decode( object );
@@ -91,9 +90,9 @@ public class TicketDecoder
     {
         DERSequence sequence = ( DERSequence ) app.getObject();
 
-        TicketModifier modifier = new TicketModifier();
+        Ticket ticket = new Ticket();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -103,23 +102,26 @@ public class TicketDecoder
             {
                 case 0:
                     DERInteger tag0 = ( DERInteger ) derObject;
-                    modifier.setTicketVersionNumber( tag0.intValue() );
+                    ticket.setTktVno( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DERGeneralString tag1 = ( DERGeneralString ) derObject;
-                    modifier.setServerRealm( tag1.getString() );
+                    ticket.setRealm( tag1.getString() );
                     break;
+                    
                 case 2:
                     DERSequence tag2 = ( DERSequence ) derObject;
-                    modifier.setServerName( PrincipalNameDecoder.decode( tag2 ) );
+                    ticket.setSName( PrincipalNameDecoder.decode( tag2 ) );
                     break;
+                    
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
-                    modifier.setEncPart( EncryptedDataDecoder.decode( tag3 ) );
+                    ticket.setEncPart( EncryptedDataDecoder.decode( tag3 ) );
                     break;
             }
         }
 
-        return modifier.getTicket();
+        return ticket;
     }
 }

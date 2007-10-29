@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.shared.messages.components;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
@@ -51,7 +51,7 @@ public class EncApRepPart extends KerberosMessage implements Encodable
      */
     public EncApRepPart( KerberosTime clientTime, int cusec, EncryptionKey subSessionKey, Integer sequenceNumber )
     {
-        super( MessageType.ENC_AP_REP_PART );
+        super( KerberosMessageType.ENC_AP_REP_PART );
 
         this.clientTime = clientTime;
         this.cusec = cusec;

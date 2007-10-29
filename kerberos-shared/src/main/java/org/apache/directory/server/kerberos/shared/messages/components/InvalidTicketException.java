@@ -17,42 +17,29 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.application;
+package org.apache.directory.server.kerberos.shared.messages.components;
 
-
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
-import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-
+import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
+import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 
 /**
+ * A exception used when there was an error while creating a Ticket
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
- */
-public class ApplicationReply extends KerberosMessage
+ */ 
+public class InvalidTicketException extends KerberosException
 {
-    private EncryptedData encryptedPart;
+    static final long serialVersionUID = 1L;
 
 
-    /**
-     * Creates a new instance of ApplicationReply.
-     *
-     * @param encPart
-     */
-    public ApplicationReply( EncryptedData encPart )
+    public InvalidTicketException( ErrorType errorType )
     {
-        super( KerberosMessageType.AP_REP );
-        encryptedPart = encPart;
+        super( errorType );
     }
 
 
-    /**
-     * Returns the {@link EncryptedData}.
-     *
-     * @return The {@link EncryptedData}.
-     */
-    public EncryptedData getEncPart()
+    public InvalidTicketException( ErrorType errorType, String explanation )
     {
-        return encryptedPart;
+        super( errorType, explanation );
     }
+
 }

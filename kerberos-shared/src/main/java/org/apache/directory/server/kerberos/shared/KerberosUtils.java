@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 /**
@@ -37,7 +38,8 @@ public class KerberosUtils
     /** A constant for integer optional values */
     public static final int NULL = -1;
 
-    private static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
+    /** An empty list of principal names */
+    public static final List<String> EMPTY_PRINCIPAL_NAME = new ArrayList<String>();
     
     /**
      * Parse a KerberosPrincipal instance and return the names. The Principal name
@@ -195,5 +197,27 @@ public class KerberosUtils
         }
         
         return nameComponents;
+    }
+    
+    
+    /**
+     * Constructs a KerberosPrincipal from a PrincipalName and an 
+     * optional realm
+     *
+     * @param principal The principal name and type
+     * @param realm The optional realm
+     * 
+     * @return A KerberosPrincipal
+     */
+    public static KerberosPrincipal getKerberosPrincipal( PrincipalName principal, String realm )
+    {
+        String name = principal.getNameString(); 
+        
+        if ( !StringTools.isEmpty( realm ) )
+        {
+            name += '@' + realm;
+        }
+        
+        return new KerberosPrincipal( name, principal.getNameType().getOrdinal() );
     }
 }

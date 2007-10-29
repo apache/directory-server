@@ -17,42 +17,18 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.kerberos.shared.messages.application;
-
-
-import org.apache.directory.server.kerberos.shared.KerberosMessageType;
-import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-
+package org.apache.directory.server.kerberos.shared.messages.value.flags;
 
 /**
+ * This interface must be implemented by all the inherited Flag classes :
+ * - TicketFlag
+ * - ApOption
+ * - KdcOption
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev$, $Date$
+ *
  */
-public class ApplicationReply extends KerberosMessage
+public interface KerberosFlag
 {
-    private EncryptedData encryptedPart;
-
-
-    /**
-     * Creates a new instance of ApplicationReply.
-     *
-     * @param encPart
-     */
-    public ApplicationReply( EncryptedData encPart )
-    {
-        super( KerberosMessageType.AP_REP );
-        encryptedPart = encPart;
-    }
-
-
-    /**
-     * Returns the {@link EncryptedData}.
-     *
-     * @return The {@link EncryptedData}.
-     */
-    public EncryptedData getEncPart()
-    {
-        return encryptedPart;
-    }
+    public int getOrdinal();
 }

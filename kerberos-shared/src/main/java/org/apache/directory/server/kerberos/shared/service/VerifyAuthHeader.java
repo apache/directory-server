@@ -24,12 +24,12 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ApplicationRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
@@ -78,12 +78,12 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
         }
 
-        if ( authHeader.getMessageType() != MessageType.KRB_AP_REQ )
+        if ( authHeader.getMessageType() != KerberosMessageType.AP_REQ )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
         }
 
-        if ( authHeader.getTicket().getVersionNumber() != 5 )
+        if ( authHeader.getTicket().getTktVno() != 5 )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
         }
@@ -92,7 +92,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
 
         if ( authHeader.getOption( ApOptions.USE_SESSION_KEY ) )
         {
-            ticketKey = authHeader.getTicket().getSessionKey();
+            ticketKey = authHeader.getTicket().getEncTicketPart().getSessionKey();
         }
         else
         {
@@ -114,17 +114,17 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             KeyUsage.NUMBER2 );
         ticket.setEncTicketPart( encPart );
 
-        Authenticator authenticator = ( Authenticator ) lockBox.unseal( Authenticator.class, ticket.getSessionKey(),
+        Authenticator authenticator = ( Authenticator ) lockBox.unseal( Authenticator.class, ticket.getEncTicketPart().getSessionKey(),
             authHeader.getEncPart(), authenticatorKeyUsage );
 
-        if ( !authenticator.getClientPrincipal().getName().equals( ticket.getClientPrincipal().getName() ) )
+        if ( !authenticator.getClientPrincipal().getName().equals( ticket.getEncTicketPart().getClientPrincipal().getName() ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BADMATCH );
         }
 
-        if ( ticket.getClientAddresses() != null )
+        if ( ticket.getEncTicketPart().getClientAddresses() != null )
         {
-            if ( !ticket.getClientAddresses().contains( new HostAddress( clientAddress ) ) )
+            if ( !ticket.getEncTicketPart().getClientAddresses().contains( new HostAddress( clientAddress ) ) )
             {
                 throw new KerberosException( ErrorType.KRB_AP_ERR_BADADDR );
             }
@@ -160,19 +160,19 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
          * current time by more than the allowable clock skew, or if the INVALID
          * flag is set in the ticket, the KRB_AP_ERR_TKT_NYV error is returned."
          */
-        KerberosTime startTime = ( ticket.getStartTime() != null ) ? ticket.getStartTime() : ticket.getAuthTime();
+        KerberosTime startTime = ( ticket.getEncTicketPart().getStartTime() != null ) ? ticket.getEncTicketPart().getStartTime() : ticket.getEncTicketPart().getAuthTime();
 
         KerberosTime now = new KerberosTime();
         boolean isValidStartTime = startTime.lessThan( now );
 
-        if ( !isValidStartTime || ( ticket.getFlag( TicketFlags.INVALID ) && !isValidate ) )
+        if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().get( TicketFlags.INVALID ) && !isValidate ) )
         {
             // it hasn't yet become valid
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );
         }
 
         // TODO - doesn't take into account skew
-        if ( !ticket.getEndTime().greaterThan( now ) )
+        if ( !ticket.getEncTicketPart().getEndTime().greaterThan( now ) )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_EXPIRED );
         }

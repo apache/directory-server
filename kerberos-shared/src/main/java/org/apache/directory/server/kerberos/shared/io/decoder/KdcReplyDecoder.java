@@ -26,8 +26,8 @@ import java.util.Enumeration;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KdcReply;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosPrincipalModifier;
@@ -81,14 +81,14 @@ public class KdcReplyDecoder
      }*/
     private KdcReply decodeKdcReplySequence( DERSequence sequence ) throws IOException
     {
-        MessageType msgType = MessageType.NULL;
+        KerberosMessageType msgType = null;
         PaData[] paData = null;
         Ticket ticket = null;
         EncryptedData encPart = null;
 
         KerberosPrincipalModifier modifier = new KerberosPrincipalModifier();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -100,26 +100,32 @@ public class KdcReplyDecoder
                     // DERInteger tag0 = ( DERInteger ) derObject;
                     // int pvno = tag0.intValue();
                     break;
+                    
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    msgType = MessageType.getTypeByOrdinal( tag1.intValue() );
+                    msgType = KerberosMessageType.getTypeByOrdinal( tag1.intValue() );
                     break;
+                    
                 case 2:
                     DERSequence tag2 = ( DERSequence ) derObject;
                     paData = PreAuthenticationDataDecoder.decodeSequence( tag2 );
                     break;
+                    
                 case 3:
                     DERGeneralString tag3 = ( DERGeneralString ) derObject;
                     modifier.setRealm( tag3.getString() );
                     break;
+                    
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
                     modifier.setPrincipalName( PrincipalNameDecoder.decode( tag4 ) );
                     break;
+                    
                 case 5:
                     DERApplicationSpecific tag5 = ( DERApplicationSpecific ) derObject;
                     ticket = TicketDecoder.decode( tag5 );
                     break;
+                    
                 case 6:
                     DERSequence tag6 = ( DERSequence ) derObject;
                     encPart = ( EncryptedDataDecoder.decode( tag6 ) );

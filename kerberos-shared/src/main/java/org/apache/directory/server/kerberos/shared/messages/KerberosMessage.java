@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.kerberos.shared.messages;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -32,7 +34,7 @@ public class KerberosMessage
     public static final int PVNO = 5;
 
     private int protocolVersionNumber;
-    private MessageType messageType;
+    private KerberosMessageType messageType;
 
 
     /**
@@ -40,7 +42,7 @@ public class KerberosMessage
      *
      * @param type
      */
-    public KerberosMessage( MessageType type )
+    public KerberosMessage( KerberosMessageType type )
     {
         this( PVNO, type );
     }
@@ -52,7 +54,7 @@ public class KerberosMessage
      * @param versionNumber
      * @param type
      */
-    public KerberosMessage( int versionNumber, MessageType type )
+    public KerberosMessage( int versionNumber, KerberosMessageType type )
     {
         protocolVersionNumber = versionNumber;
         messageType = type;
@@ -64,7 +66,7 @@ public class KerberosMessage
      *
      * @return The {@link MessageType}.
      */
-    public MessageType getMessageType()
+    public KerberosMessageType getMessageType()
     {
         return messageType;
     }
@@ -75,7 +77,7 @@ public class KerberosMessage
      *
      * @param type
      */
-    public void setMessageType( MessageType type )
+    public void setMessageType( KerberosMessageType type )
     {
         messageType = type;
     }
