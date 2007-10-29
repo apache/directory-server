@@ -39,10 +39,10 @@ public interface ReplayCache
      * Returns whether a request is a replay, based on the server principal, client
      * principal, time, and microseconds.
      * 
-     * @param serverPrincipal 
-     * @param clientPrincipal
-     * @param clientTime
-     * @param clientMicroSeconds 
+     * @param serverPrincipal The server principal 
+     * @param clientPrincipal The client principal
+     * @param clientTime The client time
+     * @param clientMicroSeconds The client microsecond
      * @return true if the request is a replay.
      */
     boolean isReplay( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
@@ -53,10 +53,10 @@ public interface ReplayCache
      * Saves the server principal, client principal, time, and microseconds to
      * the replay cache.
      *
-     * @param serverPrincipal 
-     * @param clientPrincipal
-     * @param clientTime
-     * @param clientMicroSeconds 
+     * @param serverPrincipal The server principal 
+     * @param clientPrincipal The client principal
+     * @param clientTime The client time
+     * @param clientMicroSeconds The client microsecond
      */
     void save( KerberosPrincipal serverPrincipal, KerberosPrincipal clientPrincipal, KerberosTime clientTime,
         int clientMicroSeconds );
