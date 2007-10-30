@@ -176,7 +176,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * change. Syntax checks only result on the first check, and when the wrapped
      * value changes.
      *
-     * @todo can go into a base class
      * @see ServerValue#isValid()
      */
     public final boolean isValid() throws NamingException
@@ -228,6 +227,32 @@ public class ServerStringValue extends StringValue implements ServerValue<String
             LOG.error( msg, e );
             throw new IllegalStateException( msg, e );
         }
+    }
+
+
+    public AttributeType getAttributeType()
+    {
+        return attributeType;
+    }
+
+
+    /**
+     * @see ServerValue#instanceOf(AttributeType)
+     */
+    public boolean instanceOf( AttributeType attributeType ) throws NamingException
+    {
+        if ( this.attributeType.equals( attributeType ) )
+        {
+            return true;
+        }
+
+        //noinspection RedundantIfStatement
+        if ( this.attributeType.isDescentantOf( attributeType ) )
+        {
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -327,7 +352,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * available: SUBSTR, and ORDERING.  If a matchingRule cannot be found null is
      * returned.
      *
-     * @todo can go into a base class
      * @return a matchingRule or null if one cannot be found for the attributeType
      * @throws NamingException if resolution of schema entities fail
      */
@@ -353,7 +377,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * Gets a normalizer using getMatchingRule() to resolve the matchingRule
      * that the normalizer is extracted from.
      *
-     * @todo can go into a base class
      * @return a normalizer associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */
@@ -374,7 +397,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * Gets a comparator using getMatchingRule() to resolve the matching
      * that the comparator is extracted from.
      *
-     * @todo can go into a base class
      * @return a comparator associated with the attributeType or null if one cannot be found
      * @throws NamingException if resolution of schema entities fail
      */

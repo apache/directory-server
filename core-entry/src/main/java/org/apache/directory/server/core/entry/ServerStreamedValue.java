@@ -223,4 +223,30 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
     {
         throw new NotImplementedException();
     }
+
+
+    public AttributeType getAttributeType()
+    {
+        return attributeType;
+    }
+
+
+    /**
+     * @see ServerValue#instanceOf(AttributeType)
+     */
+    public boolean instanceOf( AttributeType attributeType ) throws NamingException
+    {
+        if ( this.attributeType.equals( attributeType ) )
+        {
+            return true;
+        }
+
+        //noinspection RedundantIfStatement
+        if ( this.attributeType.isDescentantOf( attributeType ) )
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

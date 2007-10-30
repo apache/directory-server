@@ -20,6 +20,7 @@ package org.apache.directory.server.core.entry;
 
 
 import org.apache.directory.shared.ldap.entry.Value;
+import org.apache.directory.shared.ldap.schema.AttributeType;
 
 import javax.naming.NamingException;
 
@@ -87,4 +88,10 @@ public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
      * if this ServerValue is less than the supplied ServerValue.
      */
     int compareTo( ServerValue<T> value );
+
+
+    AttributeType getAttributeType();
+
+    
+    boolean instanceOf( AttributeType attributeType ) throws NamingException;
 }

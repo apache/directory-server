@@ -19,7 +19,6 @@
 package org.apache.directory.server.core.entry;
 
 
-import org.apache.directory.shared.asn1.primitives.OID;
 import org.apache.directory.shared.ldap.entry.Entry;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -42,6 +41,41 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
 
 
     /**
+     * Adds an objectClass to the objectClass attribute of this ServerEntry using
+     * a specific alias name with the case provided by the user.
+     *
+     * @param objectClass the objectClass to add to this ServerEntry
+     * @param alias the optional user provided alias to use
+     * @return true if the objectClass is added, false otherwise
+     * @throws NamingException if there are problems resolving entities while
+     * adding the objectClass and its ancestors
+     */
+    boolean addObjectClass( ObjectClass objectClass, String alias ) throws NamingException;
+
+
+    /**
+     * Adds an objectClass to the objectClass attribute of this ServerEntry using
+     * the first alias it can find.  If no alias name exists the numeric OID of the
+     * objectClass is added as a value to the objectClass attribute.
+     *
+     * @param objectClass the objectClass to add to this ServerEntry
+     * @return true if the objectClass is added, false otherwise
+     * @throws NamingException if there are problems resolving entities while
+     * adding the objectClass and its ancestors
+     */
+    boolean addObjectClass( ObjectClass objectClass ) throws NamingException;
+
+
+    /**
+     * Checks to see if this entry is of the objectClass.
+     *
+     * @param objectClass the objectClass to check for in this ServerEntry
+     * @return true if this entry is of the objectClass, false otherwise
+     */
+    boolean hasObjectClass( ObjectClass objectClass );
+
+
+    /**
      * Gets the first structural objectClass that it can find within the entry.
      * If the entry is inconsistent and contains no objectClass attribute then
      * null is returned.  If the entry is inconsistent and contains more than
@@ -51,6 +85,18 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
      * @return the first structural objectClass found in this entry
      */
     ObjectClass getStructuralObjectClass();
+
+
+    /**
+     * Gets all the structural objectClasses that are found within the entry
+     * even though such a condition is considered invalid.  Only one structural
+     * objectClass can be present within a valid entry.  The entry can also be
+     * inconsistent by having no structural objectClasses then an empty set is
+     * returned.
+     *
+     * @return all the structural objectClasses found in this entry
+     */
+    Set<ObjectClass> getStructuralObjectClasses();
 
 
     /**
@@ -64,13 +110,23 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
 
 
     /**
+     * Gets all the abstract objectClasses that it can find within the entry.
+     * If the entry is inconsistent and contains no objectClass attribute then
+     * the empty set is returned.
+     *
+     * @return the set of abstract objectClasses found in this entry
+     */
+    Set<ObjectClass> getAbstractObjectClasses();
+
+
+    /**
      * Gets the objectClasses associated with this entry. If there is no
      * objectClass attribute contained within this entry then an empty set
      * is returned.
      *
      * @return the objectClasses which govern the structure of this entry
      */
-    Set<ObjectClass> getObjectClasses();
+    Set<ObjectClass> getAllObjectClasses();
 
 
     /**
@@ -101,52 +157,91 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
     boolean isValid();
 
 
+    /**
+     * Check performed to determine entry consistency according to the schema
+     * requirements of a particular objectClass.  The entry must be of that objectClass
+     * to return true: meaning if the entry's objectClass attribute does not contain
+     * the objectClass argument, then false should be returned.
+     *
+     * @param objectClass the objectClass to use while checking for validity
+     * @return true if the entry, it's attributes and their values are consistent
+     * with the objectClass
+     */
+    boolean isValid( ObjectClass objectClass );
+
+
     // -----------------------------------------------------------------------
     // Container (get/put/remove) Methods
     // -----------------------------------------------------------------------
 
 
     /**
-     * Returns the attribute with the specified OID. The return value
-     * is <code>null</code> if no match is found.
+     * Returns the attribute with the specified attributeType. The return
+     * value is <code>null</code> if no match is found.
      *
      * @param attributeType the type of the attribute
-     * @return the attribute with the specified OID
+     * @return the attribute of the specified type
      */
     ServerAttribute get( AttributeType attributeType );
 
 
     /**
-     * Places a non-null attribute in the attribute collection. If there is
-     * already an attribute with the same OID as the new attribute, the old one
-     * is removed from the collection and is returned by this method. If there
-     * was no attribute with the same OID the return value is <code>null</code>.
+     * Places a non-null attribute into this ServerEntry. If there an attribute
+     * of the same exists, the existing one is removed from the set and is
+     * returned by this method. If there was no attribute of the same type the
+     * return value is <code>null</code>.
      *
-     * @param attribute the attribute to be put
-     * @return the old attribute with the same OID, if exists; otherwise
-     *         <code>null</code>
+     * @param attribute the attribute to be put into this ServerEntry
+     * @return the existing attribute of the same type if it exists; otherwise
+     * <code>null</code>
      */
     ServerAttribute put( ServerAttribute attribute ) throws NamingException;
 
+    // no value put'ters
+
+    ServerAttribute put( String upId, AttributeType attributeType ) throws NamingException;
+
+    ServerAttribute put( AttributeType attributeType ) throws NamingException;
+
 
     /**
-     * Places a new attribute with the supplied OID and value into the attribute
-     * collection. If there is already an attribute with the same OID, the old
-     * one is removed from the collection and is returned by this method. If
-     * there was no attribute with the same OID the return value is
-     * <code>null</code>.
+     * Places a new attribute of the supplied type and value into the attribute
+     * collection. The identifier used for the attribute is the first alias found
+     * from the attributeType and if no aliases are available then the
+     * attributeType's numric OID is used instead.  If there is already an attribute
+     * of the same type, the old attribute is removed from the collection and is
+     * returned by this method.  The user provided identifier of the existing
+     * attribute will be used for the new one.  If there was no attribute with the same
+     * type the return value is <code>null</code>.
      *
-     * This method provides a mechanism to put an attribute with a
-     * <code>null</code> value: the value of <code>obj</code> may be
-     * <code>null</code>.
+     * This method provides a mechanism to put an attribute with a <code>null</code>
+     * value: the value of <code>val</code> may be <code>null</code>.
      *
      * @param attributeType the type of the new attribute to be put
      * @param val the value of the new attribute to be put
-     * @return the old attribute with the same OID, if exists; otherwise
+     * @return the old attribute of the same type, if exists; otherwise
+     *         <code>null</code>
+     * @throws NamingException if there are resolution issues
+     */
+    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+
+    /**
+     * Places a new attribute with the supplied attributeType and value into this
+     * ServerEntry. If there already exists attribute of the same type, the existing
+     * one is removed from this ServerEntry and is returned. If there was no existing
+     * attribute the <code>null</code> is returned instead.
+     *
+     * This method provides a mechanism to put an attribute with a <code>null</code>
+     * value: the value of <code>obj</code> may be <code>null</code>.
+     *
+     * @param upId the user provided identifier for the new attribute
+     * @param attributeType the type of the new attribute to be put
+     * @param val the value of the new attribute to be put
+     * @return the old attribute of the same type, if exists; otherwise
      *         <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute put( AttributeType attributeType, ServerValue<?> val ) throws NamingException;
+    ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException;
 
 
     /**
@@ -169,6 +264,9 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
     ServerAttribute put( AttributeType attributeType, String val ) throws NamingException;
 
 
+    ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException;
+
+
     /**
      * Places a new attribute with the supplied OID and value into the attribute
      * collection. If there is already an attribute with the same OID, the old
@@ -189,14 +287,17 @@ public interface ServerEntry extends Entry<ServerAttribute>, Iterable<ServerAttr
     ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException;
 
 
+    ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException;
+
+
     /**
      * Removes the attribute with the specified alias. The removed attribute is
      * returned by this method. If there is no attribute with the specified OID,
      * the return value is <code>null</code>.
      *
-     * @param oid the numeric object identifier of the attribute to be removed
+     * @param attributeType the type of the attribute to be removed
      * @return the removed attribute, if exists; otherwise <code>null</code>
      * @throws NamingException if there are failures
      */
-    ServerAttribute remove( OID oid ) throws NamingException;
+    ServerAttribute remove( AttributeType attributeType ) throws NamingException;
 }

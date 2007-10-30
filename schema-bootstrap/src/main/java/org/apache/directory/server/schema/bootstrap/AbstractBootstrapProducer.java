@@ -24,7 +24,6 @@ import java.util.Comparator;
 
 import javax.naming.NamingException;
 
-import org.apache.directory.server.schema.bootstrap.ProducerTypeEnum;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
@@ -312,6 +311,18 @@ public abstract class AbstractBootstrapProducer implements BootstrapProducer
             }
 
             return null;
+        }
+
+
+        public boolean isAncestorOf( AttributeType attributeType ) throws NamingException
+        {
+            return false;
+        }
+
+
+        public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+        {
+            return false;
         }
 
 

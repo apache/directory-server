@@ -37,7 +37,7 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>, Iterable
 {
     private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
     private AttributeType attributeType;
-
+    private String upId;
 
     // maybe have some additional convenience constructors which take
     // an initial value as a string or a byte[]
@@ -46,6 +46,155 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>, Iterable
     public ServerAttribute( AttributeType attributeType )
     {
         this.attributeType = attributeType;
+        setUpId( null, attributeType );
+    }
+
+
+    public ServerAttribute( String upId, AttributeType attributeType )
+    {
+        this.attributeType = attributeType;
+        setUpId( upId, attributeType );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the value does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new ServerValue which uses the specified
+     * attributeType.
+     *
+     * @param attributeType
+     * @param val
+     * @throws NamingException
+     */
+    public ServerAttribute( AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    {
+        this( null, attributeType, val );
+    }
+
+
+    /**
+     * Doc me more!
+     *
+     * If the value does not correspond to the same attributeType, then it's
+     * wrapped value is copied into a new ServerValue which uses the specified
+     * attributeType.
+     *
+     * @param upId
+     * @param attributeType
+     * @param val
+     * @throws NamingException
+     */
+    public ServerAttribute( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
+    {
+        this.attributeType = attributeType;
+        if ( val == null )
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                values.add( new ServerStringValue( attributeType ) );
+            }
+            else
+            {
+                values.add( new ServerBinaryValue( attributeType ) );
+            }
+        }
+        else
+        {
+            if ( attributeType.equals( val.getAttributeType() ) )
+            {
+                values.add( val );
+            }
+            else if ( val instanceof ServerStringValue )
+            {
+                values.add( new ServerStringValue( attributeType, ( String ) val.get() ) );
+            }
+            else if ( val instanceof ServerBinaryValue )
+            {
+                values.add( new ServerBinaryValue( attributeType, ( byte[] ) val.get() ) );
+            }
+            else
+            {
+                throw new IllegalStateException( "Unknown value type: " + val.getClass().getName() );
+            }
+
+            values.add( val );
+        }
+        setUpId( upId, attributeType );
+    }
+
+
+    public ServerAttribute( AttributeType attributeType, String val ) throws NamingException
+    {
+        this( null, attributeType, val );
+    }
+
+
+    public ServerAttribute( String upId, AttributeType attributeType, String val ) throws NamingException
+    {
+        this.attributeType = attributeType;
+        if ( val == null )
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                values.add( new ServerStringValue( attributeType ) );
+            }
+            else
+            {
+                values.add( new ServerBinaryValue( attributeType ) );
+            }
+        }
+        else
+        {
+            values.add( new ServerStringValue( attributeType, val ) );
+        }
+        setUpId( upId, attributeType );
+    }
+
+
+    public ServerAttribute( AttributeType attributeType, byte[] val ) throws NamingException
+    {
+        this( null, attributeType, val );
+    }
+
+
+    public ServerAttribute( String upId, AttributeType attributeType, byte[] val ) throws NamingException
+    {
+        this.attributeType = attributeType;
+        if ( val == null )
+        {
+            if ( attributeType.getSyntax().isHumanReadable() )
+            {
+                values.add( new ServerStringValue( attributeType ) );
+            }
+            else
+            {
+                values.add( new ServerBinaryValue( attributeType ) );
+            }
+        }
+        else
+        {
+            values.add( new ServerBinaryValue( attributeType, val ) );
+        }
+        setUpId( upId, attributeType );
+    }
+
+
+    private void setUpId( String upId, AttributeType attributeType )
+    {
+        if ( upId == null )
+        {
+            String name = attributeType.getName();
+            if ( name == null )
+            {
+                this.upId = attributeType.getOid();
+            }
+            else
+            {
+                this.upId = name;
+            }
+        }
     }
 
 
@@ -57,6 +206,23 @@ public class ServerAttribute implements EntryAttribute<ServerValue<?>>, Iterable
     public AttributeType getType()
     {
         return attributeType;
+    }
+
+
+    /**
+     * Get's the user provided identifier for this entry.  This is the value
+     * that will be used as the identifier for the attribute within the
+     * entry.  If this is a commonName attribute for example and the user
+     * provides "COMMONname" instead when adding the entry then this is
+     * the format the user will have that entry returned by the directory
+     * server.  To do so we store this value as it was given and track it
+     * in the attribute using this property.
+     *
+     * @return the user provided identifier for this attribute
+     */
+    public String getUpId()
+    {
+        return upId;
     }
 
 

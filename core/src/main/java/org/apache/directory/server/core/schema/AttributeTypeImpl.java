@@ -23,7 +23,6 @@ package org.apache.directory.server.core.schema;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
@@ -152,7 +151,7 @@ class AttributeTypeImpl extends AbstractAttributeType implements MutableSchemaOb
         
         return registries.getMatchingRuleRegistry().lookup( substrOid );
     }
-    
+
 
     /**
      * Recursively gets the substring matchingRule if one exists within the attribute heirarchy.
