@@ -35,6 +35,7 @@ import java.util.Comparator;
  */
 public class BinaryValue implements Value<byte[]>
 {
+    @SuppressWarnings ( { "unchecked" } )
     private static final Comparator<byte[]> BYTE_ARRAY_COMPARATOR = new ByteArrayComparator();
     /** the wrapped binary value */
     private byte[] wrapped;
@@ -85,9 +86,16 @@ public class BinaryValue implements Value<byte[]>
     }
 
 
-    public void set( byte[] wrapped )
+    /**
+     * Sets this value's wrapped value to a copy of the src array.
+     *
+     * @param src the source byte array to use as the wrapped value
+     */
+    public void set( byte[] src )
     {
-        this.wrapped = wrapped;
+        byte[] dest = new byte[ src.length];
+        System.arraycopy( src, 0, dest, 0, dest.length );
+        this.wrapped = dest;
     }
 
 

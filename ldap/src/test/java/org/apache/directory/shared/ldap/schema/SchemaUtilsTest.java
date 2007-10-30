@@ -26,17 +26,6 @@ import javax.naming.NamingException;
 import junit.framework.TestCase;
 
 import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
-import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
-import org.apache.directory.shared.ldap.schema.AbstractSyntax;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.DefaultObjectClass;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
-import org.apache.directory.shared.ldap.schema.SchemaUtils;
-import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 
 
@@ -192,7 +181,8 @@ public class SchemaUtilsTest extends TestCase
 
     static class SyntaxImpl extends AbstractSyntax
     {
-        public final static long serialVersionUID = 1L;
+        @SuppressWarnings ( { "AnalyzingVariableNaming" } )
+        public static final long serialVersionUID = 1L;
         
         protected SyntaxImpl(String oid)
         {
@@ -272,6 +262,18 @@ public class SchemaUtilsTest extends TestCase
         public MatchingRule getSubstr() throws NamingException
         {
             return substr;
+        }
+
+
+        public boolean isAncestorOf( AttributeType attributeType ) throws NamingException
+        {
+            return false;
+        }
+
+
+        public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+        {
+            return false;
         }
     }
 

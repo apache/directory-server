@@ -35,7 +35,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
     protected final String oid;
 
     /** whether or not this SchemaObject is active */
-    protected boolean isObsolete = false;
+    protected boolean isObsolete;
 
     /** a human readable identifiers for this SchemaObject */
     protected String[] names = ArrayUtils.EMPTY_STRING_ARRAY;
@@ -275,6 +275,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
     // Object overloads
     // ------------------------------------------------------------------------
 
+
     /**
      * Based on the hashCode of the oid property.
      * 
@@ -301,6 +302,7 @@ public abstract class AbstractSchemaObject implements SchemaObject
             return true;
         }
 
+        //noinspection SimplifiableIfStatement
         if ( obj instanceof SchemaObject )
         {
             return oid.equals( ( ( SchemaObject ) obj ).getOid() );

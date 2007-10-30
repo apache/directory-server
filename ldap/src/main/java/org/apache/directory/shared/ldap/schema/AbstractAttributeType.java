@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.schema;
 
 
+import javax.naming.NamingException;
 import java.io.Serializable;
 
 
@@ -121,6 +122,7 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
     // M U T A T O R S
     // ------------------------------------------------------------------------
 
+
     /**
      * Sets whether or not an attribute of this AttributeType single valued or
      * multi-valued.
@@ -181,5 +183,61 @@ public abstract class AbstractAttributeType extends AbstractSchemaObject impleme
     protected void setLength( int length )
     {
         this.length = length;
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Additional Methods
+    // -----------------------------------------------------------------------
+
+
+    public boolean isAncestorOf( AttributeType attributeType ) throws NamingException
+    {
+        //noinspection SimplifiableIfStatement
+        if ( attributeType == null || equals( attributeType ) )
+        {
+            return false;
+        }
+
+        return isAncestorOrEqual( this, attributeType );
+    }
+
+
+    public boolean isDescentantOf( AttributeType attributeType ) throws NamingException
+    {
+        //noinspection SimplifiableIfStatement
+        if ( attributeType == null || equals( attributeType ) )
+        {
+            return false;
+        }
+
+        return isAncestorOrEqual( attributeType, this );
+    }
+
+
+    /**
+     * Recursive method which checks to see if a descendant is really an ancestor or if the two
+     * are equal.
+     *
+     * @param ancestor the possible ancestor of the descendant
+     * @param descendant the possible descendant of the ancestor
+     * @return true if the ancestor equals the descendant or if the descendant is really
+     * a subtype of the ancestor. otherwise false
+     * @throws NamingException if there are issues with superior attribute resolution
+     */
+    private boolean isAncestorOrEqual( AttributeType ancestor, AttributeType descendant ) throws NamingException
+    {
+        if ( ancestor == null || descendant == null )
+        {
+            return false;
+        }
+
+        //noinspection SimplifiableIfStatement
+        if ( ancestor.equals( descendant ) )
+        {
+            return true;
+        }
+
+        return isAncestorOrEqual( ancestor, descendant.getSuperior() );
     }
 }

@@ -220,4 +220,26 @@ public interface AttributeType extends SchemaObject
      *             if there is a failure to resolve the matchingRule
      */
     MatchingRule getSubstr() throws NamingException;
+
+
+    /**
+     * Checks to see if this AttributeType is the ancestor of another
+     * attributeType.
+     *
+     * @param descendant the perspective descendant to check
+     * @return true if the descendant is truely a derived from this AttributeType
+     * @throws NamingException if there are problems resolving superior types
+     */
+    boolean isAncestorOf( AttributeType descendant ) throws NamingException;
+
+
+    /**
+     * Checks to see if this AttributeType is the descendant of another
+     * attributeType.
+     *
+     * @param ancestor the perspective ancestor to check
+     * @return true if this AttributeType truely descends from the ancestor
+     * @throws NamingException if there are problems resolving superior types
+     */
+    boolean isDescentantOf( AttributeType ancestor ) throws NamingException;
 }
