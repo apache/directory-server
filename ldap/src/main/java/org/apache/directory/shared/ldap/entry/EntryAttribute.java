@@ -121,7 +121,7 @@ public interface EntryAttribute<E extends Value<?>>
      *
      * @return a value of this attribute
      */
-    Value<?> get();
+    E get();
 
 
     /**
