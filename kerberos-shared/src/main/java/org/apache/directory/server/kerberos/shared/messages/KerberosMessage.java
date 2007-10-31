@@ -19,6 +19,7 @@
  */
 package org.apache.directory.server.kerberos.shared.messages;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 
 
@@ -31,7 +32,7 @@ public class KerberosMessage
     /**
      * The Kerberos protocol version number (5).
      */
-    public static final int PVNO = 5;
+    public static final int PVNO = KerberosConstants.KERBEROS_V5;
 
     private int protocolVersionNumber;
     private KerberosMessageType messageType;

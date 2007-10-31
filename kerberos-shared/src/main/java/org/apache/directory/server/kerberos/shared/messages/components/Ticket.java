@@ -26,6 +26,7 @@ import java.text.ParseException;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
@@ -61,7 +62,7 @@ public class Ticket extends AbstractAsn1Object
     private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** Constant for the {@link Ticket} version number (5) */
-    public static final int TICKET_VNO = 5;
+    public static final int TICKET_VNO = KerberosConstants.KERBEROS_V5;
 
     /** The Kerberos version number. Should be 5 */
     private int tktvno;

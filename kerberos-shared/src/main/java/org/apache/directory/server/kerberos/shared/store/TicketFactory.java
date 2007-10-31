@@ -28,6 +28,7 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.kerberos.KerberosTicket;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -118,7 +119,7 @@ public class TicketFactory
         EncryptedData encryptedTicketPart = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
         Ticket ticket = new Ticket();
-        ticket.setTktVno( 5 );
+        ticket.setTktVno( KerberosConstants.KERBEROS_V5 );
         ticket.setServerPrincipal( serverPrincipal );
         ticket.setEncPart( encryptedTicketPart );
 

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
@@ -78,7 +79,7 @@ public class KdcRequestDecoder
      }*/
     private KdcRequest decodeKdcRequestSequence( DERSequence sequence ) throws IOException
     {
-        int pvno = 5;
+        int pvno = KerberosConstants.KERBEROS_V5;
         KerberosMessageType msgType = null;
 
         PaData[] paData = null;

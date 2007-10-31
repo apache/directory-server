@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.messages.components;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationData;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
@@ -38,7 +39,7 @@ public class Authenticator implements Encodable
     /**
      * Constant for the authenticator version number.
      */
-    public static final int AUTHENTICATOR_VNO = 5;
+    public static final int AUTHENTICATOR_VNO = KerberosConstants.KERBEROS_V5;
 
     private int versionNumber;
     private KerberosPrincipal clientPrincipal;

@@ -24,6 +24,7 @@ import java.net.InetAddress;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -73,7 +74,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
         long clockSkew, ReplayCache replayCache, boolean emptyAddressesAllowed, InetAddress clientAddress,
         CipherTextHandler lockBox, KeyUsage authenticatorKeyUsage, boolean isValidate ) throws KerberosException
     {
-        if ( authHeader.getProtocolVersionNumber() != 5 )
+        if ( authHeader.getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
         }
@@ -83,7 +84,7 @@ public abstract class VerifyAuthHeader implements IoHandlerCommand
             throw new KerberosException( ErrorType.KRB_AP_ERR_MSG_TYPE );
         }
 
-        if ( authHeader.getTicket().getTktVno() != 5 )
+        if ( authHeader.getTicket().getTktVno() != KerberosConstants.KERBEROS_V5 )
         {
             throw new KerberosException( ErrorType.KRB_AP_ERR_BADVERSION );
         }
