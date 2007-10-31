@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
+import java.util.Set;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
@@ -173,7 +175,7 @@ public class KdcRequest extends KerberosMessage
      *
      * @return The array of {@link EncryptionType}s.
      */
-    public EncryptionType[] getEType()
+    public Set<EncryptionType> getEType()
     {
         return requestBody.getEType();
     }

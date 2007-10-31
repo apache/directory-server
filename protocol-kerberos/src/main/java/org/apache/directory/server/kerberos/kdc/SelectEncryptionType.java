@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
+import java.util.Set;
+
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -46,9 +49,9 @@ public class SelectEncryptionType implements IoHandlerCommand
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( getContextKey() );
         KdcServer config = kdcContext.getConfig();
 
-        EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
+        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
 
-        EncryptionType bestType = getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
+        EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
         log.debug( "Session will use encryption type {}.", bestType );
 
@@ -60,23 +63,6 @@ public class SelectEncryptionType implements IoHandlerCommand
         kdcContext.setEncryptionType( bestType );
 
         next.execute( session, message );
-    }
-
-
-    protected EncryptionType getBestEncryptionType( EncryptionType[] requestedTypes, EncryptionType[] configuredTypes )
-    {
-        for ( int ii = 0; ii < requestedTypes.length; ii++ )
-        {
-            for ( int jj = 0; jj < configuredTypes.length; jj++ )
-            {
-                if ( requestedTypes[ii] == configuredTypes[jj] )
-                {
-                    return configuredTypes[jj];
-                }
-            }
-        }
-
-        return null;
     }
 
 

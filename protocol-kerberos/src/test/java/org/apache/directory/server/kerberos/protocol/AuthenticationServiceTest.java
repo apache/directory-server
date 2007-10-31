@@ -20,6 +20,9 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
@@ -173,8 +176,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes = new EncryptionType[]
-            { EncryptionType.DES3_CBC_MD5 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES3_CBC_MD5 );
 
         modifier.setEType( encryptionTypes );
 

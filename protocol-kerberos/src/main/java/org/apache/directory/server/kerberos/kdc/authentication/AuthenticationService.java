@@ -23,6 +23,7 @@ package org.apache.directory.server.kerberos.kdc.authentication;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -33,6 +34,7 @@ import org.apache.directory.server.kerberos.kdc.SelectEncryptionType;
 import org.apache.directory.server.kerberos.sam.SamException;
 import org.apache.directory.server.kerberos.sam.SamSubsystem;
 import org.apache.directory.server.kerberos.shared.KerberosConstants;
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -110,9 +112,9 @@ public class AuthenticationService
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( CONTEXT_KEY );
         KdcServer config = kdcContext.getConfig();
 
-        EncryptionType[] requestedTypes = kdcContext.getRequest().getEType();
+        Set<EncryptionType> requestedTypes = kdcContext.getRequest().getEType();
 
-        EncryptionType bestType = getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
+        EncryptionType bestType = KerberosUtils.getBestEncryptionType( requestedTypes, config.getEncryptionTypes() );
 
         LOG.debug( "Session will use encryption type {}.", bestType );
 
@@ -630,7 +632,7 @@ public class AuthenticationService
                 sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
                 sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
                 sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getEType() ) );
                 sb.append( "\n\t" + "realm:                 " + request.getRealm() );
                 sb.append( "\n\t" + "from time:             " + request.getFrom() );
                 sb.append( "\n\t" + "till time:             " + request.getTill() );
@@ -768,34 +770,13 @@ public class AuthenticationService
     
     
     /**
-     * Find the best encryption type, comparing the requested type with
-     * configured types.
-     */
-    protected static EncryptionType getBestEncryptionType( EncryptionType[] requestedTypes, EncryptionType[] configuredTypes )
-    {
-        for ( EncryptionType requestedType:requestedTypes )
-        {
-            for ( EncryptionType configuredType:configuredTypes )
-            {
-                if ( requestedType == configuredType )
-                {
-                    return configuredType;
-                }
-            }
-        }
-
-        return null;
-    }
-    
-
-    /**
      * Prepares a pre-authentication error message containing required
      * encryption types.
      *
      * @param encryptionTypes
      * @return The error message as bytes.
      */
-    private static byte[] preparePreAuthenticationError( EncryptionType[] encryptionTypes )
+    private static byte[] preparePreAuthenticationError( Set<EncryptionType> encryptionTypes )
     {
         PaData[] paDataSequence = new PaData[2];
 
@@ -805,10 +786,12 @@ public class AuthenticationService
 
         paDataSequence[0] = paData;
 
-        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[encryptionTypes.length];
-        for ( int ii = 0; ii < encryptionTypes.length; ii++ )
+        EncryptionTypeInfoEntry[] entries = new EncryptionTypeInfoEntry[ encryptionTypes.size() ];
+        int i = 0;
+        
+        for ( EncryptionType encryptionType:encryptionTypes )
         {
-            entries[ii] = new EncryptionTypeInfoEntry( encryptionTypes[ii], null );
+            entries[i++] = new EncryptionTypeInfoEntry( encryptionType, null );
         }
 
         byte[] encTypeInfo = null;
@@ -836,30 +819,5 @@ public class AuthenticationService
         {
             return null;
         }
-    }
-    
-    
-    protected static String getEncryptionTypes( KdcRequest request )
-    {
-        EncryptionType[] etypes = request.getEType();
-
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-
-        for ( EncryptionType etype:etypes )
-        {
-            if ( isFirst )
-            {
-                isFirst = false;
-            }
-            else
-            {
-                sb.append( ", " );
-            }
-            
-            sb.append( etype );
-        }
-
-        return sb.toString();
     }
 }

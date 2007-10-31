@@ -98,8 +98,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.DES_CBC_MD5};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
         modifier.setEType( encryptionTypes );
 
@@ -149,8 +149,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -213,8 +213,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -276,8 +276,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -342,8 +342,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -406,8 +406,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 

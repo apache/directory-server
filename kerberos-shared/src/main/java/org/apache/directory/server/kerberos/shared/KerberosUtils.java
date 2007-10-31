@@ -22,9 +22,11 @@ package org.apache.directory.server.kerberos.shared;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -219,5 +221,56 @@ public class KerberosUtils
         }
         
         return new KerberosPrincipal( name, principal.getNameType().getOrdinal() );
+    }
+
+
+    /**
+     * Get the matching encryption type from the configured types, searching
+     * into the requested types. We returns the first we find.
+     *
+     * @param requestedTypes The client encryption types
+     * @param configuredTypes The configured encryption types
+     * @return The first matching encryption type.
+     */
+    public static EncryptionType getBestEncryptionType( Set<EncryptionType> requestedTypes, Set<EncryptionType> configuredTypes )
+    {
+        for ( EncryptionType encryptionType:requestedTypes )
+        {
+            if ( configuredTypes.contains( encryptionType ) )
+            {
+                return encryptionType;
+            }
+        }
+
+        return null;
+    }
+    
+    
+    /**
+     * Build a list of encryptionTypes
+     *
+     * @param encryptionTypes The encryptionTypes
+     * @return A list comma separated of the encryptionTypes
+     */
+    public static String getEncryptionTypesString( Set<EncryptionType> encryptionTypes )
+    {
+        StringBuilder sb = new StringBuilder();
+        boolean isFirst = true;
+
+        for ( EncryptionType etype:encryptionTypes )
+        {
+            if ( isFirst )
+            {
+                isFirst = false;
+            }
+            else
+            {
+                sb.append( ", " );
+            }
+            
+            sb.append( etype );
+        }
+
+        return sb.toString();
     }
 }

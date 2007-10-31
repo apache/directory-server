@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import java.util.Set;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -39,7 +41,7 @@ public class RequestBodyModifier
     private KerberosTime till;
     private KerberosTime rtime; //optional
     private int nonce;
-    private EncryptionType[] eType;
+    private Set<EncryptionType> eType;
     private HostAddresses addresses; //optional
     private EncryptedData encAuthorizationData; //optional
     private Ticket[] additionalTickets; //optional
@@ -132,7 +134,7 @@ public class RequestBodyModifier
      *
      * @param type
      */
-    public void setEType( EncryptionType[] type )
+    public void setEType( Set<EncryptionType> type )
     {
         eType = type;
     }

@@ -88,8 +88,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.DES_CBC_MD5 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
         modifier.setEType( encryptionTypes );
         modifier.setNonce( random.nextInt() );
@@ -129,8 +129,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
         modifier.setNonce( random.nextInt() );
@@ -180,8 +180,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
         int nonce = random.nextInt();
@@ -231,8 +231,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] requestedEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> requestedEncryptionTypes = new HashSet<EncryptionType>();
+        requestedEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( requestedEncryptionTypes );
         modifier.setNonce( random.nextInt() );

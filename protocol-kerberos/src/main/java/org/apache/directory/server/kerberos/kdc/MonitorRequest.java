@@ -20,7 +20,7 @@
 package org.apache.directory.server.kerberos.kdc;
 
 
-import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.chain.IoHandlerCommand;
@@ -74,7 +74,7 @@ public class MonitorRequest implements IoHandlerCommand
                 sb.append( "\n\t" + "kdcOptions:            " + request.getKdcOptions() );
                 sb.append( "\n\t" + "clientPrincipal:       " + request.getClientPrincipal() );
                 sb.append( "\n\t" + "serverPrincipal:       " + request.getServerPrincipal() );
-                sb.append( "\n\t" + "encryptionType:        " + getEncryptionTypes( request ) );
+                sb.append( "\n\t" + "encryptionType:        " + KerberosUtils.getEncryptionTypesString( request.getEType() ) );
                 sb.append( "\n\t" + "realm:                 " + request.getRealm() );
                 sb.append( "\n\t" + "from time:             " + request.getFrom() );
                 sb.append( "\n\t" + "till time:             " + request.getTill() );
@@ -91,26 +91,6 @@ public class MonitorRequest implements IoHandlerCommand
         }
 
         next.execute( session, message );
-    }
-
-
-    protected String getEncryptionTypes( KdcRequest request )
-    {
-        EncryptionType[] etypes = request.getEType();
-
-        StringBuffer sb = new StringBuffer();
-
-        for ( int ii = 0; ii < etypes.length; ii++ )
-        {
-            sb.append( etypes[ii].toString() );
-
-            if ( ii < etypes.length - 1 )
-            {
-                sb.append( ", " );
-            }
-        }
-
-        return sb.toString();
     }
 
 

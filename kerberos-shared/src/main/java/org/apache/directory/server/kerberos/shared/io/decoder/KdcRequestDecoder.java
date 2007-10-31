@@ -195,6 +195,7 @@ public class KdcRequestDecoder
                     DERSequence etype = ( DERSequence ) derObject;
                     modifier.setEType( EncryptionTypeDecoder.decode( etype ) );
                     break;
+                    
                 case 9:
                     DERSequence hostAddresses = ( DERSequence ) derObject;
                     modifier.setAddresses( HostAddressDecoder.decodeSequence( hostAddresses ) );

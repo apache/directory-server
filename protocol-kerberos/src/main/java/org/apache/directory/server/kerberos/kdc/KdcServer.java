@@ -23,7 +23,10 @@ package org.apache.directory.server.kerberos.kdc;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
@@ -101,7 +104,7 @@ public class KdcServer extends DirectoryBackedService
     private static final boolean DEFAULT_VERIFY_BODY_CHECKSUM = true;
 
     /** The encryption types. */
-    private EncryptionType[] encryptionTypes;
+    private Set<EncryptionType> encryptionTypes;
 
     /** The primary realm */
     private String primaryRealm = DEFAULT_REALM;
@@ -238,9 +241,30 @@ public class KdcServer extends DirectoryBackedService
 
 
     /**
+     * Initialize the encryptionTypes set
+     * 
      * @param encryptionTypes the encryptionTypes to set
      */
     public void setEncryptionTypes( EncryptionType[] encryptionTypes )
+    {
+        if ( encryptionTypes != null )
+        {
+            this.encryptionTypes.clear();
+            
+            for ( EncryptionType encryptionType:encryptionTypes )
+            {
+                this.encryptionTypes.add( encryptionType );
+            }
+        }
+    }
+
+
+    /**
+     * Initialize the encryptionTypes set
+     * 
+     * @param encryptionTypes the encryptionTypes to set
+     */
+    public void setEncryptionTypes( Set<EncryptionType> encryptionTypes )
     {
         this.encryptionTypes = encryptionTypes;
     }
@@ -363,7 +387,7 @@ public class KdcServer extends DirectoryBackedService
      *
      * @return The encryption types.
      */
-    public EncryptionType[] getEncryptionTypes()
+    public Set<EncryptionType> getEncryptionTypes()
     {
         return encryptionTypes;
     }
@@ -439,11 +463,14 @@ public class KdcServer extends DirectoryBackedService
     }
 
 
+    /**
+     * Construct an HashSet containing the default encryption types
+     */
     private void prepareEncryptionTypes()
     {
         String[] encryptionTypeStrings = DEFAULT_ENCRYPTION_TYPES;
 
-        List<EncryptionType> encTypes = new ArrayList<EncryptionType>();
+        encryptionTypes = new HashSet<EncryptionType>();
 
         for ( String enc : encryptionTypeStrings )
         {
@@ -451,11 +478,9 @@ public class KdcServer extends DirectoryBackedService
             {
                 if ( type.getName().equalsIgnoreCase( enc ) )
                 {
-                    encTypes.add( type );
+                    encryptionTypes.add( type );
                 }
             }
         }
-
-        encryptionTypes = encTypes.toArray( new EncryptionType[encTypes.size()] );
     }
 }
