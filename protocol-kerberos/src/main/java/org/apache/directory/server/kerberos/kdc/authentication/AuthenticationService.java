@@ -87,7 +87,7 @@ public class AuthenticationService
     private static final String SERVICE_NAME = "Authentication Service (AS)";
 
 
-    public static void execute( IoSession session, AuthenticationContext authContext, Object message ) throws Exception
+    public static void execute( IoSession session, AuthenticationContext authContext ) throws Exception
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( CONTEXT_KEY );
 
@@ -104,10 +104,32 @@ public class AuthenticationService
             throw new KerberosException( ErrorType.KDC_ERR_BAD_PVNO );
         }
 
-        selectEncryptionType( authContext, session, message );
+        selectEncryptionType( authContext, session );
+        getClientEntry( authContext, session );
+        verifyPolicy( authContext, session );
+        verifySam( authContext, session );
+        verifyEncryptedTimestamp( authContext, session );
+        
+        if ( authContext.getClientKey() == null )
+        {
+            verifyEncryptedTimestamp( authContext, session );
+        }
+
+        getServerEntry( authContext, session );
+        generateTicket( authContext, session );
+        buildReply( authContext, session );
+
+        if ( LOG.isDebugEnabled() )
+        {
+            monitorContext( authContext );
+            monitorReply( ( KdcContext ) session.getAttribute( CONTEXT_KEY ) );
+        }
+        
+        sealReply( authContext, session );
     }
+
     
-    private static void selectEncryptionType( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void selectEncryptionType( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         KdcContext kdcContext = ( KdcContext ) session.getAttribute( CONTEXT_KEY );
         KdcServer config = kdcContext.getConfig();
@@ -124,23 +146,20 @@ public class AuthenticationService
         }
 
         kdcContext.setEncryptionType( bestType );
-
-        getClientEntry( authContext, session, message );
     }
 
     
-    private static void getClientEntry( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void getClientEntry( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         KerberosPrincipal principal = authContext.getRequest().getClientPrincipal();
         PrincipalStore store = authContext.getStore();
 
         PrincipalStoreEntry storeEntry = getEntry( principal, store, ErrorType.KDC_ERR_C_PRINCIPAL_UNKNOWN ); 
         authContext.setClientEntry( storeEntry );
-
-        verifyPolicy( authContext, session, message );
     }
     
-    private static void verifyPolicy( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    
+    private static void verifyPolicy( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         PrincipalStoreEntry entry = authContext.getClientEntry();
 
@@ -158,12 +177,10 @@ public class AuthenticationService
         {
             throw new KerberosException( ErrorType.KDC_ERR_CLIENT_REVOKED );
         }
-
-        verifySam( authContext, session, message );
     }
     
     
-    private static void verifySam( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void verifySam( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         LOG.debug( "Verifying using SAM subsystem." );
         KdcRequest request = authContext.getRequest();
@@ -215,18 +232,11 @@ public class AuthenticationService
                 LOG.debug( "Pre-authentication using SAM subsystem successful for {}.", clientName );
             }
         }
-
-        verifyEncryptedTimestamp( authContext, session, message );
     }
     
     
-    private static void verifyEncryptedTimestamp( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void verifyEncryptedTimestamp( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
-        if ( authContext.getClientKey() != null )
-        {
-            getServerEntry( authContext, session, message );
-        }
-
         LOG.debug( "Verifying using encrypted timestamp." );
         
         KdcServer config = authContext.getConfig();
@@ -323,23 +333,19 @@ public class AuthenticationService
         {
             LOG.debug( "Pre-authentication by encrypted timestamp successful for {}.", clientName );
         }
-
-        getServerEntry( authContext, session, message );
     }
     
     
-    private static void getServerEntry( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void getServerEntry( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         KerberosPrincipal principal = authContext.getRequest().getServerPrincipal();
         PrincipalStore store = authContext.getStore();
     
         authContext.setServerEntry( getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN ) );
-    
-        generateTicket( authContext, session, message );
     }    
     
     
-    private static void generateTicket( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void generateTicket( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         KdcRequest request = authContext.getRequest();
         CipherTextHandler cipherTextHandler = authContext.getCipherTextHandler();
@@ -451,6 +457,7 @@ public class AuthenticationService
         }
 
         long till = 0;
+        
         if ( request.getTill().getTime() == 0 )
         {
             till = Long.MAX_VALUE;
@@ -479,6 +486,7 @@ public class AuthenticationService
         }
 
         long ticketLifeTime = Math.abs( startTime.getTime() - kerberosEndTime.getTime() );
+        
         if ( ticketLifeTime < config.getAllowableClockSkew() )
         {
             throw new KerberosException( ErrorType.KDC_ERR_NEVER_VALID );
@@ -552,12 +560,10 @@ public class AuthenticationService
         }
 
         authContext.setTicket( newTicket );
-
-        buildReply( authContext, session, message );
     }
     
     
-    private static void buildReply( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void buildReply( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         KdcRequest request = authContext.getRequest();
         Ticket ticket = authContext.getTicket();
@@ -588,18 +594,10 @@ public class AuthenticationService
         reply.setClientAddresses( ticket.getEncTicketPart().getClientAddresses() );
 
         authContext.setReply( reply );
-
-        if ( LOG.isDebugEnabled() )
-        {
-            monitorContext( authContext );
-            monitorReply( ( KdcContext ) session.getAttribute( CONTEXT_KEY ) );
-        }
-        
-        sealReply( authContext, session, message );
     }
     
     
-    private static void sealReply( AuthenticationContext authContext, IoSession session, Object message ) throws KerberosException, InvalidTicketException
+    private static void sealReply( AuthenticationContext authContext, IoSession session ) throws KerberosException, InvalidTicketException
     {
         AuthenticationReply reply = ( AuthenticationReply ) authContext.getReply();
         EncryptionKey clientKey = authContext.getClientKey();
@@ -607,8 +605,6 @@ public class AuthenticationService
 
         EncryptedData encryptedData = cipherTextHandler.seal( clientKey, reply, KeyUsage.NUMBER3 );
         reply.setEncPart( encryptedData );
-
-        //next.execute( session, message );
     }
     
     
@@ -736,6 +732,7 @@ public class AuthenticationService
             }
         }
     }
+    
     
     /**
      * Get a PrincipalStoreEntry given a principal.  The ErrorType is used to indicate
