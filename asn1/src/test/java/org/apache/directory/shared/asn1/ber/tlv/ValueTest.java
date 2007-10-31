@@ -304,7 +304,7 @@ public class ValueTest extends TestCase
             
         }
         
-        assertEquals( "0x03 0x03 0x06 0x00 0x40 ", Asn1StringUtils.dumpBytes( buffer.array() )  );
+        assertEquals( "0x03 0x03 0x06 0x80 0x00 ", Asn1StringUtils.dumpBytes( buffer.array() )  );
     }
 }
 
