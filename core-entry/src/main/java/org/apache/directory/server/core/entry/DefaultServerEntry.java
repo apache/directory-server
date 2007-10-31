@@ -25,7 +25,6 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +43,8 @@ public class DefaultServerEntry implements ServerEntry
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultServerEntry.class );
 
-    private Set<ObjectClass> allObjectClasses = new HashSet<ObjectClass>();
-    private Set<ObjectClass> abstractObjectClasses = new HashSet<ObjectClass>();
-    private Set<ObjectClass> auxiliaryObjectClasses = new HashSet<ObjectClass>();
-    private Set<ObjectClass> structuralObjectClasses = new HashSet<ObjectClass>();
-
-    private Set<AttributeType> mayList = new HashSet<AttributeType>();
-    private Set<AttributeType> mustList = new HashSet<AttributeType>();
-
     private Map<AttributeType, ServerAttribute> serverAttributeMap = new HashMap<AttributeType, ServerAttribute>();
+    private ObjectClassAttribute objectClassAttribute;
     private final transient Registries registries;
     private transient AttributeType objectClassAT;
     private LdapDN dn;
@@ -64,197 +56,74 @@ public class DefaultServerEntry implements ServerEntry
         this.registries = registries;
 
         objectClassAT = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT );
-        setObjectClassAttribute( new ServerAttribute( objectClassAT ) );
+        setObjectClassAttribute( new ObjectClassAttribute( registries ) );
     }
 
 
-    private ServerAttribute setObjectClassAttribute( ServerAttribute objectClassAttribute ) throws NamingException
+    private ServerAttribute setObjectClassAttribute( ObjectClassAttribute objectClassAttribute ) throws NamingException
     {
-        // grab the current value before we clear all sets of schema entities
-        ServerAttribute temp = serverAttributeMap.get( objectClassAT );
-
-        mayList.clear();
-        mustList.clear();
-        allObjectClasses.clear();
-        auxiliaryObjectClasses.clear();
-        structuralObjectClasses.clear();
-        abstractObjectClasses.clear();
-
-        // if the OC has nothing in it then just setup instead of searching below
-        if ( objectClassAttribute.size() == 0 )
-        {
-            serverAttributeMap.put( objectClassAT, objectClassAttribute );
-            return temp;
-        }
-
-        // add all objectclasses as provided by the objectClassAttribute
-        for ( ServerValue value : objectClassAttribute )
-        {
-            ObjectClass objectClass = registries.getObjectClassRegistry().lookup(
-                    ( String ) value.getNormalizedValue() );
-
-            allObjectClasses.add( objectClass );
-        }
-
-        // copy all the existing object classes so we can add ancestors while iterating
-        Set<ObjectClass> copied = new HashSet<ObjectClass>();
-        copied.addAll( allObjectClasses );
-        for ( ObjectClass objectClass : copied )
-        {
-            allObjectClasses.addAll( addAncestors( objectClass, new HashSet<ObjectClass>() ) );
-        }
-
-        // now create sets of the different kinds of objectClasses
-        for ( ObjectClass objectClass : allObjectClasses )
-        {
-            switch ( objectClass.getType().getValue() )
-            {
-                case( ObjectClassTypeEnum.STRUCTURAL_VAL ):
-                    structuralObjectClasses.add( objectClass );
-                    break;
-                case( ObjectClassTypeEnum.AUXILIARY_VAL ):
-                    auxiliaryObjectClasses.add( objectClass );
-                    break;
-                case( ObjectClassTypeEnum.ABSTRACT_VAL ):
-                    abstractObjectClasses.add( objectClass );
-                    break;
-                default:
-                    throw new IllegalStateException( "Unrecognized objectClass type value: " + objectClass.getType() );
-            }
-
-            // now go through all objectClassses to collect the must an may list attributes
-            Collections.addAll( mayList, objectClass.getMayList() );
-            Collections.addAll( mustList, objectClass.getMustList() );
-        }
-
-        serverAttributeMap.put( objectClassAT, objectClassAttribute );
-        return temp;
-    }
-
-
-    private Set<ObjectClass> addAncestors( ObjectClass descendant, Set<ObjectClass> ancestors ) throws NamingException
-    {
-        if ( descendant == null )
-        {
-            return ancestors;
-        }
-
-        ObjectClass[] superClasses = descendant.getSuperClasses();
-        if ( superClasses == null || superClasses.length == 0 )
-        {
-            return ancestors;
-        }
-
-        for ( ObjectClass ancestor : superClasses )
-        {
-            ancestors.add( ancestor );
-            addAncestors( ancestor, ancestors );
-        }
-
-        return ancestors;
+        this.objectClassAttribute = objectClassAttribute;
+        return serverAttributeMap.put( objectClassAT, objectClassAttribute );
     }
 
 
     public boolean addObjectClass( ObjectClass objectClass, String alias ) throws NamingException
     {
-        throw new NotImplementedException();
+        return objectClassAttribute.addObjectClass( objectClass, alias );
     }
 
 
     public boolean addObjectClass( ObjectClass objectClass ) throws NamingException
     {
-        if ( allObjectClasses.contains( objectClass ) )
-        {
-            return false;
-        }
-
-        ServerAttribute serverAttribute = serverAttributeMap.get( objectClassAT );
-        String name = objectClass.getName();
-
-        if ( name == null )
-        {
-            name = objectClass.getOid();
-        }
-
-        serverAttribute.add( name );
-        Set<ObjectClass> ancestors = addAncestors( objectClass, new HashSet<ObjectClass>() );
-        ancestors.add( objectClass );
-        // now create sets of the different kinds of objectClasses
-        for ( ObjectClass oc : ancestors )
-        {
-            switch ( oc.getType().getValue() )
-            {
-                case( ObjectClassTypeEnum.STRUCTURAL_VAL ):
-                    structuralObjectClasses.add( oc );
-                    break;
-                case( ObjectClassTypeEnum.AUXILIARY_VAL ):
-                    auxiliaryObjectClasses.add( oc );
-                    break;
-                case( ObjectClassTypeEnum.ABSTRACT_VAL ):
-                    abstractObjectClasses.add( oc );
-                    break;
-                default:
-                    throw new IllegalStateException( "Unrecognized objectClass type value: " + oc.getType() );
-            }
-
-            // now go through all objectClassses to collect the must an may list attributes
-            Collections.addAll( mayList, oc.getMayList() );
-            Collections.addAll( mustList, oc.getMustList() );
-        }
-
-        return true;
+        return objectClassAttribute.addObjectClass( objectClass );
     }
 
 
     public boolean hasObjectClass( ObjectClass objectClass )
     {
-        return allObjectClasses.contains( objectClass );
+        return objectClassAttribute.hasObjectClass( objectClass );
     }
 
 
     public Set<ObjectClass> getAbstractObjectClasses()
     {
-        return Collections.unmodifiableSet( abstractObjectClasses );
+        return objectClassAttribute.getAbstractObjectClasses();
     }
 
 
     public ObjectClass getStructuralObjectClass()
     {
-        if ( structuralObjectClasses.isEmpty() )
-        {
-            return null;
-        }
-        return structuralObjectClasses.iterator().next();
+        return objectClassAttribute.getStructuralObjectClass();
     }
 
 
     public Set<ObjectClass> getStructuralObjectClasses()
     {
-        return Collections.unmodifiableSet( structuralObjectClasses );
+        return objectClassAttribute.getStructuralObjectClasses();
     }
 
 
     public Set<ObjectClass> getAuxiliaryObjectClasses()
     {
-        return Collections.unmodifiableSet( auxiliaryObjectClasses );
+        return objectClassAttribute.getAuxiliaryObjectClasses();
     }
 
 
     public Set<ObjectClass> getAllObjectClasses()
     {
-        return Collections.unmodifiableSet( allObjectClasses );
+        return objectClassAttribute.getAllObjectClasses();
     }
 
 
     public Set<AttributeType> getMustList()
     {
-        return Collections.unmodifiableSet( mustList );
+        return objectClassAttribute.getMustList();
     }
 
 
     public Set<AttributeType> getMayList()
     {
-        return Collections.unmodifiableSet( mayList );
+        return objectClassAttribute.getMayList();
     }
 
 
@@ -278,9 +147,19 @@ public class DefaultServerEntry implements ServerEntry
 
     public ServerAttribute put( ServerAttribute serverAttribute ) throws NamingException
     {
+        if ( serverAttribute.getType().equals( objectClassAT ) && serverAttribute instanceof ObjectClassAttribute )
+        {
+            return setObjectClassAttribute( ( ObjectClassAttribute ) serverAttribute );
+        }
+
         if ( serverAttribute.getType().equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( serverAttribute );
+            ObjectClassAttribute objectClassAttribute = new ObjectClassAttribute( registries );
+            for ( ServerValue<?> val : serverAttribute )
+            {
+                objectClassAttribute.add( val );
+            }
+            return setObjectClassAttribute( objectClassAttribute );
         }
 
         return serverAttributeMap.put( serverAttribute.getType(), serverAttribute );
@@ -303,8 +182,9 @@ public class DefaultServerEntry implements ServerEntry
     {
         if ( serverAttribute.getType().equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( serverAttribute );
+            return setObjectClassAttribute( new ObjectClassAttribute( registries ) );
         }
+
         return serverAttributeMap.remove( serverAttribute.getType() );
     }
 
@@ -319,26 +199,19 @@ public class DefaultServerEntry implements ServerEntry
         }
         else
         {
-            String name = attributeType.getName();
-            if ( name == null )
-            {
-                name = attributeType.getOid();
-            }
-            return put( name, attributeType, val );
+            return put( null, attributeType, val );
         }
     }
 
 
     public ServerAttribute put( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
-        ServerAttribute serverAttribute = new ServerAttribute( upId, attributeType, val );
-
         if ( attributeType.equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( serverAttribute );
+            return setObjectClassAttribute( new ObjectClassAttribute( upId, registries, val ) );
         }
 
-        return serverAttributeMap.put( attributeType, serverAttribute );
+        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
     }
 
 
@@ -346,37 +219,45 @@ public class DefaultServerEntry implements ServerEntry
     {
         ServerAttribute existing = serverAttributeMap.get( attributeType );
 
+        if ( attributeType.equals( objectClassAT ) )
+        {
+            if ( existing != null )
+            {
+                return setObjectClassAttribute( new ObjectClassAttribute( existing.getUpId(), registries, val ) );
+            }
+
+            return setObjectClassAttribute( new ObjectClassAttribute( registries, val ) );
+        }
+
         if ( existing != null )
         {
             return put( existing.getUpId(), attributeType, val );
         }
         else
         {
-            String name = attributeType.getName();
-            if ( name == null )
-            {
-                name = attributeType.getOid();
-            }
-            return put( name, attributeType, val );
+            return put( null, attributeType, val );
         }
     }
 
 
     public ServerAttribute put( String upId, AttributeType attributeType, String val ) throws NamingException
     {
-        ServerAttribute serverAttribute = new ServerAttribute( upId, attributeType, val );
-
         if ( attributeType.equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( serverAttribute );
+            return setObjectClassAttribute( new ObjectClassAttribute( upId, registries, val ) );
         }
 
-        return serverAttributeMap.put( attributeType, serverAttribute );
+        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
     }
 
 
     public ServerAttribute put( AttributeType attributeType, byte[] val ) throws NamingException
     {
+        if ( attributeType.equals( objectClassAT ) )
+        {
+            throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
+        }
+
         ServerAttribute existing = serverAttributeMap.get( attributeType );
 
         if ( existing != null )
@@ -385,26 +266,19 @@ public class DefaultServerEntry implements ServerEntry
         }
         else
         {
-            String name = attributeType.getName();
-            if ( name == null )
-            {
-                name = attributeType.getOid();
-            }
-            return put( name, attributeType, val );
+            return put( null, attributeType, val );
         }
     }
 
 
     public ServerAttribute put( String upId, AttributeType attributeType, byte[] val ) throws NamingException
     {
-        ServerAttribute serverAttribute = new ServerAttribute( upId, attributeType, val );
-
         if ( attributeType.equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( serverAttribute );
+            throw new UnsupportedOperationException( "Only String values supported for objectClass attribute" );
         }
 
-        return serverAttributeMap.put( attributeType, serverAttribute );
+        return serverAttributeMap.put( attributeType, new BasicServerAttribute( upId, attributeType, val ) );
     }
 
 
@@ -412,7 +286,7 @@ public class DefaultServerEntry implements ServerEntry
     {
         if ( attributeType.equals( objectClassAT ) )
         {
-            return setObjectClassAttribute( new ServerAttribute( objectClassAT ) );
+            return setObjectClassAttribute( new ObjectClassAttribute( registries ) );
         }
         else
         {
@@ -427,7 +301,7 @@ public class DefaultServerEntry implements ServerEntry
 
         try
         {
-            setObjectClassAttribute( new ServerAttribute( objectClassAT ) );
+            setObjectClassAttribute( new ObjectClassAttribute( registries ) );
         }
         catch ( NamingException e )
         {
