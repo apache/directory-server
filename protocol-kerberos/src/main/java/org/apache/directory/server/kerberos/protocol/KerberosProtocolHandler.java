@@ -158,7 +158,7 @@ public class KerberosProtocolHandler implements IoHandler
                     authContext.setRequest( request );
                     session.setAttribute( getContextKey(), authContext );
 
-                    AuthenticationService.execute( session, authContext, message );
+                    AuthenticationService.execute( session, authContext );
 
                     session.write( authContext.getReply() );
                     break;
@@ -171,6 +171,7 @@ public class KerberosProtocolHandler implements IoHandler
                     tgsContext.setRequest( request );
                     session.setAttribute( getContextKey(), tgsContext );
 
+                    //TgsService.execute( session, tgsContext );
                     tgsService.execute( null, session, message );
 
                     session.write( tgsContext.getReply() );
