@@ -21,6 +21,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 
 import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -52,7 +53,7 @@ public class ConfigureTicketGrantingChain implements IoHandlerCommand
 
         tgsContext.setCipherTextHandler( cipherTextHandler );
 
-        if ( tgsContext.getRequest().getProtocolVersionNumber() != 5 )
+        if ( tgsContext.getRequest().getProtocolVersionNumber() != KerberosConstants.KERBEROS_V5 )
         {
             throw new KerberosException( ErrorType.KDC_ERR_BAD_PVNO );
         }
