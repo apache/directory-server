@@ -35,6 +35,7 @@ import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
 import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
+import org.apache.directory.server.changepw.service.ChangePasswordService;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
@@ -60,7 +61,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     private ChangePasswordServer config;
     private PrincipalStore store;
-    private IoHandlerCommand changepwService;
+    //private IoHandlerCommand changepwService;
     private String contextKey = "context";
 
 
@@ -75,7 +76,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
         this.config = config;
         this.store = store;
 
-        changepwService = new ChangePasswordChain();
+        //changepwService = new ChangePasswordChain();
     }
 
 
@@ -140,7 +141,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
             changepwContext.setRequest( request );
             session.setAttribute( getContextKey(), changepwContext );
 
-            changepwService.execute( null, session, message );
+            ChangePasswordService.execute( session, changepwContext );
+            //changepwService.execute( null, session, message );
 
             session.write( changepwContext.getReply() );
         }

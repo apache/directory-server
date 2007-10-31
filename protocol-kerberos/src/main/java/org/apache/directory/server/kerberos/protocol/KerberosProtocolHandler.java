@@ -29,6 +29,7 @@ import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationContext;
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
+import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
@@ -171,7 +172,7 @@ public class KerberosProtocolHandler implements IoHandler
                     tgsContext.setRequest( request );
                     session.setAttribute( getContextKey(), tgsContext );
 
-                    //TgsService.execute( session, tgsContext );
+                    //TicketGrantingService.execute( session, tgsContext );
                     tgsService.execute( null, session, message );
 
                     session.write( tgsContext.getReply() );

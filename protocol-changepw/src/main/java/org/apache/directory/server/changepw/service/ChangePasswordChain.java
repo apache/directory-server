@@ -42,30 +42,30 @@ public class ChangePasswordChain extends IoHandlerChain
      */
     public ChangePasswordChain()
     {
-        if ( log.isDebugEnabled() )
-        {
-            addLast( "monitorRequest", new MonitorRequest() );
-        }
+        //if ( log.isDebugEnabled() )
+        //{
+        //    addLast( "monitorRequest", new MonitorRequest() );
+        //}
 
-        addLast( "configureChangePasswordChain", new ConfigureChangePasswordChain() );
-        addLast( "getAuthHeader", new GetAuthHeader() );
-        addLast( "verifyServiceTicket", new VerifyServiceTicket() );
-        addLast( "getServerEntry", new GetServerEntry() );
-        addLast( "verifyServiceTicketAuthHeader", new VerifyServiceTicketAuthHeader() );
+        //addLast( "configureChangePasswordChain", new ConfigureChangePasswordChain() );
+        //addLast( "getAuthHeader", new GetAuthHeader() );
+        //addLast( "verifyServiceTicket", new VerifyServiceTicket() );
+        //addLast( "getServerEntry", new GetServerEntry() );
+        //addLast( "verifyServiceTicketAuthHeader", new VerifyServiceTicketAuthHeader() );
 
-        addLast( "extractPassword", new ExtractPassword() );
+        //addLast( "extractPassword", new ExtractPassword() );
 
-        if ( log.isDebugEnabled() )
-        {
-            addLast( "monitorContext", new MonitorContext() );
-        }
+        //if ( log.isDebugEnabled() )
+        //{
+        //    addLast( "monitorContext", new MonitorContext() );
+        //}
 
-        addLast( "processPasswordChange", new ProcessPasswordChange() );
-        addLast( "buildReply", new BuildReply() );
+        //addLast( "processPasswordChange", new ProcessPasswordChange() );
+        //addLast( "buildReply", new BuildReply() );
 
-        if ( log.isDebugEnabled() )
-        {
-            addLast( "monitorReply", new MonitorReply() );
-        }
+        //if ( log.isDebugEnabled() )
+        //{
+        //    addLast( "monitorReply", new MonitorReply() );
+        //}
     }
 }

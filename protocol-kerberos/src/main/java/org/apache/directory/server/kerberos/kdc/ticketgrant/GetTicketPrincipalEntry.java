@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.service.GetPrincipalStoreEntry;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -42,7 +43,7 @@ public class GetTicketPrincipalEntry extends GetPrincipalStoreEntry
         KerberosPrincipal principal = tgsContext.getTgt().getServerPrincipal();
         PrincipalStore store = tgsContext.getStore();
 
-        PrincipalStoreEntry entry = getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN );
+        PrincipalStoreEntry entry = KerberosUtils.getEntry( principal, store, ErrorType.KDC_ERR_S_PRINCIPAL_UNKNOWN );
         tgsContext.setTicketPrincipalEntry( entry );
 
         next.execute( session, message );

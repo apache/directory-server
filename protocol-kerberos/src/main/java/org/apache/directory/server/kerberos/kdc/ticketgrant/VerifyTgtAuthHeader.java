@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.kdc.ticketgrant;
 
 import java.net.InetAddress;
 
+import org.apache.directory.server.kerberos.shared.KerberosUtils;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -31,16 +32,18 @@ import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
-import org.apache.directory.server.kerberos.shared.service.VerifyAuthHeader;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.handler.chain.IoHandlerCommand;
 
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class VerifyTgtAuthHeader extends VerifyAuthHeader
+public class VerifyTgtAuthHeader implements IoHandlerCommand
 {
+    private String contextKey = "context";
+
     public void execute( NextCommand next, IoSession session, Object message ) throws Exception
     {
         TicketGrantingContext tgsContext = ( TicketGrantingContext ) session.getAttribute( getContextKey() );
@@ -59,11 +62,17 @@ public class VerifyTgtAuthHeader extends VerifyAuthHeader
         InetAddress clientAddress = tgsContext.getClientAddress();
         CipherTextHandler cipherTextHandler = tgsContext.getCipherTextHandler();
 
-        Authenticator authenticator = verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
+        Authenticator authenticator = KerberosUtils.verifyAuthHeader( authHeader, tgt, serverKey, clockSkew, replayCache,
             emptyAddressesAllowed, clientAddress, cipherTextHandler, KeyUsage.NUMBER7, isValidate );
 
         tgsContext.setAuthenticator( authenticator );
 
         next.execute( session, message );
+    }
+
+
+    protected String getContextKey()
+    {
+        return ( this.contextKey );
     }
 }
