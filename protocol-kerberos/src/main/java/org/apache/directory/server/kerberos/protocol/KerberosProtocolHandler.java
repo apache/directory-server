@@ -30,7 +30,6 @@ import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationCon
 import org.apache.directory.server.kerberos.kdc.authentication.AuthenticationService;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingContext;
 import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingService;
-import org.apache.directory.server.kerberos.kdc.ticketgrant.TicketGrantingServiceChain;
 import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -44,7 +43,6 @@ import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +60,8 @@ public class KerberosProtocolHandler implements IoHandler
 
     private KdcServer config;
     private PrincipalStore store;
-    private IoHandlerCommand tgsService;
-    private String contextKey = "context";
+    private static final String CONTEXT_KEY = "context";
+    
 
 
     /**
@@ -76,8 +74,6 @@ public class KerberosProtocolHandler implements IoHandler
     {
         this.config = config;
         this.store = store;
-
-        tgsService = new TicketGrantingServiceChain();
     }
 
 
@@ -157,9 +153,9 @@ public class KerberosProtocolHandler implements IoHandler
                     authContext.setStore( store );
                     authContext.setClientAddress( clientAddress );
                     authContext.setRequest( request );
-                    session.setAttribute( getContextKey(), authContext );
+                    session.setAttribute( CONTEXT_KEY, authContext );
 
-                    AuthenticationService.execute( session, authContext );
+                    AuthenticationService.execute( authContext );
 
                     session.write( authContext.getReply() );
                     break;
@@ -170,10 +166,9 @@ public class KerberosProtocolHandler implements IoHandler
                     tgsContext.setStore( store );
                     tgsContext.setClientAddress( clientAddress );
                     tgsContext.setRequest( request );
-                    session.setAttribute( getContextKey(), tgsContext );
+                    session.setAttribute( CONTEXT_KEY, tgsContext );
 
-                    //TicketGrantingService.execute( session, tgsContext );
-                    tgsService.execute( null, session, message );
+                    TicketGrantingService.execute( tgsContext );
 
                     session.write( tgsContext.getReply() );
                     break;
@@ -265,11 +260,5 @@ public class KerberosProtocolHandler implements IoHandler
             // This is a monitor.  No exceptions should bubble up.
             log.error( "Error in reply monitor", e );
         }
-    }
-
-
-    protected String getContextKey()
-    {
-        return ( this.contextKey );
     }
 }

@@ -33,7 +33,6 @@ import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
-import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
 import org.apache.directory.server.changepw.service.ChangePasswordService;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
@@ -46,7 +45,6 @@ import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +59,6 @@ public class ChangePasswordProtocolHandler implements IoHandler
 
     private ChangePasswordServer config;
     private PrincipalStore store;
-    //private IoHandlerCommand changepwService;
     private String contextKey = "context";
 
 
@@ -75,8 +72,6 @@ public class ChangePasswordProtocolHandler implements IoHandler
     {
         this.config = config;
         this.store = store;
-
-        //changepwService = new ChangePasswordChain();
     }
 
 
@@ -142,7 +137,6 @@ public class ChangePasswordProtocolHandler implements IoHandler
             session.setAttribute( getContextKey(), changepwContext );
 
             ChangePasswordService.execute( session, changepwContext );
-            //changepwService.execute( null, session, message );
 
             session.write( changepwContext.getReply() );
         }
