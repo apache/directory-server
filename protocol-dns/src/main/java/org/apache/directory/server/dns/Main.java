@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class Main
 {
     /** Logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( Main.class );
+    private static final Logger LOG = LoggerFactory.getLogger( Main.class );
 
     private static DnsServer dnsConfiguration;
 
@@ -58,6 +58,8 @@ public class Main
      */
     public void go() throws IOException
     {
+        LOG.debug( "Starting the DNS server" );
+        
         DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
         SocketAcceptor socketAcceptor = new SocketAcceptor( null );
         DirectoryService directoryService = new DefaultDirectoryService();
@@ -73,6 +75,7 @@ public class Main
 
     protected void shutdown()
     {
+        LOG.debug( "Stopping the DNS server" );
         dnsConfiguration.stop();
     }
 }

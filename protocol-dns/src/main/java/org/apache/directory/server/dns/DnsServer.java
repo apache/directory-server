@@ -41,7 +41,6 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  */
 public class DnsServer extends DirectoryBackedService
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
     private static final long serialVersionUID = 6943138644427163149L;
 
     /** The default IP port. */

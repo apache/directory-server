@@ -32,14 +32,13 @@ import org.apache.directory.server.dns.messages.OpCode;
 import org.apache.directory.server.dns.messages.ResourceRecord;
 import org.apache.directory.server.dns.messages.ResponseCode;
 import org.apache.directory.server.dns.service.DnsContext;
-import org.apache.directory.server.dns.service.DomainNameServiceChain;
+import org.apache.directory.server.dns.service.DomainNameService;
 import org.apache.directory.server.dns.store.RecordStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +49,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DnsProtocolHandler implements IoHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( DnsProtocolHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DnsProtocolHandler.class );
 
     private DnsServer config;
     private RecordStore store;
-    private IoHandlerCommand dnsService;
     private String contextKey = "context";
 
 
@@ -68,16 +66,14 @@ public class DnsProtocolHandler implements IoHandler
     {
         this.config = config;
         this.store = store;
-
-        dnsService = new DomainNameServiceChain();
     }
 
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
+            LOG.debug( "{} CREATED:  {}", session.getRemoteAddress(), session.getTransportType() );
         }
 
         if ( session.getTransportType() == TransportType.DATAGRAM )
@@ -95,32 +91,32 @@ public class DnsProtocolHandler implements IoHandler
 
     public void sessionOpened( IoSession session )
     {
-        log.debug( "{} OPENED", session.getRemoteAddress() );
+        LOG.debug( "{} OPENED", session.getRemoteAddress() );
     }
 
 
     public void sessionClosed( IoSession session )
     {
-        log.debug( "{} CLOSED", session.getRemoteAddress() );
+        LOG.debug( "{} CLOSED", session.getRemoteAddress() );
     }
 
 
     public void sessionIdle( IoSession session, IdleStatus status )
     {
-        log.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
+        LOG.debug( "{} IDLE ({})", session.getRemoteAddress(), status );
     }
 
 
     public void exceptionCaught( IoSession session, Throwable cause )
     {
-        log.error( session.getRemoteAddress() + " EXCEPTION", cause );
+        LOG.error( session.getRemoteAddress() + " EXCEPTION", cause );
         session.close();
     }
 
 
     public void messageReceived( IoSession session, Object message )
     {
-        log.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
+        LOG.debug( "{} RCVD:  {}", session.getRemoteAddress(), message );
 
         try
         {
@@ -129,7 +125,7 @@ public class DnsProtocolHandler implements IoHandler
             dnsContext.setStore( store );
             session.setAttribute( getContextKey(), dnsContext );
 
-            dnsService.execute( null, session, message );
+            DomainNameService.execute( dnsContext, (DnsMessage)message );
 
             DnsMessage response = dnsContext.getReply();
 
@@ -137,7 +133,7 @@ public class DnsProtocolHandler implements IoHandler
         }
         catch ( Exception e )
         {
-            log.error( e.getMessage(), e );
+            LOG.error( e.getMessage(), e );
 
             DnsMessage request = ( DnsMessage ) message;
             DnsException de = ( DnsException ) e;
@@ -166,7 +162,7 @@ public class DnsProtocolHandler implements IoHandler
 
     public void messageSent( IoSession session, Object message )
     {
-        log.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
+        LOG.debug( "{} SENT:  {}", session.getRemoteAddress(), message );
     }
 
 
