@@ -531,19 +531,19 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
 
    /**
-    * Retrieves the components of this name as an enumeration of strings. The
-    * effect on the enumeration of updates to this name is undefined. If the
-    * name has zero components, an empty (non-null) enumeration is returned.
+    * Retrieves the components of this RDN as an iterator of AttributeTypeAndValue. 
+    * The effect on the iterator of updates to this RDN is undefined. If the
+    * RDN has zero components, an empty (non-null) iterator is returned.
     *
-    * @return an enumeration of the components of this name, each a string
+    * @return an iterator of the components of this RDN, each an AttributeTypeAndValue
     */
    public Iterator<AttributeTypeAndValue> iterator()
    {
-       if ( nbAtavs == 1 )
+       if ( nbAtavs == 1 || nbAtavs == 0 )
        {
            return new Iterator<AttributeTypeAndValue>()
            {
-               private boolean hasMoreElement = true;
+               private boolean hasMoreElement = nbAtavs == 1;
 
 
                public boolean hasNext()

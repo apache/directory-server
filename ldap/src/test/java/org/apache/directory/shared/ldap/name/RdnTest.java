@@ -20,6 +20,8 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.util.Iterator;
+
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -512,4 +514,38 @@ public class RdnTest extends TestCase
         Rdn rdn = new Rdn( "cn=Kate Bush+sn=Bush" );
         assertEquals( "cn=Kate Bush+sn=Bush", rdn.getUpName() );
     }
+
+
+    public void testMultiValuedIterator() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn( "cn=Kate Bush+sn=Bush" );
+        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        assertNotNull( iterator );
+        assertTrue( iterator.hasNext() );
+        assertNotNull( iterator.next() );
+        assertTrue( iterator.hasNext() );
+        assertNotNull( iterator.next() );
+        assertFalse( iterator.hasNext() );
+    }
+
+
+    public void testSingleValuedIterator() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn( "cn=Kate Bush" );
+        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        assertNotNull( iterator );
+        assertTrue( iterator.hasNext() );
+        assertNotNull( iterator.next() );
+        assertFalse( iterator.hasNext() );
+    }
+
+
+    public void testEmptyIterator() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn();
+        Iterator<AttributeTypeAndValue> iterator = rdn.iterator();
+        assertNotNull( iterator );
+        assertFalse( iterator.hasNext() );
+    }
+
 }
