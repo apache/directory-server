@@ -26,12 +26,63 @@ package org.apache.directory.server.kerberos.shared.messages.value.flags;
  */
 public interface KerberosFlags
 {
-    public byte[] getBytes();
-    public int getIntValue();
-    public boolean isFlagSet( KerberosFlag flag );
-    public boolean isFlagSet( int flag );
-    public void setFlag( KerberosFlag flag );
-    public void setFlag( int flag );
-    public void clearFlag( KerberosFlag flag );
-    public void clearFlag( int flag );
+    /**
+     * @return The byte array for a KerberosFlags
+     */
+    byte[] getBytes();
+    
+    
+    /**
+     * Returns the int value associated with the flags
+     */
+    int getIntValue();
+    
+    
+    /**
+     * Check if a flag is set for the actual value
+     * 
+     * @param flag The flag to check
+     * @return True if the flag is set in the list of flags
+     */
+    boolean isFlagSet( KerberosFlag flag );
+    
+    
+    /**
+     * Check if a flag is set
+     * @param flags The flags to test
+     * @return True if the flag is set in the list of flags
+     */
+    boolean isFlagSet( int flag );
+    
+    
+    /**
+     * Set a flag in a list of flags
+     * 
+     * @param flag The flag to set
+     */
+    void setFlag( KerberosFlag flag );
+
+    
+    /**
+     * Set a flag in a list of flags
+     * 
+     * @param flag The flag to set
+     */
+    void setFlag( int flag );
+    
+    
+    /**
+     * clear a flag in a list of flags
+     * 
+     * @param flag The flag to set
+     */
+    void clearFlag( KerberosFlag flag );
+
+    
+    /**
+     * clear a flag in a list of flags
+     * 
+     * @param flag The flag to set
+     */
+    void clearFlag( int flag );
 }

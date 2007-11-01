@@ -41,7 +41,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -442,7 +441,7 @@ public class KerberosUtils
         KerberosTime now = new KerberosTime();
         boolean isValidStartTime = startTime.lessThan( now );
 
-        if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().get( TicketFlags.INVALID ) && !isValidate ) )
+        if ( !isValidStartTime || ( ticket.getEncTicketPart().getFlags().isInvalid() && !isValidate ) )
         {
             // it hasn't yet become valid
             throw new KerberosException( ErrorType.KRB_AP_ERR_TKT_NYV );

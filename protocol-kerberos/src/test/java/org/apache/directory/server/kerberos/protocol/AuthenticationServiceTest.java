@@ -36,7 +36,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -597,15 +596,15 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "POSTDATED flag", reply.getFlags().get( TicketFlags.POSTDATED ) );
-        assertTrue( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "POSTDATED flag", reply.getFlags().isPostdated() );
+        assertTrue( "INVALID flag", reply.getFlags().isInvalid() );
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.POSTDATED ) );
-        assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().isPostdated() );
+        assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PRE_AUTHENT ) );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
     }
 
 
@@ -647,7 +646,7 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
 
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PRE_AUTHENT ) );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
     }
 
 
@@ -765,11 +764,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "INITIAL flag", reply.getFlags().get( TicketFlags.INITIAL ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "INITIAL flag", reply.getFlags().isInitial() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "INITIAL flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INITIAL ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "INITIAL flag", reply.getTicket().getEncTicketPart().getFlags().isInitial() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         assertEquals( "Service principal name", reply.getServerPrincipal().getName(), servicePrincipalName );
         assertEquals( "Service principal name", reply.getTicket().getServerPrincipal().getName(), servicePrincipalName );
@@ -821,8 +820,8 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
         assertTrue( "Expected end time", isClose );
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
         KerberosTime expectedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK );
         isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -866,11 +865,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "FORWARDABLE flag", reply.getFlags().get( TicketFlags.FORWARDABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDABLE flag", reply.getFlags().isForwardable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "FORWARDABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.FORWARDABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDABLE flag", reply.getTicket().getEncTicketPart().getFlags().isForwardable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -910,11 +909,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "MAY_POSTDATE flag", reply.getFlags().get( TicketFlags.MAY_POSTDATE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "MAY_POSTDATE flag", reply.getFlags().isMayPosdate() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getEncTicketPart().getFlags().isMayPosdate() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -954,11 +953,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "PROXIABLE flag", reply.getFlags().get( TicketFlags.PROXIABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXIABLE flag", reply.getFlags().isProxiable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "PROXIABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PROXIABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXIABLE flag", reply.getTicket().getEncTicketPart().getFlags().isProxiable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -1004,11 +1003,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         assertTrue( "Requested renew-till time", requestedRenewTillTime.equals( reply.getRenewTill() ) );
     }
@@ -1057,11 +1056,11 @@ public class AuthenticationServiceTest extends AbstractAuthenticationServiceTest
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         KerberosTime expectedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK );
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;

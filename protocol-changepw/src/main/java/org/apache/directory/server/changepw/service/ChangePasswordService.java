@@ -55,7 +55,6 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
@@ -223,7 +222,7 @@ public class ChangePasswordService
 
         ChangePasswordRequest request = ( ChangePasswordRequest ) changepwContext.getRequest();
 
-        if ( request.getVersionNumber() == 1 && !ticket.getEncTicketPart().getFlags().get( TicketFlags.INITIAL ) )
+        if ( request.getVersionNumber() == 1 && !ticket.getEncTicketPart().getFlags().isInitial() )
         {
             throw new ChangePasswordException( ErrorType.KRB5_KPASSWD_INITIAL_FLAG_NEEDED );
         }

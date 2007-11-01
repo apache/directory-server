@@ -58,8 +58,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.replay.InMemoryReplayCache;
 import org.apache.directory.server.kerberos.shared.replay.ReplayCache;
@@ -354,12 +354,12 @@ public class AuthenticationService
         KdcServer config = authContext.getConfig();
 
         // The INITIAL flag indicates that a ticket was issued using the AS protocol.
-        newTicketBody.setFlag( TicketFlags.INITIAL );
+        newTicketBody.setFlag( TicketFlag.INITIAL );
 
         // The PRE-AUTHENT flag indicates that the client used pre-authentication.
         if ( authContext.isPreAuthenticated() )
         {
-            newTicketBody.setFlag( TicketFlags.PRE_AUTHENT );
+            newTicketBody.setFlag( TicketFlag.PRE_AUTHENT );
         }
 
         if ( request.getOption( KdcOptions.FORWARDABLE ) )
@@ -369,7 +369,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlags.FORWARDABLE );
+            newTicketBody.setFlag( TicketFlag.FORWARDABLE );
         }
 
         if ( request.getOption( KdcOptions.PROXIABLE ) )
@@ -379,7 +379,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlags.PROXIABLE );
+            newTicketBody.setFlag( TicketFlag.PROXIABLE );
         }
 
         if ( request.getOption( KdcOptions.ALLOW_POSTDATE ) )
@@ -389,7 +389,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlags.MAY_POSTDATE );
+            newTicketBody.setFlag( TicketFlag.MAY_POSTDATE );
         }
 
         if ( request.getOption( KdcOptions.RENEW ) || request.getOption( KdcOptions.VALIDATE )
@@ -446,8 +446,8 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlags.POSTDATED );
-            newTicketBody.setFlag( TicketFlags.INVALID );
+            newTicketBody.setFlag( TicketFlag.POSTDATED );
+            newTicketBody.setFlag( TicketFlag.INVALID );
             newTicketBody.setStartTime( startTime );
         }
 
@@ -513,7 +513,7 @@ public class AuthenticationService
                 throw new KerberosException( ErrorType.KDC_ERR_POLICY );
             }
 
-            newTicketBody.setFlag( TicketFlags.RENEWABLE );
+            newTicketBody.setFlag( TicketFlag.RENEWABLE );
 
             if ( tempRtime == null || tempRtime.isZero() )
             {
@@ -580,7 +580,7 @@ public class AuthenticationService
         reply.setStartTime( ticket.getEncTicketPart().getStartTime() );
         reply.setEndTime( ticket.getEncTicketPart().getEndTime() );
 
-        if ( ticket.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
+        if ( ticket.getEncTicketPart().getFlags().isRenewable() )
         {
             reply.setRenewTill( ticket.getEncTicketPart().getRenewTill() );
         }

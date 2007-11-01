@@ -30,5 +30,8 @@ package org.apache.directory.server.kerberos.shared.messages.value.flags;
  */
 public interface KerberosFlag
 {
-    public int getOrdinal();
+    /**
+     * @return The ordinal value associated with this flag
+     */
+    int getOrdinal();
 }

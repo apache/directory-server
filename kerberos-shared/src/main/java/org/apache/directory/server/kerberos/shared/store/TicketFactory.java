@@ -41,8 +41,9 @@ import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**
@@ -97,7 +98,7 @@ public class TicketFactory
         EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
 
         TicketFlags ticketFlags = new TicketFlags();
-        ticketFlags.set( TicketFlags.RENEWABLE );
+        ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketModifier.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
@@ -149,7 +150,7 @@ public class TicketFactory
 
         for ( int ii = 0; ii < flags.length; ii++ )
         {
-            flags[ii] = ticket.getEncTicketPart().getFlags().get( ii );
+            flags[ii] = ticket.getEncTicketPart().getFlags().isFlagSet( ii );
         }
 
         Date authTime = ticket.getEncTicketPart().getAuthTime().toDate();
@@ -159,7 +160,7 @@ public class TicketFactory
 
         Date renewTill = null;
 
-        if ( ticket.getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) )
+        if ( ticket.getEncTicketPart().getFlags().isRenewable() )
         {
             renewTill = ( ticket.getEncTicketPart().getRenewTill() != null ? ticket.getEncTicketPart().getRenewTill().toDate() : null );
         }

@@ -45,7 +45,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -451,7 +451,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.INVALID );
+        encTicketPartModifier.setFlag( TicketFlag.INVALID );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -501,7 +501,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
+        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -536,11 +536,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "PROXY flag", reply.getFlags().get( TicketFlags.PROXY ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXY flag", reply.getFlags().isProxy() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "PROXY flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PROXY ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXY flag", reply.getTicket().getEncTicketPart().getFlags().isProxy() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         assertNotNull( reply.getTicket().getEncTicketPart().getClientAddresses() );
     }
@@ -559,7 +559,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
+        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -594,11 +594,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "FORWARDED flag", reply.getFlags().get( TicketFlags.FORWARDED ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDED flag", reply.getFlags().isForwarded() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "FORWARDED flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.FORWARDED ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDED flag", reply.getTicket().getEncTicketPart().getFlags().isForwarded() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         assertNotNull( reply.getTicket().getEncTicketPart().getClientAddresses() );
     }
@@ -664,7 +664,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
         encTicketPartModifier.setRenewTill( new KerberosTime( 0 ) );
 
         // Seal the ticket for the server.
@@ -714,7 +714,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
         encTicketPartModifier.setStartTime( new KerberosTime( now - KerberosTime.DAY / 2 ) );
         encTicketPartModifier.setEndTime( new KerberosTime( now + KerberosTime.DAY / 2 ) );
 
@@ -764,7 +764,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
         encTicketPartModifier.setStartTime( new KerberosTime( now - KerberosTime.DAY / 2 ) );
         encTicketPartModifier.setEndTime( new KerberosTime( now + KerberosTime.DAY / 2 ) );
 
@@ -1057,7 +1057,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1111,7 +1111,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1163,7 +1163,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1226,7 +1226,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
         // Service ticket end time will be limited by TGT end time.
         encTicketPartModifier.setEndTime( new KerberosTime( now + 3 * KerberosTime.DAY ) );
 
@@ -1261,13 +1261,13 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "POSTDATED flag", reply.getFlags().get( TicketFlags.POSTDATED ) );
-        assertTrue( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "POSTDATED flag", reply.getFlags().isPostdated() );
+        assertTrue( "INVALID flag", reply.getFlags().isInvalid() );
 
         assertTrue( "Requested start time", requestedStartTime.equals( reply.getTicket().getEncTicketPart().getStartTime() ) );
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.POSTDATED ) );
-        assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "POSTDATED flag", reply.getTicket().getEncTicketPart().getFlags().isPostdated() );
+        assertTrue( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -1284,7 +1284,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PRE_AUTHENT );
+        encTicketPartModifier.setFlag( TicketFlag.PRE_AUTHENT );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1313,7 +1313,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PRE_AUTHENT ) );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
     }
 
 
@@ -1486,7 +1486,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1520,8 +1520,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         boolean isClose = Math.abs( reply.getEndTime().getTime() - expectedEndTime.getTime() ) < 5000;
         assertTrue( "Expected end time", isClose );
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
         KerberosTime expectedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK );
         isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -1545,7 +1545,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
+        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1575,11 +1575,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "FORWARDABLE flag", reply.getFlags().get( TicketFlags.FORWARDABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDABLE flag", reply.getFlags().isForwardable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "FORWARDABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.FORWARDABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "FORWARDABLE flag", reply.getTicket().getEncTicketPart().getFlags().isForwardable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -1599,7 +1599,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1629,11 +1629,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "MAY_POSTDATE flag", reply.getFlags().get( TicketFlags.MAY_POSTDATE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "MAY_POSTDATE flag", reply.getFlags().isMayPosdate() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.MAY_POSTDATE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "MAY_POSTDATE flag", reply.getTicket().getEncTicketPart().getFlags().isMayPosdate() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -1653,7 +1653,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
+        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1683,11 +1683,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "PROXIABLE flag", reply.getFlags().get( TicketFlags.PROXIABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXIABLE flag", reply.getFlags().isProxiable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "PROXIABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.PROXIABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "PROXIABLE flag", reply.getTicket().getEncTicketPart().getFlags().isProxiable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 
@@ -1710,7 +1710,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1743,11 +1743,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         assertTrue( "Requested renew-till time", requestedRenewTillTime.equals( reply.getRenewTill() ) );
     }
@@ -1773,7 +1773,7 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -1806,11 +1806,11 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertTrue( "RENEWABLE flag", reply.getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
 
-        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.RENEWABLE ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertTrue( "RENEWABLE flag", reply.getTicket().getEncTicketPart().getFlags().isRenewable() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
 
         KerberosTime expectedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK );
         boolean isClose = Math.abs( reply.getRenewTill().getTime() - expectedRenewTillTime.getTime() ) < 5000;
@@ -1862,8 +1862,8 @@ public class TicketGrantingServiceTest extends AbstractTicketGrantingServiceTest
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertFalse( "INVALID flag", reply.getFlags().get( TicketFlags.INVALID ) );
-        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().get( TicketFlags.INVALID ) );
+        assertFalse( "INVALID flag", reply.getFlags().isInvalid() );
+        assertFalse( "INVALID flag", reply.getTicket().getEncTicketPart().getFlags().isInvalid() );
     }
 
 

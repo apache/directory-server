@@ -118,8 +118,10 @@ public enum TicketFlag implements KerberosFlag
      */
     MAX_VALUE(32);
 
+    
     // The interned value.
     private int value;
+    
     
     /**
      * Class constructor
@@ -128,6 +130,7 @@ public enum TicketFlag implements KerberosFlag
     {
         this.value = value;
     }
+    
     
     /**
      * @return The ordinal value associated with this flag

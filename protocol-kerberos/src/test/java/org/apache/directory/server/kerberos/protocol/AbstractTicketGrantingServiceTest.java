@@ -56,8 +56,9 @@ import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.mina.common.IoFilterChain;
@@ -135,7 +136,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
 
         TicketFlags ticketFlags = new TicketFlags();
-        ticketFlags.set( TicketFlags.RENEWABLE );
+        ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketModifier.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
@@ -169,7 +170,7 @@ public abstract class AbstractTicketGrantingServiceTest extends TestCase
         EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
 
         TicketFlags ticketFlags = new TicketFlags();
-        ticketFlags.set( TicketFlags.RENEWABLE );
+        ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketModifier.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );

@@ -36,6 +36,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     /** The associated value */
     protected int value;
     
+    
     /**
      * Standard constructor, which create a BitString containing 32 bits
      */
@@ -44,13 +45,16 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         super( 32 );
     }
 
+    
     /**
      * Standard constructor, taking a byte array
      */
     public AbstractKerberosFlags( byte[] flags )
     {
         super( flags );
+        value = ( ( getBytes()[0] & 0x00F ) << 24 ) | ( ( getBytes()[1] & 0x00FF ) << 16 ) | ( ( getBytes()[2] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[3] ); 
     }
+    
     
     /**
      * A static method to get the bayte array representation of an int
@@ -65,19 +69,16 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
                 (byte)( flags & 0x00ff ) };
     }
     
+    
     /**
      * @return The byte array for a KerberosFlags
      */
     public byte[] getBytes()
     {
         return getData();
-        /*new byte[]{
-                (byte)( value >>> 24), 
-                (byte)( ( value >> 16 ) & 0x00ff ), 
-                (byte)( ( value >> 8 ) & 0x00ff ), 
-                (byte)( value & 0x00ff ) };*/
     }
 
+    
     /**
      * Returns the int value associated with the flags
      */
@@ -85,7 +86,6 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
     {
         return value;
     }
-    
     
     
     /**
@@ -99,17 +99,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         return ( flags & ( 1 << flag) ) != 0;
     }
     
-    /**
-     * Check if a flag is set
-     * @param flags The flags to test
-     * @param flag The flag to check
-     * @return True if the flag is set in the list of flags
-     */
-    /*public static boolean isFlagSet( int flags, KerberosFlag flag )
-    {
-        return ( flags & ( 1 << flag.getOrdinal() ) ) != 0;
-    }*/
-    
+
     /**
      * Check if a flag is set for the actual value
      * 
@@ -121,6 +111,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         return ( value & ( 1 << flag.getOrdinal() ) ) != 0;
     }
     
+    
     /**
      * Check if a flag is set
      * @param flags The flags to test
@@ -131,17 +122,6 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         return ( flag & ( 1 << value ) ) != 0;
     }
     
-    /**
-     * Set a flag in a list of flags
-     * 
-     * @param flags The list of flags
-     * @param flag The flag to set
-     */
-    /*public static int setFlag( int flags, KerberosFlag flag )
-    {
-        flags |= 1 << flag.getOrdinal();
-        return flags;
-    }*/
     
     /**
      * Set a flag in a list of flags
@@ -153,6 +133,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         value |= 1 << flag.getOrdinal();
         setBit( flag.getOrdinal() );
     }
+    
     
     /**
      * Set a flag in a list of flags
@@ -178,20 +159,10 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
             value = -1;
         }
         
-        value = ( bytes[0] << 24 ) + ( bytes[1] << 16 ) + ( bytes[2] << 8 ) + bytes[3];
+        value = ( ( getBytes()[0] & 0x00F ) << 24 ) | ( ( getBytes()[1] & 0x00FF ) << 16 ) | ( ( getBytes()[2] & 0x00FF ) << 8 ) | ( 0x00FF & getBytes()[3] ); 
         setData( bytes );
     }
     
-    /**
-     * clear a flag in a list of flags
-     * 
-     * @param flags The list of flags
-     * @param flag The flag to set
-     */
-    /*public static void clearFlag( int flags, KerberosFlag flag )
-    {
-        flags &= ~( 1 << flag.getOrdinal() );
-    }*/
 
     /**
      * clear a flag in a list of flags
@@ -204,6 +175,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         clearBit( flag.getOrdinal() );
     }
     
+    
     /**
      * clear a flag in a list of flags
      * 
@@ -214,6 +186,7 @@ public abstract class AbstractKerberosFlags extends BitString implements Kerbero
         value &= ~( 1 << flag );
         clearBit( flag );
     }
+    
     
     /**
      * @return The hex value for this flag, in its position.

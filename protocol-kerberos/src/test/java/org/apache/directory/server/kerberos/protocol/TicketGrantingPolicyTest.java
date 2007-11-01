@@ -37,7 +37,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -91,7 +91,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
+        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -140,7 +140,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
+        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -189,7 +189,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.FORWARDABLE );
+        encTicketPartModifier.setFlag( TicketFlag.FORWARDABLE );
 
         HostAddress[] address =
                 {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
@@ -243,7 +243,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
+        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -292,7 +292,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
+        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -346,7 +346,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.PROXIABLE );
+        encTicketPartModifier.setFlag( TicketFlag.PROXIABLE );
 
         HostAddress[] address =
                 {new HostAddress( InetAddress.getByAddress( new byte[4] ) )};
@@ -400,7 +400,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -449,7 +449,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.MAY_POSTDATE );
+        encTicketPartModifier.setFlag( TicketFlag.MAY_POSTDATE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -498,7 +498,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.INVALID );
+        encTicketPartModifier.setFlag( TicketFlag.INVALID );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -591,7 +591,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );
@@ -640,7 +640,7 @@ public class TicketGrantingPolicyTest extends AbstractTicketGrantingServiceTest
         EncTicketPartModifier encTicketPartModifier = getTicketArchetype( clientPrincipal );
 
         // Make changes to test.
-        encTicketPartModifier.setFlag( TicketFlags.RENEWABLE );
+        encTicketPartModifier.setFlag( TicketFlag.RENEWABLE );
 
         // Seal the ticket for the server.
         KerberosPrincipal serverPrincipal = new KerberosPrincipal( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" );

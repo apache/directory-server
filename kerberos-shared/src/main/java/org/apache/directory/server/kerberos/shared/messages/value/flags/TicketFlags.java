@@ -31,6 +31,7 @@ public class TicketFlags extends AbstractKerberosFlags
 {
     public static final long serialVersionUID = 1L;
 
+    
    /**
      * Basic constructor of a TicketFlags BitString
      */
@@ -38,6 +39,7 @@ public class TicketFlags extends AbstractKerberosFlags
     {
         super();
     }
+    
     
     /**
      * Constructor of a TicketFlags BitString with an int value
@@ -47,6 +49,7 @@ public class TicketFlags extends AbstractKerberosFlags
         super( getBytes( flags ) );
     }
     
+    
     /**
      * Basic constructor of a TicketFlags BitString with a byte array
      */
@@ -54,6 +57,7 @@ public class TicketFlags extends AbstractKerberosFlags
     {
         super( flags );
     }
+    
     
     /**
      * Ticket flag - reserved
@@ -63,6 +67,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.RESERVED );
     }
 
+    
     /**
      * Ticket flag - forwardable
      */
@@ -70,6 +75,7 @@ public class TicketFlags extends AbstractKerberosFlags
     {
         return isFlagSet( TicketFlag.FORWARDABLE );
     }
+    
 
     /**
      * Ticket flag - forwarded
@@ -79,6 +85,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.FORWARDED );
     }
 
+    
     /**
      * Ticket flag - proxiable
      */
@@ -87,6 +94,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.PROXIABLE );
     }
 
+    
     /**
      * Ticket flag - proxy
      */
@@ -95,6 +103,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.PROXY );
     }
 
+    
     /**
      * Ticket flag - may be postdated
      */
@@ -103,6 +112,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.MAY_POSTDATE );
     }
 
+    
     /**
      * Ticket flag - postdated
      */
@@ -111,6 +121,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.POSTDATED );
     }
 
+    
     /**
      * Ticket flag - invalid
      */
@@ -119,6 +130,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.INVALID );
     }
 
+    
     /**
      * Ticket flag - renewable
      */
@@ -127,6 +139,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.RENEWABLE );
     }
 
+    
     /**
      * Ticket flag - initial
      */
@@ -135,6 +148,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.INITIAL );
     }
 
+    
     /**
      * Ticket flag - pre-authentication
      */
@@ -143,6 +157,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.PRE_AUTHENT );
     }
 
+    
     /**
      * Ticket flag - hardware authentication
      */
@@ -151,6 +166,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return isFlagSet( TicketFlag.HW_AUTHENT );
     }
 
+    
     /**
      * Ticket flag - transitedEncoding policy checked
      */
@@ -158,6 +174,7 @@ public class TicketFlags extends AbstractKerberosFlags
     {
         return isFlagSet( TicketFlag.TRANSITED_POLICY_CHECKED );
     }
+    
 
     /**
      * Ticket flag - OK as delegate
@@ -166,6 +183,7 @@ public class TicketFlags extends AbstractKerberosFlags
     {
         return isFlagSet( TicketFlag.OK_AS_DELEGATE );
     }
+    
     
     /**
      * Converts the object to a printable string.
@@ -247,6 +265,7 @@ public class TicketFlags extends AbstractKerberosFlags
         return result.toString().trim();
     }*/
 
+    
     /**
      * Converts the object to a printable string.
      */
