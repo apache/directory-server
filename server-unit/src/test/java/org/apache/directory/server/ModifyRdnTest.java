@@ -23,16 +23,22 @@ package org.apache.directory.server;
 import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -67,9 +73,26 @@ public class ModifyRdnTest extends AbstractServerTest
 
 
     /**
+     * Create attributes for a organizational unit entry.
+     */
+    protected Attributes getOrganizationalUnitAttributes( String ou )
+    {
+        Attributes attributes = new AttributesImpl();
+        Attribute attribute = new AttributeImpl( "objectClass" );
+        attribute.add( "top" );
+        attribute.add( "organizationalUnit" );
+        attributes.put( attribute );
+        attributes.put( "ou", ou );
+        attributes.put( "description", ou + " is an organizational unit." );
+   
+        return attributes;
+    }
+   
+   
+    /**
      * Create context
      */
-    public void setUp() throws Exception
+    @Before public void setUp() throws Exception
     {
         super.setUp();
 
@@ -87,7 +110,7 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Close context
      */
-    public void tearDown() throws Exception
+    @After public void tearDown() throws Exception
     {
         ctx.close();
         ctx = null;
@@ -99,7 +122,7 @@ public class ModifyRdnTest extends AbstractServerTest
     /**
      * Just a little test to check wether opening the connection succeeds.
      */
-    public void testSetUpTearDown()
+    @Test public void testSetUpTearDown()
     {
         assertNotNull( ctx );
     }
@@ -110,7 +133,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDeleteOld() throws NamingException
+    @Test public void testModifyRdnAndDeleteOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -157,7 +180,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
+    @Test public void testModifyRdnAndDontDeleteOldFalse() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -202,7 +225,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndKeepOld() throws NamingException
+    @Test public void testModifyRdnAndKeepOld() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -249,7 +272,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnAndDeleteOldVariant() throws NamingException
+    @Test public void testModifyRdnAndDeleteOldVariant() throws NamingException
     {
         // Create a person, cn value is rdn
         String oldCn = "Myra Ellen Amos";
@@ -303,7 +326,7 @@ public class ModifyRdnTest extends AbstractServerTest
      * 
      * @throws NamingException
      */
-    public void testModifyRdnDifferentAttribute() throws NamingException
+    @Test public void testModifyRdnDifferentAttribute() throws NamingException
     {
 
         // Create a person, cn value is rdn
@@ -345,4 +368,73 @@ public class ModifyRdnTest extends AbstractServerTest
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
+    
+    
+              
+    /**
+     * Test for DIRSERVER-1086.
+     * Modify Rdn of an entry that has a child entry, delete its old rdn value.
+     *
+     * @throws NamingException
+     */
+    /*
+    @Test public void testModifyRdnAndDeleteOldWithChild() throws NamingException
+    {
+        // Create an organizational unit, ou value is rdn
+        String oldOu = "Writers";
+        String oldRdn = "ou=" + oldOu;
+        Attributes attributes = this.getOrganizationalUnitAttributes( oldOu );
+        DirContext createdCtx = ctx.createSubcontext( oldRdn, attributes );
+  
+        // Create a child
+        String childCn = "Tori Amos";
+        String childRdn = "cn=" + childCn;
+        Attributes childAttributes = this.getPersonAttributes( "Amos", childCn );
+        createdCtx.createSubcontext( childRdn, childAttributes );
+  
+        // modify Rdn
+        String newOu = "Singers";
+        String newRdn = "ou=" + newOu;
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        ctx.rename( oldRdn, newRdn );
+  
+        // Check, whether old Entry does not exists
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+            assertTrue( true );
+        }
+  
+        // Check, whether new Entry exists
+        DirContext org = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( org );
+  
+        // Check values of ou
+        Attribute ou = org.getAttributes( "" ).get( "ou" );
+        assertTrue( ou.contains( newOu ) );
+        assertTrue( !ou.contains( oldOu ) ); // old value is gone
+        assertEquals( 1, ou.size() );
+  
+        // Perform a search under renamed ou and check whether exactly one child entry exist
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        searchControls.setReturningAttributes( new String[]{"objectClass"} );
+        NamingEnumeration<SearchResult> results = org.search( "", "(objectClass=*)", searchControls );
+        assertTrue( results.hasMore() );
+        results.next();
+        assertTrue( !results.hasMore() );
+  
+        // Check whether Tori exists
+        DirContext tori = ( DirContext ) org.lookup( childRdn );
+        assertNotNull( tori );
+  
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+    */
 }
