@@ -21,7 +21,6 @@
 package org.apache.directory.shared.ldap.name;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -167,13 +166,13 @@ public class LdapDN implements Name
      * @param nameComponents
      *            List of String name components.
      */
-    LdapDN( Iterator nameComponents ) throws InvalidNameException
+    LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
     {
         if ( nameComponents != null )
         {
             while ( nameComponents.hasNext() )
             {
-                String nameComponent = ( String ) nameComponents.next();
+                String nameComponent = nameComponents.next();
                 add( 0, nameComponent );
             }
         }
@@ -269,19 +268,10 @@ public class LdapDN implements Name
      */
     public LdapDN( byte[] bytes ) throws InvalidNameException
     {
-        try
-        {
-            upName = new String( bytes, "UTF-8" );
-            LdapDnParser.parseInternal( upName, rdns );
-            this.normName = toNormName();
-            normalized = false;
-        }
-        catch ( UnsupportedEncodingException uee )
-        {
-            log.error( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
-            throw new InvalidNameException( "The byte array is not an UTF-8 encoded Unicode String : "
-                + uee.getMessage() );
-        }
+        upName = StringTools.utf8ToString( bytes );
+        LdapDnParser.parseInternal( bytes, rdns );
+        this.normName = toNormName();
+        normalized = false;
     }
 
 
@@ -1488,11 +1478,11 @@ public class LdapDN implements Name
             Rdn rdnCopy = ( Rdn ) rdn.clone();
             rdn.clear();
 
-            Iterator atavs = rdnCopy.iterator();
+            Iterator<AttributeTypeAndValue> atavs = rdnCopy.iterator();
 
             while ( atavs.hasNext() )
             {
-            	AttributeTypeAndValue val = (AttributeTypeAndValue)atavs.next();
+            	AttributeTypeAndValue val = atavs.next();
                 AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
                 rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getValue() );
             }

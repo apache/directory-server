@@ -20,8 +20,6 @@
 package org.apache.directory.shared.ldap.name;
 
 
-import java.io.UnsupportedEncodingException;
-
 import javax.naming.InvalidNameException;
 
 import org.apache.directory.shared.ldap.util.DNUtils;
@@ -95,20 +93,18 @@ public class RdnParser
      * &lt;oidValue&gt; ::= [0-9] &lt;digits&gt; &lt;oids&gt;
      * </p>
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the byte buffer
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
+     * @param bytes The bytes array to parse
+     * @param pos The current position in the byte buffer
+     * @return The new position in the vyte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
      */
-    private static String parseOidValue( String string, Position pos )
+    private static String parseOidValue( byte[] bytes, Position pos )
     {
         pos.start += pos.length;
         pos.end = pos.start;
 
         // <attributType> ::= [0-9] <digits> <oids>
-        if ( StringTools.isDigit( string, pos.start ) == false )
+        if ( StringTools.isDigit( bytes, pos.start ) == false )
         {
             // Nope... An error
             return null;
@@ -118,13 +114,13 @@ public class RdnParser
             // Let's process an oid
             pos.end++;
 
-            while ( StringTools.isDigit( string, pos.end ) )
+            while ( StringTools.isDigit( bytes, pos.end ) )
             {
                 pos.end++;
             }
 
             // <oids> ::= '.' [0-9] <digits> <oids> | e
-            if ( StringTools.isCharASCII( string, pos.end, '.' ) == false )
+            if ( StringTools.isCharASCII( bytes, pos.end, '.' ) == false )
             {
                 return null;
             }
@@ -134,7 +130,7 @@ public class RdnParser
                 {
                     pos.end++;
 
-                    if ( StringTools.isDigit( string, pos.end ) == false )
+                    if ( StringTools.isDigit( bytes, pos.end ) == false )
                     {
                         return null;
                     }
@@ -142,39 +138,38 @@ public class RdnParser
                     {
                         pos.end++;
 
-                        while ( StringTools.isDigit( string, pos.end ) )
+                        while ( StringTools.isDigit( bytes, pos.end ) )
                         {
                             pos.end++;
                         }
                     }
 
                 }
-                while ( StringTools.isCharASCII( string, pos.end, '.' ) );
+                while ( StringTools.isCharASCII( bytes, pos.end, '.' ) );
 
-                return string.substring( pos.start - pos.length, pos.end );
+                return StringTools.utf8ToString( bytes, pos.start - pos.length, pos.end - pos.start + pos.length );
             }
         }
     }
 
+    
     /**
      * Validate this rule : <br>
      * <p>
      * &lt;oidValue&gt; ::= [0-9] &lt;digits&gt; &lt;oids&gt;
      * </p>
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the byte buffer
+     * @param bytes The byte array to parse
+     * @param pos The current position in the byte buffer
      * @return <code>true</code> if this is a valid OID
      */
-    private static boolean isValidOidValue( String string, Position pos )
+    private static boolean isValidOidValue( byte[] bytes, Position pos )
     {
         pos.start += pos.length;
         pos.end = pos.start;
 
         // <attributType> ::= [0-9] <digits> <oids>
-        if ( StringTools.isDigit( string, pos.start ) == false )
+        if ( StringTools.isDigit( bytes, pos.start ) == false )
         {
             // Nope... An error
             return false;
@@ -184,13 +179,13 @@ public class RdnParser
             // Let's process an oid
             pos.end++;
 
-            while ( StringTools.isDigit( string, pos.end ) )
+            while ( StringTools.isDigit( bytes, pos.end ) )
             {
                 pos.end++;
             }
 
             // <oids> ::= '.' [0-9] <digits> <oids> | e
-            if ( StringTools.isCharASCII( string, pos.end, '.' ) == false )
+            if ( StringTools.isCharASCII( bytes, pos.end, '.' ) == false )
             {
                 return false;
             }
@@ -200,7 +195,7 @@ public class RdnParser
                 {
                     pos.end++;
 
-                    if ( StringTools.isDigit( string, pos.end ) == false )
+                    if ( StringTools.isDigit( bytes, pos.end ) == false )
                     {
                         return false;
                     }
@@ -208,19 +203,20 @@ public class RdnParser
                     {
                         pos.end++;
 
-                        while ( StringTools.isDigit( string, pos.end ) )
+                        while ( StringTools.isDigit( bytes, pos.end ) )
                         {
                             pos.end++;
                         }
                     }
 
                 }
-                while ( StringTools.isCharASCII( string, pos.end, '.' ) );
+                while ( StringTools.isCharASCII( bytes, pos.end, '.' ) );
 
                 return true;
             }
         }
     }
+
 
     /**
      * Parse this rule : <br>
@@ -228,27 +224,25 @@ public class RdnParser
      * &lt;oidPrefix&gt; ::= 'OID.' | 'oid.' | e
      * </p>
      *
-     * @param bytes
-     *            The buffer to parse
-     * @param pos
-     *            The current position in the char array
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
+     * @param bytes The buffer to parse
+     * @param pos The current position in the byte array
+     * @return The new position in the byte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
      */
-    private static int parseOidPrefix( String string, Position pos )
+    private static int parseOidPrefix( byte[] bytes, Position pos )
     {
-    	if ( StringTools.isICharASCII( string, pos.start, 'O' ) &&
-    		 StringTools.isICharASCII( string, pos.start + 1, 'I' ) && 
-    		 StringTools.isICharASCII( string, pos.start + 2, 'D' ) &&
-    		 StringTools.isICharASCII( string, pos.start + 3, '.' ) )
-    	{
-    		pos.end += DNUtils.OID_LOWER.length();
-    		return DNUtils.PARSING_OK;
-    	}
-    	else
-    	{
-    		return DNUtils.PARSING_ERROR;
-    	}
+        if ( StringTools.isICharASCII( bytes, pos.start, 'O' ) &&
+             StringTools.isICharASCII( bytes, pos.start + 1, 'I' ) && 
+             StringTools.isICharASCII( bytes, pos.start + 2, 'D' ) &&
+             StringTools.isICharASCII( bytes, pos.start + 3, '.' ) )
+        {
+            pos.end += DNUtils.OID_LOWER.length();
+            return DNUtils.PARSING_OK;
+        }
+        else
+        {
+            return DNUtils.PARSING_ERROR;
+        }
     }
 
 
@@ -260,28 +254,26 @@ public class RdnParser
      * </p>
      * The string *MUST* be an ASCII string, not an unicode string.
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the char array
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
+     * @param bytes The byte array to parse
+     * @param pos The current position in the byte array
+     * @return The new position in the byte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
      */
-    private static String parseAttributeType( String string, Position pos )
+    private static String parseAttributeType( byte[] bytes, Position pos )
     {
         // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9] <digits>
         // <oids> | [0-9] <digits> <oids>
-        if ( StringTools.isAlphaASCII( string, pos.start ) )
+        if ( StringTools.isAlphaASCII( bytes, pos.start ) )
         {
             // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9]
             // <digits> <oids>
 
             // We have got an Alpha char, it may be the begining of an OID ?
-            if ( parseOidPrefix( string, pos ) != DNUtils.PARSING_ERROR )
+            if ( parseOidPrefix( bytes, pos ) != DNUtils.PARSING_ERROR )
             {
                 pos.length = 4;
 
-                return parseOidValue( string, pos );
+                return parseOidValue( bytes, pos );
             }
             else
             {
@@ -291,21 +283,22 @@ public class RdnParser
                 // <keychar> | e
                 pos.end++;
 
-                while ( StringTools.isAlphaDigitMinus( string, pos.end ) )
+                while ( StringTools.isAlphaDigitMinus( bytes, pos.end ) )
                 {
                     pos.end++;
                 }
 
-                return string.substring( pos.start, pos.end );
+                return StringTools.utf8ToString( bytes, pos.start, pos.end - pos.start );
             }
         }
         else
         {
             // An oid
             // <attributType> ::= [0-9] <digits> <oids>
-            return parseOidValue( string, pos );
+            return parseOidValue( bytes, pos );
         }
     }
+
 
     /**
      * Parse this rule : <br>
@@ -315,28 +308,26 @@ public class RdnParser
      * </p>
      * The string *MUST* be an ASCII string, not an unicode string.
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the char array
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
+     * @param bytes The byte array to parse
+     * @param pos The current position in the byte array
+     * @return The new position in the byte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
      */
-    private static boolean isValidAttributeType( String string, Position pos )
+    private static boolean isValidAttributeType( byte[] bytes, Position pos )
     {
         // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9] <digits>
         // <oids> | [0-9] <digits> <oids>
-        if ( StringTools.isAlphaASCII( string, pos.start ) )
+        if ( StringTools.isAlphaASCII( bytes, pos.start ) )
         {
             // <attributType> ::= [a-zA-Z] <keychars> | <oidPrefix> [0-9]
             // <digits> <oids>
 
             // We have got an Alpha char, it may be the begining of an OID ?
-            if ( parseOidPrefix( string, pos ) != DNUtils.PARSING_ERROR )
+            if ( parseOidPrefix( bytes, pos ) != DNUtils.PARSING_ERROR )
             {
                 pos.length = 4;
 
-                return isValidOidValue( string, pos );
+                return isValidOidValue( bytes, pos );
             }
             else
             {
@@ -346,7 +337,7 @@ public class RdnParser
                 // <keychar> | e
                 pos.end++;
 
-                while ( StringTools.isAlphaDigitMinus( string, pos.end ) )
+                while ( StringTools.isAlphaDigitMinus( bytes, pos.end ) )
                 {
                     pos.end++;
                 }
@@ -358,7 +349,7 @@ public class RdnParser
         {
             // An oid
             // <attributType> ::= [0-9] <digits> <oids>
-            return isValidOidValue( string, pos );
+            return isValidOidValue( bytes, pos );
         }
     }
 
@@ -376,17 +367,17 @@ public class RdnParser
      * &lt;quotechar-or-pairs&gt; | e <br>
      * </p>
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the char array
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
+     * @param bytes The byte array to parse
+     * @param pos The current position in the byte array
+     * @return The new position in the byte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
      */
-    private static Object parseAttributeValue( String string, Position pos )
+    private static Object parseAttributeValue( byte[] bytes, Position pos )
     {
-        StringBuffer sb = new StringBuffer();
-        char c = StringTools.charAt( string, pos.start );
+        //StringBuffer sb = new StringBuffer();
+        byte c = bytes[pos.start];
+        byte[] buffer = new byte[bytes.length];
+        int currPos = 0;
 
         if ( c == '#' )
         {
@@ -395,7 +386,7 @@ public class RdnParser
             int currentPos = pos.start;
 
             // First, we will count the number of hexPairs
-            while ( DNUtils.parseHexPair( string, currentPos ) >= 0 )
+            while ( DNUtils.parseHexPair( bytes, currentPos ) >= 0 )
             {
                 nbHex++;
                 currentPos += DNUtils.TWO_CHARS;
@@ -405,13 +396,13 @@ public class RdnParser
 
             // Now, convert the value
             // <attributeValue> ::= '#' <hexstring>
-            if ( DNUtils.parseHexString( string, hexValue, pos ) == DNUtils.PARSING_ERROR )
+            if ( DNUtils.parseHexString( bytes, hexValue, pos ) == DNUtils.PARSING_ERROR )
             {
                 return null;
             }
 
             pos.start--;
-            StringTools.trimRight( string, pos );
+            StringTools.trimRight( bytes, pos );
             pos.length = pos.end - pos.start;
 
             return hexValue;
@@ -428,12 +419,12 @@ public class RdnParser
             //                                                  <pairchar> <quotechar-or-pairs> | e
             while ( true )
             {
-                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
                 {
                     pos.end++;
                     int nbChars = 0;
 
-                    if ( ( nbChars = DNUtils.isPairChar( string, pos.start ) ) != DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.start ) ) != DNUtils.PARSING_ERROR )
                     {
                         pos.end += nbChars;
                     }
@@ -442,7 +433,7 @@ public class RdnParser
                         return null;
                     }
                 }
-                else if ( ( nbBytes = DNUtils.isQuoteChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                else if ( ( nbBytes = DNUtils.isQuoteChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                 {
                     pos.end += nbBytes;
                 }
@@ -453,10 +444,10 @@ public class RdnParser
                 }
             }
 
-            if ( StringTools.isCharASCII( string, pos.end, '"' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '"' ) )
             {
                 pos.end++;
-                return string.substring( pos.start, pos.start + pos.length );
+                return StringTools.utf8ToString( bytes, pos.start, pos.length );
             }
             else
             {
@@ -470,13 +461,13 @@ public class RdnParser
 
             while ( true )
             {
-                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
                 {
                     // '\' <pairchar> <pairs-or-strings>
                     pos.end++;
 
                     int nbChars = 0;
-                    if ( ( nbChars = DNUtils.isPairChar( string, pos.end ) ) == DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.end ) ) == DNUtils.PARSING_ERROR )
                     {
                         return null;
                     }
@@ -484,7 +475,7 @@ public class RdnParser
                     {
                         if ( nbChars == 1 )
                         {
-                            sb.append( string.charAt( pos.end ) );
+                            buffer[currPos++] = bytes[pos.end];
                         }
                         else
                         {
@@ -493,14 +484,18 @@ public class RdnParser
                                 hasPairChar = true;
                             }
 
-                            byte b = StringTools.getHexValue( string.charAt( pos.end ), string.charAt( pos.end + 1 ) );
+                            byte b = StringTools.getHexValue( bytes[pos.end], bytes[pos.end + 1] );
 
-                            sb.append( (char)(b & 0x00FF) );
+                            buffer[currPos++] = b;
                         }
 
-                        if ( string.charAt( pos.end ) == ' ' )
+                        if ( bytes[pos.end] == ' ' )
                         {
-                            escapedSpace = sb.length();
+                            escapedSpace = currPos;
+                        }
+                        else
+                        {
+                            escapedSpace = -1;
                         }
 
                         pos.end += nbChars;
@@ -511,62 +506,60 @@ public class RdnParser
                     int nbChars = 0;
 
                     // <stringchar> <pairs-or-strings>
-                    if ( ( nbChars = DNUtils.isStringChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.isStringChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                     {
                         // A special case : if we have some spaces before the
                         // '+' character,
                         // we MUST skip them.
-                        if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+                        if ( StringTools.isCharASCII( bytes, pos.end, '+' ) )
                         {
                             //StringTools.trimLeft( string, pos );
 
-                            if ( ( DNUtils.isStringChar( string, pos.end ) == DNUtils.PARSING_ERROR )
-                                && ( StringTools.isCharASCII( string, pos.end, '\\' ) == false ) )
+                            if ( ( DNUtils.isStringChar( bytes, pos.end ) == DNUtils.PARSING_ERROR )
+                                && ( StringTools.isCharASCII( bytes, pos.end, '\\' ) == false ) )
                             {
                                 // Ok, we are done with the stringchar.
-                                String result = string.substring( pos.start, pos.start + pos.length );
+                                String result = StringTools.trimRight( StringTools.utf8ToString( bytes, pos.start, pos.start + pos.length ) );
                                 
-                                if ( hasPairChar )
-                                {
-                                    return unescapeValue( result );
-                                }
-                                else
-                                {
-                                    return result; 
-                                }
+                                return result;
                             }
                             else
                             {
-                                sb.append( string.charAt( pos.end ) );
-                                pos.end++;
+                                for ( int i = 0; i < nbChars; i++ )
+                                {
+                                    buffer[currPos++] = bytes[pos.end];
+                                    pos.end ++;
+                                }
                             }
                         }
                         else
                         {
-                            sb.append( string.charAt( pos.end ) );
-                            pos.end += nbChars;
+                            for ( int i = 0; i < nbChars; i++ )
+                            {
+                                buffer[currPos++] = bytes[pos.end];
+                                pos.end ++;
+                            }
                         }
                     }
                     else
                     {
                         pos.length = pos.end - pos.start;
-                        String value = sb.toString();
-                        String result = StringTools.trimRight( value, escapedSpace );
-
-                        if ( hasPairChar )
+                        
+                        if ( escapedSpace == -1 )
                         {
-                            return unescapeValue( result );
-                        }
-                        else
-                        {
+                            String result = StringTools.trimRight( StringTools.utf8ToString( buffer, currPos ) );
                             return result;
                         }
                         
+                        String result = StringTools.utf8ToString( buffer, escapedSpace );
+
+                        return result;
                     }
                 }
             }
         }
     }
+
 
     /**
      * Validate this rule : <br>
@@ -581,15 +574,13 @@ public class RdnParser
      * &lt;quotechar-or-pairs&gt; | e <br>
      * </p>
      *
-     * @param chars
-     *            The char array to parse
-     * @param pos
-     *            The current position in the char array
+     * @param bytes The byte array to parse
+     * @param pos The current position in the byte array
      * @return <code>true</code> if the rule is valid
      */
-    private static boolean isValidAttributeValue( String string, Position pos )
+    private static boolean isValidAttributeValue( byte[] bytes, Position pos )
     {
-        char c = StringTools.charAt( string, pos.start );
+        byte c = bytes[pos.start];
 
         if ( c == '#' )
         {
@@ -598,7 +589,7 @@ public class RdnParser
             int currentPos = pos.start;
 
             // First, we will count the number of hexPairs
-            while ( DNUtils.parseHexPair( string, currentPos ) >= 0 )
+            while ( DNUtils.parseHexPair( bytes, currentPos ) >= 0 )
             {
                 nbHex++;
                 currentPos += DNUtils.TWO_CHARS;
@@ -608,13 +599,13 @@ public class RdnParser
 
             // Now, convert the value
             // <attributeValue> ::= '#' <hexstring>
-            if ( DNUtils.parseHexString( string, hexValue, pos ) == DNUtils.PARSING_ERROR )
+            if ( DNUtils.parseHexString( bytes, hexValue, pos ) == DNUtils.PARSING_ERROR )
             {
                 return false;
             }
 
             pos.start--;
-            StringTools.trimRight( string, pos );
+            StringTools.trimRight( bytes, pos );
             pos.length = pos.end - pos.start;
 
             return true;
@@ -631,12 +622,12 @@ public class RdnParser
             //                                                  <pairchar> <quotechar-or-pairs> | e
             while ( true )
             {
-                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
                 {
                     pos.end++;
                     int nbChars = 0;
 
-                    if ( ( nbChars = DNUtils.isPairChar( string, pos.start ) ) != DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.start ) ) != DNUtils.PARSING_ERROR )
                     {
                         pos.end += nbChars;
                     }
@@ -645,7 +636,7 @@ public class RdnParser
                         return false;
                     }
                 }
-                else if ( ( nbBytes = DNUtils.isQuoteChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                else if ( ( nbBytes = DNUtils.isQuoteChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                 {
                     pos.end += nbBytes;
                 }
@@ -656,7 +647,7 @@ public class RdnParser
                 }
             }
 
-            if ( StringTools.isCharASCII( string, pos.end, '"' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '"' ) )
             {
                 pos.end++;
                 return true;
@@ -670,14 +661,14 @@ public class RdnParser
         {
             while ( true )
             {
-                if ( StringTools.isCharASCII( string, pos.end, '\\' ) )
+                if ( StringTools.isCharASCII( bytes, pos.end, '\\' ) )
                 {
                     // '\' <pairchar> <pairs-or-strings>
                     pos.end++;
 
                     int nbChars = 0;
                     
-                    if ( ( nbChars = DNUtils.isPairChar( string, pos.end ) ) == DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.countPairChar( bytes, pos.end ) ) == DNUtils.PARSING_ERROR )
                     {
                         return false;
                     }
@@ -691,17 +682,17 @@ public class RdnParser
                     int nbChars = 0;
 
                     // <stringchar> <pairs-or-strings>
-                    if ( ( nbChars = DNUtils.isStringChar( string, pos.end ) ) != DNUtils.PARSING_ERROR )
+                    if ( ( nbChars = DNUtils.isStringChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                     {
                         // A special case : if we have some spaces before the
                         // '+' character,
                         // we MUST skip them.
-                        if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+                        if ( StringTools.isCharASCII( bytes, pos.end, '+' ) )
                         {
                             //StringTools.trimLeft( string, pos );
 
-                            if ( ( DNUtils.isStringChar( string, pos.end ) == DNUtils.PARSING_ERROR )
-                                && ( StringTools.isCharASCII( string, pos.end, '\\' ) == false ) )
+                            if ( ( DNUtils.isStringChar( bytes, pos.end ) == DNUtils.PARSING_ERROR )
+                                && ( StringTools.isCharASCII( bytes, pos.end, '\\' ) == false ) )
                             {
                                 // Ok, we are done with the stringchar.
                                 return true;
@@ -734,14 +725,12 @@ public class RdnParser
      * &lt;attributeValue&gt; &lt;nameComponents&gt; | e
      * </p>
      *
-     * @param chars
-     *            The char buffer to parse
-     * @param pos
-     *            The current position in the byte buffer
-     * @return The new position in the char buffer, or PARSING_ERROR if the rule
-     *         does not apply to the char buffer
+     * @param bytes The byte buffer to parse
+     * @param pos The current position in the byte buffer
+     * @return The new position in the byte buffer, or PARSING_ERROR if the rule
+     *         does not apply to the byte buffer
      */
-    private static int parseNameComponents( String string, Position pos, Rdn rdn ) throws InvalidNameException
+    private static int parseNameComponents( byte[] bytes, Position pos, Rdn rdn ) throws InvalidNameException
     {
         int newStart = 0;
         String type = null;
@@ -749,9 +738,9 @@ public class RdnParser
 
         while ( true )
         {
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '+' ) )
             {
                 pos.start++;
             }
@@ -762,18 +751,18 @@ public class RdnParser
                 return DNUtils.PARSING_OK;
             }
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( ( type = parseAttributeType( string, pos ) ) == null )
+            if ( ( type = parseAttributeType( bytes, pos ) ) == null )
             {
                 return DNUtils.PARSING_ERROR;
             }
 
             pos.start = pos.end;
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( StringTools.isCharASCII( string, pos.end, '=' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '=' ) )
             {
                 pos.start++;
             }
@@ -782,9 +771,9 @@ public class RdnParser
                 return DNUtils.PARSING_ERROR;
             }
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            value = parseAttributeValue( string, pos );
+            value = parseAttributeValue( bytes, pos );
 
             newStart = pos.end;
 
@@ -810,21 +799,19 @@ public class RdnParser
      * &lt;attributeValue&gt; &lt;nameComponents&gt; | e
      * </p>
      *
-     * @param chars
-     *            The char buffer to parse
-     * @param pos
-     *            The current position in the byte buffer
+     * @param bytes The byte buffer to parse
+     * @param pos The current position in the byte buffer
      * @return <code>true</code> if the rule is valid
      */
-    private static boolean isValidNameComponents( String string, Position pos, boolean isFirstRdn )
+    private static boolean isValidNameComponents( byte[] bytes, Position pos, boolean isFirstRdn )
     {
         int newStart = 0;
 
         while ( true )
         {
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( StringTools.isCharASCII( string, pos.end, '+' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '+' ) )
             {
                 pos.start++;
             }
@@ -834,18 +821,18 @@ public class RdnParser
                 return true;
             }
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( !isValidAttributeType( string, pos ) )
+            if ( !isValidAttributeType( bytes, pos ) )
             {
                 return false;
             }
 
             pos.start = pos.end;
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( StringTools.isCharASCII( string, pos.end, '=' ) )
+            if ( StringTools.isCharASCII( bytes, pos.end, '=' ) )
             {
                 pos.start++;
             }
@@ -854,9 +841,9 @@ public class RdnParser
                 return false;
             }
 
-            StringTools.trimLeft( string, pos );
+            StringTools.trimLeft( bytes, pos );
 
-            if ( !isValidAttributeValue( string, pos ) )
+            if ( !isValidAttributeValue( bytes, pos ) )
             {
                 return false;
             }
@@ -864,37 +851,6 @@ public class RdnParser
             newStart = pos.end;
             pos.start = newStart;
             pos.end = newStart;
-        }
-    }
-
-    /**
-     * Unescape pairChars.
-     * 
-     * A PairChar can be a char if it's 
-     *
-     * @param value The value to modify
-     * @param pos
-     *            The current position in the char array
-     * @return The new position in the char array, or PARSING_ERROR if the rule
-     *         does not apply to the char array
-     */
-    private static Object unescapeValue( String value ) throws IllegalArgumentException
-    {
-        byte[] bytes = new byte[value.length()];
-        int pos = 0;
-
-        for ( int i = 0; i < value.length(); i++ ) 
-        {
-            bytes[pos++] = (byte)value.charAt( i );
-        }
-        
-        try
-        {
-            return new String( bytes, "UTF-8" );
-        }
-        catch ( UnsupportedEncodingException uee )
-        {
-            return bytes;
         }
     }
 
@@ -913,6 +869,25 @@ public class RdnParser
      *         does not apply to the char array
      */
     public static int parse( String dn, Position pos, Rdn rdn ) throws InvalidNameException
+    {
+        return parse( StringTools.getBytesUtf8( dn ), pos, rdn );
+    }
+
+
+    /**
+     * Parse a NameComponent : <br>
+     * <p>
+     * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
+     * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
+     * </p>
+     *
+     * @param dn The byte array to parse
+     * @param pos The current position in the buffer
+     * @param rdn The constructed RDN
+     * @return The new position in the byte array, or PARSING_ERROR if the rule
+     *         does not apply to the byte array
+     */
+    public static int parse( byte[] dn, Position pos, Rdn rdn ) throws InvalidNameException
     {
         String type = null;
         Object value = null;
@@ -967,10 +942,11 @@ public class RdnParser
             return DNUtils.PARSING_ERROR;
         }
         
-        rdn.setUpName( dn.substring( start, pos.end ) );
+        rdn.setUpName( StringTools.utf8ToString( dn, start, pos.end - start ) );
         pos.start = pos.end;
         return DNUtils.PARSING_OK;
     }
+
 
     /**
      * Validate a NameComponent : <br>
@@ -984,6 +960,23 @@ public class RdnParser
      * @return <code>true</code> if the RDN is valid
      */
     public static boolean isValid( String dn, Position pos, boolean isfirstRdn )
+    {
+        return isValid( StringTools.getBytesUtf8( dn ), pos, isfirstRdn );
+    }
+
+
+    /**
+     * Validate a NameComponent : <br>
+     * <p>
+     * &lt;name-component&gt; ::= &lt;attributeType&gt; &lt;spaces&gt; '='
+     * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
+     * </p>
+     *
+     * @param dn The byte array to parse
+     * @param pos The current position in the buffer
+     * @return <code>true</code> if the RDN is valid
+     */
+    public static boolean isValid( byte[] dn, Position pos, boolean isfirstRdn )
     {
         StringTools.trimLeft( dn, pos );
 
@@ -1029,6 +1022,7 @@ public class RdnParser
         return true;
     }
 
+
     /**
      * Parse a NameComponent : <br>
      * <p>
@@ -1036,16 +1030,13 @@ public class RdnParser
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
      *
-     * @param string
-     *            The buffer to parse
-     * @param rdn
-     *            The RDN to fill. Beware that if the RDN is not empty, the new
+     * @param dn The String to parse
+     * @param rdn The RDN to fill. Beware that if the RDN is not empty, the new
      *            AttributeTypeAndValue will be added.
      */
-    public static void parse( String string, Rdn rdn ) throws InvalidNameException
+    public static void parse( String dn, Rdn rdn ) throws InvalidNameException
     {
-        parse( string, new Position(), rdn );
-        rdn.normalize();
+        parse( StringTools.getBytesUtf8( dn ), new Position(), rdn );
     }
 
     /**
@@ -1055,12 +1046,11 @@ public class RdnParser
      * &lt;spaces&gt; &lt;attributeValue&gt; &lt;nameComponents&gt;
      * </p>
      *
-     * @param string
-     *            The buffer to parse
+     * @param dn The string to parse
      * @return <code>true</code> if the RDN is valid
      */
-    public static boolean isValid( String string )
+    public static boolean isValid( String dn )
     {
-        return isValid( string, new Position(), false );
+        return isValid( StringTools.getBytesUtf8( dn ), new Position(), false );
     }
 }

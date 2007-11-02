@@ -684,18 +684,18 @@ public class Rdn implements Cloneable, Comparable, Serializable
                                // We have to verify that each value of the
                                // first list are present in
                                // the second list
-                               Iterator atavLocals = atavLocalList.iterator();
+                               Iterator<AttributeTypeAndValue> atavLocals = atavLocalList.iterator();
 
                                while ( atavLocals.hasNext() )
                                {
-                                   AttributeTypeAndValue atavLocal = ( AttributeTypeAndValue ) atavLocals.next();
+                                   AttributeTypeAndValue atavLocal = atavLocals.next();
 
-                                   Iterator atavParams = atavParamList.iterator();
+                                   Iterator<AttributeTypeAndValue> atavParams = atavParamList.iterator();
                                    boolean found = false;
 
                                    while ( atavParams.hasNext() )
                                    {
-                                       AttributeTypeAndValue atavParam = ( AttributeTypeAndValue ) atavParams.next();
+                                       AttributeTypeAndValue atavParam = atavParams.next();
 
                                        if ( atavLocal.compareTo( atavParam ) == EQUALS )
                                        {
@@ -940,11 +940,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                    attribute = new AttributeImpl( type );
 
-                   Iterator iterValues = values.iterator();
+                   Iterator<AttributeTypeAndValue> iterValues = values.iterator();
 
                    while ( iterValues.hasNext() )
                    {
-                       AttributeTypeAndValue value = ( AttributeTypeAndValue ) iterValues.next();
+                       AttributeTypeAndValue value = iterValues.next();
 
                        attribute.add( value.getValue() );
                    }

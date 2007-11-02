@@ -1070,7 +1070,7 @@ public class LdapDNTest extends TestCase
    public void testLdapDNGetAllNull()
    {
        LdapDN dn = new LdapDN();
-       Enumeration nc = dn.getAll();
+       Enumeration<String> nc = dn.getAll();
 
        assertEquals( false, nc.hasMoreElements() );
    }
@@ -1082,7 +1082,7 @@ public class LdapDNTest extends TestCase
    public void testLdapDNGetAllEmpty() throws InvalidNameException
    {
        LdapDN dn = new LdapDN( "" );
-       Enumeration nc = dn.getAll();
+       Enumeration<String> nc = dn.getAll();
 
        assertEquals( false, nc.hasMoreElements() );
    }
@@ -1094,7 +1094,7 @@ public class LdapDNTest extends TestCase
    public void testLdapDNGetAllSimple() throws InvalidNameException
    {
        LdapDN dn = new LdapDN( "a=b" );
-       Enumeration nc = dn.getAll();
+       Enumeration<String> nc = dn.getAll();
 
        assertEquals( true, nc.hasMoreElements() );
        assertEquals( "a=b", nc.nextElement() );
@@ -1108,7 +1108,7 @@ public class LdapDNTest extends TestCase
    public void testLdapDNGetAllComplex() throws InvalidNameException
    {
        LdapDN dn = new LdapDN( "e=f+g=h,a=b,c=d" );
-       Enumeration nc = dn.getAll();
+       Enumeration<String> nc = dn.getAll();
 
        assertEquals( true, nc.hasMoreElements() );
        assertEquals( "c=d", nc.nextElement() );
@@ -1126,7 +1126,7 @@ public class LdapDNTest extends TestCase
    public void testLdapDNGetAllComplexOrdered() throws InvalidNameException
    {
        LdapDN dn = new LdapDN( "g=h+e=f,a=b,c=d" );
-       Enumeration nc = dn.getAll();
+       Enumeration<String> nc = dn.getAll();
 
        assertEquals( true, nc.hasMoreElements() );
        assertEquals( "c=d", nc.nextElement() );
@@ -1591,10 +1591,10 @@ public class LdapDNTest extends TestCase
        Name name5 = new LdapDN( "cn=Website,cn=HomeDir,cn=John,ou=Marketing,ou=West" );
        Name name6 = new LdapDN( "cn=Airline,cn=Website,cn=HomeDir,cn=John,ou=Marketing,ou=West" );
 
-       Enumeration enum0 = name0.getAll();
+       Enumeration<String> enum0 = name0.getAll();
        assertEquals( false, enum0.hasMoreElements() );
 
-       Enumeration enum1 = name1.getAll();
+       Enumeration<String> enum1 = name1.getAll();
        assertEquals( true, enum1.hasMoreElements() );
 
        for ( int i = 0; enum1.hasMoreElements(); i++ )
@@ -1607,7 +1607,7 @@ public class LdapDNTest extends TestCase
            }
        }
 
-       Enumeration enum2 = name2.getAll();
+       Enumeration<String> enum2 = name2.getAll();
        assertEquals( true, enum2.hasMoreElements() );
 
        for ( int i = 0; enum2.hasMoreElements(); i++ )
@@ -1625,7 +1625,7 @@ public class LdapDNTest extends TestCase
            }
        }
 
-       Enumeration enum3 = name3.getAll();
+       Enumeration<String> enum3 = name3.getAll();
        assertEquals( true, enum3.hasMoreElements() );
 
        for ( int i = 0; enum3.hasMoreElements(); i++ )
@@ -1648,7 +1648,7 @@ public class LdapDNTest extends TestCase
            }
        }
 
-       Enumeration enum4 = name4.getAll();
+       Enumeration<String> enum4 = name4.getAll();
        assertEquals( true, enum4.hasMoreElements() );
 
        for ( int i = 0; enum4.hasMoreElements(); i++ )
@@ -1676,7 +1676,7 @@ public class LdapDNTest extends TestCase
            }
        }
 
-       Enumeration enum5 = name5.getAll();
+       Enumeration<String> enum5 = name5.getAll();
        assertEquals( true, enum5.hasMoreElements() );
 
        for ( int i = 0; enum5.hasMoreElements(); i++ )
@@ -1709,7 +1709,7 @@ public class LdapDNTest extends TestCase
            }
        }
 
-       Enumeration enum6 = name6.getAll();
+       Enumeration<String> enum6 = name6.getAll();
        assertEquals( true, enum6.hasMoreElements() );
 
        for ( int i = 0; enum6.hasMoreElements(); i++ )
@@ -1759,7 +1759,7 @@ public class LdapDNTest extends TestCase
    {
        LdapDN name = new LdapDN( "cn=Airline,cn=Website,cn=HomeDir,cn=John,ou=Marketing,ou=West" );
 
-       Enumeration rdns = name.getAllRdn();
+       Enumeration<Rdn> rdns = name.getAllRdn();
        assertEquals( true, rdns.hasMoreElements() );
 
        for ( int i = 0; rdns.hasMoreElements(); i++ )
@@ -2596,8 +2596,8 @@ public class LdapDNTest extends TestCase
        Name jName = new LdapName("cn=four,cn=three,cn=two,cn=one");
        Name aName = new LdapDN("cn=four,cn=three,cn=two,cn=one");
 
-       Enumeration j = jName.getAll();
-       Enumeration a = aName.getAll();
+       Enumeration<String> j = jName.getAll();
+       Enumeration<String> a = aName.getAll();
        while (j.hasMoreElements())
        {
            assertTrue(j.hasMoreElements());
@@ -2614,8 +2614,8 @@ public class LdapDNTest extends TestCase
        Name name1 = new LdapDN( "cn=\"Kylie Minogue\",dc=example,dc=com" );
        Name name2 = new LdapName( "cn=\"Kylie Minogue\",dc=example,dc=com" );
 
-       Enumeration j = name1.getAll();
-       Enumeration a = name2.getAll();
+       Enumeration<String> j = name1.getAll();
+       Enumeration<String> a = name2.getAll();
 
        while (j.hasMoreElements())
        {

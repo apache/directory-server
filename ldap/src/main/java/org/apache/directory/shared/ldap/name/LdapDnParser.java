@@ -96,16 +96,34 @@ public class LdapDnParser implements NameParser
    /**
     * Parse a DN
     *
-    * @param dn
-    *            The DN to be parsed
-    * @param rdns
-    *            The list that will contain the RDNs
-    * @throws InvalidNameException
-    *             If the DN is invalid
+    * @param dn The DN to be parsed
+    * @param rdns The list that will contain the RDNs
+    * @throws InvalidNameException If the DN is invalid
     */
    public static void parseInternal( String dn, List<Rdn> rdns ) throws InvalidNameException
    {
        if ( dn.length() == 0 )
+       {
+           // We have an empty DN, just get out of the function.
+           return;
+       }
+
+       parseInternal( StringTools.getBytesUtf8( dn ), rdns );
+       
+       return;
+   }
+
+
+   /**
+    * Parse a DN
+    *
+    * @param dn The DN to be parsed
+    * @param rdns The list that will contain the RDNs
+    * @throws InvalidNameException If the DN is invalid
+    */
+   public static void parseInternal( byte[] dn, List<Rdn> rdns ) throws InvalidNameException
+   {
+       if ( dn.length == 0 )
        {
            // We have an empty DN, just get out of the function.
            return;
@@ -130,7 +148,7 @@ public class LdapDnParser implements NameParser
                    && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
                {
 
-                   if ( pos.start != dn.length() )
+                   if ( pos.start != dn.length )
                    {
                        throw new InvalidNameException( "Bad DN : " + dn );
                    }
@@ -156,18 +174,12 @@ public class LdapDnParser implements NameParser
    /**
     * Validate a DN
     *
-    * @param dn
-    *            The DN to be parsed
+    * @param dn The DN to be parsed
     *            
     * @return <code>true</code> if the DN is valid
     */
-   public static boolean validateInternal( String dn )
+   private static boolean validateInternal( byte[] dn )
    {
-       if ( dn.length() == 0 )
-       {
-           // We have an empty DN, just get out of the function.
-           return true;
-       }
 
        Position pos = new Position();
        pos.start = 0;
@@ -184,7 +196,7 @@ public class LdapDnParser implements NameParser
                    && ( StringTools.isCharASCII( dn, pos.start, ';' ) == false ) )
                {
 
-                   if ( pos.start != dn.length() )
+                   if ( pos.start != dn.length )
                    {
                        return false;
                    }
@@ -201,6 +213,25 @@ public class LdapDnParser implements NameParser
        }
 
        return false;
+   }
+
+   
+   /**
+    * Validate a DN
+    *
+    * @param dn The DN to be parsed
+    *            
+    * @return <code>true</code> if the DN is valid
+    */
+   public static boolean validateInternal( String dn )
+   {
+       if ( dn.length() == 0 )
+       {
+           // We have an empty DN, just get out of the function.
+           return true;
+       }
+
+       return validateInternal( StringTools.getBytesUtf8( dn ) );
    }
 
 
