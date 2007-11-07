@@ -233,8 +233,8 @@ public abstract class ProtectedItem implements Serializable
             {
                 return true;
             }
-            
-            if (o == null )
+
+            if ( o == null )
             {
                 return false;
             }
