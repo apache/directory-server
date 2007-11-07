@@ -233,6 +233,11 @@ public abstract class ProtectedItem implements Serializable
             {
                 return true;
             }
+            
+            if (o == null )
+            {
+                return false;
+            }
 
             if ( getClass().isAssignableFrom( o.getClass() ) )
             {
