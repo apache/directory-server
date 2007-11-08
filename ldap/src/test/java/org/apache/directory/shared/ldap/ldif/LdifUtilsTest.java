@@ -25,9 +25,30 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import junit.framework.TestCase;
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.AddRequestImpl;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.junit.Test;
 
-public class LdifUtilsTest extends TestCase
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+
+/**
+ * Tests the LdifUtils methods
+ *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ */
+public class LdifUtilsTest
 {
 	private String testString = "this is a test";
 	
@@ -35,6 +56,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char NUL (ASCII code 0)
 	 */
+	@Test
 	public void testIsLdifSafeStartingWithNUL()
     {
 		char c = ( char ) 0;
@@ -46,6 +68,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char LF (ASCII code 10)
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithLF()
     {
 		char c = ( char ) 10;
@@ -57,6 +80,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char CR (ASCII code 13)
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithCR()
     {
 		char c = ( char ) 13;
@@ -68,6 +92,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char SPACE (ASCII code 32)
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithSpace()
     {
 		char c = ( char ) 32;
@@ -79,6 +104,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char COLON (:) (ASCII code 58)
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithColon()
     {
 		char c = ( char ) 58;
@@ -90,6 +116,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char LESS_THAN (<) (ASCII code 60)
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithLessThan()
     {
 		char c = ( char ) 60;
@@ -101,6 +128,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char with ASCII code 127
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithCharGreaterThan127()
     {
 		char c = ( char ) 127;
@@ -112,6 +140,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char with ASCII code greater than 127
 	 */
+    @Test
 	public void testIsLdifSafeStartingWithCharGreaterThan127Bis()
     {
 		char c = ( char ) 222;
@@ -123,6 +152,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String containing the
 	 * char NUL (ASCII code 0)
 	 */
+    @Test
 	public void testIsLdifSafeContainsNUL()
     {
 		char c = ( char ) 0;
@@ -134,6 +164,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String containing the
 	 * char LF (ASCII code 10)
 	 */
+    @Test
 	public void testIsLdifSafeContainsLF()
     {
 		char c = ( char ) 10;
@@ -145,6 +176,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String containing the
 	 * char CR (ASCII code 13)
 	 */
+    @Test
 	public void testIsLdifSafeContainsCR()
     {
 		char c = ( char ) 13;
@@ -156,6 +188,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String containing the
 	 * char with ASCII code 127
 	 */
+    @Test
 	public void testIsLdifSafeContainsCharGreaterThan127()
     {
 		char c = ( char ) 127;
@@ -167,6 +200,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String containing a
 	 * char with ASCII code greater than 127
 	 */
+    @Test
 	public void testIsLdifSafeContainsCharGreaterThan127Bis()
     {
 		char c = ( char ) 328;
@@ -178,6 +212,7 @@ public class LdifUtilsTest extends TestCase
 	 * Tests the method IsLdifSafe with a String ending with the
 	 * char SPACE (ASCII code 32)
 	 */
+    @Test
 	public void testIsLdifSafeEndingWithSpace()
     {
 		char c = ( char ) 32;
@@ -188,11 +223,17 @@ public class LdifUtilsTest extends TestCase
 	/**
 	 * Tests the method IsLdifSafe with a correct String
 	 */
+    @Test
 	public void testIsLdifSafeCorrectString()
     {		
 		assertTrue( LdifUtils.isLDIFSafe( testString ) );
     }
     
+    
+    /**
+     * Test the way LDIF lines are stripped to a number of chars
+     */
+    @Test
     public void testStripLineToNChars()
     {
         String line = "abc";
@@ -212,6 +253,11 @@ public class LdifUtilsTest extends TestCase
         assertEquals( "abc", LdifUtils.stripLineToNChars( line, 3 ) );
     }
 
+    /**
+     * Test that the LDIF is stripped to 5 chars per line
+     *
+     */
+    @Test
     public void testStripLineTo5Chars()
     {
         assertEquals( "a", LdifUtils.stripLineToNChars( "a", 5 ) );
@@ -238,6 +284,7 @@ public class LdifUtilsTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testConvertToLdifEncoding() throws NamingException
     {
         Attributes attributes = new BasicAttributes( "cn", "Saarbr\u00FCcken" );
@@ -251,6 +298,7 @@ public class LdifUtilsTest extends TestCase
      * 
      * @throws NamingException
      */
+    @Test
     public void testConvertToLdifAttrWithNullValues() throws NamingException
     {
         Attributes attributes = new BasicAttributes( "cn", null );
@@ -259,6 +307,10 @@ public class LdifUtilsTest extends TestCase
     }
     
     
+    /**
+     * Test a conversion of an entry to a LDIF file
+     */
+    @Test
     public void testConvertEntryToLdif() throws NamingException
     {
         String expected = 
@@ -289,5 +341,204 @@ public class LdifUtilsTest extends TestCase
 
         String ldif = LdifUtils.convertToLdif( entry, 15 );
         assertEquals( expected, ldif );
+    }
+    
+    
+    /**
+     * Test a AddRequest reverse
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testReverseAdd() throws NamingException
+    {
+        AddRequest addRequest = new AddRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "dc=apache, dc=com" );
+        
+        addRequest.setEntry( dn );
+        
+        Attributes attributes = new AttributesImpl( "dc", "apache" );
+        addRequest.setAttributes( attributes );
+        
+        Entry reversed = LdifUtils.reverseAdd( addRequest );
+        
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Delete, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+    }
+
+
+    /**
+     * Test a AddRequest reverse where the DN is to be base64 encoded 
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testReverseAddBase64DN() throws NamingException
+    {
+        AddRequest addRequest = new AddRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "dc=Emmanuel L\u00c9charny" );
+        
+        addRequest.setEntry( dn );
+        
+        Attributes attributes = new AttributesImpl( "dc", "test" );
+        addRequest.setAttributes( attributes );
+        
+        Entry reversed = LdifUtils.reverseAdd( addRequest );
+        
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Delete, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+    }
+
+
+    /**
+     * Test a DelRequest reverse
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testReverseDel() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "dc=apache, dc=com" );
+        
+        Attributes deletedEntry = new AttributesImpl();
+        
+        Attribute oc = new AttributeImpl( "objectClass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        
+        deletedEntry.put( oc );
+        
+        deletedEntry.put( "cn", "test" );
+        deletedEntry.put( "sn", "apache" );
+        deletedEntry.put( "dc", "apache" );
+        
+        Entry reversed = LdifUtils.reverseDel( dn, deletedEntry );
+        
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Add, reversed.getChangeType() );
+        assertNotNull( reversed.getAttributes() );
+        assertEquals( deletedEntry, reversed.getAttributes() );
+    }
+    
+    
+    /**
+     * Test a reversed ModifyDN with no deleteOldRdn and no superior
+     */
+    @Test
+    public void testReverseModifyDNNoDeleteOldRdnNoSuperior() throws NamingException
+    {
+        LdapDN dnModified = new LdapDN( "cn=joe, dc=example, dc=com" );
+        
+        ModifyDnRequest modifyDn = new ModifyDnRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+
+        modifyDn.setName( dn );
+        modifyDn.setNewRdn( new Rdn( "cn=joe" ) );
+        
+        Entry reversed = LdifUtils.reverseModifyDN( modifyDn );
+
+        assertNotNull( reversed );
+        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        assertTrue( reversed.isDeleteOldRdn() );
+        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertNull( reversed.getNewSuperior() );
+    }
+
+
+    /**
+     * Test a reversed ModifyDN with a deleteOldRdn and no superior
+     */
+    @Test
+    public void testReverseModifyDNDeleteOldRdnNoSuperior() throws NamingException
+    {
+        LdapDN dnModified = new LdapDN( "cn=joe, dc=example, dc=com" );
+        
+        ModifyDnRequest modifyDn = new ModifyDnRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+
+        modifyDn.setName( dn );
+        modifyDn.setNewRdn( new Rdn( "cn=joe" ) );
+        modifyDn.setDeleteOldRdn( true );
+        
+        Entry reversed = LdifUtils.reverseModifyDN( modifyDn );
+
+        assertNotNull( reversed );
+        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        assertTrue( reversed.isDeleteOldRdn() );
+        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertNull( reversed.getNewSuperior() );
+    }
+
+
+    /**
+     * Test a reversed ModifyDN with no deleteOldRdn and a superior
+     */
+    @Test
+    public void testReverseModifyDNNoDeleteOldRdnSuperior() throws NamingException
+    {
+        LdapDN dnModified = new LdapDN( "cn=joe,ou=system" );
+        
+        ModifyDnRequest modifyDn = new ModifyDnRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+
+        modifyDn.setName( dn );
+        modifyDn.setNewRdn( new Rdn( "cn=joe" ) );
+        modifyDn.setNewSuperior( new LdapDN( "ou=system" ) );
+        modifyDn.setDeleteOldRdn( false );
+        
+        Entry reversed = LdifUtils.reverseModifyDN( modifyDn );
+
+        assertNotNull( reversed );
+        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        assertTrue( reversed.isDeleteOldRdn() );
+        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertNotNull( reversed.getNewSuperior() );
+        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
+    }
+
+
+    /**
+     * Test a reversed ModifyDN with a deleteOldRdn and a superior
+     */
+    @Test
+    public void testReverseModifyDNDeleteOldRdnSuperior() throws NamingException
+    {
+        LdapDN dnModified = new LdapDN( "cn=joe,ou=system" );
+        
+        ModifyDnRequest modifyDn = new ModifyDnRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+
+        modifyDn.setName( dn );
+        modifyDn.setNewRdn( new Rdn( "cn=joe" ) );
+        modifyDn.setNewSuperior( new LdapDN( "ou=system" ) );
+        modifyDn.setDeleteOldRdn( true );
+        
+        Entry reversed = LdifUtils.reverseModifyDN( modifyDn );
+
+        assertNotNull( reversed );
+        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        assertTrue( reversed.isDeleteOldRdn() );
+        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertNotNull( reversed.getNewSuperior() );
+        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
     }
 }
