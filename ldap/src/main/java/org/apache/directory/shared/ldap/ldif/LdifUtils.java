@@ -20,22 +20,33 @@
 package org.apache.directory.shared.ldap.ldif;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
+import org.apache.directory.shared.ldap.message.AddRequest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.message.ModifyDnRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 
 /**
  * Some LDIF useful methods
  *
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifUtils
 {
-
 	/** The array that will be used to match the first char.*/
     private static boolean[] LDIF_SAFE_STARTING_CHAR_ALPHABET = new boolean[128];
     
@@ -199,14 +210,95 @@ public class LdifUtils
         
         sb.append( '\n' );
 
-        // Now, iterate through all the attributes
-        NamingEnumeration<? extends Attribute> ne = entry.getAttributes().getAll();
-        
-        while ( ne.hasMore() )
+        switch ( entry.getChangeType() )
         {
-            Attribute attribute = ne.next();
-            
-            sb.append( convertToLdif( (Attribute) attribute, length ) );
+            case Delete :
+                if ( entry.getAttributes() != null )
+                {
+                    throw new NamingException( "Invalid Entry : a deleted entry should not contain attributes" );
+                }
+                
+                break;
+                
+            case Add :
+                if ( ( entry.getAttributes() == null ) )
+                {
+                    throw new NamingException( "Invalid Entry : a added or modified entry should contain attributes" );
+                }
+
+                // Now, iterate through all the attributes
+                NamingEnumeration<? extends Attribute> ne = entry.getAttributes().getAll();
+                
+                while ( ne.hasMore() )
+                {
+                    Attribute attribute = ne.next();
+                    
+                    sb.append( convertToLdif( attribute, length ) );
+                }
+                
+                break;
+                
+            case ModDn :
+            case ModRdn :
+                if ( entry.getAttributes() != null )
+                {
+                    throw new NamingException( "Invalid Entry : a modifyDN operation entry should not contain attributes" );
+                }
+                
+                // Stores the deleteoldrdn flag
+                sb.append( "deleteoldrdn: " );
+                
+                if ( entry.isDeleteOldRdn() )
+                {
+                    sb.append( "1" );
+                }
+                else
+                {
+                    sb.append( "0" );
+                }
+                
+                sb.append( '\n' );
+                
+                // Stores the optional newSuperior
+                if ( ! StringTools.isEmpty( entry.getNewSuperior() ) )
+                {
+                    Attribute newSuperior = new AttributeImpl( "newsuperior", entry.getNewSuperior() );
+                    sb.append( convertToLdif( newSuperior, length ) );
+                }
+                
+                // Stores the new RDN
+                Attribute newRdn = new AttributeImpl( "newrdn", entry.getNewRdn() );
+                sb.append( convertToLdif( newRdn, length ) );
+                
+                break;
+                
+            case Modify :
+                for ( ModificationItem modification:entry.getModificationItems() )
+                {
+                    switch ( modification.getModificationOp() )
+                    {
+                        case DirContext.ADD_ATTRIBUTE :
+                            sb.append( "add: " );
+                            break;
+                            
+                        case DirContext.REMOVE_ATTRIBUTE :
+                            sb.append( "delete: " );
+                            break;
+                            
+                        case DirContext.REPLACE_ATTRIBUTE :
+                            sb.append( "replace: " );
+                            break;
+                            
+                    }
+                    
+                    sb.append( modification.getAttribute().getID() );
+                    sb.append( '\n' );
+                    
+                    sb.append( convertToLdif( modification.getAttribute() ) );
+                    sb.append( "-\n" );
+                }
+                break;
+                
         }
         
         sb.append( '\n' );
@@ -301,6 +393,7 @@ public class LdifUtils
 		return sb.toString();
 	}
 	
+	
 	/**
 	 * Strips the String every n specified characters
 	 * @param str the string to strip
@@ -358,5 +451,198 @@ public class LdifUtils
         
         return new String( buffer );
 	}
+	
+	
+    /**
+     * Compute a reverse LDIF of an AddRequest. It's simply a delete request
+     * of the added entry
+     *
+     * @param addRequest The added entry
+     * @return A reverse LDIF
+     * @throws NamingException If something went wrong
+     */
+    public static Entry reverseAdd( AddRequest addRequest) throws NamingException
+    {
+        Entry entry = new Entry();
+        entry.setChangeType( ChangeType.Delete );
+        entry.setDn( addRequest.getEntry().getUpName() );
+
+        return entry;
+    }
+
+    
+    /**
+     * Compute a reverse LDIF of a DeleteRequest. We have to get the previous
+     * entry in order to restore it.
+     *
+     * @param dn The deleted entry DN
+     * @param deletedEntry The entry which has been deleted
+     * @return A reverse LDIF
+     * @throws NamingException If something went wrong
+     */
+    public static Entry reverseDel( LdapDN dn, Attributes deletedEntry ) throws NamingException
+    {
+        Entry entry = new Entry();
+        
+        entry.setDn( dn.getUpName() );
+        entry.setChangeType( ChangeType.Add );
+        NamingEnumeration<? extends Attribute> attributes = deletedEntry.getAll();
+        
+        while ( attributes.hasMoreElements() )
+        {
+            entry.addAttribute( attributes.nextElement() );
+        }       
+
+        return entry;
+    }
+    
+    
+    /**
+     * Compute a reverse LDIF for a ModifyDNRequest. This is more complex than 
+     * the Add and Delete operation, as we have to handle four different cases :
+     *  - no new superior, no deleteOldRdn 
+     *  - no new superior, deleteOldRdn set to true
+     *  - a new superior, no deleteOldRdn 
+     *  - a new superior, deleteOldRdn set to true
+     *
+     * @param modifyDn The modifyRequest
+     * @return A reverse LDIF
+     * @throws NamingException If something went wrong
+     */
+    public static Entry reverseModifyDN( ModifyDnRequest modifyDn ) throws NamingException
+    {
+        Entry entry = new Entry();
+        
+        LdapDN newDN = null;
+        
+        if ( modifyDn.getNewSuperior() != null )
+        {
+            newDN = modifyDn.getNewSuperior();
+            String newSuperior = ( (LdapDN)modifyDn.getName().getPrefix( modifyDn.getName().size() - 1 ) ).getUpName();
+            String trimmedSuperior = StringTools.trim( newSuperior );
+            entry.setNewSuperior( trimmedSuperior );
+        }
+        else
+        {
+            newDN = (LdapDN)modifyDn.getName().getPrefix( modifyDn.getName().size() - 1 );
+        }
+        
+        newDN.add( modifyDn.getNewRdn() );
+        
+        entry.setDn( newDN.getUpName() );
+        entry.setChangeType( ChangeType.ModDn );
+        entry.setDeleteOldRdn( true );
+        
+        
+        entry.setNewRdn( modifyDn.getName().getRdn().getUpName() );
+        
+        return entry;
+    }
+    
+    
+    /**
+     * 
+     * Compute the reversed LDIF for a modify request. We will deal with the 
+     * three kind of modifications :
+     * - add
+     * - remove
+     * - replace
+     * 
+     * As the modifications should be issued in a reversed order ( ie, for 
+     * the initials modifications {A, B, C}, the reversed modifications will
+     * be ordered like {C, B, A}), we will change the modifications order. 
+     *
+     * @param modifyRequest The modify request
+     * @param modifiedEntry The modified entry. Necessary for the destructive modifications
+     * @return A reversed LDIF 
+     * @throws NamingException If something went wrong
+     */
+    public static String reverseModify( ModifyRequest modifyRequest, Attributes modifiedEntry ) throws NamingException
+    {
+        Entry entry = new Entry();
+        entry.setChangeType( ChangeType.Modify );
+        
+        entry.setDn( modifyRequest.getName().getUpName() );
+        
+        // As the reversed modifications should be pushed in reversed order,
+        // we create a list to temporarily store the modifications.
+        List<ModificationItemImpl> reverseModifications = new ArrayList<ModificationItemImpl>();
+        
+        // Loop through all the modifications
+        for ( ModificationItem modification:modifyRequest.getModificationItems() )
+        {
+            switch ( modification.getModificationOp() )
+            {
+                case DirContext.ADD_ATTRIBUTE :
+                    Attribute mod = modification.getAttribute();
+                    
+                    Attribute previous = modifiedEntry.get( mod.getID() );
+                    
+                    if ( mod.equals( previous ) )
+                    {
+                        continue;
+                    }
+                    
+                    ModificationItemImpl reverseModification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, mod );
+                    reverseModifications.add( 0, reverseModification );
+                    break;
+                    
+                case DirContext.REMOVE_ATTRIBUTE :
+                    mod = modification.getAttribute();
+                    
+                    previous = modifiedEntry.get( mod.getID() );
+                    
+                    if ( mod.get() == null )
+                    {
+                        reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, previous );
+                        reverseModifications.add( 0, reverseModification );
+                        continue;
+                    }
+                    
+                    reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, mod );
+                    reverseModifications.add( 0, reverseModification );
+                    break;
+                    
+                case DirContext.REPLACE_ATTRIBUTE :
+                    mod = modification.getAttribute();
+                    
+                    previous = modifiedEntry.get( mod.getID() );
+                    
+                    if ( mod.get() == null )
+                    {
+                        reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
+                        reverseModifications.add( 0, reverseModification );
+                        continue;
+                    }
+                    
+                    if ( previous == null )
+                    {
+                        Attribute emptyAttribute = new AttributeImpl( mod.getID() );
+                        reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, emptyAttribute );
+                        reverseModifications.add( 0, reverseModification );
+                        continue;
+                    }
+                    
+                    reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
+                    reverseModifications.add( 0, reverseModification );
+                    break;
+            }
+        }
+        
+        // Special case if we don't have any reverse modifications
+        if ( reverseModifications.size() == 0 )
+        {
+            return "";
+        }
+        
+        // Now, push the reversed list into the entry
+        for ( ModificationItemImpl modification:reverseModifications )
+        {
+            entry.addModificationItem( modification );
+        }
+        
+        // Return the LDIF generated from this entry.
+        return LdifUtils.convertToLdif( entry );
+    }
 }
 

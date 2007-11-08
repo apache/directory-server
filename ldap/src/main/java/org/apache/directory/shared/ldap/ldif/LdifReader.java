@@ -149,6 +149,8 @@ import org.slf4j.LoggerFactory;
  *  - The ValueSpec rule must accept multilines values. In this case, we have a LF followed by a 
  *  single space before the continued value.
  * </pre>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifReader implements Iterator<Entry>
 {
