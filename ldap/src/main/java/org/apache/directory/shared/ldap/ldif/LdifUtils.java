@@ -557,7 +557,7 @@ public class LdifUtils
      * @return A reversed LDIF 
      * @throws NamingException If something went wrong
      */
-    public static String reverseModify( ModifyRequest modifyRequest, Attributes modifiedEntry ) throws NamingException
+    public static Entry reverseModify( ModifyRequest modifyRequest, Attributes modifiedEntry ) throws NamingException
     {
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Modify );
@@ -632,7 +632,7 @@ public class LdifUtils
         // Special case if we don't have any reverse modifications
         if ( reverseModifications.size() == 0 )
         {
-            return "";
+            return null;
         }
         
         // Now, push the reversed list into the entry
@@ -641,8 +641,8 @@ public class LdifUtils
             entry.addModificationItem( modification );
         }
         
-        // Return the LDIF generated from this entry.
-        return LdifUtils.convertToLdif( entry );
+        // Return the reverted entry
+        return entry;
     }
 }
 
