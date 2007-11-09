@@ -19,18 +19,26 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
+import java.util.List;
+
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ModifyDnRequest;
 import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
+import org.apache.directory.shared.ldap.message.ModifyRequest;
+import org.apache.directory.shared.ldap.message.ModifyRequestImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.junit.Test;
@@ -52,6 +60,26 @@ public class LdifUtilsTest
 {
 	private String testString = "this is a test";
 	
+    /**
+     * Helper method to build a basic entry used by the Modify tests
+     */
+    private Attributes buildEntry()
+    {
+        Attributes entry = new AttributesImpl();
+        
+        Attribute oc = new AttributeImpl( "objectclass" );
+        oc.add( "top" );
+        oc.add( "person" );
+        entry.put( oc );
+        
+        entry.put( "cn", "test" );
+        entry.put( "sn", "joe doe" );
+        entry.put( "l", "USA" );
+        
+        return entry;
+    }
+
+    
 	/**
 	 * Tests the method IsLdifSafe with a String starting with the
 	 * char NUL (ASCII code 0)
@@ -540,5 +568,411 @@ public class LdifUtilsTest
         assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
         assertNotNull( reversed.getNewSuperior() );
         assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
+    }
+
+    
+    /**
+     * Test a reversed Modify adding a new attribute value
+     * in an exiting attribute
+     */
+    @Test
+    public void testReverseModifyAddNewOuValue() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( "ou", "BigCompany inc." ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.REMOVE_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        assertEquals( "BigCompany inc.", attr.get() );
+    }
+
+
+    /**
+     * Test a reversed Modify adding a new attribute
+     */
+    @Test
+    public void testReverseModifyAddNewOu() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( "ou", "BigCompany inc." ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+
+        assertEquals( DirContext.REMOVE_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        assertEquals( "BigCompany inc.", attr.get() );
+    }
+
+   
+    /**
+     * Test a reversed Modify adding a existing attribute value
+     */
+    @Test
+    public void testReverseModifyAddExistingCnValue() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.ADD_ATTRIBUTE, 
+            new AttributeImpl( "cn", "test" ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNull( reversed );
+    }
+
+    
+    /**
+     * Test a reversed Modify adding a existing value from an existing attribute
+     */
+    @Test
+    public void testReverseModifyDelExistingOuValue() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REMOVE_ATTRIBUTE, 
+            new AttributeImpl( "ou", "acme corp" ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+
+        Attribute addedAttr = new AttributeImpl( "ou", "acme corp" );
+        assertEquals( addedAttr, attr );
+    }
+
+
+    /**
+     * Test a reversed Modify deleting an existing attribute
+     */
+    @Test
+    public void testReverseModifyDeleteOU() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REMOVE_ATTRIBUTE, 
+            new AttributeImpl( "ou" ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        
+        assertEquals( ou, attr );
+    }
+
+   
+    /**
+     * Test a reversed Modify deleting all values of an existing attribute
+     */
+    @Test
+    public void testReverseModifyDelExistingOuWithAllValues() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REMOVE_ATTRIBUTE, ou );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.ADD_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        
+        assertEquals( ou, attr );
+    }
+
+    
+    /**
+     * Test a reversed Modify replacing existing values with new values
+     */
+    @Test
+    public void testReverseModifyReplaceExistingOuValues() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        Attribute ouModified = new AttributeImpl( "ou" );
+        ouModified.add( "directory" );
+        ouModified.add( "BigCompany inc." );
+        
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, ouModified );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( ou, attr );
+    }
+
+
+    /**
+     * Test a reversed Modify replace by injecting a new attribute
+     */
+    @Test
+    public void testReverseModifyReplaceNewAttribute() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        
+        Attribute newOu = new AttributeImpl( "ou" );
+        newOu.add( "apache" );
+        newOu.add( "acme corp" );
+
+        
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, newOu );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        
+        assertNull( attr.get() );
+    }
+
+   
+    /**
+     * Test a reversed Modify replace by removing an attribute
+     */
+    @Test
+    public void testReverseModifyReplaceExistingOuWithNothing() throws NamingException
+    {
+        Attributes modifiedEntry = buildEntry();
+
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        modifiedEntry.put( ou );
+        
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou" ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
+        Entry reversed = LdifUtils.reverseModify( modify, modifiedEntry );
+
+        assertNotNull( reversed );
+        assertEquals( dn.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.Modify, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        
+        List<ModificationItemImpl> mods = reversed.getModificationItems();
+        
+        assertNotNull( mods );
+        assertEquals( 1, mods.size() );
+        
+        ModificationItemImpl modif = mods.get( 0 );
+        
+        assertEquals( DirContext.REPLACE_ATTRIBUTE, modif.getModificationOp() );
+
+        Attribute attr = modif.getAttribute();
+        
+        assertNotNull( attr );
+        assertEquals( "ou", attr.getID() );
+        
+        assertEquals( ou, attr );
     }
 }
