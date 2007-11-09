@@ -21,7 +21,6 @@ package org.apache.directory.shared.ldap.ldif;
 
 import java.util.List;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
