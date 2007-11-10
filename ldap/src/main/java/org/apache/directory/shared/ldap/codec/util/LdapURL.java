@@ -31,6 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1421,5 +1422,29 @@ public class LdapURL
     public String getString()
     {
         return string;
+    }
+
+    public int hashCode()
+    {
+        return this.toString().hashCode();
+    }
+
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        
+        final LdapURL other = ( LdapURL ) obj;
+        return this.toString().equals( other.toString() );
     }
 }
