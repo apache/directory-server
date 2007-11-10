@@ -49,4 +49,13 @@ public interface TaggableChangeLogStore extends ChangeLogStore
      * @throws NamingException if there is a problem taking a tag
      */
     Tag tag() throws NamingException;
+
+    /**
+     * Creates a snapshot of the server at the current revision with a description
+     * of the snapshot tag.
+     *
+     * @return the revision at which the tag is created
+     * @throws NamingException if there is a problem taking a tag
+     */
+    Tag tag( String description ) throws NamingException;
 }

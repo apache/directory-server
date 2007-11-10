@@ -99,6 +99,30 @@ public interface ChangeLogService
     Tag tag( long revision ) throws NamingException;
 
     /**
+     * Creates a tag for a snapshot of the server in a specific state at a revision.
+     * If the ChangeLog has a TaggableChangeLogStore then the tag is stored.  If it
+     * does not then it's up to callers to track this tag since it will not be stored
+     * by this service.
+     *
+     * @param revision the revision to tag the snapshot
+     * @param description some information about what the snapshot tag represents
+     * @return the Tag associated with the revision
+     * @throws NamingException if there is a problem taking a tag
+     * @throws IllegalArgumentException if the revision is out of range (less than 0
+     * and greater than the current revision)
+     */
+    Tag tag( long revision, String description ) throws NamingException;
+
+    /**
+     * Creates a snapshot of the server at the current revision.
+     *
+     * @param description some information about what the snapshot tag represents
+     * @return the revision at which the tag is created
+     * @throws NamingException if there is a problem taking a tag
+     */
+    Tag tag( String description ) throws NamingException;
+
+    /**
      * Creates a snapshot of the server at the current revision.
      *
      * @return the revision at which the tag is created

@@ -68,8 +68,8 @@ public interface ChangeLogSearchEngine
      * @throws NamingException if there are failures accessing the store
      */
     long lookup( String generalizedTime ) throws NamingException;
-    
-    
+
+
     /**
      * Looks up the ChangeLogEvent for a revision.
      *
@@ -80,21 +80,25 @@ public interface ChangeLogSearchEngine
      * and greater than the current revision)
      */
     ChangeLogEvent lookup( long revision ) throws NamingException;
-    
-    
+
+
     /**
      * Finds all the ChangeLogEvents within the system since revision 0.
-     * 
+     *
+     * This method should exhibit isolation characteristics: meaning if the request is
+     * initiated at revision 100 then any subsequent log entries increasing the revision
+     * should not be seen.
+     *
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
-     * @return an enumeration of all the ChangeLogEvents 
+     * @return an enumeration of all the ChangeLogEvents
      * @throws NamingException if there are failures accessing the store
      */
     NamingEnumeration<ChangeLogEvent> find( RevisionOrder order ) throws NamingException;
-    
+
 
     /**
      * Finds the ChangeLogEvents that occurred before a revision inclusive.
-     * 
+     *
      * @param revision the revision number to get the ChangeLogEvents before
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents before and including some revision
@@ -103,11 +107,15 @@ public interface ChangeLogSearchEngine
      * and greater than the current revision)
      */
     NamingEnumeration<ChangeLogEvent> findBefore( long revision, RevisionOrder order ) throws NamingException;
-    
-    
+
+
     /**
      * Finds the ChangeLogEvents that occurred after a revision inclusive.
-     * 
+     *
+     * This method should exhibit isolation characteristics: meaning if the request is
+     * initiated at revision 100 then any subsequent log entries increasing the revision
+     * should not be seen.
+     *
      * @param revision the revision number to get the ChangeLogEvents after
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
      * @return an enumeration of all the ChangeLogEvents after and including the revision
@@ -116,11 +124,11 @@ public interface ChangeLogSearchEngine
      * and greater than the current revision)
      */
     NamingEnumeration<ChangeLogEvent> findAfter( long revision, RevisionOrder order ) throws NamingException;
-    
-    
+
+
     /**
      * Finds the ChangeLogEvents that occurred between a revision range inclusive.
-     * 
+     *
      * @param startRevision the revision number to start getting the ChangeLogEvents above
      * @param endRevision the revision number to start getting the ChangeLogEvents below
      * @param order the order in which to return ChangeLogEvents (ordered by revision number)
@@ -129,9 +137,9 @@ public interface ChangeLogSearchEngine
      * @throws IllegalArgumentException if the start and end revisions are out of range
      * (less than 0 and greater than the current revision), or if startRevision > endRevision
      */
-    NamingEnumeration<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order ) 
+    NamingEnumeration<ChangeLogEvent> find( long startRevision, long endRevision, RevisionOrder order )
         throws NamingException;
-    
+
     
     /**
      * Finds all the ChangeLogEvents on an entry.
