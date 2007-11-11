@@ -35,10 +35,10 @@ import java.util.Queue;
  * replicate the state of the server.
  * 
  */
-public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
+public class OriginalChangeLogInterceptor extends BaseInterceptor implements Runnable
 {
     /** logger used by this class */
-    private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    private static final Logger LOG = LoggerFactory.getLogger( OriginalChangeLogInterceptor.class );
 
     /** time to wait before automatically waking up the writer thread */
     private static final long WAIT_TIMEOUT_MILLIS = 1000;
