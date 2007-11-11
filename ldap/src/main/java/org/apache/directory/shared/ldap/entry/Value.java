@@ -20,9 +20,6 @@
 package org.apache.directory.shared.ldap.entry;
 
 
-import java.io.Serializable;
-
-
 /**
  * A interface for wrapping attribute values stored into an EntryAttribute. These
  * values can be a String or a byte[].
