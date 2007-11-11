@@ -23,6 +23,7 @@ package org.apache.directory.server.core.interceptor;
 import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
@@ -502,6 +503,16 @@ public class InterceptorChainTest extends TestCase
 
         public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
         {
+        }
+        
+        public void setChangeLog( ChangeLog changeLog )
+        {
+            
+        }
+        
+        public ChangeLog getChangeLog()
+        {
+            return null;
         }
     }
 }
