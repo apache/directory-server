@@ -179,7 +179,7 @@ public class MaxImmSubFilterTest extends TestCase
         }
     }
 
-    class MockDirectoryService extends DirectoryService
+    class MockDirectoryService implements DirectoryService
     {
         public Hashtable<String, Object> getEnvironment()
         {

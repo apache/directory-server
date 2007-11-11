@@ -20,35 +20,18 @@
 package org.apache.directory.server.core;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -68,12 +51,7 @@ import org.apache.directory.server.core.schema.SchemaPartitionDao;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
@@ -97,6 +75,15 @@ import org.apache.directory.shared.ldap.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 
 /**
  * Default implementation of {@link DirectoryService}.
@@ -104,7 +91,7 @@ import org.slf4j.LoggerFactory;
  * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DefaultDirectoryService extends DirectoryService
+public class DefaultDirectoryService implements  DirectoryService
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
@@ -125,6 +112,9 @@ public class DefaultDirectoryService extends DirectoryService
     /** whether or not this instance has been shutdown */
     private boolean started;
 
+    /** the change log service */
+    private ChangeLog changeLog;
+
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -137,6 +127,7 @@ public class DefaultDirectoryService extends DirectoryService
     public DefaultDirectoryService()
     {
         setDefaultInterceptorConfigurations();
+        changeLog = new DefaultChangeLog();
     }
 
 
@@ -355,12 +346,6 @@ public class DefaultDirectoryService extends DirectoryService
     }
 
 
-    public void validate()
-    {
-        setWorkingDirectory( workingDirectory );
-    }
-
-
     public void setShutdownHookEnabled( boolean shutdownHookEnabled )
     {
         this.shutdownHookEnabled = shutdownHookEnabled;
@@ -429,6 +414,18 @@ public class DefaultDirectoryService extends DirectoryService
     public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
     {
         this.denormalizeOpAttrsEnabled = denormalizeOpAttrsEnabled;
+    }
+
+
+    public ChangeLog getChangeLog()
+    {
+        return changeLog;
+    }
+
+
+    public void setChangeLog( ChangeLog changeLog )
+    {
+        this.changeLog = changeLog;
     }
 
 

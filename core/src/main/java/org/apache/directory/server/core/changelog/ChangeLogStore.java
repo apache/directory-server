@@ -43,7 +43,8 @@ public interface ChangeLogStore
      * @return the current revision of the server
      */
     long getCurrentRevision();
-    
+
+
     /**
      * Records a change as a forward LDIF, a reverse change to revert the change and
      * the authorized principal triggering the revertable change event.

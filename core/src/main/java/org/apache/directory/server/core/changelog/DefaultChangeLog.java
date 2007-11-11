@@ -20,6 +20,8 @@ package org.apache.directory.server.core.changelog;
 
 
 import org.apache.directory.shared.ldap.NotImplementedException;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.server.core.authn.LdapPrincipal;
 
 import javax.naming.NamingException;
 
@@ -30,8 +32,9 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultChangeLogService implements ChangeLogService
+public class DefaultChangeLog implements ChangeLog
 {
+    private boolean enabled;
     private ChangeLogStore store;
 
 
@@ -50,6 +53,17 @@ public class DefaultChangeLogService implements ChangeLogService
     public long getCurrentRevision() throws NamingException
     {
         return store.getCurrentRevision();
+    }
+
+
+    public long log( LdapPrincipal principal, Entry forward, Entry reverse ) throws NamingException
+    {
+        if ( ! enabled )
+        {
+            throw new IllegalStateException( "The ChangeLog has not been enabled." );
+        }
+
+        return store.log( principal, forward, reverse );
     }
 
 
@@ -147,5 +161,17 @@ public class DefaultChangeLogService implements ChangeLogService
         }
         
         throw new NotImplementedException();
+    }
+
+
+    public void setEnabled( boolean enabled )
+    {
+        this.enabled = enabled;
+    }
+
+
+    public boolean isEnabled()
+    {
+        return enabled;
     }
 }

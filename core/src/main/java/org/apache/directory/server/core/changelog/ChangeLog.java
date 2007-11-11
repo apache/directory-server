@@ -20,6 +20,9 @@
 package org.apache.directory.server.core.changelog;
 
 
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.shared.ldap.ldif.Entry;
+
 import javax.naming.NamingException;
 
 
@@ -31,8 +34,16 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public interface ChangeLogService
+public interface ChangeLog
 {
+    /**
+     * Checks whether or not the change log has been enabled to track changes.
+     *
+     * @return true if the change log is tracking changes, false otherwise
+     */
+    boolean isEnabled();
+
+
     /**
      * Gets the current revision for the server.
      *
@@ -41,12 +52,27 @@ public interface ChangeLogService
      */
     long getCurrentRevision() throws NamingException;
 
+
+    /**
+     * Records a change as a forward LDIF, a reverse change to revert the change and
+     * the authorized principal triggering the revertable change event.
+     *
+     * @param principal the authorized LDAP principal triggering the change
+     * @param forward LDIF of the change going to the next state
+     * @param reverse LDIF (anti-operation): the change required to revert this change
+     * @return the new revision reached after having applied the forward LDIF
+     * @throws NamingException if there are problems logging the change
+     */
+    long log( LdapPrincipal principal, Entry forward, Entry reverse ) throws NamingException;
+
+
     /**
      * Returns whether or not this ChangeLogService supports searching for changes.
      *
      * @return true if log searching is supported, false otherwise
      */
     boolean isLogSearchSupported();
+
 
     /**
      * Returns whether or not this ChangeLogService supports searching for snapshot tags.
@@ -63,6 +89,7 @@ public interface ChangeLogService
      */
     boolean isTagStorageSupported();
 
+
     /**
      * Gets the change log query engine which would be used to ask questions
      * about what changed, when, how and by whom.  It may not be supported by
@@ -74,6 +101,7 @@ public interface ChangeLogService
      */
     ChangeLogSearchEngine getChangeLogSearchEngine();
 
+
     /**
      * Gets the tag search engine used to query the snapshots taken.  If this ChangeLogService
      * does not support a taggable and searchable store then an UnsupportedOperationException
@@ -83,6 +111,7 @@ public interface ChangeLogService
      * @throws UnsupportedOperationException if the tag searching is not supported
      */
     TagSearchEngine getTagSearchEngine();
+
 
     /**
      * Creates a tag for a snapshot of the server in a specific state at a revision.
@@ -97,6 +126,7 @@ public interface ChangeLogService
      * and greater than the current revision)
      */
     Tag tag( long revision ) throws NamingException;
+
 
     /**
      * Creates a tag for a snapshot of the server in a specific state at a revision.
@@ -113,6 +143,7 @@ public interface ChangeLogService
      */
     Tag tag( long revision, String description ) throws NamingException;
 
+
     /**
      * Creates a snapshot of the server at the current revision.
      *
@@ -122,6 +153,7 @@ public interface ChangeLogService
      */
     Tag tag( String description ) throws NamingException;
 
+
     /**
      * Creates a snapshot of the server at the current revision.
      *
@@ -129,6 +161,7 @@ public interface ChangeLogService
      * @throws NamingException if there is a problem taking a tag
      */
     Tag tag() throws NamingException;
+
 
     /**
      * Reverts the server's state to an earlier revision.  Note that the revsion number

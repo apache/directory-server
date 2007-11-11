@@ -21,6 +21,7 @@ package org.apache.directory.server.core;
 
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
@@ -46,25 +47,25 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public abstract class DirectoryService
+public interface DirectoryService
 {
-    public static final String JNDI_KEY = DirectoryService.class.getName();
+    String JNDI_KEY = DirectoryService.class.getName();
 
-    public abstract PartitionNexus getPartitionNexus();
+    PartitionNexus getPartitionNexus();
 
-    public abstract InterceptorChain getInterceptorChain();
+    InterceptorChain getInterceptorChain();
 
-    public abstract void addPartition( Partition partition ) throws NamingException;
+    void addPartition( Partition partition ) throws NamingException;
     
-    public abstract void removePartition( Partition partition ) throws NamingException;
+    void removePartition( Partition partition ) throws NamingException;
 
-    public abstract Registries getRegistries();
+    Registries getRegistries();
 
-    public abstract void setRegistries( Registries registries );
+    void setRegistries( Registries registries );
 
-    public abstract SchemaManager getSchemaManager();
+    SchemaManager getSchemaManager();
 
-    public abstract void setSchemaManager( SchemaManager schemaManager );
+    void setSchemaManager( SchemaManager schemaManager );
 
 
     /**
@@ -72,7 +73,7 @@ public abstract class DirectoryService
      * 
      * @throws NamingException if failed to start up
      */
-    public abstract void startup() throws NamingException;
+    void startup() throws NamingException;
 
 
     /**
@@ -80,21 +81,21 @@ public abstract class DirectoryService
      * 
      * @throws NamingException if failed to shut down
      */
-    public abstract void shutdown() throws NamingException;
+    void shutdown() throws NamingException;
 
 
     /**
      * Calls {@link Partition#sync()} for all registered {@link Partition}s.
      * @throws NamingException if synchronization failed
      */
-    public abstract void sync() throws NamingException;
+    void sync() throws NamingException;
 
 
     /**
      * Returns <tt>true</tt> if this service is started.
      * @return true if the service has started, false otherwise
      */
-    public abstract boolean isStarted();
+    boolean isStarted();
 
 
     /**
@@ -104,7 +105,7 @@ public abstract class DirectoryService
      * @return a JNDI context to the RootDSE
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext() throws NamingException;
+    DirContext getJndiContext() throws NamingException;
 
 
     /**
@@ -115,7 +116,7 @@ public abstract class DirectoryService
      * @return a JNDI context to the entry at the specified DN
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext( String dn ) throws NamingException;
+    DirContext getJndiContext( String dn ) throws NamingException;
 
 
     /**
@@ -126,7 +127,7 @@ public abstract class DirectoryService
      * @return a JNDI context to the RootDSE as a specific user
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext( LdapPrincipal principal ) throws NamingException;
+    DirContext getJndiContext( LdapPrincipal principal ) throws NamingException;
 
 
     /**
@@ -138,7 +139,7 @@ public abstract class DirectoryService
      * @return a JNDI context to the specified entry as a specific user
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
+    DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
 
 
     /**
@@ -154,14 +155,14 @@ public abstract class DirectoryService
      * @return a JNDI context to the specified entry as a specific user
      * @throws NamingException if failed to create a context
      */
-    public abstract DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
+    DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
         String authentication, String dn ) throws NamingException;
 
 
-    public abstract void setInstanceId( String instanceId );
+    void setInstanceId( String instanceId );
 
 
-    public abstract String getInstanceId();
+    String getInstanceId();
 
 
     /**
@@ -169,7 +170,7 @@ public abstract class DirectoryService
      *
      * @return the set of partitions used
      */
-    public abstract Set<? extends Partition> getPartitions();
+    Set<? extends Partition> getPartitions();
 
 
     /**
@@ -177,7 +178,7 @@ public abstract class DirectoryService
      *
      * @param partitions the partitions to used
      */
-    public abstract void setPartitions( Set<? extends Partition> partitions );
+    void setPartitions( Set<? extends Partition> partitions );
 
 
     /**
@@ -185,7 +186,7 @@ public abstract class DirectoryService
      *
      * @return true if access control checks are enabled, false otherwise
      */
-    public abstract boolean isAccessControlEnabled();
+    boolean isAccessControlEnabled();
 
 
     /**
@@ -193,7 +194,7 @@ public abstract class DirectoryService
      *
      * @param accessControlEnabled true to enable access control checks, false otherwise
      */
-    public abstract void setAccessControlEnabled( boolean accessControlEnabled );
+    void setAccessControlEnabled( boolean accessControlEnabled );
 
 
     /**
@@ -204,7 +205,7 @@ public abstract class DirectoryService
      * @return true if anonymous access is allowed on entries besides the RootDSE, false
      * if anonymous access is allowed to all entries.
      */
-    public abstract boolean isAllowAnonymousAccess();
+    boolean isAllowAnonymousAccess();
 
 
     /**
@@ -214,7 +215,7 @@ public abstract class DirectoryService
      *
      * @param enableAnonymousAccess true to enable anonymous access, false to disable it
      */
-    public abstract void setAllowAnonymousAccess( boolean enableAnonymousAccess );
+    void setAllowAnonymousAccess( boolean enableAnonymousAccess );
 
 
     /**
@@ -222,7 +223,7 @@ public abstract class DirectoryService
      *
      * @return the interceptors in the server.
      */
-    public abstract List<Interceptor> getInterceptors();
+    List<Interceptor> getInterceptors();
 
 
     /**
@@ -230,7 +231,7 @@ public abstract class DirectoryService
      *
      * @param interceptors the interceptors to be used in the server.
      */
-    public abstract void setInterceptors( List<Interceptor> interceptors );
+    void setInterceptors( List<Interceptor> interceptors );
 
 
     /**
@@ -239,7 +240,7 @@ public abstract class DirectoryService
      *
      * @return test entries to load during bootstrapping
      */
-    public abstract List<Entry> getTestEntries();
+    List<Entry> getTestEntries();
 
 
     /**
@@ -248,7 +249,7 @@ public abstract class DirectoryService
      *
      * @param testEntries the test entries to load while bootstrapping
      */
-    public abstract void setTestEntries( List<? extends Entry> testEntries );
+    void setTestEntries( List<? extends Entry> testEntries );
 
 
     /**
@@ -257,7 +258,7 @@ public abstract class DirectoryService
      *
      * @return the directory where partition's are stored.
      */
-    public abstract File getWorkingDirectory();
+    File getWorkingDirectory();
 
 
     /**
@@ -266,44 +267,61 @@ public abstract class DirectoryService
      *
      * @param workingDirectory the directory where the server's partitions are stored by default.
      */
-    public abstract void setWorkingDirectory( File workingDirectory );
+    void setWorkingDirectory( File workingDirectory );
 
 
-    public abstract void validate();
+    void setShutdownHookEnabled( boolean shutdownHookEnabled );
 
 
-    public abstract void setShutdownHookEnabled( boolean shutdownHookEnabled );
+    boolean isShutdownHookEnabled();
 
 
-    public abstract boolean isShutdownHookEnabled();
+    void setExitVmOnShutdown( boolean exitVmOnShutdown );
 
 
-    public abstract void setExitVmOnShutdown( boolean exitVmOnShutdown );
+    boolean isExitVmOnShutdown();
 
 
-    public abstract boolean isExitVmOnShutdown();
+    void setMaxSizeLimit( int maxSizeLimit );
 
 
-    public abstract void setMaxSizeLimit( int maxSizeLimit );
+    int getMaxSizeLimit();
 
 
-    public abstract int getMaxSizeLimit();
+    void setMaxTimeLimit( int maxTimeLimit );
 
 
-    public abstract void setMaxTimeLimit( int maxTimeLimit );
+    int getMaxTimeLimit();
 
 
-    public abstract int getMaxTimeLimit();
+    void setSystemPartition( Partition systemPartition );
 
 
-    public abstract void setSystemPartition( Partition systemPartition );
+    Partition getSystemPartition();
 
 
-    public abstract Partition getSystemPartition();
+    boolean isDenormalizeOpAttrsEnabled();
 
 
-    public abstract boolean isDenormalizeOpAttrsEnabled();
+    void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled );
 
 
-    public abstract void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled );
+    /**
+     * Gets the ChangeLog service for this DirectoryService used for tracking
+     * changes (revisions) to the server and using them to revert the server
+     * to earier revisions.
+     *
+     * @return the change log service
+     */
+    ChangeLog getChangeLog();
+
+
+    /**
+     * Sets the ChangeLog service for this DirectoryService used for tracking
+     * changes (revisions) to the server and using them to revert the server
+     * to earier revisions.
+     *
+     * @param changeLog the change log service to set
+     */
+    void setChangeLog( ChangeLog changeLog );
 }
