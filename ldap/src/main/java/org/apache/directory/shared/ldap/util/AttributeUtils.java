@@ -1229,6 +1229,11 @@ public class AttributeUtils
                     // We just have to remove the values from the original
                     // entry, if they exist.
                     modifiedAttr = entry.get( modificationId ) ;
+                    
+                    if ( modifiedAttr == null )
+                    {
+                        break;
+                    }
 
                     NamingEnumeration<?> values = modAttr.getAll();
                     
@@ -1238,6 +1243,12 @@ public class AttributeUtils
                         // Note that the attribute *must* have been
                         // normalized before.
                         modifiedAttr.remove( values.nextElement() );
+                    }
+                    
+                    if ( modifiedAttr.size() == 0 )
+                    {
+                        // If this was the last value, remove the attribute
+                        entry.remove( modifiedAttr.getID() );
                     }
                 }
 
