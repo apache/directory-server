@@ -23,6 +23,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -512,6 +513,7 @@ public class LdifUtils
     {
         Entry entry = new Entry();
         LdapDN newDN = null;
+        Rdn oldRdn = modifiedDn.getRdn();
 
         if ( newSuperiorDn != null )
         {
@@ -529,13 +531,23 @@ public class LdifUtils
         
         entry.setDn( newDN.getUpName() );
         entry.setChangeType( ChangeType.ModDn );
-        entry.setDeleteOldRdn( deleteOldRdn );
+        
+        if ( newRdn.equals( oldRdn ) )
+        {
+            // This is a move operation : no need to delete the oldRdn
+            entry.setDeleteOldRdn( false );
+        }
+        else
+        {
+            entry.setDeleteOldRdn( true );
+        }
+        
         entry.setNewRdn( modifiedDn.getRdn().getUpName() );
         
         return entry;
     }
     
-    
+
     /**
      * 
      * Compute the reversed LDIF for a modify request. We will deal with the 
@@ -557,6 +569,9 @@ public class LdifUtils
     public static Entry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
                                        Attributes modifiedEntry ) throws NamingException
     {
+        // First, protect the original entry by cloning it : we will modify it
+        Attributes clonedEntry = (Attributes)modifiedEntry.clone();
+        
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Modify );
         
@@ -566,9 +581,13 @@ public class LdifUtils
         // we create a list to temporarily store the modifications.
         List<ModificationItemImpl> reverseModifications = new ArrayList<ModificationItemImpl>();
         
-        // Loop through all the modifications
+        // Loop through all the modifications. For each modification, we will
+        // have to apply it to the modified entry in order to be able to generate
+        // the reversed modification
         for ( ModificationItem modification : forwardModifications )
         {
+            AttributeUtils.applyModification( clonedEntry, modification );
+
             switch ( modification.getModificationOp() )
             {
                 case DirContext.ADD_ATTRIBUTE :

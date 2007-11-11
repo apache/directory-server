@@ -483,6 +483,28 @@ public class LdifUtilsTest
 
 
     /**
+     * Test a reversed move ModifyDN
+     */
+    @Test
+    public void testReverseModifyDNMove() throws NamingException
+    {
+        LdapDN dnModified = new LdapDN( "cn=test,ou=system" );
+        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+
+        Entry reversed = LdifUtils.reverseModifyDN( new LdapDN( "ou=system" ), dn, new Rdn( "cn=test" ), false );
+
+        assertNotNull( reversed );
+        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertNull( reversed.getAttributes() );
+        assertFalse( reversed.isDeleteOldRdn() );
+        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertNotNull( reversed.getNewSuperior() );
+        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
+    }
+
+
+    /**
      * Test a reversed ModifyDN with a deleteOldRdn and a superior
      */
     @Test
@@ -873,5 +895,91 @@ public class LdifUtilsTest
         assertEquals( "ou", attr.getID() );
         
         assertEquals( ou, attr );
+    }
+    
+    
+    /**
+     * Test a multiple modifications reverse.
+     * 
+     * On the following entry :
+     *  dn: cn=test, ou=system
+     *  objectclass: top
+     *  objectclass: person
+     *  cn: test
+     *  sn: joe doe
+     *  l: USA
+     *  ou: apache
+     *  ou: acme corp
+     * 
+     * We will :
+     *  - add an 'ou' value 'BigCompany inc.'
+     *  - delete the 'l' attribute
+     *  - add the 'l=FR' attribute
+     *  - replace the 'l=FR' by a 'l=USA' attribute
+     *  - replace the 'ou' attribute with 'apache' value.
+     *  
+     * The modify ldif will be :
+     * 
+     *  dn: cn=test, ou=system
+     *  changetype: modify
+     *  add: ou
+     *  ou: BigCompany inc.
+     *  -
+     *  delete: l
+     *  -
+     *  add: l
+     *  l: FR
+     *  -
+     *  replace: l
+     *  l: USA
+     *  -
+     *  replace: ou
+     *  ou: apache
+     *  -
+     *  
+     * At the end, the entry will looks like :
+     *  dn: cn=test, ou=system
+     *  objectclass: top
+     *  objectclass: person
+     *  cn: test
+     *  sn: joe doe
+     *  l: USA
+     *  ou: apache
+     *  
+     * and the reversed LDIF will be :
+     * 
+     *  dn: cn=test, ou=system
+     *  changetype: modify
+     *  replace: ou
+     *  ou: BigCompany
+     *  -
+     *  replace: l
+     *  l: USA
+     *  -
+     *  delete: l
+     *  l: FR
+     *  -
+     *  add: l
+     *  l: USA
+     *  -
+     *  delete: ou 
+     *  ou: BigCompany inc.
+     *  -
+     * 
+     */
+    @Test
+    public void testReverseMultipleModifications() throws NamingException
+    {
+        // Create a 
+        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        
+        LdapDN dn = new LdapDN( "cn=test, ou=system" );
+        
+        ModificationItem mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou" ) );
+
+        modify.setName( dn );
+        modify.addModification( mod );
+        
     }
 }
