@@ -28,6 +28,7 @@ import org.apache.directory.shared.ldap.message.AddRequest;
 import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 
@@ -69,7 +70,7 @@ public class MemoryChangeLogStoreTest extends TestCase
         AddRequest addRequest = new AddRequestImpl( 0 );
         addRequest.setAttributes( forward.getAttributes() );
         addRequest.setEntry( new LdapDN( forward.getDn() ) );
-        Entry reverse = LdifUtils.reverseAdd( addRequest.getEntry() );
+        Entry reverse = LdifUtils.reverseAdd( addRequest );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ) );
         assertEquals( 1, store.getCurrentRevision() );
     }
