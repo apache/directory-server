@@ -437,4 +437,56 @@ public class ModifyRdnTest extends AbstractServerTest
         ctx.unbind( newRdn );
     }
     */
+
+
+    /**
+     * Test for DIRSERVER-1096.
+     * Modify the RDN of an entry with an encoded new RDN. 
+     * Ensure that the attribute itself contains the unencoded value.
+     *
+     * @throws Exception
+     */
+    /*
+    @Test public void testModifyRdnWithEncodedNewRdn() throws Exception
+    {
+        // Create a person, cn value is rdn
+        String cnVal = "Tori Amos";
+        String snVal = "Amos";
+        String oldRdn = "cn=" + cnVal;
+        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        ctx.createSubcontext( oldRdn, attributes );
+
+        // modify Rdn from cn=Tori Amos to cn=Ä\+
+        String newCnVal = new String( new byte[]
+             { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        String newRdn = "cn=" + newCnVal;
+        ctx.rename( oldRdn, newRdn );
+
+        // Check, whether old Entry does not exists
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+        }
+        
+        // Check, whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check that cn contains the unecnoded value
+        Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertTrue( cn.contains( newCnVal ) );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+    */
+
 }
+
