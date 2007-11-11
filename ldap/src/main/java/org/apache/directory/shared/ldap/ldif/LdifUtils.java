@@ -19,9 +19,12 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.util.Base64;
+import org.apache.directory.shared.ldap.util.StringTools;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -29,15 +32,9 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.message.ModifyDnRequest;
-import org.apache.directory.shared.ldap.message.ModifyRequest;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.StringTools;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -136,7 +133,6 @@ public class LdifUtils
     /**
      * Convert an Attributes as LDIF
      * @param attrs the Attributes to convert
-     * @param length the expectend line length
      * @return the corresponding LDIF code as a String
      * @throws NamingException If a naming exception is encountered.
      */
@@ -457,16 +453,15 @@ public class LdifUtils
      * Compute a reverse LDIF of an AddRequest. It's simply a delete request
      * of the added entry
      *
-     * @param addRequest The added entry
-     * @return A reverse LDIF
+     * @param dn the dn of the added entry
+     * @return a reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseAdd( AddRequest addRequest) throws NamingException
+    public static Entry reverseAdd( LdapDN dn ) throws NamingException
     {
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Delete );
-        entry.setDn( addRequest.getEntry().getUpName() );
-
+        entry.setDn( dn.getUpName() );
         return entry;
     }
 
@@ -505,36 +500,37 @@ public class LdifUtils
      *  - a new superior, no deleteOldRdn 
      *  - a new superior, deleteOldRdn set to true
      *
-     * @param modifyDn The modifyRequest
+     * @param newSuperiorDn the new superior dn if this is a move, otherwise null
+     * @param modifiedDn the dn of the entry being modified
+     * @param newRdn the new rdn to use
+     * @param deleteOldRdn true if deleting old rdn, false if leaving it
      * @return A reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseModifyDN( ModifyDnRequest modifyDn ) throws NamingException
+    public static Entry reverseModifyDN( LdapDN newSuperiorDn, LdapDN modifiedDn, Rdn newRdn, boolean deleteOldRdn )
+            throws NamingException
     {
         Entry entry = new Entry();
-        
         LdapDN newDN = null;
-        
-        if ( modifyDn.getNewSuperior() != null )
+
+        if ( newSuperiorDn != null )
         {
-            newDN = modifyDn.getNewSuperior();
-            String newSuperior = ( (LdapDN)modifyDn.getName().getPrefix( modifyDn.getName().size() - 1 ) ).getUpName();
+            newDN = newSuperiorDn;
+            String newSuperior = ( ( LdapDN ) modifiedDn.getPrefix( modifiedDn.size() - 1 ) ).getUpName();
             String trimmedSuperior = StringTools.trim( newSuperior );
             entry.setNewSuperior( trimmedSuperior );
         }
         else
         {
-            newDN = (LdapDN)modifyDn.getName().getPrefix( modifyDn.getName().size() - 1 );
+            newDN = ( LdapDN ) modifiedDn.getPrefix( modifiedDn.size() - 1 );
         }
         
-        newDN.add( modifyDn.getNewRdn() );
+        newDN.add( newRdn );
         
         entry.setDn( newDN.getUpName() );
         entry.setChangeType( ChangeType.ModDn );
-        entry.setDeleteOldRdn( true );
-        
-        
-        entry.setNewRdn( modifyDn.getName().getRdn().getUpName() );
+        entry.setDeleteOldRdn( deleteOldRdn );
+        entry.setNewRdn( modifiedDn.getRdn().getUpName() );
         
         return entry;
     }
@@ -552,24 +548,26 @@ public class LdifUtils
      * the initials modifications {A, B, C}, the reversed modifications will
      * be ordered like {C, B, A}), we will change the modifications order. 
      *
-     * @param modifyRequest The modify request
+     * @param dn the dn of the modified entry
+     * @param forwardModifications the modification items for the forward change
      * @param modifiedEntry The modified entry. Necessary for the destructive modifications
      * @return A reversed LDIF 
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseModify( ModifyRequest modifyRequest, Attributes modifiedEntry ) throws NamingException
+    public static Entry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
+                                       Attributes modifiedEntry ) throws NamingException
     {
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Modify );
         
-        entry.setDn( modifyRequest.getName().getUpName() );
+        entry.setDn( dn.getUpName() );
         
         // As the reversed modifications should be pushed in reversed order,
         // we create a list to temporarily store the modifications.
         List<ModificationItemImpl> reverseModifications = new ArrayList<ModificationItemImpl>();
         
         // Loop through all the modifications
-        for ( ModificationItem modification:modifyRequest.getModificationItems() )
+        for ( ModificationItem modification : forwardModifications )
         {
             switch ( modification.getModificationOp() )
             {
