@@ -35,8 +35,10 @@ import java.util.Comparator;
  */
 public class BinaryValue implements Value<byte[]>
 {
-    @SuppressWarnings ( { "unchecked" } )
+    /** A byte array comparator instance */
+	@SuppressWarnings ( { "unchecked" } )
     private static final Comparator<byte[]> BYTE_ARRAY_COMPARATOR = new ByteArrayComparator();
+    
     /** the wrapped binary value */
     private byte[] wrapped;
 
@@ -80,6 +82,9 @@ public class BinaryValue implements Value<byte[]>
     }
 
 
+    /**
+     * Returns the wrapped binary value
+     */
     public byte[] get()
     {
         return wrapped;
@@ -93,9 +98,8 @@ public class BinaryValue implements Value<byte[]>
      */
     public void set( byte[] src )
     {
-        byte[] dest = new byte[ src.length];
-        System.arraycopy( src, 0, dest, 0, dest.length );
-        this.wrapped = dest;
+        wrapped = new byte[ src.length];
+        System.arraycopy( src, 0, wrapped, 0, src.length );
     }
 
 
@@ -104,17 +108,17 @@ public class BinaryValue implements Value<byte[]>
      *
      * @return a deep copy of the Value.
      */
-    @SuppressWarnings ( { "CloneDoesntCallSuperClone" } )
     public BinaryValue clone() throws CloneNotSupportedException
     {
-        if ( wrapped == null )
+        BinaryValue cloned = (BinaryValue)super.clone();
+        
+        if ( wrapped != null )
         {
-            return new BinaryValue();
+            cloned.wrapped = new byte[wrapped.length];
+            System.arraycopy( wrapped, 0, cloned.wrapped, 0, wrapped.length );
         }
-
-        byte[] clonedValue = new byte[wrapped.length];
-        System.arraycopy( wrapped, 0, clonedValue, 0, wrapped.length );
-        return new BinaryValue( clonedValue );
+        
+        return cloned;
     }
 
 
@@ -139,35 +143,44 @@ public class BinaryValue implements Value<byte[]>
         }
 
         BinaryValue binaryValue = ( BinaryValue ) obj;
-        if ( this.wrapped == null && binaryValue.wrapped == null )
+        
+        if ( ( wrapped == null ) && ( binaryValue.wrapped == null ) )
         {
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
-        if ( this.wrapped == null && binaryValue.wrapped != null ||
-             this.wrapped != null && binaryValue.wrapped == null )
+        // no inspection SimplifiableIfStatement
+        if ( ( wrapped == null ) && ( binaryValue.wrapped != null ) ||
+             ( wrapped != null ) && ( binaryValue.wrapped == null ) )
         {
             return false;
         }
 
-        return Arrays.equals( this.wrapped, binaryValue.wrapped );
+        return Arrays.equals( wrapped, binaryValue.wrapped );
     }
 
 
+    /**
+     * Compare with the current BinaryValue 
+     *
+     * @param value The BinaryValue we want to compare the current value with
+     * @return 
+     */
     public int compareTo( Value<byte[]> value )
     {
-        if ( value == null && get() == null )
-        {
-            return 0;
-        }
-
         if ( value == null )
         {
-            return 1;
+            if ( wrapped == null )
+            {
+                return 0;
+            }
+            else
+            {
+                return 1;
+            }
         }
 
-        if ( value.get() == null )
+        if ( wrapped == null )
         {
             return -1;
         }
