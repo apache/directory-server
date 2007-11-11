@@ -38,6 +38,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -163,7 +164,7 @@ public class AttributeUtils
             
             try
             {
-                NamingEnumeration values = attribute.getAll();
+                NamingEnumeration<?> values = attribute.getAll();
                 
                 while ( values.hasMoreElements() )
                 {
@@ -200,7 +201,7 @@ public class AttributeUtils
             
             try
             {
-                NamingEnumeration values = attributes.getAll();
+                NamingEnumeration<?> values = attributes.getAll();
                 
                 while ( values.hasMoreElements() )
                 {
@@ -428,11 +429,9 @@ public class AttributeUtils
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
             
-            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
-            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
             {
                 String value = (String)values.nextElement();
-                //String value = ( String ) attr.get( ii );
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
                 {
                     return true;
@@ -501,8 +500,7 @@ public class AttributeUtils
                 comparedBytes = ( byte[] ) compared;
             }
             
-            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
-            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
             {
                 Object value = values.nextElement();
                 
@@ -543,7 +541,7 @@ public class AttributeUtils
             {
                 String strVal = (String)value;
 
-                NamingEnumeration attrVals = attr.getAll();
+                NamingEnumeration<?> attrVals = attr.getAll();
 
                 while ( attrVals.hasMoreElements() )
                 {
@@ -562,7 +560,7 @@ public class AttributeUtils
             {
                 byte[] valueBytes = ( byte[] )value;
 
-                NamingEnumeration attrVals = attr.getAll();
+                NamingEnumeration<?> attrVals = attr.getAll();
 
                 while ( attrVals.hasMoreElements() )
                 {
@@ -784,10 +782,10 @@ public class AttributeUtils
             else
             {
                 // Ok, bad news : we have to create a new BasicAttributes
-                // whiwh will be case insensitive
+                // which will be case insensitive
                 Attributes newAttrs = new BasicAttributes( true );
                 
-                NamingEnumeration attrs = attributes.getAll();
+                NamingEnumeration<?> attrs = attributes.getAll();
                 
                 if ( attrs != null )
                 {
@@ -899,7 +897,7 @@ public class AttributeUtils
 
         if ( attributes != null )
         {
-            NamingEnumeration attributesIterator = attributes.getAll();
+            NamingEnumeration<?> attributesIterator = attributes.getAll();
     
             while ( attributesIterator.hasMoreElements() )
             {
@@ -1175,5 +1173,90 @@ public class AttributeUtils
         }
         
         return serverEntry;
+    }
+
+
+
+    /**
+     * A method to apply a modification to an existing entry.
+     * 
+     * @param entry The entry on which we want to apply a modification
+     * @param modification the Modification to be applied
+     * @throws NamingException if some operation fails.
+     */
+    public static void applyModification( Attributes entry, ModificationItem modification ) throws NamingException
+    {
+        Attribute modAttr = modification.getAttribute(); 
+        String modificationId = modAttr.getID();
+        
+        switch ( modification.getModificationOp() )
+        {
+            case DirContext.ADD_ATTRIBUTE :
+                Attribute modifiedAttr = entry.get( modificationId ) ;
+                
+                if ( modifiedAttr == null )
+                {
+                    // The attribute should be added.
+                    entry.put( modAttr );
+                }
+                else
+                {
+                    // The attribute exists : the values can be different,
+                    // so we will just add the new values to the existing ones.
+                    NamingEnumeration<?> values = modAttr.getAll();
+                    
+                    while ( values.hasMoreElements() )
+                    {
+                        // If the value already exist, nothing is done.
+                        // Note that the attribute *must* have been
+                        // normalized before.
+                        modifiedAttr.add( values.nextElement() );
+                    }
+                }
+                
+                break;
+                
+            case DirContext.REMOVE_ATTRIBUTE :
+                if ( modAttr.get() == null )
+                {
+                    // We have no value in the ModificationItem attribute :
+                    // we have to remove the whole attribute from the initial
+                    // entry
+                    entry.remove( modificationId );
+                }
+                else
+                {
+                    // We just have to remove the values from the original
+                    // entry, if they exist.
+                    modifiedAttr = entry.get( modificationId ) ;
+
+                    NamingEnumeration<?> values = modAttr.getAll();
+                    
+                    while ( values.hasMoreElements() )
+                    {
+                        // If the value does not exist, nothing is done.
+                        // Note that the attribute *must* have been
+                        // normalized before.
+                        modifiedAttr.remove( values.nextElement() );
+                    }
+                }
+
+                break;
+                
+            case DirContext.REPLACE_ATTRIBUTE :
+                if ( modAttr.get() == null )
+                {
+                    // If the modification does not have any value, we have
+                    // to delete the attribute from the entry.
+                    entry.remove( modificationId );
+                }
+                else
+                {
+                    // otherwise, just substitute the existing attribute.
+                    entry.put( modAttr );
+                }
+
+                break;
+        }
     }
 }
