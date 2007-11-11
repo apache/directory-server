@@ -345,21 +345,42 @@ public class AttributeImpl implements Attribute
                 return false;
                 
             case 1 :
-                value = null;
-                size--;
-                return true;
+                if ( value.equals(  attrVal ) )
+                {
+                    value = null;
+                    size--;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
                 
             case 2 : 
-                list.remove( attrVal );
-                value = list.get(0);
-                size = 1;
-                list = null;
-                return true;
+                if ( list.contains( attrVal ) )
+                {
+                    list.remove( attrVal );
+                    value = list.get(0);
+                    size = 1;
+                    list = null;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
                 
             default :
-                list.remove( attrVal );
-                size--;
-                return true;
+                if ( list.contains( attrVal ) )
+                {
+                    list.remove( attrVal );
+                    size--;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
         }
     }
 
