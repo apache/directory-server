@@ -1125,8 +1125,32 @@ public class Rdn implements Cloneable, Comparable, Serializable
            switch ( chars[i] )
            {
                case ' ':
-               case '"':
+                   if ( ( i > 0 ) && ( i < chars.length - 1 ) )
+                   {
+                       newChars[pos++] = chars[i];
+                   }
+                   else
+                   {
+                       newChars[pos++] = '\\';
+                       newChars[pos++] = chars[i];
+                   }
+                   
+                   break;
+                   
                case '#':
+                   if ( i != 0 )
+                   {
+                       newChars[pos++] = chars[i];
+                   }
+                   else
+                   {
+                       newChars[pos++] = '\\';
+                       newChars[pos++] = chars[i];
+                   }
+                   
+                   break;
+                   
+               case '"':
                case '+':
                case ',':
                case ';':

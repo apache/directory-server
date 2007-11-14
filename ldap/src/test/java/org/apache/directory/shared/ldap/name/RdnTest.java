@@ -488,7 +488,7 @@ public class RdnTest extends TestCase
    {
        String res = Rdn.escapeValue( StringTools.getBytesUtf8( "\\#,+;<>=\" " ) );
 
-       Assert.assertEquals( "\\\\\\#\\,\\+\\;\\<\\>\\=\\\"\\ ", res );
+       Assert.assertEquals( "\\\\#\\,\\+\\;\\<\\>\\=\\\"\\ ", res );
    }
 
 
@@ -506,7 +506,7 @@ public class RdnTest extends TestCase
        String res = Rdn.escapeValue( new byte[]
            { '\\', 0x00, '-', '+', '#', 0x7F, '-' } );
 
-       Assert.assertEquals( "\\\\\\00-\\+\\#\\7F-", res );
+       Assert.assertEquals( "\\\\\\00-\\+#\\7F-", res );
    }
 
     public void testDIRSERVER_703() throws InvalidNameException 
@@ -548,4 +548,68 @@ public class RdnTest extends TestCase
         assertFalse( iterator.hasNext() );
     }
 
+
+    public void testRdnWithSpaces() throws InvalidNameException
+    {
+        Rdn rdn = new Rdn( "cn=a\\ b\\ c" );
+        assertEquals( "cn=a b c", rdn.toString() );
+    }
+
+    public void testEscapedSpaceInValue() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( "cn=a b c" );
+        Rdn rdn2 = new Rdn( "cn=a\\ b\\ c" );
+        assertEquals( "cn=a b c", rdn1.toString() );
+        assertEquals( "cn=a b c", rdn2.toString() );
+        assertTrue( rdn1.equals( rdn2 ) );
+
+        Rdn rdn3 = new Rdn( "cn=\\ a b c\\ " );
+        Rdn rdn4 = new Rdn( "cn=\\ a\\ b\\ c\\ " );
+        assertEquals( "cn=\\ a b c\\ ", rdn3.toString() );
+        assertEquals( "cn=\\ a b c\\ ", rdn4.toString() );
+        assertTrue( rdn3.equals( rdn4 ) );
+    }
+
+
+    public void testEscapedHashInValue() throws InvalidNameException
+    {
+        Rdn rdn1 = new Rdn( "cn=a#b#c" );
+        Rdn rdn2 = new Rdn( "cn=a\\#b\\#c" );
+        assertEquals( "cn=a#b#c", rdn1.toString() );
+        assertEquals( "cn=a#b#c", rdn2.toString() );
+        assertTrue( rdn1.equals( rdn2 ) );
+
+        Rdn rdn3 = new Rdn( "cn=\\#a#b#c\\#" );
+        Rdn rdn4 = new Rdn( "cn=\\#a\\#b\\#c\\#" );
+        assertEquals( "cn=\\#a#b#c#", rdn3.toString() );
+        assertEquals( "cn=\\#a#b#c#", rdn4.toString() );
+        assertTrue( rdn3.equals( rdn4 ) );
+    }
+
+
+    public void testEscapedAttributeValue() throws InvalidNameException
+    {
+        // space doesn't need to be escaped in the middle of a string
+        assertEquals( "a b", Rdn.escapeValue( "a b" ) );
+        assertEquals( "a b c", Rdn.escapeValue( "a b c" ) );
+        assertEquals( "a b c d", Rdn.escapeValue( "a b c d" ) );
+
+        // space must be escaped at the beginning and the end of a string
+        assertEquals( "\\ a b", Rdn.escapeValue( " a b" ) );
+        assertEquals( "a b\\ ", Rdn.escapeValue( "a b " ) );
+        assertEquals( "\\ a b\\ ", Rdn.escapeValue( " a b " ) );
+        assertEquals( "\\  a  b \\ ", Rdn.escapeValue( "  a  b  " ) );
+        
+        // hash doesn't need to be escaped in the middle and the end of a string
+        assertEquals( "a#b", Rdn.escapeValue( "a#b" ) );
+        assertEquals( "a#b#", Rdn.escapeValue( "a#b#" ) );
+        assertEquals( "a#b#c", Rdn.escapeValue( "a#b#c" ) );
+        assertEquals( "a#b#c#", Rdn.escapeValue( "a#b#c#" ) );
+        assertEquals( "a#b#c#d", Rdn.escapeValue( "a#b#c#d" ) );
+        assertEquals( "a#b#c#d#", Rdn.escapeValue( "a#b#c#d#" ) );
+        
+        // hash must be escaped at the beginning of a string
+        assertEquals( "\\#a#b", Rdn.escapeValue( "#a#b" ) );
+        assertEquals( "\\##a#b", Rdn.escapeValue( "##a#b" ) );
+    }
 }

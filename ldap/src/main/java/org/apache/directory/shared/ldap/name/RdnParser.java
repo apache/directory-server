@@ -508,6 +508,12 @@ public class RdnParser
                     // <stringchar> <pairs-or-strings>
                     if ( ( nbChars = DNUtils.isStringChar( bytes, pos.end ) ) != DNUtils.PARSING_ERROR )
                     {
+                        // If the char is not a space, we have to switch off the escapedSpace flag
+                        if ( ( escapedSpace != -1 ) && ! StringTools.isCharASCII( bytes, pos.end, ' ' ) )
+                        {
+                            escapedSpace = -1;
+                        }
+                        
                         // A special case : if we have some spaces before the
                         // '+' character,
                         // we MUST skip them.
