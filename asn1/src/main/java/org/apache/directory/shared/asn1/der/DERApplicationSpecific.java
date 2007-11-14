@@ -68,8 +68,16 @@ public class DERApplicationSpecific extends DERObject
 
 
     public DEREncodable getObject() throws IOException
-    {
-        return new ASN1InputStream( getOctets() ).readObject();
+    {   
+        final ASN1InputStream ais = new ASN1InputStream( getOctets() );
+        try
+        {
+            return ais.readObject();
+        }
+        finally
+        {
+            ais.close();
+        }
     }
 
 
