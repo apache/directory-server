@@ -26,7 +26,6 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
-import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
 
