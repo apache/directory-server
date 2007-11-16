@@ -24,8 +24,6 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.message.AddRequest;
-import org.apache.directory.shared.ldap.message.AddRequestImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.InvalidNameException;
@@ -67,10 +65,7 @@ public class MemoryChangeLogStoreTest extends TestCase
         forward.putAttribute( "objectClass", "organizationalUnit" );
         forward.putAttribute( "ou", "system" );
 
-        AddRequest addRequest = new AddRequestImpl( 0 );
-        addRequest.setAttributes( forward.getAttributes() );
-        addRequest.setEntry( new LdapDN( forward.getDn() ) );
-        Entry reverse = LdifUtils.reverseAdd( addRequest );
+        Entry reverse = LdifUtils.reverseAdd( new LdapDN( forward.getDn() ) );
         assertEquals( 1, store.log( new LdapPrincipal(), forward, reverse ) );
         assertEquals( 1, store.getCurrentRevision() );
     }
