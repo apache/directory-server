@@ -20,12 +20,13 @@
 package org.apache.directory.server.schema;
 
 
-import javax.naming.NamingException;
-
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -60,6 +61,11 @@ public class NameAndOptionalUIDNormalizer implements Normalizer
 
     public Object normalize( Object value ) throws NamingException
     {
+        if ( value instanceof byte[] )
+        {
+            value = StringTools.utf8ToString( ( byte[] ) value );
+        }
+
         if ( value instanceof String )
         {
             String nameAndUid = (String)value;
