@@ -69,7 +69,7 @@ public class BERTaggedObject extends DERTaggedObject
             {
                 if ( obj instanceof DEROctetString )
                 {
-                    Enumeration e;
+                    Enumeration<DEREncodable> e;
 
                     if ( obj instanceof BERConstructedOctetString )
                     {
@@ -90,7 +90,7 @@ public class BERTaggedObject extends DERTaggedObject
                 }
                 else if ( obj instanceof DERSequence )
                 {
-                    Enumeration e = ( ( DERSequence ) obj ).getObjects();
+                    Enumeration<DEREncodable> e = ( ( DERSequence ) obj ).getObjects();
 
                     while ( e.hasMoreElements() )
                     {

@@ -19,7 +19,6 @@
  */
 package org.apache.directory.shared.ldap.message.spi;
 
-import javax.naming.NamingException;
 
 
 /**

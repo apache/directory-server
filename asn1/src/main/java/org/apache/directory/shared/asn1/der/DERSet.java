@@ -34,10 +34,10 @@ import java.util.Vector;
  */
 public class DERSet implements DEREncodable
 {
-    protected Vector set = new Vector();
+    protected Vector<DEREncodable> set = new Vector<DEREncodable>();
 
 
-    public Enumeration getObjects()
+    public Enumeration<DEREncodable> getObjects()
     {
         return set.elements();
     }
@@ -66,7 +66,7 @@ public class DERSet implements DEREncodable
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        Enumeration e = getObjects();
+        Enumeration<DEREncodable> e = getObjects();
 
         while ( e.hasMoreElements() )
         {

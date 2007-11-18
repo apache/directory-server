@@ -366,7 +366,7 @@ public class ASN1InputStream extends FilterInputStream
 
     private BERConstructedOctetString buildConstructedOctetString() throws IOException
     {
-        Vector octets = new Vector();
+        Vector<DEREncodable> octets = new Vector<DEREncodable>();
 
         for ( ;; )
         {
