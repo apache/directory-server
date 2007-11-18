@@ -34,7 +34,7 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-xbean-spring</artifactId>
-      <version>${version}</version>
+      <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -72,14 +72,14 @@
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-bootstrap-partition</artifactId>
-      <version>${version}</version>
+      <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-server-jndi</artifactId>
-      <version>${version}</version>
+      <version>${pom.version}</version>
       <scope>test</scope>
     </dependency>
 
