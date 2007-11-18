@@ -22,10 +22,7 @@ package org.apache.directory.server.kerberos.kdc;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;

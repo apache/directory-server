@@ -151,7 +151,6 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         {
             modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
             NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attrs.getAll();
-            int i = 0;
             
             while ( e.hasMore() )
             {

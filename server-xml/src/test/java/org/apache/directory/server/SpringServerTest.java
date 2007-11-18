@@ -23,11 +23,8 @@ import org.apache.xbean.spring.context.FileSystemXmlApplicationContext;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
-import javax.naming.Context;
-import javax.naming.directory.InitialDirContext;
 import java.io.File;
 import java.net.URL;
-import java.util.Hashtable;
 
 
 /**

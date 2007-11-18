@@ -21,7 +21,6 @@ package org.apache.directory.server.core.schema;
 
 
 import jdbm.helper.IntegerComparator;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;

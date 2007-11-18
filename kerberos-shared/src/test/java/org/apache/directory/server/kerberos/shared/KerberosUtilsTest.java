@@ -19,7 +19,6 @@
  */
 package org.apache.directory.server.kerberos.shared;
 
-import java.text.ParseException;
 import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;

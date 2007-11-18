@@ -20,12 +20,10 @@
 package org.apache.directory.server.ssl;
 
 
-import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ssl.support.SSLSocketFactory;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.mina.util.AvailablePortFinder;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

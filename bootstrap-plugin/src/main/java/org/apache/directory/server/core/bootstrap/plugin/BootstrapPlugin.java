@@ -46,7 +46,6 @@ import org.codehaus.plexus.util.FileUtils;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -21,20 +21,8 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.*;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
-
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
-import java.util.Hashtable;
 
 
 /**

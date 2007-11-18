@@ -20,7 +20,6 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import com.sun.org.apache.bcel.internal.classfile.Unknown;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.operation.Operation;
