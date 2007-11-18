@@ -1,4 +1,4 @@
-/*
+#*
  *  Licensed to the Apache Software Foundation (ASF) under one
  *  or more contributor license agreements.  See the NOTICE file
  *  distributed with this work for additional information
@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License. 
  *  
- */
+ *#
 package $package;
 
 
@@ -28,7 +28,7 @@ import org.apache.directory.server.schema.bootstrap.*;
 #end
 
 
-/**
+#**
  * A producer of $type objects for the $schema schema.  This code has been
  * automatically generated using schema files in the OpenLDAP format along with
  * the directory plugin for maven.  This has been done to facilitate
@@ -36,7 +36,7 @@ import org.apache.directory.server.schema.bootstrap.*;
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
- */
+ *#
 public class $classname extends AbstractBootstrapProducer
 {
     public $classname()
@@ -45,14 +45,14 @@ public class $classname extends AbstractBootstrapProducer
     }
 
 
-    // ------------------------------------------------------------------------
-    // BootstrapProducer Methods
-    // ------------------------------------------------------------------------
+    ## ------------------------------------------------------------------------
+    ## BootstrapProducer Methods
+    ## ------------------------------------------------------------------------
 
 
-    /**
+    #**
      * @see BootstrapProducer#produce(Registries, ProducerCallback)
-     */
+     *#
     public void produce( Registries registries, ProducerCallback cb )
         throws NamingException
     {
