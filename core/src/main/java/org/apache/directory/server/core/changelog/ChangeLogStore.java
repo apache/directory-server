@@ -24,7 +24,6 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.shared.ldap.ldif.Entry;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 

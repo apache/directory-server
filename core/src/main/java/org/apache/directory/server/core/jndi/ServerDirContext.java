@@ -150,11 +150,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( attrs != null )
         {
             modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
-            NamingEnumeration<Attribute> e = (NamingEnumeration<Attribute>)attrs.getAll();
+            NamingEnumeration<? extends Attribute> e = (NamingEnumeration<? extends Attribute>)attrs.getAll();
             
             while ( e.hasMore() )
             {
-                modItems.add( new ModificationItemImpl( modOp, ( Attribute ) e.next() ) );
+                modItems.add( new ModificationItemImpl( modOp, e.next() ) );
             }
         }
 
@@ -272,7 +272,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( Attributes ) attrs.clone();
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
@@ -300,7 +300,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( Attributes ) attrs.clone();
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
@@ -318,12 +319,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
                 }
             }
+            
             LdapDN target = buildTarget( name );
             doAddOperation( target, attributes );
         }
@@ -533,8 +536,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         // Handle simple filter expressions without multiple terms
         if ( matchingAttributes.size() == 1 )
         {
-            NamingEnumeration list = matchingAttributes.getAll();
-            Attribute attr = ( Attribute ) list.next();
+            NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
+            Attribute attr = list.next();
             list.close();
             
             if ( attr.size() == 1 )
@@ -563,12 +566,12 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attribute attr;
         SimpleNode node;
         BranchNode filter = new AndNode();
-        NamingEnumeration list = matchingAttributes.getAll();
+        NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
         while ( list.hasMore() )
         {
-            attr = ( Attribute ) list.next();
+            attr = list.next();
 
             /*
              * According to JNDI if an attribute in the matchingAttributes

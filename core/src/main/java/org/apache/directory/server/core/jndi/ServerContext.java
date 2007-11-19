@@ -236,14 +236,14 @@ public abstract class ServerContext implements EventContext
     /**
      * Used to encapsulate [de]marshalling of controls before and after list operations.
      */
-    protected NamingEnumeration doListOperation( LdapDN target ) throws NamingException
+    protected NamingEnumeration<SearchResult> doListOperation( LdapDN target ) throws NamingException
     {
         // setup the op context and populate with request controls
         ListOperationContext opCtx = new ListOperationContext( target );
         opCtx.addRequestControls( requestControls );
         
         // execute list operation
-        NamingEnumeration results = nexusProxy.list( opCtx );
+        NamingEnumeration<SearchResult> results = nexusProxy.list( opCtx );
 
         // clear the request controls and set the response controls 
         requestControls = EMPTY_CONTROLS;
@@ -633,7 +633,7 @@ public abstract class ServerContext implements EventContext
         }
         else
         {
-            for ( Iterator ii = rdn.iterator(); ii.hasNext(); /**/ )
+            for ( Iterator<AttributeTypeAndValue> ii = rdn.iterator(); ii.hasNext(); /**/ )
             {
                 AttributeTypeAndValue atav = ( AttributeTypeAndValue ) ii.next();
                 attributes.put( atav.getUpType(), atav.getValue() );
@@ -685,11 +685,11 @@ public abstract class ServerContext implements EventContext
             
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
                 
                 while ( list.hasMore() )
                 {
-                    attributes.put( ( Attribute ) list.next() );
+                    attributes.put( list.next() );
                 }
             }
 
@@ -707,10 +707,11 @@ public abstract class ServerContext implements EventContext
             Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
-                    attributes.put( ( Attribute ) list.next() );
+                    attributes.put( list.next() );
                 }
             }
 

@@ -115,7 +115,8 @@ public class AbstractTestCase extends TestCase
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
 
-        NamingEnumeration entries = null;
+        NamingEnumeration<SearchResult> entries = null;
+        
         try
         {
             entries = ctx.search( dn, "(objectClass=*)", ctls );
@@ -132,6 +133,7 @@ public class AbstractTestCase extends TestCase
                 SearchResult sr = ( SearchResult ) entries.nextElement();
                 deleteLDAPSubtree( sr.getNameInNamespace() );
             }
+            
             ctx.destroySubcontext( dn );
         }
     }
