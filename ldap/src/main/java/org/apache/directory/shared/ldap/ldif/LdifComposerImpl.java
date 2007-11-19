@@ -50,7 +50,7 @@ public class LdifComposerImpl implements LdifComposer
     {
         Object val = null;
         String key = null;
-        Iterator keys = attrHash.keySet().iterator();
+        Iterator<String> keys = attrHash.keySet().iterator();
         Iterator values = null;
         Collection valueCol = null;
         StringWriter sw = new StringWriter();
@@ -58,7 +58,7 @@ public class LdifComposerImpl implements LdifComposer
 
         while ( keys.hasNext() )
         {
-            key = ( String ) keys.next();
+            key = keys.next();
             valueCol = ( Collection ) attrHash.get( key );
             values = valueCol.iterator();
 

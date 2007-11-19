@@ -107,7 +107,8 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             this.timeOffline = codec.getTimeOffline();
             this.delay = codec.getDelay();
             super.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
-            List contexts = codec.getReplicatedContexts();
+            List<LdapURL> contexts = codec.getReplicatedContexts();
+            
             for ( int ii = 0; ii < contexts.size(); ii++ )
             {
                 replicatedContexts.addLdapUrl( contexts.get( ii ).toString() );
@@ -126,7 +127,8 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect codec = new org.apache.directory.shared.ldap.codec.extended.operations.GracefulDisconnect();
         codec.setTimeOffline( this.timeOffline );
         codec.setDelay( this.delay );
-        Iterator contexts = this.replicatedContexts.getLdapUrls().iterator();
+        Iterator<String> contexts = this.replicatedContexts.getLdapUrls().iterator();
+        
         while ( contexts.hasNext() )
         {
             String urlstr = ( String ) contexts.next();
@@ -198,10 +200,11 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             .getGracefulDisconnect();
         this.delay = codec.getDelay();
         this.timeOffline = codec.getTimeOffline();
-        List contexts = codec.getReplicatedContexts();
+        List<LdapURL> contexts = codec.getReplicatedContexts();
+        
         for ( int ii = 0; ii < contexts.size(); ii++ )
         {
-            LdapURL url = ( LdapURL ) contexts.get( ii );
+            LdapURL url = contexts.get( ii );
             replicatedContexts.addLdapUrl( url.toString() );
         }
 

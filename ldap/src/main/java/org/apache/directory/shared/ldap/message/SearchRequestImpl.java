@@ -429,7 +429,8 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
                 return false;
             }
 
-            Iterator list = attributes.iterator();
+            Iterator<String> list = attributes.iterator();
+            
             while ( list.hasNext() )
             {
                 if ( !req.getAttributes().contains( list.next() ) )
@@ -539,7 +540,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
 
         if ( attributes != null )
         {
-            Iterator it = attributes.iterator();
+            Iterator<String> it = attributes.iterator();
             
             while ( it.hasNext() )
             {
@@ -552,7 +553,7 @@ public class SearchRequestImpl extends AbstractAbandonableRequest implements Sea
                     sb.append( ", " );
                 }
                 
-                sb.append( '\'' ).append( (String)it.next() ).append( '\'' );
+                sb.append( '\'' ).append( it.next() ).append( '\'' );
             }
             
         }

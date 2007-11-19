@@ -143,7 +143,7 @@ public class AttributeImpl implements Attribute
         {
             upId = attribute.getID();
             
-            NamingEnumeration values = attribute.getAll();
+            NamingEnumeration<?> values = attribute.getAll();
             
             while ( values.hasMoreElements() )
             {
@@ -257,7 +257,7 @@ public class AttributeImpl implements Attribute
                 return AttributeUtils.equals( value, attrVal );
                 
             default :
-                Iterator values = list.iterator();
+                Iterator<Object> values = list.iterator();
             
                 while ( values.hasNext() )
                 {
@@ -732,7 +732,7 @@ public class AttributeImpl implements Attribute
             
             try
             {
-                NamingEnumeration attrValues = attr.getAll();
+                NamingEnumeration<?> attrValues = attr.getAll();
                 
                 while ( attrValues.hasMoreElements() )
                 {
@@ -829,7 +829,7 @@ public class AttributeImpl implements Attribute
             default :
                 boolean isFirst = true;
             
-                Iterator values = list.iterator();
+                Iterator<Object> values = list.iterator();
                 
                 while ( values.hasNext() )
                 {

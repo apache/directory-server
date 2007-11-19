@@ -67,7 +67,7 @@ public final class MessageDecoder implements ProviderDecoder
     public MessageDecoder( BinaryAttributeDetector binaryAttributeDetector ) throws MessageException
     {
         // We need to get the encoder class name
-        Hashtable providerEnv = Provider.getEnvironment();
+        Hashtable<Object, Object> providerEnv = Provider.getEnvironment();
         
         this.provider = Provider.getProvider( providerEnv );
         this.decoder = this.provider.getDecoder( binaryAttributeDetector );

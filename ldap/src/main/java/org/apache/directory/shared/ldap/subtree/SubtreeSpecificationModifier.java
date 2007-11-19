@@ -41,10 +41,10 @@ public class SubtreeSpecificationModifier
     private LdapDN base = new LdapDN();
 
     /** the set of subordinates entries and their subordinates to exclude */
-    private Set chopBefore = Collections.EMPTY_SET;
+    private Set<LdapDN> chopBefore = Collections.EMPTY_SET;
 
     /** the set of subordinates entries whose subordinates are to be excluded */
-    private Set chopAfter = Collections.EMPTY_SET;
+    private Set<LdapDN> chopAfter = Collections.EMPTY_SET;
 
     /** the minimum distance below base to start including entries */
     private int minBaseDistance = 0;
@@ -100,7 +100,7 @@ public class SubtreeSpecificationModifier
      *            the set of subordinates entries and their subordinates to
      *            exclude
      */
-    public void setChopBeforeExclusions( Set chopBefore )
+    public void setChopBeforeExclusions( Set<LdapDN> chopBefore )
     {
         this.chopBefore = chopBefore;
     }
@@ -114,7 +114,7 @@ public class SubtreeSpecificationModifier
      *            the set of subordinates entries whose subordinates are to be
      *            excluded
      */
-    public void setChopAfterExclusions( Set chopAfter )
+    public void setChopAfterExclusions( Set<LdapDN> chopAfter )
     {
         this.chopAfter = chopAfter;
     }

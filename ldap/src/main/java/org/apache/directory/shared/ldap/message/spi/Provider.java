@@ -74,7 +74,7 @@ public abstract class Provider
 
             if ( fqcn != null )
             {
-                Class mc;
+                Class<?> mc;
 
                 try
                 {
@@ -226,7 +226,7 @@ public abstract class Provider
      * @throws ProviderException
      *             if the provider cannot be found
      */
-    public static Provider getProvider( Hashtable env ) throws ProviderException
+    public static Provider getProvider( Hashtable<Object, Object> env ) throws ProviderException
     {
         Provider provider;
         String className = ( String ) env.get( BERLIB_PROVIDER );
@@ -242,7 +242,7 @@ public abstract class Provider
 
         try
         {
-            Class clazz = Class.forName( className );
+            Class<?> clazz = Class.forName( className );
             Method method = clazz.getMethod( "getProvider", (Class[])null );
             provider = ( Provider ) method.invoke( null, (Object[])null );
         }

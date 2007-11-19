@@ -207,13 +207,15 @@ public abstract class AbstractMessage implements Message
             return false;
         }
 
-        Map controls = msg.getControls();
+        Map<String, Control> controls = msg.getControls();
+        
         if ( controls.size() != this.controls.size() )
         {
             return false;
         }
 
-        Iterator list = this.controls.keySet().iterator();
+        Iterator<String> list = this.controls.keySet().iterator();
+        
         while ( list.hasNext() )
         {
             if ( !controls.containsKey( list.next() ) )

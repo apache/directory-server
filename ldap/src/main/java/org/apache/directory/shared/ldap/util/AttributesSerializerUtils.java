@@ -103,10 +103,10 @@ public class AttributesSerializerUtils
         
         try
         {
-            for ( NamingEnumeration ii = attrs.getAll(); ii.hasMore(); /**/)
+            for ( NamingEnumeration<? extends Attribute> ii = attrs.getAll(); ii.hasMore(); /**/)
             {
                 // get an attribute at a time
-                Attribute attr = ( Attribute ) ii.next();
+                Attribute attr = ii.next();
 
                 // write the length of the id and it's value
                 pos = AttributeSerializerUtils.write( buf, attr.getID(), pos );
@@ -119,7 +119,7 @@ public class AttributesSerializerUtils
                     pos++;
 
                     // write out each value to the buffer whatever type it may be
-                    for ( NamingEnumeration jj = attr.getAll(); jj.hasMore(); /**/)
+                    for ( NamingEnumeration<?> jj = attr.getAll(); jj.hasMore(); /**/)
                     {
                         String value = ( String ) jj.next();
                         pos = AttributeSerializerUtils.write( buf, value, pos );
@@ -131,7 +131,7 @@ public class AttributesSerializerUtils
                     pos++;
 
                     // write out each value to the buffer whatever type it may be
-                    for ( NamingEnumeration jj = attr.getAll(); jj.hasMore(); /**/)
+                    for ( NamingEnumeration<?> jj = attr.getAll(); jj.hasMore(); /**/)
                     {
                         byte[] value = ( byte[] ) jj.next();
                         pos = AttributeSerializerUtils.write( buf, value, pos );
@@ -162,7 +162,7 @@ public class AttributesSerializerUtils
 
         try
         {
-            for ( NamingEnumeration ii = attrs.getAll(); ii.hasMore(); /**/)
+            for ( NamingEnumeration<? extends Attribute> ii = attrs.getAll(); ii.hasMore(); /**/)
             {
                 Attribute attr = ( Attribute ) ii.next();
 

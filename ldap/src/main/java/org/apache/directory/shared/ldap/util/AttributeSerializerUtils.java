@@ -309,13 +309,14 @@ public class AttributeSerializerUtils
         {
             // write the type or is-binary field
             Object first = attr.get();
+            
             if ( first instanceof String )
             {
                 buf[pos] = STRING_TYPE;
                 pos++;
 
                 // write out each value to the buffer whatever type it may be
-                for ( NamingEnumeration ii = attr.getAll(); ii.hasMore(); /**/ )
+                for ( NamingEnumeration<?> ii = attr.getAll(); ii.hasMore(); /**/ )
                 {
                     String value = ( String ) ii.next();
                     pos = write( buf, value, pos );
@@ -327,7 +328,7 @@ public class AttributeSerializerUtils
                 pos++;
 
                 // write out each value to the buffer whatever type it may be
-                for ( NamingEnumeration ii = attr.getAll(); ii.hasMore(); /**/ )
+                for ( NamingEnumeration<?> ii = attr.getAll(); ii.hasMore(); /**/ )
                 {
                     byte[] value = ( byte[] ) ii.next();
                     pos = write( buf, value, pos );
@@ -354,9 +355,10 @@ public class AttributeSerializerUtils
         
         try
         {
-            for ( NamingEnumeration ii = attr.getAll(); ii.hasMore(); /**/ )
+            for ( NamingEnumeration<?> ii = attr.getAll(); ii.hasMore(); /**/ )
             {
                 Object value = ii.next();
+                
                 if ( value instanceof String )
                 {
                     size += ( ( String ) value ).length() << 1; // length of sting * 2

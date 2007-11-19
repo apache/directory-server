@@ -143,7 +143,7 @@ public class AddRequestTest extends TestCase
 
         assertTrue( expectedTypes.contains( attributeValue.getID().toLowerCase() ) );
 
-        NamingEnumeration values = attributeValue.getAll();
+        NamingEnumeration<?> values = attributeValue.getAll();
         HashSet vals = ( HashSet ) typesVals.get( attributeValue.getID().toLowerCase() );
 
         while ( values.hasMore() )
@@ -615,7 +615,7 @@ public class AddRequestTest extends TestCase
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
 
-        NamingEnumeration values = attributeValue.getAll();
+        NamingEnumeration<?> values = attributeValue.getAll();
 
         while ( values.hasMore() )
         {
@@ -707,7 +707,7 @@ public class AddRequestTest extends TestCase
 
         assertEquals( "l", attributeValue.getID().toLowerCase() );
 
-        NamingEnumeration values = attributeValue.getAll();
+        NamingEnumeration<?> values = attributeValue.getAll();
 
         while ( values.hasMore() )
         {

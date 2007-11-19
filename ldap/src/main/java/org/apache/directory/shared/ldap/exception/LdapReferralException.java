@@ -96,7 +96,7 @@ public class LdapReferralException extends ReferralException implements LdapExce
     }
 
 
-    public Context getReferralContext( Hashtable arg ) throws NamingException
+    public Context getReferralContext( Hashtable<?, ?> arg ) throws NamingException
     {
         throw new NotImplementedException();
     }

@@ -159,7 +159,7 @@ public class AttributesImpl implements Attributes
         }
         else if ( attributes instanceof BasicAttributes )
         {
-            NamingEnumeration attrs = attributes.getAll();
+            NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
             keyMap = new HashMap<String, AttributeImpl>();
 
             while ( attrs.hasMoreElements() )
@@ -175,11 +175,11 @@ public class AttributesImpl implements Attributes
             
             keyMap = new HashMap<String, AttributeImpl>( clone.keyMap.size() );
             
-            Iterator keys = clone.keyMap.keySet().iterator();
+            Iterator<String> keys = clone.keyMap.keySet().iterator();
     
             while ( keys.hasNext() )
             {
-                String key = (String)keys.next();
+                String key = keys.next();
                 AttributeImpl attribute = clone.keyMap.get( key );
                 keyMap.put( key, (AttributeImpl)attribute.clone() );
             }
@@ -358,12 +358,12 @@ public class AttributesImpl implements Attributes
     {
         String[] ids = new String[keyMap.size()];
         
-        Iterator values = keyMap.values().iterator();
+        Iterator<AttributeImpl> values = keyMap.values().iterator();
         int i = 0;
         
         while ( values.hasNext() )
         {
-            ids[i++] = ((AttributeImpl)values.next()).getID();
+            ids[i++] = values.next().getID();
         }
         
         return new ArrayNamingEnumeration<String>( ids );
@@ -435,7 +435,7 @@ public class AttributesImpl implements Attributes
              
             try
             {
-                NamingEnumeration values = attr.getAll();
+                NamingEnumeration<?> values = attr.getAll();
                  
                 while ( values.hasMore() )
                 {
@@ -492,11 +492,11 @@ public class AttributesImpl implements Attributes
     
             clone.keyMap = new HashMap<String, AttributeImpl>( keyMap.size() );
             
-            Iterator keys = keyMap.keySet().iterator();
+            Iterator<String> keys = keyMap.keySet().iterator();
     
             while ( keys.hasNext() )
             {
-                String key = (String)keys.next();
+                String key = keys.next();
                 clone.keyMap.put( key, (AttributeImpl)keyMap.get( key ).clone() );
             }
             
@@ -518,11 +518,11 @@ public class AttributesImpl implements Attributes
     {
         StringBuffer buf = new StringBuffer();
 
-        Iterator attrs = keyMap.values().iterator();
+        Iterator<AttributeImpl> attrs = keyMap.values().iterator();
         
         while ( attrs.hasNext() )
         {
-            Attribute attr = (AttributeImpl)attrs.next();
+            Attribute attr = attrs.next();
 
             buf.append( attr );
         }
@@ -565,11 +565,11 @@ public class AttributesImpl implements Attributes
             return false;
         }
 
-        NamingEnumeration list = attrs.getAll();
+        NamingEnumeration<? extends Attribute> list = attrs.getAll();
 
         while ( list.hasMoreElements() )
         {
-            Attribute attr = ( Attribute )list.nextElement();
+            Attribute attr = list.nextElement();
             Attribute myAttr = get( attr.getID() );
 
             if ( myAttr == null )

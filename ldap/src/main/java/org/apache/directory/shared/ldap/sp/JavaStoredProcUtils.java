@@ -57,7 +57,7 @@ public class JavaStoredProcUtils
      * @throws NamingException
      *           If an IO error occurs during reading the class file.
      */
-    public static byte[] getClassFileAsStream( Class clazz ) throws NamingException
+    public static byte[] getClassFileAsStream( Class<?> clazz ) throws NamingException
     {
         String fullClassName = clazz.getName();
         int lastDot = fullClassName.lastIndexOf( '.' );
@@ -93,7 +93,7 @@ public class JavaStoredProcUtils
      * @throws NamingException
      *           If an error occurs during creating the subcontext.
      */
-    public static void loadStoredProcedureClass( LdapContext ctx, Class clazz ) throws NamingException
+    public static void loadStoredProcedureClass( LdapContext ctx, Class<?> clazz ) throws NamingException
     {
         byte[] buf = getClassFileAsStream( clazz );
         String fullClassName = clazz.getName();
