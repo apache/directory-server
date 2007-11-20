@@ -270,9 +270,22 @@ public interface DirectoryService
     void setWorkingDirectory( File workingDirectory );
 
 
+    /**
+     * Sets the shutdown hook flag which controls whether or not this DirectoryService
+     * registers a JVM shutdown hook to flush caches and synchronize to disk safely.  This is
+     * enabled by default.
+     *
+     * @param shutdownHookEnabled true to enable the shutdown hook, false to disable
+     */
     void setShutdownHookEnabled( boolean shutdownHookEnabled );
 
 
+    /**
+     * Checks to see if this DirectoryService has registered a JVM shutdown hook
+     * to flush caches and synchronize to disk safely.  This is enabled by default.
+     *
+     * @return true if a shutdown hook is registered, false if it is not
+     */
     boolean isShutdownHookEnabled();
 
 
