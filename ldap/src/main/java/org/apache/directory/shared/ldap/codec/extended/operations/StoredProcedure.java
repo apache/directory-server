@@ -80,13 +80,25 @@ public class StoredProcedure extends AbstractAsn1Object
 
     public byte[] getProcedure()
     {
-        return procedure;
+        if ( procedure == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ procedure.length ];
+        System.arraycopy( procedure, 0, copy, 0, procedure.length );
+        return copy;
     }
 
 
     public void setProcedure( byte[] procedure )
     {
-        this.procedure = procedure;
+        if ( procedure != null ) {
+            this.procedure = new byte[ procedure.length ];
+            System.arraycopy( procedure, 0, this.procedure, 0, procedure.length );
+        } else {
+            this.procedure = null;
+        }
     }
 
 
@@ -126,25 +138,49 @@ public class StoredProcedure extends AbstractAsn1Object
 
         public byte[] getType()
         {
-            return type;
+            if ( type == null )
+            {
+                return null;
+            }
+
+            final byte[] copy = new byte[ type.length ];
+            System.arraycopy( type, 0, copy, 0, type.length );
+            return copy;
         }
 
 
         public void setType( byte[] type )
         {
-            this.type = type;
+            if ( type != null ) {
+                this.type = new byte[ type.length ];
+                System.arraycopy( type, 0, this.type, 0, type.length );
+            } else {
+                this.type = null;
+            }
         }
 
 
         public byte[] getValue()
         {
-            return value;
+            if ( value == null )
+            {
+                return null;
+            }
+
+            final byte[] copy = new byte[ value.length ];
+            System.arraycopy( value, 0, copy, 0, value.length );
+            return copy;
         }
 
 
         public void setValue( byte[] value )
         {
-            this.value = value;
+            if ( value != null ) {
+                this.value = new byte[ value.length ];
+                System.arraycopy( value, 0, this.value, 0, value.length );
+            } else {
+                this.value = null;
+            }
         }
     }
 

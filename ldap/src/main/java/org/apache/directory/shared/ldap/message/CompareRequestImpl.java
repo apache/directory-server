@@ -125,7 +125,12 @@ public class CompareRequestImpl extends AbstractAbandonableRequest implements Co
      */
     public void setAssertionValue( byte[] attrVal )
     {
-        this.attrVal = attrVal;
+        if ( attrVal != null ) {
+            this.attrVal = new byte[ attrVal.length ];
+            System.arraycopy( attrVal, 0, this.attrVal, 0, attrVal.length );
+        } else {
+            this.attrVal = null;
+        }
     }
 
 

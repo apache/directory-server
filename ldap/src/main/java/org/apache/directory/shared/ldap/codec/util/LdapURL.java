@@ -329,7 +329,13 @@ public class LdapURL
         }
 
         string = StringTools.utf8ToString( bytes );
-        this.bytes = bytes;
+
+        if ( bytes != null ) {
+            this.bytes = new byte[ bytes.length ];
+            System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
+        } else {
+            this.bytes = null;
+        }
 
         parse( string.toCharArray() );
     }

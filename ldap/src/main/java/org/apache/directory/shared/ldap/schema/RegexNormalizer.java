@@ -49,7 +49,12 @@ public class RegexNormalizer implements Normalizer
      */
     public RegexNormalizer(Pattern[] regexes)
     {
-        this.regexes = regexes;
+        if ( regexes != null ) {
+            this.regexes = new Pattern[ regexes.length ];
+            System.arraycopy( regexes, 0, this.regexes, 0, regexes.length );
+        } else {
+            this.regexes = null;
+        }
         matchers = new Matcher[regexes.length];
 
         for ( int i = 0; i < regexes.length; i++ )

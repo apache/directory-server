@@ -71,7 +71,12 @@ public class GracefulDisconnect extends ExtendedResponseImpl
     public GracefulDisconnect(byte[] value) throws DecoderException
     {
         super( 0, EXTENSION_OID );
-        this.value = value;
+        if ( value != null ) {
+            this.value = new byte[ value.length ];
+            System.arraycopy( value, 0, this.value, 0, value.length );
+        } else {
+            this.value = null;
+        }
         decodeValue();
     }
 
@@ -172,7 +177,10 @@ public class GracefulDisconnect extends ExtendedResponseImpl
         {
             encodeResponse();
         }
-        return value;
+
+        final byte[] copy = new byte[ value.length ];
+        System.arraycopy( value, 0, copy, 0, value.length );
+        return copy;
     }
 
 
@@ -208,7 +216,12 @@ public class GracefulDisconnect extends ExtendedResponseImpl
             replicatedContexts.addLdapUrl( url.toString() );
         }
 
-        this.value = value;
+        if ( value != null ) {
+            this.value = new byte[ value.length ];
+            System.arraycopy( value, 0, this.value, 0, value.length );
+        } else {
+            this.value = null;
+        }
     }
 
 

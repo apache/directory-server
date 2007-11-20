@@ -84,7 +84,14 @@ public class SaslCredentials extends LdapAuthentication
      */
     public byte[] getCredentials()
     {
-        return credentials;
+        if ( credentials == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ credentials.length ];
+        System.arraycopy( credentials, 0, copy, 0, credentials.length );
+        return copy;
     }
 
 
@@ -95,7 +102,12 @@ public class SaslCredentials extends LdapAuthentication
      */
     public void setCredentials( byte[] credentials )
     {
-        this.credentials = credentials;
+        if ( credentials != null ) {
+            this.credentials = new byte[ credentials.length ];
+            System.arraycopy( credentials, 0, this.credentials, 0, credentials.length );
+        } else {
+            this.credentials = null;
+        }
     }
 
 

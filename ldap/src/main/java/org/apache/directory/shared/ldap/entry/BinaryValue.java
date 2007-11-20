@@ -58,7 +58,12 @@ public class BinaryValue implements Value<byte[]>
      */
     public BinaryValue( byte[] wrapped )
     {
-        this.wrapped = wrapped;
+        if ( wrapped != null ) {
+            this.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
+        } else {
+            this.wrapped = null;
+        }
     }
 
 
@@ -87,7 +92,14 @@ public class BinaryValue implements Value<byte[]>
      */
     public byte[] get()
     {
-        return wrapped;
+        if ( wrapped == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ wrapped.length ];
+        System.arraycopy( wrapped, 0, copy, 0, wrapped.length );
+        return copy;
     }
 
 
@@ -96,10 +108,14 @@ public class BinaryValue implements Value<byte[]>
      *
      * @param src the source byte array to use as the wrapped value
      */
-    public void set( byte[] src )
+    public void set( byte[] wrapped )
     {
-        wrapped = new byte[ src.length];
-        System.arraycopy( src, 0, wrapped, 0, src.length );
+        if ( wrapped != null ) {
+            this.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
+        } else {
+            this.wrapped = null;
+        }
     }
 
 

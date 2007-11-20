@@ -112,7 +112,14 @@ public class ExtendedRequest extends LdapMessage
      */
     public byte[] getRequestValue()
     {
-        return requestValue;
+        if ( requestValue == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ requestValue.length ];
+        System.arraycopy( requestValue, 0, copy, 0, requestValue.length );
+        return copy;
     }
 
 
@@ -123,7 +130,12 @@ public class ExtendedRequest extends LdapMessage
      */
     public void setRequestValue( byte[] requestValue )
     {
-        this.requestValue = requestValue;
+        if ( requestValue != null ) {
+            this.requestValue = new byte[ requestValue.length ];
+            System.arraycopy( requestValue, 0, this.requestValue, 0, requestValue.length );
+        } else {
+            this.requestValue = null;
+        }
     }
 
 

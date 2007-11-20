@@ -100,7 +100,14 @@ public class LdifControl implements Control
      */
     public byte[] getEncodedValue()
     {
-        return value;
+        if ( value == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ value.length ];
+        System.arraycopy( value, 0, copy, 0, value.length );
+        return copy;
     }
 
     /**
@@ -111,7 +118,12 @@ public class LdifControl implements Control
      */
     public void setValue( byte[] value )
     {
-        this.value = value;
+        if ( value != null ) {
+            this.value = new byte[ value.length ];
+            System.arraycopy( value, 0, this.value, 0, value.length );
+        } else {
+            this.value = null;
+        }
     }
 
     public String toString()

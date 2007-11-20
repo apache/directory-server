@@ -69,7 +69,14 @@ public class SimpleAuthentication extends LdapAuthentication
      */
     public byte[] getSimple()
     {
-        return simple;
+        if ( simple == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ simple.length ];
+        System.arraycopy( simple, 0, copy, 0, simple.length );
+        return copy;
     }
 
 
@@ -80,7 +87,12 @@ public class SimpleAuthentication extends LdapAuthentication
      */
     public void setSimple( byte[] simple )
     {
-        this.simple = simple;
+        if ( simple != null ) {
+            this.simple = new byte[ simple.length ];
+            System.arraycopy( simple, 0, this.simple, 0, simple.length );
+        } else {
+            this.simple = null;
+        }
     }
 
 
