@@ -68,7 +68,6 @@ public class NtpServer extends DirectoryBackedService
 
     
     /**
-     * @org.apache.xbean.InitMethod
      * @throws IOException if there are issues binding
      */
     public void start() throws IOException
@@ -90,9 +89,6 @@ public class NtpServer extends DirectoryBackedService
     }
 
     
-    /**
-     * @org.apache.xbean.DestroyMethod
-     */
     public void stop()
     {
         if ( getDatagramAcceptor() != null )
@@ -104,5 +100,4 @@ public class NtpServer extends DirectoryBackedService
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
     }
-
 }

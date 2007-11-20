@@ -420,7 +420,6 @@ public class KdcServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.InitMethod
      * @throws IOException if we cannot bind to the sockets
      */
     public void start() throws IOException
@@ -444,9 +443,6 @@ public class KdcServer extends DirectoryBackedService
     }
 
     
-    /**
-     * @org.apache.xbean.DestroyMethod
-     */
     public void stop()
     {
         if ( getDatagramAcceptor() != null )

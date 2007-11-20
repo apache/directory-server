@@ -552,7 +552,6 @@ public class DefaultDirectoryService implements  DirectoryService
 
 
     /**
-     * @org.apache.xbean.InitMethod
      * @throws NamingException if the LDAP server cannot be started
      */
     public synchronized void startup() throws NamingException
@@ -611,9 +610,6 @@ public class DefaultDirectoryService implements  DirectoryService
     }
 
 
-    /**
-     * @org.apache.xbean.DestroyMethod
-     */
     public synchronized void shutdown() throws NamingException
     {
         if ( !started )

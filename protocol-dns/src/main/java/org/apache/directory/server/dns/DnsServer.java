@@ -65,7 +65,6 @@ public class DnsServer extends DirectoryBackedService
 
 
     /**
-     * @org.apache.xbean.InitMethod
      * @throws IOException if we cannot bind to the specified ports
      */
     public void start() throws IOException
@@ -87,9 +86,7 @@ public class DnsServer extends DirectoryBackedService
         }
     }
 
-    /**
-     * @org.apache.xbean.DestroyMethod
-     */
+
     public void stop() {
         if ( getDatagramAcceptor() != null )
         {

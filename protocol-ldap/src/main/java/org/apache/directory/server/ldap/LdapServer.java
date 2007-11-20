@@ -305,8 +305,8 @@ public class LdapServer extends DirectoryBackedService
         }
     }
 
+
     /**
-     * @org.apache.xbean.InitMethod
      * @throws IOException if we cannot bind to the specified port
      * @throws NamingException if the LDAP server cannot be started
      */
@@ -343,9 +343,6 @@ public class LdapServer extends DirectoryBackedService
     }
 
 
-    /**
-     * @org.apache.xbean.DestroyMethod
-     */
     public void stop()
     {
         try
