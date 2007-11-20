@@ -285,4 +285,131 @@ public class AttributeUtilsTest
             assertEquals( "apache", values.nextElement() );
         }
     }
+    
+    /**
+     * test the addition by modification of an attribute in an empty entry.
+     * 
+     * As we are replacing a non existing attribute, it should be added.
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testApplyModifyModificationFromEmptyEntry() throws NamingException
+    {
+        Attributes entry = new AttributesImpl();
+        Attribute attr = new AttributeImpl( "cn", "test" );
+        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr );
+        AttributeUtils.applyModification( entry, modification );
+        assertNotNull( entry.get( "cn" ) );
+        assertEquals( 1, entry.size() );
+    }
+
+    
+    /**
+     * Test the replacement by modification of an attribute in an empty entry.
+     * 
+     * As we are replacing a non existing attribute, it should not change the entry.
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testApplyModifyEmptyModificationFromEmptyEntry() throws NamingException
+    {
+        Attributes entry = new AttributesImpl();
+        Attribute attr = new AttributeImpl( "cn" );
+        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, attr );
+        AttributeUtils.applyModification( entry, modification );
+        assertNull( entry.get( "cn" ) );
+        assertEquals( 0, entry.size() );
+    }
+
+
+    /**
+     * Test the replacement by modification of an attribute in an empty entry.
+     * 
+     * As we are replacing a non existing attribute, it should not change the entry.
+     *
+     * @throws NamingException
+     */
+    @Test
+    public void testApplyModifyAttributeModification() throws NamingException
+    {
+        Attributes entry = new AttributesImpl();
+        Attribute cn = new AttributeImpl( "cn", "test" );
+        
+        entry.put( cn );
+
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        
+        entry.put( ou );
+        
+        Attribute newOu = new AttributeImpl( "ou" );
+        newOu.add( "Big Company" );
+        newOu.add( "directory" );
+        
+        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, newOu );
+        
+        AttributeUtils.applyModification( entry, modification );
+        
+        assertEquals( 2, entry.size() );
+        
+        assertNotNull( entry.get( "cn" ) );
+        assertNotNull( entry.get( "ou" ) );
+        
+        Attribute modifiedAttr = entry.get( "ou" );
+        
+        NamingEnumeration<?> values = modifiedAttr.getAll();
+        
+        assertTrue( values.hasMoreElements() );
+        
+        Set<String> expectedValues = new HashSet<String>();
+        expectedValues.add( "Big Company" );
+        expectedValues.add( "directory" );
+        
+        while ( values.hasMoreElements() )
+        {
+            String value = (String)values.nextElement();
+            
+            assertTrue( expectedValues.contains( value ) );
+            
+            expectedValues.remove( value );
+        }
+        
+        assertEquals( 0, expectedValues.size() );
+    }
+
+
+    /**
+     * Test the removing by modification of an existing attribute in an .
+     * 
+     * @throws NamingException
+     */
+    @Test
+    public void testApplyModifyModificationRemoveAttribute() throws NamingException
+    {
+        Attributes entry = new AttributesImpl();
+        Attribute cn = new AttributeImpl( "cn", "test" );
+        
+        entry.put( cn );
+
+        Attribute ou = new AttributeImpl( "ou" );
+        ou.add( "apache" );
+        ou.add( "acme corp" );
+        
+        entry.put( ou );
+        
+        Attribute newOu = new AttributeImpl( "ou" );
+        
+        ModificationItem modification = new ModificationItemImpl(DirContext.REPLACE_ATTRIBUTE, newOu );
+        
+        AttributeUtils.applyModification( entry, modification );
+        
+        assertEquals( 1, entry.size() );
+        
+        assertNotNull( entry.get( "cn" ) );
+        assertNull( entry.get( "ou" ) );
+    }
 }
+
