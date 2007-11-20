@@ -167,6 +167,11 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
         {
             return false;
         }
+        
+        if ( !( obj instanceof ExtendedRequest ) )
+        {
+            return false;
+        }
 
         ExtendedRequest req = ( ExtendedRequest ) obj;
         if ( oid != null && req.getOid() == null )

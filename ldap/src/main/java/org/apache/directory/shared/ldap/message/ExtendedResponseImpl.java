@@ -138,6 +138,11 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
         {
             return false;
         }
+        
+        if ( !( obj instanceof ExtendedResponse ) )
+        {
+            return false;
+        }
 
         ExtendedResponse resp = ( ExtendedResponse ) obj;
 
