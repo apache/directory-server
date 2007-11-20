@@ -376,7 +376,7 @@ public class SearchRequestMatchingRuleAssertionTest extends TestCase
         ExtensibleMatchFilter extensibleMatchFilter = ( ExtensibleMatchFilter ) sr.getFilter();
         assertNotNull( extensibleMatchFilter );
 
-        assertEquals( "test", extensibleMatchFilter.getMatchingRule().toString() );
+        assertEquals( "test", extensibleMatchFilter.getMatchingRule() );
         assertNull( extensibleMatchFilter.getType() );
         assertEquals( "", extensibleMatchFilter.getMatchValue().toString() );
         assertFalse( extensibleMatchFilter.isDnAttributes() );
