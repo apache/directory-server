@@ -20,6 +20,7 @@
 package org.apache.directory.shared.ldap.name;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
@@ -150,7 +151,7 @@ public class LdapDnParser implements NameParser
 
                    if ( pos.start != dn.length )
                    {
-                       throw new InvalidNameException( "Bad DN : " + dn );
+                       throw new InvalidNameException( "Bad DN : " + Arrays.toString( dn ) );
                    }
                    else
                    {
@@ -162,11 +163,11 @@ public class LdapDnParser implements NameParser
            }
            while ( RdnParser.parse( dn, pos, rdn ) != DNUtils.PARSING_ERROR );
            
-           throw new InvalidNameException( "Bad DN : " + dn );
+           throw new InvalidNameException( "Bad DN : " + Arrays.toString( dn ) );
        }
        else
        {
-           throw new InvalidNameException( "Bad DN : " + dn );
+           throw new InvalidNameException( "Bad DN : " + Arrays.toString( dn ) );
        }
    }
 
