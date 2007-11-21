@@ -20,13 +20,13 @@
 package org.apache.directory.server.ntp;
 
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import org.apache.directory.server.ntp.protocol.NtpProtocolHandler;
-import org.apache.directory.server.protocol.shared.DirectoryBackedService;
+import org.apache.directory.server.protocol.shared.AbstractProtocolService;
 import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
 import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 
 /**
@@ -36,10 +36,8 @@ import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
  * @version $Rev$, $Date$
  * @org.apache.xbean.XBean
  */
-public class NtpServer extends DirectoryBackedService
+public class NtpServer extends AbstractProtocolService
 {
-    private static final long serialVersionUID = 2961795205765175775L;
-
     /**
      * The default IP port.
      */
@@ -95,6 +93,7 @@ public class NtpServer extends DirectoryBackedService
         {
             getDatagramAcceptor().unbind( new InetSocketAddress( getIpPort() ));
         }
+        
         if ( getSocketAcceptor() != null )
         {
             getSocketAcceptor().unbind( new InetSocketAddress( getIpPort() ));
