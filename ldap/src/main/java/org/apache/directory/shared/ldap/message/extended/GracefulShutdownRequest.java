@@ -95,7 +95,8 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         try
         {
             GracefulShutdown gs = ( GracefulShutdown ) decoder.decode( payload );
-            if ( payload != null ) {
+            if ( payload != null )
+            {
                 this.payload = new byte[ payload.length ];
                 System.arraycopy( payload, 0, this.payload, 0, payload.length );
             } else {

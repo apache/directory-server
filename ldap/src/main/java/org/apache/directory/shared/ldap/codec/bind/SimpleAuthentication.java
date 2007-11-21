@@ -87,7 +87,8 @@ public class SimpleAuthentication extends LdapAuthentication
      */
     public void setSimple( byte[] simple )
     {
-        if ( simple != null ) {
+        if ( simple != null )
+        {
             this.simple = new byte[ simple.length ];
             System.arraycopy( simple, 0, this.simple, 0, simple.length );
         } else {

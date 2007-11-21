@@ -118,7 +118,8 @@ public class LdifControl implements Control
      */
     public void setValue( byte[] value )
     {
-        if ( value != null ) {
+        if ( value != null )
+        {
             this.value = new byte[ value.length ];
             System.arraycopy( value, 0, this.value, 0, value.length );
         } else {

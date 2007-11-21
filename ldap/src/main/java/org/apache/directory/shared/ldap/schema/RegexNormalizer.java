@@ -49,7 +49,8 @@ public class RegexNormalizer implements Normalizer
      */
     public RegexNormalizer(Pattern[] regexes)
     {
-        if ( regexes != null ) {
+        if ( regexes != null )
+        {
             this.regexes = new Pattern[ regexes.length ];
             System.arraycopy( regexes, 0, this.regexes, 0, regexes.length );
         } else {

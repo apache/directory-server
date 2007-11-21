@@ -140,7 +140,8 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      */
     public void setCredentials( byte[] credentials )
     {
-        if ( credentials != null ) {
+        if ( credentials != null )
+        {
             this.credentials = new byte[ credentials.length ];
             System.arraycopy( credentials, 0, this.credentials, 0, credentials.length );
         } else {

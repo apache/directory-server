@@ -89,7 +89,8 @@ public class BindResponseImpl extends AbstractResultResponse implements BindResp
      */
     public void setServerSaslCreds( byte[] serverSaslCreds )
     {
-        if ( serverSaslCreds != null ) {
+        if ( serverSaslCreds != null )
+        {
             this.serverSaslCreds = new byte[ serverSaslCreds.length ];
             System.arraycopy( serverSaslCreds, 0, this.serverSaslCreds, 0, serverSaslCreds.length );
         } else {

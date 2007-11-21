@@ -330,7 +330,8 @@ public class LdapURL
 
         string = StringTools.utf8ToString( bytes );
 
-        if ( bytes != null ) {
+        if ( bytes != null )
+        {
             this.bytes = new byte[ bytes.length ];
             System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
         } else {

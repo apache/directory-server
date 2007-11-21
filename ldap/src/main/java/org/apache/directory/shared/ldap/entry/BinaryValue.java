@@ -58,7 +58,8 @@ public class BinaryValue implements Value<byte[]>
      */
     public BinaryValue( byte[] wrapped )
     {
-        if ( wrapped != null ) {
+        if ( wrapped != null )
+        {
             this.wrapped = new byte[ wrapped.length ];
             System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
         } else {
@@ -110,7 +111,8 @@ public class BinaryValue implements Value<byte[]>
      */
     public void set( byte[] wrapped )
     {
-        if ( wrapped != null ) {
+        if ( wrapped != null )
+        {
             this.wrapped = new byte[ wrapped.length ];
             System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
         } else {

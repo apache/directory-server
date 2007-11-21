@@ -119,7 +119,8 @@ public class Control extends AbstractAsn1Object
      */
     public void setEncodedValue( byte[] encodedValue )
     {
-        if ( encodedValue != null ) {
+        if ( encodedValue != null )
+        {
             this.encodedValue = new byte[ encodedValue.length ];
             System.arraycopy( encodedValue, 0, this.encodedValue, 0, encodedValue.length );
         } else {

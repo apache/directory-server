@@ -92,7 +92,8 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
      */
     public void setResponse( byte[] value )
     {
-        if ( value != null ) {
+        if ( value != null )
+        {
             this.value = new byte[ value.length ];
             System.arraycopy( value, 0, this.value, 0, value.length );
         } else {

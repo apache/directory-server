@@ -93,7 +93,8 @@ public class StoredProcedure extends AbstractAsn1Object
 
     public void setProcedure( byte[] procedure )
     {
-        if ( procedure != null ) {
+        if ( procedure != null )
+        {
             this.procedure = new byte[ procedure.length ];
             System.arraycopy( procedure, 0, this.procedure, 0, procedure.length );
         } else {
@@ -151,7 +152,8 @@ public class StoredProcedure extends AbstractAsn1Object
 
         public void setType( byte[] type )
         {
-            if ( type != null ) {
+            if ( type != null )
+            {
                 this.type = new byte[ type.length ];
                 System.arraycopy( type, 0, this.type, 0, type.length );
             } else {
@@ -175,7 +177,8 @@ public class StoredProcedure extends AbstractAsn1Object
 
         public void setValue( byte[] value )
         {
-            if ( value != null ) {
+            if ( value != null )
+            {
                 this.value = new byte[ value.length ];
                 System.arraycopy( value, 0, this.value, 0, value.length );
             } else {
