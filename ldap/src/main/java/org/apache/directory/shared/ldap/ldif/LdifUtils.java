@@ -586,8 +586,6 @@ public class LdifUtils
         // the reversed modification
         for ( ModificationItem modification : forwardModifications )
         {
-            AttributeUtils.applyModification( clonedEntry, modification );
-
             switch ( modification.getModificationOp() )
             {
                 case DirContext.ADD_ATTRIBUTE :
@@ -608,6 +606,12 @@ public class LdifUtils
                     mod = modification.getAttribute();
                     
                     previous = modifiedEntry.get( mod.getID() );
+                    
+                    if ( previous == null )
+                    {
+                        // Nothing to do if the previous attribute didn't exist
+                        continue;
+                    }
                     
                     if ( mod.get() == null )
                     {
@@ -644,6 +648,9 @@ public class LdifUtils
                     reverseModifications.add( 0, reverseModification );
                     break;
             }
+            
+            AttributeUtils.applyModification( clonedEntry, modification );
+            
         }
         
         // Special case if we don't have any reverse modifications
