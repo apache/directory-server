@@ -42,8 +42,12 @@ import org.apache.directory.shared.ldap.util.StringTools;
 /**
  * A entry to be populated by an ldif parser.
  * 
- * We will have different kind of entries : - added entries - deleted entries -
- * modified entries - RDN modified entries - DN modified entries
+ * We will have different kind of entries : 
+ * - added entries 
+ * - deleted entries 
+ * - modified entries 
+ * - RDN modified entries 
+ * - DN modified entries
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
