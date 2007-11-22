@@ -308,7 +308,7 @@ public class AttributeImpl implements Attribute
                 return true;
 
             case 1:
-                exists = value.equals( attrVal );
+                exists = contains( attrVal );
 
                 if ( exists )
                 {
@@ -326,7 +326,7 @@ public class AttributeImpl implements Attribute
                 }
 
             default:
-                exists = list.contains( attrVal );
+                exists = contains( attrVal );
 
                 list.add( attrVal );
                 size++;
@@ -351,67 +351,40 @@ public class AttributeImpl implements Attribute
                 return false;
 
             case 1:
-                if ( attrVal instanceof byte[] )
+                if ( contains( attrVal ) )
                 {
-                    if ( value instanceof byte[] )
-                    {
-                        byte[] valByte = ( byte[] ) value;
-
-                        if ( Arrays.equals( valByte, ( byte[] ) attrVal ) )
-                        {
-                            value = null;
-                            size--;
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    value = null;
+                    size--;
+                    return true;
                 }
                 else
                 {
-                    if ( value.equals( attrVal ) )
-                    {
-                        value = null;
-                        size--;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
             case 2:
-                if ( attrVal instanceof byte[] )
+                if ( contains( attrVal ) )
                 {
-                    for ( Object val : list )
+                    if ( attrVal instanceof byte[] )
                     {
-                        if ( val instanceof byte[] )
+                        for ( Object val : list )
                         {
-                            byte[] valByte = ( byte[] ) val;
-
-                            if ( Arrays.equals( valByte, ( byte[] ) attrVal ) )
+                            if ( val instanceof byte[] )
                             {
-                                list.remove( valByte );
-                                value = list.get( 0 );
-                                size = 1;
-                                list = null;
-                                return true;
+                                if ( Arrays.equals( ( byte[] )val, ( byte[] ) attrVal ) )
+                                {
+                                    list.remove( val );
+                                    value = list.get( 0 );
+                                    size = 1;
+                                    list = null;
+                                    return true;
+                                }
                             }
                         }
+    
+                        return false;
                     }
-
-                    return false;
-                }
-                else
-                {
-                    if ( list.contains( attrVal ) )
+                    else
                     {
                         list.remove( attrVal );
                         value = list.get( 0 );
@@ -419,44 +392,42 @@ public class AttributeImpl implements Attribute
                         list = null;
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-            default:
-                if ( attrVal instanceof byte[] )
-                {
-                    for ( Object val : list )
-                    {
-                        if ( val instanceof byte[] )
-                        {
-                            byte[] valByte = ( byte[] ) val;
-
-                            if ( Arrays.equals( valByte, ( byte[] ) attrVal ) )
-                            {
-                                list.remove( attrVal );
-                                size--;
-                                return true;
-                            }
-                        }
-                    }
-
-                    return false;
                 }
                 else
                 {
-                    if ( list.contains( attrVal ) )
+                    return false;
+                }
+
+            default:
+                if ( contains( attrVal ) )
+                {
+                    if ( attrVal instanceof byte[] )
+                    {
+                        for ( Object val : list )
+                        {
+                            if ( val instanceof byte[] )
+                            {
+                                if ( Arrays.equals( ( byte[] ) val, ( byte[] ) attrVal ) )
+                                {
+                                    list.remove( val );
+                                    size--;
+                                    return true;
+                                }
+                            }
+                        }
+    
+                        return false;
+                    }
+                    else
                     {
                         list.remove( attrVal );
                         size--;
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
+                }
+                else
+                {
+                    return false;
                 }
         }
     }
