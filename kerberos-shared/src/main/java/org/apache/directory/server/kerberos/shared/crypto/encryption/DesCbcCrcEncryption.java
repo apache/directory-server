@@ -123,10 +123,9 @@ public class DesCbcCrcEncryption extends EncryptionEngine
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] zeroedChecksum = new byte[getChecksumLength()];
-        byte[] paddedPlainText = padString( plainText );
-        byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, paddedPlainText ) );
-        byte[] checksumBytes = calculateIntegrity( dataBytes, null, usage );
+        byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, plainText ) );
         byte[] paddedDataBytes = padString( dataBytes );
+        byte[] checksumBytes = calculateIntegrity( paddedDataBytes, null, usage );
 
         // lay the checksum into the ciphertext
         for ( int i = getConfounderLength(); i < getConfounderLength() + getChecksumLength(); i++ )
