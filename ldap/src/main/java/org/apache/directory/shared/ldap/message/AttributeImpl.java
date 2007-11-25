@@ -686,19 +686,46 @@ public class AttributeImpl implements Attribute
                 return oldValue;
         }
     }
+    
+    
+    /**
+     * Compute the hashcode for this attribute. It's a combinaison
+     * of the ID and all the values' hashcodes.
+     * 
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 17;
+        
+        hash += hash*37 + StringTools.toLowerCase( getID() ).hashCode();
+        
+        if ( ( list != null ) && ( list.size() != 0 ) )
+        {
+            for ( Object value:list )
+            {
+                if ( value instanceof byte[] )
+                {
+                    hash += hash*37 + Arrays.hashCode( (byte[])value );
+                }
+                else 
+                {
+                    hash += hash*37 + value.hashCode();
+                }
+            }
+        }
+        
+        return hash;
+    }
 
 
     /**
-     * Checks for equality between this Attribute instance and another. The
-     * lockable properties are not factored into the equality semantics and
-     * neither is the Attribute implementation. The Attribute ID's are compared
-     * with regard to case and value order is only considered if the Attribute
-     * arguement is ordered itself.
+     * Checks for equality between this Attribute instance and another. The 
+     * Attribute ID's aren't compared with regard to case.
      * 
      * TODO start looking at comparing syntaxes to determine if attributes are
      *       really equal
-     * @param obj
-     *            the Attribute to test for equality
+     * @param obj the Attribute to test for equality
      * @return true if the obj is an Attribute and equals this Attribute false
      *         otherwise
      */
@@ -716,7 +743,7 @@ public class AttributeImpl implements Attribute
 
         Attribute attr = ( Attribute ) obj;
 
-        if ( !upId.equals( attr.getID() ) )
+        if ( !StringTools.toLowerCase( upId ).equals( StringTools.toLowerCase( attr.getID() ) ) )
         {
             return false;
         }
