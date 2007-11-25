@@ -177,4 +177,52 @@ public class ModificationItemImpl extends ModificationItem
         
         return sb.toString();
     }
+    
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 37;
+        
+        hash += hash*17 + getModificationOp();
+        hash += hash*17 + getAttribute().hashCode();
+        return hash;
+    }
+    
+    
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        // Basic equals checks
+        if ( this == o )
+        {
+            return true;
+        }
+        
+        if ( o == null )
+        {
+            return false;
+        }
+        
+        if ( ! (o instanceof ModificationItemImpl ) )
+        {
+            return false;
+        }
+        
+        ModificationItemImpl mod = (ModificationItemImpl)o;
+        
+        // Now, compares the modification content
+        // First, the modification type
+        if ( this.getModificationOp() != mod.getModificationOp() )
+        {
+            return false;
+        }
+        
+        // then the attribute
+        return this.getAttribute().equals( mod.getAttribute() );
+    }
 }
