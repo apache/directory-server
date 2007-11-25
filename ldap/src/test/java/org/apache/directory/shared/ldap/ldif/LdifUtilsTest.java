@@ -22,11 +22,22 @@ package org.apache.directory.shared.ldap.ldif;
 import org.apache.directory.shared.ldap.message.*;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -951,7 +962,8 @@ public class LdifUtilsTest
      *  dn: cn=test, ou=system
      *  changetype: modify
      *  replace: ou
-     *  ou: BigCompany
+     *  ou: apache
+     *  ou: acme corp
      *  -
      *  replace: l
      *  l: USA
@@ -970,16 +982,84 @@ public class LdifUtilsTest
     @Test
     public void testReverseMultipleModifications() throws NamingException
     {
-        // Create a 
-        ModifyRequest modify = new ModifyRequestImpl( 1 );
+        String initialEntryLdif = 
+        		"dn: cn=test, ou=system\n" + 
+        		"objectclass: top\n" + 
+        		"objectclass: person\n" + 
+        		"cn: test\n" + 
+        		"sn: joe doe\n" + 
+        		"l: USA\n" + 
+        		"ou: apache\n" + 
+        		"ou: acme corp\n"; 
         
+        LdifReader reader = new LdifReader();
+        List<Entry> entries = reader.parseLdif( initialEntryLdif );
+        
+        Entry initialEntry = entries.get( 0 );
+ 
+        // We will :
+        //   - add an 'ou' value 'BigCompany inc.'
+        //   - delete the 'l' attribute
+        //   - add the 'l=FR' attribute
+        //   - replace the 'l=FR' by a 'l=USA' attribute
+        //   - replace the 'ou' attribute with 'apache' value.
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         
-        ModificationItem mod = new ModificationItemImpl( 
-            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou" ) );
+        List<ModificationItemImpl> modifications = new ArrayList<ModificationItemImpl>();
 
-        modify.setName( dn );
-        modify.addModification( mod );
+        // First, inject the 'ou'
         
+        ModificationItemImpl mod = new ModificationItemImpl( 
+            DirContext.ADD_ATTRIBUTE, new AttributeImpl( "ou", "BigCompany inc." ) );
+        modifications.add( mod );
+
+        // Remove the 'l'
+        mod = new ModificationItemImpl(
+            DirContext.REMOVE_ATTRIBUTE, new AttributeImpl( "l" ) );
+        modifications.add( mod );
+        
+        // Add 'l=FR'
+        mod = new ModificationItemImpl( 
+            DirContext.ADD_ATTRIBUTE, new AttributeImpl( "l", "FR" ) );
+        modifications.add( mod );
+
+        // Replace it with 'l=USA'
+        mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "l", "USA" ) );
+        modifications.add( mod );
+
+        // Replace the ou value
+        mod = new ModificationItemImpl( 
+            DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "ou", "apache" ) );
+        modifications.add( mod );
+        
+        Entry reversedEntry = LdifUtils.reverseModify( dn, modifications, initialEntry.getAttributes() );
+
+        String expectedEntryLdif = 
+            "dn: cn=test, ou=system\n" +
+            "changetype: modify\n" +
+            "replace: ou\n" +
+            "ou: apache\n" +
+            "ou: acme corp\n" +
+            "-\n" +
+            "replace: l\n" +
+            "l: USA\n" +
+            "-\n" +
+            "delete: l\n" +
+            "l: FR\n" +
+            "-\n" +
+            "add: l\n" +
+            "l: USA\n" +
+            "-\n" +
+            "delete: ou\n" + 
+            "ou: BigCompany inc.\n" +
+            "-\n\n";
+    
+        reader = new LdifReader();
+        entries = reader.parseLdif( expectedEntryLdif );
+    
+        Entry expectedEntry = entries.get( 0 );
+        
+        assertEquals( expectedEntry, reversedEntry );
     }
 }

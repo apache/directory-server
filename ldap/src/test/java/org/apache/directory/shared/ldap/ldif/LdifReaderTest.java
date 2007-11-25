@@ -242,7 +242,8 @@ public class LdifReaderTest extends TestCase
                 "dn: dc=example,dc=com\n" +
                 "changetype: modify\n" +
                 "add: administrativeRole\n" +
-                "administrativeRole: accessControlSpecificArea";
+                "administrativeRole: accessControlSpecificArea\n" +
+                "-";
 
         testReaderAttrIdCaseInsensitive( ldif );
         // test that attr id comparisons are case insensitive and that the version in the add: line is used.
@@ -252,7 +253,8 @@ public class LdifReaderTest extends TestCase
                 "dn: dc=example,dc=com\n" +
                 "changetype: modify\n" +
                 "add: administrativeRole\n" +
-                "administrativerole: accessControlSpecificArea";
+                "administrativerole: accessControlSpecificArea\n" +
+                "-";
 
         testReaderAttrIdCaseInsensitive( ldif );
     }
@@ -1465,37 +1467,7 @@ public class LdifReaderTest extends TestCase
         }
     }
 
-    public void testLdifParserChangeModifyMultiAttrs() throws Exception
-    {
-        String ldif = 
-            "version: 1\n" + 
-            "dn: ou=Product Development, dc=airius, dc=com\n" + 
-            "changetype: modify\n" +
-            "add: postaladdress\n" +
-            "postaladdress: 123 Anystreet $ Sunnyvale, CA $ 94086\n" + 
-            "-\n" +
-            "delete: postaladdress\n" +
-            "-\n" + 
-            "replace: telephonenumber\n" +
-            "telephonenumber: +1 408 555 1234\n" +
-            "telephonenumber: +1 408 555 5678\n" +
-            "-\n" +
-            "delete: facsimiletelephonenumber\n" +
-            "facsimiletelephonenumber: +1 408 555 9876\n";
-
-        LdifReader reader = new LdifReader();
-
-        try
-        {
-            reader.parseLdif( ldif );
-            fail();
-        }
-        catch (NamingException ne)
-        {
-            assertTrue( true );
-        }
-    }
-
+    
     public void testLdifReaderDirServer() throws NamingException, Exception
     {
         String ldif = 
