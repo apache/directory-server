@@ -959,7 +959,8 @@ public class LdifReader implements Iterator<Entry>
     {
         int state = MOD_SPEC;
         String modified = null;
-        int modification = 0;
+        int modificationType = 0;
+        Attribute attribute = null;
 
         // The following flag is used to deal with empty modifications
         boolean isEmptyValue = true;
@@ -981,7 +982,12 @@ public class LdifReader implements Iterator<Entry>
                     if ( isEmptyValue )
                     {
                         // Update the entry
-                        entry.addModificationItem( modification, modified, null );
+                        entry.addModificationItem( modificationType, modified, null );
+                    }
+                    else
+                    {
+                        // Update the entry with the attribute
+                        entry.addModificationItem( modificationType, attribute );
                     }
 
                     state = MOD_SPEC;
@@ -998,7 +1004,8 @@ public class LdifReader implements Iterator<Entry>
                 }
 
                 modified = StringTools.trim( line.substring( "add:".length() ) );
-                modification = DirContext.ADD_ATTRIBUTE;
+                modificationType = DirContext.ADD_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC;
             }
@@ -1011,7 +1018,8 @@ public class LdifReader implements Iterator<Entry>
                 }
 
                 modified = StringTools.trim( line.substring( "delete:".length() ) );
-                modification = DirContext.REMOVE_ATTRIBUTE;
+                modificationType = DirContext.REMOVE_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1024,7 +1032,8 @@ public class LdifReader implements Iterator<Entry>
                 }
 
                 modified = StringTools.trim( line.substring( "replace:".length() ) );
-                modification = DirContext.REPLACE_ATTRIBUTE;
+                modificationType = DirContext.REPLACE_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1056,8 +1065,8 @@ public class LdifReader implements Iterator<Entry>
 
                 Object attributeValue = parseValue( line, colonIndex );
 
-                // Update the entry
-                entry.addModificationItem( modification, modified, attributeValue );
+                attribute.add( attributeValue );
+                
                 isEmptyValue = false;
 
                 state = ATTRVAL_SPEC_OR_SEP;
