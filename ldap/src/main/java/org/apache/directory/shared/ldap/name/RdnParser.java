@@ -586,6 +586,12 @@ public class RdnParser
      */
     private static boolean isValidAttributeValue( byte[] bytes, Position pos )
     {
+        if( bytes.length <= pos.start )
+        {
+            // no attribute value
+            return false;
+        }
+
         byte c = bytes[pos.start];
 
         if ( c == '#' )

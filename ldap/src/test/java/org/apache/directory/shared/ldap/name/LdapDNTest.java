@@ -2819,4 +2819,24 @@ public class LdapDNTest extends TestCase
        LdapDN dn = new LdapDN( "uID=kevin" );
        assertEquals( "uID", dn.getRdn().getUpType() );
    }
+
+
+    /**
+     * Tests the LdapDN.isValid() method.
+     */
+    public void testIsValid()
+    {
+        assertTrue( LdapDN.isValid( "" ) );
+
+        assertFalse( LdapDN.isValid( "a" ) );
+        assertFalse( LdapDN.isValid( "a " ) );
+
+        assertFalse( LdapDN.isValid( "a=" ) );
+        assertFalse( LdapDN.isValid( "a= " ) );
+
+        assertFalse( LdapDN.isValid( "=" ) );
+        assertFalse( LdapDN.isValid( " = " ) );
+        assertFalse( LdapDN.isValid( " = a" ) );
+    }
+
 }
