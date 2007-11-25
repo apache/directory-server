@@ -20,12 +20,12 @@
 
 package org.apache.directory.shared.ldap.ldif;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -36,6 +36,8 @@ import javax.naming.ldap.Control;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
 
 
@@ -74,7 +76,7 @@ public class Entry implements Cloneable
     private boolean deleteOldRdn;
 
     /** attributes of the entry */
-    private Attributes attributeList;
+    private Attributes attributes;
 
     
     /** The control */
@@ -89,7 +91,7 @@ public class Entry implements Cloneable
         modificationList = new LinkedList<ModificationItemImpl>();
         modificationItems = new HashMap<String, ModificationItemImpl>();
         dn = null;
-        attributeList = new AttributesImpl( true );
+        attributes = new AttributesImpl( true );
         control = null;
     }
 
@@ -174,24 +176,9 @@ public class Entry implements Cloneable
     {
         if ( changeType == ChangeType.Modify )
         {
-            if ( modificationItems.containsKey( attr.getID() ) )
-            {
-                ModificationItemImpl item = modificationItems.get( attr.getID() );
-                Attribute attribute = item.getAttribute();
-
-                Enumeration<?> attrs = attr.getAll();
-
-                while ( attrs.hasMoreElements() )
-                {
-                    attribute.add( attrs.nextElement() );
-                }
-            }
-            else
-            {
-                ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
-                modificationList.add( item );
-                modificationItems.put( attr.getID(), item );
-            }
+            ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
+            modificationList.add( item );
+            modificationItems.put( attr.getID(), item );
         }
     }
 
@@ -213,28 +200,9 @@ public class Entry implements Cloneable
         {
             Attribute attr = new AttributeImpl( id, value );
 
-            if ( modificationItems.containsKey( id ) )
-            {
-                ModificationItemImpl item = modificationItems.get( id );
-                
-                if ( item.getModificationOp() != modOp )
-                {
-                    // This is an error : we can't have two different 
-                    // modifications of the same attribute for the same entry
-                    
-                    throw new NamingException( "Bad modification" );
-                }
-                
-                Attribute attribute = item.getAttribute();
-
-                attribute.add( value );
-            }
-            else
-            {
-                ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
-                modificationList.add( item );
-                modificationItems.put( id, item );
-            }
+            ModificationItemImpl item = new ModificationItemImpl( modOp, attr );
+            modificationList.add( item );
+            modificationItems.put( id, item );
         }
     }
 
@@ -246,7 +214,7 @@ public class Entry implements Cloneable
      */
     public void addAttribute( Attribute attr )
     {
-        attributeList.put( attr );
+        attributes.put( attr );
     }
 
     /**
@@ -269,7 +237,7 @@ public class Entry implements Cloneable
         }
         else
         {
-            attributeList.put( id, value );
+            attributes.put( id, value );
         }
     }
 
@@ -285,7 +253,7 @@ public class Entry implements Cloneable
      */
     public void putAttribute( String id, Object value )
     {
-        Attribute attribute = attributeList.get( id );
+        Attribute attribute = attributes.get( id );
 
         if ( attribute != null )
         {
@@ -293,7 +261,7 @@ public class Entry implements Cloneable
         }
         else
         {
-            attributeList.put( id, value );
+            attributes.put( id, value );
         }
     }
 
@@ -346,7 +314,7 @@ public class Entry implements Cloneable
             return new AttributeImpl( "dn", dn );
         }
 
-        return attributeList.get( attributeId );
+        return attributes.get( attributeId );
     }
 
     /**
@@ -358,7 +326,7 @@ public class Entry implements Cloneable
     {
         if ( isEntry() )
         {
-            return attributeList;
+            return attributes;
         }
         else
         {
@@ -516,9 +484,9 @@ public class Entry implements Cloneable
 
         }
 
-        if ( attributeList != null )
+        if ( attributes != null )
         {
-            clone.attributeList = (Attributes)attributeList.clone();
+            clone.attributes = (Attributes)attributes.clone();
         }
 
         return clone;
@@ -533,7 +501,7 @@ public class Entry implements Cloneable
         
         try
         {
-            for ( NamingEnumeration<? extends Attribute> attrs = attributeList.getAll(); attrs.hasMoreElements(); )
+            for ( NamingEnumeration<? extends Attribute> attrs = attributes.getAll(); attrs.hasMoreElements(); )
             {
                 Attribute attribute = attrs.nextElement();
     
@@ -634,26 +602,26 @@ public class Entry implements Cloneable
             sb.append( "    Control : " ).append(  control ).append( '\n' );
         }
         
-        switch ( changeType.getChangeType() )
+        switch ( changeType )
         {
-            case ChangeType.ADD_ORDINAL :
+            case Add :
                 sb.append( "    Change type is ADD\n" );
                 sb.append( "        Attributes : \n" );
                 sb.append( dumpAttributes() );
                 break;
                 
-            case ChangeType.MODIFY_ORDINAL :
+            case Modify :
                 sb.append( "    Change type is MODIFY\n" );
                 sb.append( "        Modifications : \n" );
                 sb.append( dumpModificationItems() );
                 break;
                 
-            case ChangeType.DELETE_ORDINAL :
+            case Delete :
                 sb.append( "    Change type is DELETE\n" );
                 break;
                 
-            case ChangeType.MODDN_ORDINAL :
-            case ChangeType.MODRDN_ORDINAL :
+            case ModDn :
+            case ModRdn :
                 sb.append( "    Change type is ").append( changeType == ChangeType.ModDn ? "MODDN\n" : "MODRDN\n" );
                 sb.append( "    Delete old RDN : " ).append( deleteOldRdn ? "true\n" : "false\n" );
                 sb.append( "    New RDN : " ).append( newRdn ).append( '\n' );
@@ -667,5 +635,183 @@ public class Entry implements Cloneable
         }
         
         return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        // Basic equals checks
+        if ( this == o )
+        {
+            return true;
+        }
+        
+        if ( o == null )
+        {
+            return false;
+        }
+        
+        if ( ! (o instanceof Entry ) )
+        {
+            return false;
+        }
+        
+        Entry entry = (Entry)o;
+        
+        // Check the DN
+        try
+        {
+            LdapDN thisDn = new LdapDN( dn );
+            LdapDN dnEntry = new LdapDN( entry.dn );
+            
+            if ( !thisDn.equals( dnEntry ) )
+            {
+                return false;
+            }
+        }
+        catch ( InvalidNameException ine )
+        {
+            return false;
+        }
+        
+        // Check the changeType
+        if ( changeType != entry.changeType )
+        {
+            return false;
+        }
+        
+        // Check each different cases
+        switch ( changeType )
+        {
+            case Add :
+                // Checks the attributes
+                if ( attributes == null )
+                {
+                    if ( entry.attributes != null )
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                if ( entry.attributes == null )
+                {
+                    return false;
+                }
+                
+                if ( attributes.size() != entry.attributes.size() )
+                {
+                    return false;
+                }
+                
+                if ( !attributes.equals( entry.attributes ) )
+                {
+                    return false;
+                }
+                
+                break;
+
+            case Delete :
+                // Nothing to do, is the DNs are equals
+                break;
+                
+            case Modify :
+                // Check the modificationItems list
+
+                // First, deal with special cases
+                if ( modificationList == null )
+                {
+                    if ( entry.modificationList != null )
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                if ( entry.modificationList == null )
+                {
+                    return false;
+                }
+                
+                if ( modificationList.size() != entry.modificationList.size() )
+                {
+                    return false;
+                }
+                
+                // Now, compares the contents
+                int i = 0;
+                
+                for ( ModificationItemImpl modification:modificationList )
+                {
+                    if ( ! modification.equals( entry.modificationList.get( i ) ) )
+                    {
+                        return false;
+                    }
+                    
+                    i++;
+                }
+                
+                break;
+                
+            case ModDn :
+            case ModRdn :
+                // Check the deleteOldRdn flag
+                if ( deleteOldRdn != entry.deleteOldRdn )
+                {
+                    return false;
+                }
+                
+                // Check the newRdn value
+                try
+                {
+                    Rdn thisNewRdn = new Rdn( newRdn );
+                    Rdn entryNewRdn = new Rdn( entry.newRdn );
+
+                    if ( !thisNewRdn.equals( entryNewRdn ) )
+                    {
+                        return false;
+                    }
+                }
+                catch ( InvalidNameException ine )
+                {
+                    return false;
+                }
+                
+                // Check the newSuperior value
+                try
+                {
+                    LdapDN thisNewSuperior = new LdapDN( newSuperior );
+                    LdapDN entryNewSuperior = new LdapDN( entry.newSuperior );
+                    
+                    if ( ! thisNewSuperior.equals(  entryNewSuperior ) )
+                    {
+                        return false;
+                    }
+                }
+                catch ( InvalidNameException ine )
+                {
+                    return false;
+                }
+                
+                break;
+        }
+        
+        if ( control != null )
+        {
+            return control.equals(  entry.control );
+        }
+        else 
+        {
+            return entry.control == null;
+        }
     }
 }
