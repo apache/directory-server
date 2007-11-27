@@ -632,4 +632,12 @@
       </build>
     </profile>
   </profiles>
+
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
+    </connection>
+  </scm>
+
 </project>
