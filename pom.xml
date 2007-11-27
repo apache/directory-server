@@ -201,7 +201,7 @@
  
   <scm>
     <connection>
-      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang-with-dependencies/shared
+      scm:svn:http://svn.apache.org/repos/asf/directory/shared/branches/bigbang
     </connection>
   </scm>
 
