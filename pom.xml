@@ -14,4 +14,9 @@
     <module>apacheds</module>
     <module>installers</module>
   </modules>
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang-with-dependencies
+    </connection> 
+  </scm>
 </project>
