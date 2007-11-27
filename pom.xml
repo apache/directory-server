@@ -439,12 +439,6 @@
     </license>
   </licenses>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/trunk</connection>
-    <url>http://svn.apache.org/repos/asf/directory/apacheds/trunk</url>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/directory/apacheds/trunk</developerConnection>
-  </scm>
-
   <build>
     <pluginManagement>
       <plugins>
