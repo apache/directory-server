@@ -592,6 +592,9 @@ public class DefaultDirectoryService implements  DirectoryService
          * needs to synchronize on all changes while the revert is in progress.
          *
          * How about making this operation transactional?
+         *
+         * First of all just stop using JNDI and construct the operations to
+         * feed into the interceptor pipeline.
          */
 
         try
@@ -610,6 +613,23 @@ public class DefaultDirectoryService implements  DirectoryService
                         break;
                     case( ChangeType.DELETE_ORDINAL ):
                         ctx.destroySubcontext( reverse.getDn() );
+                        break;
+                    case( ChangeType.MODIFY_ORDINAL ):
+                        ctx.modifyAttributes( reverse.getDn(), reverse.getModificationItemsArray() );
+                        break;
+                    case( ChangeType.MODDN_ORDINAL ):
+                        // NOT BREAK - both ModDN and ModRDN handling is the same
+                    case( ChangeType.MODRDN_ORDINAL ):
+                        if ( reverse.isDeleteOldRdn() )
+                        {
+                            ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+                        }
+                        else
+                        {
+                            ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+                        }
+
+                        ctx.rename( reverse.getDn(), event.getForwardLdif().getDn() );
                         break;
                     default:
                         throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()

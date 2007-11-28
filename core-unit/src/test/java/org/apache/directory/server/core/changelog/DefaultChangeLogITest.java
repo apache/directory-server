@@ -119,6 +119,28 @@ public class DefaultChangeLogITest extends AbstractTestCase
     }
 
 
+    public void testRevertRenameOperations() throws NamingException
+    {
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "oldname" );
+        sysRoot.createSubcontext( "ou=oldname", attrs );
+
+        // tag after the addition before rename
+        Tag t0 = service.getChangeLog().tag();
+        assertNotNull( sysRoot.getAttributes( "ou=oldname" ) );
+
+        // rename the test entry and test that the rename occurred
+        sysRoot.rename( "ou=oldname", "ou=newname" );
+        assertNotPresent( sysRoot, "ou=oldname" );
+        assertNotNull( sysRoot.getAttributes( "ou=newname" ) );
+
+        // now revert and assert that the rename was reversed
+        service.revert( t0.getRevision() );
+        assertNotPresent( sysRoot, "ou=newname" );
+        assertNotNull( sysRoot.getAttributes( "ou=oldname" ) );
+    }
+
+
     private void assertNotPresent( DirContext ctx, String dn ) throws NamingException
     {
         try
