@@ -25,8 +25,11 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
 import org.apache.directory.server.core.changelog.DefaultChangeLog;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
+import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -58,6 +61,7 @@ import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.constants.ServerDNConstants;
@@ -65,6 +69,7 @@ import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupported
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -115,6 +120,12 @@ public class DefaultDirectoryService implements  DirectoryService
     /** the change log service */
     private ChangeLog changeLog;
 
+    /** remove me after implementation is completed */
+    private static final String PARTIAL_IMPL_WARNING =
+            "WARNING: the changelog is only partially operational and will revert\n" +
+            "state without consideration of who made the original change.  All reverting " +
+            "changes are made by the admin user.\n Furthermore the used controls are not at " +
+            "all taken into account";
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -474,6 +485,7 @@ public class DefaultDirectoryService implements  DirectoryService
         list.add( new AciAuthorizationInterceptor() );
         list.add( new DefaultAuthorizationInterceptor() );
         list.add( new ExceptionInterceptor() );
+        list.add( new ChangeLogInterceptor() );
         list.add( new OperationalAttributeInterceptor() );
         list.add( new SchemaInterceptor() );
         list.add( new SubentryInterceptor() );
@@ -548,6 +560,70 @@ public class DefaultDirectoryService implements  DirectoryService
         environment.put( DirectoryService.JNDI_KEY, this );
 
         return new ServerLdapContext( this, environment );
+    }
+
+
+    public long revert( long revision ) throws NamingException
+    {
+        if ( changeLog == null || ! changeLog.isEnabled() )
+        {
+            throw new IllegalStateException( "The change log must be enabled to revert to previous log revisions." );
+        }
+
+        if ( revision < 0 )
+        {
+            throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
+        }
+
+        if ( revision >= changeLog.getChangeLogStore().getCurrentRevision() )
+        {
+            throw new IllegalArgumentException( "revision must be less than the current revision" );
+        }
+
+        DirContext ctx = getJndiContext( new LdapPrincipal( new LdapDN( "uid=admin,ou=system" ),
+                AuthenticationLevel.SIMPLE ) );
+        Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );
+
+        /*
+         * BAD, BAD, BAD!!!
+         *
+         * No synchronization no nothing.  Just getting this to work for now
+         * so we can revert tests.  Any production grade use of this feature
+         * needs to synchronize on all changes while the revert is in progress.
+         *
+         * How about making this operation transactional?
+         */
+
+        try
+        {
+            LOG.warn( PARTIAL_IMPL_WARNING );
+            cursor.afterLast();
+            while ( cursor.previous() ) // apply ldifs in reverse order
+            {
+                ChangeLogEvent event = cursor.get();
+                Entry reverse = event.getReverseLdif();
+
+                switch( reverse.getChangeType().getChangeType() )
+                {
+                    case( ChangeType.ADD_ORDINAL ):
+                        ctx.createSubcontext( reverse.getDn(), reverse.getAttributes() );
+                        break;
+                    case( ChangeType.DELETE_ORDINAL ):
+                        ctx.destroySubcontext( reverse.getDn() );
+                        break;
+                    default:
+                        throw new NotImplementedException( "Reverts of change type " + reverse.getChangeType()
+                                + " has not yet been implemented!");
+                }
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new NamingException( "Encountered a failure while trying to revert to a previous revision: "
+                    + revision );
+        }
+
+        return changeLog.getCurrentRevision();
     }
 
 

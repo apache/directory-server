@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -98,6 +99,13 @@ public abstract class AbstractTestCase extends TestCase
 
     private Hashtable<String,Object> overrides = new Hashtable<String,Object>();
 
+    /**
+     * The revision at which a test was begun and the revision we will revert
+     * to if the change log is enabled by the user.  If the change log is
+     * disabled this is field is ignored and will remain null.
+     */
+    private Tag startTag;
+
     protected Registries registries;
 
     protected DirectoryService service;
@@ -151,6 +159,22 @@ public abstract class AbstractTestCase extends TestCase
     protected void setUp() throws Exception
     {
         super.setUp();
+
+        // -------------------------------------------------------------------
+        // Bypass normal startup if changelog has been enabled and the server
+        // has already started.
+        // -------------------------------------------------------------------
+
+        /// still working on it!!!
+//        if ( service.getChangeLog().isEnabled() )
+//        {
+//            startTag = service.getChangeLog().tag();
+//
+//            if ( service.isStarted() )
+//            {
+//                return;
+//            }
+//        }
 
         // -------------------------------------------------------------------
         // Add a single test entry

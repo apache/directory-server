@@ -256,6 +256,12 @@ public class InterceptorChainTest extends TestCase
         }
 
 
+        public long revert( long revision ) throws NamingException
+        {
+            return 0;
+        }
+
+
         public PartitionNexus getPartitionNexus()
         {
             return null;

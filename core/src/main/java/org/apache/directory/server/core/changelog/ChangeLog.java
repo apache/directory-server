@@ -44,6 +44,15 @@ public interface ChangeLog
     boolean isEnabled();
 
 
+    void setEnabled( boolean enabled );
+    
+
+    ChangeLogStore getChangeLogStore();
+
+
+    void setChangeLogStore( ChangeLogStore store );
+
+
     /**
      * Gets the current revision for the server.
      *
@@ -161,22 +170,4 @@ public interface ChangeLog
      * @throws NamingException if there is a problem taking a tag
      */
     Tag tag() throws NamingException;
-
-
-    /**
-     * Reverts the server's state to an earlier revision.  Note that the revsion number
-     * still increases to revert back even though the state reverted to is the same.
-     * Note that implementations may lock the server from making changes or searching
-     * the directory until this operation has completed.
-     *
-     * @param revision the revision number to revert to
-     * @return the new revision reached by applying all changes needed to revert to the
-     * original state
-     * @throws NamingException if there are problems reverting back to the earlier state
-     * @throws IllegalArgumentException if the revision provided is greater than the current
-     * revision or less than 0
-     * @throws UnsupportedOperationException if this feature is not supported by the
-     * change log
-     */
-    long revert( long revision ) throws NamingException;
 }

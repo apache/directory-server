@@ -34,6 +34,8 @@ import java.util.Map;
 /**
  * A change log store that keeps it's information in memory.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
@@ -46,7 +48,12 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     public Tag tag( long revision ) throws NamingException
     {
-        return tags.get( revision );
+        if ( tags.containsKey( revision ) )
+        {
+            return tags.get( revision );
+        }
+
+        return new Tag( revision, null );
     }
 
 
@@ -110,7 +117,7 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
 
     public Cursor<ChangeLogEvent> findAfter( long revision ) throws NamingException
     {
-        return new ListCursor<ChangeLogEvent>( ( int ) ( revision + 1 ), events );
+        return new ListCursor<ChangeLogEvent>( ( int ) revision, events );
     }
 
 

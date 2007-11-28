@@ -112,8 +112,11 @@ public interface ApacheSchemaConstants
     // ApacheNdn
     String APACHE_ALIAS_AT                          = "apacheAlias";
     String APACHE_ALIAS_OID                         = "1.3.6.1.4.1.18060.0.4.1.2.7";
-    
-    
+
+    // entryDeleted
+    String ENTRY_DELETED_AT                         = "entryDeleted";
+    String ENTRY_DELETED_OID                        = "1.3.6.1.4.1.18060.0.4.1.2.31";
+
     // SchemaModifiersName
     String SCHEMA_MODIFIERS_NAME_AT         = "schemaModifiersName";
     String SCHEMA_MODIFIERS_NAME_AT_OID     = "";

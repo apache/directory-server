@@ -51,19 +51,44 @@ public interface DirectoryService
 {
     String JNDI_KEY = DirectoryService.class.getName();
 
+    /**
+     * Reverts the server's state to an earlier revision.  Note that the revsion number
+     * still increases to revert back even though the state reverted to is the same.
+     * Note that implementations may lock the server from making changes or searching
+     * the directory until this operation has completed.
+     *
+     * @param revision the revision number to revert to
+     * @return the new revision reached by applying all changes needed to revert to the
+     * original state
+     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws IllegalArgumentException if the revision provided is greater than the current
+     * revision or less than 0
+     * @throws UnsupportedOperationException if this feature is not supported by the
+     * change log
+     */
+    long revert( long revision ) throws NamingException;
+
+
     PartitionNexus getPartitionNexus();
+
 
     InterceptorChain getInterceptorChain();
 
+
     void addPartition( Partition partition ) throws NamingException;
     
+
     void removePartition( Partition partition ) throws NamingException;
+
 
     Registries getRegistries();
 
+
     void setRegistries( Registries registries );
 
+
     SchemaManager getSchemaManager();
+
 
     void setSchemaManager( SchemaManager schemaManager );
 

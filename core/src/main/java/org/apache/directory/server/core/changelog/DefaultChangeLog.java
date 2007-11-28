@@ -19,9 +19,8 @@
 package org.apache.directory.server.core.changelog;
 
 
-import org.apache.directory.shared.ldap.NotImplementedException;
-import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.shared.ldap.ldif.Entry;
 
 import javax.naming.NamingException;
 
@@ -29,13 +28,15 @@ import javax.naming.NamingException;
 /**
  * The default ChangeLog service implementation.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class DefaultChangeLog implements ChangeLog
 {
     private boolean enabled;
-    private ChangeLogStore store;
+    private ChangeLogStore store = new MemoryChangeLogStore();
 
 
     public ChangeLogStore getChangeLogStore()
@@ -116,7 +117,7 @@ public class DefaultChangeLog implements ChangeLog
             throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
         }
 
-        if ( revision <= store.getCurrentRevision() )
+        if ( revision > store.getCurrentRevision() )
         {
             throw new IllegalArgumentException( "revision must be less than or equal to the current revision" );
         }
@@ -145,22 +146,6 @@ public class DefaultChangeLog implements ChangeLog
     public Tag tag() throws NamingException
     {
         return tag( store.getCurrentRevision(), null );
-    }
-
-
-    public long revert( long revision ) throws NamingException
-    {
-        if ( revision < 0 )
-        {
-            throw new IllegalArgumentException( "revision must be greater than or equal to 0" );
-        }
-
-        if ( revision >= store.getCurrentRevision() )
-        {
-            throw new IllegalArgumentException( "revision must be less than the current revision" );
-        }
-        
-        throw new NotImplementedException();
     }
 
 

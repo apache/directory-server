@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.changelog;
 
 
+import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
@@ -31,6 +32,10 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -44,6 +49,10 @@ import javax.naming.directory.Attributes;
  */
 public class ChangeLogInterceptor extends BaseInterceptor
 {
+    /** for debugging */
+    private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    /** used to ignore modify operations to tombstone entries */
+    private AttributeType entryDeleted;
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
 
@@ -57,6 +66,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         super.init( directoryService );
         changeLog = directoryService.getChangeLog();
+
+        entryDeleted = directoryService.getRegistries().getAttributeTypeRegistry()
+                .lookup( ApacheSchemaConstants.ENTRY_DELETED_OID );
     }
 
 
@@ -92,18 +104,24 @@ public class ChangeLogInterceptor extends BaseInterceptor
      */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
+        // @todo make sure we're not putting in operational attributes that cannot be user modified
+        // must save the entry if change log is enabled
+        Attributes attributes = null;
+
+        if ( changeLog.isEnabled() )
+        {
+            Invocation invocation = InvocationStack.getInstance().peek();
+            PartitionNexusProxy proxy = invocation.getProxy();
+            attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
         next.delete( opContext );
 
         if ( ! changeLog.isEnabled() )
         {
             return;
         }
-
-        // @todo make sure we're not putting in operational attributes that cannot be user modified
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
-                PartitionNexusProxy.LOOKUP_BYPASS );
 
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Delete );
@@ -116,6 +134,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         next.modify( opContext );
+
+        // @TODO: needs big consideration!!!
+        // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
+        if ( AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null )
+        {
+            LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
+            return;
+        }
 
         if ( ! changeLog.isEnabled() )
         {
