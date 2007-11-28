@@ -55,6 +55,9 @@ import org.apache.directory.shared.ldap.util.StringTools;
  */
 public class Entry implements Cloneable
 {
+    /** Used in toArray() */
+    public static final ModificationItemImpl[] EMPTY_MODS = new ModificationItemImpl[0];
+
     /** the change type */
     private ChangeType changeType;
 
@@ -283,6 +286,18 @@ public class Entry implements Cloneable
     {
         return modificationList;
     }
+
+
+    /**
+     * Gets the modification items as an array.
+     *
+     * @return modification items as an array.
+     */
+    public ModificationItemImpl[] getModificationItemsArray()
+    {
+        return modificationList.toArray( EMPTY_MODS );
+    }
+
 
     /**
      * @return The entry Distinguished name
