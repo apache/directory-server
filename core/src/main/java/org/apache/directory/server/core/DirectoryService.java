@@ -36,6 +36,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -130,7 +131,7 @@ public interface DirectoryService
      * @return a JNDI context to the RootDSE
      * @throws NamingException if failed to create a context
      */
-    DirContext getJndiContext() throws NamingException;
+    LdapContext getJndiContext() throws NamingException;
 
 
     /**
@@ -141,7 +142,7 @@ public interface DirectoryService
      * @return a JNDI context to the entry at the specified DN
      * @throws NamingException if failed to create a context
      */
-    DirContext getJndiContext( String dn ) throws NamingException;
+    LdapContext getJndiContext( String dn ) throws NamingException;
 
 
     /**
@@ -152,7 +153,7 @@ public interface DirectoryService
      * @return a JNDI context to the RootDSE as a specific user
      * @throws NamingException if failed to create a context
      */
-    DirContext getJndiContext( LdapPrincipal principal ) throws NamingException;
+    LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException;
 
 
     /**
@@ -164,7 +165,7 @@ public interface DirectoryService
      * @return a JNDI context to the specified entry as a specific user
      * @throws NamingException if failed to create a context
      */
-    DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
+    LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException;
 
 
     /**
@@ -180,7 +181,7 @@ public interface DirectoryService
      * @return a JNDI context to the specified entry as a specific user
      * @throws NamingException if failed to create a context
      */
-    DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
+    LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
         String authentication, String dn ) throws NamingException;
 
 

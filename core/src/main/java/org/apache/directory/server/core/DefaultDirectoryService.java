@@ -85,6 +85,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -497,31 +498,31 @@ public class DefaultDirectoryService implements  DirectoryService
     }
 
 
-    public DirContext getJndiContext() throws NamingException
+    public LdapContext getJndiContext() throws NamingException
     {
         return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), "" );
     }
 
 
-    public DirContext getJndiContext( String dn ) throws NamingException
+    public LdapContext getJndiContext( String dn ) throws NamingException
     {
         return this.getJndiContext( null, null, null, AuthenticationLevel.NONE.toString(), dn );
     }
 
 
-    public DirContext getJndiContext( LdapPrincipal principal ) throws NamingException
+    public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
     {
         return new ServerLdapContext( this, principal, new LdapDN() );
     }
 
 
-    public DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+    public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
     {
         return new ServerLdapContext( this, principal, new LdapDN( dn ) );
     }
 
 
-    public synchronized DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
+    public synchronized LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
         String authentication, String rootDN ) throws NamingException
     {
         checkSecuritySettings( principal, credential, authentication );

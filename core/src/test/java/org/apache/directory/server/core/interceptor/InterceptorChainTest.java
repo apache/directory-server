@@ -24,22 +24,21 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaManager;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-
+import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.*;
 
@@ -327,7 +326,7 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public DirContext getJndiContext() throws NamingException
+        public LdapContext getJndiContext() throws NamingException
         {
             return null;
         }
@@ -339,25 +338,25 @@ public class InterceptorChainTest extends TestCase
         }
 
 
-        public DirContext getJndiContext( String baseName ) throws NamingException
+        public LdapContext getJndiContext( String baseName ) throws NamingException
         {
             return null;
         }
 
 
-        public DirContext getJndiContext( LdapPrincipal principal ) throws NamingException
+        public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
         {
             return null;
         }
 
 
-        public DirContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
         {
             return null;
         }
 
 
-        public DirContext getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        public LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
             String authentication, String baseName ) throws NamingException
         {
             return null;

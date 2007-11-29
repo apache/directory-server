@@ -133,26 +133,30 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
+        Attributes attributes = null;
+        boolean isDelete = AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null;
+
+        if ( ! isDelete && changeLog.isEnabled() )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            Invocation invocation = InvocationStack.getInstance().peek();
+            PartitionNexusProxy proxy = invocation.getProxy();
+            attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
         next.modify( opContext );
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if ( AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null )
+        if ( isDelete || ! changeLog.isEnabled() )
         {
-            LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
+            if ( isDelete )
+            {
+                LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
+            }
             return;
         }
-
-        if ( ! changeLog.isEnabled() )
-        {
-            return;
-        }
-
-        // @todo make sure we're not putting in operational attributes that cannot be user modified
-        Invocation invocation = InvocationStack.getInstance().peek();
-        PartitionNexusProxy proxy = invocation.getProxy();
-        Attributes attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
-                PartitionNexusProxy.LOOKUP_BYPASS );
 
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Modify );
