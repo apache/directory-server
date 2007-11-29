@@ -67,6 +67,10 @@ public final class LdapPrincipal implements Principal, Serializable
     public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
     {
         this.name = name;
+        if ( ! name.isNormalized() )
+        {
+            throw new IllegalStateException( "Names used for principals must be normalized!" );
+        }
         this.authenticationLevel = authenticationLevel;
         this.userPassword = null;
     }

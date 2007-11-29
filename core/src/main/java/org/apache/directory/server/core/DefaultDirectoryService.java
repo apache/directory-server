@@ -121,6 +121,8 @@ public class DefaultDirectoryService implements  DirectoryService
     /** the change log service */
     private ChangeLog changeLog;
 
+    private LdapDN adminDn;
+
     /** remove me after implementation is completed */
     private static final String PARTIAL_IMPL_WARNING =
             "WARNING: the changelog is only partially operational and will revert\n" +
@@ -581,8 +583,7 @@ public class DefaultDirectoryService implements  DirectoryService
             throw new IllegalArgumentException( "revision must be less than the current revision" );
         }
 
-        DirContext ctx = getJndiContext( new LdapPrincipal( new LdapDN( "uid=admin,ou=system" ),
-                AuthenticationLevel.SIMPLE ) );
+        DirContext ctx = getJndiContext( new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE ) );
         Cursor<ChangeLogEvent> cursor = changeLog.getChangeLogStore().findAfter( revision );
 
         /*
@@ -689,6 +690,9 @@ public class DefaultDirectoryService implements  DirectoryService
         showSecurityWarnings();
         started = true;
         
+        adminDn = new LdapDN( DefaultPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+        adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+
         if ( !testEntries.isEmpty() )
         {
             createTestEntries();
@@ -1143,8 +1147,7 @@ public class DefaultDirectoryService implements  DirectoryService
      */
     private void createTestEntries() throws NamingException
     {
-        LdapPrincipal principal = new LdapPrincipal( new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ),
-                AuthenticationLevel.SIMPLE );
+        LdapPrincipal principal = new LdapPrincipal( adminDn, AuthenticationLevel.SIMPLE );
         ServerLdapContext ctx = new ServerLdapContext( this, principal, new LdapDN() );
 
         for ( Entry testEntry : testEntries )

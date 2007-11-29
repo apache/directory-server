@@ -21,25 +21,26 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
+import org.apache.directory.server.core.changelog.Tag;
+import org.apache.directory.server.core.unit.TestMode;
+import org.apache.directory.server.core.unit.DirectoryServiceFactory;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
+import static org.apache.directory.server.core.unit.IntegrationUtils.*;
 
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import org.junit.*;
+import static org.junit.Assert.*;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.ldap.InitialLdapContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
+import javax.naming.ldap.LdapContext;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -49,45 +50,154 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SimpleAuthenticationITest extends AbstractAdminTestCase
+public class SimpleAuthenticationITest
 {
-    /**
-     * Cleans up old database files on creation.
-     * @throws IOException if we cannot delete some working directories
-     */
-    public SimpleAuthenticationITest() throws IOException
+    private static DirectoryService service;
+    private static Tag startTag;
+
+    private String password;
+    private TestMode mode = TestMode.ROLLBACK;
+    private DirectoryServiceFactory factory = DirectoryServiceFactory.DEFAULT;
+
+
+    public SimpleAuthenticationITest()
     {
-        doDelete( new File( "target" + File.separator + "eve" ) );
     }
 
 
-    /**
-     * Customizes setup for each test case.
-     *
-     * <ul>
-     *   <li>sets doDelete to false for test1AdminAccountCreation</li>
-     *   <li>sets doDelete to false for test2AccountExistsOnRestart</li>
-     *   <li>sets doDelete to true for all other cases</li>
-     *   <li>bypasses normal setup for test5BuildDbNoPassWithPrincAuthNone</li>
-     *   <li>bypasses normal setup for test4BuildDbNoPassNoPrincAuthNone</li>
-     *   <li>bypasses normal setup for test6BuildDbNoPassNotAdminPrinc</li>
-     * </ul>
-     *
-     * @throws Exception
-     */
-    protected void setUp() throws Exception
+    public SimpleAuthenticationITest( String password )
     {
-        super.doDelete = !( getName().equals( "test1AdminAccountCreation" ) || getName().equals(
-            "test2AccountExistsOnRestart" ) );
+        this.password = password;
+    }
 
-        if ( getName().equals( "test5BuildDbNoPassWithPrincAuthNone" )
-            || getName().equals( "test6BuildDbNoPassNotAdminPrinc" )
-            || getName().equals( "test4BuildDbNoPassNoPrincAuthNone" ) )
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+
+    @AfterClass
+    public static void afterClass() throws Exception
+    {
+        if ( service != null && service.isStarted() )
         {
-            return;
+            service.shutdown();
         }
 
-        super.setUp();
+        if ( service != null )
+        {
+            doDelete( service.getWorkingDirectory() );
+        }
+
+        service = null;
+    }
+
+
+    @Before
+    public void setUp() throws Exception
+    {
+        if ( service == null )
+        {
+            service = factory.newInstance();
+        }
+
+        if ( mode == TestMode.PRISTINE )
+        {
+            doDelete( service.getWorkingDirectory() );
+        }
+
+        if ( mode == TestMode.ROLLBACK )
+        {
+            service.getChangeLog().setEnabled( true );
+        }
+
+        if ( ! service.isStarted() )
+        {
+            service.startup();
+        }
+
+        startTag = service.getChangeLog().tag();
+    }
+
+
+    @After
+    public void tearDown() throws Exception
+    {
+        switch( mode.ordinal )
+        {
+            case( TestMode.PRISTINE_ORDINAL ):
+                service.shutdown();
+                doDelete( service.getWorkingDirectory() );
+                service = null;
+                break;
+            case( TestMode.RESTART_ORDINAL ):
+                service.startup();
+                break;
+            case( TestMode.ROLLBACK_ORDINAL ):
+                if ( startTag != null && ( startTag.getRevision() < service.getChangeLog().getCurrentRevision() ) )
+                {
+                    service.revert( startTag.getRevision() );
+                }
+                break;
+            case( TestMode.ADDITIVE_ORDINAL ):
+                break;
+            default:
+                throw new IllegalStateException( "Unidentified test mode: " + mode.ordinal );
+        }
+    }
+
+
+    public static LdapContext getRootDSE() throws NamingException
+    {
+        if ( service.isStarted() )
+        {
+            LdapDN dn = new LdapDN( "uid=admin,ou=system" );
+            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            return service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) );
+        }
+
+        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
+    }
+
+
+    public static LdapContext getRootDSE( String bindDn ) throws NamingException
+    {
+        if ( service.isStarted() )
+        {
+            LdapDN dn = new LdapDN( bindDn );
+            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            return service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ) );
+        }
+
+        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
+    }
+
+
+    public static LdapContext getSystemRoot() throws NamingException
+    {
+        if ( service.isStarted() )
+        {
+            LdapDN dn = new LdapDN( "uid=admin,ou=system" );
+            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            return service.getJndiContext( new LdapPrincipal(
+                    dn, AuthenticationLevel.SIMPLE ), "ou=system" );
+        }
+
+        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
+    }
+
+
+    public static LdapContext getSystemRoot( String bindDn ) throws NamingException
+    {
+        if ( service.isStarted() )
+        {
+            LdapDN dn = new LdapDN( bindDn );
+            dn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+            return service.getJndiContext( new LdapPrincipal( dn, AuthenticationLevel.SIMPLE ), "ou=system" );
+        }
+
+        throw new IllegalStateException( "Cannot acquire rootDSE before the service has been started!" );
     }
 
 
@@ -108,45 +218,41 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
 
 
     /**
-     * Check the creation of the admin account.
+     * Check the creation of the admin account and persistence across restarts.
      *
      * @throws NamingException if there are failures
      */
-    public void test1AdminAccountCreation() throws NamingException
+    @Test
+    public void testAdminAccountCreation() throws NamingException
     {
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "uid=admin" );
-        Attributes attrs = ctx.getAttributes( "" );
+        String userDn = "uid=admin,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn,
+                "secret".getBytes(), "simple", "ou=system" );
+        Attributes attrs = ctx.getAttributes( "uid=admin" );
         performAdminAccountChecks( attrs );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
+        ctx.close();
+
+        service.shutdown();
+        service.startup();
+
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn,
+                "secret".getBytes(), "simple", "ou=system" );
+        attrs = ctx.getAttributes( "uid=admin" );
+        performAdminAccountChecks( attrs );
+        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
+        ctx.close();
     }
 
 
-    /**
-     * Check the creation of the admin account even after a restart.
-     *
-     * @throws NamingException if there are failures
-     */
-    public void test2AccountExistsOnRestart() throws NamingException
-    {
-        DirContext ctx = ( DirContext ) sysRoot.lookup( "uid=admin" );
-        Attributes attrs = ctx.getAttributes( "" );
-
-        performAdminAccountChecks( attrs );
-        assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "secret".getBytes() ) );
-    }
-
-
+    @Test
     public void test3UseAkarasulu() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
@@ -166,125 +272,6 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
         assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
-    }
-
-
-    /**
-     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
-     * is set to "none" when trying to bootstrap the system.  Only the admin
-     * user is allowed to bootstrap.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    public void test4BuildDbNoPassNoPrincAuthNone() throws Exception
-    {
-        // clean out the database
-        tearDown();
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        service.setAllowAnonymousAccess( false );
-        service.startup();
-
-        try
-        {
-            setContextRoots( env );
-            fail( "should not get here due to exception" );
-        }
-        catch ( LdapNoPermissionException e )
-        {
-        }
-        tearDown();
-
-        // ok this should start up the system now as admin
-        env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        service.setAllowAnonymousAccess( true );
-        service.startup();
-
-        setContextRoots( env );
-        assertNotNull( sysRoot );
-
-        // now go in as anonymous user and we should be ok
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialLdapContext initial = new InitialLdapContext( env, null );
-
-        try
-        {
-            initial.lookup( "uid=admin" );
-            fail( "should not get here due to exception cuz anonymous user is "
-                + "not allowed read access to the admin account entry" );
-        }
-        catch ( LdapConfigurationException e )
-        {
-        }
-        catch ( LdapNoPermissionException e )
-        {
-        }
-    }
-
-
-    /**
-     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
-     * is set to "none" when trying to bootstrap the system even when the
-     * principal is set to the admin user.  Only the admin user is allowed to
-     * bootstrap.  This is a configuration issue or a nonsense set of property
-     * values.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    public void test5BuildDbNoPassWithPrincAuthNone() throws Exception
-    {
-        // clean out the database
-        tearDown();
-        doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.SECURITY_AUTHENTICATION, "none" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        service.startup();
-
-        try
-        {
-            setContextRoots( env );
-            fail( "should not get here due to exception" );
-        }
-        catch ( ConfigurationException e )
-        {
-        }
-    }
-
-
-    /**
-     * Tests to make sure we throw an error when Context.SECURITY_AUTHENTICATION
-     * is set to "simple" when trying to bootstrap the system but the admin is
-     * not the principal.  Only the admin user is allowed to bootstrap.
-     * Subsequent calls can 'bind' (authenticate in our case since there is no
-     * network connection) anonymously though.
-     *
-     * @throws Exception if anything goes wrong
-     */
-    public void test6BuildDbNoPassNotAdminPrinc() throws Exception
-    {
-        // clean out the database
-        tearDown();
-        doDelete( new File( "target" + File.separator + "eve" ) );
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        service.startup();
-
-        try
-        {
-            setContextRoots( env );
-            fail( "should not get here due to exception" );
-        }
-        catch ( ConfigurationException e )
-        {
-        }
     }
 
 
@@ -294,16 +281,11 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void test8PassPrincAuthTypeSimple() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        assertNotNull( new InitialContext( env ) );
+        String userDn = "uid=admin,ou=system";
+        assertNotNull( service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn ) );
     }
 
 
@@ -313,30 +295,23 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
      *
      * @throws Exception if anything goes wrong
      */
+    @Test
     public void test10TestNonAdminUser() throws Exception
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        assertNotNull( new InitialContext( env ) );
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        assertNotNull( service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn ) );
     }
 
 
+    @Test
     public void test11InvalidateCredentialCache() throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        assertNotNull( ctx );
+        Attributes attrs = ctx.getAttributes( "" );
         Attribute ou = attrs.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
@@ -356,30 +331,28 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
         assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
-        
+
         // now modify the password for akarasulu
         AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
+
         // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
+        ctx.close();
         try
         {
-            ic = new InitialDirContext( env );
+            service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
             fail( "Authentication with old password should fail" );
         }
         catch ( NamingException e )
         {
-            // we should fail 
+            // we should fail
         }
 
         // close and try again now with new password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "newpwd" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        ctx.close();
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "newpwd".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
         ou = attrs.get( "ou" );
         assertTrue( ou.contains( "Engineering" ) );
         assertTrue( ou.contains( "People" ) );
@@ -401,316 +374,369 @@ public class SimpleAuthenticationITest extends AbstractAdminTestCase
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
     }
 
-    public void testSHA() throws NamingException
+
+    // @Parameterized.Parameters
+    public static List<?> getHashedSecrets()
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        
+        //noinspection RedundantArrayCreation
+        return Arrays.asList( new Object[] {
+                "",
+                "",
+                ""
+        } );
+    }
+
+
+    // @RunWith(Parameterized.class)
+    @Ignore ( "This test was put here just to figure out how to use parameterization in junit 4" )
+    public void testHashedAuthentication() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
         // Check that we can get the attributes
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
+        Attributes attrs = ctx.getAttributes( "" );
         assertNotNull( attrs );
         assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        
+
         // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", password );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
             new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
+
         // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        
+        ctx.close();
+
         try
         {
-            ic = new InitialDirContext( env );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail 
-        }
-
-        // close and try again now with new password (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-    }
-
-    public void testSSHA() throws NamingException
-    {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        
-        // Check that we can get the attributes
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        
-        // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
-        // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        
-        try
-        {
-            ic = new InitialDirContext( env );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail 
-        }
-
-        // close and try again now with new password (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-    }
-
-
-    public void testMD5() throws NamingException
-    {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        
-        // Check that we can get the attributes
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        
-        // now modify the password for akarasulu : 'secret', encrypted using MD5
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
-        // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        
-        try
-        {
-            ic = new InitialDirContext( env );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail 
-        }
-
-        // close and try again now with new password (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-    }
-
-
-    public void testSMD5() throws NamingException
-    {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        
-        // Check that we can get the attributes
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        
-        // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
-        // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        
-        try
-        {
-            ic = new InitialDirContext( env );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail 
-        }
-
-        // close and try again now with new password (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-    }
-
-    public void testCRYPT() throws NamingException
-    {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( DirectoryService.JNDI_KEY, super.service );
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext ic = new InitialDirContext( env );
-        
-        // Check that we can get the attributes
-        Attributes attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-        
-        // now modify the password for akarasulu : 'secret', encrypted using CRYPT
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{crypt}qFkH8Z1woBlXw" );
-        ic.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        
-        // close and try with old password (should fail)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "test" );
-        
-        try
-        {
-            ic = new InitialDirContext( env );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail 
-        }
-
-        // close and try again now with new password (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ic.close();
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        ic = new InitialDirContext( env );
-        attrs = ic.getAttributes( "uid=akarasulu,ou=users" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-    }
-    
-    /**
-     * @see <a ref="https://issues.apache.org/jira/browse/DIRSERVER-1001"/>
-     * @throws NamingException on errors
-     */
-    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
-    {
-        // bind as akarasulu
-        Hashtable<String,Object> envUser = new Hashtable<String,Object>();
-        envUser.put( DirectoryService.JNDI_KEY, super.service );
-        envUser.put( Context.PROVIDER_URL, "ou=system" );
-        envUser.put( Context.SECURITY_PRINCIPAL, "uid=akarasulu,ou=users,ou=system" );
-        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
-        envUser.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        envUser.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext idcUser = new InitialDirContext( envUser );
-        idcUser.close();
-        
-        // bind as admin
-        Hashtable<String,Object> envAdmin = new Hashtable<String,Object>();
-        envAdmin.put( DirectoryService.JNDI_KEY, super.service );
-        envAdmin.put( Context.PROVIDER_URL, "ou=system" );
-        envAdmin.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        envAdmin.put( Context.SECURITY_CREDENTIALS, "secret" );
-        envAdmin.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        envAdmin.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        InitialDirContext idcAdmin = new InitialDirContext( envAdmin );
-        
-        // now modify the password for akarasulu (while we're admin)
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
-        idcAdmin.modifyAttributes( "uid=akarasulu,ou=users", new ModificationItemImpl[] { 
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-        idcAdmin.close();
-        
-        // try to bind as akarasulu with old password
-        envUser.put( Context.SECURITY_CREDENTIALS, "test" );
-        try
-        {
-            new InitialDirContext( envUser );
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
             fail( "Authentication with old password should fail" );
         }
         catch ( NamingException e )
         {
             // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx.close();
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testSHA() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SHA}5en6G6MezRroT3XKqkdPOmY/BfQ=" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx.close();
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testSSHA() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SSHA}mjVVxasFkk59wMW4L1Ldt+YCblfhULHs03WW7g==" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // close and try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testMD5() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using MD5
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{MD5}Xr4ilOzQ4PCOq3aQ0qbuaQ==" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testSMD5() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using SHA
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{SMD5}tQ9wo/VBuKsqBtylMMCcORbnYOJFMyDJ" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testCRYPT() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+
+        // Check that we can get the attributes
+        Attributes attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // now modify the password for akarasulu : 'secret', encrypted using CRYPT
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "{crypt}qFkH8Z1woBlXw" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+
+        // close and try with old password (should fail)
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
+        }
+
+        // try again now with new password (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+
+        // try again now with new password, to check that the
+        // cache is updated (should be successfull)
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+        attrs = ctx.getAttributes( "" );
+        assertNotNull( attrs );
+        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
+    }
+
+
+    @Test
+    public void testInvalidateCredentialCacheForUpdatingAnotherUsersPassword() throws NamingException
+    {
+        apply( getRootDSE(), getUserAddLdif() );
+
+        // bind as akarasulu
+        String userDn = "uid=akarasulu,ou=users,ou=system";
+        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+        ctx.close();
+
+        // bind as admin
+        userDn = "uid=admin,ou=system";
+        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
+
+        // now modify the password for akarasulu (while we're admin)
+        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", "newpwd" );
+        ctx.modifyAttributes( "", new ModificationItemImpl[] {
+            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
+        ctx.close();
+
+        try
+        {
+            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
+            fail( "Authentication with old password should fail" );
+        }
+        catch ( NamingException e )
+        {
+            // we should fail
+        }
+        finally
+        {
+            if ( ctx != null )
+            {
+                ctx.close();
+            }
         }
     }
 }
