@@ -21,17 +21,21 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.changelog.Tag;
-import org.apache.directory.server.core.unit.TestMode;
-import org.apache.directory.server.core.unit.DirectoryServiceFactory;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-import static org.apache.directory.server.core.unit.IntegrationUtils.*;
+
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+
+import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.*;
 
 import javax.naming.NamingException;
@@ -39,8 +43,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -50,102 +52,11 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
+@RunWith( CiRunner.class )
+@Mode ( SetupMode.ROLLBACK )
 public class SimpleAuthenticationITest
 {
-    private static DirectoryService service;
-    private static Tag startTag;
-
-    private String password;
-    private TestMode mode = TestMode.ROLLBACK;
-    private DirectoryServiceFactory factory = DirectoryServiceFactory.DEFAULT;
-
-
-    public SimpleAuthenticationITest()
-    {
-    }
-
-
-    public SimpleAuthenticationITest( String password )
-    {
-        this.password = password;
-    }
-
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-
-    @AfterClass
-    public static void afterClass() throws Exception
-    {
-        if ( service != null && service.isStarted() )
-        {
-            service.shutdown();
-        }
-
-        if ( service != null )
-        {
-            doDelete( service.getWorkingDirectory() );
-        }
-
-        service = null;
-    }
-
-
-    @Before
-    public void setUp() throws Exception
-    {
-        if ( service == null )
-        {
-            service = factory.newInstance();
-        }
-
-        if ( mode == TestMode.PRISTINE )
-        {
-            doDelete( service.getWorkingDirectory() );
-        }
-
-        if ( mode == TestMode.ROLLBACK )
-        {
-            service.getChangeLog().setEnabled( true );
-        }
-
-        if ( ! service.isStarted() )
-        {
-            service.startup();
-        }
-
-        startTag = service.getChangeLog().tag();
-    }
-
-
-    @After
-    public void tearDown() throws Exception
-    {
-        switch( mode.ordinal )
-        {
-            case( TestMode.PRISTINE_ORDINAL ):
-                service.shutdown();
-                doDelete( service.getWorkingDirectory() );
-                service = null;
-                break;
-            case( TestMode.RESTART_ORDINAL ):
-                service.startup();
-                break;
-            case( TestMode.ROLLBACK_ORDINAL ):
-                if ( startTag != null && ( startTag.getRevision() < service.getChangeLog().getCurrentRevision() ) )
-                {
-                    service.revert( startTag.getRevision() );
-                }
-                break;
-            case( TestMode.ADDITIVE_ORDINAL ):
-                break;
-            default:
-                throw new IllegalStateException( "Unidentified test mode: " + mode.ordinal );
-        }
-    }
+    public static DirectoryService service;
 
 
     public static LdapContext getRootDSE() throws NamingException
@@ -372,72 +283,6 @@ public class SimpleAuthenticationITest
         assertTrue( attrs.get( "cn" ).contains( "Alex Karasulu" ) );
         assertTrue( attrs.get( "facsimiletelephonenumber" ).contains( "+1 408 555 9751" ) );
         assertTrue( attrs.get( "roomnumber" ).contains( "4612" ) );
-    }
-
-
-    // @Parameterized.Parameters
-    public static List<?> getHashedSecrets()
-    {
-        //noinspection RedundantArrayCreation
-        return Arrays.asList( new Object[] {
-                "",
-                "",
-                ""
-        } );
-    }
-
-
-    // @RunWith(Parameterized.class)
-    @Ignore ( "This test was put here just to figure out how to use parameterization in junit 4" )
-    public void testHashedAuthentication() throws NamingException
-    {
-        apply( getRootDSE(), getUserAddLdif() );
-        String userDn = "uid=akarasulu,ou=users,ou=system";
-        LdapContext ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
-
-        // Check that we can get the attributes
-        Attributes attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // now modify the password for akarasulu : 'secret', encrypted using SHA
-        AttributeImpl userPasswordAttribute = new AttributeImpl( "userPassword", password );
-        ctx.modifyAttributes( "", new ModificationItemImpl[] {
-            new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, userPasswordAttribute ) } );
-
-        // close and try with old password (should fail)
-        ctx.close();
-
-        try
-        {
-            ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "test".getBytes(), "simple", userDn );
-            fail( "Authentication with old password should fail" );
-        }
-        catch ( NamingException e )
-        {
-            // we should fail
-        }
-        finally
-        {
-            if ( ctx != null )
-            {
-                ctx.close();
-            }
-        }
-
-        // try again now with new password (should be successfull)
-        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
-
-        // close and try again now with new password, to check that the
-        // cache is updated (should be successfull)
-        ctx.close();
-        ctx = service.getJndiContext( new LdapDN( userDn ), userDn, "secret".getBytes(), "simple", userDn );
-        attrs = ctx.getAttributes( "" );
-        assertNotNull( attrs );
-        assertTrue( attrs.get( "uid" ).contains( "akarasulu" ) );
     }
 
 
