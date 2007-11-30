@@ -36,6 +36,7 @@ import javax.naming.NamingException;
 public class DefaultChangeLog implements ChangeLog
 {
     private boolean enabled;
+    private Tag latest;
     private ChangeLogStore store = new MemoryChangeLogStore();
 
 
@@ -124,10 +125,10 @@ public class DefaultChangeLog implements ChangeLog
 
         if ( store instanceof TaggableChangeLogStore )
         {
-            return ( ( TaggableChangeLogStore ) store ).tag( revision );
+            return latest = ( ( TaggableChangeLogStore ) store ).tag( revision );
         }
 
-        return new Tag( revision, description );
+        return latest = new Tag( revision, description );
     }
 
 
@@ -158,5 +159,21 @@ public class DefaultChangeLog implements ChangeLog
     public boolean isEnabled()
     {
         return enabled;
+    }
+
+
+    public Tag getLatest() throws NamingException
+    {
+        if ( latest != null )
+        {
+            return latest;
+        }
+        
+        if ( store instanceof TaggableChangeLogStore )
+        {
+            return latest = ( ( TaggableChangeLogStore ) store ).getLatest();
+        }
+
+        return null;
     }
 }

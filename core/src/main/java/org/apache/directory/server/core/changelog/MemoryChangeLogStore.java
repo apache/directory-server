@@ -42,6 +42,7 @@ import java.util.Map;
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {
     private long currentRevision;
+    private Tag latest;
     private final Map<Long,Tag> tags = new HashMap<Long,Tag>( 100 );
     private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
 
@@ -53,21 +54,31 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             return tags.get( revision );
         }
 
-        return new Tag( revision, null );
+        return latest = new Tag( revision, null );
     }
 
 
     public Tag tag() throws NamingException
     {
-        return new Tag( currentRevision, null );
+        if ( latest != null && latest.getRevision() == currentRevision )
+        {
+            return latest;
+        }
+
+        return latest = new Tag( currentRevision, null );
     }
 
 
     public Tag tag( String description ) throws NamingException
     {
-        Tag tag = new Tag( currentRevision, description );
-        tags.put( currentRevision, tag );
-        return tag;
+        if ( latest != null && latest.getRevision() == currentRevision )
+        {
+            return latest;
+        }
+
+        latest = new Tag( currentRevision, description );
+        tags.put( currentRevision, latest );
+        return latest;
     }
 
 
@@ -124,5 +135,11 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
     public Cursor<ChangeLogEvent> find( long startRevision, long endRevision ) throws NamingException
     {
         return new ListCursor<ChangeLogEvent>( ( int ) startRevision, events, ( int ) ( endRevision + 1 ) );
+    }
+
+
+    public Tag getLatest()
+    {
+        return latest;
     }
 }

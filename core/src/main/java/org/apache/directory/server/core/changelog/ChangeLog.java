@@ -170,4 +170,6 @@ public interface ChangeLog
      * @throws NamingException if there is a problem taking a tag
      */
     Tag tag() throws NamingException;
+
+    Tag getLatest() throws NamingException;
 }
