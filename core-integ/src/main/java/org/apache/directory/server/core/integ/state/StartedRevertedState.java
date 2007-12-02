@@ -19,6 +19,16 @@
 package org.apache.directory.server.core.integ.state;
 
 
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.InheritableSettings;
+import org.junit.internal.runners.TestClass;
+import org.junit.internal.runners.TestMethod;
+import org.junit.runner.notification.RunNotifier;
+
+import javax.naming.NamingException;
+import java.io.IOException;
+
+
 /**
  * Document me!
  *
@@ -36,9 +46,9 @@ public class StartedRevertedState implements TestServiceState
     }
 
 
-    public void create()
+    public void create( DirectoryServiceFactory factory )
     {
-        // context.setState( context.gettCreatedDirtyState() );
+
     }
 
 
@@ -48,31 +58,31 @@ public class StartedRevertedState implements TestServiceState
     }
 
 
-    public void cleanup()
+    public void cleanup() throws IOException
     {
 
     }
 
 
-    public void startup()
+    public void startup() throws NamingException
     {
 
     }
 
 
-    public void shutdown()
+    public void shutdown() throws NamingException
     {
 
     }
 
 
-    public void test()
+    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
 
     }
 
 
-    public void revert()
+    public void revert() throws NamingException
     {
 
     }

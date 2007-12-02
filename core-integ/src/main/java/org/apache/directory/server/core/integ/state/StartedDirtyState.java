@@ -19,7 +19,12 @@
 package org.apache.directory.server.core.integ.state;
 
 import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.InheritableSettings;
 import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunNotifier;
+import org.junit.internal.runners.TestClass;
+import org.junit.internal.runners.TestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +49,7 @@ public class StartedDirtyState implements TestServiceState
     }
 
 
-    public void create()
+    public void create( DirectoryServiceFactory factory )
     {
         throw new IllegalStateException( "The running service must be shutdown before creating a new one." );
     }
@@ -70,23 +75,17 @@ public class StartedDirtyState implements TestServiceState
 
     public void shutdown()
     {
-        try
-        {
-            context.getService().shutdown();
-        }
-        catch ( NamingException e )
-        {
-            context.getNotifier().fireTestFailure( new Failure( context.getDescription(), e ) );
-        }
+    }
+
+
+    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
+    {
+
     }
 
 
     public void test()
     {
-        if ( context.getMode().isStartedDirtyTestable() )
-        {
-            // run the test
-        }
     }
 
 

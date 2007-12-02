@@ -22,9 +22,13 @@ package org.apache.directory.server.core.integ.state;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.ServiceScope;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.junit.runner.Description;
+import org.apache.directory.server.core.integ.InheritableSettings;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.internal.runners.TestClass;
+import org.junit.internal.runners.TestMethod;
+
+import javax.naming.NamingException;
+import java.io.IOException;
 
 
 /**
@@ -47,28 +51,41 @@ public class TestServiceContext
     private final TestServiceState stoppedPristineState = new StoppedPristineState( this );
 
 
+    /**
+     * the level at which the service was started and where it will be 
+     * shutdown, cleaned and destroyed if it is still present
+     */
+    private final ServiceScope scope;
+
     /** current service state with respect to the testing life cycle */
     private TestServiceState state;
-    private ServiceScope scope;
-    private SetupMode mode;
+
+    /** the core directory service managed by this context */
     private DirectoryService service;
-    private DirectoryServiceFactory factory;
-    private RunNotifier notifier;
-    private Description description;
+
+
+    public TestServiceContext( ServiceScope scope )
+    {
+        this.scope = scope;
+    }
 
 
     /**
-     * Gets the TestServiceContext associated with the current thread of execution.
+     * Gets the TestServiceContext associated with the current thread of
+     * execution.  If one does not yet exist it will be created using the
+     * provided scope parameter.  If the scope is null a null pointer
+     * exception may result.
      *
+     * @param scope the level at which the service was started
      * @return the context associated with the calling thread
      */
-    public static TestServiceContext get()
+    public static TestServiceContext get( ServiceScope scope )
     {
         TestServiceContext context = CONTEXTS.get();
 
         if ( context == null )
         {
-            context = new TestServiceContext();
+            context = new TestServiceContext( scope );
             CONTEXTS.set( context );
         }
 
@@ -92,10 +109,12 @@ public class TestServiceContext
      * creation in this system is the combined instantiation and
      * configuration which takes place when the factory is used to get
      * a new instance of the service.
+     *
+     * @param factory the factory to use for creating a configured service
      */
-    public void create()
+    public void create( DirectoryServiceFactory factory )
     {
-        state.create();
+        state.create( factory );
     }
 
 
@@ -114,8 +133,10 @@ public class TestServiceContext
      * Action where an attempt is made to erase the contents of the
      * working directory used by the service for various files including
      * partition database files.
+     *
+     * @throws IOException on errors while deleting the working directory
      */
-    public void cleanup()
+    public void cleanup() throws IOException
     {
         state.cleanup();
     }
@@ -123,8 +144,10 @@ public class TestServiceContext
 
     /**
      * Action where an attempt is made to start up the service.
+     *
+     * @throws NamingException on failures to start the core directory service
      */
-    public void startup()
+    public void startup() throws NamingException
     {
         state.startup();
     }
@@ -132,8 +155,10 @@ public class TestServiceContext
 
     /**
      * Action where an attempt is made to shutdown the service.
+     *
+     * @throws NamingException on failures to stop the core directory service
      */
-    public void shutdown()
+    public void shutdown() throws NamingException
     {
         state.shutdown();
     }
@@ -141,18 +166,31 @@ public class TestServiceContext
 
     /**
      * Action where an attempt is made to run a test against the service.
+     *
+     * All annotations should have already been processed for
+     * InheritableSettings yet they and others can be processed since we have
+     * access to the method annotations below
+     *
+     * @param testClass the class whose test method is to be run
+     * @param testMethod the test method which is to be run
+     * @param notifier a notifier to report failures to
+     * @param settings the inherited settings and annotations associated with
+     * the test method
      */
-    public void test()
+    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
-        state.test();
+        state.test( testClass, testMethod, notifier, settings );
     }
 
 
     /**
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
+     *
+     * @throws NamingException on failures to revert the state of the core
+     * directory service
      */
-    public void revert()
+    public void revert() throws NamingException
     {
         state.revert();
     }
@@ -164,116 +202,62 @@ public class TestServiceContext
     }
 
 
-    public TestServiceState getState()
+    TestServiceState getState()
     {
         return state;
     }
 
 
-    public TestServiceState getNonExistentState()
+    TestServiceState getNonExistentState()
     {
         return nonExistentState;
     }
 
 
-    public TestServiceState getStartedDirtyState()
+    TestServiceState getStartedDirtyState()
     {
         return startedDirtyState;
     }
 
 
-    public TestServiceState getStartedPristineState()
+    TestServiceState getStartedPristineState()
     {
         return startedPristineState;
     }
 
 
-    public TestServiceState getStartedRevertedState()
+    TestServiceState getStartedRevertedState()
     {
         return startedRevertedState;
     }
 
 
-    public TestServiceState getStoppedDirtyState()
+    TestServiceState getStoppedDirtyState()
     {
         return stoppedDirtyState;
     }
 
 
-    public TestServiceState getStoppedPristineState()
+    TestServiceState getStoppedPristineState()
     {
         return stoppedPristineState;
     }
 
 
-    public ServiceScope getScope()
+    ServiceScope getScope()
     {
         return scope;
     }
 
 
-    public void setScope( ServiceScope scope )
-    {
-        this.scope = scope;
-    }
-
-
-    public DirectoryService getService()
+    DirectoryService getService()
     {
         return service;
     }
 
 
-    public void setService( DirectoryService service )
+    void setService( DirectoryService service )
     {
         this.service = service;
-    }
-
-
-    public SetupMode getMode()
-    {
-        return mode;
-    }
-
-
-    public void setMode( SetupMode mode )
-    {
-        this.mode = mode;
-    }
-
-
-    public DirectoryServiceFactory getFactory()
-    {
-        return factory;
-    }
-
-
-    public void setFactory( DirectoryServiceFactory factory )
-    {
-        this.factory = factory;
-    }
-
-
-    public RunNotifier getNotifier()
-    {
-        return notifier;
-    }
-
-
-    public void setNotifier( RunNotifier notifier )
-    {
-        this.notifier = notifier;
-    }
-
-
-    public Description getDescription()
-    {
-        return description;
-    }
-
-
-    public void setDescription( Description description )
-    {
-        this.description = description;
     }
 }

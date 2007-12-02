@@ -18,6 +18,12 @@
  */
 package org.apache.directory.server.core.integ.state;
 
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.InheritableSettings;
+import org.junit.internal.runners.TestClass;
+import org.junit.internal.runners.TestMethod;
+import org.junit.runner.notification.RunNotifier;
+
 
 /**
  * Document me!
@@ -36,9 +42,10 @@ public class NonExistentState implements TestServiceState
     }
 
 
-    public void create()
+    public void create( DirectoryServiceFactory factory )
     {
-        context.setState( context.getStartedDirtyState() );
+        context.setService( factory.newInstance() );
+        context.setState( context.getStoppedDirtyState() );
     }
 
 
@@ -66,7 +73,7 @@ public class NonExistentState implements TestServiceState
     }
 
 
-    public void test()
+    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
         throw new IllegalStateException( "Attempting to run integration tests on a service that does not exist." );
     }

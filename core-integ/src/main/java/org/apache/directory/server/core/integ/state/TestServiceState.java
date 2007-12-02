@@ -18,6 +18,15 @@
  */
 package org.apache.directory.server.core.integ.state;
 
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import org.apache.directory.server.core.integ.InheritableSettings;
+import org.junit.internal.runners.TestClass;
+import org.junit.internal.runners.TestMethod;
+import org.junit.runner.notification.RunNotifier;
+
+import javax.naming.NamingException;
+import java.io.IOException;
+
 
 /**
  * The interface representing a state in the lifecycle of a service
@@ -33,8 +42,10 @@ public interface TestServiceState
      * creation in this system is the combined instantiation and
      * configuration which takes place when the factory is used to get
      * a new instance of the service.
+     *
+     * @param factory the factory to use for creating a configured service
      */
-    void create();
+    void create( DirectoryServiceFactory factory );
 
 
     /**
@@ -49,31 +60,50 @@ public interface TestServiceState
      * Action where an attempt is made to erase the contents of the
      * working directory used by the service for various files including
      * partition database files.
+     *
+     * @throws IOException on errors while deleting the working directory
      */
-    void cleanup();
+    void cleanup() throws IOException;
 
 
     /**
      * Action where an attempt is made to start up the service.
+     *
+     * @throws NamingException on failures to start the core directory service
      */
-    void startup();
+    void startup() throws NamingException;
 
 
     /**
      * Action where an attempt is made to shutdown the service.
+     *
+     * @throws NamingException on failures to stop the core directory service
      */
-    void shutdown();
+    void shutdown() throws NamingException;
 
 
     /**
      * Action where an attempt is made to run a test against the service.
+     *
+     * All annotations should have already been processed for
+     * InheritableSettings yet they and others can be processed since we have
+     * access to the method annotations below
+     *
+     * @param testClass the class whose test method is to be run
+     * @param testMethod the test method which is to be run
+     * @param notifier a notifier to report failures to
+     * @param settings the inherited settings and annotations associated with
+     * the test method
      */
-    void test();
+    void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings );
 
 
     /**
      * Action where an attempt is made to revert the service to it's
      * initial start up state by using a previous snapshot.
+     *
+     * @throws NamingException on failures to revert the state of the core
+     * directory service
      */
-    void revert();
+    void revert() throws NamingException;
 }
