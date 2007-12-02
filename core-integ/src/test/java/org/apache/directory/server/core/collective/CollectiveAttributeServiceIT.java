@@ -20,21 +20,22 @@
 package org.apache.directory.server.core.collective;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.annotations.ForceCleanup;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -43,8 +44,13 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@ForceCleanup
+public class CollectiveAttributeServiceIT
 {
+    public static DirectoryService service;
+
+
     public Attributes getTestEntry( String cn )
     {
         Attributes subentry = new AttributesImpl();
@@ -108,8 +114,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( role );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
-            { item } );
+        getSystemContext( service ).modifyAttributes( "", new ModificationItemImpl[] { item } );
     }
 
 
@@ -120,7 +125,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
-        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
@@ -137,12 +142,11 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
         
-        NamingEnumeration<SearchResult> results = sysRoot.search( name, "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service ).search( name, "(objectClass=*)", controls );
         
-        while ( results.hasMore() )
+        if ( results.hasMore() )
         {
-            SearchResult result = results.next();
-            return result;
+            return results.next();
         }
         
         return null;
@@ -156,7 +160,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "cn" } );
-        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
@@ -173,7 +177,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
                                                     { "c-ou", "c-st" } );
-        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration results = getSystemContext( service ).search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
@@ -183,6 +187,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
 
+    @Test
     public void testLookup() throws Exception
     {
         // -------------------------------------------------------------------
@@ -190,16 +195,13 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        
-        SearchResult result = getEntry( "" );
-        
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
 
         // -------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou
         // -------------------------------------------------------------------
 
-        Attributes attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
+        Attributes attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
         Attribute c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertEquals( "configuration", c_ou.get() );
@@ -208,7 +210,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // test an entry that should not show the collective attribute
         // -------------------------------------------------------------------
 
-        attributes = super.sysRoot.getAttributes( "ou=users" );
+        attributes = getSystemContext( service ).getAttributes( "ou=users" );
         c_ou = attributes.get( "c-ou" );
         assertNull( "the c-ou collective attribute should not be present", c_ou );
 
@@ -219,10 +221,10 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         ModificationItemImpl[] items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
-        super.sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
+        getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
 
         // entry should not show the c-ou collective attribute anymore
-        attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -230,9 +232,9 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
-        super.sysRoot.createSubcontext( "cn=testsubentry2", getTestSubentry2() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry2", getTestSubentry2() );
 
-        attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -240,7 +242,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         }
 
         // entries without the collectiveExclusion should still show both values of c-ou
-        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
@@ -248,7 +250,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
 
         // request the collective attribute specifically
         
-        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration", new String[] { "c-ou" } );
+        attributes = getSystemContext( service ).getAttributes(
+                "ou=interceptors,ou=configuration", new String[] { "c-ou" } );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
@@ -256,7 +259,8 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         
         // unspecify the collective attribute in the returning attribute list
 
-        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration", new String[] { "objectClass" } );
+        attributes = getSystemContext( service ).getAttributes(
+                "ou=interceptors,ou=configuration", new String[] { "objectClass" } );
         c_ou = attributes.get( "c-ou" );
         assertNull( "a collective c-ou attribute should not be present", c_ou );
         
@@ -264,16 +268,16 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
 
-        super.sysRoot.createSubcontext( "cn=testsubentry3", getTestSubentry3() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry3", getTestSubentry3() );
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
-        attributes = super.sysRoot.getAttributes( "ou=services,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=services,ou=configuration" );
         Attribute c_st = attributes.get( "c-st" );
         assertNotNull( "a collective c-st attribute should be present", c_st );
         assertTrue( c_st.contains( "FL" ) );
 
         // in node without exclusions both values of c-ou should appear with c-st value
-        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );
         assertTrue( c_ou.contains( "configuration" ) );
@@ -289,10 +293,10 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
-        super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
+        getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
 
         // none of the attributes should appear any longer
-        attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration" );
+        attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration" );
         c_ou = attributes.get( "c-ou" );
         if ( c_ou != null )
         {
@@ -306,6 +310,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearch() throws Exception
     {
         // -------------------------------------------------------------------
@@ -313,7 +318,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
 
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
 
         // -------------------------------------------------------------------
         // test an entry that should show the collective attribute c-ou
@@ -353,7 +358,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         ModificationItemImpl[] items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( "collectiveExclusions", "c-ou" ) ) };
-        super.sysRoot.modifyAttributes( "ou=services,ou=configuration", items );
+        getSystemContext( service ).modifyAttributes( "ou=services,ou=configuration", items );
         entries = getAllEntries();
 
         // entry should not show the c-ou collective attribute anymore
@@ -365,7 +370,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         }
 
         // now add more collective subentries - the c-ou should still not show due to exclusions
-        super.sysRoot.createSubcontext( "cn=testsubentry2", getTestSubentry2() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry2", getTestSubentry2() );
         entries = getAllEntries();
 
         attributes = entries.get( "ou=services,ou=configuration,ou=system" );
@@ -386,7 +391,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // now add the subentry for the c-st collective attribute
         // -------------------------------------------------------------------
 
-        super.sysRoot.createSubcontext( "cn=testsubentry3", getTestSubentry3() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry3", getTestSubentry3() );
         entries = getAllEntries();
 
         // the new attribute c-st should appear in the node with the c-ou exclusion
@@ -412,7 +417,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         items = new ModificationItemImpl[]
             { new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "collectiveExclusions",
                 "excludeAllCollectiveAttributes" ) ) };
-        super.sysRoot.modifyAttributes( "ou=interceptors,ou=configuration", items );
+        getSystemContext( service ).modifyAttributes( "ou=interceptors,ou=configuration", items );
         entries = getAllEntries();
 
         // none of the attributes should appear any longer
@@ -447,13 +452,14 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testAddRegularEntryWithCollectiveAttribute()
     {
         Attributes entry = getTestEntry( "Ersin Er" );
         entry.put( "c-l", "Turkiye" );
         try
         {
-            super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+            getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
             fail( "Entry addition with collective attribute should have failed." );
         }
         catch ( NamingException e )
@@ -463,15 +469,16 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testModifyRegularEntryAddingCollectiveAttribute() throws NamingException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
-        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
         Attributes changeSet = new AttributesImpl( "c-l", "Turkiye", true );
         try
         {
             
-            super.sysRoot.modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
+            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", DirContext.ADD_ATTRIBUTE, changeSet );
             fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
         }
         catch ( NamingException e )
@@ -481,15 +488,16 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testModifyRegularEntryAddingCollectiveAttribute2() throws NamingException
     {
         Attributes entry = getTestEntry( "Ersin Er" );
-        super.sysRoot.createSubcontext( "cn=Ersin Er", entry );
+        getSystemContext( service ).createSubcontext( "cn=Ersin Er", entry );
         Attribute change = new AttributeImpl( "c-l", "Turkiye");
         ModificationItemImpl mod = new ModificationItemImpl(DirContext.ADD_ATTRIBUTE, change);
         try
         {
-            super.sysRoot.modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[] { mod } );
+            getSystemContext( service ).modifyAttributes( "cn=Ersin Er", new ModificationItemImpl[] { mod } );
             fail( "Collective attribute addition to non-collectiveAttributeSubentry should have failed." );
         }
         catch ( NamingException e )
@@ -499,6 +507,7 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testPolymorphicReturnAttrLookup() throws Exception
     {
         // -------------------------------------------------------------------
@@ -506,10 +515,10 @@ public class CollectiveAttributeServiceITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
     
         addAdministrativeRole( "collectiveAttributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        getSystemContext( service ).createSubcontext( "cn=testsubentry", getTestSubentry() );
     
         // request the collective attribute's super type specifically
-        Attributes attributes = super.sysRoot.getAttributes( "ou=interceptors,ou=configuration",
+        Attributes attributes = getSystemContext( service ).getAttributes( "ou=interceptors,ou=configuration",
             new String[] { "ou" } );
         Attribute c_ou = attributes.get( "c-ou" );
         assertNotNull( "a collective c-ou attribute should be present", c_ou );

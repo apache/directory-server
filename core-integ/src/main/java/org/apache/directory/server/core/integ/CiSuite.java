@@ -24,13 +24,16 @@ import static org.apache.directory.server.core.integ.AnnotationUtils.getMode;
 import static org.apache.directory.server.core.integ.AnnotationUtils.newFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
 import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.ForceCleanup;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import org.junit.internal.runners.InitializationError;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -43,7 +46,12 @@ import org.junit.runners.Suite;
  */
 public class CiSuite extends Suite
 {
-    public static final SetupMode DEFAULT_MODE = SetupMode.NOSERVICE;
+    /**
+     * Must be ROLLBACK to not through inheritence impact the
+     * reasoning for these decisions that are made clear in
+     * {@Link CiRunner#DEFAULT_MODE}.
+     */
+    public static final SetupMode DEFAULT_MODE = SetupMode.ROLLBACK;
 
     /**
      * The suite level setup mode.  This is the mode that is inherited
@@ -68,6 +76,12 @@ public class CiSuite extends Suite
      * model and on the lifecycle of the tested service.
      */
     private DirectoryService service;
+
+    /**
+     * List of ldifFiles to be loaded before conducting a test at
+     * various stages and based on the mode of the setup.    
+      */
+    private List<File> ldifFiles = Collections.emptyList();
 
 
     public CiSuite( Class<?> clazz ) throws InitializationError

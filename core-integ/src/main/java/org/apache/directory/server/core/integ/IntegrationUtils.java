@@ -20,6 +20,9 @@ package org.apache.directory.server.core.integ;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -76,6 +79,38 @@ public class IntegrationUtils
         return getUserAddLdif( "uid=akarasulu,ou=users,ou=system", "test".getBytes(), "Alex Karasulu", "Karasulu" );
     }
 
+
+    public static LdapContext getContext( String principalDn, DirectoryService service, String dn )
+            throws NamingException
+    {
+        if ( principalDn == null )
+        {
+            principalDn = "";
+        }
+
+        LdapDN userDn = new LdapDN( principalDn );
+        userDn.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
+        LdapPrincipal principal = new LdapPrincipal( userDn, AuthenticationLevel.SIMPLE );
+
+        if ( dn == null )
+        {
+            dn = "";
+        }
+
+        return service.getJndiContext( principal, dn );
+    }
+
+
+    public static LdapContext getSystemContext( DirectoryService service ) throws NamingException
+    {
+        return getContext( "uid=admin,ou=system", service, "ou=system" );
+    }
+
+
+    public static LdapContext getRootContext( DirectoryService service ) throws NamingException
+    {
+        return getContext( "uid=admin,ou=system", service, "" );
+    }
 
 
     public static void apply( LdapContext root, Entry entry ) throws NamingException

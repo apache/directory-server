@@ -102,4 +102,24 @@ public enum SetupMode
         this.ordinal = ordinal;
         this.description = description;
     }
+
+
+    public boolean isStartedDirtyTestable()
+    {
+        switch( ordinal )
+        {
+            case( PRISTINE_ORDINAL ):
+                return false;
+            case( ROLLBACK_ORDINAL ):
+                return false;
+            case( NOSERVICE_ORDINAL ):
+                return true;
+            case( RESTART_ORDINAL ):
+                return true;
+            case( CUMULATIVE_ORDINAL ):
+                return true;
+            default:
+                throw new IllegalStateException( "Unidentified ordinal value: " + ordinal );
+        }
+    }
 }

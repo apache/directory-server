@@ -21,22 +21,20 @@ package org.apache.directory.server.core.authn;
 
 
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.apply;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.ForceCleanup;
+import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
-
-import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
-
-import static org.apache.directory.server.core.integ.IntegrationUtils.*;
-
-import org.junit.*;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -54,7 +52,8 @@ import javax.naming.ldap.LdapContext;
  */
 @RunWith( CiRunner.class )
 @Mode ( SetupMode.ROLLBACK )
-public class SimpleAuthenticationITest
+@ForceCleanup
+public class SimpleAuthenticationIT
 {
     public static DirectoryService service;
 

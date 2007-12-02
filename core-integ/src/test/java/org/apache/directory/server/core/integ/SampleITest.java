@@ -19,21 +19,19 @@
 package org.apache.directory.server.core.integ;
 
 
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.integ.annotations.Mode;
+import org.apache.directory.server.core.integ.annotations.ForceCleanup;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
-import static org.junit.Assert.assertNotNull;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -44,6 +42,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith( CiRunner.class)
 @Mode ( SetupMode.ROLLBACK )
+@ForceCleanup
 public class SampleITest
 {
     static DirectoryService service;
@@ -60,7 +59,7 @@ public class SampleITest
         attrs.put( "ou", "test" );
         root.createSubcontext( "ou=test,ou=system", attrs );
     }
-    
+        
 
     @Test public void checkService0() throws Exception
     {

@@ -50,7 +50,53 @@ import java.lang.reflect.Method;
  */
 public class CiRunner extends JUnit4ClassRunner
 {
-    public static final SetupMode DEFAULT_MODE = SetupMode.NOSERVICE;
+    /**
+     * The default setup mode to use is ROLLBACK.  Why you might ask
+     * is it not NOSERVICE?  The user shown us their intentions and has
+     * made a conscious decision to conduct tests with a running core
+     * service by selecting this Runner in the first place via the
+     * \@RunWith JUnit annotation.  So by default it makes sense to
+     * just give them that if they decide to use it in any of the tests
+     * contained which is most likely the case otherwise why would
+     * they bother to use this runner.  The thing is some tests may
+     * need the service and some might not even use it.  If the ROLLBACK
+     * mode is used then there is no cost incurred for having a running
+     * server in the background.  The server will be used anyway at some
+     * point by some tests.  When not used by some tests there are no
+     * rollbacks and so the service just sits waiting for tests to use
+     * it.
+     *
+     * <ul>
+     *   <li>
+     *     If the default was NOSERVICE the user would have to do more
+     *     work specify a mode on each test method that needs the core
+     *     service running.
+     *   </li>
+     *   <li>
+     *     If the default was PRISTINE then those tests not needing a
+     *     service up would shutdown existing servers, clean up,
+     *     create a new one and start the new service.  This process
+     *     costs about 2-3 seconds churns the disk and costs memory.
+     *     Turning off this default would require more effort on the
+     *     user when we already know their intensions.
+     *   </li>
+     *   <li>
+     *     If the default was RESTART then the impact would be similar
+     *     to the pristine case with perhaps much less waste but still
+     *     it would be very inefficient.
+     *   </li>
+     *   <li>
+     *     If the default was CUMULATIVE then some test that may delete
+     *     and create the same entries, often not worrying about cleanup
+     *     would collide causing false negatives.
+     *   </li>
+     * </ul>
+     *
+     * As you can see the best option for the default is the ROLLBACK mode.
+     * When a suite is present however mode inheritance can be utilized to
+     * override this default.
+     */
+    public static final SetupMode DEFAULT_MODE = SetupMode.ROLLBACK;
 
     private Class<?> clazz;
     private CiSuite suite;
