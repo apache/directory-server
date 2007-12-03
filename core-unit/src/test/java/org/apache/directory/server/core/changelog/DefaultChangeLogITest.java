@@ -158,6 +158,35 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    public void testTagPersistenceAcrossRestarts() throws NamingException, InterruptedException
+    {
+        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
+        assertNull( service.getChangeLog().getLatest() );
+
+        Tag t0 = service.getChangeLog().tag();
+        assertEquals( t0, service.getChangeLog().getLatest() );
+        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
+
+        // add new test entry
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "test" );
+        sysRoot.createSubcontext( "ou=test", attrs );
+        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+
+        service.sync();
+        service.shutdown();
+
+        service.startup();
+        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t0, service.getChangeLog().getLatest() );
+
+        service.revert();
+        assertNotPresent( sysRoot, "ou=test" );
+        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t0, service.getChangeLog().getLatest() );
+    }
+
+
     public void testRevertAddOperations() throws NamingException
     {
         Tag t0 = service.getChangeLog().tag();
