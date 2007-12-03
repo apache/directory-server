@@ -20,6 +20,7 @@ package org.apache.directory.server.core.changelog;
 
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.Entry;
 
 import javax.naming.NamingException;
@@ -175,5 +176,32 @@ public class DefaultChangeLog implements ChangeLog
         }
 
         return null;
+    }
+
+
+    public void init( DirectoryService service ) throws NamingException
+    {
+        if ( enabled )
+        {
+            store.init( service );
+        }
+    }
+
+
+    public void sync() throws NamingException
+    {
+        if ( enabled )
+        {
+            store.sync();
+        }
+    }
+
+
+    public void destroy() throws NamingException
+    {
+        if ( enabled )
+        {
+            store.destroy();
+        }
     }
 }

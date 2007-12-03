@@ -60,4 +60,24 @@ public class Tag
     {
         return description;
     }
+
+
+    public boolean equals( Object other )
+    {
+        if ( other instanceof Tag )
+        {
+            Tag ot = ( Tag ) other;
+
+            if ( description != null && ot.getDescription() != null )
+            {
+                return revision == ot.getRevision() && description.equals( ot.getDescription() );
+            }
+            else if ( description == null && ot.getDescription() == null )
+            {
+                return revision == ot.getRevision();
+            }
+        }
+
+        return false;
+    }
 }

@@ -70,6 +70,23 @@ public interface DirectoryService
     long revert( long revision ) throws NamingException;
 
 
+    /**
+     * Reverts the server's state to the latest tagged snapshot if one was taken.  If
+     * there is no tag a illegal state exception will result.  If the latest revision
+     * is not earlier than the current revision (both are same), then no changes were
+     * made to the directory to be reverted.  In this case we return the current
+     * revision and do nothiig loggin the fact that we ignored the request to revert.
+     *
+     * @return the new revision reached by applying all changes needed to revert
+     * to the new state or the same version before this call if no revert actually
+     * took place
+     * @throws NamingException if there are problems reverting back to the earlier state
+     * @throws UnsupportedOperationException if this feature is not supported by the
+     * change log
+     */
+    long revert() throws NamingException;
+
+
     PartitionNexus getPartitionNexus();
 
 

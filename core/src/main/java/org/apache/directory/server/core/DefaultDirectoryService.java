@@ -24,10 +24,7 @@ import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.changelog.ChangeLog;
-import org.apache.directory.server.core.changelog.ChangeLogEvent;
-import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
-import org.apache.directory.server.core.changelog.DefaultChangeLog;
+import org.apache.directory.server.core.changelog.*;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.event.EventInterceptor;
@@ -566,6 +563,31 @@ public class DefaultDirectoryService implements  DirectoryService
     }
 
 
+    public long revert() throws NamingException
+    {
+        if ( changeLog == null || ! changeLog.isEnabled() )
+        {
+            throw new IllegalStateException( "The change log must be enabled to revert to previous log revisions." );
+        }
+
+        Tag latest = changeLog.getLatest();
+        if ( null != latest )
+        {
+            if ( latest.getRevision() < changeLog.getCurrentRevision() )
+            {
+                return revert( latest.getRevision() );
+            }
+            else
+            {
+                LOG.info( "Ignoring request to revert without changes since the latest tag." );
+                return changeLog.getCurrentRevision();
+            }
+        }
+
+        throw new IllegalStateException( "There must be at least one tag to revert to the latest tag." );
+    }
+
+
     public long revert( long revision ) throws NamingException
     {
         if ( changeLog == null || ! changeLog.isEnabled() )
@@ -707,6 +729,7 @@ public class DefaultDirectoryService implements  DirectoryService
             return;
         }
 
+        this.changeLog.sync();
         this.partitionNexus.sync();
     }
 
@@ -717,6 +740,9 @@ public class DefaultDirectoryService implements  DirectoryService
         {
             return;
         }
+
+        this.changeLog.sync();
+        this.changeLog.destroy();
 
         this.partitionNexus.sync();
         this.partitionNexus.destroy();
@@ -1329,6 +1355,11 @@ public class DefaultDirectoryService implements  DirectoryService
 
         interceptorChain = new InterceptorChain();
         interceptorChain.init( this );
+
+        if ( changeLog.isEnabled() )
+        {
+            changeLog.init( this );
+        }
 
         if ( LOG.isDebugEnabled() )
         {

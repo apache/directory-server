@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.changelog;
 
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.ldif.Entry;
 
@@ -172,4 +173,10 @@ public interface ChangeLog
     Tag tag() throws NamingException;
 
     Tag getLatest() throws NamingException;
+
+    void init( DirectoryService service ) throws NamingException;
+
+    void sync() throws NamingException;
+
+    void destroy() throws NamingException;
 }

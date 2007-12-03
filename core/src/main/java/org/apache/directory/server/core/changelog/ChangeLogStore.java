@@ -22,6 +22,7 @@ package org.apache.directory.server.core.changelog;
 
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.ldif.Entry;
 
 import javax.naming.NamingException;
@@ -36,6 +37,15 @@ import javax.naming.NamingException;
  */
 public interface ChangeLogStore 
 {
+    void init( DirectoryService service ) throws NamingException;
+
+
+    void sync() throws NamingException;
+
+
+    void destroy() throws NamingException;
+
+
     /**
      * Gets the current revision of the server (a.k.a. the HEAD revision).
      *

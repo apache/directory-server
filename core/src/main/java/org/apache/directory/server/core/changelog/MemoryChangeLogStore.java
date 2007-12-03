@@ -18,6 +18,7 @@
  */
 package org.apache.directory.server.core.changelog;
 
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.cursor.ListCursor;
@@ -25,10 +26,8 @@ import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.util.DateUtils;
 
 import javax.naming.NamingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -41,10 +40,15 @@ import java.util.Map;
  */
 public class MemoryChangeLogStore implements TaggableChangeLogStore
 {
+    private static final String REV_FILE = "revision";
+    private static final String TAG_FILE = "tags";
+    private static final String CHANGELOG_FILE = "changelog.dat";
+
     private long currentRevision;
     private Tag latest;
     private final Map<Long,Tag> tags = new HashMap<Long,Tag>( 100 );
     private final List<ChangeLogEvent> events = new ArrayList<ChangeLogEvent>();
+    private File workingDirectory;
 
 
     public Tag tag( long revision ) throws NamingException
@@ -54,7 +58,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             return tags.get( revision );
         }
 
-        return latest = new Tag( revision, null );
+        latest = new Tag( revision, null );
+        tags.put( revision, latest );
+        return latest;
     }
 
 
@@ -65,7 +71,9 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
             return latest;
         }
 
-        return latest = new Tag( currentRevision, null );
+        latest = new Tag( currentRevision, null );
+        tags.put( currentRevision, latest );
+        return latest;
     }
 
 
@@ -79,6 +87,319 @@ public class MemoryChangeLogStore implements TaggableChangeLogStore
         latest = new Tag( currentRevision, description );
         tags.put( currentRevision, latest );
         return latest;
+    }
+
+
+    public void init( DirectoryService service ) throws NamingException
+    {
+        workingDirectory = service.getWorkingDirectory();
+        loadRevision();
+        loadTags();
+        loadChangeLog();
+    }
+
+
+    private void loadRevision() throws NamingException
+    {
+        File revFile = new File( workingDirectory, REV_FILE );
+        if ( revFile.exists() )
+        {
+            BufferedReader reader = null;
+            try
+            {
+                reader = new BufferedReader( new FileReader( revFile ) );
+                String line = reader.readLine();
+                currentRevision = Long.valueOf( line );
+            }
+            catch ( IOException e )
+            {
+                throw new NamingException( "Failed to open stream to read from revfile: " + revFile.getAbsolutePath() );
+            }
+            finally
+            {
+                if ( reader != null )
+                {
+                    //noinspection EmptyCatchBlock
+                    try
+                    {
+                        reader.close();
+                    }
+                    catch ( IOException e )
+                    {
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void saveRevision() throws NamingException
+    {
+        File revFile = new File( workingDirectory, REV_FILE );
+        if ( revFile.exists() )
+        {
+            revFile.delete();
+        }
+
+        PrintWriter out = null;
+        try
+        {
+            out = new PrintWriter( new FileWriter( revFile ) );
+            out.println( currentRevision );
+            out.flush();
+        }
+        catch ( IOException e )
+        {
+            throw new NamingException( "Failed to write out revision file." );
+        }
+        finally
+        {
+            if ( out != null )
+            {
+                out.close();
+            }
+        }
+    }
+
+
+    private void saveTags() throws NamingException
+    {
+        File tagFile = new File( workingDirectory, TAG_FILE );
+        if ( tagFile.exists() )
+        {
+            tagFile.delete();
+        }
+
+        FileOutputStream out = null;
+        try
+        {
+            out = new FileOutputStream( tagFile );
+
+            Properties props = new Properties();
+            for ( Tag tag : tags.values() )
+            {
+                String key = String.valueOf( tag.getRevision() );
+                if ( tag.getDescription() == null )
+                {
+                    props.setProperty( key, "null" );
+                }
+                else
+                {
+                    props.setProperty( key, tag.getDescription() );
+                }
+            }
+
+            props.store( out, null );
+            out.flush();
+        }
+        catch ( IOException e )
+        {
+            throw new NamingException( "Failed to write out revision file." );
+        }
+        finally
+        {
+            if ( out != null )
+            {
+                //noinspection EmptyCatchBlock
+                try
+                {
+                    out.close();
+                }
+                catch ( IOException e )
+                {
+                }
+            }
+        }
+    }
+
+
+    private void loadTags() throws NamingException
+    {
+        File revFile = new File( workingDirectory, REV_FILE );
+        if ( revFile.exists() )
+        {
+            Properties props = new Properties();
+            FileInputStream in = null;
+            try
+            {
+                in = new FileInputStream( revFile );
+                props.load( in );
+                ArrayList<Long> revList = new ArrayList<Long>();
+                for ( Object key : props.keySet() )
+                {
+                    revList.add( Long.valueOf( ( String ) key ) );
+                }
+
+                Collections.sort( revList );
+                Tag tag = null;
+
+                // @todo need some serious syncrhoization here on tags
+                tags.clear();
+                for ( Long lkey : revList )
+                {
+                    String rev = String.valueOf( lkey );
+                    String desc = props.getProperty( rev );
+
+                    if ( desc != null && desc.equals( "null" ) )
+                    {
+                        tag = new Tag( lkey, null );
+                    }
+                    else
+                    {
+                        tag = new Tag( lkey, desc );
+                    }
+
+                    tags.put( lkey, tag );
+                }
+
+                latest = tag;
+            }
+            catch ( IOException e )
+            {
+                throw new NamingException( "Failed to open stream to read from revfile: " + revFile.getAbsolutePath() );
+            }
+            finally
+            {
+                if ( in != null )
+                {
+                    //noinspection EmptyCatchBlock
+                    try
+                    {
+                        in.close();
+                    }
+                    catch ( IOException e )
+                    {
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void loadChangeLog() throws NamingException
+    {
+        File file = new File( workingDirectory, CHANGELOG_FILE );
+        if ( file.exists() )
+        {
+            ObjectInputStream in = null;
+
+            try
+            {
+                in = new ObjectInputStream( new FileInputStream( file ) );
+                ArrayList<ChangeLogEvent> changeLogEvents = new ArrayList<ChangeLogEvent>();
+
+                while ( true )
+                {
+                    try
+                    {
+                        ChangeLogEvent event = ( ChangeLogEvent ) in.readObject();
+                        changeLogEvents.add( event );
+                    }
+                    catch ( EOFException eofe )
+                    {
+                        break;
+                    }
+                }
+
+                // @todo man o man we need some synchronization later after getting this to work
+                this.events.clear();
+                this.events.addAll( changeLogEvents );
+            }
+            catch ( Exception e )
+            {
+                NamingException ne = new NamingException( "Failed to open stream to read from changelog file: "
+                        + file.getAbsolutePath() );
+                ne.setRootCause( e );
+                throw ne;
+            }
+            finally
+            {
+                if ( in != null )
+                {
+                    //noinspection EmptyCatchBlock
+                    try
+                    {
+                        in.close();
+                    }
+                    catch ( IOException e )
+                    {
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void saveChangeLog() throws NamingException
+    {
+        File file = new File( workingDirectory, CHANGELOG_FILE );
+        if ( file.exists() )
+        {
+            file.delete();
+        }
+
+        try
+        {
+            file.createNewFile();
+        }
+        catch ( IOException e )
+        {
+            NamingException ne = new NamingException( "Failed to create new file for changelog: "
+                    + file.getAbsolutePath() );
+            ne.setRootCause( e );
+            throw ne;
+        }
+
+        ObjectOutputStream out = null;
+
+        try
+        {
+            out = new ObjectOutputStream( new FileOutputStream( file ) );
+
+            for ( ChangeLogEvent event : events )
+            {
+                out.writeObject( event );
+            }
+
+            out.flush();
+        }
+        catch ( Exception e )
+        {
+            NamingException ne = new NamingException( "Failed to open stream to write to changelog file: "
+                    + file.getAbsolutePath() );
+            ne.setRootCause( e );
+            throw ne;
+        }
+        finally
+        {
+            if ( out != null )
+            {
+                //noinspection EmptyCatchBlock
+                try
+                {
+                    out.close();
+                }
+                catch ( IOException e )
+                {
+                }
+            }
+        }
+    }
+
+
+    public void sync() throws NamingException
+    {
+        saveRevision();
+        saveTags();
+        saveChangeLog();
+    }
+
+
+    public void destroy() throws NamingException
+    {
+        saveRevision();
+        saveTags();
+        saveChangeLog();
     }
 
 
