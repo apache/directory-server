@@ -29,16 +29,14 @@ public enum ServiceScope
 {
     TESTSUITE( 0, "service has test suite level scope" ),
     TESTCLASS( 1, "service has test class level scope" ),
-    TESTMETHOD( 2, "service has test method level scope" ),
-    TESTSYSTEM( 3, "service has test system level scope" );
+    TESTSYSTEM( 2, "service has test system level scope" );
 
     public final int ordinal;
     public final String description;
 
     public static final int TESTSUITE_ORDINAL = 0;
     public static final int TESTCLASS_ORDINAL = 1;
-    public static final int TESTMETHOD_ORDINAL = 2;
-    public static final int TESTSYSTEM_ORDINAL = 3;
+    public static final int TESTSYSTEM_ORDINAL = 2;
 
 
     ServiceScope( int ordinal, String description )

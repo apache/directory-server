@@ -19,20 +19,17 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.directory.server.core.DirectoryService;
-import static org.apache.directory.server.core.integ.AnnotationUtils.getMode;
-import static org.apache.directory.server.core.integ.AnnotationUtils.newFactory;
-import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.Mode;
 import org.junit.internal.runners.InitializationError;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
-import java.io.File;
-import java.util.Collections;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
+
+import javax.naming.NamingException;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -46,60 +43,17 @@ import java.util.List;
  */
 public class CiSuite extends Suite
 {
-    /**
-     * Must be ROLLBACK to not through inheritence impact the
-     * reasoning for these decisions that are made clear in
-     * {@Link CiRunner#DEFAULT_MODE}.
-     */
-    public static final SetupMode DEFAULT_MODE = SetupMode.ROLLBACK;
-
-    /**
-     * The suite level setup mode.  This is the mode that is inherited
-     * by test classes included in this suite.  It determines the life
-     * cycle of a directory service as tests are run against it.
-     */
-    private SetupMode mode = DEFAULT_MODE;
-
-    /**
-     * The suite level service factory. This is the factory that is
-     * inherited by test classes included in this suite.  It is used
-     * to instantiate services for suite's, test clases, and test
-     * cases depending on the setup mode utilized.
-     */
-    private DirectoryServiceFactory factory = DirectoryServiceFactory.DEFAULT;
-
-    /**
-     * The suite level reference to the directory service.  This
-     * service object may be used as a shared service across all tests.
-     * Sometimes each test may create it's own service and be run in
-     * parallel.  Likewise for tests.  It all depends on the threading
-     * model and on the lifecycle of the tested service.
-     */
-    private DirectoryService service;
-
-    /**
-     * List of ldifFiles to be loaded before conducting a test at
-     * various stages and based on the mode of the setup.    
-      */
-    private List<File> ldifFiles = Collections.emptyList();
+    private InheritableSettings settings;
 
 
     public CiSuite( Class<?> clazz ) throws InitializationError
     {
         super( clazz );
-        factory = newFactory( clazz.getAnnotation( Factory.class ), factory );
-        mode = getMode( clazz.getAnnotation( Mode.class ), mode );
+        settings = new InheritableSettings( getDescription() );
     }
 
 
-    protected CiSuite( Class<?> clazz, Class<?>[] classes ) throws InitializationError
-    {
-        super( clazz, classes );
-    }
-
-
-    @Override
-    public void run( final RunNotifier notifier )
+    public void addAll( List<? extends Runner> runners )
     {
         for ( Runner runner : getRunners() )
         {
@@ -108,68 +62,70 @@ public class CiSuite extends Suite
                 CiRunner cir = ( CiRunner) runner;
                 cir.setSuite( this );
             }
+            else
+            {
+                throw new IllegalArgumentException( String.format( "Unexpected runner type \"%s\".  " +
+                        "Test classes within CiSuites must use CiRunners.", runner ) );
+            }
         }
 
+        super.addAll( runners );
+    }
+
+
+    public void add( Runner runner )
+    {
+        if ( runner instanceof CiRunner )
+        {
+            CiRunner cir = ( CiRunner) runner;
+            cir.setSuite( this );
+            super.add( runner );
+        }
+        else
+        {
+            throw new IllegalArgumentException( String.format( "Unexpected runner type \"%s\".  " +
+                    "Test classes within CiSuites must use CiRunners.", runner ) );
+        }
+    }
+
+
+    @Override
+    public void run( final RunNotifier notifier )
+    {
         super.run( notifier );
 
-        if ( service != null && service.isStarted() )
+        /*
+         * For any service scope other than test system scope, we must have to
+         * shutdown the sevice and cleanup the working directory.  Failures to
+         * do this without exception shows that something is wrong with the
+         * server and so the entire test should be marked as failed.  So we
+         * presume that tests have failed in the suite if the fixture is in an
+         * inconsistent state.  Who knows if this inconsistent state of the
+         * service could have made it so false results were acquired while
+         * running tests.
+         */
+
+        if ( settings.getScope() != ServiceScope.TESTSYSTEM )
         {
             try
             {
-                service.shutdown();
+                shutdown();
+                cleanup();
             }
-            catch ( Exception e )
+            catch ( NamingException e )
+            {
+                notifier.fireTestFailure( new Failure( getDescription(), e ) );
+            }
+            catch ( IOException e )
             {
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }
         }
-
-        if ( service != null )
-        {
-            try
-            {
-                doDelete( service.getWorkingDirectory() );
-            }
-            catch ( Exception e )
-            {
-                notifier.fireTestFailure( new Failure( getDescription(), e ) );
-            }
-        }
     }
 
 
-    public SetupMode getSetupMode()
+    public InheritableSettings getSettings()
     {
-        return mode;
-    }
-
-
-    public void setSetupMode( SetupMode mode )
-    {
-        this.mode = mode;
-    }
-
-
-    public DirectoryServiceFactory getFactory()
-    {
-        return factory;
-    }
-
-
-    public void setFactory( DirectoryServiceFactory factory )
-    {
-        this.factory = factory;
-    }
-
-
-    public DirectoryService getService()
-    {
-        return service;
-    }
-
-
-    public void setService( DirectoryService service )
-    {
-        this.service = service;
+        return settings;
     }
 }

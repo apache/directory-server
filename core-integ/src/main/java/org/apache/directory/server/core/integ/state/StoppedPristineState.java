@@ -21,22 +21,29 @@ package org.apache.directory.server.core.integ.state;
 
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
+import org.apache.directory.server.core.integ.SetupMode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.doDelete;
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.IOException;
 
 
 /**
- * Document me!
+ * A state representing a test service that has either just been created,
+ * or a running pristine instance has been stopped.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class StoppedPristineState implements TestServiceState
 {
+    private static final Logger LOG = LoggerFactory.getLogger( StoppedPristineState.class );
     private final TestServiceContext context;
 
 
@@ -48,42 +55,69 @@ public class StoppedPristineState implements TestServiceState
 
     public void create( DirectoryServiceFactory factory )
     {
-
+        throw new IllegalStateException( "Cannot create a stopped instance." );
     }
 
 
     public void destroy()
     {
-
+        context.setService( null );
+        context.setState( context.getNonExistentState() );
+        System.gc();
     }
 
 
+    /**
+     * Even though this method should ignore the call it will attempt to delete any
+     * working directory if at all present.
+     *
+     * @see TestServiceState#cleanup()
+     */
     public void cleanup() throws IOException
     {
-
+        doDelete( context.getService().getWorkingDirectory() );
     }
 
 
     public void startup() throws NamingException
     {
-
+        context.getService().startup();
+        context.setState( context.getStartedPristineState() );
     }
 
 
     public void shutdown() throws NamingException
     {
-
+        throw new IllegalStateException( "Cannot shutdown stopped pristine service." );
     }
 
 
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
+        {
+            // no state change here
+            TestServiceContext.invokeTest( testClass, testMethod, notifier, settings.getDescription() );
+            return;
+        }
 
+        try
+        {
+            context.getState().startup();
+        }
+        catch ( Exception e )
+        {
+            notifier.testAborted( settings.getDescription(), e );
+            return;
+        }
+
+        // state object what ever it is will change state so we just return
+        context.getState().test( testClass, testMethod, notifier, settings );
     }
 
 
     public void revert() throws NamingException
     {
-
+        throw new IllegalStateException( "Cannot revert stopped service." );        
     }
 }

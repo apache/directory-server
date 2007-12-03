@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.integ.annotations;
 
-import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.ServiceScope;
 
 import java.lang.annotation.*;
 
@@ -34,6 +34,7 @@ import java.lang.annotation.*;
 @Inherited
 @Retention ( RetentionPolicy.RUNTIME )
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
-public @interface ForceCleanup
+public @interface Scope
 {
+     ServiceScope value();
 }

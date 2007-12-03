@@ -21,14 +21,17 @@ package org.apache.directory.server.core.integ.state;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
-import org.apache.directory.server.core.integ.ServiceScope;
 import org.apache.directory.server.core.integ.InheritableSettings;
-import org.junit.runner.notification.RunNotifier;
+import org.junit.internal.runners.MethodRoadie;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
+import org.junit.runner.Description;
+import org.junit.runner.notification.RunNotifier;
 
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -51,41 +54,26 @@ public class TestServiceContext
     private final TestServiceState stoppedPristineState = new StoppedPristineState( this );
 
 
-    /**
-     * the level at which the service was started and where it will be 
-     * shutdown, cleaned and destroyed if it is still present
-     */
-    private final ServiceScope scope;
-
     /** current service state with respect to the testing life cycle */
-    private TestServiceState state;
+    private TestServiceState state = nonExistentState;
 
     /** the core directory service managed by this context */
     private DirectoryService service;
 
 
-    public TestServiceContext( ServiceScope scope )
-    {
-        this.scope = scope;
-    }
-
-
     /**
      * Gets the TestServiceContext associated with the current thread of
-     * execution.  If one does not yet exist it will be created using the
-     * provided scope parameter.  If the scope is null a null pointer
-     * exception may result.
+     * execution.  If one does not yet exist it will be created.
      *
-     * @param scope the level at which the service was started
      * @return the context associated with the calling thread
      */
-    public static TestServiceContext get( ServiceScope scope )
+    public static TestServiceContext get()
     {
         TestServiceContext context = CONTEXTS.get();
 
         if ( context == null )
         {
-            context = new TestServiceContext( scope );
+            context = new TestServiceContext();
             CONTEXTS.set( context );
         }
 
@@ -112,9 +100,9 @@ public class TestServiceContext
      *
      * @param factory the factory to use for creating a configured service
      */
-    public void create( DirectoryServiceFactory factory )
+    public static void create( DirectoryServiceFactory factory )
     {
-        state.create( factory );
+        get().state.create( factory );
     }
 
 
@@ -123,9 +111,9 @@ public class TestServiceContext
      * entails nulling out reference to it and triggering garbage
      * collection.
      */
-    public void destroy()
+    public static void destroy()
     {
-        state.destroy();
+        get().state.destroy();
     }
 
 
@@ -136,9 +124,9 @@ public class TestServiceContext
      *
      * @throws IOException on errors while deleting the working directory
      */
-    public void cleanup() throws IOException
+    public static void cleanup() throws IOException
     {
-        state.cleanup();
+        get().state.cleanup();
     }
 
 
@@ -147,9 +135,9 @@ public class TestServiceContext
      *
      * @throws NamingException on failures to start the core directory service
      */
-    public void startup() throws NamingException
+    public static void startup() throws NamingException
     {
-        state.startup();
+        get().state.startup();
     }
 
 
@@ -158,18 +146,14 @@ public class TestServiceContext
      *
      * @throws NamingException on failures to stop the core directory service
      */
-    public void shutdown() throws NamingException
+    public static void shutdown() throws NamingException
     {
-        state.shutdown();
+        get().state.shutdown();
     }
 
 
     /**
      * Action where an attempt is made to run a test against the service.
-     *
-     * All annotations should have already been processed for
-     * InheritableSettings yet they and others can be processed since we have
-     * access to the method annotations below
      *
      * @param testClass the class whose test method is to be run
      * @param testMethod the test method which is to be run
@@ -177,9 +161,10 @@ public class TestServiceContext
      * @param settings the inherited settings and annotations associated with
      * the test method
      */
-    public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
+    public static void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier,
+                             InheritableSettings settings )
     {
-        state.test( testClass, testMethod, notifier, settings );
+        get().getState().test( testClass, testMethod, notifier, settings );
     }
 
 
@@ -190,10 +175,40 @@ public class TestServiceContext
      * @throws NamingException on failures to revert the state of the core
      * directory service
      */
-    public void revert() throws NamingException
+    public static void revert() throws NamingException
     {
-        state.revert();
+        get().state.revert();
     }
+
+
+    static void invokeTest( TestClass testClass, TestMethod testMethod, RunNotifier notifier, Description description )
+    {
+        Object test;
+        
+        try
+        {
+            test = testClass.getConstructor().newInstance();
+            Field field = testClass.getJavaClass().getDeclaredField( "service" );
+            field.set( testClass.getJavaClass(), get().getService() );
+        }
+        catch ( InvocationTargetException e )
+        {
+            notifier.testAborted( description, e.getCause() );
+            return;
+        }
+        catch ( Exception e )
+        {
+            notifier.testAborted( description, e );
+            return;
+        }
+
+        new MethodRoadie( test, testMethod, notifier, description ).run();
+    }
+
+
+    // -----------------------------------------------------------------------
+    // Package Friendly Instance Methods
+    // -----------------------------------------------------------------------
 
 
     void setState( TestServiceState state )
@@ -241,12 +256,6 @@ public class TestServiceContext
     TestServiceState getStoppedPristineState()
     {
         return stoppedPristineState;
-    }
-
-
-    ServiceScope getScope()
-    {
-        return scope;
     }
 
 

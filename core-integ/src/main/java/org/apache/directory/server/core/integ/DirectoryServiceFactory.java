@@ -42,7 +42,14 @@ public interface DirectoryServiceFactory
     {
         public DirectoryService newInstance()
         {
-            return new DefaultDirectoryService();
+            DirectoryService service = new DefaultDirectoryService();
+            service.getChangeLog().setEnabled( true );
+
+            // change the working directory to something that is unique
+            // on the system and somewhere either under target directory
+            // or somewhere in a temp area of the machine.
+
+            return service;
         }
     };
 

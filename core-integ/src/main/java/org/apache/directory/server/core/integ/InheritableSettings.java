@@ -19,11 +19,7 @@
 package org.apache.directory.server.core.integ;
 
 
-import org.apache.directory.server.core.integ.annotations.Mode;
-import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifs;
-import org.apache.directory.server.core.integ.annotations.ApplyLdifFiles;
-
+import org.apache.directory.server.core.integ.annotations.*;
 import org.junit.runner.Description;
 
 import java.util.ArrayList;
@@ -48,6 +44,8 @@ public class InheritableSettings
     private final InheritableSettings parent;
     /** junit test description containing all annotations queried */
     private final Description description;
+    /** default scope of a service */
+    private static final ServiceScope DEFAULT_SCOPE = ServiceScope.TESTSUITE;
 
 
     /**
@@ -60,11 +58,11 @@ public class InheritableSettings
         this.description = description;
         this.parent = null;
 
-        if ( ! description.isSuite() )
-        {
-            throw new IllegalStateException( String.format( "%s is not a suite! It requires parent settings.",
-                    description.getDisplayName() ) );
-        }
+//        if ( ! description.isSuite() )
+//        {
+//            throw new IllegalStateException( String.format( "%s is not a suite! It requires parent settings.",
+//                    description.getDisplayName() ) );
+//        }
     }
 
 
@@ -199,5 +197,25 @@ public class InheritableSettings
         }
 
         return ldifFiles;
+    }
+
+
+    public ServiceScope getScope()
+    {
+        ServiceScope parentScope = DEFAULT_SCOPE;
+        if ( parent != null )
+        {
+            parentScope = parent.getScope();
+        }
+
+        Scope annotation = description.getAnnotation( Scope.class );
+        if ( annotation == null )
+        {
+            return parentScope;
+        }
+        else
+        {
+            return annotation.value();
+        }
     }
 }

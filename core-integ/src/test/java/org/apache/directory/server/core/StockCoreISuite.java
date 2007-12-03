@@ -21,6 +21,10 @@ package org.apache.directory.server.core;
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.integ.CiSuite;
+import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Scope;
+import org.apache.directory.server.core.integ.annotations.Mode;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -36,6 +40,8 @@ import org.junit.runners.Suite;
         SimpleAuthenticationIT.class,
         CollectiveAttributeServiceIT.class
         } )
+@Scope ( ServiceScope.TESTSUITE )
+@Mode ( SetupMode.ROLLBACK )
 public class StockCoreISuite
 {
 }
