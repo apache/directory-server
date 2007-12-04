@@ -20,12 +20,17 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.ArrayList;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import javax.naming.ldap.LdapContext;
+import java.util.ArrayList;
 
 
 /**
@@ -35,17 +40,23 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RFC2713ITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class RFC2713IT
 {
+    public static DirectoryService service;
+    
+
+    @Test
     @SuppressWarnings("unchecked")
-    public void testSerialization() throws Exception
+    public void testSerializatin() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         ArrayList<String> colors = new ArrayList<String>();
         colors.add( "red" );
         colors.add( "white" );
         colors.add( "blue" );
         sysRoot.bind( "cn=colors", colors );
-        colors = null;
 
         Object obj = sysRoot.lookup( "cn=colors" );
         assertTrue( obj instanceof ArrayList );

@@ -20,14 +20,14 @@
 package org.apache.directory.server.core.jndi;
 
 
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -35,7 +35,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
 
 
@@ -45,51 +44,10 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class RootDSEITest extends TestCase
+@RunWith ( CiRunner.class )
+public class RootDSEIT
 {
-    private static final Logger LOG = LoggerFactory.getLogger( RootDSEITest.class );
-    /** flag whether to delete database files for each test or not */
-    protected boolean doDelete = true;
-
-
-    /**
-     * Get's the initial context factory for the provider's ou=system context
-     * root.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-
-        doDelete( new File( "target" + File.separator + "eve" ) );
-    }
-
-
-    /**
-     * Deletes the servers working directory.
-     *
-     * @param wkdir the working directory to delete
-     * @throws java.io.IOException if there are failures while deleting.
-     */
-    protected void doDelete( File wkdir ) throws IOException
-    {
-        if ( doDelete )
-        {
-            if ( wkdir.exists() )
-            {
-                try
-                {
-                    FileUtils.deleteDirectory( wkdir );
-                }
-                catch ( IOException e )
-                {
-                    LOG.error( "Failed to delete the working directory: {}" + wkdir, e );
-                    throw e;
-                }
-            }
-        }
-    }
+    public static DirectoryService service;
 
 
     /**
@@ -98,12 +56,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testGetInitialContext() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -114,7 +69,6 @@ public class RootDSEITest extends TestCase
 
         InitialContext initCtx = new InitialContext( env );
         assertNotNull( initCtx );
-        service.shutdown();
     }
 
 
@@ -124,13 +78,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testGetInitialContextLookupAttributes() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -147,7 +97,6 @@ public class RootDSEITest extends TestCase
 
         // Added some objectClass attributes to the rootDSE
         assertEquals( 1, attributes.size() );
-        service.shutdown();
     }
 
 
@@ -156,13 +105,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testGetInitialContextLookupAttributesByName() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -180,7 +125,6 @@ public class RootDSEITest extends TestCase
         assertEquals( 2, attributes.size() );
         assertEquals( "Apache Software Foundation", attributes.get( "vendorName" ).get() );
         assertTrue( attributes.get( "namingContexts" ).contains( "ou=system" ) );
-        service.shutdown();
     }
 
 
@@ -189,13 +133,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testDelete() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -220,7 +160,6 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
-        service.shutdown();
     }
 
 
@@ -229,13 +168,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testRename() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -260,7 +195,6 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
-        service.shutdown();
     }
 
 
@@ -269,13 +203,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testModify() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -300,7 +230,6 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
-        service.shutdown();
     }
 
 
@@ -309,13 +238,9 @@ public class RootDSEITest extends TestCase
      *
      * @throws NamingException if there are any problems
      */
+    @Test
     public void testModify2() throws NamingException
     {
-        DirectoryService service = new DefaultDirectoryService();
-        service.setShutdownHookEnabled( false );
-        service.setWorkingDirectory( new File( "target" + File.separator + "server" ) );
-        service.startup();
-
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.PROVIDER_URL, "" );
@@ -345,6 +270,5 @@ public class RootDSEITest extends TestCase
         }
 
         assertNotNull( notNull );
-        service.shutdown();
     }
 }

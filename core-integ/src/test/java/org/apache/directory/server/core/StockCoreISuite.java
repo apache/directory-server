@@ -56,6 +56,8 @@ import org.junit.runners.Suite;
         ObjStateFactoryIT.class,
         ExtensibleObjectIT.class,
         ModifyContextIT.class,
+        RFC2713IT.class,
+        RootDSEIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )
