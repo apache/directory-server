@@ -21,13 +21,20 @@ package org.apache.directory.server.core.jndi;
 
 
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
 
 
@@ -37,11 +44,21 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DIRSERVER169ITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class DIRSERVER169IT
 {
-    protected void setUp() throws Exception
+    public static DirectoryService service;
+
+
+    /**
+     * @todo replace this later with an Ldif tag
+     *
+     * @throws NamingException on error
+     */
+    protected void createData() throws NamingException
     {
-        super.setUp();
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes people = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
@@ -66,8 +83,14 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchResultNameIsRelativeToSearchContext() throws Exception
     {
+        // @todo replace with ldif tags
+        createData();
+
+        LdapContext sysRoot = getSystemContext( service );
+
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -107,8 +130,12 @@ public class DIRSERVER169ITest extends AbstractAdminTestCase
      *
      * @throws Exception if there are errors
      */
+    @Test
     public void testPasswordComparisonSucceeds() throws Exception
     {
+        // @todo replace with ldif tags
+        createData();
+
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
