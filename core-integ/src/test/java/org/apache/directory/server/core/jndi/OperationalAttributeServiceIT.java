@@ -17,29 +17,30 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.operational;
+package org.apache.directory.server.core.jndi;
 
+
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.util.StringTools;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoPermissionException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.junit.Test;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -49,9 +50,15 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class OperationalAttributeServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class OperationalAttributeServiceIT
 {
+    private static final String BINARY_KEY = "java.naming.ldap.attributes.binary";
     private static final String RDN_KATE_BUSH = "cn=Kate Bush";
+
+
+    public static DirectoryService service;
+
 
     protected Attributes getPersonAttributes( String sn, String cn )
     {
@@ -66,26 +73,89 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
         return attrs;
     }
 
-    protected void setUp() throws NamingException, Exception
-    {
-        super.setUp();
 
+    /**
+     * @todo add this to an LDIF annotation
+     *
+     * @param sysRoot the system root context at ou=system as the admin
+     * @throws NamingException on error
+     */
+    protected void createData( LdapContext sysRoot ) throws NamingException
+    {
         // Create an entry for Kate Bush
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         DirContext ctx = sysRoot.createSubcontext( RDN_KATE_BUSH, attrs );
         assertNotNull( ctx );
     }
 
-    protected void tearDown() throws NamingException, Exception
-    {
-        sysRoot.destroySubcontext( RDN_KATE_BUSH );
 
-        super.tearDown();
+    @Test
+    public void testBinaryAttributeFilterExtension() throws NamingException
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        Attributes attributes = new AttributesImpl( true );
+        Attribute oc = new AttributeImpl( "objectClass", "top" );
+        oc.add( "person" );
+        oc.add( "organizationalPerson" );
+        oc.add( "inetOrgPerson" );
+        attributes.put( oc );
+
+        attributes.put( "ou", "test" );
+        attributes.put( "cn", "test" );
+        attributes.put( "sn", "test" );
+
+        sysRoot.createSubcontext( "ou=test", attributes );
+
+        // test without turning on the property
+        DirContext ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
+        Attribute ou = ctx.getAttributes( "" ).get( "ou" );
+        Object value = ou.get();
+        assertTrue( value instanceof String );
+
+        // test with the property now making ou into a binary value
+        sysRoot.addToEnvironment( BINARY_KEY, "ou" );
+        ctx = ( DirContext ) sysRoot.lookup( "ou=test" );
+        ou = ctx.getAttributes( "" ).get( "ou" );
+        value = ou.get();
+        assertEquals( "test", value );
+
+        // try jpegPhoto which should be binary automatically - use ou as control
+        byte[] keyValue = new byte[]
+            { (byte)0xFF, (byte)0xD8, (byte)0xFF, (byte)0xE0, 0x01, 0x02, 'J', 'F', 'I', 'F', 0x00, 0x45, 0x23, 0x7d, 0x7f };
+        attributes.put( "jpegPhoto", keyValue );
+        sysRoot.createSubcontext( "ou=anothertest", attributes );
+        ctx = ( DirContext ) sysRoot.lookup( "ou=anothertest" );
+        ou = ctx.getAttributes( "" ).get( "ou" );
+        value = ou.get();
+        assertEquals( "anothertest", value );
+        Attribute jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
+        value = jpegPhoto.get();
+        assertTrue( value instanceof byte[] );
+        assertEquals( "0xFF 0xD8 0xFF 0xE0 0x01 0x02 0x4A 0x46 0x49 0x46 0x00 0x45 0x23 0x7D 0x7F ", StringTools.dumpBytes( ( byte[] ) value ) );
+
+        // try jpegPhoto which should be binary automatically but use String to
+        // create so we should still get back a byte[] - use ou as control
+        /*attributes.remove( "jpegPhoto" );
+        attributes.put( "jpegPhoto", "testing a string" );
+        sysRoot.createSubcontext( "ou=yetanothertest", attributes );
+        ctx = ( DirContext ) sysRoot.lookup( "ou=yetanothertest" );
+        ou = ctx.getAttributes( "" ).get( "ou" );
+        value = ou.get();
+        assertEquals( "yetanothertest", value );
+        jpegPhoto = ctx.getAttributes( "" ).get( "jpegPhoto" );
+        value = jpegPhoto.get();
+        assertTrue( value instanceof byte[] );*/
     }
 
 
+    @Test
     public void testModifyOperationalOpAttrs() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         /*
          * create ou=testing00,ou=system
          */
@@ -138,9 +208,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
      *
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-57">DIREVE-57:
      * ou=system does not contain operational attributes</a>
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSystemContextRoot() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         NamingEnumeration<SearchResult> list;
@@ -174,9 +250,18 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
      * CHANGE DOES NOT PERSIST!
      *
      * @see <a href="http://nagoya.apache.org/jira/browse/DIREVE-67">JIRA Issue DIREVE-67</a>
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testConfirmNonAdminUserDnIsCreatorsName() throws NamingException
     {
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         Attributes attributes = sysRoot.getAttributes( "uid=akarasulu,ou=users", new String[]
             { "creatorsName" } );
 
@@ -186,10 +271,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     
     /**
      * Modify an entry and check whether attributes modifiersName and modifyTimestamp are present.
+     *
+     * @throws NamingException on error
      */
     @Test
     public void testModifyShouldLeadToModifiersAttributes() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute( "description",
             "Singer Songwriter" ) );
 
@@ -212,10 +302,16 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
     
     /**
      * Modify an entry and check whether attribute modifyTimestamp changes.
+     *
+     * @throws NamingException on error
+     * @throws InterruptedException on error
      */
     @Test
     public void testModifyShouldChangeModifyTimestamp() throws NamingException, InterruptedException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         // Add attribute description to entry
         ModificationItem modifyAddOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "description", "an English singer, songwriter, musician" ) );
@@ -259,9 +355,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
     /**
      * Try to add modifiersName attribute to an entry
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testModifyOperationalAttributeAdd() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         ModificationItem modifyOp = new ModificationItem( DirContext.ADD_ATTRIBUTE, new BasicAttribute(
             "modifiersName", "cn=Tori Amos,dc=example,dc=com" ) );
 
@@ -284,9 +386,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
     /**
      * Try to remove creatorsName attribute from an entry.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testModifyOperationalAttributeRemove() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         ModificationItem modifyOp = new ModificationItem( DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(
             "creatorsName" ) );
 
@@ -309,9 +417,15 @@ public class OperationalAttributeServiceITest extends AbstractAdminTestCase
 
     /**
      * Try to replace creatorsName attribute on an entry.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testModifyOperationalAttributeReplace() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         ModificationItem modifyOp = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl(
             "creatorsName", "cn=Tori Amos,dc=example,dc=com" ) );
 

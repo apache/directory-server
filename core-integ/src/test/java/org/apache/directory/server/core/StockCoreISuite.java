@@ -60,6 +60,7 @@ import org.junit.runners.Suite;
         RootDSEIT.class,
         SearchContextIT.class,
         UniqueMemberIT.class,
+        OperationalAttributeServiceIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )
