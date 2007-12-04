@@ -440,7 +440,6 @@ public class JdbmStore
 
     /**
      * Close the parttion : we have to close all the userIndices and the master table.
-     *
      */
     public synchronized void destroy()
     {
@@ -1068,7 +1067,7 @@ public class JdbmStore
         
         while ( list.hasMore() )
         {
-            String attributeId = ( String ) list.next();
+            String attributeId = list.next();
             String attributeOid = oidRegistry.getOid( attributeId );
 
             if ( hasUserIndexOn( attributeOid ) )
@@ -1129,7 +1128,7 @@ public class JdbmStore
 
         while ( attrs.hasMore() )
         {
-            String attributeId = ( ( String ) attrs.next() );
+            String attributeId = attrs.next();
             String attributeOid = oidRegistry.getOid( attributeId );
 
             if ( hasUserIndexOn( attributeOid ) )
@@ -1469,7 +1468,7 @@ public class JdbmStore
 
                 while ( attrs.hasMore() )
                 {
-                    String attrId = ( String ) attrs.next();
+                    String attrId = attrs.next();
                     Attribute attr = mods.get( attrId );
                     add( id, entry, attr );
                 }
@@ -1481,7 +1480,7 @@ public class JdbmStore
 
                 while ( attrs.hasMore() )
                 {
-                    String attrId = ( String ) attrs.next();
+                    String attrId = attrs.next();
                     Attribute attr = mods.get( attrId );
                     remove( id, entry, attr );
                 }
@@ -1493,7 +1492,7 @@ public class JdbmStore
 
                 while ( attrs.hasMore() )
                 {
-                    String attrId = ( String ) attrs.next();
+                    String attrId = attrs.next();
                     Attribute attr = mods.get( attrId );
                     replace( id, entry, attr );
                 }
