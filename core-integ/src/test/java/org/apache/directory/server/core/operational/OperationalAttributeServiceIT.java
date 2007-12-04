@@ -17,7 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.server.core.jndi;
+package org.apache.directory.server.core.operational;
 
 
 import org.apache.directory.server.core.DirectoryService;

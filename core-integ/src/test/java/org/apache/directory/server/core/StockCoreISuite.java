@@ -29,6 +29,8 @@ import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.jndi.*;
+import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
+import org.apache.directory.server.core.prefs.PreferencesIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -61,6 +63,7 @@ import org.junit.runners.Suite;
         SearchContextIT.class,
         UniqueMemberIT.class,
         OperationalAttributeServiceIT.class,
+        PreferencesIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )

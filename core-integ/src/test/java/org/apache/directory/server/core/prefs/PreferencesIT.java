@@ -20,11 +20,14 @@
 package org.apache.directory.server.core.prefs;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import org.apache.directory.server.core.prefs.ServerSystemPreferences;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 
 
 /**
@@ -33,23 +36,32 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ServerSystemPreferencesITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class PreferencesIT
 {
-    private ServerSystemPreferences prefs;
+    public static DirectoryService service;
 
 
-    public void setUp() throws Exception
+    @Test
+    public void testSystemRoot()
     {
-        super.setUp();
-        prefs = new ServerSystemPreferences( service );
+        ServerPreferencesFactory factory = new ServerPreferencesFactory( service );
+        Preferences prefs = factory.systemRoot();
+
+        assertNotNull( prefs );
+        assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "default value" ) );
     }
 
 
     /**
      * Tests to make sure the system preferences root has entry (test, abc123).
+     *
+     * @throws Exception if there are failures with the store
      */
+    @Test
     public void testRoot() throws Exception
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         assertEquals( "sysPrefRoot", prefs.get( "prefNodeName", "not the value" ) );
     }
 
@@ -59,8 +71,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreate() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
 
         testNode.put( "cn", "testNodeValue" );
@@ -73,8 +87,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndSetBoolean() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putBoolean( "cn", false );
         testNode.sync();
@@ -106,8 +122,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndSetDouble() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putDouble( "cn", 3.14 );
         testNode.sync();
@@ -121,8 +139,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndSetFloat() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putFloat( "cn", ( float ) 9.20 );
         testNode.sync();
@@ -136,8 +156,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndSetInt() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putInt( "cn", 345 );
         testNode.sync();
@@ -151,8 +173,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndSetLong() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
         testNode.putLong( "cn", 75449559185447L );
         testNode.sync();
@@ -166,8 +190,10 @@ public class ServerSystemPreferencesITest extends AbstractAdminTestCase
      *
      * @throws BackingStoreException if there are failures with the store
      */
+    @Test
     public void testCreateAndRemove() throws BackingStoreException
     {
+        ServerSystemPreferences prefs = new ServerSystemPreferences( service );
         Preferences testNode = prefs.node( "testNode" );
 
         testNode.put( "cn", "testNodeValue" );
