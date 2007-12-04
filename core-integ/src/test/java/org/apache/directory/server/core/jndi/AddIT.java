@@ -20,14 +20,21 @@
 package org.apache.directory.server.core.jndi;
 
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -36,14 +43,12 @@ import javax.naming.directory.Attribute;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class AddITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class AddIT
 {
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
+    public static DirectoryService service;
     
+
 //    /**
 //     * Test that attribute name case is preserved after adding an entry
 //     * in the case the user added them.  This is to test DIRSERVER-832.
@@ -94,9 +99,14 @@ public class AddITest extends AbstractAdminTestCase
     /**
      * Test that we can't add an entry with an attribute type not within
      * any of the MUST or MAY of any of its objectClasses
+     * 
+     * @throws Exception on error
      */
+    @Test
     public void testAddAttributesNotInObjectClasses() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         Attribute cn = new AttributeImpl( "cn", "kevin Spacey" );
@@ -119,11 +129,17 @@ public class AddITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Test that we can't add an entry with an attribute with a bad syntax
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddAttributesBadSyntax() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "person" );

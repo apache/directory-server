@@ -28,6 +28,8 @@ import org.apache.directory.server.core.integ.ServiceScope;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.server.core.integ.annotations.Scope;
+import org.apache.directory.server.core.jndi.AddIT;
+import org.apache.directory.server.core.jndi.CreateContextIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -44,6 +46,8 @@ import org.junit.runners.Suite;
         CollectiveAttributeServiceIT.class,
         ExceptionServiceIT.class,
         EventServiceIT.class,
+        AddIT.class,
+        CreateContextIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )

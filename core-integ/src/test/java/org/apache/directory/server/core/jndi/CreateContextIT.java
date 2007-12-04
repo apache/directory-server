@@ -20,22 +20,26 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import org.junit.runner.RunWith;
+
 import javax.naming.CompositeName;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -44,8 +48,12 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class CreateContextITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class CreateContextIT
 {
+    public static DirectoryService service;
+
+
     protected Attributes getPersonAttributes( String sn, String cn )
     {
         Attributes attrs = new AttributesImpl();
@@ -63,13 +71,17 @@ public class CreateContextITest extends AbstractAdminTestCase
     /**
      * DIRSERVER-628: Creation of entry with multivalued RDN leads to wrong
      * attribute value.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testMultiValuedRdn() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
 
         Attributes attrs = getPersonAttributes( "Bush", "Kate Bush" );
         String rdn = "cn=Kate Bush+sn=Bush";
-        super.sysRoot.createSubcontext( rdn, attrs );
+        sysRoot.createSubcontext( rdn, attrs );
 
         SearchControls sctls = new SearchControls();
         sctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
@@ -89,16 +101,19 @@ public class CreateContextITest extends AbstractAdminTestCase
 
         sysRoot.destroySubcontext( rdn );
     }
-    
-    
+
+
     /**
      * Tests the creation and subsequent read of a new JNDI context under the
      * system context root.
      *
      * @throws javax.naming.NamingException if there are failures
      */
+    @Test
     public void testCreateContexts() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         /*
          * create ou=testing00,ou=system
          */
@@ -195,8 +210,11 @@ public class CreateContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testFailCreateExisting() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attribute attribute;
         Attributes attributes;
         DirContext ctx = null;
@@ -249,8 +267,11 @@ public class CreateContextITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testCreateContextWithCompositeName() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute objclass = new AttributeImpl( "objectClass" );
         objclass.add( "top" );
@@ -263,14 +284,18 @@ public class CreateContextITest extends AbstractAdminTestCase
         sysRoot.createSubcontext( relativeName, attrs );//Fails!
     }
 
+
     /**
      * Tests the creation and subsequent read of a new JNDI context under the
      * system context root.
      *
      * @throws javax.naming.NamingException if there are failures
      */
+    @Test
     public void testCreateContextWithBasicAttributesCaseSensitive() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         /*
          * create ou=testing00,ou=system
          */
@@ -366,8 +391,12 @@ public class CreateContextITest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
+
+    @Test
     public void testCreateContextWithNoObjectClass() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
 
         try
@@ -381,8 +410,12 @@ public class CreateContextITest extends AbstractAdminTestCase
         }
     }
 
+
+    @Test
     public void testCreateJavaContainer() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         DirContext ctx = (DirContext)sysRoot.createSubcontext( "cn=subtest" );
         assertNotNull( ctx );
         
@@ -395,9 +428,13 @@ public class CreateContextITest extends AbstractAdminTestCase
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "javaContainer" ) );
     }
-    
+
+
+    @Test
     public void testCreateJavaContainerBadRDN() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.createSubcontext( "ou=subtest" );
