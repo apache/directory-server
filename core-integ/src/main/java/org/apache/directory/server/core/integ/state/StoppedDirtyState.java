@@ -61,6 +61,7 @@ public class StoppedDirtyState implements TestServiceState
 
     public void destroy()
     {
+        LOG.debug( "calling destroy()" );
         context.setService( null );
         context.setState( context.getNonExistentState() );
         System.gc();
@@ -69,6 +70,7 @@ public class StoppedDirtyState implements TestServiceState
 
     public void cleanup() throws IOException
     {
+        LOG.debug( "calling cleanup()" );
         doDelete( context.getService().getWorkingDirectory() );
         context.setState( context.getStoppedPristineState() );
     }
@@ -76,6 +78,7 @@ public class StoppedDirtyState implements TestServiceState
 
     public void startup() throws NamingException
     {
+        LOG.debug( "calling startup" );
         context.getService().startup();
         context.setState( context.getStartedDirtyState() );
     }
@@ -97,6 +100,8 @@ public class StoppedDirtyState implements TestServiceState
      */
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
+
         if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
         {
             // no state change here

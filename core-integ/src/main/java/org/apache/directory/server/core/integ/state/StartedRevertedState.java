@@ -80,6 +80,7 @@ public class StartedRevertedState implements TestServiceState
 
     public void shutdown() throws NamingException
     {
+        LOG.debug( "calling shutdown()" );
         context.getService().shutdown();
         context.setState( context.getStoppedDirtyState() );
     }
@@ -87,6 +88,7 @@ public class StartedRevertedState implements TestServiceState
 
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
         if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
         {
             // no state change here

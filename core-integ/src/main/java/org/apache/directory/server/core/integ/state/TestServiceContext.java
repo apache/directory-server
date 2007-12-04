@@ -27,6 +27,8 @@ import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -44,6 +46,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class TestServiceContext
 {
+    private static final Logger LOG = LoggerFactory.getLogger( TestServiceContext.class );
     private static final ThreadLocal<TestServiceContext> CONTEXTS = new ThreadLocal<TestServiceContext>();
 
     private final TestServiceState nonExistentState = new NonExistentState( this );
@@ -164,6 +167,7 @@ public class TestServiceContext
     public static void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier,
                              InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
         get().getState().test( testClass, testMethod, notifier, settings );
     }
 
@@ -193,11 +197,13 @@ public class TestServiceContext
         }
         catch ( InvocationTargetException e )
         {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), e.getCause() );
             notifier.testAborted( description, e.getCause() );
             return;
         }
         catch ( Exception e )
         {
+            LOG.error( "Failed to invoke test method: " + description.getDisplayName(), e );
             notifier.testAborted( description, e );
             return;
         }

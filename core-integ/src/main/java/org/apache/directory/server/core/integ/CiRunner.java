@@ -81,6 +81,8 @@ public class CiRunner extends JUnit4ClassRunner
             }
             catch ( Exception e )
             {
+                LOG.error( "Encountered exception while trying to cleanup after test class: "
+                        + this.getDescription().getDisplayName(), e );
                 notifier.fireTestFailure( new Failure( getDescription(), e ) );
             }
         }

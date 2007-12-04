@@ -21,7 +21,6 @@ package org.apache.directory.server.core.integ.state;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
@@ -42,6 +41,10 @@ public class StartedDirtyState implements TestServiceState
 {
     private static final Logger LOG = LoggerFactory.getLogger( StartedDirtyState.class );
     private final TestServiceContext context;
+    private static final String CREATE_ERROR = "Cannot create new instance while service is running.";
+    private static final String DESTROY_ERROR = "Cannot destroy started service.";
+    private static final String CLEANUP_ERR = "Cannot cleanup started service.";
+    private static final String STARTUP_ERR = "Cannot startup started service.";
 
 
     public StartedDirtyState( TestServiceContext context )
@@ -52,30 +55,35 @@ public class StartedDirtyState implements TestServiceState
 
     public void create( DirectoryServiceFactory factory )
     {
-        throw new IllegalStateException( "Cannot create new instance while service is running.");
+        LOG.error( CREATE_ERROR );
+        throw new IllegalStateException( CREATE_ERROR );
     }
 
 
     public void destroy()
     {
-        throw new IllegalStateException( "Cannot destroy started service." );
+        LOG.error( DESTROY_ERROR );
+        throw new IllegalStateException( DESTROY_ERROR );
     }
 
 
     public void cleanup()
     {
-        throw new IllegalStateException( "Cannot cleanup started service." );
+        LOG.error( CLEANUP_ERR );
+        throw new IllegalStateException( CLEANUP_ERR );
     }
 
 
     public void startup()
     {
-        throw new IllegalStateException( "Cannot startup started service." );
+        LOG.error( STARTUP_ERR );
+        throw new IllegalStateException( STARTUP_ERR );
     }
 
 
     public void shutdown() throws NamingException
     {
+        LOG.debug( "calling shutdown() " );
         context.getService().shutdown();
         context.setState( context.getStoppedDirtyState() );
     }
@@ -83,6 +91,7 @@ public class StartedDirtyState implements TestServiceState
 
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
         if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
         {
             // no state change here
@@ -96,18 +105,11 @@ public class StartedDirtyState implements TestServiceState
             {
                 context.getState().shutdown();
                 context.getState().cleanup();
-
-                // @todo check if the factory changed here
-                if ( true ) // change this to check if factory changed since the last run
-                {
-                     context.getState().destroy();
-                     context.getState().create( settings.getFactory() );
-                }
-
-                context.getState().startup();
             }
             catch ( Exception e )
             {
+                LOG.error( "Failed to reach pristine restart for test: "
+                        + settings.getDescription().getDisplayName(), e );
                 notifier.testAborted( settings.getDescription(), e );
                 return;
             }
@@ -127,6 +129,7 @@ public class StartedDirtyState implements TestServiceState
             }
             catch ( Exception e )
             {
+                LOG.error( "Failed to restart for test: " + settings.getDescription().getDisplayName(), e );
                 notifier.testAborted( settings.getDescription(), e );
                 return;
             }
@@ -178,6 +181,7 @@ public class StartedDirtyState implements TestServiceState
             }
             catch ( Exception e )
             {
+                LOG.error( "Failed to revert for test: " + settings.getDescription().getDisplayName(), e );
                 notifier.testAborted( settings.getDescription(), e );
                 return;
             }
@@ -196,6 +200,7 @@ public class StartedDirtyState implements TestServiceState
 
     public void revert() throws NamingException
     {
+        LOG.debug( "calling revert()" );
         context.getService().revert();
         context.setState( context.getStartedRevertedState() );
     }

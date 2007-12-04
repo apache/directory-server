@@ -20,23 +20,25 @@
 package org.apache.directory.server.core.event;
 
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
-import javax.naming.event.EventDirContext;
-import javax.naming.event.NamespaceChangeListener;
-import javax.naming.event.NamingEvent;
-import javax.naming.event.NamingExceptionEvent;
-import javax.naming.event.ObjectChangeListener;
-
-import java.util.List;
+import javax.naming.event.*;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.List;
 
 
 /**
@@ -45,16 +47,23 @@ import java.util.EventObject;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class EventServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class EventServiceIT
 {
+    public static DirectoryService service;
+
+
     /**
      * Test to make sure NamingListener's are no longer registered
      * after they are removed via the EventContex.removeNamingListener method.
+     *
+     * @throws NamingException on failures
      */
+    @Test
     public void testRemoveNamingListener() throws NamingException
     {
         TestListener listener = new TestListener();
-        EventDirContext ctx = ( EventDirContext ) super.sysRoot.lookup( "" );
+        EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
         Attributes testEntry = new AttributesImpl( "ou", "testentry", true );
         Attribute objectClass = new AttributeImpl( "objectClass", "top" );
@@ -87,11 +96,14 @@ public class EventServiceITest extends AbstractAdminTestCase
     /**
      * Test to make sure NamingListener's are no longer registered
      * after the context used for registration is closed.
+     *
+     * @throws NamingException on failures
      */
+    @Test
     public void testContextClose() throws NamingException
     {
         TestListener listener = new TestListener();
-        EventDirContext ctx = ( EventDirContext ) super.sysRoot.lookup( "" );
+        EventDirContext ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.addNamingListener( "", SearchControls.SUBTREE_SCOPE, listener );
         Attributes testEntry = new AttributesImpl( "ou", "testentry", true );
         Attribute objectClass = new AttributeImpl( "objectClass", "top" );
@@ -105,7 +117,7 @@ public class EventServiceITest extends AbstractAdminTestCase
         assertEquals( ctx, rec.event.getSource() );
 
         ctx.close();
-        ctx = ( EventDirContext ) super.sysRoot.lookup( "" );
+        ctx = ( EventDirContext ) getSystemContext( service ).lookup( "" );
         ctx.destroySubcontext( "ou=testentry" );
 
         assertEquals( 1, listener.getEventRecords().size() );
@@ -119,6 +131,7 @@ public class EventServiceITest extends AbstractAdminTestCase
         assertEquals( "objectAdded", rec.method );
     }
 
+    
     public class TestListener implements ObjectChangeListener, NamespaceChangeListener
     {
         List<EventRecord> events = new ArrayList<EventRecord>();

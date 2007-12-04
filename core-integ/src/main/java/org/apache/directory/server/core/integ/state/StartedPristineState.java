@@ -22,7 +22,6 @@ package org.apache.directory.server.core.integ.state;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.shared.ldap.NotImplementedException;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
 import org.junit.runner.notification.RunNotifier;
@@ -77,6 +76,7 @@ public class StartedPristineState implements TestServiceState
 
     public void shutdown() throws NamingException
     {
+        LOG.debug( "calling shutdown()" );
         context.getService().shutdown();
         context.setState( context.getStoppedPristineState() );
     }
@@ -84,6 +84,8 @@ public class StartedPristineState implements TestServiceState
 
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
+
         if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
         {
             // no state change here

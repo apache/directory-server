@@ -23,13 +23,9 @@ import org.apache.directory.server.core.integ.InheritableSettings;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.junit.internal.runners.TestClass;
 import org.junit.internal.runners.TestMethod;
-import org.junit.internal.runners.MethodRoadie;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -42,6 +38,11 @@ public class NonExistentState implements TestServiceState
 {
     private static final Logger LOG = LoggerFactory.getLogger( NonExistentState.class );
     private final TestServiceContext context;
+    private static final String DESTROY_ERR = "Cannot destroy when service is in NonExistant state";
+    private static final String CLEANUP_ERROR = "Cannot cleanup when service is in NonExistant state";
+    private static final String STARTUP_ERR = "Cannot startup when service is in NonExistant state";
+    private static final String SHUTDOWN_ERR = "Cannot shutdown service in NonExistant state.";
+    private static final String REVERT_ERROR = "Cannot revert when service is in NonExistant state";
 
 
     public NonExistentState( TestServiceContext context )
@@ -52,6 +53,7 @@ public class NonExistentState implements TestServiceState
 
     public void create( DirectoryServiceFactory factory )
     {
+        LOG.debug( "calling create()" );
         context.setService( factory.newInstance() );
         context.setState( context.getStoppedDirtyState() );
     }
@@ -59,25 +61,29 @@ public class NonExistentState implements TestServiceState
 
     public void destroy()
     {
-        throw new IllegalStateException( "Cannot destroy when service is in NonExistant state" );
+        LOG.error( DESTROY_ERR );
+        throw new IllegalStateException( DESTROY_ERR );
     }
 
 
     public void cleanup()
     {
-        throw new IllegalStateException( "Cannot cleanup when service is in NonExistant state" );
+        LOG.error( CLEANUP_ERROR );
+        throw new IllegalStateException( CLEANUP_ERROR );
     }
 
 
     public void startup()
     {
-        throw new IllegalStateException( "Cannot startup when service is in NonExistant state" );
+        LOG.error( STARTUP_ERR );
+        throw new IllegalStateException( STARTUP_ERR );
     }
 
 
     public void shutdown()
     {
-        throw new IllegalStateException( "Cannot shutdown service in NonExistant state." );
+        LOG.error( SHUTDOWN_ERR );
+        throw new IllegalStateException( SHUTDOWN_ERR );
     }
 
 
@@ -95,14 +101,12 @@ public class NonExistentState implements TestServiceState
      * PRISTINE and ROLLBACK modes we do the same but cleanup() before a
      * restart.
      *
-     *
-     * @param testClass
-     * @param testMethod
-     * @param notifier
-     * @param settings
+     * @see TestServiceState#test(TestClass, TestMethod, RunNotifier, InheritableSettings) 
      */
     public void test( TestClass testClass, TestMethod testMethod, RunNotifier notifier, InheritableSettings settings )
     {
+        LOG.debug( "calling test(): {}", settings.getDescription().getDisplayName() );
+
         if ( settings.getMode() == SetupMode.NOSERVICE || testMethod.isIgnored() )
         {
             // no state change here
@@ -119,6 +123,7 @@ public class NonExistentState implements TestServiceState
             }
             catch ( Exception e )
             {
+                LOG.error( "Failed to create and start new server instance: " + e );
                 notifier.testAborted( settings.getDescription(), e );
                 return;
             }
@@ -134,6 +139,7 @@ public class NonExistentState implements TestServiceState
             }
             catch ( Exception e )
             {
+                LOG.error( "Failed to create, cleanup and start new server instance: " + e );
                 notifier.testAborted( settings.getDescription(), e );
                 return;
             }
@@ -146,6 +152,7 @@ public class NonExistentState implements TestServiceState
 
     public void revert()
     {
-        throw new IllegalStateException( "Cannot revert when service is in NonExistant state" );
+        LOG.error( REVERT_ERROR );
+        throw new IllegalStateException( REVERT_ERROR );
     }
 }

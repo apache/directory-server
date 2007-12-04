@@ -21,6 +21,7 @@ package org.apache.directory.server.core;
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
+import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.ServiceScope;
 import org.apache.directory.server.core.integ.SetupMode;
@@ -40,7 +41,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses ( {
         SimpleAuthenticationIT.class,
         CollectiveAttributeServiceIT.class,
-        PartitionConfigurationIT.class
+        EventServiceIT.class,
+        PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)        
         } )
 @Scope ( ServiceScope.TESTSUITE )
 @Mode ( SetupMode.ROLLBACK )
