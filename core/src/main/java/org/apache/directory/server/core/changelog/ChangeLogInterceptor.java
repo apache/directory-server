@@ -178,6 +178,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
     public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
+        Attributes attributes = null;
+        if ( changeLog.isEnabled() )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            Invocation invocation = InvocationStack.getInstance().peek();
+            PartitionNexusProxy proxy = invocation.getProxy();
+            attributes = proxy.lookup( new LookupOperationContext( renameContext.getDn() ),
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
         next.rename( renameContext );
 
         if ( ! changeLog.isEnabled() )
@@ -190,8 +200,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( renameContext.getDn().getUpName() );
         forward.setDeleteOldRdn( renameContext.getDelOldDn() );
 
-        Entry reverse = LdifUtils.reverseModifyDN( null, renameContext.getDn(), new Rdn( renameContext.getNewRdn() ),
-                renameContext.getDelOldDn() );
+        Entry reverse = LdifUtils.reverseModifyRdn( attributes, null, renameContext.getDn(),
+                new Rdn( renameContext.getNewRdn() ) );
         changeLog.log( getPrincipal(), forward, reverse );
     }
 
@@ -199,6 +209,16 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
         throws NamingException
     {
+        Attributes attributes = null;
+        if ( changeLog.isEnabled() )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            Invocation invocation = InvocationStack.getInstance().peek();
+            PartitionNexusProxy proxy = invocation.getProxy();
+            attributes = proxy.lookup( new LookupOperationContext( opCtx.getDn() ),
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
         next.moveAndRename( opCtx );
 
         if ( ! changeLog.isEnabled() )
@@ -213,8 +233,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setNewRdn( opCtx.getNewRdn() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        Entry reverse = LdifUtils.reverseModifyDN( null, opCtx.getDn(), new Rdn( opCtx.getNewRdn() ),
-                opCtx.getDelOldDn() );
+        Entry reverse = LdifUtils.reverseModifyRdn( attributes, opCtx.getParent(), opCtx.getDn(),
+                new Rdn( opCtx.getNewRdn() ) );
         changeLog.log( getPrincipal(), forward, reverse );
     }
 
@@ -233,7 +253,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setDn( opCtx.getDn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-        Entry reverse = LdifUtils.reverseModifyDN( null, opCtx.getDn(), null, false );
+        Entry reverse = LdifUtils.reverseModifyDn( opCtx.getParent(), opCtx.getDn() );
         changeLog.log( getPrincipal(), forward, reverse );
     }
 }
