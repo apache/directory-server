@@ -20,7 +20,18 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.Name;
@@ -28,13 +39,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SchemaViolationException;
+import javax.naming.ldap.LdapContext;
 import javax.naming.spi.DirObjectFactory;
 import javax.naming.spi.DirStateFactory;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
+import java.util.Hashtable;
 
 
 /**
@@ -43,13 +51,22 @@ import org.apache.directory.shared.ldap.util.ArrayUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ObjStateFactoryITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class ObjStateFactoryIT
 {
+    public static DirectoryService service;
+
+
+    @Test
     public void testObjectFactory() throws NamingException
     {
-        super.sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
-        Object obj = super.sysRoot.lookup( "uid=akarasulu, ou=users" );
-        Attributes attrs = super.sysRoot.getAttributes( "uid=akarasulu, ou=users" );
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+
+        LdapContext sysRoot = getSystemContext( service );
+        sysRoot.addToEnvironment( Context.OBJECT_FACTORIES, PersonObjectFactory.class.getName() );
+        Object obj = sysRoot.lookup( "uid=akarasulu, ou=users" );
+        Attributes attrs = sysRoot.getAttributes( "uid=akarasulu, ou=users" );
         assertEquals( Person.class, obj.getClass() );
         Person me = ( Person ) obj;
         assertEquals( attrs.get( "sn" ).get(), me.getLastname() );
@@ -61,12 +78,15 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testStateFactory() throws NamingException
     {
-        super.sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
+        LdapContext sysRoot = getSystemContext( service );
+
+        sysRoot.addToEnvironment( Context.STATE_FACTORIES, PersonStateFactory.class.getName() );
         Person p = new Person( "Rodriguez", "Mr. Kerberos", "noices", "555-1212", "sn=erodriguez", "committer" );
-        super.sysRoot.bind( "uid=erodriguez, ou=users", p );
-        Attributes attrs = super.sysRoot.getAttributes( "uid=erodriguez, ou=users" );
+        sysRoot.bind( "uid=erodriguez, ou=users", p );
+        Attributes attrs = sysRoot.getAttributes( "uid=erodriguez, ou=users" );
         assertEquals( "Rodriguez", attrs.get( "sn" ).get() );
         assertEquals( "Mr. Kerberos", attrs.get( "cn" ).get() );
         assertTrue( ArrayUtils.isEquals( attrs.get( "userPassword" ).get(), "noices".getBytes() ) );
@@ -75,6 +95,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
         assertEquals( "committer", attrs.get( "description" ).get() );
     }
 
+    
     public static class PersonStateFactory implements DirStateFactory
     {
         public Result getStateToBind( Object obj, Name name, Context nameCtx, Hashtable environment, Attributes inAttrs )
@@ -155,6 +176,7 @@ public class ObjStateFactoryITest extends AbstractAdminTestCase
             throw new UnsupportedOperationException( "Please use directory support overload with Attributes argument." );
         }
     }
+
 
     public static class PersonObjectFactory implements DirObjectFactory
     {

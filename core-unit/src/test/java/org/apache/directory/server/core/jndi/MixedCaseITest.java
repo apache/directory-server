@@ -80,20 +80,17 @@ public class MixedCaseITest extends AbstractAdminTestCase
         super.setUp();
     }
 
-
+    
     public void testSearch() throws NamingException
     {
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         NamingEnumeration ne = sysRoot.search( "", "(objectClass=*)", sc );
-
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-
         assertEquals( "The entry returned should be the root entry.", suffix, sr.getName() );
-
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
@@ -116,13 +113,10 @@ public class MixedCaseITest extends AbstractAdminTestCase
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         NamingEnumeration ne = sysRoot.search( dn, "(objectClass=*)", sc );
-
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-
         assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
-
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
@@ -152,18 +146,15 @@ public class MixedCaseITest extends AbstractAdminTestCase
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         NamingEnumeration ne = sysRoot.search( dn, "(objectClass=*)", sc );
-
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-
         assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
 
         attributes = sr.getAttributes();
         attribute = attributes.get( "description" );
 
         assertEquals( "The description attribute should contain the new value.", description, attribute.get() );
-
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
@@ -190,14 +181,11 @@ public class MixedCaseITest extends AbstractAdminTestCase
         try
         {
             sysRoot.search( dn, "(objectClass=*)", sc );
-
             fail( "Search should throw exception." );
-
         }
         catch ( LdapNameNotFoundException e )
         {
             // ignore
         }
     }
-
 }
