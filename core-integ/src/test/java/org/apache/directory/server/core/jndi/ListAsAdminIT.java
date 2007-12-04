@@ -20,13 +20,19 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.HashSet;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.*;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import javax.naming.ldap.LdapContext;
+import java.util.HashSet;
 
 
 /**
@@ -37,39 +43,43 @@ import org.apache.directory.server.core.unit.AbstractAdminTestCase;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ListAsAdminITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class ListAsAdminIT
 {
+    public static DirectoryService service;
+
+
+    @Test
     public void testListSystemAsAdmin() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
-
         NamingEnumeration list = sysRoot.list( "" );
 
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
-
             set.add( ncp.getName() );
         }
 
         assertTrue( set.contains( "uid=admin,ou=system" ) );
-
         assertTrue( set.contains( "ou=users,ou=system" ) );
-
         assertTrue( set.contains( "ou=groups,ou=system" ) );
     }
 
 
+    @Test
     public void testListUsersAsAdmin() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         HashSet<String> set = new HashSet<String>();
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         NamingEnumeration list = sysRoot.list( "ou=users" );
-
         while ( list.hasMore() )
         {
             NameClassPair ncp = ( NameClassPair ) list.next();
-
             set.add( ncp.getName() );
         }
 
