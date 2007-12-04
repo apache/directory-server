@@ -20,15 +20,21 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -37,11 +43,20 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DestroyContextITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class DestoryContextIT
 {
-    protected void setUp() throws Exception
+    public static DirectoryService service;
+
+    
+    /**
+     * @todo Replace this with an LDIF directive!!!!!!
+     *
+     * @throws NamingException on error
+     */
+    public void createEntries() throws NamingException
     {
-        super.setUp();
+        LdapContext sysRoot = getSystemContext( service );
 
         /*
          * create ou=testing00,ou=system
@@ -145,8 +160,13 @@ public class DestroyContextITest extends AbstractAdminTestCase
      *
      * @throws NamingException if there are failures
      */
+    @Test
     public void testDestroyContext() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
+        createEntries();
+
         /*
          * delete ou=testing00,ou=system
          */
