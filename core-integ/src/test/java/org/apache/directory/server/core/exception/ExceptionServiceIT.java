@@ -20,16 +20,9 @@
 package org.apache.directory.server.core.exception;
 
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
@@ -39,6 +32,14 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -47,12 +48,17 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExceptionServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class ExceptionServiceIT
 {
+    public static DirectoryService service;
+
+
     private DirContext createSubContext( String type, String value ) throws NamingException
     {
-        return createSubContext( sysRoot, type, value );
+        return createSubContext( getSystemContext( service ), type, value );
     }
+
 
     private DirContext createSubContext( DirContext ctx, String type, String value ) throws NamingException
     {
@@ -69,19 +75,24 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
         return ctx.createSubcontext( type + "=" + value, attrs );
     }
 
+
     // ------------------------------------------------------------------------
     // Search Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Test search operation failure when the search base is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailSearchNoSuchObject() throws NamingException
     {
         SearchControls ctls = new SearchControls();
         try
         {
-            sysRoot.search( "ou=blah", "(objectClass=*)", ctls );
+            getSystemContext( service ).search( "ou=blah", "(objectClass=*)", ctls );
             fail( "Execution should never get here due to exception!" );
         }
         catch ( LdapNameNotFoundException e )
@@ -95,11 +106,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Search operation control to test if normal search operations occur
      * correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSearchControl() throws NamingException
     {
         SearchControls ctls = new SearchControls();
-        NamingEnumeration list = sysRoot.search( "ou=users", "(objectClass=*)", ctls );
+        NamingEnumeration list = getSystemContext( service ).search( "ou=users", "(objectClass=*)", ctls );
 
         if ( list.hasMore() )
         {
@@ -118,9 +132,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Test move operation failure when the object moved is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailMoveEntryAlreadyExists() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             Attributes attrs = new AttributesImpl( "ou", "users" );
@@ -163,9 +182,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Test move operation failure when the object moved is non-existant.
+
+     * @throws NamingException on error
      */
+    @Test
     public void testFailMoveNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.rename( "ou=blah", "ou=blah,ou=groups" );
@@ -195,9 +219,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Move operation control to test if normal move operations occur
      * correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testMoveControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         sysRoot.rename( "ou=users", "ou=users,ou=groups" );
         assertNotNull( sysRoot.lookup( "ou=users,ou=groups" ) );
 
@@ -218,11 +247,17 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // ModifyRdn Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailModifyRdnEntryAlreadyExists() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.rename( "ou=users", "ou=groups" );
@@ -238,9 +273,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Test modifyRdn operation failure when the object renamed is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailModifyRdnNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.rename( "ou=blah", "ou=asdf" );
@@ -257,9 +297,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Modify operation control to test if normal modify operations occur
      * correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testModifyRdnControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         sysRoot.rename( "ou=users", "ou=asdf" );
         assertNotNull( sysRoot.lookup( "ou=asdf" ) );
 
@@ -280,11 +325,17 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // Modify Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Test modify operation failure when the object modified is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailModifyNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute ou = new AttributeImpl( "ou" );
         ou.add( "users" );
@@ -321,9 +372,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Modify operation control to test if normal modify operations occur
      * correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testModifyControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "ou" );
         attr.add( "dummyValue" );
@@ -350,11 +406,17 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // Lookup Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Test lookup operation failure when the object looked up is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailLookupNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.lookup( "ou=blah" );
@@ -371,9 +433,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Lookup operation control to test if normal lookup operations occur
      * correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testLookupControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         LdapContext ctx = ( LdapContext ) sysRoot.lookup( "ou=users" );
         assertNotNull( ctx );
         assertEquals( "users", ctx.getAttributes( "" ).get( "ou" ).get() );
@@ -384,11 +451,17 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // List Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Test list operation failure when the base searched is non-existant.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailListNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.list( "ou=blah" );
@@ -404,9 +477,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * List operation control to test if normal list operations occur correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testListControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         NamingEnumeration list = sysRoot.list( "ou=users" );
 
         if ( list.hasMore() )
@@ -424,12 +502,18 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // Add Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailAddOnAlias() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "objectClass" );
         attr.add( "top" );
@@ -455,9 +539,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Tests for add operation failure when the parent of the entry to add does
      * not exist.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailAddNoSuchEntry() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.createSubcontext( "ou=blah,ou=abc" );
@@ -472,7 +561,10 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Tests for add operation failure when the entry to add already exists.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailAddEntryAlreadyExists() throws NamingException
     {
         createSubContext( "ou", "blah");
@@ -492,9 +584,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Add operation control to test if normal add operations occur correctly.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testAddControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         DirContext ctx = createSubContext( "ou", "blah");
         createSubContext( ctx, "ou", "subctx");
         Object obj = sysRoot.lookup( "ou=subctx,ou=blah" );
@@ -506,11 +603,17 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     // Delete Operation Tests
     // ------------------------------------------------------------------------
 
+
     /**
      * Tests for delete failure when the entry to be deleted has child entires.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailDeleteNotAllowedOnNonLeaf() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         DirContext ctx = createSubContext( "ou", "blah" );
         createSubContext( ctx,  "ou", "subctx" );
 
@@ -530,9 +633,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
     /**
      * Tests delete to make sure it fails when we try to delete an entry that
      * does not exist.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testFailDeleteNoSuchObject() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         try
         {
             sysRoot.destroySubcontext( "ou=blah" );
@@ -548,9 +656,14 @@ public class ExceptionServiceITest extends AbstractAdminTestCase
 
     /**
      * Delete operation control to test if normal delete operations occur.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testDeleteControl() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         createSubContext( "ou", "blah" );
 
         Object obj = sysRoot.lookup( "ou=blah" );
