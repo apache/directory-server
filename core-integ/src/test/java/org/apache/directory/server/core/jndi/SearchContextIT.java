@@ -20,26 +20,27 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.HashMap;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
 import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
+import java.util.HashMap;
 
 
 /**
@@ -48,16 +49,21 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SearchContextITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class SearchContextIT
 {
-    protected void setUp() throws Exception
+    public static DirectoryService service;
+
+
+    /**
+     * @todo put this into ldif and use ldif annotation to import
+     *
+     * @param sysRoot the system root to add entries to
+     * @throws NamingException on errors
+     */
+    protected void createData( LdapContext sysRoot ) throws NamingException
     {
-        if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
-        {
-            super.service.setDenormalizeOpAttrsEnabled( true );
-        }
-        
-        super.setUp();
+
 
         /*
          * create ou=testing00,ou=system
@@ -158,8 +164,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchOneLevel() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -181,8 +191,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchSubTreeLevel() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -197,7 +211,7 @@ public class SearchContextITest extends AbstractAdminTestCase
             map.put( result.getName(), result.getAttributes() );
         }
 
-        assertEquals( "Expected number of results returned was incorrect", 12, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 11, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -205,8 +219,13 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( map.containsKey( "ou=subtest,ou=testing01,ou=system" ) );
     }
 
+
+    @Test
     public void testSearchSubTreeLevelNoAttributes() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -231,8 +250,13 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertEquals( 0, attrs.size() );
     }
 
+
+    @Test
     public void testSearchSubstringSubTreeLevel() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -248,7 +272,7 @@ public class SearchContextITest extends AbstractAdminTestCase
         }
 
         // 13 because it also matches organizationalPerson which the admin is
-        assertEquals( "Expected number of results returned was incorrect", 13, map.size() );
+        assertEquals( "Expected number of results returned was incorrect", 12, map.size() );
         assertTrue( map.containsKey( "ou=system" ) );
         assertTrue( map.containsKey( "ou=testing00,ou=system" ) );
         assertTrue( map.containsKey( "ou=testing01,ou=system" ) );
@@ -257,8 +281,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchFilterArgs() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -280,8 +308,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchSizeLimit() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -308,8 +340,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchTimeLimit() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -352,9 +388,13 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertEquals( "Expected number of results returned was incorrect", 1, map.size() );
     }
     
-    
+
+    @Test
     public void testFilterExpansion0() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -372,9 +412,13 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
     }
     
-    
+
+    @Test
     public void testFilterExpansion1() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -388,11 +432,10 @@ public class SearchContextITest extends AbstractAdminTestCase
             SearchResult result = ( SearchResult ) list.next();
             map.put( result.getName(), result.getAttributes() );
         }
-        assertEquals( "size of results", 14, map.size() );
+        assertEquals( "size of results", 13, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
-        assertTrue( "contains uid=akarasulu,ou=users,ou=system", map.containsKey( "uid=akarasulu,ou=users,ou=system" ) ); 
         assertTrue( "contains ou=configuration,ou=system", map.containsKey( "ou=configuration,ou=system" ) ); 
         assertTrue( "contains ou=groups,ou=system", map.containsKey( "ou=groups,ou=system" ) ); 
         assertTrue( "contains ou=interceptors,ou=configuration,ou=system", map.containsKey( "ou=interceptors,ou=configuration,ou=system" ) ); 
@@ -406,8 +449,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
     
     
+    @Test
     public void testFilterExpansion2() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -427,8 +474,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testFilterExpansion4() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -449,8 +500,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testFilterExpansion5() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -475,9 +530,13 @@ public class SearchContextITest extends AbstractAdminTestCase
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
     }
     
-    
+
+    @Test
     public void testOpAttrDenormalizationOff() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -501,8 +560,13 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testOpAttrDenormalizationOn() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        service.setDenormalizeOpAttrsEnabled( true );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
@@ -547,8 +611,12 @@ public class SearchContextITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testBinaryAttributesInFilter() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         byte[] certData = new byte[] { 0x34, 0x56, 0x4e, 0x5f };
         
         // First let's add a some binary data representing a userCertificate
