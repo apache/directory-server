@@ -20,6 +20,16 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -27,12 +37,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -41,16 +46,20 @@ import org.apache.directory.shared.ldap.message.AliasDerefMode;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev: 493916 $
  */
-public class DIRSERVER759ITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class DIRSERVER759IT
 {
-    protected void setUp() throws Exception
+    public static DirectoryService service;
+
+
+    /**
+     * @todo replace with ldif annotations
+     *
+     * @throws NamingException on errors
+     */
+    protected void createData() throws NamingException
     {
-        if ( this.getName().equals( "testOpAttrDenormalizationOn" ) )
-        {
-            super.service.setDenormalizeOpAttrsEnabled( true );
-        }
-        
-        super.setUp();
+        LdapContext sysRoot = getSystemContext( service );
 
         /*
          * create ou=testing00,ou=system
@@ -151,8 +160,11 @@ public class DIRSERVER759ITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchBadDN() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         controls.setDerefLinkFlag( false );
