@@ -30,7 +30,7 @@ import org.apache.directory.server.core.integ.annotations.Mode;
 import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.jndi.AddIT;
 import org.apache.directory.server.core.jndi.CreateContextIT;
-import org.apache.directory.server.core.jndi.DestoryContextIT;
+import org.apache.directory.server.core.jndi.DestroyContextIT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -49,7 +49,7 @@ import org.junit.runners.Suite;
         EventServiceIT.class,
         AddIT.class,
         CreateContextIT.class,
-        DestoryContextIT.class,
+        DestroyContextIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )

@@ -44,7 +44,7 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-public class DestoryContextIT
+public class DestroyContextIT
 {
     public static DirectoryService service;
 
