@@ -22,11 +22,15 @@ package org.apache.directory.server.core.configuration;
 
 import junit.framework.Assert;
 import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -41,13 +45,13 @@ import java.util.Hashtable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DirectoryPartitionConfigurationITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class PartitionConfigurationIT
 {
-    public DirectoryPartitionConfigurationITest()
-    {
-    }
+    public static DirectoryService service;
 
 
+    @Test
     public void testAddAndRemove() throws Exception
     {
         Partition partition = new JdbmPartition();

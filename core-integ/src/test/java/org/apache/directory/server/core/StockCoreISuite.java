@@ -20,11 +20,12 @@ package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
+import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.integ.CiSuite;
 import org.apache.directory.server.core.integ.ServiceScope;
 import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.integ.annotations.Mode;
+import org.apache.directory.server.core.integ.annotations.Scope;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -38,7 +39,8 @@ import org.junit.runners.Suite;
 @RunWith ( CiSuite.class )
 @Suite.SuiteClasses ( {
         SimpleAuthenticationIT.class,
-        CollectiveAttributeServiceIT.class
+        CollectiveAttributeServiceIT.class,
+        PartitionConfigurationIT.class
         } )
 @Scope ( ServiceScope.TESTSUITE )
 @Mode ( SetupMode.ROLLBACK )
