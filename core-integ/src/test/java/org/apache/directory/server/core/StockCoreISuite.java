@@ -52,7 +52,7 @@ import org.junit.runners.Suite;
         DIRSERVER759IT.class,
         DIRSERVER783IT.class,
         DIRSERVER791IT.class,
-        ListAsAdminIT.class,
+        ListIT.class,
         ExtensibleObjectIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )

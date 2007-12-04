@@ -24,7 +24,9 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.*;
 import org.apache.directory.shared.ldap.ldif.Entry;
+
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,9 +46,52 @@ import java.util.HashSet;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-public class ListAsAdminIT
+public class ListIT
 {
     public static DirectoryService service;
+
+
+    @Test
+    public void testListSystemAsNonAdmin() throws NamingException
+    {
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+
+        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        HashSet<String> set = new HashSet<String>();
+        NamingEnumeration list = sysRoot.list( "" );
+
+        while ( list.hasMore() )
+        {
+            NameClassPair ncp = ( NameClassPair ) list.next();
+            set.add( ncp.getName() );
+        }
+
+        assertFalse( set.contains( "uid=admin,ou=system" ) );
+        assertTrue( set.contains( "ou=users,ou=system" ) );
+        assertTrue( set.contains( "ou=groups,ou=system" ) );
+    }
+
+
+    @Test
+    public void testListUsersAsNonAdmin() throws NamingException
+    {
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
+
+        LdapContext sysRoot = getContext( akarasulu.getDn(), service, "ou=system" );
+        HashSet<String> set = new HashSet<String>();
+        NamingEnumeration list = sysRoot.list( "ou=users" );
+
+        while ( list.hasMore() )
+        {
+            NameClassPair ncp = ( NameClassPair ) list.next();
+            set.add( ncp.getName() );
+        }
+
+        // @todo this assertion fails now - is this the expected behavoir?
+        // assertFalse( set.contains( "uid=akarasulu,ou=users,ou=system" ) );
+    }
 
 
     @Test
