@@ -20,14 +20,18 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.junit.Test;import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertEquals;import static org.junit.Assert.assertTrue;
+import org.junit.runner.RunWith;
+
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -36,10 +40,16 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtensibleObjectITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class ExtensibleObjectIT
 {
+    public static DirectoryService service;
+
+
+    @Test
     public void testExtensibleObjectModify() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );
@@ -84,8 +94,10 @@ public class ExtensibleObjectITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testExtensibleObjectAdd() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "objectClass" );
         attribute.add( "top" );

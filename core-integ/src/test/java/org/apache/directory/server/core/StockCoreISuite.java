@@ -50,6 +50,9 @@ import org.junit.runners.Suite;
         DestroyContextIT.class,
         DIRSERVER169IT.class,
         DIRSERVER759IT.class,
+        DIRSERVER783IT.class,
+        DIRSERVER791IT.class,
+        ExtensibleObjectIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )

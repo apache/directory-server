@@ -163,6 +163,7 @@ public class DIRSERVER759IT
     @Test
     public void testSearchBadDN() throws NamingException
     {
+        createData();
         LdapContext sysRoot = getSystemContext( service );
 
         SearchControls controls = new SearchControls();

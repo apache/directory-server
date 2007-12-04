@@ -19,11 +19,17 @@
  */
 package org.apache.directory.server.core.jndi;
 
+
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -37,13 +43,10 @@ import java.util.Hashtable;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-
-public class DIRSERVER783ITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class DIRSERVER783IT
 {
-    protected void setUp() throws Exception 
-    {
-        super.setUp();
-    }
+    public static DirectoryService service;
 
 
     /**
@@ -51,6 +54,7 @@ public class DIRSERVER783ITest extends AbstractAdminTestCase
      * 
      * @throws NamingException if there are errors
      */
+    @Test
     public void testAddAnotherValueToAnAttribute() throws NamingException
     {
         // create a person without sn

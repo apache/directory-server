@@ -19,30 +19,43 @@
  */
 package org.apache.directory.server.core.jndi;
 
+
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.util.Hashtable;
 
+
 /**
  * A test case which demonstrates the three defects described in DIRSERVER-791.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class DIRSERVER791ITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class DIRSERVER791IT
 {
+    public static DirectoryService service;
+
+
     /**
      * Returns the attributes as depicted as test data in DIRSERVER-791
      * @return attributes for the test entry
      */
-    protected Attributes getTestEntryAttributes() {
-
+    protected Attributes getTestEntryAttributes()
+    {
         Attributes attrs = new AttributesImpl();
         Attribute ocls = new AttributeImpl("objectClass");
         ocls.add("top");
@@ -61,12 +74,16 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
         return attrs;
     }
 
-    protected void setUp() throws Exception 
-    {
-        super.setUp();
 
+    /**
+     * @todo  replace this with an ldif annotation
+     *
+     * @throws NamingException on error
+     */
+    protected void createData() throws NamingException
+    {
         Attributes entry = this.getTestEntryAttributes();
-        sysRoot.createSubcontext("cn=test", entry);
+        getSystemContext( service ).createSubcontext("cn=test", entry);
     }
 
     
@@ -76,9 +93,10 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      *
      * @throws NamingException on error
      */
+    @Test
     public void testDefect1a() throws NamingException 
     {
-
+        createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -104,8 +122,10 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      *
      * @throws NamingException on error
      */
-    public void testDefect1b() throws NamingException 
+    @Test
+    public void testDefect1b() throws NamingException
     {
+        createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -133,8 +153,10 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      *
      * @throws NamingException on error
      */
-    public void testDefect2() throws NamingException 
+    @Test
+    public void testDefect2() throws NamingException
     {
+        createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
@@ -182,8 +204,10 @@ public class DIRSERVER791ITest extends AbstractAdminTestCase
      *
      * @throws NamingException on error
      */
-    public void testDefect3() throws NamingException 
+    @Test
+    public void testDefect3() throws NamingException
     {
+        createData();
         Hashtable<String,Object> env = new Hashtable<String,Object>();
         env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
