@@ -29,7 +29,6 @@ import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -85,14 +84,11 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         }
     };
 
-    /**
-     * the root nexus of the system
-     */
-    private PartitionNexus nexus;
 
     private AttributeTypeRegistry registry;
 
-    private boolean isDenormalizeOpAttrsEnabled;
+    private DirectoryService service;
+
     private LdapDN subschemaSubentryDn;
 
 
@@ -106,12 +102,12 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
     public void init( DirectoryService directoryService ) throws NamingException
     {
-        nexus = directoryService.getPartitionNexus();
+        service = directoryService;
         registry = directoryService.getRegistries().getAttributeTypeRegistry();
-        isDenormalizeOpAttrsEnabled = directoryService.isDenormalizeOpAttrsEnabled();
 
         // stuff for dealing with subentries (garbage for now)
-        String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
+        String subschemaSubentry = ( String ) service.getPartitionNexus()
+                .getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
         subschemaSubentryDn = new LdapDN( subschemaSubentry );
         subschemaSubentryDn.normalize( directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
     }
@@ -176,7 +172,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         // -------------------------------------------------------------------
 
         ModifyOperationContext newModify = new ModifyOperationContext( opContext.getDn(), modItemList );
-        nexus.modify( newModify );
+        service.getPartitionNexus().modify( newModify );
     }
 
 
@@ -204,7 +200,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
 
         ModifyOperationContext newModify = new ModifyOperationContext( newDn, items );
         
-        nexus.modify( newModify );
+        service.getPartitionNexus().modify( newModify );
     }
 
 
@@ -228,7 +224,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         ModifyOperationContext newModify = 
             new ModifyOperationContext( opContext.getParent(), items );
         
-        nexus.modify( newModify );
+        service.getPartitionNexus().modify( newModify );
     }
 
 
@@ -253,7 +249,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
             new ModifyOperationContext( 
         		opContext.getParent(), items );
         
-        nexus.modify( newModify );
+        service.getPartitionNexus().modify( newModify );
     }
 
 
@@ -296,7 +292,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
         
         if ( searchCtls.getReturningAttributes() != null )
         {
-            if ( isDenormalizeOpAttrsEnabled )
+            if ( service.isDenormalizeOpAttrsEnabled() )
             {
                 return new SearchResultFilteringEnumeration( result, searchCtls, invocation, DENORMALIZING_SEARCH_FILTER, "Search Operational Filter denormalized" );
             }
@@ -385,7 +381,7 @@ public class OperationalAttributeInterceptor extends BaseInterceptor
     
     public void denormalizeEntryOpAttrs( Attributes entry ) throws NamingException
     {
-        if ( isDenormalizeOpAttrsEnabled )
+        if ( service.isDenormalizeOpAttrsEnabled() )
         {
             AttributeType type = registry.lookup( SchemaConstants.CREATORS_NAME_AT );
             Attribute attr = AttributeUtils.getAttribute( entry, type );
