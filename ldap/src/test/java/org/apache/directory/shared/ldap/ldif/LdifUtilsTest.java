@@ -19,24 +19,17 @@
  */
 package org.apache.directory.shared.ldap.ldif;
 
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import org.apache.directory.shared.ldap.util.StringTools;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
+import javax.naming.directory.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -431,109 +424,154 @@ public class LdifUtilsTest
     
     
     /**
-     * Test a reversed ModifyDN with no deleteOldRdn and no superior
-     */
-    @Test
-    public void testReverseModifyDNNoDeleteOldRdnNoSuperior() throws NamingException
-    {
-        LdapDN dnModified = new LdapDN( "cn=joe, dc=example, dc=com" );
-        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
-        Entry reversed = LdifUtils.reverseModifyDN( null, dn, new Rdn( "cn=joe" ), true );
-
-        assertNotNull( reversed );
-        assertEquals( dnModified.getUpName(), reversed.getDn() );
-        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
-        assertTrue( reversed.isDeleteOldRdn() );
-        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
-        assertNull( reversed.getNewSuperior() );
-    }
-
-
-    /**
-     * Test a reversed ModifyDN with a deleteOldRdn and no superior
+     * Check that the correct reverse LDIF is produced for a modifyDn
+     * operation that just renames the person without preserving the
+     * old rdn.
+     *
+     * @throws NamingException on error
      */
     @Test
     public void testReverseModifyDNDeleteOldRdnNoSuperior() throws NamingException
     {
-        LdapDN dnModified = new LdapDN( "cn=joe, dc=example, dc=com" );
-        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+        LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
 
-        Entry reversed = LdifUtils.reverseModifyDN( null, dn, new Rdn( "cn=joe" ), true );
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "cn", "john doe" );
+        attrs.put( "sn", "doe" );
+        attrs.put( "uid", "jdoe" );
+
+        Entry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( dnModified.getUpName(), reversed.getDn() );
-        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
+        assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );
-        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
+        assertEquals( "cn=john doe", reversed.getNewRdn() );
         assertNull( reversed.getNewSuperior() );
+        assertNull( reversed.getAttributes() );
     }
 
 
     /**
-     * Test a reversed ModifyDN with no deleteOldRdn and a superior
+     * Check that the correct reverse LDIF is produced for a modifyDn
+     * operation that just renames the person while preserving the
+     * old rdn.
+     *
+     * @throws NamingException on error
      */
     @Test
-    public void testReverseModifyDNNoDeleteOldRdnSuperior() throws NamingException
+    public void testReverseModifyDNNoSuperior() throws NamingException
     {
-        LdapDN dnModified = new LdapDN( "cn=joe,ou=system" );
-        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+        LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
 
-        Entry reversed = LdifUtils.reverseModifyDN( new LdapDN( "ou=system" ), dn, new Rdn( "cn=joe" ), true );
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "cn", "john doe" );
+        attrs.put( "cn", "jack doe" );
+        attrs.put( "sn", "doe" );
+        attrs.put( "uid", "jdoe" );
+
+        Entry reversed = LdifUtils.reverseModifyRdn( attrs, null, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( dnModified.getUpName(), reversed.getDn() );
-        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
+        assertEquals( "cn=jack doe, dc=example, dc=com", reversed.getDn() );
+        assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
+        assertFalse( reversed.isDeleteOldRdn() );
+        assertEquals( "cn=john doe", reversed.getNewRdn() );
+        assertNull( reversed.getNewSuperior() );
         assertNull( reversed.getAttributes() );
-        assertTrue( reversed.isDeleteOldRdn() );
-        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
-        assertNotNull( reversed.getNewSuperior() );
-        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
     }
 
 
     /**
-     * Test a reversed move ModifyDN
+     * Check that the correct reverse LDIF is produced for a modifyDn
+     * operation that moves and renames the entry while preserving the
+     * old rdn.
+     *
+     * @throws NamingException on error
+     */
+    @Test
+    public void testReverseModifyDNSuperior() throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
+        LdapDN newSuperior = new LdapDN( "ou=system" );
+
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "cn", "john doe" );
+        attrs.put( "cn", "jack doe" );
+        attrs.put( "sn", "doe" );
+        attrs.put( "uid", "jdoe" );
+
+        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
+
+        assertNotNull( reversed );
+        assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
+        assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
+        assertFalse( reversed.isDeleteOldRdn() );
+        assertEquals( "cn=john doe", reversed.getNewRdn() );
+        assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
+        assertNull( reversed.getAttributes() );
+    }
+
+
+    /**
+     * Test a reversed move ModifyDN no rdn changes
+     *
+     * @throws NamingException on error
      */
     @Test
     public void testReverseModifyDNMove() throws NamingException
     {
-        LdapDN dnModified = new LdapDN( "cn=test,ou=system" );
-        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+        LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
+        LdapDN newSuperior = new LdapDN( "ou=system" );
 
-        Entry reversed = LdifUtils.reverseModifyDN( new LdapDN( "ou=system" ), dn, new Rdn( "cn=test" ), false );
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "cn", "john doe" );
+        attrs.put( "cn", "jack doe" );
+        attrs.put( "sn", "doe" );
+        attrs.put( "uid", "jdoe" );
+
+        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, null );
 
         assertNotNull( reversed );
-        assertEquals( dnModified.getUpName(), reversed.getDn() );
+        assertEquals( "cn=john doe,ou=system", reversed.getDn() );
         assertEquals( ChangeType.ModDn, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
         assertFalse( reversed.isDeleteOldRdn() );
-        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
-        assertNotNull( reversed.getNewSuperior() );
-        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
+        assertNull( reversed.getNewRdn() );
+        assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
+        assertNull( reversed.getAttributes() );
     }
 
 
     /**
-     * Test a reversed ModifyDN with a deleteOldRdn and a superior
+     * Test a reversed ModifyDN with a deleteOldRdn, rdn change, and a superior
+     *
+     * @throws NamingException on error
      */
     @Test
     public void testReverseModifyDNDeleteOldRdnSuperior() throws NamingException
     {
-        LdapDN dnModified = new LdapDN( "cn=joe,ou=system" );
-        LdapDN dn = new LdapDN( "cn=test, dc=example, dc=com" );
+        LdapDN dn = new LdapDN( "cn=john doe, dc=example, dc=com" );
+        LdapDN newSuperior = new LdapDN( "ou=system" );
 
-        Entry reversed = LdifUtils.reverseModifyDN( new LdapDN( "ou=system" ), dn, new Rdn( "cn=joe" ), true );
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "person", true );
+        attrs.get( "objectClass" ).add( "uidObject" );
+        attrs.put( "cn", "john doe" );
+        attrs.put( "sn", "doe" );
+        attrs.put( "uid", "jdoe" );
+
+        Entry reversed = LdifUtils.reverseModifyRdn( attrs, newSuperior, dn, new Rdn( "cn=jack doe" ) );
 
         assertNotNull( reversed );
-        assertEquals( dnModified.getUpName(), reversed.getDn() );
-        assertEquals( ChangeType.ModDn, reversed.getChangeType() );
-        assertNull( reversed.getAttributes() );
+        assertEquals( "cn=jack doe,ou=system", reversed.getDn() );
+        assertEquals( ChangeType.ModRdn, reversed.getChangeType() );
         assertTrue( reversed.isDeleteOldRdn() );
-        assertEquals( new Rdn( "cn=test" ).getUpName(), reversed.getNewRdn() );
-        assertNotNull( reversed.getNewSuperior() );
-        assertEquals( new LdapDN( "dc=example, dc=com" ).getUpName(), reversed.getNewSuperior() );
+        assertEquals( "cn=john doe", reversed.getNewRdn() );
+        assertEquals( "dc=example, dc=com", StringTools.trim( reversed.getNewSuperior() ) );
+        assertNull( reversed.getAttributes() );
     }
 
     

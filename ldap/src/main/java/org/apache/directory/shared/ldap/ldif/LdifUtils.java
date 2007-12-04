@@ -494,76 +494,206 @@ public class LdifUtils
     
     
     /**
-     * Compute a reverse LDIF for a ModifyDNRequest. This is more complex than 
-     * the Add and Delete operation, as we have to handle four different cases :
-     *  - no new superior, no deleteOldRdn 
-     *  - no new superior, deleteOldRdn set to true
-     *  - a new superior, no deleteOldRdn 
-     *  - a new superior, deleteOldRdn set to true
+     * Compute a reverse LDIF for a forward change which if in LDIF format
+     * would represent a moddn operation.  Hence there is no newRdn in the
+     * picture here.
      *
-     * @param newSuperiorDn the new superior dn if this is a move, otherwise null
-     * @param modifiedDn the dn of the entry being modified
-     * @param newRdn the new rdn to use
-     * @param deleteOldRdn true if deleting old rdn, false if leaving it
+     * @param newSuperiorDn the new parent dn to be (must not be null)
+     * @param modifiedDn the dn of the entry being moved (must not be null)
+     * @return a reverse LDIF
+     * @throws NamingException if something went wrong
+     */
+    public static Entry reverseModifyDn( LdapDN newSuperiorDn, LdapDN modifiedDn ) throws NamingException
+    {
+        Entry entry = new Entry();
+        LdapDN currentParent;
+        LdapDN newDn;
+
+        if ( newSuperiorDn == null )
+        {
+            throw new NullPointerException( "newSuperiorDn must not be null" );
+        }
+
+        if ( modifiedDn == null )
+        {
+            throw new NullPointerException( "modifiedDn must not be null" );
+        }
+
+        if ( modifiedDn.size() == 0 )
+        {
+            throw new IllegalArgumentException( "Don't think about moving the rootDSE." );
+        }
+
+        currentParent = ( LdapDN ) modifiedDn.clone();
+        currentParent.remove( currentParent.size() - 1 );
+
+        newDn = ( LdapDN ) newSuperiorDn.clone();
+        newDn.add( modifiedDn.getRdn() );
+
+        entry.setChangeType( ChangeType.ModDn );
+        entry.setDn( newDn.getUpName() );
+        entry.setNewSuperior( currentParent.getUpName() );
+        entry.setDeleteOldRdn( false );
+        return entry;
+    }
+
+
+    public static Entry reverseRename( Attributes t0, LdapDN t0_dn, Rdn t1_rdn ) throws NamingException
+    {
+        Entry entry = new Entry();
+        LdapDN parent;
+        LdapDN newDn;
+
+        if ( t1_rdn == null )
+        {
+            throw new NullPointerException( "newRdn must not be null" );
+        }
+
+        if ( t0_dn == null )
+        {
+            throw new NullPointerException( "modifiedDn must not be null" );
+        }
+
+        if ( t0_dn.size() == 0 )
+        {
+            throw new IllegalArgumentException( "Don't think about renaming the rootDSE." );
+        }
+
+        parent = ( LdapDN ) t0_dn.clone();
+        parent.remove( parent.size() - 1 );
+
+        newDn = ( LdapDN ) parent.clone();
+        newDn.add( t1_rdn );
+
+        entry.setChangeType( ChangeType.ModRdn );
+        entry.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
+        entry.setDn( newDn.getUpName() );
+        entry.setNewRdn( t0_dn.getRdn().getUpName() );
+        return entry;
+    }
+
+
+
+    /**
+     * Compute a reverse LDIF for a forward change which if in LDIF format
+     * would represent a modrdn operation.
+     *
+     * @param t0 the entry the way it was before changes were made
+     * @param t1_parentDn the new superior dn if this is a move, otherwise null
+     * @param t0_dn the dn of the entry being modified
+     * @param t1_rdn the new rdn to use
      * @return A reverse LDIF
      * @throws NamingException If something went wrong
      */
-    public static Entry reverseModifyDN( LdapDN newSuperiorDn, LdapDN modifiedDn, Rdn newRdn, boolean deleteOldRdn )
+    public static Entry reverseModifyRdn( Attributes t0, LdapDN t1_parentDn, LdapDN t0_dn, Rdn t1_rdn )
             throws NamingException
     {
-        Entry entry = new Entry();
-        LdapDN newDN = null;
-        Rdn oldRdn = modifiedDn.getRdn();
+        if ( t0_dn == null )
+        {
+            throw new NullPointerException( "t0_dn must not be null" );
+        }
 
-        if ( newSuperiorDn != null )
+        if ( t0_dn.size() == 0 )
         {
-            newDN = newSuperiorDn;
-            String newSuperior = ( ( LdapDN ) modifiedDn.getPrefix( modifiedDn.size() - 1 ) ).getUpName();
-            String trimmedSuperior = StringTools.trim( newSuperior );
-            entry.setNewSuperior( trimmedSuperior );
+            throw new IllegalArgumentException( "Don't think about a move op on the rootDSE." );
         }
-        else
+
+        // if there is no new superior in the picture then this is a rename
+        // operation where the parent is retained and only the rdn is changed
+        if ( t1_parentDn == null )
         {
-            newDN = ( LdapDN ) modifiedDn.getPrefix( modifiedDn.size() - 1 );
+            return reverseRename( t0, t0_dn, t1_rdn );
         }
-        
-        newDN.add( newRdn );
-        
-        entry.setDn( newDN.getUpName() );
-        entry.setChangeType( ChangeType.ModDn );
-        
-        if ( newRdn.equals( oldRdn ) )
+
+        // if there is no rdn change then this is a raw move operation without
+        // a name change, we can delegate this to a simpler method
+        if ( t1_rdn == null )
         {
-            // This is a move operation : no need to delete the oldRdn
-            entry.setDeleteOldRdn( false );
+            return reverseModifyDn( t1_parentDn, t0_dn );
         }
-        else
-        {
-            entry.setDeleteOldRdn( true );
-        }
-        
-        entry.setNewRdn( modifiedDn.getRdn().getUpName() );
-        
-        return entry;
+
+        // -------------------------------------------------------------------
+        // Below here we do a move and change the name of the rdn all in one
+        // -------------------------------------------------------------------
+
+        // the reverse LDIF we will create
+        Entry reverse = new Entry();
+
+        // take the dn before the forward change was applied, and get it's
+        // parent, this parent will be the newSuperiorDn to be used for the
+        // reverse LDIF.  This is the same as t0_parentDn.
+        LdapDN reverseNewSuperiorDn = ( LdapDN ) t0_dn.clone();
+        reverseNewSuperiorDn.remove( reverseNewSuperiorDn.size() - 1 );
+
+        // take the rdn before the forward change, this will be the newRdn
+        // of the reverse LDIF, this is the same as a t0_rdn.
+        Rdn reverseNewRdn = t0_dn.getRdn();
+
+        // take the newSuperiorDn of the forward operation and append to it
+        // the new rdn of the forward operation to get the new dn after the
+        // change.  This will be the dn of the reverse ldif.  And this is just
+        // the same as t1_dn.
+        LdapDN reverseDn = ( LdapDN ) t1_parentDn.clone();
+        reverseDn.add( t1_rdn );
+
+        reverse.setDn( reverseDn.getUpName() );
+        reverse.setNewSuperior( reverseNewSuperiorDn.getUpName() );
+        reverse.setNewRdn( reverseNewRdn.getUpName() );
+        reverse.setChangeType( ChangeType.ModRdn );
+        reverse.setDeleteOldRdn( reverseDoDeleteOldRdn( t0, t1_rdn ) );
+
+        return reverse;
     }
-    
+
+
+    private static boolean reverseDoDeleteOldRdn( Attributes t0_entry, Rdn t1_rdn ) throws NamingException
+    {
+        // Consider simple example changes (rename or move does not matter)
+        // -------------------------------------------------------------------
+        // Example A:  t0 (ou=foo) => t1 (ou=bar)
+        //
+        // If at t0 ou=foo contained an ou value of 'bar' then the reverse
+        // LDIF must not delete the old rdn which would be bar.  Otherwise
+        // we must delete the old rdn.
+        //
+        // Example B:  t0 (cn=foo) => t1 (ou=bar)
+        //
+        // Here it's similar to example (A) except because the rdn attribute
+        // is different which shifts basically changes how we check for the
+        // presence of the rdn.  If cn=foo at t0 contains the ou attribute
+        // with a 'bar' value then we cannot delete the oldRdn in the reverse
+        // LDAP.  The logic below expresses this.
+        //
+        // @TODO this code stinks because it does not consider whitespace and
+        // case varience which requires schema awareness.  This must change.
+
+        // look up attribute in t0 using t1's rdn attribute type
+        Attribute t0_attr = t0_entry.get( t1_rdn.getUpType() );
+
+        // if we don't have that attribute in t0 then we need to make sure the
+        // reverse LDIF deletes the t1 rdn of 'bar', if we do have that attribute
+        // then we check if the value 'bar' is in it, if not there we delete
+        // if there we do not
+        return t0_attr == null || ! t0_attr.contains( t1_rdn.getUpValue() );
+    }
+
 
     /**
-     * 
-     * Compute the reversed LDIF for a modify request. We will deal with the 
+     *
+     * Compute the reversed LDIF for a modify request. We will deal with the
      * three kind of modifications :
      * - add
      * - remove
      * - replace
-     * 
-     * As the modifications should be issued in a reversed order ( ie, for 
+     *
+     * As the modifications should be issued in a reversed order ( ie, for
      * the initials modifications {A, B, C}, the reversed modifications will
-     * be ordered like {C, B, A}), we will change the modifications order. 
+     * be ordered like {C, B, A}), we will change the modifications order.
      *
      * @param dn the dn of the modified entry
      * @param forwardModifications the modification items for the forward change
      * @param modifiedEntry The modified entry. Necessary for the destructive modifications
-     * @return A reversed LDIF 
+     * @return A reversed LDIF
      * @throws NamingException If something went wrong
      */
     public static Entry reverseModify( LdapDN dn, List<ModificationItemImpl> forwardModifications,
@@ -571,16 +701,16 @@ public class LdifUtils
     {
         // First, protect the original entry by cloning it : we will modify it
         Attributes clonedEntry = (Attributes)modifiedEntry.clone();
-        
+
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Modify );
-        
+
         entry.setDn( dn.getUpName() );
-        
+
         // As the reversed modifications should be pushed in reversed order,
         // we create a list to temporarily store the modifications.
         List<ModificationItemImpl> reverseModifications = new ArrayList<ModificationItemImpl>();
-        
+
         // Loop through all the modifications. For each modification, we will
         // have to apply it to the modified entry in order to be able to generate
         // the reversed modification
@@ -590,52 +720,52 @@ public class LdifUtils
             {
                 case DirContext.ADD_ATTRIBUTE :
                     Attribute mod = modification.getAttribute();
-                    
+
                     Attribute previous = modifiedEntry.get( mod.getID() );
-                    
+
                     if ( mod.equals( previous ) )
                     {
                         continue;
                     }
-                    
+
                     ModificationItemImpl reverseModification = new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, mod );
                     reverseModifications.add( 0, reverseModification );
                     break;
-                    
+
                 case DirContext.REMOVE_ATTRIBUTE :
                     mod = modification.getAttribute();
-                    
+
                     previous = modifiedEntry.get( mod.getID() );
-                    
+
                     if ( previous == null )
                     {
                         // Nothing to do if the previous attribute didn't exist
                         continue;
                     }
-                    
+
                     if ( mod.get() == null )
                     {
                         reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, previous );
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
-                    
+
                     reverseModification = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, mod );
                     reverseModifications.add( 0, reverseModification );
                     break;
-                    
+
                 case DirContext.REPLACE_ATTRIBUTE :
                     mod = modification.getAttribute();
-                    
+
                     previous = modifiedEntry.get( mod.getID() );
-                    
+
                     if ( mod.get() == null )
                     {
                         reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
-                    
+
                     if ( previous == null )
                     {
                         Attribute emptyAttribute = new AttributeImpl( mod.getID() );
@@ -643,28 +773,28 @@ public class LdifUtils
                         reverseModifications.add( 0, reverseModification );
                         continue;
                     }
-                    
+
                     reverseModification = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, previous );
                     reverseModifications.add( 0, reverseModification );
                     break;
             }
-            
+
             AttributeUtils.applyModification( clonedEntry, modification );
-            
+
         }
-        
+
         // Special case if we don't have any reverse modifications
         if ( reverseModifications.size() == 0 )
         {
             return null;
         }
-        
+
         // Now, push the reversed list into the entry
         for ( ModificationItemImpl modification:reverseModifications )
         {
             entry.addModificationItem( modification );
         }
-        
+
         // Return the reverted entry
         return entry;
     }
