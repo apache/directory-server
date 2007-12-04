@@ -20,22 +20,27 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -45,19 +50,22 @@ import javax.naming.directory.SearchResult;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UniqueMemberITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class UniqueMemberIT
 {
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-    }
+    public static DirectoryService service;
 
     
     /**
      * Test a valid entry
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testValidUniqueMember() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -115,16 +123,21 @@ public class UniqueMemberITest extends AbstractAdminTestCase
             if ( attr.getID().equalsIgnoreCase( "uniqueMember" ) )
             {
                 assertEquals( "cn=kevin spacey, dc=example, dc=org", attr.get() );
-                continue;
             }
         }
     }
 
+
     /**
      * Test a valid entry, with an optional UID
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testValidUniqueMemberWithOptionnalUID() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -182,16 +195,21 @@ public class UniqueMemberITest extends AbstractAdminTestCase
             if ( attr.getID().equalsIgnoreCase( "uniqueMember" ) )
             {
                 assertEquals( "cn=kevin spacey 2, dc=example, dc=org#'010101'B", attr.get() );
-                continue;
             }
         }
     }
 
+
     /**
      * Test a valid entry, with an optional UID
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testInvalidUniqueMemberBadDN() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -215,11 +233,17 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Test a valid entry, with an optional UID
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testInvalidUniqueMemberBadUID() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -243,8 +267,12 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         }
     }
     
+
+    @Test
     public void testSearchUniqueMemberFilter() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -291,8 +319,12 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         assertNotNull( attrs.get( "uniqueMember" ) );
     }
 
+
+    @Test
     public void testSearchUniqueMemberFilterWithSpaces() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -339,8 +371,12 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         assertNotNull( attrs.get( "uniqueMember" ) );
     }
 
+
+    @Test
     public void testSearchUniqueMemberFilterWithBadDN() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
@@ -374,8 +410,12 @@ public class UniqueMemberITest extends AbstractAdminTestCase
         assertFalse( list.hasMore() );
     }
 
+
+    @Test
     public void testSearchUniqueMemberFilterWithUID() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+
         Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "groupOfUniqueNames" );
