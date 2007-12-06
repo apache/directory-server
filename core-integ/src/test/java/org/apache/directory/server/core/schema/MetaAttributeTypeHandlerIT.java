@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -36,6 +36,15 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -45,7 +54,9 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class MetaAttributeTypeHandlerIT
 {
     private static final String DESCRIPTION0 = "A test attributeType";
     private static final String DESCRIPTION1 = "An alternate description";
@@ -57,13 +68,26 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.2.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.2.100002";
 
+
+    public static DirectoryService service;
+
     
     /**
      * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the a schema's attributeType entity container
+     * @throws NamingException on failure
      */
-    private final LdapDN getAttributeTypeContainer( String schemaName ) throws NamingException
+    private LdapDN getAttributeTypeContainer( String schemaName ) throws NamingException
     {
         return new LdapDN( "ou=attributeTypes,cn=" + schemaName );
+    }
+
+
+    private static AttributeTypeRegistry getAttributeTypeRegistry()
+    {
+        return service.getRegistries().getAttributeTypeRegistry();
     }
     
     
@@ -72,6 +96,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
     
+    @Test
     public void testAddAttributeType() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -88,27 +113,28 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
-        assertEquals( registries.getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( OID ) );
+        assertEquals( getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
     }
     
     
+    @Test
     public void testDeleteAttributeType() throws NamingException
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddAttributeType();
         
-        super.schemaRoot.destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "attributeType should be removed from the registry after being deleted", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         try
         {
-            registries.getAttributeTypeRegistry().lookup( OID );
+            getAttributeTypeRegistry().lookup( OID );
             fail( "attributeType lookup should fail after deleting it" );
         }
         catch( NamingException e )
@@ -117,32 +143,35 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testRenameAttributeType() throws NamingException
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddAttributeType();
         
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-        super.schemaRoot.rename( dn, newdn );
+        schemaRoot.rename( dn, newdn );
 
         assertFalse( "old attributeType OID should be removed from the registry after being renamed", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         try
         {
-            registries.getAttributeTypeRegistry().lookup( OID );
+            getAttributeTypeRegistry().lookup( OID );
             fail( "attributeType lookup should fail after renaming the attributeType" );
         }
         catch( NamingException e )
         {
         }
 
-        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( NEW_OID ) );
+        assertTrue( getAttributeTypeRegistry().hasAttributeType( NEW_OID ) );
     }
 
 
+    @Test
     public void testMoveAttributeType() throws NamingException
     {
         testAddAttributeType();
@@ -153,16 +182,17 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
-        assertTrue( "attributeType OID should still be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+        assertTrue( "attributeType OID should still be present",
+                getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         assertEquals( "attributeType schema should be set to apache not apachemeta", 
-            registries.getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
+            getAttributeTypeRegistry().getSchemaName( OID ), "apache" );
     }
 
 
+    @Test
     public void testMoveAttributeTypeAndChangeRdn() throws NamingException
     {
         testAddAttributeType();
@@ -173,24 +203,25 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getAttributeTypeContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old attributeType OID should NOT be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         assertTrue( "new attributeType OID should be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( NEW_OID ) );
+            getAttributeTypeRegistry().hasAttributeType( NEW_OID ) );
         
         assertEquals( "attributeType with new oid should have schema set to apache NOT apachemeta", 
-            registries.getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
+            getAttributeTypeRegistry().getSchemaName( NEW_OID ), "apache" );
     }
 
     
+    @Test
     public void testModifyAttributeTypeWithModificationItems() throws NamingException
     {
         testAddAttributeType();
         
-        AttributeType at = registries.getAttributeTypeRegistry().lookup( OID );
+        AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), INTEGER_SYNTAX_OID );
 
@@ -202,25 +233,26 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new AttributeImpl( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( dn, mods );
+        getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "attributeType OID should still be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         assertEquals( "attributeType schema should be set to apachemeta", 
-            registries.getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
         
-        at = registries.getAttributeTypeRegistry().lookup( OID );
+        at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
         assertEquals( at.getSyntax().getOid(), DIRSTR_SYNTAX_OID );
     }
 
     
+    @Test
     public void testModifyAttributeTypeWithAttributes() throws NamingException
     {
         testAddAttributeType();
         
-        AttributeType at = registries.getAttributeTypeRegistry().lookup( OID );
+        AttributeType at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION0 );
         assertEquals( at.getSyntax().getOid(), INTEGER_SYNTAX_OID );
 
@@ -230,15 +262,15 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         Attributes mods = new AttributesImpl();
         mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods.put( MetaSchemaConstants.M_SYNTAX_AT, DIRSTR_SYNTAX_OID );
-        super.schemaRoot.modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "attributeType OID should still be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         assertEquals( "attributeType schema should be set to apachemeta", 
-            registries.getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
 
-        at = registries.getAttributeTypeRegistry().lookup( OID );
+        at = getAttributeTypeRegistry().lookup( OID );
         assertEquals( at.getDescription(), DESCRIPTION1 );
         assertEquals( at.getSyntax().getOid(), DIRSTR_SYNTAX_OID );
     }
@@ -266,13 +298,14 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( DEPENDEE_OID ) );
-        assertEquals( registries.getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+        assertTrue( getAttributeTypeRegistry().hasAttributeType( DEPENDEE_OID ) );
+        assertEquals( getAttributeTypeRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
     }
 
 
+    @Test
     public void testDeleteAttributeTypeWhenInUse() throws NamingException
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -282,7 +315,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.destroySubcontext( dn );
+            getSchemaContext( service ).destroySubcontext( dn );
             fail( "should not be able to delete a attributeType in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -291,10 +324,11 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after delete failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
     
     
+    @Test
     public void testMoveAttributeTypeWhenInUse() throws NamingException
     {
         testAddAttributeType();
@@ -308,7 +342,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a attributeType in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -317,10 +351,11 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after move failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
 
+    @Test
     public void testMoveAttributeTypeAndChangeRdnWhenInUse() throws NamingException
     {
         testAddAttributeType();
@@ -334,7 +369,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a attributeType in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -343,10 +378,11 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after move failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
     
+    @Test
     public void testRenameAttributeTypeWhenInUse() throws NamingException
     {
         LdapDN dn = getAttributeTypeContainer( "apachemeta" );
@@ -359,7 +395,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to rename a attributeType in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -368,7 +404,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after rename failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
 
@@ -377,6 +413,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
 
+    @Test
     public void testMoveAttributeTypeToTop() throws NamingException
     {
         testAddAttributeType();
@@ -389,7 +426,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, top );
+            getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a attributeType up to ou=schema" );
         }
         catch( LdapInvalidNameException e ) 
@@ -398,10 +435,11 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after move failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
 
+    @Test
     public void testMoveAttributeTypeToComparatorContainer() throws NamingException
     {
         testAddAttributeType();
@@ -414,7 +452,7 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a attributeType into comparators container" );
         }
         catch( LdapInvalidNameException e ) 
@@ -423,10 +461,11 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "attributeType should still be in the registry after move failure", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
     
     
+    @Test
     public void testAddAttributeTypeToDisabledSchema() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -443,13 +482,14 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getAttributeTypeContainer( "nis" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new attributeType to disabled schema should not register it into the registries", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
 
+    @Test
     public void testMoveAttributeTypeToDisabledSchema() throws NamingException
     {
         testAddAttributeType();
@@ -461,13 +501,14 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getAttributeTypeContainer( "nis" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "attributeType OID should no longer be present", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
     }
 
 
+    @Test
     public void testMoveMatchingRuleToEnabledSchema() throws NamingException
     {
         testAddAttributeTypeToDisabledSchema();
@@ -477,17 +518,17 @@ public class MetaAttributeTypeHandlerITest extends AbstractAdminTestCase
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "attributeType OID should NOT be present when added to disabled nis schema", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
 
         LdapDN newdn = getAttributeTypeContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "attributeType OID should be present when moved to enabled schema", 
-            registries.getAttributeTypeRegistry().hasAttributeType( OID ) );
+            getAttributeTypeRegistry().hasAttributeType( OID ) );
         
         assertEquals( "attributeType should be in apachemeta schema after move", 
-            registries.getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
+            getAttributeTypeRegistry().getSchemaName( OID ), "apachemeta" );
     }
 }

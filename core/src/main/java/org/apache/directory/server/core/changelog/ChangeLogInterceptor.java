@@ -27,10 +27,12 @@ import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
@@ -55,7 +57,8 @@ public class ChangeLogInterceptor extends BaseInterceptor
     private AttributeType entryDeleted;
     /** the changelog service to log changes to */
     private ChangeLog changeLog;
-
+    /** we need the schema service to deal with special conditions */
+    private SchemaService schemaService;
 
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
@@ -65,8 +68,9 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         super.init( directoryService );
-        changeLog = directoryService.getChangeLog();
 
+        changeLog = directoryService.getChangeLog();
+        schemaService = directoryService.getSchemaService();
         entryDeleted = directoryService.getRegistries().getAttributeTypeRegistry()
                 .lookup( ApacheSchemaConstants.ENTRY_DELETED_OID );
     }
@@ -80,7 +84,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         next.add( opContext );
 
-        if ( ! changeLog.isEnabled() )
+        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
             return;
         }
@@ -108,17 +112,14 @@ public class ChangeLogInterceptor extends BaseInterceptor
         // must save the entry if change log is enabled
         Attributes attributes = null;
 
-        if ( changeLog.isEnabled() )
+        if ( changeLog.isEnabled() && ! opContext.isCollateralOperation() )
         {
-            Invocation invocation = InvocationStack.getInstance().peek();
-            PartitionNexusProxy proxy = invocation.getProxy();
-            attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
-                    PartitionNexusProxy.LOOKUP_BYPASS );
+            attributes = getAttributes( opContext.getDn() );
         }
 
         next.delete( opContext );
 
-        if ( ! changeLog.isEnabled() )
+        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
             return;
         }
@@ -131,25 +132,50 @@ public class ChangeLogInterceptor extends BaseInterceptor
     }
 
 
+    /**
+     * Gets attributes required for modifications.
+     *
+     * @param dn the dn of the entry to get
+     * @return the entry's attributes (may be immutable if the schema subentry)
+     * @throws NamingException on error accessing the entry's attributes
+     */
+    private Attributes getAttributes( LdapDN dn ) throws NamingException
+    {
+        Attributes attributes;
+
+        // @todo make sure we're not putting in operational attributes that cannot be user modified
+        Invocation invocation = InvocationStack.getInstance().peek();
+        PartitionNexusProxy proxy = invocation.getProxy();
+
+        if ( schemaService.isSchemaSubentry( dn.toNormName() ) )
+        {
+            return schemaService.getSubschemaEntryCloned();
+        }
+        else
+        {
+            attributes = proxy.lookup( new LookupOperationContext( dn ), PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
+        return attributes;
+    }
+
+
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
         Attributes attributes = null;
         boolean isDelete = AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null;
 
-        if ( ! isDelete && changeLog.isEnabled() )
+        if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            Invocation invocation = InvocationStack.getInstance().peek();
-            PartitionNexusProxy proxy = invocation.getProxy();
-            attributes = proxy.lookup( new LookupOperationContext( opContext.getDn() ),
-                    PartitionNexusProxy.LOOKUP_BYPASS );
+            attributes = getAttributes( opContext.getDn() );
         }
 
         next.modify( opContext );
 
         // @TODO: needs big consideration!!!
         // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
-        if ( isDelete || ! changeLog.isEnabled() )
+        if ( isDelete || ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
             if ( isDelete )
             {
@@ -179,18 +205,15 @@ public class ChangeLogInterceptor extends BaseInterceptor
     public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
         Attributes attributes = null;
-        if ( changeLog.isEnabled() )
+        if ( changeLog.isEnabled() && ! renameContext.isCollateralOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
-            Invocation invocation = InvocationStack.getInstance().peek();
-            PartitionNexusProxy proxy = invocation.getProxy();
-            attributes = proxy.lookup( new LookupOperationContext( renameContext.getDn() ),
-                    PartitionNexusProxy.LOOKUP_BYPASS );
+            attributes = getAttributes( renameContext.getDn() );
         }
 
         next.rename( renameContext );
 
-        if ( ! changeLog.isEnabled() )
+        if ( ! changeLog.isEnabled() || renameContext.isCollateralOperation() )
         {
             return;
         }
@@ -210,7 +233,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         throws NamingException
     {
         Attributes attributes = null;
-        if ( changeLog.isEnabled() )
+        if ( changeLog.isEnabled() && ! opCtx.isCollateralOperation() )
         {
             // @todo make sure we're not putting in operational attributes that cannot be user modified
             Invocation invocation = InvocationStack.getInstance().peek();
@@ -221,7 +244,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
 
         next.moveAndRename( opCtx );
 
-        if ( ! changeLog.isEnabled() )
+        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
         {
             return;
         }
@@ -243,7 +266,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
     {
         next.move( opCtx );
 
-        if ( ! changeLog.isEnabled() )
+        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
         {
             return;
         }

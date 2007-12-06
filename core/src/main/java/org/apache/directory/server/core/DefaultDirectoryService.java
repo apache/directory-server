@@ -44,10 +44,7 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.schema.PartitionSchemaLoader;
-import org.apache.directory.server.core.schema.SchemaInterceptor;
-import org.apache.directory.server.core.schema.SchemaManager;
-import org.apache.directory.server.core.schema.SchemaPartitionDao;
+import org.apache.directory.server.core.schema.*;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -98,7 +95,7 @@ public class DefaultDirectoryService implements  DirectoryService
 {
     private static final Logger LOG = LoggerFactory.getLogger( DefaultDirectoryService.class );
 
-    private SchemaManager schemaManager;
+    private SchemaService schemaService;
 
     /** the registries for system schema objects */
     private Registries registries;
@@ -764,6 +761,18 @@ public class DefaultDirectoryService implements  DirectoryService
     }
 
 
+    public SchemaService getSchemaService()
+    {
+        return schemaService;
+    }
+
+
+    public void setSchemaService( SchemaService schemaService )
+    {
+        this.schemaService = schemaService;
+    }
+
+
     public PartitionNexus getPartitionNexus()
     {
         return partitionNexus;
@@ -1345,9 +1354,12 @@ public class DefaultDirectoryService implements  DirectoryService
         schemaLoader.loadEnabled( globalRegistries );
         registries = globalRegistries;
         SerializableComparator.setRegistry( globalRegistries.getComparatorRegistry() );
-        
-        schemaManager = new SchemaManager( globalRegistries, schemaLoader,
+
+        SchemaOperationControl schemaControl = new SchemaOperationControl( registries, schemaLoader,
             new SchemaPartitionDao( schemaPartition, registries ) );
+
+        schemaService = new SchemaService( registries, schemaPartition, schemaControl );
+
 
         partitionNexus = new DefaultPartitionNexus( new AttributesImpl() );
         partitionNexus.init( this );
@@ -1365,17 +1377,5 @@ public class DefaultDirectoryService implements  DirectoryService
         {
             LOG.debug( "<--- DefaultDirectoryService initialized" );
         }
-    }
-
-
-    public SchemaManager getSchemaManager()
-    {
-        return schemaManager;
-    }
-
-
-    public void setSchemaManager( SchemaManager schemaManager )
-    {
-        this.schemaManager = schemaManager;
     }
 }

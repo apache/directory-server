@@ -32,7 +32,8 @@ import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.core.schema.SchemaOperationControl;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
@@ -240,13 +241,25 @@ public class MaxImmSubFilterTest extends TestCase
         }
 
 
-        public SchemaManager getSchemaManager()
+        public SchemaService getSchemaService()
         {
             return null;
         }
 
 
-        public void setSchemaManager( SchemaManager schemaManager )
+        public void setSchemaService( SchemaService schemaService )
+        {
+
+        }
+
+
+        public SchemaOperationControl getSchemaManager()
+        {
+            return null;
+        }
+
+
+        public void setSchemaManager( SchemaOperationControl schemaManager )
         {
         }
 

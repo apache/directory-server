@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -34,6 +34,16 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
+import java.util.Map;
 
 
 /**
@@ -43,7 +53,9 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MetaSchemaHandlerITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class MetaSchemaHandlerIT
 {
     /** the schema to use for this test: one that is not loaded by default */
     private static final String TEST_SCHEMA = "nis";
@@ -52,7 +64,22 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /** the name of the dummy schema to test metaSchema adds/deletes with */
     private static final String DUMMY_SCHEMA = "dummy";
     
-    
+
+    public static DirectoryService service;
+
+
+    private static AttributeTypeRegistry getAttributeTypeRegistry()
+    {
+        return service.getRegistries().getAttributeTypeRegistry();
+    }
+
+
+    private static Map<String, Schema> getLoadedSchemas()
+    {
+        return service.getRegistries().getLoadedSchemas();
+    }
+
+
     // -----------------------------------------------------------------------
     // Schema Add Tests
     // -----------------------------------------------------------------------
@@ -61,16 +88,20 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Tests the addition of a new metaSchema object that is disabled 
      * on addition and has no dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddDisabledSchemaNoDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
-        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
     }
     
@@ -78,18 +109,22 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Tests the addition of a new metaSchema object that is disabled 
      * on addition and has dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddDisabledSchemaWithDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DISABLED_AT, "TRUE" );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
         dummySchema.get( MetaSchemaConstants.M_DEPENDENCIES_AT ).add( "core" );
-        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
     }
     
@@ -97,9 +132,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Tests the rejection of a new metaSchema object that is disabled 
      * on addition and has missing dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectDisabledSchemaAddWithMissingDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
@@ -109,15 +148,16 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         } 
         catch( LdapOperationNotSupportedException e )
         {
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
 
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
@@ -132,15 +172,19 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Tests the addition of a new metaSchema object that is enabled 
      * on addition and has no dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddEnabledSchemaNoDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
-        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         assertNotNull( schemaRoot.lookup( "cn=" + DUMMY_SCHEMA ) );
     }
     
@@ -148,9 +192,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Tests the rejection of a metaSchema object add that is enabled 
      * on addition yet has disabled dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectEnabledSchemaAddWithDisabledDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
@@ -158,7 +206,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
             fail( "should not be able to add enabled schema with deps on disabled schemas" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -166,8 +214,9 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
-        
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
@@ -186,31 +235,42 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     
     /**
      * Makes sure we can delete schemas that have no dependents.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testDeleteSchemaNoDependents() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         // add the dummy schema enabled 
         testAddEnabledSchemaNoDeps();
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
         // delete it now
         schemaRoot.destroySubcontext( "cn=" + DUMMY_SCHEMA );
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
     }
     
     
     /**
      * Makes sure we can NOT delete schemas that have dependents.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectSchemaDeleteWithDependents() throws Exception
     {
-        // add the dummy schema enabled 
+        LdapContext schemaRoot = getSchemaContext( service );
+
+        // add the dummy schema enabled
         testAddEnabledSchemaNoDeps();
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
         // make the nis schema depend on the dummy schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
-        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
+        mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+                new AttributeImpl( MetaSchemaConstants.M_DEPENDENCIES_AT, DUMMY_SCHEMA ) );
         schemaRoot.modifyAttributes( "cn=" + TEST_SCHEMA, mods );
         
         // attempt to delete it now & it should fail
@@ -224,16 +284,21 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
 
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
     }
     
     
     /**
      * Tests the rejection of a new metaSchema object that is enabled 
      * on addition and missing dependencies.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectEnabledSchemaAddWithMisingDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         Attributes dummySchema = new AttributesImpl( "objectClass", "top" );
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
@@ -241,7 +306,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+            schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
             fail( "should not be able to add enabled schema with deps on missing schemas" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -249,8 +314,9 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
             assertTrue( e.getResultCode().equals( ResultCodeEnum.UNWILLING_TO_PERFORM ) );
         }
         
-        assertNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
 
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=" + DUMMY_SCHEMA );
@@ -269,21 +335,25 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     
     private void enableSchema( String schemaName ) throws NamingException
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
     
     
     private void disableSchema( String schemaName ) throws NamingException
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         // now enable the test schema
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
     }
     
     
@@ -291,13 +361,16 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * Checks to make sure updates enabling a metaSchema object in
      * the schema partition triggers the loading of that schema into
      * the global registries.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testEnableSchema() throws Exception
     {
-        AttributeTypeRegistry atr = registries.getAttributeTypeRegistry();
+        AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is not loaded
-        assertNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( TEST_SCHEMA ) );
         
         // double check and make sure an attribute from that schema is 
         // not in the AttributeTypeRegistry
@@ -307,7 +380,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         enableSchema( "nis" );
         
         // now test that the schema is loaded 
-        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
         
         // double check and make sure the test attribute from the 
         // test schema is now loaded and present within the attr registry
@@ -318,16 +391,19 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Checks to make sure an attempt to disable a metaSchema fails if 
      * that schema has dependents which are enabled.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testDisableSchema() throws Exception
     {
         // let's enable the test schema
         testEnableSchema();
         
-        AttributeTypeRegistry atr = registries.getAttributeTypeRegistry();
+        AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // check that the nis schema is loaded
-        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
@@ -338,7 +414,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         disableSchema( "nis" );
         
         // now test that the schema is NOT loaded 
-        assertNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNull( getLoadedSchemas().get( TEST_SCHEMA ) );
         
         // double check and make sure the test attribute from the test  
         // schema is now NOT loaded and present within the attr registry
@@ -350,9 +426,14 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * Checks to make sure updates disabling a metaSchema object in
      * the schema partition triggers the unloading of that schema from
      * the global registries.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testDisableSchemaWithEnabledDependents() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         // let's enable the test schema and add the dummy schema
         // as enabled by default and dependends on the test schema
         
@@ -364,13 +445,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         dummySchema.get( "objectClass" ).add( MetaSchemaConstants.META_SCHEMA_OC );
         dummySchema.put( "cn", DUMMY_SCHEMA );
         dummySchema.put( MetaSchemaConstants.M_DEPENDENCIES_AT, TEST_SCHEMA );
-        super.schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
+        schemaRoot.createSubcontext( "cn=" + DUMMY_SCHEMA, dummySchema );
         
         // check that the nis schema is loaded and the dummy schema is loaded
-        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
-        AttributeTypeRegistry atr = registries.getAttributeTypeRegistry();
+        AttributeTypeRegistry atr = getAttributeTypeRegistry();
         
         // double check and make sure an attribute from that schema is 
         // in the AttributeTypeRegistry
@@ -384,7 +465,7 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.modifyAttributes( "cn=nis", mods );
+            schemaRoot.modifyAttributes( "cn=nis", mods );
             fail( "attempt to disable schema with enabled dependents should fail" );
         }
         catch ( LdapOperationNotSupportedException e )
@@ -393,8 +474,8 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         }
         
         // now test that both schema are still loaded 
-        assertNotNull( registries.getLoadedSchemas().get( TEST_SCHEMA ) );
-        assertNotNull( registries.getLoadedSchemas().get( DUMMY_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( TEST_SCHEMA ) );
+        assertNotNull( getLoadedSchemas().get( DUMMY_SCHEMA ) );
         
         // double check and make sure the test attribute from the test  
         // schema is still loaded and present within the attr registry
@@ -411,12 +492,17 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * Makes sure we can change the name of a schema with entities in it.
      * Will use the samba schema which comes out of the box and nothing 
      * depends on.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testSchemaRenameDisabledSchema() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
-        
+
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=samba" );
@@ -432,9 +518,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * Makes sure we can NOT change the name of a schema that has dependents.
      * Will use the nis schema which comes out of the box and has samba as
      * it's dependent.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectSchemaRenameWithDeps() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         try
         {
             schemaRoot.rename( "cn=nis", "cn=foo" );
@@ -446,7 +536,8 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
         }
         
         assertNotNull( schemaRoot.lookup( "cn=nis" ) );
-        
+
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=foo" );
@@ -462,18 +553,23 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * Makes sure we can change the name of a schema with entities in it.
      * Will use the samba schema which comes out of the box and nothing 
      * depends on.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testSchemaRenameEnabledSchema() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         enableSchema( "samba" );
-        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
-        assertEquals( "samba", registries.getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+        assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertEquals( "samba", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
         
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
-        assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
-        assertEquals( "foo", registries.getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
-        
+        assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
+        assertEquals( "foo", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
             schemaRoot.lookup( "cn=samba" );
@@ -493,9 +589,14 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Checks to make sure the addition of an undefined schema to the dependencies 
      * of an existing schema fail with an UNWILLING_TO_PERFORM result code.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectAddBogusDependency() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
+
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-dependencies", "bogus" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
@@ -517,9 +618,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
      * dependencies of an existing enabled schema fails with an UNWILLING_TO_PERFORM 
      * result code.  You must enable the dependency to add it or disable the schema 
      * depending on it to add it.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testRejectAddOfDisabledDependencyToEnabledSchema() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         enableSchema( TEST_SCHEMA );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
@@ -540,9 +645,13 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
     /**
      * Checks to make sure the addition of an defined yet disabled schema to the 
      * dependencies of an existing disabled schema succeeds. 
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddOfDisabledDependencyToDisabledSchema() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-dependencies", "mozilla" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );
@@ -555,10 +664,14 @@ public class MetaSchemaHandlerITest extends AbstractAdminTestCase
 
     /**
      * Checks to make sure the addition of an defined yet enabled schema to the 
-     * dependencies of an existing disabled schema succeeds. 
+     * dependencies of an existing disabled schema succeeds.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddOfEnabledDependencyToDisabledSchema() throws Exception
     {
+        LdapContext schemaRoot = getSchemaContext( service );
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-dependencies", "java" );
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attr );

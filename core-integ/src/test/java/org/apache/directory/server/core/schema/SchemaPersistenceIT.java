@@ -20,24 +20,27 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -47,17 +50,25 @@ import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescri
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SchemaPersistenceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class SchemaPersistenceIT
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
-    private static final AttributeTypeDescriptionSchemaParser attributeTypeDescriptionSchemaParser = 
+    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER =
         new AttributeTypeDescriptionSchemaParser();
-    
+
+
+    public static DirectoryService service;
+
 
     /**
      * Tests to see if an attributeType is persisted when added, then server 
      * is shutdown, then restarted again.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddAttributeTypePersistence() throws Exception
     {
         enableSchema( "nis" );
@@ -87,14 +98,14 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
 
         // sync operation happens anyway on shutdowns but just to make sure we can do it again
-        super.sync(); 
+        service.sync();
         
-        super.shutdown();
-        super.restart();
+        service.shutdown();
+        service.startup();
         
         AttributesImpl attrs = new AttributesImpl( "objectClass", "metaSchema" );
         attrs.put( "cn", "blah" );
-        schemaRoot.createSubcontext( "cn=blah", attrs );
+        getSchemaContext( service ).createSubcontext( "cn=blah", attrs );
         
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10000", "nis", true );
         checkAttributeTypePresent( "1.3.6.1.4.1.18060.0.4.1.2.10001", "nis", true );
@@ -118,7 +129,7 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         Attributes mods = new AttributesImpl();
         mods.put( attr );
         
-        rootDSE.modifyAttributes( dn, op, mods );
+        getRootContext( service ).modifyAttributes( dn, op, mods );
     }
     
     
@@ -128,7 +139,7 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
     
     
@@ -144,7 +155,7 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
         
-        NamingEnumeration<SearchResult> results = rootDSE.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search( "", "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -164,7 +175,7 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]{ "+", "*" } );
         
-        NamingEnumeration<SearchResult> results = rootDSE.search( getSubschemaSubentryDN(), 
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search( getSubschemaSubentryDN(),
             "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
@@ -186,7 +197,7 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = attributeTypeDescriptionSchemaParser.parseAttributeTypeDescription( desc );
+                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
@@ -209,14 +220,15 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         
         if ( isPresent )
         {
-            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
-                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
                 fail( "should never get here" );
             }
             catch( NamingException e )
@@ -231,11 +243,11 @@ public class SchemaPersistenceITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
         }
         else
         {
-            assertFalse( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertFalse( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
         }
     }
 }

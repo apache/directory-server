@@ -549,11 +549,11 @@ public class ExceptionInterceptor extends BaseInterceptor
 
             if ( msg != null )
             {
-                e = new LdapNameNotFoundException( msg + dn );
+                e = new LdapNameNotFoundException( msg + dn.getUpName() );
             }
             else
             {
-                e = new LdapNameNotFoundException( dn.toString() );
+                e = new LdapNameNotFoundException( dn.getUpName() );
             }
 
             e.setResolvedName( 

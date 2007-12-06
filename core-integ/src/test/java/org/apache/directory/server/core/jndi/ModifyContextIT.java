@@ -22,7 +22,11 @@ package org.apache.directory.server.core.jndi;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeValueException;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import static org.junit.Assert.*;
@@ -56,6 +60,8 @@ public class ModifyContextIT
      */
     protected void createData() throws NamingException
     {
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
         LdapContext sysRoot = getSystemContext( service );
 
         /*
@@ -152,6 +158,39 @@ public class ModifyContextIT
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
+
+
+    /**
+     * Add a new attribute without any value to a person entry: testcase for
+     * http://issues.apache.org/jira/browse/DIRSERVER-630.
+     * 
+     * @throws NamingException on error
+     */
+    public void testIllegalModifyAdd() throws NamingException
+    {
+        createData();
+
+        LdapContext sysRoot = getSystemContext( service );
+
+        Attribute attr = new AttributeImpl( "description" );
+        Attributes attrs = new AttributesImpl();
+        attrs.put( attr );
+
+        try
+        {
+            sysRoot.modifyAttributes( "uid=akarasulu,ou=users", DirContext.ADD_ATTRIBUTE, attrs );
+            fail( "error expected due to empty attribute value" );
+        }
+        catch ( LdapInvalidAttributeValueException e )
+        {
+            // expected
+        }
+
+        // Check whether entry is unmodified, i.e. no description
+        Attributes entry = sysRoot.getAttributes( "uid=akarasulu,ou=users" );
+        assertNull( entry.get( "description" ) );
+    }
+
 
 
     @Test

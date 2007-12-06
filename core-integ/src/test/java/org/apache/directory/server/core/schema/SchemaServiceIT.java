@@ -20,9 +20,23 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import org.apache.directory.server.core.integ.annotations.Scope;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
+import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,14 +44,10 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import javax.naming.ldap.LdapContext;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -47,18 +57,25 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SchemaServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class SchemaServiceIT
 {
-    public void setUp() throws Exception
+    public static DirectoryService service;
+
+
+    public void loadData() throws Exception
     {
-        super.setLdifPath( "./nonspecific.ldif", getClass() );
-        super.setUp();
+        // super.setLdifPath( "./nonspecific.ldif", getClass() );
     }
 
 
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testNoStructuralObjectClass() throws NamingException
     {
         Attributes attrs = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.TOP_OC );
@@ -67,7 +84,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         try
         {
-            sysRoot.createSubcontext( "uid=invalid", attrs );
+            getSystemContext( service ).createSubcontext( "uid=invalid", attrs );
         }
         catch ( LdapSchemaViolationException e )
         {
@@ -78,6 +95,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-925">DIRSERVER-925</a>.
+     *
+     * @throws NamingException on error
      */
     public void testMultipleStructuralObjectClasses() throws NamingException
     {
@@ -90,7 +109,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         
         try
         {
-            sysRoot.createSubcontext( "cn=Jack Black", attrs );
+            getSystemContext( service ).createSubcontext( "cn=Jack Black", attrs );
         }
         catch ( LdapSchemaViolationException e )
         {
@@ -101,6 +120,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     
     /**
      * For <a href="https://issues.apache.org/jira/browse/DIRSERVER-904">DIRSERVER-904</a>.
+     *
+     * @throws NamingException on error
      */
     public void testAddingTwoDifferentEntitiesWithSameOid() throws NamingException
     {
@@ -139,12 +160,14 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         assertFalse( ldifReader.hasNext() );
         
         // should be fine with unique OID
-        rootDSE.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
+        LdapContext root = getRootContext( service );
+        root.createSubcontext( numberOfGunsAttrEntry.getDn(), numberOfGunsAttrEntry.getAttributes() );
          
         // should blow chuncks using same OID
+        //noinspection EmptyCatchBlock
         try
         {
-            rootDSE.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
+            root.createSubcontext( shipOCEntry.getDn(), shipOCEntry.getAttributes() );
             fail( "Should not be possible to create two schema entities with the same OID." );
         }
         catch( NamingException e )
@@ -155,6 +178,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     
     public void testFillInObjectClasses() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Attribute ocs = sysRoot.getAttributes( "cn=person0" ).get( "objectClass" );
         assertEquals( 2, ocs.size() );
         assertTrue( ocs.contains( "top" ) );
@@ -177,6 +201,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
 
     public void testSearchForPerson() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
@@ -191,8 +216,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person = null;
-        Attribute ocs = null;
+        Attributes person;
+        Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
@@ -222,6 +247,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
 
     public void testSearchForOrgPerson() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> orgPersons = new HashMap<String, Attributes>();
@@ -236,8 +262,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 3, orgPersons.size() );
 
-        Attributes orgPerson = null;
-        Attribute ocs = null;
+        Attributes orgPerson;
+        Attribute ocs;
 
         orgPerson = orgPersons.get( "cn=person1,ou=system" );
         assertNotNull( orgPerson );
@@ -260,6 +286,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
 
     public void testSearchForInetOrgPerson() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> inetOrgPersons = new HashMap<String, Attributes>();
@@ -274,8 +301,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 2, inetOrgPersons.size() );
 
-        Attributes inetOrgPerson = null;
-        Attribute ocs = null;
+        Attributes inetOrgPerson;
+        Attribute ocs;
 
         inetOrgPerson = inetOrgPersons.get( "cn=person2,ou=system" );
         assertNotNull( inetOrgPerson );
@@ -293,7 +320,7 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -326,7 +353,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service ).search(
+                "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -387,7 +415,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "nameForms" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(objectClass=*)", controls );
 
         while ( results.hasMore() )
         {
@@ -430,7 +459,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
@@ -449,7 +479,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=top)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(objectClass=top)", controls );
 
         while ( results.hasMore() )
         {
@@ -496,7 +527,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=subSchema)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(objectClass=subSchema)", controls );
 
         while ( results.hasMore() )
         {
@@ -543,7 +575,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(objectClass=nothing)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(objectClass=nothing)", controls );
 
         while ( results.hasMore() )
         {
@@ -562,7 +595,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         controls.setReturningAttributes( new String[]{ "+" } );
         
         Map<String, Attributes> subSchemaEntry = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = rootDSE.search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "cn=schema", "(&(objectClass=*)(objectClass=top))", controls );
 
         while ( results.hasMore() )
         {
@@ -577,15 +611,15 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     /**
      * Test for DIRSERVER-844: storing of base 64 encoded values into H-R attributes
      *
-     * @throws NamingException
+     * @throws NamingException on error
      */
     public void testSearchSeeAlso() throws NamingException
     {
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
-        NamingEnumeration<SearchResult> results = 
-            sysRoot.search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service )
+                    .search( "", "(seeAlso=cn=Good One,ou=people,o=sevenSeas)", controls );
 
         while ( results.hasMore() )
         {
@@ -596,8 +630,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 1, persons.size() );
 
-        Attributes person = null;
-        Attribute ocs = null;
+        Attributes person;
+        Attribute ocs;
 
         person = persons.get( "cn=person1,ou=system" );
         assertNotNull( person );
@@ -616,7 +650,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     /**
      * Doing a search with filtering attributes should work even if the attribute
      * is not valid 
-     * 
+     *
+     * @throws NamingException on error
      */
     public void testSearchForUnknownAttributes() throws NamingException
     {
@@ -625,7 +660,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "9.9.9" } );
 
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service )
+                .search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
@@ -636,8 +672,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person = null;
-        Attribute ocs = null;
+        Attributes person;
+        Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
@@ -662,6 +698,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     /**
      * Check that if we request a Attribute which is not an AttributeType,
      * we still get a result
+     *
+     * @throws NamingException on error
      */
     public void testSearchAttributesOIDObjectClass() throws NamingException
     {
@@ -670,7 +708,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "2.5.6.6" } );
 
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service )
+                .search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
@@ -681,8 +720,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person = null;
-        Attribute ocs = null;
+        Attributes person;
+        Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );
@@ -707,6 +746,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
     
     /**
      * Check that if we request a Attribute which is an ObjectClass.
+     *
+     * @throws NamingException on error
      */
     public void testSearchAttributesOIDObjectClassName() throws NamingException
     {
@@ -715,7 +756,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         Map<String, Attributes> persons = new HashMap<String, Attributes>();
         controls.setReturningAttributes( new String[] { "person" } );
 
-        NamingEnumeration<SearchResult> results = sysRoot.search( "", "(objectClass=person)", controls );
+        NamingEnumeration<SearchResult> results = getSystemContext( service )
+                .search( "", "(objectClass=person)", controls );
         
         while ( results.hasMore() )
         {
@@ -726,8 +768,8 @@ public class SchemaServiceITest extends AbstractAdminTestCase
         // admin is extra
         assertEquals( 4, persons.size() );
 
-        Attributes person = null;
-        Attribute ocs = null;
+        Attributes person;
+        Attribute ocs;
 
         person = persons.get( "cn=person0,ou=system" );
         assertNotNull( person );

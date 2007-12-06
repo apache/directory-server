@@ -20,13 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -36,6 +36,14 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
 
 /**
@@ -45,7 +53,9 @@ import org.apache.directory.shared.ldap.schema.ObjectClass;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class MetaObjectClassHandlerIT
 {
     private static final String NAME = "testObjectClass";
     private static final String NEW_NAME = "alternateName";
@@ -58,21 +68,35 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.3.100001";
     private static final String DEPENDEE_OID = "1.3.6.1.4.1.18060.0.4.0.3.100002";
 
+
+    public static DirectoryService service;
+
     
     /**
      * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the container which contains objectClasses
+     * @throws NamingException on error
      */
-    private final LdapDN getObjectClassContainer( String schemaName ) throws NamingException
+    private LdapDN getObjectClassContainer( String schemaName ) throws NamingException
     {
         return new LdapDN( "ou=objectClasses,cn=" + schemaName );
     }
-    
+
+
+    private static ObjectClassRegistry getObjectClassRegistry()
+    {
+        return service.getRegistries().getObjectClassRegistry();
+    }
+
     
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
 
-    
+
+    @Test
     public void testAddObjectClass() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -89,27 +113,29 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getObjectClassRegistry().hasObjectClass( OID ) );
-        assertEquals( registries.getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+        assertTrue( getObjectClassRegistry().hasObjectClass( OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
     
     
+    @Test
     public void testDeleteAttributeType() throws NamingException
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddObjectClass();
         
-        super.schemaRoot.destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "objectClass should be removed from the registry after being deleted", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
-        
+            getObjectClassRegistry().hasObjectClass( OID ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
-            registries.getObjectClassRegistry().lookup( OID );
+            getObjectClassRegistry().lookup( OID );
             fail( "objectClass lookup should fail after deleting it" );
         }
         catch( NamingException e )
@@ -118,6 +144,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testRenameAttributeType() throws NamingException
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
@@ -126,24 +153,26 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old objectClass OID should be removed from the registry after being renamed", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
-        
+            getObjectClassRegistry().hasObjectClass( OID ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
-            registries.getObjectClassRegistry().lookup( OID );
+            getObjectClassRegistry().lookup( OID );
             fail( "objectClass lookup should fail after renaming the objectClass" );
         }
         catch( NamingException e )
         {
         }
 
-        assertTrue( registries.getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+        assertTrue( getObjectClassRegistry().hasObjectClass( NEW_OID ) );
     }
 
 
+    @Test
     public void testMoveAttributeType() throws NamingException
     {
         testAddObjectClass();
@@ -154,16 +183,17 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getObjectClassContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "objectClass OID should still be present", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
         
         assertEquals( "objectClass schema should be set to apache not apachemeta", 
-            registries.getObjectClassRegistry().getSchemaName( OID ), "apache" );
+            getObjectClassRegistry().getSchemaName( OID ), "apache" );
     }
 
 
+    @Test
     public void testMoveObjectClassAndChangeRdn() throws NamingException
     {
         testAddObjectClass();
@@ -174,24 +204,25 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getObjectClassContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old objectClass OID should NOT be present", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
         
         assertTrue( "new objectClass OID should be present", 
-            registries.getObjectClassRegistry().hasObjectClass( NEW_OID ) );
+            getObjectClassRegistry().hasObjectClass( NEW_OID ) );
         
         assertEquals( "objectClass with new oid should have schema set to apache NOT apachemeta", 
-            registries.getObjectClassRegistry().getSchemaName( NEW_OID ), "apache" );
+            getObjectClassRegistry().getSchemaName( NEW_OID ), "apache" );
     }
 
     
+    @Test
     public void testModifyAttributeTypeWithModificationItems() throws NamingException
     {
         testAddObjectClass();
         
-        ObjectClass oc = registries.getObjectClassRegistry().lookup( OID );
+        ObjectClass oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
@@ -203,25 +234,26 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
         attr = new AttributeImpl( MetaSchemaConstants.M_NAME_AT, NEW_NAME );
         mods[1] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( dn, mods );
+        getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "objectClass OID should still be present", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
         
         assertEquals( "objectClass schema should be set to apachemeta", 
-            registries.getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
         
-        oc = registries.getObjectClassRegistry().lookup( OID );
+        oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION1 );
         assertEquals( oc.getName(), NEW_NAME );
     }
 
     
+    @Test
     public void testModifyAttributeTypeWithAttributes() throws NamingException
     {
         testAddObjectClass();
         
-        ObjectClass oc = registries.getObjectClassRegistry().lookup( OID );
+        ObjectClass oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION0 );
         assertEquals( oc.getName(), NAME );
 
@@ -231,15 +263,15 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         Attributes mods = new AttributesImpl();
         mods.put( MetaSchemaConstants.M_DESCRIPTION_AT, DESCRIPTION1 );
         mods.put( MetaSchemaConstants.M_NAME_AT, NEW_NAME );
-        super.schemaRoot.modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "objectClass OID should still be present", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
         
         assertEquals( "objectClass schema should be set to apachemeta", 
-            registries.getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
 
-        oc = registries.getObjectClassRegistry().lookup( OID );
+        oc = getObjectClassRegistry().lookup( OID );
         assertEquals( oc.getDescription(), DESCRIPTION1 );
         assertEquals( oc.getName(), NEW_NAME );
     }
@@ -267,13 +299,14 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getObjectClassContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + DEPENDEE_OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getObjectClassRegistry().hasObjectClass( DEPENDEE_OID ) );
-        assertEquals( registries.getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
+        assertTrue( getObjectClassRegistry().hasObjectClass( DEPENDEE_OID ) );
+        assertEquals( getObjectClassRegistry().getSchemaName( DEPENDEE_OID ), "apachemeta" );
     }
 
     
+    @Test
     public void testDeleteObjectClassWhenInUse() throws NamingException
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
@@ -283,7 +316,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.destroySubcontext( dn );
+            getSchemaContext( service ).destroySubcontext( dn );
             fail( "should not be able to delete a objectClass in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -292,10 +325,11 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "objectClass should still be in the registry after delete failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
     
     
+    @Test
     public void testMoveObjectClassWhenInUse() throws NamingException
     {
         testAddObjectClass();
@@ -309,7 +343,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a objectClass in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -318,10 +352,11 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
 
+    @Test
     public void testMoveObjectClassAndChangeRdnWhenInUse() throws NamingException
     {
         testAddObjectClass();
@@ -335,7 +370,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move an objectClass in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -344,10 +379,11 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "ObjectClass should still be in the registry after move failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
     
+    @Test
     public void testRenameObjectClassWhenInUse() throws NamingException
     {
         LdapDN dn = getObjectClassContainer( "apachemeta" );
@@ -360,7 +396,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to rename an objectClass in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -369,7 +405,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "objectClass should still be in the registry after rename failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
 
@@ -378,6 +414,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
 
+    @Test
     public void testMoveObjectClassToTop() throws NamingException
     {
         testAddObjectClass();
@@ -390,7 +427,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, top );
+            getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a objectClass up to ou=schema" );
         }
         catch( LdapInvalidNameException e ) 
@@ -399,10 +436,11 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
 
+    @Test
     public void testMoveObjectClassToComparatorContainer() throws NamingException
     {
         testAddObjectClass();
@@ -415,7 +453,7 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a objectClass into comparators container" );
         }
         catch( LdapInvalidNameException e ) 
@@ -424,10 +462,11 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "objectClass should still be in the registry after move failure", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
     
     
+    @Test
     public void testAddObjectClassToDisabledSchema() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -444,13 +483,14 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getObjectClassContainer( "nis" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new objectClass to disabled schema should not register it into the registries", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
 
+    @Test
     public void testMoveObjectClassToDisabledSchema() throws NamingException
     {
         testAddObjectClass();
@@ -462,13 +502,14 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getObjectClassContainer( "nis" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "objectClass OID should no longer be present", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
     }
 
 
+    @Test
     public void testMoveObjectClassToEnabledSchema() throws NamingException
     {
         testAddObjectClassToDisabledSchema();
@@ -478,17 +519,17 @@ public class MetaObjectClassHandlerITest extends AbstractAdminTestCase
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "objectClass OID should NOT be present when added to disabled nis schema", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
 
         LdapDN newdn = getObjectClassContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "objectClass OID should be present when moved to enabled schema", 
-            registries.getObjectClassRegistry().hasObjectClass( OID ) );
+            getObjectClassRegistry().hasObjectClass( OID ) );
         
         assertEquals( "objectClass should be in apachemeta schema after move", 
-            registries.getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
+            getObjectClassRegistry().getSchemaName( OID ), "apachemeta" );
     }
 }

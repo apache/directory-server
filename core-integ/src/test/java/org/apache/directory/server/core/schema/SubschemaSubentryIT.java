@@ -22,7 +22,12 @@ package org.apache.directory.server.core.schema;
 
 import jdbm.helper.IntegerComparator;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameAlreadyBoundException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -36,11 +41,15 @@ import org.apache.directory.shared.ldap.schema.syntax.*;
 import org.apache.directory.shared.ldap.schema.syntax.parser.*;
 import org.apache.directory.shared.ldap.util.Base64;
 import org.apache.directory.shared.ldap.util.DateUtils;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,14 +63,16 @@ import java.util.*;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubschemaSubentryITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class SubschemaSubentryIT 
 {
     private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     
-    private static final SyntaxCheckerDescriptionSchemaParser syntaxCheckerDescriptionSchemaParser =
+    private static final SyntaxCheckerDescriptionSchemaParser SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER =
         new SyntaxCheckerDescriptionSchemaParser();
-    private static final AttributeTypeDescriptionSchemaParser attributeTypeDescriptionSchemaParser = 
+    private static final AttributeTypeDescriptionSchemaParser ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER =
         new AttributeTypeDescriptionSchemaParser();
     private ComparatorDescriptionSchemaParser comparatorDescriptionSchemaParser =
         new ComparatorDescriptionSchemaParser();
@@ -74,10 +85,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     private ObjectClassDescriptionSchemaParser objectClassDescriptionSchemaParser =
         new ObjectClassDescriptionSchemaParser();
 
+
+    public static DirectoryService service;
+
     
     /**
-     * Make sure the global subschemaSubentry is where it is expected to be. 
+     * Make sure the global subschemaSubentry is where it is expected to be.
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testRootDSEsSubschemaSubentry() throws NamingException
     {
         assertEquals( GLOBAL_SUBSCHEMA_DN, getSubschemaSubentryDN() );
@@ -88,12 +105,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     
     /**
      * Tests the rejection of a delete operation on the SubschemaSubentry (SSSE).
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSSSEDeleteRejection() throws NamingException
     {
         try
         {
-            rootDSE.destroySubcontext( getSubschemaSubentryDN() );
+            getRootContext( service ).destroySubcontext( getSubschemaSubentryDN() );
             fail( "You are not allowed to delete the global schema subentry" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -105,12 +125,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
     /**
      * Tests the rejection of an add operation for the SubschemaSubentry (SSSE).
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSSSEAddRejection() throws NamingException
     {
         try
         {
-            rootDSE.createSubcontext( getSubschemaSubentryDN(), getSubschemaSubentryAttributes() );
+            getRootContext( service ).createSubcontext( getSubschemaSubentryDN(), getSubschemaSubentryAttributes() );
             fail( "You are not allowed to add the global schema subentry which exists by default" );
         }
         catch( LdapNameAlreadyBoundException e )
@@ -122,12 +145,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
     /**
      * Tests the rejection of rename (modifyDn) operation for the SubschemaSubentry (SSSE).
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSSSERenameRejection() throws NamingException
     {
         try
         {
-            rootDSE.rename( getSubschemaSubentryDN(), "cn=schema,ou=system" );
+            getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=system" );
             fail( "You are not allowed to rename the global schema subentry which is fixed" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -139,12 +165,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
     /**
      * Tests the rejection of move operation for the SubschemaSubentry (SSSE).
+     *
+     * @throws NamingException on error
      */
+    @Test
     public void testSSSEMoveRejection() throws NamingException
     {
         try
         {
-            rootDSE.rename( getSubschemaSubentryDN(), "cn=blah,ou=schema" );
+            getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=blah,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -154,7 +183,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
         try
         {
-            rootDSE.rename( getSubschemaSubentryDN(), "cn=schema,ou=schema" );
+            getRootContext( service ).rename( getSubschemaSubentryDN(), "cn=schema,ou=schema" );
             fail( "You are not allowed to move the global schema subentry which is fixed" );
         }
         catch( LdapOperationNotSupportedException e )
@@ -183,7 +212,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( oid ) != -1 )
             {
-                syntaxCheckerDescription = syntaxCheckerDescriptionSchemaParser.parseSyntaxCheckerDescription( desc );
+                syntaxCheckerDescription = SYNTAX_CHECKER_DESCRIPTION_SCHEMA_PARSER.parseSyntaxCheckerDescription( desc );
                 break;
             }
         }
@@ -206,17 +235,18 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent )
         {
-            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
             assertNotNull( attrs );
-            SchemaEntityFactory factory = new SchemaEntityFactory( registries );
-            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, registries );
+            SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+            SyntaxChecker syntaxChecker = factory.getSyntaxChecker( attrs, service.getRegistries() );
             assertEquals( oid, syntaxChecker.getSyntaxOid() );
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
-                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid + ",ou=syntaxCheckers,cn=" + schemaName );
                 fail( "should never get here" );
             }
             catch( NamingException e )
@@ -232,21 +262,25 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
         if ( isPresent )
         {
-            assertTrue( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+            assertTrue( service.getRegistries().getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
         }
         else
         {
-            assertFalse( registries.getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
+            assertFalse( service.getRegistries().getSyntaxCheckerRegistry().hasSyntaxChecker( oid ) );
         }
     }
-    
-    
+
+
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * a syntaxChecker on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceSyntaxCheckers() throws Exception
     {
+        // 1st change
         enableSchema( "nis" );
         List<String> descriptions = new ArrayList<String>();
         
@@ -260,6 +294,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // add and check
         // -------------------------------------------------------------------
         
+        // 2nd change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", true );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", true );
@@ -267,7 +302,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         // remove and check
         // -------------------------------------------------------------------
-        
+
+        // 3rd change
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10000", "nis", false );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10001", "nis", false );
@@ -294,13 +330,15 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " X-SCHEMA 'nis' )" );
 
+        // 4th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", true );
 
         // -------------------------------------------------------------------
-        // check remove with valid bytecode
+        // check remove
         // -------------------------------------------------------------------
-        
+
+        // 5th change
         modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "nis", false );
 
@@ -312,8 +350,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.0.10002 DESC 'bogus desc' FQCN DummySyntaxChecker BYTECODE " 
             +  getByteCode( "DummySyntaxChecker.bytecode" ) + " )" );
 
+        // 6th change
         modify( DirContext.ADD_ATTRIBUTE, descriptions, "syntaxCheckers" );
         checkSyntaxCheckerPresent( "1.3.6.1.4.1.18060.0.4.1.0.10002", "other", true );
+
+        // after a total of 6 changes 
+        if ( service.getChangeLog().getLatest() != null )
+        {
+            assertEquals( service.getChangeLog().getLatest().getRevision() + 6,
+                    service.getChangeLog().getCurrentRevision() );
+        }
     }
     
     
@@ -356,7 +402,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         
         attrs = null;
-        
+
+        LdapContext schemaRoot = getSchemaContext( service );
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
@@ -364,6 +411,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=comparators,cn=" + schemaName );
@@ -381,11 +429,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
 
         if ( isPresent )
         {
-            assertTrue( registries.getComparatorRegistry().hasComparator( oid ) );
+            assertTrue( service.getRegistries().getComparatorRegistry().hasComparator( oid ) );
         }
         else
         {
-            assertFalse( registries.getComparatorRegistry().hasComparator( oid ) );
+            assertFalse( service.getRegistries().getComparatorRegistry().hasComparator( oid ) );
         }
     }
     
@@ -393,7 +441,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * comparators on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceComparators() throws Exception
     {
         enableSchema( "nis" );
@@ -504,7 +555,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         
         attrs = null;
-        
+
+        LdapContext schemaRoot = getSchemaContext( service );
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
@@ -512,6 +564,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=normalizers,cn=" + schemaName );
@@ -529,11 +582,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getNormalizerRegistry().hasNormalizer( oid ) );
+            assertTrue( service.getRegistries().getNormalizerRegistry().hasNormalizer( oid ) );
         }
         else
         {
-            assertFalse( registries.getNormalizerRegistry().hasNormalizer( oid ) );
+            assertFalse( service.getRegistries().getNormalizerRegistry().hasNormalizer( oid ) );
         }
     }
     
@@ -541,7 +594,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * normalizers on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceNormalizers() throws Exception
     {
         enableSchema( "nis" );
@@ -652,7 +708,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         
         attrs = null;
-        
+
+        LdapContext schemaRoot = getSchemaContext( service );
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName );
@@ -660,6 +717,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=syntaxes,cn=" + schemaName );
@@ -677,11 +735,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getSyntaxRegistry().hasSyntax( oid ) );
+            assertTrue( service.getRegistries().getSyntaxRegistry().hasSyntax( oid ) );
         }
         else
         {
-            assertFalse( registries.getSyntaxRegistry().hasSyntax( oid ) );
+            assertFalse( service.getRegistries().getSyntaxRegistry().hasSyntax( oid ) );
         }
     }
     
@@ -689,7 +747,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * syntaxes on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceSyntaxes() throws Exception
     {
         enableSchema( "nis" );
@@ -817,7 +878,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         
         attrs = null;
-        
+
+        LdapContext schemaRoot = getSchemaContext( service );
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName );
@@ -825,6 +887,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=matchingRules,cn=" + schemaName );
@@ -842,11 +905,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getMatchingRuleRegistry().hasMatchingRule( oid ) );
+            assertTrue( service.getRegistries().getMatchingRuleRegistry().hasMatchingRule( oid ) );
         }
         else
         {
-            assertFalse( registries.getMatchingRuleRegistry().hasMatchingRule( oid ) );
+            assertFalse( service.getRegistries().getMatchingRuleRegistry().hasMatchingRule( oid ) );
         }
     }
     
@@ -854,7 +917,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * matchingRules on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceMatchingRules() throws Exception
     {
         enableSchema( "nis" );
@@ -1002,7 +1068,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( oid ) != -1 )
             {
-                attributeTypeDescription = attributeTypeDescriptionSchemaParser.parseAttributeTypeDescription( desc );
+                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
@@ -1020,9 +1086,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
-        
+
+        //noinspection UnusedAssignment
         attrs = null;
-        
+
+        LdapContext schemaRoot = getSchemaContext( service );
         if ( isPresent )
         {
             attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
@@ -1030,6 +1098,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
                 attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=attributeTypes,cn=" + schemaName );
@@ -1047,11 +1116,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertTrue( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
         }
         else
         {
-            assertFalse( registries.getAttributeTypeRegistry().hasAttributeType( oid ) );
+            assertFalse( service.getRegistries().getAttributeTypeRegistry().hasAttributeType( oid ) );
         }
     }
     
@@ -1059,7 +1128,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * attributeTypes on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceAttributeTypes() throws Exception
     {
         enableSchema( "nis" );
@@ -1277,7 +1349,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     
     /**
      * Tests the addition of a new attributeType via a modify ADD on the SSSE to disabled schema.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddAttributeTypeOnDisabledSchema() throws Exception
     {
         disableSchema( "nis" );
@@ -1288,7 +1363,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
             new AttributeImpl( "attributeTypes", substrate ) );
         
-        rootDSE.modifyAttributes( dn, mods );
+        getRootContext( service ).modifyAttributes( dn, mods );
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
@@ -1298,18 +1373,17 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeTypeDescription = attributeTypeDescriptionSchemaParser.parseAttributeTypeDescription( desc );
+                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
         
         assertNull( attributeTypeDescription );
 
-        attrs = null;
-        attrs = schemaRoot.getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        attrs = getSchemaContext( service ).getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
-        SchemaEntityFactory factory = new SchemaEntityFactory( registries );
-        AttributeType at = factory.getAttributeType( attrs, registries, "nis" );
+        SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1324,7 +1398,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     
     /**
      * Tests the addition of a new attributeType via a modify ADD on the SSSE to enabled schema.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddAttributeTypeOnEnabledSchema() throws Exception
     {
         enableSchema( "nis" );
@@ -1335,7 +1412,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
             new AttributeImpl( "attributeTypes", substrate ) );
         
-        rootDSE.modifyAttributes( dn, mods );
+        getRootContext( service ).modifyAttributes( dn, mods );
         
         Attributes attrs = getSubschemaSubentryAttributes();
         Attribute attrTypes = attrs.get( "attributeTypes" );
@@ -1345,7 +1422,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
             String desc = ( String ) attrTypes.get( ii );
             if ( desc.indexOf( "1.3.6.1.4.1.18060.0.4.0.2.10000" ) != -1 )
             {
-                attributeTypeDescription = attributeTypeDescriptionSchemaParser.parseAttributeTypeDescription( desc );
+                attributeTypeDescription = ATTRIBUTE_TYPE_DESCRIPTION_SCHEMA_PARSER.parseAttributeTypeDescription( desc );
                 break;
             }
         }
@@ -1360,11 +1437,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertEquals( "bogusName", attributeTypeDescription.getNames().get( 1 ) );
         assertEquals( "name", attributeTypeDescription.getSuperType() );
         
-        attrs = null;
-        attrs = schemaRoot.getAttributes( "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
+        attrs = getSchemaContext( service ).getAttributes(
+                "m-oid=1.3.6.1.4.1.18060.0.4.0.2.10000,ou=attributeTypes,cn=nis" );
         assertNotNull( attrs );
-        SchemaEntityFactory factory = new SchemaEntityFactory( registries );
-        AttributeType at = factory.getAttributeType( attrs, registries, "nis" );
+        SchemaEntityFactory factory = new SchemaEntityFactory( service.getRegistries() );
+        AttributeType at = factory.getAttributeType( attrs, service.getRegistries(), "nis" );
         assertEquals( "1.3.6.1.4.1.18060.0.4.0.2.10000", at.getOid() );
         assertEquals( "name", at.getSuperior().getName() );
         assertEquals( "bogus description", at.getDescription() );
@@ -1414,19 +1491,23 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         // -------------------------------------------------------------------
         // check next to see if it is present in the schema partition
         // -------------------------------------------------------------------
-        
+
+        //noinspection UnusedAssignment
         attrs = null;
         
         if ( isPresent )
         {
-            attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
+            attrs = getSchemaContext( service ).getAttributes( "m-oid=" + oid
+                    + ",ou=objectClasses,cn=" + schemaName );
             assertNotNull( attrs );
         }
         else
         {
+            //noinspection EmptyCatchBlock
             try
             {
-                attrs = schemaRoot.getAttributes( "m-oid=" + oid + ",ou=objectClasses,cn=" + schemaName );
+                attrs = getSchemaContext( service ).getAttributes( "m-oid=" +
+                        oid + ",ou=objectClasses,cn=" + schemaName );
                 fail( "should never get here" );
             }
             catch( NamingException e )
@@ -1441,11 +1522,11 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         
         if ( isPresent ) 
         { 
-            assertTrue( registries.getObjectClassRegistry().hasObjectClass( oid ) );
+            assertTrue( service.getRegistries().getObjectClassRegistry().hasObjectClass( oid ) );
         }
         else
         {
-            assertFalse( registries.getObjectClassRegistry().hasObjectClass( oid ) );
+            assertFalse( service.getRegistries().getObjectClassRegistry().hasObjectClass( oid ) );
         }
     }
     
@@ -1453,7 +1534,10 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     /**
      * Tests a number of modify add, remove and replace operation combinations for
      * objectClasses on the schema subentry.
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddRemoveReplaceObjectClasses() throws Exception
     {
         enableSchema( "nis" );
@@ -1715,8 +1799,12 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
      * This method checks the modifiersName, and the modifyTimestamp on the schema
      * subentry then modifies a schema.  It then checks it again to make sure these
      * values have been updated properly to reflect the modification time and the
-     * modifier. 
+     * modifier.
+     *
+     * @throws InterruptedException on error
+     * @throws NamingException on error
      */
+    @Test
     public void testTimestampAndModifierUpdates() throws NamingException, InterruptedException
     {
         TimeZone tz = TimeZone.getTimeZone( "GMT" );
@@ -1731,15 +1819,19 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         assertNotNull( createTimestampAttr );
 
         Attribute modifiersNameAttr = subentry.get( "modifiersName" );
-        Attribute modifiersTimestampAttr = subentry.get( "modifyTimestamp" );
+        Attribute modifyTimestampAttr = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttr );
         LdapDN expectedDN = new LdapDN( "uid=admin,ou=system" );
-        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttr.get() );
-        assertNotNull( modifiersTimestampAttr );
+        assertNotNull( modifyTimestampAttr );
 
         Calendar cal = Calendar.getInstance( tz );
-        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) .before( cal.getTime() ) );
+        String modifyTimestampStr = ( String ) modifyTimestampAttr.get();
+        Date modifyTimestamp = DateUtils.getDate( modifyTimestampStr );
+        Date currentTimestamp = cal.getTime();
+
+        assertFalse( modifyTimestamp.after( currentTimestamp ) );
         
         // now update the schema information: add a new attribute type
         
@@ -1751,7 +1843,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         mods[0] = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, 
             new AttributeImpl( "attributeTypes", substrate ) );
         
-        rootDSE.modifyAttributes( dn, mods );
+        getRootContext( service ).modifyAttributes( dn, mods );
 
         // now check the modification timestamp and the modifiers name
 
@@ -1768,19 +1860,16 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         Attribute modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
         expectedDN = new LdapDN( "uid=admin,ou=system" );
-        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         
-        // generalized time is correct up to the last second so we should 
-        // wait a second just to avoid rounding errors that may show sys
-        // time to be around same time as generalized time for after modify
-        Thread.sleep( 1000 );
-        
         cal = Calendar.getInstance( tz );
-        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() ).before( cal.getTime() ) );
-        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() )
-            .after( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) ) );
+        Date modifyTimestampAfter = DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() );
+        assertTrue( modifyTimestampAfter.getTime() <= cal.getTime().getTime() );
+
+
+        assertTrue( modifyTimestampAfter.getTime() >= modifyTimestamp.getTime() );
 
         // now let's test the modifiersName update with another user besides
         // the administrator - we'll create a dummy user for that ...
@@ -1789,7 +1878,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         user.put( "sn", "bogus" );
         user.put( "cn", "bogus user" );
         user.put( "userPassword", "secret" );
-        sysRoot.createSubcontext( "cn=bogus user", user );
+        getSystemContext( service ).createSubcontext( "cn=bogus user", user );
         
         // now let's get a context for this user
         
@@ -1824,23 +1913,18 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         modifiersTimestampAttrAfter = subentry.get( "modifyTimestamp" );
         assertNotNull( modifiersNameAttrAfter );
         expectedDN = new LdapDN( "cn=bogus user,ou=system" );
-        expectedDN.normalize( super.registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        expectedDN.normalize( service.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
         assertEquals( expectedDN.getNormName(), modifiersNameAttrAfter.get() );
         assertNotNull( modifiersTimestampAttrAfter );
         
-        // generalized time is correct up to the last second so we should 
-        // wait a second just to avoid rounding errors that may show sys
-        // time to be around same time as generalized time for after modify
-        Thread.sleep( 1000 );
-        
         cal = Calendar.getInstance( tz );
-        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() ).before( cal.getTime() ) );
-        assertTrue( DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() )
-            .after( DateUtils.getDate( ( String ) modifiersTimestampAttr.get() ) ) );
-
+        modifyTimestamp = DateUtils.getDate( ( String ) modifyTimestampAttr.get() );
+        modifyTimestampAfter = DateUtils.getDate( ( String ) modifiersTimestampAttrAfter.get() );
+        assertTrue( modifyTimestampAfter.getTime() <= cal.getTime().getTime() );
+        assertTrue( modifyTimestampAfter.getTime() >= modifyTimestamp.getTime() );
     }
-    
-    
+
+
     // -----------------------------------------------------------------------
     // Private Utility Methods 
     // -----------------------------------------------------------------------
@@ -1858,7 +1942,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         Attributes mods = new AttributesImpl();
         mods.put( attr );
         
-        rootDSE.modifyAttributes( dn, op, mods );
+        getRootContext( service ).modifyAttributes( dn, op, mods );
     }
     
     
@@ -1868,7 +1952,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "FALSE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
     
     
@@ -1878,7 +1962,7 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( "m-disabled", "TRUE" );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( "cn=" + schemaName, mods );
+        getSchemaContext( service ).modifyAttributes( "cn=" + schemaName, mods );
     }
     
     
@@ -1907,7 +1991,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]{ SUBSCHEMA_SUBENTRY } );
         
-        NamingEnumeration<SearchResult> results = rootDSE.search( "", "(objectClass=*)", controls );
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( "", "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         Attribute subschemaSubentry = result.getAttributes().get( SUBSCHEMA_SUBENTRY );
@@ -1917,8 +2002,8 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
     
     /**
      * Gets the subschemaSubentry attributes for the global schema.
-     * 
-     * @return all operational attributes of the subschemaSubentry 
+     *
+     * @return all operational attributes of the subschemaSubentry
      * @throws NamingException if there are problems accessing this entry
      */
     private Attributes getSubschemaSubentryAttributes() throws NamingException
@@ -1926,9 +2011,9 @@ public class SubschemaSubentryITest extends AbstractAdminTestCase
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]{ "+", "*" } );
-        
-        NamingEnumeration<SearchResult> results = rootDSE.search( getSubschemaSubentryDN(), 
-            "(objectClass=*)", controls );
+
+        NamingEnumeration<SearchResult> results = getRootContext( service )
+                .search( getSubschemaSubentryDN(), "(objectClass=*)", controls );
         SearchResult result = results.next();
         results.close();
         return result.getAttributes();

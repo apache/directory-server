@@ -107,6 +107,12 @@ public class IntegrationUtils
     }
 
 
+    public static LdapContext getSchemaContext( DirectoryService service ) throws NamingException
+    {
+        return getContext( "uid=admin,ou=system", service, "ou=schema" );
+    }
+
+
     public static LdapContext getRootContext( DirectoryService service ) throws NamingException
     {
         return getContext( "uid=admin,ou=system", service, "" );

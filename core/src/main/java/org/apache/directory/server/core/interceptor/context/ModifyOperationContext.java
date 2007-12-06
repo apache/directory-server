@@ -44,7 +44,8 @@ public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
     private List<ModificationItemImpl> modItems;
-    
+
+
     /**
      * 
      * Creates a new instance of ModifyOperationContext.
@@ -55,16 +56,33 @@ public class ModifyOperationContext extends AbstractOperationContext
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of ModifyOperationContext.
      *
+     * @param dn the dn of the entry to be modified
+     * @param modItems the modifications to be performed on the entry
      */
     public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems )
     {
         super( dn );
         this.modItems = modItems;
     }
+
+
+    /**
+     * Creates a new instance of ModifyOperationContext.
+     *
+     * @param dn the dn of the entry to be modified
+     * @param modItems the modifications to be performed on the entry
+     * @param collateralOperation true if op is collateral, false otherwise
+     */
+    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems, boolean collateralOperation )
+    {
+        super( dn, collateralOperation );
+        this.modItems = modItems;
+    }
+
 
     /**
      * Set the modified attributes
@@ -75,6 +93,7 @@ public class ModifyOperationContext extends AbstractOperationContext
         this.modItems = modItems;
     }
 
+
     /**
      * @return The modifications
      */
@@ -82,7 +101,8 @@ public class ModifyOperationContext extends AbstractOperationContext
     {
         return modItems;
     }
-    
+
+
     @SuppressWarnings( value = "unchecked" )
     public static List<ModificationItemImpl> createModItems( Attributes attributes, int modOp ) throws NamingException
     {
@@ -96,7 +116,8 @@ public class ModifyOperationContext extends AbstractOperationContext
 
         return items;
     }
-    
+
+
     /**
      * @see Object#toString()
      */

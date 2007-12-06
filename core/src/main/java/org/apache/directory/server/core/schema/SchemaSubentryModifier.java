@@ -146,7 +146,7 @@ public class SchemaSubentryModifier
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
 
 
@@ -154,7 +154,7 @@ public class SchemaSubentryModifier
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
     
@@ -164,7 +164,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -174,7 +174,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -184,7 +184,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -195,7 +195,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     
@@ -229,7 +229,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( normalizerDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     
@@ -263,7 +263,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( syntaxCheckerDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     

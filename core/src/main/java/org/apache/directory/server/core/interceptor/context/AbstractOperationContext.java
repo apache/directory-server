@@ -43,7 +43,9 @@ public abstract class AbstractOperationContext implements OperationContext
     private LdapDN dn;
     private Map<String, Control> requestControls = new HashMap<String, Control>(4);
     private Map<String, Control> responseControls = new HashMap<String, Control>(4);
-    
+
+    private boolean collateralOperation;
+
     
     /**
      * 
@@ -54,9 +56,8 @@ public abstract class AbstractOperationContext implements OperationContext
     {
     }
 
-    
+
     /**
-     * 
      * Creates a new instance of AbstractOperationContext.
      *
      * @param dn The associated DN
@@ -66,7 +67,44 @@ public abstract class AbstractOperationContext implements OperationContext
         this.dn = dn;
     }
 
-    
+
+    /**
+     * Creates a new instance of AbstractOperationContext.
+     *
+     * @param dn the associated DN
+     * @param collateralOperation true if op is collateral, false otherwise
+     */
+    public AbstractOperationContext( LdapDN dn, boolean collateralOperation )
+    {
+        this.dn = dn;
+        this.collateralOperation = collateralOperation;
+    }
+
+
+    /**
+     * Creates an operation context where the operation is considered a side
+     * effect of a direct operation.
+     *
+     * @param collateralOperation true if this is a side effect operation
+     */
+    public AbstractOperationContext( boolean collateralOperation )
+    {
+        this.collateralOperation = collateralOperation;
+    }
+
+
+    public boolean isCollateralOperation()
+    {
+        return collateralOperation;
+    }
+
+
+    public void setCollateralOperation( boolean collateralOperation )
+    {
+        this.collateralOperation = collateralOperation;
+    }
+
+
     /**
      * @return The associated DN
      */

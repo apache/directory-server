@@ -158,6 +158,77 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    public void testManyTagsPersistenceAcrossRestarts() throws NamingException, InterruptedException
+    {
+        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
+        assertNull( service.getChangeLog().getLatest() );
+
+        // add new test entry
+        AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "test0" );
+        sysRoot.createSubcontext( "ou=test0", attrs );
+        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+
+        Tag t0 = service.getChangeLog().tag();
+        assertEquals( t0, service.getChangeLog().getLatest() );
+        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( 1, t0.getRevision() );
+
+        // add another test entry
+        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "test1" );
+        sysRoot.createSubcontext( "ou=test1", attrs );
+        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+
+        Tag t1 = service.getChangeLog().tag();
+        assertEquals( t1, service.getChangeLog().getLatest() );
+        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( 2, t1.getRevision() );
+
+        service.sync();
+        service.shutdown();
+        service.startup();
+
+        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t1, service.getChangeLog().getLatest() );
+        assertEquals( 2, t1.getRevision() );
+
+        // add third test entry
+        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "test2" );
+        sysRoot.createSubcontext( "ou=test2", attrs );
+        assertEquals( 3, service.getChangeLog().getCurrentRevision() );
+
+        service.revert();
+        sysRoot.getAttributes( "ou=test0" ); // test present
+        sysRoot.getAttributes( "ou=test1" ); // test present
+        assertNotPresent( sysRoot, "ou=test2" );
+        assertEquals( 4, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t1, service.getChangeLog().getLatest() );
+
+        service.revert( t0.getRevision() );
+        sysRoot.getAttributes( "ou=test0" ); // test present
+        assertNotPresent( sysRoot, "ou=test1" );
+        assertNotPresent( sysRoot, "ou=test2" );
+        assertEquals( 7, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t1, service.getChangeLog().getLatest() );
+
+        // no sync this time but should happen automatically
+        service.shutdown();
+        service.startup();
+        assertEquals( 7, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t1, service.getChangeLog().getLatest() );
+        assertEquals( 2, t1.getRevision() );
+
+        service.revert( 0 );
+        assertNotPresent( sysRoot, "ou=test0" );
+        assertNotPresent( sysRoot, "ou=test1" );
+        assertNotPresent( sysRoot, "ou=test2" );
+        assertEquals( 14, service.getChangeLog().getCurrentRevision() );
+        assertEquals( t1, service.getChangeLog().getLatest() );
+    }
+
+
     public void testTagPersistenceAcrossRestarts() throws NamingException, InterruptedException
     {
         assertEquals( 0, service.getChangeLog().getCurrentRevision() );

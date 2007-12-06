@@ -20,20 +20,16 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Comparator;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import jdbm.helper.IntegerComparator;
 import jdbm.helper.StringComparator;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.registries.ComparatorRegistry;
+import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -45,6 +41,17 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.Syntax;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Comparator;
 
 
 /**
@@ -54,26 +61,48 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MetaComparatorHandlerITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class MetaComparatorHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";
 
+
+    public static DirectoryService service;
+
     
     /**
      * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn to the ou underwhich comparators are found for a schmea
+     * @throws NamingException if there are dn construction issues
      */
-    private final LdapDN getComparatorContainer( String schemaName ) throws NamingException
+    private LdapDN getComparatorContainer( String schemaName ) throws NamingException
     {
         return new LdapDN( "ou=comparators,cn=" + schemaName );
     }
+
+
+    private static ComparatorRegistry getComparatorRegistry()
+    {
+        return service.getRegistries().getComparatorRegistry();
+    }
     
+
+    private static MatchingRuleRegistry getMatchingRuleRegistry()
+    {
+        return service.getRegistries().getMatchingRuleRegistry();
+    }
     
+
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
 
-    
+
+    @Test
     public void testAddComparator() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -87,15 +116,16 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getComparatorRegistry().hasComparator( OID ) );
-        assertEquals( registries.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = registries.getComparatorRegistry().lookup( OID ).getClass();
+        assertTrue( getComparatorRegistry().hasComparator( OID ) );
+        assertEquals( getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
     
-    
+
+    @Test
     public void testAddComparatorWithByteCode() throws Exception
     {
         InputStream in = getClass().getResourceAsStream( "DummyComparator.bytecode" );
@@ -117,29 +147,30 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getComparatorRegistry().hasComparator( OID ) );
-        assertEquals( registries.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = registries.getComparatorRegistry().lookup( OID ).getClass();
+        assertTrue( getComparatorRegistry().hasComparator( OID ) );
+        assertEquals( getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "DummyComparator" );
     }
     
-    
+
+    @Test
     public void testDeleteComparator() throws NamingException
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddComparator();
         
-        super.schemaRoot.destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "comparator should be removed from the registry after being deleted", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         try
         {
-            registries.getComparatorRegistry().lookup( OID );
+            getComparatorRegistry().lookup( OID );
             fail( "comparator lookup should fail after deleting the comparator" );
         }
         catch( NamingException e )
@@ -148,6 +179,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testRenameComparator() throws NamingException
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
@@ -156,26 +188,27 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         LdapDN newdn = getComparatorContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old comparator OID should be removed from the registry after being renamed", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         try
         {
-            registries.getComparatorRegistry().lookup( OID );
+            getComparatorRegistry().lookup( OID );
             fail( "comparator lookup should fail after deleting the comparator" );
         }
         catch( NamingException e )
         {
         }
 
-        assertTrue( registries.getComparatorRegistry().hasComparator( NEW_OID ) );
-        Class clazz = registries.getComparatorRegistry().lookup( NEW_OID ).getClass();
+        assertTrue( getComparatorRegistry().hasComparator( NEW_OID ) );
+        Class clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
 
+    @Test
     public void testMoveComparator() throws NamingException
     {
         testAddComparator();
@@ -186,19 +219,20 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getComparatorContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "comparator OID should still be present", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         assertEquals( "comparator schema should be set to apache not apachemeta", 
-            registries.getComparatorRegistry().getSchemaName( OID ), "apache" );
+            getComparatorRegistry().getSchemaName( OID ), "apache" );
 
-        Class clazz = registries.getComparatorRegistry().lookup( OID ).getClass();
+        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
 
+    @Test
     public void testMoveComparatorAndChangeRdn() throws NamingException
     {
         testAddComparator();
@@ -209,22 +243,23 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getComparatorContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old comparator OID should NOT be present", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         assertTrue( "new comparator OID should be present", 
-            registries.getComparatorRegistry().hasComparator( NEW_OID ) );
+            getComparatorRegistry().hasComparator( NEW_OID ) );
         
         assertEquals( "comparator with new oid should have schema set to apache NOT apachemeta", 
-            registries.getComparatorRegistry().getSchemaName( NEW_OID ), "apache" );
+            getComparatorRegistry().getSchemaName( NEW_OID ), "apache" );
 
-        Class clazz = registries.getComparatorRegistry().lookup( NEW_OID ).getClass();
+        Class clazz = getComparatorRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, StringComparator.class );
     }
 
-    
+
+    @Test
     public void testModifyComparatorWithModificationItems() throws NamingException
     {
         testAddComparator();
@@ -235,19 +270,20 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( dn, mods );
+        getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "comparator OID should still be present", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         assertEquals( "comparator schema should be set to apachemeta", 
-            registries.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+            getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = registries.getComparatorRegistry().lookup( OID ).getClass();
+        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, IntegerComparator.class );
     }
 
-    
+
+    @Test
     public void testModifyComparatorWithAttributes() throws NamingException
     {
         testAddComparator();
@@ -257,15 +293,15 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         Attributes mods = new AttributesImpl();
         mods.put( MetaSchemaConstants.M_FQCN_AT, IntegerComparator.class.getName() );
-        super.schemaRoot.modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "comparator OID should still be present", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         assertEquals( "comparator schema should be set to apachemeta", 
-            registries.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+            getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = registries.getComparatorRegistry().lookup( OID ).getClass();
+        Class clazz = getComparatorRegistry().lookup( OID ).getClass();
         assertEquals( clazz, IntegerComparator.class );
     }
     
@@ -275,16 +311,17 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
     
+    @Test
     public void testDeleteComparatorWhenInUse() throws NamingException
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddComparator();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         try
         {
-            super.schemaRoot.destroySubcontext( dn );
+            getSchemaContext( service ).destroySubcontext( dn );
             fail( "should not be able to delete a comparator in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -293,14 +330,16 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after delete failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
     
     
+    @Test
     public void testMoveComparatorWhenInUse() throws NamingException
     {
         testAddComparator();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -310,7 +349,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a comparator in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -319,14 +358,16 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after move failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
 
+    @Test
     public void testMoveComparatorAndChangeRdnWhenInUse() throws NamingException
     {
         testAddComparator();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -336,7 +377,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a comparator in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -345,23 +386,25 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after move failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
     
+    @Test
     public void testRenameComparatorWhenInUse() throws NamingException
     {
         LdapDN dn = getComparatorContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddComparator();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN newdn = getComparatorContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to rename a comparator in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -370,7 +413,8 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after rename failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
 
@@ -379,6 +423,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
 
+    @Test
     public void testMoveComparatorToTop() throws NamingException
     {
         testAddComparator();
@@ -391,7 +436,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, top );
+            getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a comparator up to ou=schema" );
         }
         catch( LdapInvalidNameException e ) 
@@ -400,10 +445,11 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after move failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
     }
 
 
+    @Test
     public void testMoveComparatorToNormalizers() throws NamingException
     {
         testAddComparator();
@@ -416,7 +462,7 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a comparator up to normalizers container" );
         }
         catch( LdapInvalidNameException e ) 
@@ -425,10 +471,11 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "comparator should still be in the registry after move failure", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
     }
     
     
+    @Test
     public void testAddComparatorToDisabledSchema() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -443,13 +490,14 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         // nis is by default inactive
         LdapDN dn = getComparatorContainer( "nis" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new comparator to disabled schema should not register it into the registries", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
     }
 
 
+    @Test
     public void testMoveComparatorToDisabledSchema() throws NamingException
     {
         testAddComparator();
@@ -461,13 +509,14 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getComparatorContainer( "nis" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "comparator OID should no longer be present", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
     }
 
 
+    @Test
     public void testMoveComparatorToEnabledSchema() throws NamingException
     {
         testAddComparatorToDisabledSchema();
@@ -477,18 +526,18 @@ public class MetaComparatorHandlerITest extends AbstractAdminTestCase
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "comparator OID should NOT be present when added to disabled nis schema", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
 
         LdapDN newdn = getComparatorContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "comparator OID should be present when moved to enabled schema", 
-            registries.getComparatorRegistry().hasComparator( OID ) );
+            getComparatorRegistry().hasComparator( OID ) );
         
         assertEquals( "comparator should be in apachemeta schema after move", 
-            registries.getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
+            getComparatorRegistry().getSchemaName( OID ), "apachemeta" );
     }
 
 

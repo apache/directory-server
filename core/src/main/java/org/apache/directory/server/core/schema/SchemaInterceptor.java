@@ -34,7 +34,6 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.*;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
@@ -76,7 +75,10 @@ public class SchemaInterceptor extends BaseInterceptor
     private static Logger log = LoggerFactory.getLogger( SchemaInterceptor.class );
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
+    private static final String[] SCHEMA_SUBENTRY_RETURN_ATTRIBUTES =
+            new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
+
+
 
 
     /** Speedup for logs */
@@ -109,7 +111,7 @@ public class SchemaInterceptor extends BaseInterceptor
      */
     private LdapDN schemaModificationAttributesDN;
 
-    private SchemaManager schemaManager;
+    private SchemaOperationControl schemaManager;
 
     // the base DN (normalized) of the schema partition
     private LdapDN schemaBaseDN;
@@ -150,7 +152,7 @@ public class SchemaInterceptor extends BaseInterceptor
         schemaBaseDN = new LdapDN( "ou=schema" );
         schemaBaseDN.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
-        schemaManager = directoryService.getSchemaManager();
+        schemaManager = directoryService.getSchemaService().getSchemaControl();
 
         // stuff for dealing with subentries (garbage for now)
         String subschemaSubentry = ( String ) nexus.getRootDSE( null ).get( SchemaConstants.SUBSCHEMA_SUBENTRY_AT ).get();
@@ -1202,11 +1204,10 @@ public class SchemaInterceptor extends BaseInterceptor
         next.rename( opContext );
     }
 
-    private final static String[] schemaSubentryReturnAttributes = new String[] { SchemaConstants.ALL_OPERATIONAL_ATTRIBUTES, SchemaConstants.ALL_USER_ATTRIBUTES };
-    
+
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        Attributes entry = null; 
+        Attributes entry;
         LdapDN name = opContext.getDn();
         List<ModificationItemImpl> mods = opContext.getModItems();
 
@@ -1214,7 +1215,7 @@ public class SchemaInterceptor extends BaseInterceptor
         // and never try to look it up in the nexus below
         if ( name.getNormName().equalsIgnoreCase( subschemaSubentryDnNorm ) )
         {
-            entry = getSubschemaEntry( schemaSubentryReturnAttributes );
+            entry = getSubschemaEntry( SCHEMA_SUBENTRY_RETURN_ATTRIBUTES );
         }
         else
         {
@@ -1508,12 +1509,16 @@ public class SchemaInterceptor extends BaseInterceptor
         
         if ( name.startsWith( schemaBaseDN ) )
         {
-            schemaManager.modify( name, mods, entry, targetEntry, 
+            log.debug( "Modification attempt on schema partition {}: \n{}", name, opContext );
+        
+            schemaManager.modify( name, mods, entry, targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ));
         }
         else if ( subschemaSubentryDnNorm.equals( name.getNormName() ) )
         {
-            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry, 
+            log.debug( "Modification attempt on schema subentry {}: \n{}", name, opContext );
+
+            schemaManager.modifySchemaSubentry( name, mods, entry, targetEntry,
                 opContext.hasRequestControl( CascadeControl.CONTROL_OID ) );
             return;
         }

@@ -27,7 +27,7 @@ import org.apache.directory.server.core.interceptor.InterceptorChain;
 import org.apache.directory.server.core.jndi.AbstractContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.SchemaManager;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -35,7 +35,6 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.util.List;
@@ -105,10 +104,10 @@ public interface DirectoryService
     void setRegistries( Registries registries );
 
 
-    SchemaManager getSchemaManager();
+    SchemaService getSchemaService();
 
 
-    void setSchemaManager( SchemaManager schemaManager );
+    void setSchemaService( SchemaService schemaService );
 
 
     /**

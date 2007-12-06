@@ -20,17 +20,14 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Comparator;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.server.schema.registries.NormalizerRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -39,11 +36,18 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.DeepTrimNormalizer;
-import org.apache.directory.shared.ldap.schema.MatchingRule;
-import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
-import org.apache.directory.shared.ldap.schema.Normalizer;
-import org.apache.directory.shared.ldap.schema.Syntax;
+import org.apache.directory.shared.ldap.schema.*;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Comparator;
 
 
 /**
@@ -53,26 +57,48 @@ import org.apache.directory.shared.ldap.schema.Syntax;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class MetaNormalizerHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
     private static final String NEW_OID = "1.3.6.1.4.1.18060.0.4.0.1.100001";
 
-    
+
+    public static DirectoryService service;
+
+
     /**
      * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return  the name of the container with normalizer entries in it
+     * @throws NamingException on error
      */
-    private final LdapDN getNormalizerContainer( String schemaName ) throws NamingException
+    private LdapDN getNormalizerContainer( String schemaName ) throws NamingException
     {
         return new LdapDN( "ou=normalizers,cn=" + schemaName );
     }
     
-    
+
+    private static NormalizerRegistry getNormalizerRegistry()
+    {
+        return service.getRegistries().getNormalizerRegistry();
+    }
+
+
+    private static MatchingRuleRegistry getMatchingRuleRegistry()
+    {
+        return service.getRegistries().getMatchingRuleRegistry();
+    }
+
+
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
     // ----------------------------------------------------------------------
 
-    
+
+    @Test
     public void testAddNormalizer() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -86,15 +112,16 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getNormalizerRegistry().hasNormalizer( OID ) );
-        assertEquals( registries.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = registries.getNormalizerRegistry().lookup( OID ).getClass();
+        assertTrue( getNormalizerRegistry().hasNormalizer( OID ) );
+        assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
     
     
+    @Test
     public void testAddNormalizerWithByteCode() throws Exception
     {
         InputStream in = getClass().getResourceAsStream( "DummyNormalizer.bytecode" );
@@ -116,29 +143,31 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
-        assertTrue( registries.getNormalizerRegistry().hasNormalizer( OID ) );
-        assertEquals( registries.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
-        Class clazz = registries.getNormalizerRegistry().lookup( OID ).getClass();
+        assertTrue( getNormalizerRegistry().hasNormalizer( OID ) );
+        assertEquals( getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz.getName(), "DummyNormalizer" );
     }
     
     
+    @Test
     public void testDeleteNormalizer() throws NamingException
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddNormalizer();
         
-        super.schemaRoot.destroySubcontext( dn );
+        getSchemaContext( service ).destroySubcontext( dn );
 
         assertFalse( "normalizer should be removed from the registry after being deleted", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
-        
+            getNormalizerRegistry().hasNormalizer( OID ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
-            registries.getNormalizerRegistry().lookup( OID );
+            getNormalizerRegistry().lookup( OID );
             fail( "normalizer lookup should fail after deleting the normalizer" );
         }
         catch( NamingException e )
@@ -147,6 +176,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testRenameNormalizer() throws NamingException
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
@@ -155,26 +185,28 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old normalizer OID should be removed from the registry after being renamed", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
-        
+            getNormalizerRegistry().hasNormalizer( OID ) );
+
+        //noinspection EmptyCatchBlock
         try
         {
-            registries.getNormalizerRegistry().lookup( OID );
+            getNormalizerRegistry().lookup( OID );
             fail( "normalizer lookup should fail after deleting the normalizer" );
         }
         catch( NamingException e )
         {
         }
 
-        assertTrue( registries.getNormalizerRegistry().hasNormalizer( NEW_OID ) );
-        Class clazz = registries.getNormalizerRegistry().lookup( NEW_OID ).getClass();
+        assertTrue( getNormalizerRegistry().hasNormalizer( NEW_OID ) );
+        Class clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
 
+    @Test
     public void testMoveNormalizer() throws NamingException
     {
         testAddNormalizer();
@@ -185,19 +217,20 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getNormalizerContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "normalizer OID should still be present", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
         
         assertEquals( "normalizer schema should be set to apache not apachemeta", 
-            registries.getNormalizerRegistry().getSchemaName( OID ), "apache" );
+            getNormalizerRegistry().getSchemaName( OID ), "apache" );
 
-        Class clazz = registries.getNormalizerRegistry().lookup( OID ).getClass();
+        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
 
+    @Test
     public void testMoveNormalizerAndChangeRdn() throws NamingException
     {
         testAddNormalizer();
@@ -208,22 +241,23 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getNormalizerContainer( "apache" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "old normalizer OID should NOT be present", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
         
         assertTrue( "new normalizer OID should be present", 
-            registries.getNormalizerRegistry().hasNormalizer( NEW_OID ) );
+            getNormalizerRegistry().hasNormalizer( NEW_OID ) );
         
         assertEquals( "normalizer with new oid should have schema set to apache NOT apachemeta", 
-            registries.getNormalizerRegistry().getSchemaName( NEW_OID ), "apache" );
+            getNormalizerRegistry().getSchemaName( NEW_OID ), "apache" );
 
-        Class clazz = registries.getNormalizerRegistry().lookup( NEW_OID ).getClass();
+        Class clazz = getNormalizerRegistry().lookup( NEW_OID ).getClass();
         assertEquals( clazz, NoOpNormalizer.class );
     }
 
     
+    @Test
     public void testModifyNormalizerWithModificationItems() throws NamingException
     {
         testAddNormalizer();
@@ -234,19 +268,20 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         Attribute attr = new AttributeImpl( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, attr );
-        super.schemaRoot.modifyAttributes( dn, mods );
+        getSchemaContext( service ).modifyAttributes( dn, mods );
 
         assertTrue( "normalizer OID should still be present", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
         
         assertEquals( "normalizer schema should be set to apachemeta", 
-            registries.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+            getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = registries.getNormalizerRegistry().lookup( OID ).getClass();
+        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
     }
 
     
+    @Test
     public void testModifyNormalizerWithAttributes() throws NamingException
     {
         testAddNormalizer();
@@ -256,15 +291,15 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         Attributes mods = new AttributesImpl();
         mods.put( MetaSchemaConstants.M_FQCN_AT, DeepTrimNormalizer.class.getName() );
-        super.schemaRoot.modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
+        getSchemaContext( service ).modifyAttributes( dn, DirContext.REPLACE_ATTRIBUTE, mods );
 
         assertTrue( "normalizer OID should still be present", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
         
         assertEquals( "normalizer schema should be set to apachemeta", 
-            registries.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+            getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
 
-        Class clazz = registries.getNormalizerRegistry().lookup( OID ).getClass();
+        Class clazz = getNormalizerRegistry().lookup( OID ).getClass();
         assertEquals( clazz, DeepTrimNormalizer.class );
     }
     
@@ -274,16 +309,17 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
     
+    @Test
     public void testDeleteNormalizerWhenInUse() throws NamingException
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         try
         {
-            super.schemaRoot.destroySubcontext( dn );
+            getSchemaContext( service ).destroySubcontext( dn );
             fail( "should not be able to delete a normalizer in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -292,14 +328,16 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after delete failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
     
     
+    @Test
     public void testMoveNormalizerWhenInUse() throws NamingException
     {
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -309,7 +347,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a normalizer in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -318,14 +356,16 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after move failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
 
+    @Test
     public void testMoveNormalizerAndChangeRdnWhenInUse() throws NamingException
     {
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
@@ -335,7 +375,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a normalizer in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -344,23 +384,25 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after move failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
     
+    @Test
     public void testRenameNormalizerWhenInUse() throws NamingException
     {
         LdapDN dn = getNormalizerContainer( "apachemeta" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         testAddNormalizer();
-        registries.getMatchingRuleRegistry().register( new DummyMR() );
+        getMatchingRuleRegistry().register( new DummyMR() );
         
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + NEW_OID );
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to rename a normalizer in use" );
         }
         catch( LdapOperationNotSupportedException e ) 
@@ -369,7 +411,8 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after rename failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
+        getMatchingRuleRegistry().unregister( OID );
     }
 
 
@@ -378,6 +421,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
     // ----------------------------------------------------------------------
 
 
+    @Test
     public void testMoveNormalizerToTop() throws NamingException
     {
         testAddNormalizer();
@@ -390,7 +434,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, top );
+            getSchemaContext( service ).rename( dn, top );
             fail( "should not be able to move a normalizer up to ou=schema" );
         }
         catch( LdapInvalidNameException e ) 
@@ -399,10 +443,11 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after move failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
     }
 
 
+    @Test
     public void testMoveNormalizerToComparatorContainer() throws NamingException
     {
         testAddNormalizer();
@@ -415,7 +460,7 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         
         try
         {
-            super.schemaRoot.rename( dn, newdn );
+            getSchemaContext( service ).rename( dn, newdn );
             fail( "should not be able to move a normalizer into comparators container" );
         }
         catch( LdapInvalidNameException e ) 
@@ -424,10 +469,11 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         }
 
         assertTrue( "normalizer should still be in the registry after move failure", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
     }
     
     
+    @Test
     public void testAddNormalizerToDisabledSchema() throws NamingException
     {
         Attributes attrs = new AttributesImpl();
@@ -442,13 +488,14 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         // nis is by default inactive
         LdapDN dn = getNormalizerContainer( "nis" );
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
-        super.schemaRoot.createSubcontext( dn, attrs );
+        getSchemaContext( service ).createSubcontext( dn, attrs );
         
         assertFalse( "adding new normalizer to disabled schema should not register it into the registries", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
     }
 
 
+    @Test
     public void testMoveNormalizerToDisabledSchema() throws NamingException
     {
         testAddNormalizer();
@@ -460,13 +507,14 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         LdapDN newdn = getNormalizerContainer( "nis" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertFalse( "normalizer OID should no longer be present", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
     }
 
 
+    @Test
     public void testMoveNormalizerToEnabledSchema() throws NamingException
     {
         testAddNormalizerToDisabledSchema();
@@ -476,18 +524,18 @@ public class MetaNormalizerHandlerITest extends AbstractAdminTestCase
         dn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
 
         assertFalse( "normalizer OID should NOT be present when added to disabled nis schema", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
 
         LdapDN newdn = getNormalizerContainer( "apachemeta" );
         newdn.add( MetaSchemaConstants.M_OID_AT + "=" + OID );
         
-        super.schemaRoot.rename( dn, newdn );
+        getSchemaContext( service ).rename( dn, newdn );
 
         assertTrue( "normalizer OID should be present when moved to enabled schema", 
-            registries.getNormalizerRegistry().hasNormalizer( OID ) );
+            getNormalizerRegistry().hasNormalizer( OID ) );
         
         assertEquals( "normalizer should be in apachemeta schema after move", 
-            registries.getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
+            getNormalizerRegistry().getSchemaName( OID ), "apachemeta" );
     }
 
 

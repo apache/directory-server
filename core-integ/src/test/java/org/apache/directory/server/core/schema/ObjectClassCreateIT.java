@@ -19,34 +19,54 @@
  */
 package org.apache.directory.server.core.schema;
 
+
+import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.SetupMode;
+import org.apache.directory.server.core.integ.annotations.Mode;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
-public class ObjectClassCreateITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Mode ( SetupMode.PRISTINE )
+public class ObjectClassCreateIT
 {
-    private String testOID                               =
-        "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";
-    
+    private String testOID = "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";
+
+
+    public static DirectoryService service;
+
+
     /**
      * Gets relative DN to ou=schema.
+     *
+     * @param schemaName the name of the schema
+     * @return the dn of the objectClass container
+     * @throws NamingException on error
      */
-    private final LdapDN getObjectClassContainer( String schemaName ) throws NamingException
+    private LdapDN getObjectClassContainer( String schemaName ) throws NamingException
     {
         return new LdapDN( "ou=objectClasses,cn=" + schemaName );
     }
 
+
     /*
      * Test that I can create an ObjectClass entry with an invalid
      */
-    public void testCreateObjectClassWithInvalidNameAttribute() 
-    throws NamingException
+    @Test
+    public void testCreateObjectClassWithInvalidNameAttribute() throws NamingException
     {
         Attributes attributes = new BasicAttributes();
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
@@ -67,7 +87,7 @@ public class ObjectClassCreateITest extends AbstractAdminTestCase
         
         try
         {
-            schemaRoot.createSubcontext( dn, attributes );
+            getSchemaContext( service ).createSubcontext( dn, attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
@@ -79,8 +99,8 @@ public class ObjectClassCreateITest extends AbstractAdminTestCase
     /*
      * Test that I can create an ObjectClass entry with an invalid
      */
-    public void testCreateObjectClassWithNoObjectClass() 
-    throws NamingException
+    @Test
+    public void testCreateObjectClassWithNoObjectClass() throws NamingException
     {
         Attributes attributes = new BasicAttributes();
         Attribute  objectClassAttribute = new BasicAttribute( "objectClass" );
@@ -102,7 +122,7 @@ public class ObjectClassCreateITest extends AbstractAdminTestCase
         
         try
         {
-            schemaRoot.createSubcontext( dn, attributes );
+            getSchemaContext( service ).createSubcontext( dn, attributes );
             fail(); // Should not reach this point
         }
         catch ( NamingException ne )
