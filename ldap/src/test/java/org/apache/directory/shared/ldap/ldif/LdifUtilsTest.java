@@ -26,6 +26,7 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.StringTools;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.naming.NamingException;
@@ -659,13 +660,14 @@ public class LdifUtilsTest
      * Test a reversed Modify adding a existing attribute value
      */
     @Test
+    @Ignore ( "This is just not a valid test since it leaves us with no reverse LDIF" )
     public void testReverseModifyAddExistingCnValue() throws NamingException
     {
         Attributes modifiedEntry = buildEntry();
-        
+
         LdapDN dn = new LdapDN( "cn=test, ou=system" );
         ModificationItemImpl mod = new ModificationItemImpl(
-            DirContext.ADD_ATTRIBUTE, 
+            DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( "cn", "test" ) );
 
         Entry reversed = LdifUtils.reverseModify( dn,
