@@ -700,7 +700,7 @@ public class LdifUtils
                                        Attributes modifiedEntry ) throws NamingException
     {
         // First, protect the original entry by cloning it : we will modify it
-        Attributes clonedEntry = (Attributes)modifiedEntry.clone();
+        Attributes clonedEntry = ( Attributes ) modifiedEntry.clone();
 
         Entry entry = new Entry();
         entry.setChangeType( ChangeType.Modify );
@@ -786,7 +786,8 @@ public class LdifUtils
         // Special case if we don't have any reverse modifications
         if ( reverseModifications.size() == 0 )
         {
-            return null;
+            throw new IllegalArgumentException( "Could not deduce reverse modifications from provided modifications: "
+                    + forwardModifications );
         }
 
         // Now, push the reversed list into the entry

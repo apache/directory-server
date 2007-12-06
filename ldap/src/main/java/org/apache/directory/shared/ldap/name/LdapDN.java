@@ -1606,16 +1606,16 @@ public class LdapDN implements Name
      * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
-    public void normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
+    public LdapDN normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
     {
         if ( ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
-            return;
+            return this;
         }
 
         if ( size() == 0 )
         {
-            return;
+            return this;
         }
 
         Enumeration<Rdn> localRdns = getAllRdn();
@@ -1632,6 +1632,7 @@ public class LdapDN implements Name
 
         normalizeInternal();
         normalized = true;
+        return this;
     }
 
 
