@@ -53,7 +53,6 @@ import javax.naming.directory.DirContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaMatchingRuleHandlerIT
 {
     private static final String DESCRIPTION0 = "A test matchingRule";

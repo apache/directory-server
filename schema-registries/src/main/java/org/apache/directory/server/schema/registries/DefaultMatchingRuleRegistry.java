@@ -166,6 +166,5 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         byOid.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

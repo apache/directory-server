@@ -170,6 +170,5 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         }
 
         byOid.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

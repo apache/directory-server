@@ -64,7 +64,6 @@ import java.util.*;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class SubschemaSubentryIT 
 {
     private static final String GLOBAL_SUBSCHEMA_DN = "cn=schema";

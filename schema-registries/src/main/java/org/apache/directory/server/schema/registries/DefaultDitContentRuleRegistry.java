@@ -149,6 +149,5 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
         }
 
         byOid.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

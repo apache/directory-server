@@ -187,7 +187,6 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
 
         DITStructureRule dsr = byOid.remove( numericOid );
         byRuleId.remove( dsr.getRuleId() );
-        oidRegistry.unregister( numericOid );
     }
 
 

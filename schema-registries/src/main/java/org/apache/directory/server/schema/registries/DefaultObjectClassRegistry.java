@@ -163,6 +163,5 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         }
 
         byOid.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

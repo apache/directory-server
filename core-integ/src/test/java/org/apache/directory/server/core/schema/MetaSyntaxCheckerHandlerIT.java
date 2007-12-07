@@ -23,9 +23,8 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -59,7 +58,6 @@ import java.io.InputStream;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaSyntaxCheckerHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.0.100000";
@@ -78,6 +76,12 @@ public class MetaSyntaxCheckerHandlerIT
     private static SyntaxRegistry getSyntaxRegistry()
     {
         return service.getRegistries().getSyntaxRegistry();
+    }
+
+
+    private static OidRegistry getOidRegistry()
+    {
+        return service.getRegistries().getOidRegistry();
     }
 
 
@@ -331,6 +335,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertTrue( "syntaxChecker should still be in the registry after delete failure", 
             getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         getSyntaxRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
     
     
@@ -359,6 +364,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertTrue( "syntaxChecker should still be in the registry after move failure", 
             getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         getSyntaxRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
 
@@ -387,6 +393,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertTrue( "syntaxChecker should still be in the registry after move failure", 
             getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         getSyntaxRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
     
@@ -414,6 +421,7 @@ public class MetaSyntaxCheckerHandlerIT
         assertTrue( "syntaxChecker should still be in the registry after rename failure", 
             getSyntaxCheckerRegistry().hasSyntaxChecker( OID ) );
         getSyntaxRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
 

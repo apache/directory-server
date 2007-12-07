@@ -424,26 +424,37 @@ public class SchemaService
 
             Attributes mods = schemaPartition.lookup( new LookupOperationContext( schemaModificationAttributesDN ) );
             Attribute modifyTimeDisk = mods.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
-            Attribute modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
 
-            if ( modifyTimeDisk == null && modifyTimeMemory == null )
-            {
-                // do nothing!
-            }
-            else if ( modifyTimeDisk != null && modifyTimeMemory != null )
-            {
-                Date disk = DateUtils.getDate( ( String ) modifyTimeDisk.get() );
-                Date mem = DateUtils.getDate( ( String ) modifyTimeMemory.get() );
-                if ( disk.after( mem ) )
-                {
-                    generateSchemaSubentry( mods );
-                }
-            }
-            else
-            {
+            Attribute modifyTimeMemory = null;
+
+            // @todo enable this optimization at some point but for now it
+            // is causing some problems so I will just turn it off
+
+//            if ( schemaSubentry != null )
+//            {
+//                modifyTimeMemory = schemaSubentry.get( SchemaConstants.MODIFY_TIMESTAMP_AT );
+//                if ( modifyTimeDisk == null && modifyTimeMemory == null )
+//                {
+//                    // do nothing!
+//                }
+//                else if ( modifyTimeDisk != null && modifyTimeMemory != null )
+//                {
+//                    Date disk = DateUtils.getDate( ( String ) modifyTimeDisk.get() );
+//                    Date mem = DateUtils.getDate( ( String ) modifyTimeMemory.get() );
+//                    if ( disk.after( mem ) )
+//                    {
+//                        generateSchemaSubentry( mods );
+//                    }
+//                }
+//                else
+//                {
+//                    generateSchemaSubentry( mods );
+//                }
+//            }
+//            else
+//            {
                 generateSchemaSubentry( mods );
-            }
-
+//            }
 
             // ---------------------------------------------------------------
             // Prep Work: Transform the attributes to their OID counterpart

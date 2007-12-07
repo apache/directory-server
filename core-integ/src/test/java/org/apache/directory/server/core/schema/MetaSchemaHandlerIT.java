@@ -23,8 +23,6 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -34,7 +32,9 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,7 +54,6 @@ import java.util.Map;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaSchemaHandlerIT
 {
     /** the schema to use for this test: one that is not loaded by default */
@@ -77,6 +76,21 @@ public class MetaSchemaHandlerIT
     private static Map<String, Schema> getLoadedSchemas()
     {
         return service.getRegistries().getLoadedSchemas();
+    }
+
+
+    @Before
+    public void checkSambaSchema() throws NamingException
+    {
+        LdapContext schemaRoot = getSchemaContext( service );
+
+        // check that there is a samba schema installed and that is is disabled
+        Attributes attributes = schemaRoot.getAttributes( "cn=samba" );
+        assertNotNull( attributes );
+        assertTrue( attributes.get( MetaSchemaConstants.M_DISABLED_AT ).contains( "TRUE" ) );
+        attributes = schemaRoot.getAttributes( "ou=attributeTypes,cn=samba" );
+        assertNotNull( attributes );
+        assertTrue( attributes.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
     }
 
 
@@ -502,6 +516,14 @@ public class MetaSchemaHandlerIT
         schemaRoot.rename( "cn=samba", "cn=foo" );
         assertNotNull( schemaRoot.lookup( "cn=foo" ) );
 
+        // check that there is a samba schema installed and that is is disabled
+        Attributes attributes = schemaRoot.getAttributes( "cn=foo" );
+        assertNotNull( attributes );
+        assertTrue( attributes.get( MetaSchemaConstants.M_DISABLED_AT ).contains( "TRUE" ) );
+        attributes = schemaRoot.getAttributes( "ou=attributeTypes,cn=foo" );
+        assertNotNull( attributes );
+        assertTrue( attributes.get( SchemaConstants.OU_AT ).contains( "attributetypes" ) );
+
         //noinspection EmptyCatchBlock
         try
         {
@@ -560,6 +582,7 @@ public class MetaSchemaHandlerIT
     public void testSchemaRenameEnabledSchema() throws Exception
     {
         LdapContext schemaRoot = getSchemaContext( service );
+
         enableSchema( "samba" );
         assertTrue( getAttributeTypeRegistry().hasAttributeType( "sambaNTPassword" ) );
         assertEquals( "samba", getAttributeTypeRegistry().getSchemaName( "sambaNTPassword" ) );

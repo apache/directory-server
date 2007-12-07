@@ -58,7 +58,6 @@ import java.util.Map;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class SchemaServiceIT
 {
     public static DirectoryService service;

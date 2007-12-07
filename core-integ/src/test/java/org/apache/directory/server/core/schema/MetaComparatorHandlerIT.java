@@ -25,11 +25,10 @@ import jdbm.helper.StringComparator;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.server.schema.registries.ComparatorRegistry;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
 import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedException;
@@ -62,7 +61,6 @@ import java.util.Comparator;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaComparatorHandlerIT
 {
     private static final String OID = "1.3.6.1.4.1.18060.0.4.0.1.100000";
@@ -95,7 +93,13 @@ public class MetaComparatorHandlerIT
     {
         return service.getRegistries().getMatchingRuleRegistry();
     }
-    
+
+
+    private static OidRegistry getOidRegistry()
+    {
+        return service.getRegistries().getOidRegistry();
+    }
+
 
     // ----------------------------------------------------------------------
     // Test all core methods with normal operational pathways
@@ -332,6 +336,7 @@ public class MetaComparatorHandlerIT
         assertTrue( "comparator should still be in the registry after delete failure", 
             getComparatorRegistry().hasComparator( OID ) );
         getMatchingRuleRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
     
     
@@ -360,6 +365,7 @@ public class MetaComparatorHandlerIT
         assertTrue( "comparator should still be in the registry after move failure", 
             getComparatorRegistry().hasComparator( OID ) );
         getMatchingRuleRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
 
@@ -388,6 +394,7 @@ public class MetaComparatorHandlerIT
         assertTrue( "comparator should still be in the registry after move failure", 
             getComparatorRegistry().hasComparator( OID ) );
         getMatchingRuleRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
     
@@ -415,6 +422,7 @@ public class MetaComparatorHandlerIT
         assertTrue( "comparator should still be in the registry after rename failure", 
             getComparatorRegistry().hasComparator( OID ) );
         getMatchingRuleRegistry().unregister( OID );
+        getOidRegistry().unregister( OID );
     }
 
 

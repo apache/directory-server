@@ -22,18 +22,17 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.syntax.AttributeTypeDescription;
 import org.apache.directory.shared.ldap.schema.syntax.parser.AttributeTypeDescriptionSchemaParser;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
@@ -51,7 +50,6 @@ import java.util.List;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class SchemaPersistenceIT
 {
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
@@ -78,9 +76,6 @@ public class SchemaPersistenceIT
         // test successful add with everything
         // -------------------------------------------------------------------
 
-        modify( DirContext.REMOVE_ATTRIBUTE, descriptions, "attributeTypes" );
-        
-        descriptions.clear();
         descriptions.add( "( 1.3.6.1.4.1.18060.0.4.1.2.10000 NAME 'type0' " +
                 "OBSOLETE SUP 2.5.4.41 " +
                 "EQUALITY caseExactIA5Match " +

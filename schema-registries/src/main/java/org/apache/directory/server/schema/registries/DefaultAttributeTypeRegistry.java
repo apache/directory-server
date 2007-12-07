@@ -345,6 +345,5 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
 
         byOid.remove( numericOid );
         oidToDescendantSet.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

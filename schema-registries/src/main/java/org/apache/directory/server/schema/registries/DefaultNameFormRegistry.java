@@ -149,6 +149,5 @@ public class DefaultNameFormRegistry implements NameFormRegistry
         }
 
         byOid.remove( numericOid );
-        oidRegistry.unregister( numericOid );
     }
 }

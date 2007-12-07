@@ -54,7 +54,6 @@ import javax.naming.directory.DirContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaObjectClassHandlerIT
 {
     private static final String NAME = "testObjectClass";

@@ -66,32 +66,32 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     protected void checkOidIsUnique( Attributes entry ) throws NamingException
     {
         String oid = getOid( entry );
-        
+
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
 
-    
+
     protected void checkOidIsUnique( SchemaObject schemaObject ) throws NamingException
     {
         String oid = schemaObject.getOid();
-        
+
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
-    
-    
+
+
     protected void checkOidIsUnique( String oid ) throws NamingException
     {
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }

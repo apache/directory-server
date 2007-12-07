@@ -40,7 +40,6 @@ import javax.naming.directory.BasicAttributes;
 
 
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class ObjectClassCreateIT
 {
     private String testOID = "1.3.6.1.4.1.18060.0.4.0.3.1.555555.5555.5555555";

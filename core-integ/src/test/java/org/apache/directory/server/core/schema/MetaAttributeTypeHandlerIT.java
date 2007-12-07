@@ -55,7 +55,6 @@ import javax.naming.ldap.LdapContext;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaAttributeTypeHandlerIT
 {
     private static final String DESCRIPTION0 = "A test attributeType";

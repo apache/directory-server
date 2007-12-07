@@ -35,7 +35,6 @@ import org.junit.runners.Suite;
  * @version $Rev$, $Date$
  */
 @RunWith ( CiSuite.class )
-@Ignore( "several problems present with schema integration tests which i will fix later" )
 @Suite.SuiteClasses ( {
         MetaAttributeTypeHandlerIT.class,
         MetaComparatorHandlerIT.class,
@@ -50,7 +49,6 @@ import org.junit.runners.Suite;
         SubschemaSubentryIT.class,
         SchemaServiceIT.class
         } )
-@Mode ( SetupMode.PRISTINE )
 public class SchemaISuite
 {
 }

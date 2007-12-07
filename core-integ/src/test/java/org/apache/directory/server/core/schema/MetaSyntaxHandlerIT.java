@@ -23,11 +23,10 @@ package org.apache.directory.server.core.schema;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
-import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.server.schema.registries.MatchingRuleRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapInvalidNameException;
@@ -40,8 +39,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import static org.junit.Assert.*;
-import org.junit.runner.RunWith;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -58,7 +57,6 @@ import java.util.List;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Mode ( SetupMode.PRISTINE )
 public class MetaSyntaxHandlerIT
 {
     private static final String DESCRIPTION0 = "A test normalizer";
