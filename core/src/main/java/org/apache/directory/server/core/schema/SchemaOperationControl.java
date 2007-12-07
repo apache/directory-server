@@ -46,6 +46,7 @@ import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.*;
 import org.apache.directory.shared.ldap.schema.syntax.AbstractSchemaDescription;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
@@ -423,7 +424,7 @@ public class SchemaOperationControl
     }
 
 
-    public void modifyRn( LdapDN name, String newRdn, boolean deleteOldRn, Attributes entry, boolean doCascadeModify ) 
+    public void modifyRn( LdapDN name, Rdn newRdn, boolean deleteOldRn, Attributes entry, boolean doCascadeModify ) 
         throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );
@@ -480,7 +481,7 @@ public class SchemaOperationControl
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         Attribute oc = AttributeUtils.getAttribute( entry, objectClassAT );

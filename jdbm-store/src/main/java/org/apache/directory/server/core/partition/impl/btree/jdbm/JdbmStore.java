@@ -37,6 +37,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
@@ -1058,6 +1059,13 @@ public class JdbmStore
             addAliasIndices( id, normName, ( String ) aliasAttr.get() );
         }
 
+
+        if ( ! Character.isDigit( normName.toNormName().charAt( 0 ) ) )
+        {
+            throw new IllegalStateException( "Not a normalized name: " + normName.toNormName() );
+        }
+
+
         ndnIdx.add( normName.toNormName(), id );
         updnIdx.add( normName.getUpName(), id );
         hierarchyIdx.add( parentId, id );
@@ -1566,11 +1574,11 @@ public class JdbmStore
      * @throws NamingException if there are any errors propagating the name
      *        changes.
      */
-    public void rename( LdapDN dn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void rename( LdapDN dn, Rdn newRdn, boolean deleteOldRdn ) throws NamingException
     {
-        String newRdnAttr = NamespaceTools.getRdnAttribute( newRdn );
-        String newRdnValue = NamespaceTools.getRdnValue( newRdn );
-        Long id = getEntryId( dn.toString() );
+        String newRdnAttr = newRdn.getNormType();
+        String newRdnValue = ( String ) newRdn.getValue();
+        Long id = getEntryId( dn.getNormName() );
         Attributes entry = lookup( id );
         LdapDN updn = new LdapDN( getEntryUpdn( id ) );
 
@@ -1583,8 +1591,7 @@ public class JdbmStore
          * new Rdn attribute within this entry.
          */
 
-        String newRdnAttrOid = oidRegistry.getOid( newRdnAttr );
-        AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdnAttrOid );
+        AttributeType newRdnAttrType = attributeTypeRegistry.lookup( newRdn.getNormType() );
         Attribute rdnAttr = AttributeUtils.getAttribute( entry, newRdnAttrType );
         
         if ( rdnAttr == null )
@@ -1593,22 +1600,22 @@ public class JdbmStore
         }
 
         // add the new Rdn value only if it is not already present in the entry
-        if ( !rdnAttr.contains( newRdnValue ) )
+        if ( ! AttributeUtils.containsValue( rdnAttr, newRdnValue, newRdnAttrType ) )
         {
             rdnAttr.add( newRdnValue );
         }
 
         entry.put( rdnAttr );
 
-        if ( hasUserIndexOn( newRdnAttrOid ) )
+        if ( hasUserIndexOn( newRdn.getNormType() ) )
         {
-            Index idx = getUserIndex( newRdnAttrOid );
+            Index idx = getUserIndex( newRdn.getNormType() );
             idx.add( newRdnValue, id );
 
             // Make sure the altered entry shows the existance of the new attrib
-            if ( !existanceIdx.hasValue( newRdnAttrOid, id ) )
+            if ( !existanceIdx.hasValue( newRdn.getNormType(), id ) )
             {
-                existanceIdx.add( newRdnAttrOid, id );
+                existanceIdx.add( newRdn.getNormType(), id );
             }
         }
 
@@ -1617,7 +1624,7 @@ public class JdbmStore
          * ====================================================================
          * If the old Rdn is to be removed we need to get the attribute and 
          * value for it.  Keep in mind the old Rdn need not be based on the 
-         * same Rdn as the new one.  We remove the Rdn value from the entry
+         * same attr as the new one.  We remove the Rdn value from the entry
          * and remove the value/id tuple from the index on the old Rdn attr
          * if any.  We also test if the delete of the old Rdn index tuple 
          * removed all the attribute values of the old Rdn using a reverse
@@ -1628,18 +1635,16 @@ public class JdbmStore
 
         if ( deleteOldRdn )
         {
-            String oldRdn = updn.get( updn.size() - 1 );
-            String oldRdnAttr = NamespaceTools.getRdnAttribute( oldRdn );
-            String oldRdnAttrOid = oidRegistry.getOid( oldRdnAttr );
-            String oldRdnValue = NamespaceTools.getRdnValue( oldRdn );
-            AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdnAttrOid );
-            
-            AttributeUtils.getAttribute( entry, oldRdnAttrType ).remove( oldRdnValue );
+            Rdn oldRdn = updn.getRdn();
+            AttributeType oldRdnAttrType = attributeTypeRegistry.lookup( oldRdn.getNormType() );
 
-            if ( hasUserIndexOn( oldRdnAttrOid ) )
+            Attribute oldRdnAttr = AttributeUtils.getAttribute( entry, oldRdnAttrType );
+            AttributeUtils.removeValue( oldRdnAttr, oldRdn.getUpValue(), oldRdnAttrType );
+
+            if ( hasUserIndexOn( oldRdn.getNormType() ) )
             {
-                Index idx = getUserIndex( oldRdnAttrOid );
-                idx.drop( oldRdnValue, id );
+                Index idx = getUserIndex( oldRdn.getNormType() );
+                idx.drop( oldRdn.getValue(), id );
 
                 /*
                  * If there is no value for id in this index due to our
@@ -1647,7 +1652,7 @@ public class JdbmStore
                  */
                 if ( null == idx.reverseLookup( id ) )
                 {
-                    existanceIdx.drop( oldRdnAttrOid, id );
+                    existanceIdx.drop( oldRdn.getNormType(), id );
                 }
             }
         }
@@ -1665,7 +1670,11 @@ public class JdbmStore
 
         LdapDN newUpdn = ( LdapDN ) updn.clone(); // copy da old updn
         newUpdn.remove( newUpdn.size() - 1 ); // remove old upRdn
-        newUpdn.add( newUpdn.size(), newRdn ); // add da new upRdn
+        newUpdn.add( newRdn.getUpName() ); // add da new upRdn
+
+        // gotta normalize cuz this thang is cloned and not normalized by default
+        newUpdn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        
         modifyDn( id, newUpdn, false ); // propagate dn changes
         
         if ( isSyncOnWrite )
@@ -1698,10 +1707,13 @@ public class JdbmStore
 
         // Now we can handle the appropriate name userIndices for all cases
         ndnIdx.drop( id );
-        
-        LdapDN normalizedDn = ( updn.isNormalized() ? updn : LdapDN.normalize( updn, attributeTypeRegistry.getNormalizerMapping() ) );
-        
-        ndnIdx.add( ndnIdx.getNormalized( normalizedDn.toNormName() ), id );
+
+        if ( ! updn.isNormalized() )
+        {
+            updn.normalize( attributeTypeRegistry.getNormalizerMapping() );
+        }
+
+        ndnIdx.add( ndnIdx.getNormalized( updn.toNormName() ), id );
 
         updnIdx.drop( id );
         updnIdx.add( updn.getUpName(), id );
@@ -1727,12 +1739,11 @@ public class JdbmStore
         }
 
         NamingEnumeration children = list( id );
-        
         while ( children.hasMore() )
         {
             // Get the child and its id
             IndexRecord rec = ( IndexRecord ) children.next();
-            Long childId = (Long)rec.getEntryId();
+            Long childId = ( Long ) rec.getEntryId();
 
             /* 
              * Calculate the Dn for the child's new name by copying the parents
@@ -1740,8 +1751,11 @@ public class JdbmStore
              */
             LdapDN childUpdn = ( LdapDN ) updn.clone();
             LdapDN oldUpdn = new LdapDN( getEntryUpdn( childId ) );
+
             String rdn = oldUpdn.get( oldUpdn.size() - 1 );
-            childUpdn.add( childUpdn.size(), rdn );
+            LdapDN rdnDN = new LdapDN( rdn );
+            rdnDN.normalize( attributeTypeRegistry.getNormalizerMapping() );
+            childUpdn.add( rdnDN.getRdn() );
 
             // Recursively change the names of the children below
             modifyDn( childId, childUpdn, isMove );
@@ -1749,7 +1763,7 @@ public class JdbmStore
     }
 
 
-    public void move( LdapDN oldChildDn, LdapDN newParentDn, String newRdn, boolean deleteOldRdn ) throws NamingException
+    public void move( LdapDN oldChildDn, LdapDN newParentDn, Rdn newRdn, boolean deleteOldRdn ) throws NamingException
     {
         Long childId = getEntryId( oldChildDn.toString() );
         rename( oldChildDn, newRdn, deleteOldRdn );

@@ -696,8 +696,7 @@ public class SubentryInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext opContext ) throws NamingException
     {
         LdapDN name = opContext.getDn();
-        String newRdn = opContext.getNewRdn();
-        
+
         Attributes entry = nexus.lookup( new LookupOperationContext( name ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
 
@@ -712,10 +711,7 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
 
-            LdapDN rdn = new LdapDN( newRdn );
-            newName.addAll( rdn );
-            rdn.normalize( attrRegistry.getNormalizerMapping() );
-            newName.normalize( attrRegistry.getNormalizerMapping() );
+            newName.add( opContext.getNewRdn() );
 
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
@@ -757,7 +753,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) name.clone();
             newName.remove( newName.size() - 1 );
-            newName.add( newRdn );
+            newName.add( opContext.getNewRdn() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             List<ModificationItemImpl> mods = getModsOnEntryRdnChange( name, newName, entry );
 
@@ -774,8 +770,7 @@ public class SubentryInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
-        String newRn = opContext.getNewRdn();
-        
+
         
         Attributes entry = nexus.lookup( new LookupOperationContext( oriChildName ) );
         Attribute objectClasses = AttributeUtils.getAttribute( entry, objectClassType );
@@ -791,11 +786,8 @@ public class SubentryInterceptor extends BaseInterceptor
             LdapDN newName = ( LdapDN ) parent.clone();
             newName.remove( newName.size() - 1 );
 
-            LdapDN rdn = new LdapDN( newRn );
-            newName.addAll( rdn );
-            rdn.normalize( attrRegistry.getNormalizerMapping() );
-            newName.normalize( attrRegistry.getNormalizerMapping() );
-            
+            newName.add( opContext.getNewRdn() );
+
             String newNormName = newName.toNormName();
             subentryCache.setSubentry( newNormName, ss, subentry.getTypes() );
             next.moveAndRename( opContext );
@@ -837,7 +829,7 @@ public class SubentryInterceptor extends BaseInterceptor
             // calculate the new DN now for use below to modify subentry operational
             // attributes contained within this regular entry with name changes
             LdapDN newName = ( LdapDN ) parent.clone();
-            newName.add( newRn );
+            newName.add( opContext.getNewRdn() );
             newName.normalize( attrRegistry.getNormalizerMapping() );
             List<ModificationItemImpl> mods = getModsOnEntryRdnChange( oriChildName, newName, entry );
 

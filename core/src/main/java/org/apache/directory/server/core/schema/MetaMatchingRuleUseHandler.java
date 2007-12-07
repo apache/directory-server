@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 
 /**
@@ -44,11 +45,6 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.AbstractSchemaChangeHandler#modify(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * javax.naming.directory.Attributes, javax.naming.directory.Attributes)
-     */
     @Override
     protected void modify( LdapDN name, Attributes entry, Attributes targetEntry, 
         boolean cascade ) throws NamingException
@@ -57,70 +53,45 @@ public class MetaMatchingRuleUseHandler extends AbstractSchemaChangeHandler
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#add(
-     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
-     */
     public void add( LdapDN name, Attributes entry ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#delete(
-     * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes)
-     */
     public void delete( LdapDN name, Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * java.lang.String, boolean, javax.naming.directory.Attributes)
-     */
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#move(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * javax.naming.directory.Attributes)
-     */
-    public void replace( LdapDN oriChildName, LdapDN newParentName, 
-        Attributes entry, boolean cascade ) throws NamingException
+    public void replace( LdapDN oriChildName, LdapDN newParentName,
+                         Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    /* (non-Javadoc)
-     * @see org.apache.directory.server.core.schema.SchemaChangeHandler#rename(
-     * org.apache.directory.shared.ldap.name.LdapDN, 
-     * javax.naming.directory.Attributes, java.lang.String)
-     */
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void add( MatchingRuleUse mru )
+    public void add( MatchingRuleUse mru ) throws NamingException
     {
         // TODO Auto-generated method stub
     }
 
 
-    public void delete( MatchingRuleUse mru, boolean cascade )
+    public void delete( MatchingRuleUse mru, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
     }

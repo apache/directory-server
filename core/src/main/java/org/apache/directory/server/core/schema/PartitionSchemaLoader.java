@@ -308,15 +308,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public final void loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries ) throws NamingException
     {
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
-        Iterator<Schema> list = schemas.iterator();
-        
-        while ( list.hasNext() )
+
+        for ( Schema schema : schemas )
         {
-            Schema schema = list.next();
             notLoaded.put( schema.getSchemaName(), schema );
         }
 
-        list = notLoaded.values().iterator();
+        Iterator<Schema> list = notLoaded.values().iterator();
         while ( list.hasNext() )
         {
             Schema schema = list.next();

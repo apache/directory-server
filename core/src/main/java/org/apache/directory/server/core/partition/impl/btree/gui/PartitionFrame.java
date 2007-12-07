@@ -65,7 +65,6 @@ import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexRecord;
-import org.apache.directory.server.core.partition.impl.btree.SearchEngine;
 
 import org.apache.directory.shared.ldap.filter.ExprNode;
 import org.apache.directory.shared.ldap.filter.FilterParser;
@@ -87,7 +86,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PartitionFrame extends JFrame
 {
-    private static final Logger log = LoggerFactory.getLogger( PartitionFrame.class );
+    private static final Logger LOG = LoggerFactory.getLogger( PartitionFrame.class );
 
     private static final long serialVersionUID = 4049353102291513657L;
 
@@ -111,20 +110,21 @@ public class PartitionFrame extends JFrame
     private JMenu indices = new JMenu();
 
     // Non Swing Stuff
-    private BTreePartition partition = null;
-    private boolean doCleanUp = false;
-    private Map<Long, EntryNode> nodes = null;
-    private EntryNode root = null;
-    private SearchEngine eng = null;
+    private BTreePartition partition;
+    private boolean doCleanUp;
+    private Map<Long, EntryNode> nodes;
+    private EntryNode root;
 
 
     /**
      * Creates new form JFrame
+     * 
+     * @param db the partition to view
+     * @throws NamingException if there are problems accessing the partition
      */
-    public PartitionFrame(BTreePartition db, SearchEngine eng) throws NamingException
+    public PartitionFrame( BTreePartition db ) throws NamingException
     {
         partition = db;
-        this.eng = eng;
 
         initialize();
         buildIndicesMenu( partition );
@@ -135,6 +135,8 @@ public class PartitionFrame extends JFrame
 
     /**
      * This method is called from within the constructor to initialize the form
+     *
+     * @throws NamingException on partition access errors
      */
     private void initialize() throws NamingException
     {
@@ -302,8 +304,8 @@ public class PartitionFrame extends JFrame
         {
             public void actionPerformed( ActionEvent an_event )
             {
-                if ( log.isDebugEnabled() )
-                    log.debug( "action command = " + an_event.getActionCommand() );
+                if ( LOG.isDebugEnabled() )
+                    LOG.debug( "action command = " + an_event.getActionCommand() );
 
                 try
                 {
@@ -392,6 +394,7 @@ public class PartitionFrame extends JFrame
      * 
      * @return the DN of the selected tree node or the root Dn of the tree if 
      * nothing has been selected yet.
+     * @throws NamingException on partition access errors
      */
     public String getSelectedDn() throws NamingException
     {
@@ -427,7 +430,7 @@ public class PartitionFrame extends JFrame
 
     public void doImport()
     {
-        FileReader in = null;
+        FileReader in;
         JFileChooser chooser = new JFileChooser();
         int choice = chooser.showOpenDialog( this );
         File selected = chooser.getSelectedFile();
@@ -461,19 +464,16 @@ public class PartitionFrame extends JFrame
         {
             // @todo display popup with error here!
             e.printStackTrace();
-            return;
         }
         catch ( FileNotFoundException e )
         {
             // @todo display popup with error here!
             e.printStackTrace();
-            return;
         }
         catch ( Exception e )
         {
             // @todo display popup with error here!
             e.printStackTrace();
-            return;
         }
     }
 
@@ -508,15 +508,15 @@ public class PartitionFrame extends JFrame
     {
         try
         {
-            if ( mode == FilterDialog.RUN_MODE )
+            if ( mode.equals( FilterDialog.RUN_MODE ) )
             {
                 doRun( dialog.getFilter(), dialog.getScope(), dialog.getBase(), dialog.getLimit() );
             }
-            else if ( mode == FilterDialog.DEBUG_MODE )
+            else if ( mode.equals( FilterDialog.DEBUG_MODE ) )
             {
                 doDebug( dialog.getFilter(), dialog.getScope(), dialog.getBase(), dialog.getLimit() );
             }
-            else if ( mode == FilterDialog.ANNOTATE_MODE )
+            else if ( mode.equals( FilterDialog.ANNOTATE_MODE ) )
             {
                 if ( doAnnotate( dialog.getFilter() ) )
                 {
@@ -528,6 +528,8 @@ public class PartitionFrame extends JFrame
                     // allow user to make edits.
                     return;
                 }
+
+                LOG.debug( "call to annotate" );
             }
             else
             {
@@ -589,13 +591,13 @@ public class PartitionFrame extends JFrame
 
     public boolean doRun( String filter, String scope, String base, String limit ) throws Exception
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "Search attempt using filter '" + filter + "' " + "with scope '" + scope
+            LOG.debug( "Search attempt using filter '" + filter + "' " + "with scope '" + scope
                 + "' and a return limit of '" + limit + "'" );
         }
 
-        ExprNode root = null;
+        ExprNode root;
 
         try
         {
@@ -620,15 +622,15 @@ public class PartitionFrame extends JFrame
 
         SearchControls ctls = new SearchControls();
 
-        if ( scope == FilterDialog.BASE_SCOPE )
+        if ( scope.equals( FilterDialog.BASE_SCOPE ) )
         {
             ctls.setSearchScope( SearchControls.OBJECT_SCOPE );
         }
-        else if ( scope == FilterDialog.SINGLE_SCOPE )
+        else if ( scope.equals( FilterDialog.SINGLE_SCOPE ) )
         {
             ctls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         }
-        else if ( scope == FilterDialog.SUBTREE_SCOPE )
+        else if ( scope.equals( FilterDialog.SUBTREE_SCOPE ) )
         {
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         }
@@ -643,7 +645,8 @@ public class PartitionFrame extends JFrame
             limitMax = Integer.parseInt( limit );
         }
 
-        NamingEnumeration cursor = eng.search( new LdapDN( base ), AliasDerefMode.DEREF_ALWAYS, root, ctls );
+        NamingEnumeration cursor = partition
+                .getSearchEngine().search( new LdapDN( base ), AliasDerefMode.DEREF_ALWAYS, root, ctls );
         String[] cols = new String[2];
         cols[0] = "id";
         cols[1] = "dn";
@@ -690,18 +693,20 @@ public class PartitionFrame extends JFrame
 
     public void doDebug( String filter, String scope, String base, String limit )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "Search attempt using filter '" + filter + "' " + "with scope '" + scope
+            LOG.debug( "debug attempt using base '" + base + "' filter '" + filter + "' " + "with scope '" + scope
                 + "' and a return limit of '" + limit + "'" );
         }
+
+        LOG.warn( "NOT IMPLMENTED YET" );
     }
 
 
     public void selectTreeNode( Long id )
     {
         Stack<TreeNode> stack = new Stack<TreeNode>();
-        Object[] comps = null;
+        Object[] comps;
         TreeNode parent = nodes.get( id );
 
         while ( parent != null && ( parent != parent.getParent() ) )
@@ -734,7 +739,7 @@ public class PartitionFrame extends JFrame
 
     public boolean doAnnotate( String filter ) throws Exception
     {
-        ExprNode root = null;
+        ExprNode root;
 
         try
         {
@@ -759,7 +764,7 @@ public class PartitionFrame extends JFrame
         AnnotatedFilterTreeDialog treeDialog = new AnnotatedFilterTreeDialog( PartitionFrame.this, false );
         treeDialog.setFilter( filter );
 
-        eng.getOptimizer().annotate( root );
+        partition.getSearchEngine().getOptimizer().annotate( root );
         TreeNode astRoot = new ASTNode( null, root );
         TreeModel model = new DefaultTreeModel( astRoot, true );
         treeDialog.setModel( model );
@@ -776,7 +781,7 @@ public class PartitionFrame extends JFrame
      */
     public void showIndexDialog( String idxAttr ) throws Exception
     {
-        Index index = null;
+        Index index;
         boolean isSystem = partition.hasSystemIndexOn( idxAttr );
 
         if ( isSystem )
@@ -800,7 +805,7 @@ public class PartitionFrame extends JFrame
 
     public void buildIndicesMenu( BTreePartition partition )
     {
-        JMenuItem item = null;
+        JMenuItem item;
 
         ActionListener listener = new ActionListener()
         {
@@ -925,5 +930,11 @@ public class PartitionFrame extends JFrame
         {
             tree.validate();
         }
+    }
+
+
+    public void setDoCleanUp( boolean doCleanUp )
+    {
+        this.doCleanUp = doCleanUp;
     }
 }

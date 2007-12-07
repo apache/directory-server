@@ -335,7 +335,8 @@ public abstract class ServerContext implements EventContext
         throws NamingException
     {
         // setup the op context and populate with request controls
-        MoveAndRenameOperationContext opCtx = new MoveAndRenameOperationContext( oldDn, parent, newRdn, delOldDn );
+        MoveAndRenameOperationContext opCtx =
+                new MoveAndRenameOperationContext( oldDn, parent, new Rdn( newRdn ), delOldDn );
         opCtx.addRequestControls( requestControls );
         
         // execute moveAndRename operation
@@ -389,7 +390,7 @@ public abstract class ServerContext implements EventContext
     protected void doRename( LdapDN oldDn, String newRdn, boolean delOldRdn ) throws NamingException
     {
         // setup the op context and populate with request controls
-        RenameOperationContext opCtx = new RenameOperationContext( oldDn, newRdn, delOldRdn );
+        RenameOperationContext opCtx = new RenameOperationContext( oldDn, new Rdn( newRdn ), delOldRdn );
         opCtx.addRequestControls( requestControls );
         
         // execute rename operation

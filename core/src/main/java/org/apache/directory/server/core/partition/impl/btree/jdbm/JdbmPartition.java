@@ -256,7 +256,7 @@ public class JdbmPartition extends BTreePartition
 
     public final void addIndexOn( Index index ) throws NamingException
     {
-        if ( index instanceof JdbmIndex)
+        if ( index instanceof JdbmIndex )
         {
             store.addIndex( ( JdbmIndex ) index );
         }

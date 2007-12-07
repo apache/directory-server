@@ -68,9 +68,12 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
-     * Creates an empty BootstrapAttributeTypeRegistry.
-     * @param oidRegistry a numeric object identifier registry
+     * Creates an empty DefaultAttributeTypeRegistry.
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
     public DefaultAttributeTypeRegistry( OidRegistry oidRegistry )
     {
@@ -99,6 +102,11 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             oidRegistry.register( name, attributeType.getOid() );
         }
         oidRegistry.register( attributeType.getOid(), attributeType.getOid() );
+
+        if ( mapping != null )
+        {
+            addMappingFor( attributeType );
+        }
 
         registerDescendants( attributeType );
         byOid.put( attributeType.getOid(), attributeType );
@@ -236,7 +244,50 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
     {
         return byOid.values().iterator();
     }
-    
+
+
+    private void removeMappingFor( AttributeType type ) throws NamingException
+    {
+        if ( type == null )
+        {
+            return;
+        }
+        
+        MatchingRule matchingRule = type.getEquality();
+        mapping.remove( type.getOid() );
+        String[] aliases = type.getNames();
+        for ( String aliase : aliases )
+        {
+            mapping.remove( aliase );
+            mapping.remove( aliase.toLowerCase() );
+        }
+    }
+
+
+    private void addMappingFor( AttributeType type ) throws NamingException
+    {
+        MatchingRule matchingRule = type.getEquality();
+        OidNormalizer oidNormalizer;
+
+        if ( matchingRule == null )
+        {
+            LOG.debug( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
+            oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
+        }
+        else
+        {
+            oidNormalizer = new OidNormalizer( type.getOid(), matchingRule.getNormalizer() );
+        }
+
+        mapping.put( type.getOid(), oidNormalizer );
+        String[] aliases = type.getNames();
+        for ( String aliase : aliases )
+        {
+            mapping.put( aliase, oidNormalizer );
+            mapping.put( aliase.toLowerCase(), oidNormalizer );
+        }
+    }
+
     
     public Map<String,OidNormalizer> getNormalizerMapping() throws NamingException
     {
@@ -245,26 +296,7 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             mapping = new HashMap<String,OidNormalizer>( byOid.size() << 1 );
             for ( AttributeType type : byOid.values() )
             {
-                MatchingRule matchingRule = type.getEquality();
-                OidNormalizer oidNormalizer;
-
-                if ( matchingRule == null )
-                {
-                    LOG.debug( "Attribute " + type.getName() + " does not have normalizer : using NoopNormalizer" );
-                    oidNormalizer = new OidNormalizer( type.getOid(), new NoOpNormalizer() );
-                }
-                else
-                {
-                    oidNormalizer = new OidNormalizer( type.getOid(), matchingRule.getNormalizer() );
-                }
-
-                mapping.put( type.getOid(), oidNormalizer );
-                String[] aliases = type.getNames();
-                for ( String aliase : aliases )
-                {
-                    mapping.put( aliase, oidNormalizer );
-                    mapping.put( aliase.toLowerCase(), oidNormalizer );
-                }
+                addMappingFor( type );
             }
         }
         
@@ -306,7 +338,13 @@ public class DefaultAttributeTypeRegistry implements AttributeTypeRegistry
             throw new NamingException( "Looks like the arg is not a numeric OID" );
         }
 
+        if ( mapping != null )
+        {
+            removeMappingFor( byOid.get( numericOid ));
+        }
+
         byOid.remove( numericOid );
         oidToDescendantSet.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

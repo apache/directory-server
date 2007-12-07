@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -136,7 +135,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         Schema schema = getSchema( name );
         AttributeType oldAt = factory.getAttributeType( entry, targetRegistries, schema.getSchemaName() );
@@ -151,7 +150,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
         }
 
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRdn );
+        String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, schema.getSchemaName() );
@@ -170,7 +169,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
@@ -188,7 +187,7 @@ public class MetaAttributeTypeHandler extends AbstractSchemaChangeHandler
 
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRn );
+        String newOid = ( String ) newRn.getValue();
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         checkOidIsUnique( newOid );
         AttributeType at = factory.getAttributeType( targetEntry, targetRegistries, newSchema.getSchemaName() );

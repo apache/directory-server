@@ -717,8 +717,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
         LdapDN name = renameContext.getDn();
-        String newRdn = renameContext.getNewRdn();
-        
+
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
@@ -727,7 +726,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) name.clone();
         newName.remove( name.size() - 1 );
-        newName.add( parseNormalized( newRdn ).get( 0 ) );
+
+        newName.add( ( String ) renameContext.getNewRdn().getValue() );
 
         // bypass authz code if we are disabled
         if ( !enabled )
@@ -768,8 +768,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN newParentName = moveAndRenameContext.getParent();
-        String newRn = moveAndRenameContext.getNewRdn();
-        
+
         // Access the principal requesting the operation, and bypass checks if it is the admin
         Invocation invocation = InvocationStack.getInstance().peek();
         PartitionNexusProxy proxy = invocation.getProxy();
@@ -777,7 +776,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapPrincipal principal = ( ( ServerContext ) invocation.getCaller() ).getPrincipal();
         LdapDN principalDn = principal.getJndiName();
         LdapDN newName = ( LdapDN ) newParentName.clone();
-        newName.add( newRn );
+        newName.add( moveAndRenameContext.getNewRdn().getUpName() );
 
         // bypass authz code if we are disabled
         if ( !enabled )

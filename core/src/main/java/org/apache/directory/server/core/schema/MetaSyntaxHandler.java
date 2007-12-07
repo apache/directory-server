@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.Syntax;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -126,7 +125,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -142,7 +141,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
 
         Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRdn );
+        String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
@@ -164,7 +163,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
@@ -183,7 +182,7 @@ public class MetaSyntaxHandler extends AbstractSchemaChangeHandler
         Schema oldSchema = getSchema( oriChildName );
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRn );
+        String newOid = ( String ) newRn.getValue();
         checkOidIsUnique( newOid );
         
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );

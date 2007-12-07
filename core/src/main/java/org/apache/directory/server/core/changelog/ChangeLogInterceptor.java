@@ -253,7 +253,7 @@ public class ChangeLogInterceptor extends BaseInterceptor
         forward.setChangeType( ChangeType.ModDn );
         forward.setDn( opCtx.getDn().getUpName() );
         forward.setDeleteOldRdn( opCtx.getDelOldDn() );
-        forward.setNewRdn( opCtx.getNewRdn() );
+        forward.setNewRdn( opCtx.getNewRdn().getUpName() );
         forward.setNewSuperior( opCtx.getParent().getUpName() );
 
         Entry reverse = LdifUtils.reverseModifyRdn( attributes, opCtx.getParent(), opCtx.getDn(),

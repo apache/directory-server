@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultNameFormRegistry implements NameFormRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultNameFormRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultNameFormRegistry.class );
     /** maps an OID to an NameForm */
     private final Map<String,NameForm> byOid;
     /** the registry used to resolve names to OIDs */
@@ -51,10 +51,14 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
-     * Creates an empty BootstrapNameFormRegistry.
+     * Creates an empty DefaultNameFormRegistry.
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultNameFormRegistry(OidRegistry oidRegistry)
+    public DefaultNameFormRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap<String,NameForm>();
         this.oidRegistry = oidRegistry;
@@ -69,16 +73,15 @@ public class DefaultNameFormRegistry implements NameFormRegistry
     {
         if ( byOid.containsKey( nameForm.getOid() ) )
         {
-            NamingException e = new NamingException( "nameForm w/ OID " + nameForm.getOid()
+            throw new NamingException( "nameForm w/ OID " + nameForm.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         oidRegistry.register( nameForm.getName(), nameForm.getOid() );
         byOid.put( nameForm.getOid(), nameForm );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registered nameForm: " + nameForm );
+            LOG.debug( "registered nameForm: " + nameForm );
         }
     }
 
@@ -89,14 +92,13 @@ public class DefaultNameFormRegistry implements NameFormRegistry
 
         if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "nameForm w/ OID " + id + " not registered!" );
-            throw e;
+            throw new NamingException( "nameForm w/ OID " + id + " not registered!" );
         }
 
         NameForm nameForm = byOid.get( id );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "lookup with id '"+ id + "' of nameForm: " + nameForm );
+            LOG.debug( "lookup with id '"+ id + "' of nameForm: " + nameForm );
         }
         return nameForm;
     }
@@ -147,5 +149,6 @@ public class DefaultNameFormRegistry implements NameFormRegistry
         }
 
         byOid.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

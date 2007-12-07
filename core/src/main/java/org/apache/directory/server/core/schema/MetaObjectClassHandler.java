@@ -38,7 +38,6 @@ import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -123,7 +122,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         Schema schema = getSchema( name );
         ObjectClass oldOc = factory.getObjectClass( entry, targetRegistries, schema.getSchemaName() );
@@ -138,7 +137,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
         }
 
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRdn );
+        String newOid = ( String ) newRdn.getValue();
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         checkOidIsUnique( newOid );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, schema.getSchemaName() );
@@ -157,7 +156,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
@@ -175,7 +174,7 @@ public class MetaObjectClassHandler extends AbstractSchemaChangeHandler
 
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRn );
+        String newOid = ( String ) newRdn.getValue();
         checkOidIsUnique( newOid );
         targetEntry.put( new AttributeImpl( MetaSchemaConstants.M_OID_AT, newOid ) );
         ObjectClass oc = factory.getObjectClass( targetEntry, targetRegistries, newSchema.getSchemaName() );

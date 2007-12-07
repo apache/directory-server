@@ -31,10 +31,11 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.NameAlreadyBoundException;
@@ -198,10 +199,10 @@ public class OperationFactory
      * Returns a new {@link Operation} that performs "modifyRN" operation.
      * This operation is a subset of "move" operation.
      * Calling this method actually forwards the call to
-     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newParentName</tt>. 
      */
-    public Operation newModifyRn( LdapDN oldName, String newRdn, boolean deleteOldRn ) throws NamingException
+    public Operation newModifyRn( LdapDN oldName, Rdn newRdn, boolean deleteOldRn ) throws NamingException
     {
         LdapDN newParentName = ( LdapDN ) oldName.clone();
         newParentName.remove( oldName.size() - 1 );
@@ -213,12 +214,12 @@ public class OperationFactory
     /**
      * Returns a new {@link Operation} that performs "move" operation.
      * Calling this method actually forwards the call to
-     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newRdn</tt> and '<tt>true</tt>' <tt>deleteOldRn</tt>. 
      */
     public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
-        return newMove( oldName, newParentName, oldName.get( oldName.size() - 1 ), true );
+        return newMove( oldName, newParentName, oldName.getRdn(), true );
     }
 
 
@@ -227,7 +228,7 @@ public class OperationFactory
      * Please note this operation is the most fragile operation I've written
      * so it should be reviewed completely again.
      */
-    public Operation newMove( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn )
+    public Operation newMove( LdapDN oldName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn )
         throws NamingException
     {
         // Prepare to create composite operations
@@ -273,8 +274,8 @@ public class OperationFactory
                     }
                 }
                 // Add the new RDN attribute value.
-                String newRDNAttributeID = NamespaceTools.getRdnAttribute( newRdn );
-                String newRDNAttributeValue = NamespaceTools.getRdnValue( newRdn );
+                String newRDNAttributeID = newRdn.getUpType();
+                String newRDNAttributeValue = ( String ) newRdn.getUpValue();
                 Attribute newRDNAttribute = entry.get( newRDNAttributeID );
                 if ( newRDNAttribute != null )
                 {
@@ -312,6 +313,8 @@ public class OperationFactory
      * Make sure the specified <tt>newEntryName</tt> already exists.  It
      * checked {@link Constants#ENTRY_DELETED} additionally to see if the
      * entry actually exists in a {@link Partition} but maked as deleted.
+     *
+     * @param newEntryName makes sure an entry already exists.
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {

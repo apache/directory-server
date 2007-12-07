@@ -20,12 +20,13 @@
 package org.apache.directory.server.core.schema;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.DITStructureRule;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 
 /**
@@ -86,7 +87,7 @@ public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
      * org.apache.directory.shared.ldap.name.LdapDN, 
      * java.lang.String, boolean, javax.naming.directory.Attributes)
      */
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
@@ -112,7 +113,7 @@ public class MetaDitStructureRuleHandler extends AbstractSchemaChangeHandler
      * @see org.apache.directory.server.core.schema.SchemaChangeHandler#rename(
      * org.apache.directory.shared.ldap.name.LdapDN, javax.naming.directory.Attributes, java.lang.String)
      */
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         // TODO Auto-generated method stub
 

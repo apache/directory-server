@@ -40,10 +40,10 @@ import org.slf4j.LoggerFactory;
 public class DefaultObjectClassRegistry implements ObjectClassRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultObjectClassRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultObjectClassRegistry.class );
     
     /** Speedup for DEBUG mode */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** maps an OID to an ObjectClass */
     private final Map<String,ObjectClass> byOid;
@@ -56,9 +56,12 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates an empty BootstrapObjectClassRegistry.
+     * Creates an empty DefaultObjectClassRegistry.
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultObjectClassRegistry(OidRegistry oidRegistry)
+    public DefaultObjectClassRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap<String,ObjectClass>();
         this.oidRegistry = oidRegistry;
@@ -74,9 +77,8 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
     {
         if ( byOid.containsKey( objectClass.getOid() ) )
         {
-            NamingException e = new NamingException( "objectClass w/ OID " + objectClass.getOid()
+            throw new NamingException( "objectClass w/ OID " + objectClass.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         if ( objectClass.getNames() != null && objectClass.getNames().length > 0 )
@@ -92,7 +94,7 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         
         if ( IS_DEBUG )
         {
-            log.debug( "registered objectClass: " + objectClass );
+            LOG.debug( "registered objectClass: " + objectClass );
         }
     }
 
@@ -103,15 +105,14 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
 
         if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "objectClass w/ OID " + id + " not registered!" );
-            throw e;
+            throw new NamingException( "objectClass w/ OID " + id + " not registered!" );
         }
 
         ObjectClass objectClass = byOid.get( id );
         
         if ( IS_DEBUG )
         {
-            log.debug( "looked objectClass with OID '" + id + "' and got back " + objectClass );
+            LOG.debug( "looked objectClass with OID '" + id + "' and got back " + objectClass );
         }
         return objectClass;
     }
@@ -162,5 +163,6 @@ public class DefaultObjectClassRegistry implements ObjectClassRegistry
         }
 
         byOid.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

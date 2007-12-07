@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultSyntaxCheckerRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultSyntaxCheckerRegistry.class );
     /** a map by OID of SyntaxCheckers */
     private final Map<String, SyntaxChecker> byOid;
     /** maps an OID to a syntaxCheckerDescription */
@@ -54,8 +54,9 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
-     * Creates an instance of a BootstrapSyntaxRegistry.
+     * Creates an instance of a DefaultSyntaxRegistry.
      */
     public DefaultSyntaxCheckerRegistry()
     {
@@ -73,16 +74,15 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         if ( byOid.containsKey( syntaxChecker.getSyntaxOid() ) )
         {
-            NamingException e = new NamingException( "SyntaxChecker with OID " + syntaxChecker.getSyntaxOid() 
+            throw new NamingException( "SyntaxChecker with OID " + syntaxChecker.getSyntaxOid()
                 + " already registered!" );
-            throw e;
         }
 
         byOid.put( syntaxChecker.getSyntaxOid(), syntaxChecker );
         oidToDescription.put( syntaxChecker.getSyntaxOid(), syntaxCheckerDescription );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registered syntaxChecher for OID " + syntaxChecker.getSyntaxOid() );
+            LOG.debug( "registered syntaxChecher for OID " + syntaxChecker.getSyntaxOid() );
         }
     }
 
@@ -91,14 +91,13 @@ public class DefaultSyntaxCheckerRegistry implements SyntaxCheckerRegistry
     {
         if ( !byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "SyntaxChecker for OID " + oid + " not found!" );
-            throw e;
+            throw new NamingException( "SyntaxChecker for OID " + oid + " not found!" );
         }
 
         SyntaxChecker syntaxChecker = byOid.get( oid );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "looked up syntaxChecher with OID " + oid );
+            LOG.debug( "looked up syntaxChecher with OID " + oid );
         }
         return syntaxChecker;
     }

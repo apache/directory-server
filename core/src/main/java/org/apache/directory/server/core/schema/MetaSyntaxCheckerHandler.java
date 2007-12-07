@@ -45,7 +45,6 @@ import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -188,7 +187,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -202,7 +201,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
 
         Schema schema = getSchema( name );
         Attributes targetEntry = ( Attributes ) entry.clone();
-        String newOid = NamespaceTools.getRdnValue( newRdn );
+        String newOid = ( String ) newRdn.getValue();
         if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 
@@ -222,7 +221,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn, 
         Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
@@ -240,7 +239,7 @@ public class MetaSyntaxCheckerHandler extends AbstractSchemaChangeHandler
         Schema newSchema = getSchema( newParentName );
         Attributes targetEntry = ( Attributes ) entry.clone();
         
-        String newOid = NamespaceTools.getRdnValue( newRn );
+        String newOid = ( String ) newRdn.getValue();
         if ( super.targetRegistries.getSyntaxCheckerRegistry().hasSyntaxChecker( newOid ) )
         {
             throw new LdapNamingException( "Oid " + newOid + " for new schema syntaxChecker is not unique.", 

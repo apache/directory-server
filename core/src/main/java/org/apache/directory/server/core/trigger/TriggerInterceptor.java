@@ -40,6 +40,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.NormalizerMappingResolver;
 import org.apache.directory.shared.ldap.trigger.ActionTime;
 import org.apache.directory.shared.ldap.trigger.LdapOperation;
@@ -54,7 +55,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -343,7 +347,7 @@ public class TriggerInterceptor extends BaseInterceptor
     public void rename( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
         LdapDN name = renameContext.getDn();
-        String newRdn = renameContext.getNewRdn();
+        Rdn newRdn = renameContext.getNewRdn();
         boolean deleteOldRn = renameContext.getDelOldDn();
         
         // Bypass trigger handling if the service is disabled.
@@ -360,7 +364,6 @@ public class TriggerInterceptor extends BaseInterceptor
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( name.getRdn().getUpName() );
-        LdapDN newRDN = new LdapDN( newRdn );
         LdapDN oldSuperiorDN = ( LdapDN ) name.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         LdapDN newSuperiorDN = ( LdapDN ) oldSuperiorDN.clone();
@@ -369,7 +372,7 @@ public class TriggerInterceptor extends BaseInterceptor
         newDN.add( newRdn );
         
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
-            invocation, deleteOldRn, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
+            invocation, deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
         
         // Gather Trigger Specifications which apply to the entry being renamed.
         List<TriggerSpecification> triggerSpecs = new ArrayList<TriggerSpecification>();
@@ -390,7 +393,7 @@ public class TriggerInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = moveAndRenameContext.getDn();
         LdapDN parent = moveAndRenameContext.getParent();
-        String newRn = moveAndRenameContext.getNewRdn();
+        Rdn newRdn = moveAndRenameContext.getNewRdn();
         boolean deleteOldRn = moveAndRenameContext.getDelOldDn();
 
         // Bypass trigger handling if the service is disabled.
@@ -407,16 +410,15 @@ public class TriggerInterceptor extends BaseInterceptor
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
-        LdapDN newRDN = new LdapDN( newRn );
         LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         LdapDN newSuperiorDN = ( LdapDN ) parent.clone();
         LdapDN oldDN = ( LdapDN ) oriChildName.clone();
         LdapDN newDN = ( LdapDN ) parent.clone();
-        newDN.add( newRn );
+        newDN.add( newRdn.getUpName() );
 
         StoredProcedureParameterInjector injector = new ModifyDNStoredProcedureParameterInjector(
-            invocation, deleteOldRn, oldRDN, newRDN, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
+            invocation, deleteOldRn, oldRDN, newRdn, oldSuperiorDN, newSuperiorDN, oldDN, newDN );
 
         // Gather Trigger Specifications which apply to the entry being exported.
         List<TriggerSpecification> exportTriggerSpecs = new ArrayList<TriggerSpecification>();
@@ -481,7 +483,7 @@ public class TriggerInterceptor extends BaseInterceptor
         ServerLdapContext callerRootCtx = ( ServerLdapContext ) ( ( ServerLdapContext ) invocation.getCaller() ).getRootContext();
         
         LdapDN oldRDN = new LdapDN( oriChildName.getRdn().getUpName() );
-        LdapDN newRDN = new LdapDN( oriChildName.getRdn().getUpName() );
+        Rdn newRDN = new Rdn( oriChildName.getRdn().getUpName() );
         LdapDN oldSuperiorDN = ( LdapDN ) oriChildName.clone();
         oldSuperiorDN.remove( oldSuperiorDN.size() - 1 );
         LdapDN newSuperiorDN = ( LdapDN ) newParentName.clone();

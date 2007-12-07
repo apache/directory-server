@@ -45,10 +45,10 @@ import org.apache.directory.shared.ldap.util.StringTools;
 public class DefaultOidRegistry implements OidRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultOidRegistry.class );
-    
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultOidRegistry.class );
+
     /** Speedup for DEBUG mode */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** Maps OID to a name or a list of names if more than one name exists */
     private Map<String, List<String>> byOid = new HashMap<String, List<String>>();
@@ -83,7 +83,7 @@ public class DefaultOidRegistry implements OidRegistry
             
             if ( IS_DEBUG )
             {
-                log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
+                LOG.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
             
             return oid;
@@ -104,7 +104,7 @@ public class DefaultOidRegistry implements OidRegistry
         {
             if ( IS_DEBUG )
             {
-                log.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
+                LOG.debug( "looked up OID '" + oid + "' with id '" + name + "'" );
             }
 
             return oid;
@@ -112,7 +112,7 @@ public class DefaultOidRegistry implements OidRegistry
 
         NamingException fault = new NamingException( "OID for name '" + name + "' was not "
             + "found within the OID registry" );
-        log.error( fault.getMessage() );
+        LOG.error( fault.getMessage() );
         throw fault;
     }
 
@@ -142,15 +142,14 @@ public class DefaultOidRegistry implements OidRegistry
 
         if ( null == value )
         {
-            NamingException fault = new NamingException( "OID '" + oid + "' was not found within the OID registry" );
-            throw fault;
+            throw new NamingException( "OID '" + oid + "' was not found within the OID registry" );
         }
 
         String name = value.get( 0 );
         
         if ( IS_DEBUG )
         {
-            log.debug( "looked up primary name '" + name + "' with OID '" + oid + "'" );
+            LOG.debug( "looked up primary name '" + name + "' with OID '" + oid + "'" );
         }
         
         return name;
@@ -166,13 +165,12 @@ public class DefaultOidRegistry implements OidRegistry
 
         if ( null == value )
         {
-            NamingException fault = new NamingException( "OID '" + oid + "' was not found within the OID registry" );
-            throw fault;
+            throw new NamingException( "OID '" + oid + "' was not found within the OID registry" );
         }
 
         if ( IS_DEBUG )
         {
-            log.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
+            LOG.debug( "looked up names '" + value + "' for OID '" + oid + "'" );
         }
         
         return value;
@@ -220,14 +218,14 @@ public class DefaultOidRegistry implements OidRegistry
         	String message = "Swap the parameter order: the oid " + 
     		"does not start with a digit, or is not an OID!";
         	
-        	log.debug( message );
+        	LOG.debug( message );
             throw new NamingException( message );
         }
         
         if ( StringTools.isEmpty( name ) )
         {
         	String message = "The name is empty";
-        	log.error( message );
+        	LOG.error( message );
             throw new NamingException( message );
         }
 
@@ -251,7 +249,7 @@ public class DefaultOidRegistry implements OidRegistry
          *          Add new value to the list
          * 2). If we do not have a value then we just add it as a String
          */
-        List<String> value = null;
+        List<String> value;
         
         if ( !byOid.containsKey( oid ) )
         {
@@ -276,7 +274,7 @@ public class DefaultOidRegistry implements OidRegistry
         
         if ( IS_DEBUG )
         {
-            log.debug( "registed name '" + name + "' with OID: " + oid );
+            LOG.debug( "registed name '" + name + "' with OID: " + oid );
         }
     }
 

@@ -671,9 +671,7 @@ public class ReferralInterceptor extends BaseInterceptor
         LdapDN newName = ( LdapDN ) oldName.clone();
         newName.remove( oldName.size() - 1 );
 
-        LdapDN newRdnName = new LdapDN( opContext.getNewRdn() );
-        newRdnName.normalize( attrRegistry.getNormalizerMapping() );
-        newName.add( newRdnName.toNormName() );
+        newName.add( opContext.getNewRdn() );
 
         // handle a normal modify without following referrals
         if ( refval == null || refval.equals( IGNORE ) )

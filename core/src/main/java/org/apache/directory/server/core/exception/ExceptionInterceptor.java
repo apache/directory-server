@@ -445,8 +445,7 @@ public class ExceptionInterceptor extends BaseInterceptor
     {
         LdapDN oriChildName = opContext.getDn();
         LdapDN parent = opContext.getParent();
-        String newRn = opContext.getNewRdn();
-        
+
         if ( oriChildName.getNormName().equalsIgnoreCase( subschemSubentryDn.getNormName() ) )
         {
             throw new LdapOperationNotSupportedException( 
@@ -465,14 +464,13 @@ public class ExceptionInterceptor extends BaseInterceptor
 
         // check to see if target entry exists
         LdapDN target = ( LdapDN ) parent.clone();
-        target.add( newRn );
-        target.normalize( normalizerMap );
-        
+        target.add( opContext.getNewRdn() );
+
         if ( nextInterceptor.hasEntry( new EntryOperationContext( target ) ) )
         {
             // we must calculate the resolved name using the user provided Rdn value
             LdapDN upTarget = ( LdapDN ) parent.clone();
-            upTarget.add( newRn );
+            upTarget.add( opContext.getNewRdn() );
 
             LdapNameAlreadyBoundException e;
             e = new LdapNameAlreadyBoundException( "target entry " + upTarget.getUpName() + " already exists!" );

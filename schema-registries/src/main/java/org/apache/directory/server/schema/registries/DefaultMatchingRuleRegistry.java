@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultMatchingRuleRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultMatchingRuleRegistry.class );
     /** a map using an OID for the key and a MatchingRule for the value */
     private final Map<String,MatchingRule> byOid;
     /** the registry used to resolve names to OIDs */
@@ -54,11 +54,13 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
 
     
     /**
-     * Creates a BootstrapMatchingRuleRegistry using existing MatchingRulees
+     * Creates a DefaultMatchingRuleRegistry using existing MatchingRulees
      * for lookups.
-     * 
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultMatchingRuleRegistry(OidRegistry oidRegistry)
+    public DefaultMatchingRuleRegistry( OidRegistry oidRegistry )
     {
         this.oidRegistry = oidRegistry;
         this.byOid = new HashMap<String,MatchingRule>();
@@ -79,41 +81,39 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
         if ( byOid.containsKey( id ) )
         {
             MatchingRule matchingRule = byOid.get( id );
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                log.debug( "lookup with id '"+id+"' of matchingRule: " + matchingRule );
+                LOG.debug( "lookup with id '"+id+"' of matchingRule: " + matchingRule );
             }
             return matchingRule;
         }
 
-        NamingException fault = new NamingException( "Unknown MatchingRule OID " + id );
-        throw fault;
+        throw new NamingException( "Unknown MatchingRule OID " + id );
     }
 
 
     /**
-     * @see MatchingRuleRegistry#register(String, MatchingRule)
+     * @see MatchingRuleRegistry#register(MatchingRule)
      */
     public void register( MatchingRule matchingRule ) throws NamingException
     {
         if ( byOid.containsKey( matchingRule.getOid() ) )
         {
-            NamingException e = new NamingException( "matchingRule w/ OID " + matchingRule.getOid()
+            throw new NamingException( "matchingRule w/ OID " + matchingRule.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         String[] names = matchingRule.getNames();
-        for ( int ii = 0; ii < names.length; ii++ )
+        for ( String name : names )
         {
-            oidRegistry.register( names[ii], matchingRule.getOid() );
+            oidRegistry.register( name, matchingRule.getOid() );
         }
         oidRegistry.register( matchingRule.getOid(), matchingRule.getOid() );
 
         byOid.put( matchingRule.getOid(), matchingRule );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registed matchingRule: " + matchingRule);
+            LOG.debug( "registed matchingRule: " + matchingRule);
         }
     }
 
@@ -166,5 +166,6 @@ public class DefaultMatchingRuleRegistry implements MatchingRuleRegistry
         }
 
         byOid.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

@@ -318,7 +318,7 @@ public abstract class BTreePartition implements Partition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( this, searchEngine );
+        PartitionViewer viewer = new PartitionViewer( this );
         viewer.execute();
     }
 

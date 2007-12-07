@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
 public class DefaultSyntaxRegistry implements SyntaxRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultSyntaxRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultSyntaxRegistry.class );
     
     /** Speedup for DEBUG mode */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
     
     /** a map of entries using an OID for the key and a Syntax for the value */
     private final Map<String,Syntax> byOid;
@@ -57,9 +57,12 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates a BootstrapSyntaxRegistry.
+     * Creates a DefaultSyntaxRegistry.
+     *
+     * @param registry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultSyntaxRegistry(OidRegistry registry)
+    public DefaultSyntaxRegistry( OidRegistry registry )
     {
         this.oidRegistry = registry;
         this.byOid = new HashMap<String,Syntax>();
@@ -81,14 +84,13 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
             
             if ( IS_DEBUG )
             {
-                log.debug( "looked up using id '" + id + "': " + syntax );
+                LOG.debug( "looked up using id '" + id + "': " + syntax );
             }
             
             return syntax;
         }
 
-        NamingException fault = new NamingException( "Unknown syntax OID " + id );
-        throw fault;
+        throw new NamingException( "Unknown syntax OID " + id );
     }
 
 
@@ -96,9 +98,8 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
     {
         if ( byOid.containsKey( syntax.getOid() ) )
         {
-            NamingException e = new NamingException( "syntax w/ OID " + syntax.getOid()
+            throw new NamingException( "syntax w/ OID " + syntax.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         if ( syntax.getName() != null )
@@ -114,7 +115,7 @@ public class DefaultSyntaxRegistry implements SyntaxRegistry
         
         if ( IS_DEBUG )
         {
-            log.debug( "registered syntax: " + syntax );
+            LOG.debug( "registered syntax: " + syntax );
         }
     }
 

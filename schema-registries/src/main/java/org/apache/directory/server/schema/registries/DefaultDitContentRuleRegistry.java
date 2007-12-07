@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultDitContentRuleRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultDitContentRuleRegistry.class );
     /** maps an OID to an DITContentRule */
     private final Map<String,DITContentRule> byOid;
     /** the registry used to resolve names to OIDs */
@@ -52,9 +52,12 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     // ------------------------------------------------------------------------
 
     /**
-     * Creates an empty BootstrapDitContentRuleRegistry.
+     * Creates an empty DefaultDitContentRuleRegistry.
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultDitContentRuleRegistry(OidRegistry oidRegistry)
+    public DefaultDitContentRuleRegistry( OidRegistry oidRegistry )
     {
         this.byOid = new HashMap<String,DITContentRule>();
         this.oidRegistry = oidRegistry;
@@ -70,16 +73,15 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
     {
         if ( byOid.containsKey( dITContentRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
+            throw new NamingException( "dITContentRule w/ OID " + dITContentRule.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         oidRegistry.register( dITContentRule.getName(), dITContentRule.getOid() );
         byOid.put( dITContentRule.getOid(), dITContentRule );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registed dITContentRule: " + dITContentRule );
+            LOG.debug( "registed dITContentRule: " + dITContentRule );
         }
     }
 
@@ -90,14 +92,13 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
 
         if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
-            throw e;
+            throw new NamingException( "dITContentRule w/ OID " + id + " not registered!" );
         }
 
         DITContentRule dITContentRule = byOid.get( id );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "lookup with id '" + id + "' of dITContentRule: " + dITContentRule );
+            LOG.debug( "lookup with id '" + id + "' of dITContentRule: " + dITContentRule );
         }
         return dITContentRule;
     }
@@ -148,5 +149,6 @@ public class DefaultDitContentRuleRegistry implements DITContentRuleRegistry
         }
 
         byOid.remove( numericOid );
+        oidRegistry.unregister( numericOid );
     }
 }

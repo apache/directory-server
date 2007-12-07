@@ -22,6 +22,7 @@ package org.apache.directory.server.core.schema;
 
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -41,7 +42,7 @@ public interface SchemaChangeHandler
     
     void delete( LdapDN name, Attributes entry, boolean cascaded ) throws NamingException;
     
-    void rename( LdapDN name, Attributes entry, String newRdn, boolean cascaded ) throws NamingException;
+    void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascaded ) throws NamingException;
     
     void modify( LdapDN name, int modOp, Attributes mods, Attributes entry, Attributes targetEntry, boolean cascaded ) 
         throws NamingException;
@@ -49,7 +50,7 @@ public interface SchemaChangeHandler
     void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry, Attributes targetEntry, boolean cascaded )
         throws NamingException;
     
-    void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, Attributes entry, 
+    void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, Attributes entry,
         boolean cascaded ) throws NamingException;
     
     void replace( LdapDN oriChildName, LdapDN newParentName, Attributes entry, boolean cascaded ) throws NamingException;

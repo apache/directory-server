@@ -44,7 +44,6 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 
 /**
@@ -179,7 +178,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
     
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
         String oldOid = getOid( entry );
 
@@ -191,7 +190,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = NamespaceTools.getRdnValue( newRdn );
+        String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
         Schema schema = getSchema( name );
         
@@ -206,7 +205,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
     }
 
 
-    public void move( LdapDN oriChildName, LdapDN newParentName, String newRn, boolean deleteOldRn, 
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn,
         Attributes entry, boolean cascade ) throws NamingException
     {
         checkNewParent( newParentName );
@@ -220,7 +219,7 @@ public class MetaComparatorHandler extends AbstractSchemaChangeHandler
                 ResultCodeEnum.UNWILLING_TO_PERFORM );
         }
 
-        String oid = NamespaceTools.getRdnValue( newRn );
+        String oid = ( String ) newRdn.getValue();
         checkOidIsUniqueForComparator( oid );
         
         Schema oldSchema = getSchema( oriChildName );

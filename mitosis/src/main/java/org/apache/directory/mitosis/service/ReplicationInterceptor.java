@@ -407,7 +407,9 @@ public class ReplicationInterceptor extends BaseInterceptor
     @Override
     public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameOpContext ) throws NamingException
     {
-        Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(), moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(), moveAndRenameOpContext.getDelOldDn() );
+        Operation op = operationFactory.newMove( moveAndRenameOpContext.getDn(),
+                moveAndRenameOpContext.getParent(), moveAndRenameOpContext.getNewRdn(),
+                moveAndRenameOpContext.getDelOldDn() );
         op.execute( nexus, store, attrRegistry );
     }
 
