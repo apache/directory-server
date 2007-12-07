@@ -93,7 +93,7 @@ public class AttributeUtils
      * @param value2 The second value
      * @return true if both value are null or if they are equal.
      */
-    public final static boolean equals( Object value1, Object value2 )
+    public static final boolean equals( Object value1, Object value2 )
     {
         if ( value1 == value2 )
         {
@@ -116,7 +116,8 @@ public class AttributeUtils
             return value1.equals( value2 );
         }
     }
-    
+
+
     /**
      * Clone the value. An attribute value is supposed to be either a String
      * or a byte array. If it's a String, then we just return it ( as String
@@ -126,7 +127,7 @@ public class AttributeUtils
      * @param value The value to clone
      * @return The cloned value
      */
-    public final static Object cloneValue( Object value )
+    public static Object cloneValue( Object value )
     {
         // First copy the value
         Object newValue = null;
@@ -143,6 +144,7 @@ public class AttributeUtils
         return newValue;
     }
 
+
     /**
      * Switch from a BasicAttribute to a AttributeImpl. This is
      * necessary to allow cloning to be correctly handled.
@@ -150,7 +152,7 @@ public class AttributeUtils
      * @param attribute The attribute to transform
      * @return A instance of AttributeImpl
      */
-    public final static Attribute toAttributeImpl( Attribute attribute )
+    public static final Attribute toAttributeImpl( Attribute attribute )
     {
         if ( attribute instanceof AttributeImpl )
         {
@@ -179,7 +181,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Switch from a BasicAttributes to a AttributesImpl. This is
      * necessary to allow cloning to be correctly handled.
@@ -187,7 +190,7 @@ public class AttributeUtils
      * @param attributes The attributes to transform
      * @return A instance of AttributesImpl
      */
-    public final static Attributes toAttributesImpl( Attributes attributes )
+    public static final Attributes toAttributesImpl( Attributes attributes )
     {
         if ( attributes instanceof AttributesImpl )
         {
@@ -218,7 +221,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Utility method to extract an attribute from Attributes object using
      * all combinationos of the name including aliases.
@@ -227,7 +231,7 @@ public class AttributeUtils
      * @param type the attribute type specification
      * @return an Attribute with matching the attributeType spec or null
      */
-    public final static Attribute getAttribute( Attributes attrs, AttributeType type )
+    public static final Attribute getAttribute( Attributes attrs, AttributeType type )
     {
         // check if the attribute's OID is used
         Attribute attr = attrs.get( type.getOid() );
@@ -270,7 +274,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public final static ModificationItem getModificationItem( ModificationItem[] mods, AttributeType type )
+    public static final ModificationItem getModificationItem( ModificationItem[] mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -316,7 +320,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public final static ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
+    public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -362,7 +366,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( ModificationItem[] mods, AttributeType type )
+    public static final Attribute getAttribute( ModificationItem[] mods, AttributeType type )
     {
         ModificationItem mod = getModificationItem( mods, type );
         
@@ -382,7 +386,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( List<ModificationItemImpl> mods, AttributeType type )
+    public static Attribute getAttribute( List<ModificationItemImpl> mods, AttributeType type )
     {
         ModificationItem mod = getModificationItem( mods, type );
         
@@ -404,7 +408,7 @@ public class AttributeUtils
      * @return <code>true</code> if the value exists in the attribute</code>
      * @throws NamingException If something went wrong while accessing the data
      */
-    public final static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    public static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
         if ( attr.contains( compared ) )
@@ -517,6 +521,7 @@ public class AttributeUtils
         return false;
     }
 
+
     /**
      * Check if an attribute contains a value. The test is case insensitive,
      * and the value is supposed to be a String. If the value is a byte[],
@@ -527,7 +532,7 @@ public class AttributeUtils
      * @return true if the value is present in the attribute
      * @throws NamingException
      */
-    public final static boolean containsValueCaseIgnore( Attribute attr, Object value )
+    public static boolean containsValueCaseIgnore( Attribute attr, Object value )
     {
         // quick bypass test
         if ( attr.contains( value ) )
@@ -758,6 +763,7 @@ public class AttributeUtils
         return attr;
     }
 
+
     /**
      * Check if the attributes is a BasicAttributes, and if so, switch
      * the case sensitivity to false to avoid tricky problems in the server.
@@ -867,6 +873,7 @@ public class AttributeUtils
         return sb.toString();
     }
 
+
     /**
      * Return a string representing the attribute
      * 
@@ -878,6 +885,7 @@ public class AttributeUtils
     {
         return toString( "", attribute );
     }
+
 
     /**
      * Return a string representing the attributes with tabs in front of the
@@ -892,7 +900,6 @@ public class AttributeUtils
     public static String toString( String tabs, Attributes attributes )
     {
         StringBuffer sb = new StringBuffer();
-
         sb.append( tabs ).append( "Attributes\n" );
 
         if ( attributes != null )
@@ -902,14 +909,14 @@ public class AttributeUtils
             while ( attributesIterator.hasMoreElements() )
             {
                 Attribute attribute = ( Attribute ) attributesIterator.nextElement();
-    
                 sb.append( tabs ).append( attribute.toString() );
             }
         }
         
         return sb.toString();
     }
-    
+
+
     /**
      * Parse attribute's options :
      * 
@@ -938,7 +945,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Parse a number :
      * 
@@ -1030,7 +1038,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Parse an attribute. The grammar is :
      * attributedescription = attributetype options
@@ -1269,5 +1278,128 @@ public class AttributeUtils
 
                 break;
         }
+    }
+
+
+    /**
+     * Check if an attribute contains a specific value and remove it using the associated
+     * matchingRule for the attribute type supplied.
+     *
+     * @param attr the attribute we are searching in
+     * @param compared the object we are looking for
+     * @param type the attribute type
+     * @return the value removed from the attribute, otherwise null
+     * @throws NamingException if something went wrong while removing the value
+     */
+    public static Object removeValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    {
+        // quick bypass test
+        if ( attr.contains( compared ) )
+        {
+            return attr.remove( compared );
+        }
+
+        MatchingRule matchingRule = type.getEquality();
+        Normalizer normalizer;
+
+        if ( matchingRule != null )
+        {
+            normalizer = type.getEquality().getNormalizer();
+        }
+        else
+        {
+            normalizer = new NoOpNormalizer();
+        }
+
+        if ( type.getSyntax().isHumanReadable() )
+        {
+            String comparedStr = ( String ) normalizer.normalize( compared );
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            {
+                String value = ( String ) values.nextElement();
+                if ( comparedStr.equals( normalizer.normalize( value ) ) )
+                {
+                    return attr.remove( value );
+                }
+            }
+        }
+        else
+        {
+            byte[] comparedBytes = null;
+
+            if ( compared instanceof String )
+            {
+                if ( ( ( String ) compared ).length() < 3 )
+                {
+                    return null;
+                }
+
+                // Tansform the String to a byte array
+                int state = 1;
+                comparedBytes = new byte[( ( String ) compared ).length() / 3];
+                int pos = 0;
+
+                for ( char c:((String)compared).toCharArray() )
+                {
+                    switch ( state )
+                    {
+                        case 1 :
+                            if ( c != '\\' )
+                            {
+                                return null;
+                            }
+
+                            state++;
+                            break;
+
+                        case 2 :
+                            int high = StringTools.getHexValue( c );
+
+                            if ( high == -1 )
+                            {
+                                return null;
+                            }
+
+                            comparedBytes[pos] = (byte)(high << 4);
+
+                            state++;
+                            break;
+
+                        case 3 :
+                            int low = StringTools.getHexValue( c );
+
+                            if ( low == -1 )
+                            {
+                                return null;
+                            }
+
+                            comparedBytes[pos] += (byte)low;
+                            pos++;
+
+                            state = 1;
+                    }
+                }
+            }
+            else
+            {
+                comparedBytes = ( byte[] ) compared;
+            }
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            {
+                Object value = values.nextElement();
+
+                if ( value instanceof byte[] )
+                {
+                    if ( ArrayUtils.isEquals( comparedBytes, value ) )
+                    {
+                        return attr.remove( value );
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

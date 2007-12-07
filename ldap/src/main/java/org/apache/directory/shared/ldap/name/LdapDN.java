@@ -1563,8 +1563,7 @@ public class LdapDN implements Name
      * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
-    public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
-        NamingException
+    public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws NamingException
     {
         if ( ( dn == null ) || ( dn.size() == 0 ) || ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
@@ -1606,7 +1605,7 @@ public class LdapDN implements Name
      * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
-    public LdapDN normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
+    public LdapDN normalize( Map<String, OidNormalizer> oidsMap ) throws NamingException
     {
         if ( ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
