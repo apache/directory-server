@@ -43,4 +43,12 @@ public interface Value<T>
      * @param wrapped the value to set. Should be either a String, URI, or a byte[]
      */
     void set( T wrapped );
+    
+    /**
+     * Check if the contained value is null or not
+     * 
+     * @return <code>true</code> if the inner value is null.
+     */
+    boolean isNull();
+    
 }

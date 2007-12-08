@@ -29,4 +29,21 @@ public class ServerDNConstants
 {
 	public static final String ADMINISTRATORS_GROUP_DN = "cn=Administrators,ou=groups,ou=system";
 
+    public static final String SYSTEM_DN = "ou=system";
+    
+    /** the default user principal or DN */
+    public final static String ADMIN_SYSTEM_DN = "uid=admin,ou=system";
+    
+    /** the DN for the global schema subentry */
+    public final static String SCHEMA_DN = "cn=schema";
+    
+    /** the normalized user principal or DN */
+    public final static String ADMIN_SYSTEM_DN_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
+    
+    /** the base dn under which all users reside */
+    public final static String USERS_SYSTEM_DN = "ou=users,ou=system";
+    
+    /** the base dn under which all groups reside */
+    public final static String GROUPS_SYSTEM_DN = "ou=groups,ou=system";
+
 }

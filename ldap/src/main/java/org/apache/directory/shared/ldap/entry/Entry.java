@@ -26,7 +26,13 @@ import java.util.Iterator;
 
 
 /**
- * Document me!
+ * This interface represent a LDAP entry. An LDAP entry contains :
+ * - A distinguished name (DN)
+ * - A list of attributes
+ * 
+ * The available methods on this object are described in this interface.
+ * 
+ * This interface is used by the serverEntry and clientEntry interfaces.
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$

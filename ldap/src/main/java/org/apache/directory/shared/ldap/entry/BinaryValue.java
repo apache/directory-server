@@ -58,13 +58,7 @@ public class BinaryValue implements Value<byte[]>
      */
     public BinaryValue( byte[] wrapped )
     {
-        if ( wrapped != null )
-        {
-            this.wrapped = new byte[ wrapped.length ];
-            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
-        } else {
-            this.wrapped = null;
-        }
+        set( wrapped );
     }
 
 
@@ -89,7 +83,9 @@ public class BinaryValue implements Value<byte[]>
 
 
     /**
-     * Returns the wrapped binary value
+     * Returns the wrapped binary value. The value
+     * is copied, so any modification in the caller
+     * won't impact the local value.
      */
     public byte[] get()
     {
@@ -103,7 +99,27 @@ public class BinaryValue implements Value<byte[]>
         return copy;
     }
 
+    
+    /**
+     * Returns the wrapped binary value.
+     * 
+     * Warning ! The value is not copied !!!
+     */
+    protected byte[] getUnsafe()
+    {
+        return wrapped;
+    }
 
+    
+    /**
+     * Returns <code>true</code> if the wrapper contains no value.
+     */
+    public boolean isNull()
+    {
+        return wrapped == null; 
+    }
+    
+    
     /**
      * Sets this value's wrapped value to a copy of the src array.
      *
@@ -113,9 +129,10 @@ public class BinaryValue implements Value<byte[]>
     {
         if ( wrapped != null )
         {
-            this.wrapped = new byte[ wrapped.length ];
-            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
-        } else {
+            this.wrapped = Arrays.copyOf( wrapped, wrapped.length );
+        }
+        else
+        {
             this.wrapped = null;
         }
     }
@@ -132,8 +149,7 @@ public class BinaryValue implements Value<byte[]>
         
         if ( wrapped != null )
         {
-            cloned.wrapped = new byte[wrapped.length];
-            System.arraycopy( wrapped, 0, cloned.wrapped, 0, wrapped.length );
+            cloned.wrapped = Arrays.copyOf(  wrapped, wrapped.length );
         }
         
         return cloned;
@@ -167,9 +183,7 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
-        // no inspection SimplifiableIfStatement
-        if ( ( wrapped == null ) && ( binaryValue.wrapped != null ) ||
-             ( wrapped != null ) && ( binaryValue.wrapped == null ) )
+        if ( wrapped != binaryValue.wrapped  )
         {
             return false;
         }

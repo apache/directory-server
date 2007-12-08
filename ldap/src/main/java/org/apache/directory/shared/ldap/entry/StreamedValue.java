@@ -91,6 +91,12 @@ public class StreamedValue implements Value<URI>
     {
         return wrapped;
     }
+    
+    
+    public boolean isNull()
+    {
+        return wrapped == null;
+    }
 
 
     public void set( URI wrapped )
