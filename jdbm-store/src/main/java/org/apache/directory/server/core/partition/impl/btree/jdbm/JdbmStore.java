@@ -1602,7 +1602,7 @@ public class JdbmStore
         // add the new Rdn value only if it is not already present in the entry
         if ( ! AttributeUtils.containsValue( rdnAttr, newRdnValue, newRdnAttrType ) )
         {
-            rdnAttr.add( newRdnValue );
+            rdnAttr.add( newRdn.getUpValue() );
         }
 
         entry.put( rdnAttr );
