@@ -19,15 +19,13 @@
 package org.apache.directory.server.core.integ;
 
 
+import static org.apache.directory.server.core.integ.state.TestServiceContext.*;
+import org.junit.internal.requests.IgnoredClassRunner;
 import org.junit.internal.runners.InitializationError;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
-
-import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
-import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -62,6 +60,10 @@ public class CiSuite extends Suite
             {
                 CiRunner cir = ( CiRunner) runner;
                 cir.setSuite( this );
+            }
+            else if ( runner instanceof IgnoredClassRunner )
+            {
+                // allow this one
             }
             else
             {
