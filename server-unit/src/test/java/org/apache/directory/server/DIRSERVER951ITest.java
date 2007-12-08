@@ -21,7 +21,6 @@ package org.apache.directory.server;
 
 
 import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -77,7 +76,7 @@ public class DIRSERVER951ITest extends AbstractServerTest
         // @TODO need to make this configurable for the system partition
         systemCfg.setCacheSize( 500 );
 
-        systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        systemCfg.setSuffix( "ou=system" );
 
         // Add indexed attributes for system partition
         Set<Index> indexedAttrs = new HashSet<Index>();

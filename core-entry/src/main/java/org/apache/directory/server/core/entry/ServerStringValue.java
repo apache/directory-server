@@ -45,7 +45,6 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
     /** used to dynamically lookup the attributeType when/if deserializing */
-    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private final String oid;
 
     /** reference to the attributeType which is not serialized */
@@ -146,7 +145,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      */
     public String getNormalizedValue() throws NamingException
     {
-        if ( get() == null )
+        if ( isNull() )
         {
             return null;
         }
@@ -197,28 +196,24 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      */
     public int compareTo( ServerValue<String> value )
     {
-        if ( value == null && get() == null )
+        if ( isNull() )
         {
-            return 0;
-        }
-
-        if ( value != null && get() == null )
-        {
-            if ( value.get() == null )
+            if ( ( value == null ) || value.isNull() )
             {
                 return 0;
             }
-            return -1;
+            else
+            {
+                return -1;
+            }
         }
-
-        if ( value == null )
+        else if ( ( value == null ) || value.isNull() )
         {
             return 1;
         }
-
+        
         try
         {
-            //noinspection unchecked
             return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
         }
         catch ( NamingException e )
@@ -270,7 +265,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     {
         // return zero if the value is null so only one null value can be
         // stored in an attribute - the binary version does the same 
-        if ( get() == null )
+        if ( isNull() )
         {
             return 0;
         }
@@ -314,14 +309,13 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         }
 
         ServerStringValue other = ( ServerStringValue ) obj;
-        if ( get() == null && other.get() == null )
+        
+        if ( isNull() && other.isNull() )
         {
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
-        if ( get() == null && other.get() != null ||
-             get() != null && other.get() == null )
+        if ( isNull() != other.isNull() )
         {
             return false;
         }

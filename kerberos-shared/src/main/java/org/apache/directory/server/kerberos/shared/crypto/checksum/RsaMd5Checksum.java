@@ -43,7 +43,7 @@ class RsaMd5Checksum implements ChecksumEngine
     {
         try
         {
-            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5 );
+            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5.getName() );
             return digester.digest( data );
         }
         catch ( NoSuchAlgorithmException nsae )

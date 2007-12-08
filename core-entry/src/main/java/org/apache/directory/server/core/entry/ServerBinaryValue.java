@@ -46,7 +46,6 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
     /** used to dynamically lookup the attributeType when/if deserializing */
-    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private final String oid;
 
     /** reference to the attributeType which is not serialized */
@@ -118,9 +117,14 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
     {
         // Why should we invalidate the normalized value if it's we're setting the
         // wrapper to it's current value?
-        if ( Arrays.equals( wrapped, get() ) )
+        byte[] value = getUnsafe();
+        
+        if ( value != null )
         {
-            return;
+            if ( Arrays.equals( wrapped, value ) )
+            {
+                return;
+            }
         }
 
         normalizedValue = null;
@@ -146,7 +150,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
      */
     public byte[] getNormalizedValue() throws NamingException
     {
-        if ( get() == null )
+        if ( isNull() )
         {
             return null;
         }
@@ -185,7 +189,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
             return valid;
         }
 
-        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( get() );
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getUnsafe() );
         return valid;
     }
 
@@ -197,33 +201,32 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
      */
     public int compareTo( ServerValue<byte[]> value )
     {
-        if ( value == null && get() == null )
+        if ( isNull() )
         {
-            return 0;
-        }
-
-        if ( value != null && get() == null )
-        {
-            if ( value.get() == null )
+            if ( ( value == null ) || value.isNull() )
             {
                 return 0;
             }
-            return -1;
+            else
+            {
+                return -1;
+            }
         }
-
-        if ( value == null )
+        else
         {
-            return 1;
+            if ( ( value == null ) || value.isNull() ) 
+            {
+                return 1;
+            }
         }
-
+        
         try
         {
-            //noinspection unchecked
             return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
         }
         catch ( NamingException e )
         {
-            String msg = "Failed to compare normalized values for " + Arrays.toString( get() )
+            String msg = "Failed to compare normalized values for " + Arrays.toString( getUnsafe() )
                     + " and " + Arrays.toString( value.get() );
             LOG.error( msg, e );
             throw new IllegalStateException( msg, e );
@@ -271,7 +274,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
     {
         // return zero if the value is null so only one null value can be
         // stored in an attribute - the string version does the same
-        if ( get() == null )
+        if ( isNull() )
         {
             return 0;
         }
@@ -315,14 +318,13 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
         }
 
         ServerBinaryValue other = ( ServerBinaryValue ) obj;
-        if ( get() == null && other.get() == null )
+        
+        if ( isNull() && other.isNull() )
         {
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
-        if ( get() == null && other.get() != null ||
-             get() != null && other.get() == null )
+        if ( isNull() != other.isNull() )
         {
             return false;
         }
@@ -340,7 +342,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
                     + toString() + " and " + other.toString() , e );
 
             // recover by comparing non-normalized values
-            return Arrays.equals( get(), other.get() );
+            return Arrays.equals( getUnsafe(), other.getUnsafe() );
         }
     }
 

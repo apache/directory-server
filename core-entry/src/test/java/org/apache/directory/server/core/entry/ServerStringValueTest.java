@@ -1,10 +1,37 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
 package org.apache.directory.server.core.entry;
 
 
-import junit.framework.TestCase;
-import org.apache.directory.shared.ldap.schema.*;
+import org.apache.directory.shared.ldap.schema.AbstractAttributeType;
+import org.apache.directory.shared.ldap.schema.AbstractMatchingRule;
+import org.apache.directory.shared.ldap.schema.AbstractSyntax;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.ByteArrayComparator;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
+import org.apache.directory.shared.ldap.schema.Normalizer;
+import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.AcceptAllSyntaxChecker;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxChecker;
+import org.junit.Test;
 
 import javax.naming.NamingException;
 import javax.naming.directory.InvalidAttributeValueException;
@@ -12,6 +39,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 
 /**
@@ -27,13 +58,14 @@ import java.util.HashSet;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class ServerStringValueTest extends TestCase
+public class ServerStringValueTest
 {
     private AttributeType getCaseIgnoringAttributeNoNumbersType()
     {
         S s = new S( "1.1.1.1", true );
 
-        s.setSyntaxChecker( new SyntaxChecker(){
+        s.setSyntaxChecker( new SyntaxChecker()
+        {
             public String getSyntaxOid()
             {
                 return "1.1.1.1";
@@ -46,9 +78,9 @@ public class ServerStringValueTest extends TestCase
                 }
 
                 String strval = ( String ) value;
-                for ( int ii = 0; ii < strval.length(); ii++ )
+                for ( char c:strval.toCharArray() )
                 {
-                    if ( Character.isDigit( strval.charAt( ii ) ) )
+                    if ( Character.isDigit( c ) )
                     {
                         return false;
                     }
@@ -77,13 +109,13 @@ public class ServerStringValueTest extends TestCase
                 }
 
                 //noinspection ConstantConditions
-                if ( o1 == null && o2 != null )
+                if ( ( o1 == null ) && ( o2 != null ) )
                 {
                     return -1;
                 }
 
                 //noinspection ConstantConditions
-                if ( o1 != null && o2 == null )
+                if ( ( o1 != null ) && ( o2 == null ) )
                 {
                     return 1;
                 }
@@ -93,13 +125,25 @@ public class ServerStringValueTest extends TestCase
 
             int getValue( String val )
             {
-                if ( val.equals( "LOW" ) ) return 0;
-                if ( val.equals( "MEDIUM" ) ) return 1;
-                if ( val.equals( "HIGH" ) ) return 2;
+                if ( val.equals( "LOW" ) ) 
+                {
+                    return 0;
+                }
+                else if ( val.equals( "MEDIUM" ) ) 
+                {
+                    return 1;
+                }
+                else if ( val.equals( "HIGH" ) ) 
+                {
+                    return 2;
+                }
+                
                 throw new IllegalArgumentException( "Not a valid value" );
             }
         };
-        mr.normalizer = new Normalizer(){
+        
+        mr.normalizer = new Normalizer()
+        {
 
             public Object normalize( Object value ) throws NamingException
             {
@@ -122,7 +166,7 @@ public class ServerStringValueTest extends TestCase
      * Tests to make sure the hashCode method is working properly.
      * @throws Exception on errors
      */
-    public void testHashCodeValidEquals() throws Exception
+    @Test public void testHashCodeValidEquals() throws Exception
     {
         AttributeType at = getCaseIgnoringAttributeNoNumbersType();
         ServerStringValue v0 = new ServerStringValue( at, "Alex" );
@@ -156,7 +200,7 @@ public class ServerStringValueTest extends TestCase
      *
      * @throws Exception on errors
      */
-    public void testConstrainedString() throws Exception
+    @Test public void testConstrainedString() throws Exception
     {
         S s = new S( "1.1.1.1", true );
             
@@ -307,7 +351,7 @@ public class ServerStringValueTest extends TestCase
      * is still OK.
      * @throws Exception on errors
      */
-    public void testAcceptAllNoNormalization() throws Exception
+    @Test public void testAcceptAllNoNormalization() throws Exception
     {
         S s = new S( "1.1.1.1", false );
         s.setSyntaxChecker( new AcceptAllSyntaxChecker( "1.1.1.1" ) );
@@ -362,7 +406,7 @@ public class ServerStringValueTest extends TestCase
         list.add( v2 );
         list.add( v4 );
 
-        Comparator c = new Comparator<ServerStringValue>()
+        Comparator<ServerStringValue> c = new Comparator<ServerStringValue>()
         {
             public int compare( ServerStringValue o1, ServerStringValue o2 )
             {
@@ -396,7 +440,6 @@ public class ServerStringValueTest extends TestCase
 
                 try
                 {
-                    //noinspection unchecked
                     return mr.getComparator().compare( b1, b2 );
                 }
                 catch ( Exception e )
@@ -405,7 +448,7 @@ public class ServerStringValueTest extends TestCase
                 }
             }
         };
-        //noinspection unchecked
+
         Collections.sort( list, c );
 
         assertTrue( "since v4 equals v5 and has no value either could be at index 0 & 1", list.get( 0 ).equals( v4 ) );

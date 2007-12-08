@@ -78,11 +78,9 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
     private static final Logger LOG = LoggerFactory.getLogger( ServerStreamedValue.class );
 
     // use this to lookup the attributeType when deserializing
-    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private final String oid;
 
     // do not serialize the schema entity graph associated with the type
-    @SuppressWarnings ( { "UnusedDeclaration", "FieldCanBeLocal" } )
     private transient AttributeType attributeType;
 
 
@@ -241,7 +239,6 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
             return true;
         }
 
-        //noinspection RedundantIfStatement
         if ( this.attributeType.isDescentantOf( attributeType ) )
         {
             return true;

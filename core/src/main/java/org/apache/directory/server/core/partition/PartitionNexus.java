@@ -38,6 +38,7 @@ import org.apache.directory.server.core.interceptor.context.GetSuffixOperationCo
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -55,7 +56,7 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 public abstract class PartitionNexus implements Partition
 {
     /** the default user principal or DN */
-    public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
+    //public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
     
     /** the DN for the global schema subentry */
     public final static String GLOBAL_SCHEMA_SUBENTRY_DN = "cn=schema";
@@ -76,15 +77,6 @@ public abstract class PartitionNexus implements Partition
     public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
 
     /**
-     * System partition suffix constant.  Should be kept down to a single Dn name 
-     * component or the default constructor will have to parse it instead of 
-     * building the name.  Note that what ever the SUFFIX equals it should be 
-     * both the normalized and the user provided form.
-     */
-    public static final String SYSTEM_PARTITION_SUFFIX = "ou=system";
-
-
-    /**
      * Gets the DN for the admin user.
      * 
      * @return the admin user DN
@@ -95,7 +87,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            adminDn = new LdapDN( ADMIN_PRINCIPAL );
+            adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         }
         catch ( NamingException e )
         {

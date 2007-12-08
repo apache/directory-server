@@ -25,6 +25,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -320,7 +321,7 @@ public class SchemaService
 
         // Add the creatorsName
         attr = new AttributeImpl( SchemaConstants.CREATORS_NAME_AT );
-        attr.add( PartitionNexus.ADMIN_PRINCIPAL );
+        attr.add( ServerDNConstants.ADMIN_SYSTEM_DN );
         attrs.put( attr );
 
         // Add the modifyTimestamp

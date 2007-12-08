@@ -238,7 +238,7 @@ public class BasicServerAttribute implements ServerAttribute
             return false;
         }
 
-        for ( ServerValue value : values )
+        for ( ServerValue<?> value : values )
         {
             if ( ! value.isValid() )
             {

@@ -84,7 +84,7 @@ public class NegationOperatorITest extends AbstractServerTest
             // @TODO need to make this configurable for the system partition
             system.setCacheSize( 500 );
 
-            system.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+            system.setSuffix( "ou=system" );
 
             // Add indexed attributes for system partition
             Set<Index> indexedAttrs = new HashSet<Index>();
@@ -99,10 +99,10 @@ public class NegationOperatorITest extends AbstractServerTest
             objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( objectClassAttr );
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, "uid=admin, ou=system" );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-                NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
+            systemEntry.put( NamespaceTools.getRdnAttribute( "ou=system" ),
+                NamespaceTools.getRdnValue( "ou=system" ) );
             system.setContextEntry( systemEntry );
 
             directoryService.setSystemPartition( system );

@@ -31,6 +31,7 @@ import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.filter.*;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
@@ -570,7 +571,7 @@ public class SchemaPartitionDao
             new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) ) );
         
         mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
-            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL ) ) );
+            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
         
         mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
             new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );

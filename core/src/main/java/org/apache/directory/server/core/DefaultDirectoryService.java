@@ -1150,7 +1150,7 @@ public class DefaultDirectoryService implements  DirectoryService
         // Warn if the default password is not changed.
         boolean needToChangeAdminPassword = false;
 
-        LdapDN adminDn = new LdapDN( PartitionNexus.ADMIN_PRINCIPAL );
+        LdapDN adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
         
         Attributes adminEntry = partitionNexus.lookup( new LookupOperationContext( adminDn ) );

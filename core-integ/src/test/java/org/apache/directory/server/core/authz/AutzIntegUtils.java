@@ -27,6 +27,7 @@ import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemC
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -111,7 +112,7 @@ public class AutzIntegUtils
         Hashtable<String,Object> env = ( Hashtable<String,Object> ) sysRoot.getEnvironment().clone();
         env.put( DirContext.PROVIDER_URL, dn );
         env.put( DirContext.SECURITY_AUTHENTICATION, "simple" );
-        env.put( DirContext.SECURITY_PRINCIPAL, PartitionNexus.ADMIN_PRINCIPAL );
+        env.put( DirContext.SECURITY_PRINCIPAL, "uid=admin, ou=system" );
         env.put( DirContext.SECURITY_CREDENTIALS, "secret" );
         env.put( DirContext.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
         env.put( DirectoryService.JNDI_KEY, service );
@@ -249,7 +250,7 @@ public class AutzIntegUtils
      */
     public static DirContext getContextAs( Name user, String password ) throws NamingException
     {
-        return getContextAs( user, password, PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+        return getContextAs( user, password, ServerDNConstants.SYSTEM_DN );
     }
 
 

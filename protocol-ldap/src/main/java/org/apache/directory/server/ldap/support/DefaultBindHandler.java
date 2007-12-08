@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap.support;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStoreEntry;
@@ -37,6 +36,7 @@ import org.apache.directory.server.ldap.support.bind.MechanismHandler;
 import org.apache.directory.server.ldap.support.bind.SaslFilter;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.*;
@@ -495,7 +495,7 @@ public class DefaultBindHandler extends BindHandler
             try
             {
                 LdapPrincipal principal = new LdapPrincipal(
-                        new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ), AuthenticationLevel.SIMPLE );
+                        new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ), AuthenticationLevel.SIMPLE );
                 ctx = ldapServer.getDirectoryService().getJndiContext( principal, ldapServer.getSearchBaseDn() );
             }
             catch ( NamingException ne )

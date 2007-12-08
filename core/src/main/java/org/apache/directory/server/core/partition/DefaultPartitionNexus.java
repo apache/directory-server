@@ -33,6 +33,7 @@ import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.MultiException;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
 import org.apache.directory.shared.ldap.exception.LdapInvalidAttributeIdentifierException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
@@ -293,7 +294,7 @@ public class DefaultPartitionNexus extends PartitionNexus
         initializedPartitions.add( 0, this.system );
 
         //noinspection unchecked
-        Iterator<Partition> partitions = ( Iterator<Partition> ) directoryService.getPartitions().iterator();
+        Iterator<? extends Partition> partitions = ( Iterator<? extends Partition> ) directoryService.getPartitions().iterator();
         try
         {
             while ( partitions.hasNext() )
@@ -348,10 +349,10 @@ public class DefaultPartitionNexus extends PartitionNexus
             objectClassAttr.add( SchemaConstants.TOP_OC );
             objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-                NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
+            systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
+                NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
             override.setContextEntry( systemEntry );
             
             // ---------------------------------------------------------------
@@ -396,7 +397,7 @@ public class DefaultPartitionNexus extends PartitionNexus
             system = new JdbmPartition();
             system.setId( "system" );
             system.setCacheSize( 500 );
-            system.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+            system.setSuffix( ServerDNConstants.SYSTEM_DN );
     
             // Add objectClass attribute for the system partition
             Set<Index> indexedAttrs = new HashSet<Index>();
@@ -410,10 +411,10 @@ public class DefaultPartitionNexus extends PartitionNexus
             objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
             objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
             systemEntry.put( objectClassAttr );
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN );
             systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-                NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
+            systemEntry.put( NamespaceTools.getRdnAttribute( ServerDNConstants.SYSTEM_DN ),
+                NamespaceTools.getRdnValue( ServerDNConstants.SYSTEM_DN ) );
             system.setContextEntry( systemEntry );
         }
 

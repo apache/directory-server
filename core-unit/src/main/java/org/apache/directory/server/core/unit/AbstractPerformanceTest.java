@@ -27,6 +27,7 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -115,7 +116,7 @@ public class AbstractPerformanceTest extends AbstractTestCase
      */
     protected AbstractPerformanceTest( Class<?> subclass ) throws IOException
     {
-        super( PartitionNexus.ADMIN_PRINCIPAL, "secret" );
+        super( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
         this.subclass = subclass;
         
         // Setup the statistics output writer

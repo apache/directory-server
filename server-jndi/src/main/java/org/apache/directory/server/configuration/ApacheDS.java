@@ -25,12 +25,12 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.store.LdifFileLoader;
 import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -318,7 +318,7 @@ public class ApacheDS
         }
 
 
-        LdapPrincipal admin = new LdapPrincipal( new LdapDN( PartitionNexus.ADMIN_PRINCIPAL ),
+        LdapPrincipal admin = new LdapPrincipal( new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN ),
                 AuthenticationLevel.STRONG );
         DirContext root = directoryService.getJndiContext( admin );
         ensureLdifFileBase( root );

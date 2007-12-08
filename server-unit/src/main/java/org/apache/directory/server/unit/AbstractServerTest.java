@@ -28,6 +28,7 @@ import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
+import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -301,7 +302,7 @@ public abstract class AbstractServerTest extends TestCase
     protected void setContexts( Hashtable<String, Object> env ) throws NamingException
     {
         Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
-        envFinal.put( Context.PROVIDER_URL, "ou=system" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
         sysRoot = new InitialLdapContext( envFinal, null );
 
         envFinal.put( Context.PROVIDER_URL, "" );

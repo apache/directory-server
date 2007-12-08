@@ -22,7 +22,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
-import org.apache.directory.shared.ldap.schema.ObjectClassTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +40,16 @@ import java.util.Collections;
  */
 public class ObjectClassAttribute implements ServerAttribute
 {
-    @SuppressWarnings ( { "UnusedDeclaration" } )
+    /** A logger */
     private static final Logger LOG = LoggerFactory.getLogger( ObjectClassAttribute.class );
 
+    /** An unordered set storing the values */
     private HashSet<ServerValue<?>> values = new HashSet<ServerValue<?>>();
-    @SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
-    private Registries registries;
+
+    /** The associated Attribute Type */
     private AttributeType attributeType;
+    
+    /** The attribute User Provided ID */
     private String upId;
 
     // Sets dealing with objectClass operations
@@ -63,18 +65,29 @@ public class ObjectClassAttribute implements ServerAttribute
 
     // maybe have some additional convenience constructors which take
     // an initial value as a string or a byte[]
-
-
+    
+    /**
+     * Creates a new ObjectClassAttribute with a null ID
+     * 
+     * @param registries The server registries to use
+     */
     public ObjectClassAttribute( Registries registries ) throws NamingException
     {
         this( null, registries );
     }
 
 
+    /**
+     * Creates a new instance of ObjectClassAttribute.
+     *
+     * @param upId The ObjectClass ID
+     * @param registries The registries to use to initialize this object
+     * @throws NamingException If something went wrong
+     */
     public ObjectClassAttribute( String upId, Registries registries ) throws NamingException
     {
         setAttributeTypeAndRegistries( registries );
-        setUpId( upId, attributeType );
+        setUpId( upId );
     }
 
 
@@ -115,7 +128,7 @@ public class ObjectClassAttribute implements ServerAttribute
             values.add( val );
         }
 
-        setUpId( upId, attributeType );
+        setUpId( upId );
     }
 
 
@@ -128,6 +141,7 @@ public class ObjectClassAttribute implements ServerAttribute
     public ObjectClassAttribute( String upId, Registries registries, String val ) throws NamingException
     {
         setAttributeTypeAndRegistries( registries );
+        
         if ( val == null )
         {
             values.add( new ServerStringValue( attributeType ) );
@@ -137,22 +151,48 @@ public class ObjectClassAttribute implements ServerAttribute
             values.add( new ServerStringValue( attributeType, val ) );
         }
 
-        setUpId( upId, attributeType );
+        setUpId( upId );
     }
 
-
+    
+    /**
+     * Initialize the ObjectClass attributeType, using the ObjectClass' OID.
+     * 
+     * TODO This is a strange method : we _know_ that the ObjectClass' attributeType
+     * will always be the same, but we can't initialize it to its default value,
+     * unless the server is already started, or if we call this method only once, 
+     * but then we need to synchronize this class, which can be a burden.
+     * 
+     * This is was seems the best anyway...
+     *
+     * @param registries The registries used to extract the AttributeType
+     * 
+     * @throws NamingException If something went wrong (very unlikely)
+     */
     private void setAttributeTypeAndRegistries( Registries registries ) throws NamingException
     {
-        this.registries = registries;
-        attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+        synchronized ( attributeType )
+        {
+            if ( attributeType == null )
+            {
+                attributeType = registries.getAttributeTypeRegistry().lookup( SchemaConstants.OBJECT_CLASS_AT_OID );
+            }
+        }
     }
 
 
-    private void setUpId( String upId, AttributeType attributeType )
+    /**
+     * Set the user provided value for this objectClass.
+     *
+     * @param upId The user provided ID
+     * @param attributeType 
+     */
+    private void setUpId( String upId )
     {
         if ( upId == null )
         {
             String name = attributeType.getName();
+            
             if ( name == null )
             {
                 this.upId = attributeType.getOid();
@@ -161,6 +201,10 @@ public class ObjectClassAttribute implements ServerAttribute
             {
                 this.upId = name;
             }
+        }
+        else
+        {
+            this.upId = upId;
         }
     }
 
@@ -177,7 +221,8 @@ public class ObjectClassAttribute implements ServerAttribute
         }
 
         ObjectClass[] superClasses = descendant.getSuperClasses();
-        if ( superClasses == null || superClasses.length == 0 )
+
+        if ( ( superClasses == null ) || ( superClasses.length == 0 ) )
         {
             return ancestors;
         }
@@ -204,20 +249,24 @@ public class ObjectClassAttribute implements ServerAttribute
 
         Set<ObjectClass> ancestors = addAncestors( objectClass, new HashSet<ObjectClass>() );
         ancestors.add( objectClass );
+        
         // now create sets of the different kinds of objectClasses
         for ( ObjectClass oc : ancestors )
         {
-            switch ( oc.getType().getValue() )
+            switch ( oc.getType() )
             {
-                case( ObjectClassTypeEnum.STRUCTURAL_VAL ):
+                case STRUCTURAL :
                     structuralObjectClasses.add( oc );
                     break;
-                case( ObjectClassTypeEnum.AUXILIARY_VAL ):
+                    
+                case AUXILIARY :
                     auxiliaryObjectClasses.add( oc );
                     break;
-                case( ObjectClassTypeEnum.ABSTRACT_VAL ):
+                    
+                case ABSTRACT :
                     abstractObjectClasses.add( oc );
                     break;
+                    
                 default:
                     throw new IllegalStateException( "Unrecognized objectClass type value: " + oc.getType() );
             }
@@ -332,7 +381,7 @@ public class ObjectClassAttribute implements ServerAttribute
      */
     public boolean isValid() throws NamingException
     {
-        for ( ServerValue value : values )
+        for ( ServerValue<?> value:values )
         {
             if ( ! value.isValid() )
             {
@@ -344,6 +393,9 @@ public class ObjectClassAttribute implements ServerAttribute
     }
 
 
+    /**
+     * Add a value to the current objectClass
+     */
     public boolean add( ServerValue<?> val )
     {
         return values.add( val );

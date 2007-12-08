@@ -170,9 +170,9 @@ public class SimpleAuthenticator extends AbstractAuthenticator
     private class EncryptionMethod
     {
         private byte[] salt;
-        private String algorithm;
+        private LdapSecurityConstants algorithm;
         
-        private EncryptionMethod( String algorithm, byte[] salt )
+        private EncryptionMethod( LdapSecurityConstants algorithm, byte[] salt )
         {
         	this.algorithm = algorithm;
         	this.salt = salt;
@@ -322,7 +322,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         }
         
         // Let's see if the stored password was encrypted
-        String algorithm = findAlgorithm( storedPassword );
+        LdapSecurityConstants algorithm = findAlgorithm( storedPassword );
         
         if ( algorithm != null )
         {
@@ -385,63 +385,60 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      */
     private byte[] splitCredentials( byte[] credentials, EncryptionMethod encryptionMethod )
     {
-        String algorithm = encryptionMethod.algorithm;
+        int pos = encryptionMethod.algorithm.getName().length() + 2;
         
-        int pos = algorithm.length() + 2;
-        
-        if ( ( LdapSecurityConstants.HASH_METHOD_MD5.equalsIgnoreCase( algorithm ) ) ||
-            ( LdapSecurityConstants.HASH_METHOD_SHA.equalsIgnoreCase( algorithm ) ) )
+        switch ( encryptionMethod.algorithm )
         {
-            try
-            {
-            	// We just have the password just after the algorithm, base64 encoded.
-            	// Just decode the password and return it.
-                return Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
-            }
-            catch ( UnsupportedEncodingException uee )
-            {
-                // do nothing 
-                return credentials;
-            }
-        }
-        else if ( ( LdapSecurityConstants.HASH_METHOD_SMD5.equalsIgnoreCase( algorithm ) ) ||
-                 ( LdapSecurityConstants.HASH_METHOD_SSHA.equalsIgnoreCase( algorithm ) ) )
-        {
-            try
-            {
-            	// The password is associated with a salt. Decompose it 
-            	// in two parts, after having decoded the password.
-            	// The salt will be stored into the EncryptionMethod structure
-            	// The salt is at the end of the credentials, and is 8 bytes long
-                byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
+            case HASH_METHOD_MD5 :
+            case HASH_METHOD_SHA :
+                try
+                {
+                    // We just have the password just after the algorithm, base64 encoded.
+                    // Just decode the password and return it.
+                    return Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    // do nothing 
+                    return credentials;
+                }
                 
-                encryptionMethod.salt = new byte[8];
-                byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
-                split( passwordAndSalt, 0, password, encryptionMethod.salt );
+            case HASH_METHOD_SMD5 :
+            case HASH_METHOD_SSHA :
+                try
+                {
+                    // The password is associated with a salt. Decompose it 
+                    // in two parts, after having decoded the password.
+                    // The salt will be stored into the EncryptionMethod structure
+                    // The salt is at the end of the credentials, and is 8 bytes long
+                    byte[] passwordAndSalt = Base64.decode( new String( credentials, pos, credentials.length - pos, "UTF-8" ).toCharArray() );
+                    
+                    encryptionMethod.salt = new byte[8];
+                    byte[] password = new byte[passwordAndSalt.length - encryptionMethod.salt.length];
+                    split( passwordAndSalt, 0, password, encryptionMethod.salt );
+                    
+                    return password;
+                }
+                catch ( UnsupportedEncodingException uee )
+                {
+                    // do nothing 
+                    return credentials;
+                }
+                
+            case HASH_METHOD_CRYPT :
+                // The password is associated with a salt. Decompose it 
+                // in two parts, storing the salt into the EncryptionMethod structure.
+                // The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
+                encryptionMethod.salt = new byte[2];
+                byte[] password = new byte[credentials.length - encryptionMethod.salt.length - pos];
+                split( credentials, pos, encryptionMethod.salt, password );
                 
                 return password;
-            }
-            catch ( UnsupportedEncodingException uee )
-            {
-                // do nothing 
+                
+            default :
+                // unknown method
                 return credentials;
-            }
-        }
-        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
-        {
-        	// The password is associated with a salt. Decompose it 
-        	// in two parts, storing the salt into the EncryptionMethod structure.
-        	// The salt comes first, not like for SSHA and SMD5, and is 2 bytes long
-            encryptionMethod.salt = new byte[2];
-            byte[] password = new byte[credentials.length - encryptionMethod.salt.length - pos];
-            split( credentials, pos, encryptionMethod.salt, password );
-            
-            return password;
-        }
-        else
-        {
-            // unknown method
-            return credentials;
+                
         }
     }
     
@@ -453,7 +450,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @return the name of the algorithm to use
      * TODO use an enum for the algorithm
      */
-    private String findAlgorithm( byte[] credentials )
+    private LdapSecurityConstants findAlgorithm( byte[] credentials )
     {
         if ( ( credentials == null ) || ( credentials.length == 0 ) )
         {
@@ -485,19 +482,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
                 
                 String algorithm = new String( credentials, 1, pos - 1 ).toLowerCase();
                 
-                if ( ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ) ||
-                    ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) ) ||
-                    ( LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) ) ||
-                    ( LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) ) ||
-                    ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) ) )
-                {
-                    return algorithm;
-                }
-                else
-                {
-                    // unknown method
-                    return null;
-                }
+                return LdapSecurityConstants.getAlgorithm( algorithm );
             }
             else
             {
@@ -521,13 +506,13 @@ public class SimpleAuthenticator extends AbstractAuthenticator
      * @param salt the optional salt
      * @return the digested credentials
      */
-    private static byte[] digest( String algorithm, byte[] password, byte[] salt )
+    private static byte[] digest( LdapSecurityConstants algorithm, byte[] password, byte[] salt )
     {
         MessageDigest digest;
 
         try
         {
-            digest = MessageDigest.getInstance( algorithm );
+            digest = MessageDigest.getInstance( algorithm.getName() );
         }
         catch ( NoSuchAlgorithmException e1 )
         {
@@ -548,40 +533,37 @@ public class SimpleAuthenticator extends AbstractAuthenticator
 
     private byte[] encryptPassword( byte[] credentials, EncryptionMethod encryptionMethod )
     {
-        String algorithm = encryptionMethod.algorithm;
         byte[] salt = encryptionMethod.salt;
         
-        if ( LdapSecurityConstants.HASH_METHOD_SHA.equals( algorithm ) || 
-             LdapSecurityConstants.HASH_METHOD_SSHA.equals( algorithm ) )
-        {   
-            return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
-        }
-        else if ( LdapSecurityConstants.HASH_METHOD_MD5.equals( algorithm ) ||
-                  LdapSecurityConstants.HASH_METHOD_SMD5.equals( algorithm ) )
-       {            
-            return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
-        }
-        else if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equals( algorithm ) )
+        switch ( encryptionMethod.algorithm )
         {
-            if ( salt == null )
-            {
-                salt = new byte[2];
-                SecureRandom sr = new SecureRandom();
-                int i1 = sr.nextInt( 64 );
-                int i2 = sr.nextInt( 64 );
-            
-                salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
-                salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
-            }
+            case HASH_METHOD_SHA :
+            case HASH_METHOD_SSHA :
+                return digest( LdapSecurityConstants.HASH_METHOD_SHA, credentials, salt );
 
-            String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools.utf8ToString( salt ) );
-            String crypted = saltWithCrypted.substring( 2 );
-            
-            return StringTools.getBytesUtf8( crypted );
-        }
-        else
-        {
-            return credentials;
+            case HASH_METHOD_MD5 :
+            case HASH_METHOD_SMD5 :
+                return digest( LdapSecurityConstants.HASH_METHOD_MD5, credentials, salt );
+
+            case HASH_METHOD_CRYPT :
+                if ( salt == null )
+                {
+                    salt = new byte[2];
+                    SecureRandom sr = new SecureRandom();
+                    int i1 = sr.nextInt( 64 );
+                    int i2 = sr.nextInt( 64 );
+                
+                    salt[0] = ( byte ) ( i1 < 12 ? ( i1 + '.' ) : i1 < 38 ? ( i1 + 'A' - 12 ) : ( i1 + 'a' - 38 ) );
+                    salt[1] = ( byte ) ( i2 < 12 ? ( i2 + '.' ) : i2 < 38 ? ( i2 + 'A' - 12 ) : ( i2 + 'a' - 38 ) );
+                }
+
+                String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( credentials ), StringTools.utf8ToString( salt ) );
+                String crypted = saltWithCrypted.substring( 2 );
+                
+                return StringTools.getBytesUtf8( crypted );
+                
+            default :
+                return credentials;
         }
     }
 
@@ -665,7 +647,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         {
             String algorithm = sPassword.substring( 1, rightParen );
 
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
             {
                 return algorithm;
             }
@@ -710,7 +692,7 @@ public class SimpleAuthenticator extends AbstractAuthenticator
         // create message digest object
         try
         {
-            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.equalsIgnoreCase( algorithm ) )
+            if ( LdapSecurityConstants.HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
             {
                 String saltWithCrypted = UnixCrypt.crypt( StringTools.utf8ToString( password ), "" );
                 String crypted = saltWithCrypted.substring( 2 );
