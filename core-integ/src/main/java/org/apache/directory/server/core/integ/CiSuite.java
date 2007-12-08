@@ -84,6 +84,10 @@ public class CiSuite extends Suite
             cir.setSuite( this );
             super.add( runner );
         }
+        else if ( runner instanceof IgnoredClassRunner )
+        {
+            // allow this one
+        }
         else
         {
             throw new IllegalArgumentException( String.format( "Unexpected runner type \"%s\".  " +
