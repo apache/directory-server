@@ -25,6 +25,7 @@ import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
+import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -70,6 +72,27 @@ public class IntegrationUtils
         if ( wkdir.exists() )
         {
             throw new IOException( "Failed to delete: " + wkdir );
+        }
+    }
+
+
+    /**
+     * Inject an ldif String into the server. DN must be relative to the
+     * root.
+     *
+     * @param service the directory service to use 
+     * @param ldif the ldif containing entries to add to the server.
+     * @throws NamingException if there is a problem adding the entries from the LDIF
+     */
+    public static void injectEntries( DirectoryService service, String ldif ) throws NamingException
+    {
+        LdapContext rootDSE = getRootContext( service );
+        LdifReader reader = new LdifReader();
+        List<Entry> entries = reader.parseLdif( ldif );
+
+        for ( Entry entry : entries )
+        {
+            rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }
 

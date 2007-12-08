@@ -21,24 +21,27 @@ package org.apache.directory.server.core.trigger;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ListUtilsSP
+public class BackupUtilitiesSP
 {
-    private static final Logger log = LoggerFactory.getLogger( ListUtilsSP.class );
+    private static final Logger LOG = LoggerFactory.getLogger( BackupUtilitiesSP.class );
 
 
-    public static void subscribeToGroup( Name addedEntryName, LdapContext groupCtx ) throws NamingException
+    public static void backupDeleted( LdapContext ctx, Name deletedEntryName,
+                                      Name operationPrincipal, Attributes deletedEntry ) throws NamingException
     {
-        log.info( "User \"" + addedEntryName + "\" will be subscribed to \"" + groupCtx + "\"" );
-        groupCtx.modifyAttributes("", DirContext.ADD_ATTRIBUTE, new BasicAttributes( SchemaConstants.UNIQUE_MEMBER_AT, addedEntryName.toString(), true ) );
-        log.info( "Subscription OK." );
+        LOG.info( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
+        LOG.info( "Entry content was: " + deletedEntry );
+        LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
+        String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );
+        backupCtx.createSubcontext( deletedEntryRdn, deletedEntry );
+        LOG.info( "Backed up deleted entry to \"" +
+                ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
     }
 }

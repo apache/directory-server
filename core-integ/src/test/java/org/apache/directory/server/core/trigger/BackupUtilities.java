@@ -34,19 +34,23 @@ import org.slf4j.LoggerFactory;
  */
 public class BackupUtilities
 {
-    private static final Logger log = LoggerFactory.getLogger( BackupUtilities.class );
+    private static final Logger LOG = LoggerFactory.getLogger( BackupUtilities.class );
 
-    public static void backupDeleted( LdapContext ctx, Name deletedEntryName, Name operationPrincipal, Attributes deletedEntry ) throws NamingException
+
+    public static void backupDeleted( LdapContext ctx, Name deletedEntryName,
+                                      Name operationPrincipal, Attributes deletedEntry ) throws NamingException
     {
-        log.info( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
-        log.info( "Entry content was: " + deletedEntry );
+        LOG.info( "User \"" + operationPrincipal + "\" has deleted entry \"" + deletedEntryName + "\"" );
+        LOG.info( "Entry content was: " + deletedEntry );
         LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );
         backupCtx.createSubcontext( deletedEntryRdn, deletedEntry );
-        log.info( "Backed up deleted entry to \"" + ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
+        LOG.info( "Backed up deleted entry to \"" +
+                ( ( LdapContext ) backupCtx.lookup( deletedEntryRdn ) ).getNameInNamespace() + "\"" );
     }
     
-    public static void duplicateDeletedEntry( LdapContext ctx, Name deletedEntryName, Name operationPrincipal, Attributes deletedEntry ) throws NamingException
+    public static void duplicateDeletedEntry( LdapContext ctx, Name deletedEntryName, Name operationPrincipal,
+                                              Attributes deletedEntry ) throws NamingException
     {
         LdapContext backupCtx = ( LdapContext ) ctx.lookup( "ou=backupContext,ou=system" );
         String deletedEntryRdn = deletedEntryName.get( deletedEntryName.size() - 1 );

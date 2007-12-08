@@ -23,7 +23,6 @@ package org.apache.directory.server.core.sp;
 
 
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.util.AttributeUtils;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -77,8 +76,7 @@ public class StoredProcExecutionManager
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String filter = "(storedProcUnitName=" + spUnitName + ")";
         NamingEnumeration<SearchResult> results = rootDSE.search( storedProcContainer, filter, controls );
-        Attributes spUnitEntry = results.nextElement().getAttributes();
-        return spUnitEntry;
+        return results.nextElement().getAttributes();
     }
 
 

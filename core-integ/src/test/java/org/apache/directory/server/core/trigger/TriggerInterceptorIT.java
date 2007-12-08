@@ -21,15 +21,22 @@
 package org.apache.directory.server.core.trigger;
 
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.injectEntries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.trigger.TriggerUtils;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -38,33 +45,27 @@ import org.apache.directory.shared.ldap.util.AttributeUtils;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class TriggerInterceptorITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class TriggerInterceptorIT
 {
-    private LdapContext ctx;
-    LdapContext spCtx;
-    
-    
-    public void setUp() throws Exception
-    {
-        super.setUp();
+    public static DirectoryService service;
 
-        ctx = sysRoot;
+    LdapContext spCtx;
+
+
+    /*
+     * @todo replace this with an ldif annotation
+     */
+    public void createData( LdapContext ctx ) throws NamingException
+    {
         Attributes spContainer = new AttributesImpl( "objectClass", "top", true );
         spContainer.get( "objectClass" ).add( "organizationalUnit" );
         spContainer.put( "ou", "Stored Procedures" );
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
     
-    
-    public void tearDown() throws Exception
-    {
-        ctx.close();
-        ctx = null;
-        
-        super.tearDown();
-    }
-    
-    
+
+    @Test
     public void testAfterDeleteBackupDeletedEntryEntryTrigger() throws NamingException
     {
         String ldif  = 
@@ -79,16 +80,19 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
             "objectClass: top\n" +
             "objectClass: organizationalUnit\n" +
             "ou: testEntry\n";
-        
+
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         // Inject the ldif file into the server.
-        injectEntries( ldif );
+        injectEntries( service, ldif );
         
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
         // Create the Entry Trigger Specification.
-        TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
-        LdapContext entry = ( LdapContext ) ctx.lookup( "ou=testEntry" );
+        TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
+        LdapContext entry = ( LdapContext ) sysRoot.lookup( "ou=testEntry" );
         String triggerSpec = "AFTER Delete CALL \"" + BackupUtilitiesSP.class.getName() +
             ":backupDeleted\" ( $ldapContext \"\", $name, $operationPrincipal, $deletedEntry );";
         TriggerUtils.loadEntryTriggerSpecification( entry, triggerSpec );
@@ -107,6 +111,9 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
     
     public void testAfterDeleteBackupDeletedEntryPrescriptiveTrigger() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         // Load the stored procedure unit which has the stored procedure to be triggered.
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, BackupUtilitiesSP.class );
         
@@ -120,11 +127,11 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
             "ou: backupContext\n";
         
         // Inject the ldif file into the server.
-        injectEntries( ldif );
+        injectEntries( service, ldif );
         
         // Create the Trigger Specification within a Trigger Subentry.
-        TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
-        TriggerUtils.createTriggerExecutionSubentry( ctx,
+        TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
+        TriggerUtils.createTriggerExecutionSubentry( sysRoot,
                                                      "triggerSubentry1",
                                                      "{}",
                                                      "AFTER Delete " +
@@ -149,7 +156,7 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
             "ou: testou\n";
         
         // Inject the ldif file into the server.
-        injectEntries( ldif2 );
+        injectEntries( service, ldif2 );
         
         // Delete the test entry in order to fire the Trigger.
         sysRoot.destroySubcontext( "ou=testou" );
@@ -165,6 +172,9 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
     
     public void testAfterAddSubscribeUserToSomeGroupsPrescriptiveTrigger() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
         // Create two groups to be subscribed to : staff and teachers.
         String ldif  = 
             "version: 1\n" +
@@ -185,7 +195,7 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
         JavaStoredProcUtils.loadStoredProcedureClass( spCtx, ListUtilsSP.class );
 
         // Inject the ldif file into the server
-        injectEntries( ldif );
+        injectEntries( service, ldif );
             
         // Create the Trigger Specification within a Trigger Subentry.
         String staffDN = "cn=staff, ou=system";
@@ -193,8 +203,8 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
 
         
         // Create the Triger Specification within a Trigger Subentry.
-        TriggerUtils.defineTriggerExecutionSpecificPoint( ctx );
-        TriggerUtils.createTriggerExecutionSubentry( ctx,
+        TriggerUtils.defineTriggerExecutionSpecificPoint( sysRoot );
+        TriggerUtils.createTriggerExecutionSubentry( sysRoot,
                                                      "triggerSubentry1",
                                                      "{}",
                                                      "AFTER Add " +
@@ -221,7 +231,7 @@ public class TriggerInterceptorITest extends AbstractAdminTestCase
             "sn: TheTeacher";
 
         // Inject the entry into the server
-        injectEntries( testEntry );
+        injectEntries( service, testEntry );
 
         // ------------------------------------------
         // The trigger should be fired at this point.
