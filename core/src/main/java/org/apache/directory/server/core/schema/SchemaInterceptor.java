@@ -1126,9 +1126,12 @@ public class SchemaInterceptor extends BaseInterceptor
                             log.error( "Trying to remove a required attribute: " + change.getID() );
                             throw new LdapSchemaViolationException( ResultCodeEnum.OBJECT_CLASS_VIOLATION );
                         }
-                        
-                        // Put back the attribute in the entry
-                        tmpEntry.put( modified );
+
+                        // Put back the attribute in the entry only if it has values left in it
+                        if ( modified.size() > 0 )
+                        {
+                            tmpEntry.put( modified );
+                        }
                     }
                     
                     SchemaChecker.preventRdnChangeOnModifyRemove( name, modOp, change, 
