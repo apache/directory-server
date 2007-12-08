@@ -34,6 +34,7 @@ import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
@@ -44,6 +45,7 @@ import org.apache.directory.shared.ldap.aci.ACITuple;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -177,6 +179,7 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     public void init( DirectoryService directoryService ) throws NamingException
     {
         super.init( directoryService );
+
         tupleCache = new TupleCache( directoryService );
         groupCache = new GroupCache( directoryService );
         attrRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
@@ -203,6 +206,29 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN subschemaSubentryDnName = new LdapDN( subschemaSubentry );
         subschemaSubentryDnName.normalize( attrRegistry.getNormalizerMapping() );
         subschemaSubentryDn = subschemaSubentryDnName.toNormName();
+    }
+
+
+    private void protectCriticalEntries( LdapDN dn ) throws NamingException
+    {
+        LdapDN principalDn = getPrincipal().getJndiName();
+
+        if ( dn.isEmpty() )
+        {
+            String msg = "The rootDSE cannot be deleted, moved or renamed!";
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
+        }
+
+        if ( isTheAdministrator( dn ) )
+        {
+            String msg = "User '" + principalDn.getUpName();
+            msg += "' does not have permission to move or rename the admin";
+            msg += " account.  No one not even the admin can del, move or";
+            msg += " rename " + dn.getUpName() + "!";
+            LOG.error( msg );
+            throw new LdapNoPermissionException( msg );
+        }
     }
 
 
@@ -452,6 +478,12 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
     }
 
 
+    private boolean isTheAdministrator( LdapDN normalizedDn )
+    {
+        return normalizedDn.getNormName().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+    }
+
+
     public void delete( NextInterceptor next, DeleteOperationContext deleteContext ) throws NamingException
     {
     	LdapDN name = deleteContext.getDn();
@@ -464,11 +496,13 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
         LdapDN principalDn = principal.getJndiName();
 
         // bypass authz code if we are disabled
-        if ( !enabled )
+        if ( ! enabled )
         {
             next.delete( deleteContext );
             return;
         }
+
+        protectCriticalEntries( name );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -736,6 +770,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             return;
         }
 
+        protectCriticalEntries( name );
+
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
         {
@@ -784,6 +820,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             next.moveAndRename( moveAndRenameContext );
             return;
         }
+
+        protectCriticalEntries( oriChildName );
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )
@@ -860,6 +898,8 @@ public class AciAuthorizationInterceptor extends BaseInterceptor
             next.move( moveContext );
             return;
         }
+
+        protectCriticalEntries( oriChildName);
 
         // bypass authz code but manage caches if operation is performed by the admin
         if ( isPrincipalAnAdministrator( principalDn ) )

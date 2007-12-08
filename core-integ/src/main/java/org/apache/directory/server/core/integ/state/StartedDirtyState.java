@@ -105,6 +105,7 @@ public class StartedDirtyState implements TestServiceState
             {
                 context.getState().shutdown();
                 context.getState().cleanup();
+                context.getState().destroy();
             }
             catch ( Exception e )
             {
