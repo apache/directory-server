@@ -49,6 +49,7 @@ import org.junit.runners.Suite;
         SubschemaSubentryIT.class,
         SchemaServiceIT.class
         } )
+@Scope ( ServiceScope.TESTSUITE )
 public class SchemaISuite
 {
 }

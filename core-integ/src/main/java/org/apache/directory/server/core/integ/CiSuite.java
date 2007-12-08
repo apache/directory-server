@@ -27,6 +27,7 @@ import org.junit.runners.Suite;
 
 import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
 import static org.apache.directory.server.core.integ.state.TestServiceContext.cleanup;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.destroy;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -111,6 +112,7 @@ public class CiSuite extends Suite
             {
                 shutdown();
                 cleanup();
+                destroy();
             }
             catch ( NamingException e )
             {
