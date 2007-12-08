@@ -31,6 +31,10 @@ import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.jndi.*;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
 import org.apache.directory.server.core.prefs.PreferencesIT;
+import org.apache.directory.server.core.subtree.BadSubentryServiceIT;
+import org.apache.directory.server.core.subtree.SubentryServiceEntryModificationHandlingIT;
+import org.apache.directory.server.core.subtree.SubentryServiceIT;
+import org.apache.directory.server.core.subtree.SubentryServiceObjectClassChangeHandlingIT;
 import org.apache.directory.server.core.trigger.SubentryServiceForTriggersIT;
 import org.apache.directory.server.core.trigger.TriggerInterceptorIT;
 import org.junit.runner.RunWith;
@@ -68,6 +72,10 @@ import org.junit.runners.Suite;
         PreferencesIT.class,
         TriggerInterceptorIT.class,
         SubentryServiceForTriggersIT.class,
+        BadSubentryServiceIT.class,
+        SubentryServiceEntryModificationHandlingIT.class,
+        SubentryServiceObjectClassChangeHandlingIT.class,
+        SubentryServiceIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )

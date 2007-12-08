@@ -19,25 +19,27 @@
  */
 package org.apache.directory.server.core.subtree;
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNoSuchAttributeException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.SubentriesControl;
+import static org.junit.Assert.*;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
 import javax.naming.ldap.Control;
-
-import java.util.Map;
+import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -46,8 +48,13 @@ import java.util.HashMap;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubentryServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Ignore
+public class SubentryServiceIT
 {
+    public static DirectoryService service;
+
+
     public Attributes getTestEntry( String cn )
     {
         Attributes subentry = new AttributesImpl();
@@ -94,22 +101,24 @@ public class SubentryServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRole( String role ) throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( role );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[]
+        sysRoot.modifyAttributes( "", new ModificationItemImpl[]
             { item } );
     }
 
 
     public Map<String, Attributes> getAllEntries() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[]
             { "+", "*" } );
-        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration results = sysRoot.search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
@@ -119,12 +128,14 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testEntryAdd() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
+        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -147,11 +158,13 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentryAdd() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         try
         {
-            super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+            sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
             fail( "should never get here: cannot create subentry under regular entries" );
         }
         catch ( LdapNoSuchAttributeException e )
@@ -159,7 +172,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         }
 
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -213,10 +226,12 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentryModify() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -274,7 +289,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attribute subtreeSpecification = new AttributeImpl( "subtreeSpecification" );
         subtreeSpecification.add( "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, subtreeSpecification );
-        super.sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
+        sysRoot.modifyAttributes( "cn=testsubentry", new ModificationItemImpl[]
             { item } );
         results = getAllEntries();
 
@@ -329,10 +344,12 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentryModify2() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -390,7 +407,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         Attributes changes = new AttributesImpl();
         changes.put( "subtreeSpecification",
             "{ base \"ou=configuration\", specificExclusions { chopBefore:\"ou=services\" } }" );
-        super.sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );
+        sysRoot.modifyAttributes( "cn=testsubentry", DirContext.REPLACE_ATTRIBUTE, changes );
         results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -444,11 +461,13 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentryDelete() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        super.sysRoot.destroySubcontext( "cn=testsubentry" );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.destroySubcontext( "cn=testsubentry" );
 
         Map<String, Attributes> results = getAllEntries();
 
@@ -501,11 +520,13 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentryModifyRdn() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
-        super.sysRoot.rename( "cn=testsubentry", "cn=newname" );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentry() );
+        sysRoot.rename( "cn=testsubentry", "cn=newname" );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -559,12 +580,14 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testEntryModifyRdn() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        super.sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
-        super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        sysRoot.createSubcontext( "cn=unmarked,ou=configuration", getTestEntry( "unmarked" ) );
+        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -629,8 +652,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now destry one of the marked/unmarked and rename to deleted entry
         // --------------------------------------------------------------------
 
-        super.sysRoot.destroySubcontext( "cn=unmarked,ou=configuration" );
-        super.sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked,ou=configuration" );
+        sysRoot.destroySubcontext( "cn=unmarked,ou=configuration" );
+        sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked,ou=configuration" );
         results = getAllEntries();
 
         unmarked = results.get( "cn=unmarked,ou=configuration,ou=system" );
@@ -642,7 +665,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now rename unmarked to marked and see that subentry op attr is there
         // --------------------------------------------------------------------
 
-        super.sysRoot.rename( "cn=unmarked,ou=configuration", "cn=marked,ou=configuration" );
+        sysRoot.rename( "cn=unmarked,ou=configuration", "cn=marked,ou=configuration" );
         results = getAllEntries();
         assertNull( results.get( "cn=unmarked,ou=configuration,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
@@ -654,12 +677,14 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testEntryMoveWithRdnChange() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
+        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -724,8 +749,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now destry one of the marked/unmarked and rename to deleted entry
         // --------------------------------------------------------------------
 
-        super.sysRoot.destroySubcontext( "cn=unmarked" );
-        super.sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked" );
+        sysRoot.destroySubcontext( "cn=unmarked" );
+        sysRoot.rename( "cn=marked,ou=configuration", "cn=unmarked" );
         results = getAllEntries();
 
         unmarked = results.get( "cn=unmarked,ou=system" );
@@ -737,7 +762,7 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now rename unmarked to marked and see that subentry op attr is there
         // --------------------------------------------------------------------
 
-        super.sysRoot.rename( "cn=unmarked", "cn=marked,ou=configuration" );
+        sysRoot.rename( "cn=unmarked", "cn=marked,ou=configuration" );
         results = getAllEntries();
         assertNull( results.get( "cn=unmarked,ou=system" ) );
         marked = results.get( "cn=marked,ou=configuration,ou=system" );
@@ -749,12 +774,14 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testEntryMove() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
-        super.sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
-        super.sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        sysRoot.createSubcontext( "cn=unmarked", getTestEntry( "unmarked" ) );
+        sysRoot.createSubcontext( "cn=marked,ou=configuration", getTestEntry( "marked" ) );
         Map<String, Attributes> results = getAllEntries();
 
         // --------------------------------------------------------------------
@@ -819,8 +846,8 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // Now destry one of the marked/unmarked and rename to deleted entry
         // --------------------------------------------------------------------
 
-        super.sysRoot.destroySubcontext( "cn=unmarked" );
-        super.sysRoot.rename( "cn=marked,ou=configuration", "cn=marked,ou=services,ou=configuration" );
+        sysRoot.destroySubcontext( "cn=unmarked" );
+        sysRoot.rename( "cn=marked,ou=configuration", "cn=marked,ou=services,ou=configuration" );
         results = getAllEntries();
 
         unmarked = results.get( "cn=unmarked,ou=system" );
@@ -836,16 +863,18 @@ public class SubentryServiceITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSubentriesControl() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
         // perform the search without the control
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
-        NamingEnumeration list = super.sysRoot.search( "", "(objectClass=*)", searchControls );
+        NamingEnumeration list = sysRoot.search( "", "(objectClass=*)", searchControls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -858,23 +887,25 @@ public class SubentryServiceITest extends AbstractAdminTestCase
         // except subentries disappear
         SubentriesControl ctl = new SubentriesControl();
         ctl.setVisibility( true );
-        super.sysRoot.setRequestControls( new Control[]
-            { ctl } );
-        list = super.sysRoot.search( "", "(objectClass=*)", searchControls );
+        sysRoot.setRequestControls( new Control[] { ctl } );
+        list = sysRoot.search( "", "(objectClass=*)", searchControls );
         SearchResult result = ( SearchResult ) list.next();
         assertFalse( list.hasMore() );
         assertEquals( "cn=testsubentry,ou=system", result.getName() );
     }
     
+
+    @Test
     public void testBaseScopeSearchSubentryVisibilityWithoutTheControl() throws Exception
     {
+        LdapContext sysRoot = getSystemContext( service );
         addAdministrativeRole( "collectiveArributeSpecificArea" );
-        super.sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
+        sysRoot.createSubcontext( "cn=testsubentry", getTestSubentryWithExclusion() );
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         Map<String, SearchResult> entries = new HashMap<String, SearchResult>();
-        NamingEnumeration list = super.sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
+        NamingEnumeration list = sysRoot.search( "cn=testsubentry", "(objectClass=subentry)", searchControls );
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();

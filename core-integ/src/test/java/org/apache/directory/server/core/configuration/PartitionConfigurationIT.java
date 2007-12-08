@@ -59,6 +59,7 @@ public class PartitionConfigurationIT
         partition.setSuffix( "ou=removable" );
         Attributes ctxEntry = new AttributesImpl( true );
         ctxEntry.put( "objectClass", "top" );
+        ctxEntry.get( "objectClass" ).add( "organizationalUnit" );
         ctxEntry.put( "ou", "removable" );
         partition.setContextEntry( ctxEntry );
 

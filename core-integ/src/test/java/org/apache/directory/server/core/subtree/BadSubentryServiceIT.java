@@ -21,22 +21,23 @@
 package org.apache.directory.server.core.subtree;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -45,8 +46,12 @@ import org.apache.directory.shared.ldap.message.ModificationItemImpl;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class BadSubentryServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class BadSubentryServiceIT
 {
+    public static DirectoryService service;
+
+
     public Attributes getTestEntry( String cn )
     {
         Attributes entry = new AttributesImpl();
@@ -121,22 +126,24 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
 
     public void addAdministrativeRoles() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Attribute attribute = new AttributeImpl( "administrativeRole" );
         attribute.add( "autonomousArea" );
         attribute.add( "collectiveAttributeSpecificArea" );
         attribute.add( "accessControlSpecificArea" );
         ModificationItemImpl item = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE, attribute );
-        super.sysRoot.modifyAttributes( "", new ModificationItemImpl[] { item } );
+        sysRoot.modifyAttributes( "", new ModificationItemImpl[] { item } );
     }
 
 
     public Map<String, Attributes> getAllEntries() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Map<String, Attributes> resultMap = new HashMap<String, Attributes>();
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         controls.setReturningAttributes( new String[] { "+", "*" } );
-        NamingEnumeration results = super.sysRoot.search( "", "(objectClass=*)", controls );
+        NamingEnumeration results = sysRoot.search( "", "(objectClass=*)", controls );
         while ( results.hasMore() )
         {
             SearchResult result = ( SearchResult ) results.next();
@@ -145,19 +152,21 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         return resultMap;
     }
     
+
     /*
      * FIXME: The test fails badly.
      */
-    
+    @Test
     public void testTrackingOfSubentryOperationals() throws NamingException
     {
         
-        addAdministrativeRoles();        
-        super.sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry", 
+        LdapContext sysRoot = getSystemContext( service );
+        addAdministrativeRoles();
+        sysRoot.createSubcontext( "cn=collectiveAttributeTestSubentry",
             getCollectiveAttributeTestSubentry( "collectiveAttributeTestSubentry" ) );
-        super.sysRoot.createSubcontext( "cn=accessControlTestSubentry", 
+        sysRoot.createSubcontext( "cn=accessControlTestSubentry",
             getAccessControlTestSubentry( "accessControlTestSubentry" ) );
-        super.sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
+        sysRoot.createSubcontext( "cn=testEntry", getTestEntry( "testEntry" ) );
         
         Map<String, Attributes> results = getAllEntries();
         Attributes testEntry = results.get( "cn=testEntry,ou=system" );
@@ -187,5 +196,4 @@ public class BadSubentryServiceITest extends AbstractAdminTestCase
         assertEquals( 1, accessControlSubentries.size() );
         
     }
-    
 }
