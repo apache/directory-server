@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.schema;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 
 
@@ -32,7 +33,7 @@ import org.apache.directory.server.schema.bootstrap.Schema;
 public abstract class AbstractSchema implements Schema
 {
     private static final String[] NONE = new String[0];
-    private static final String DEFAULT_OWNER = "uid=admin,ou=system";
+    private static final String DEFAULT_OWNER = ServerDNConstants.ADMIN_SYSTEM_DN;
     
     private boolean disabled;
     private String[] dependencies;

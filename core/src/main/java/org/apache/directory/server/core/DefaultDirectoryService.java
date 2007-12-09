@@ -20,18 +20,27 @@
 package org.apache.directory.server.core;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
 import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
-import org.apache.directory.server.core.changelog.*;
+import org.apache.directory.server.core.changelog.ChangeLog;
+import org.apache.directory.server.core.changelog.ChangeLogEvent;
+import org.apache.directory.server.core.changelog.ChangeLogInterceptor;
+import org.apache.directory.server.core.changelog.DefaultChangeLog;
+import org.apache.directory.server.core.changelog.Tag;
 import org.apache.directory.server.core.collective.CollectiveAttributeInterceptor;
 import org.apache.directory.server.core.cursor.Cursor;
 import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.Interceptor;
 import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.server.core.jndi.DeadContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
 import org.apache.directory.server.core.normalization.NormalizationInterceptor;
@@ -44,11 +53,20 @@ import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.referral.ReferralInterceptor;
-import org.apache.directory.server.core.schema.*;
+import org.apache.directory.server.core.schema.PartitionSchemaLoader;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.schema.SchemaOperationControl;
+import org.apache.directory.server.core.schema.SchemaPartitionDao;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.*;
+import org.apache.directory.server.schema.bootstrap.ApacheSchema;
+import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
+import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
+import org.apache.directory.server.schema.bootstrap.CoreSchema;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.bootstrap.SystemSchema;
 import org.apache.directory.server.schema.bootstrap.partition.DbFileListing;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
@@ -58,7 +76,6 @@ import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapAuthenticationNotSupportedException;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
@@ -82,7 +99,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -528,7 +550,6 @@ public class DefaultDirectoryService implements  DirectoryService
             return new DeadContext();
         }
 
-        //noinspection unchecked
         Hashtable<String, Object> environment = new Hashtable<String, Object>();
         environment.remove( Context.SECURITY_PRINCIPAL );
         environment.remove( Context.SECURITY_CREDENTIALS );
@@ -709,7 +730,7 @@ public class DefaultDirectoryService implements  DirectoryService
         showSecurityWarnings();
         started = true;
         
-        adminDn = new LdapDN( DefaultPartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+        adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         adminDn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
 
         if ( !testEntries.isEmpty() )
@@ -915,7 +936,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
             attributes.put( SchemaConstants.CN_AT, "system administrator" );
             attributes.put( SchemaConstants.SN_AT, "administrator" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
             attributes.put( SchemaConstants.DISPLAY_NAME_AT, "Directory Superuser" );
 
@@ -942,7 +963,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "users" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( userDn, attributes ) );
@@ -966,7 +987,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "groups" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( groupDn, attributes ) );
@@ -989,8 +1010,8 @@ public class DefaultDirectoryService implements  DirectoryService
             objectClass.add( SchemaConstants.GROUP_OF_UNIQUE_NAMES_OC );
             attributes.put( objectClass );
             attributes.put( SchemaConstants.CN_AT, "Administrators" );
-            attributes.put( SchemaConstants.UNIQUE_MEMBER_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.UNIQUE_MEMBER_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( name, attributes ) );
@@ -1034,7 +1055,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "configuration" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( configurationDn, attributes ) );
@@ -1058,7 +1079,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "partitions" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( partitionsDn, attributes ) );
@@ -1082,7 +1103,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "services" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( servicesDn, attributes ) );
@@ -1106,7 +1127,7 @@ public class DefaultDirectoryService implements  DirectoryService
             attributes.put( objectClass );
 
             attributes.put( SchemaConstants.OU_AT, "interceptors" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( interceptorsDn, attributes ) );
@@ -1131,7 +1152,7 @@ public class DefaultDirectoryService implements  DirectoryService
 
             attributes.put( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.EXTENSIBLE_OBJECT_OC );
             attributes.put( "prefNodeName", "sysPrefRoot" );
-            attributes.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+            attributes.put( SchemaConstants.CREATORS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
             attributes.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
 
             partitionNexus.add( new AddOperationContext( sysPrefRootDn, attributes ) );

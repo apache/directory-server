@@ -43,7 +43,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
@@ -691,7 +691,7 @@ public class PersistentSearchTest extends AbstractServerTest
                 ctx.setRequestControls( ctxCtls );
                 isReady = true;
                 list = ctx.search( "", "objectClass=*", null );
-                EntryChangeControl ecControl = null;
+                EntryChangeControlCodec ecControl = null;
 
                 while ( list.hasMore() )
                 {
@@ -709,7 +709,7 @@ public class PersistentSearchTest extends AbstractServerTest
                                     org.apache.directory.shared.ldap.message.EntryChangeControl.CONTROL_OID ) )
                                 {
                                     EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
-                                    ecControl = ( EntryChangeControl ) decoder.decode( controls[ii].getEncodedValue() );
+                                    ecControl = ( EntryChangeControlCodec ) decoder.decode( controls[ii].getEncodedValue() );
                                 }
                             }
                         }
@@ -742,10 +742,10 @@ public class PersistentSearchTest extends AbstractServerTest
     class PSearchNotification extends SearchResult
     {
         private static final long serialVersionUID = 1L;
-        final EntryChangeControl control;
+        final EntryChangeControlCodec control;
 
 
-        public PSearchNotification(SearchResult result, EntryChangeControl control)
+        public PSearchNotification(SearchResult result, EntryChangeControlCodec control)
         {
             super( result.getName(), result.getClassName(), result.getObject(), result.getAttributes(), result
                 .isRelative() );

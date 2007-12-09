@@ -20,14 +20,13 @@
 package org.apache.directory.server.core.authz;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -203,7 +202,9 @@ public class AutzIntegUtils
         group.put( objectClass );
         objectClass.add( "top" );
         objectClass.add( "groupOfUniqueNames" );
-        group.put( "uniqueMember", PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED );
+        
+        // TODO might be ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED
+        group.put( "uniqueMember", "uid=admin, ou=system" );
         adminCtx.createSubcontext( "cn=" + groupName + ",ou=groups", group );
         return new LdapDN( "cn=" + groupName + ",ou=groups,ou=system" );
     }

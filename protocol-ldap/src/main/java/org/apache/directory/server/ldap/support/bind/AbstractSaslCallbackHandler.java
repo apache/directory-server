@@ -20,6 +20,7 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapException;
@@ -264,7 +265,7 @@ public abstract class AbstractSaslCallbackHandler implements CallbackHandler
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( Context.PROVIDER_URL, session.getAttribute( "baseDn" ) );
         env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
+        env.put( Context.SECURITY_PRINCIPAL, ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, AuthenticationLevel.SIMPLE.toString() );
 

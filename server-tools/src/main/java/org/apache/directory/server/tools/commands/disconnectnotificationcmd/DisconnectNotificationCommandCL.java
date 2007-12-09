@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.directory.daemon.AvailablePortFinder;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.tools.execution.ToolCommandExecutorStub;
 import org.apache.directory.server.tools.request.BaseToolCommandCL;
 import org.apache.directory.server.tools.util.Parameter;
@@ -39,7 +40,7 @@ import org.apache.directory.server.tools.util.Parameter;
  */
 public class DisconnectNotificationCommandCL extends BaseToolCommandCL
 {
-    private String bindDN = "uid=admin,ou=system";
+    private String bindDN = ServerDNConstants.ADMIN_SYSTEM_DN;
 
 
     public DisconnectNotificationCommandCL()

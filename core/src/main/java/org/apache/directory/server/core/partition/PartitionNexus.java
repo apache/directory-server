@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -38,7 +39,6 @@ import org.apache.directory.server.core.interceptor.context.GetSuffixOperationCo
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
@@ -55,27 +55,13 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
  */
 public abstract class PartitionNexus implements Partition
 {
-    /** the default user principal or DN */
-    //public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
-    
-    /** the DN for the global schema subentry */
-    public final static String GLOBAL_SCHEMA_SUBENTRY_DN = "cn=schema";
-    
-    /** the normalized user principal or DN */
-    public final static String ADMIN_PRINCIPAL_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
-    
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
     
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD = "secret";
     
-    /** the base dn under which all users reside */
-    public final static String USERS_BASE_NAME = "ou=users,ou=system";
-    
-    /** the base dn under which all groups reside */
-    public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
-
+   
     /**
      * Gets the DN for the admin user.
      * 
@@ -132,7 +118,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            groupsBaseDn = new LdapDN( GROUPS_BASE_NAME );
+            groupsBaseDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         }
         catch ( NamingException e )
         {
@@ -154,7 +140,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            usersBaseDn = new LdapDN( USERS_BASE_NAME );
+            usersBaseDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         }
         catch ( NamingException e )
         {

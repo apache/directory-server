@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -86,7 +87,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
             DirectoryService service = slc.getService();
 
-            if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+            if ( !slc.getPrincipal().getName().equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
             {
                 requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
                     ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );

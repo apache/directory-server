@@ -20,15 +20,25 @@
 package org.apache.directory.server.ldap.support;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.exception.OperationAbandonedException;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.message.*;
+import org.apache.directory.shared.ldap.message.AbandonListener;
+import org.apache.directory.shared.ldap.message.LdapResult;
+import org.apache.directory.shared.ldap.message.ManageDsaITControl;
+import org.apache.directory.shared.ldap.message.PersistentSearchControl;
+import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.message.Response;
+import org.apache.directory.shared.ldap.message.ResultCodeEnum;
+import org.apache.directory.shared.ldap.message.ResultResponse;
+import org.apache.directory.shared.ldap.message.ScopeEnum;
+import org.apache.directory.shared.ldap.message.SearchRequest;
+import org.apache.directory.shared.ldap.message.SearchResponseDone;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.ExceptionUtils;
@@ -249,7 +259,7 @@ public class DefaultSearchHandler extends SearchHandler
                 controls = getSearchControls( req, ids, false, maxSize, maxTime );
             }
             else if ( ctx.getPrincipal().getName()
-                .trim().equals( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+                .trim().equals( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
             {
                 controls = getSearchControls( req, ids, true, maxSize, maxTime );
             }

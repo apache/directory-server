@@ -20,27 +20,32 @@ package org.apache.directory.server.core.schema;
 
 
 import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.*;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.DITContentRule;
+import org.apache.directory.shared.ldap.schema.DITStructureRule;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.MatchingRuleUse;
+import org.apache.directory.shared.ldap.schema.NameForm;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.SchemaUtils;
+import org.apache.directory.shared.ldap.schema.Syntax;
 import org.apache.directory.shared.ldap.schema.syntax.ComparatorDescription;
 import org.apache.directory.shared.ldap.schema.syntax.NormalizerDescription;
 import org.apache.directory.shared.ldap.schema.syntax.SyntaxCheckerDescription;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
-import org.apache.directory.shared.ldap.util.DateUtils;
 import org.apache.directory.shared.ldap.util.ImmutableAttributesWrapper;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -54,8 +59,6 @@ import java.util.Set;
  */
 public class SchemaService
 {
-    public static final String SCHEMA_SUBENTRY_DN = "cn=schema";
-    public static final String SCHEMA_SUBENTRY_DN_NORMALIZED = "2.5.4.3=schema";
     public static final String SCHEMA_AREA_DN = "ou=schema";
     public static final String SCHEMA_AREA_DN_NORMALIZED = "2.5.4.11=schema";
 
@@ -96,14 +99,14 @@ public class SchemaService
 
     public boolean isSchemaSubentry( String dnString ) throws NamingException
     {
-        if ( dnString.equalsIgnoreCase( SCHEMA_SUBENTRY_DN ) ||
-             dnString.equalsIgnoreCase( SCHEMA_SUBENTRY_DN_NORMALIZED ) )
+        if ( dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN ) ||
+             dnString.equalsIgnoreCase( ServerDNConstants.SCHEMA_DN_NORMALIZED ) )
         {
             return true;
         }
 
         LdapDN dn = new LdapDN( dnString ).normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
-        return dn.getNormName().equals( SCHEMA_SUBENTRY_DN_NORMALIZED );
+        return dn.getNormName().equals( ServerDNConstants.SCHEMA_DN_NORMALIZED );
     }
 
 

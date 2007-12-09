@@ -21,6 +21,7 @@ package org.apache.directory.server.tools.commands.disconnectnotificationcmd;
 
 
 import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -55,7 +56,7 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
     public static final String BINDDN_PARAMETER = "bindDN";
 
     private String bindDN;
-    public static final String DEFAULT_BINDDN = "uid=admin,ou=system";
+    public static final String DEFAULT_BINDDN = ServerDNConstants.ADMIN_SYSTEM_DN;
     UnsolicitedNotification notification;
     boolean canceled;
 

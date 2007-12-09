@@ -20,6 +20,7 @@
 package org.apache.directory.server.tools.commands.storedprocedurecmd;
 
 import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -105,7 +106,7 @@ public class StoredProcedureCommandExecutor extends BaseToolCommandExecutor
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( JndiPropertyConstants.JNDI_PROVIDER_URL, "ldap://" + host + ":" + port );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.principal", ServerDNConstants.ADMIN_SYSTEM_DN );
         env.put( JndiPropertyConstants.JNDI_SECURITY_CREDENTIALS, password );
         env.put( JndiPropertyConstants.JNDI_SECURITY_AUTHENTICATION, "simple" );
 

@@ -19,6 +19,8 @@
  */
 package org.apache.directory.server.tools;
 
+import org.apache.directory.server.constants.ServerDNConstants;
+
 
 /**
  * Interface that must be extended by every type of command.
@@ -29,6 +31,6 @@ public interface ToolCommand
     public final static int DEFAULT_PORT = 10389;
     public final static String DEFAULT_HOST = "localhost";
     public final static String DEFAULT_PASSWORD = "secret";
-    public final static String DEFAULT_USER = "uid=admin,ou=system";
+    public final static String DEFAULT_USER = ServerDNConstants.ADMIN_SYSTEM_DN;
     public final static String DEFAULT_AUTH = "simple";
 }

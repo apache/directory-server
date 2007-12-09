@@ -23,12 +23,12 @@ package org.apache.directory.server.unit;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.protocol.shared.SocketAcceptor;
-import org.apache.directory.shared.ldap.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -170,7 +170,7 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext getWiredContext() throws NamingException
     {
-        return getWiredContext( "uid=admin,ou=system", "secret" );
+        return getWiredContext( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
     
     

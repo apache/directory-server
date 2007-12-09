@@ -23,7 +23,13 @@ import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
-import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.interceptor.context.AddOperationContext;
+import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
+import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
+import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
@@ -92,11 +98,13 @@ public class ChangeLogInterceptor extends BaseInterceptor
         Entry forward = new Entry();
         forward.setChangeType( ChangeType.Add );
         forward.setDn( opContext.getDn().getUpName() );
-        NamingEnumeration list = opContext.getEntry().getAll();
+        NamingEnumeration<? extends Attribute> list = opContext.getEntry().getAll();
+        
         while ( list.hasMore() )
         {
             forward.addAttribute( ( Attribute ) list.next() );
         }
+        
         Entry reverse = LdifUtils.reverseAdd( opContext.getDn() );
         changeLog.log( getPrincipal(), forward, reverse );
     }
