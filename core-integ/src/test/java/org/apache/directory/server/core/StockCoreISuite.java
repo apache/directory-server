@@ -68,7 +68,7 @@ import org.junit.runners.Suite;
         ModifyContextIT.class,
         RFC2713IT.class,
         RootDSEIT.class,
-        SearchContextIT.class,
+        SearchIT.class,
         UniqueMemberIT.class,
         OperationalAttributeServiceIT.class,
         PreferencesIT.class,

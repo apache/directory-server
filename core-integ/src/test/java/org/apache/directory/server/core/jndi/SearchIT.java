@@ -25,6 +25,7 @@ import org.apache.directory.server.core.enumeration.SearchResultFilter;
 import org.apache.directory.server.core.enumeration.SearchResultFilteringEnumeration;
 import org.apache.directory.server.core.integ.CiRunner;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 import org.apache.directory.shared.ldap.exception.LdapSizeLimitExceededException;
@@ -32,6 +33,7 @@ import org.apache.directory.shared.ldap.exception.LdapTimeLimitExceededException
 import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 import javax.naming.ldap.LdapContext;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 
 /**
@@ -50,7 +54,7 @@ import java.util.HashMap;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-public class SearchContextIT
+public class SearchIT
 {
     private static final String RDN = "cn=Heather Nova";
     private static final String FILTER = "(objectclass=*)";
@@ -162,7 +166,6 @@ public class SearchContextIT
         assertTrue( attribute.contains( "top" ) );
         assertTrue( attribute.contains( "organizationalUnit" ) );
 
-
         // Create entry cn=Heather Nova, ou=system
         Attributes heather = new AttributesImpl();
         Attribute ocls = new AttributeImpl( "objectClass" );
@@ -176,6 +179,49 @@ public class SearchContextIT
 
         ctx = ( DirContext ) sysRoot.lookup( RDN );
         assertNotNull( ctx );
+
+
+        // -------------------------------------------------------------------
+        // Enable the nis schema
+        // -------------------------------------------------------------------
+
+        // check if nis is disabled
+        LdapContext schemaRoot = getSchemaContext( service );
+        Attributes nisAttrs = schemaRoot.getAttributes( "cn=nis" );
+        boolean isNisDisabled = false;
+        if ( nisAttrs.get( "m-disabled" ) != null )
+        {
+            isNisDisabled = ( ( String ) nisAttrs.get( "m-disabled" ).get() ).equalsIgnoreCase( "TRUE" );
+        }
+
+        // if nis is disabled then enable it
+        if ( isNisDisabled )
+        {
+            Attribute disabled = new AttributeImpl( "m-disabled" );
+            ModificationItemImpl[] mods = new ModificationItemImpl[] {
+                new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, disabled ) };
+            schemaRoot.modifyAttributes( "cn=nis", mods );
+        }
+
+        // -------------------------------------------------------------------
+        // Add a bunch of nis groups
+        // -------------------------------------------------------------------
+
+        addNisPosixGroup( "testGroup0", 0 );
+        addNisPosixGroup( "testGroup1", 1 );
+        addNisPosixGroup( "testGroup2", 2 );
+        addNisPosixGroup( "testGroup4", 4 );
+        addNisPosixGroup( "testGroup5", 5 );
+    }
+
+
+    private DirContext addNisPosixGroup( String name, int gid ) throws NamingException
+    {
+        Attributes attrs = new AttributesImpl( "objectClass", "top", true );
+        attrs.get( "objectClass" ).add( "posixGroup" );
+        attrs.put( "cn", name );
+        attrs.put( "gidNumber", String.valueOf( gid ) );
+        return getSystemContext( service ).createSubcontext( "cn="+name+",ou=groups", attrs );
     }
 
 
@@ -447,7 +493,7 @@ public class SearchContextIT
             SearchResult result = ( SearchResult ) list.next();
             map.put( result.getName(), result.getAttributes() );
         }
-        assertEquals( "size of results", 14, map.size() );
+        assertEquals( "size of results", 19, map.size() );
         assertTrue( "contains ou=testing00,ou=system", map.containsKey( "ou=testing00,ou=system" ) ); 
         assertTrue( "contains ou=testing01,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
         assertTrue( "contains ou=testing02,ou=system", map.containsKey( "ou=testing01,ou=system" ) ); 
@@ -959,4 +1005,187 @@ public class SearchContextIT
 //        assertTrue( "contains uid=admin,ou=system", map.contains( "uid=admin,ou=system" ) ); 
 //        assertTrue( "contains cn=administrators,ou=groups,ou=system", map.contains( "cn=administrators,ou=groups,ou=system" ) ); 
 //    }
+
+
+
+    /**
+     *  Convenience method that performs a one level search using the
+     *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param controls the search controls
+     * @param filter the filter expression
+     * @return the set of groups
+     * @throws NamingException if there are problems conducting the search
+     */
+    public Set<String> searchGroups( String filter, SearchControls controls ) throws NamingException
+    {
+        if ( controls == null )
+        {
+            controls = new SearchControls();
+        }
+
+        Set<String> results = new HashSet<String>();
+        NamingEnumeration list = getSystemContext( service ).search( "ou=groups", filter, controls );
+
+        while( list.hasMore() )
+        {
+            SearchResult result = ( SearchResult ) list.next();
+            results.add( result.getName() );
+        }
+
+        return results;
+    }
+
+
+    /**
+     *  Convenience method that performs a one level search using the
+     *  specified filter returning their DNs as Strings in a set.
+     *
+     * @param filter the filter expression
+     * @return the set of group names
+     * @throws NamingException if there are problems conducting the search
+     */
+    public Set<String> searchGroups( String filter ) throws NamingException
+    {
+        return searchGroups( filter, null );
+    }
+
+
+    @Test
+    public void testSetup() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        Set results = searchGroups( "(objectClass=posixGroup)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+
+    @Test
+    public void testLessThanSearch() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        Set results = searchGroups( "(gidNumber<=5)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=4)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=3)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=0)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber<=-1)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+
+    @Test
+    public void testGreaterThanSearch() throws Exception
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        Set results = searchGroups( "(gidNumber>=0)" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=1)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=3)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+
+        results = searchGroups( "(gidNumber>=6)" );
+        assertFalse( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+
+    @Test
+    public void testNotOperator() throws NamingException
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        Set results = searchGroups( "(!(gidNumber=4))" );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
+
+
+    @Test
+    public void testNotOperatorSubtree() throws NamingException
+    {
+        LdapContext sysRoot = getSystemContext( service );
+        createData( sysRoot );
+
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+
+        Set results = searchGroups( "(!(gidNumber=4))", controls );
+        assertTrue( results.contains( "cn=testGroup0,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup1,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup2,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup3,ou=groups,ou=system" ) );
+        assertFalse( results.contains( "cn=testGroup4,ou=groups,ou=system" ) );
+        assertTrue( results.contains( "cn=testGroup5,ou=groups,ou=system" ) );
+    }
 }
