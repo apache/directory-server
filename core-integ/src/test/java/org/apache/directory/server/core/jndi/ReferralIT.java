@@ -20,36 +20,29 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getUserAddLdif;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.*;
+import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -58,40 +51,11 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ReferralITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class ReferralIT
 {
-    private static final boolean SUNJNDI = false;
-    private boolean sunjndi = System.getProperty( "sunjndi" ) != null || SUNJNDI;
+    public static DirectoryService service;
     private TestData td = new TestData();
-
-
-    public void setUp() throws Exception
-    {
-        if ( !sunjndi )
-        {
-            super.setUp();
-        }
-
-        addReferralEntry();
-    }
-
-
-    public void tearDown() throws Exception
-    {
-        if ( td.refCtx != null )
-        {
-            td.refCtx.close();
-        }
-
-        if ( !sunjndi )
-        {
-            super.tearDown();
-        }
-        else if ( td.rootCtx != null )
-        {
-            td.rootCtx.close();
-        }
-    }
 
 
     /*
@@ -105,28 +69,6 @@ public class ReferralITest extends AbstractAdminTestCase
      * NOTE: Need to figure out the behavoir of referral handling during search
      * when aliases are being dereferenced.
      */
-
-    /**
-     * Get's the root "ou=system" in either the embedded instance or an
-     * external instance.  We do this to mold test cases to make sure the 
-     * ApacheDS JNDI LDAP provider behaves just like the SUN JNDI LDAP
-     * provider does.
-     */
-    private LdapContext getSystemRoot() throws NamingException
-    {
-        if ( !sunjndi )
-        {
-            return sysRoot;
-        }
-
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-        env.put( JndiPropertyConstants.JNDI_FACTORY_INITIAL, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://hertz.karasulu.homeip.net:10390/ou=system" );
-        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
-        env.put( "java.naming.security.credentials", "longsecret" );
-        env.put( "java.naming.security.authentication", "simple" );
-        return new InitialLdapContext( env, null );
-    }
 
     private class TestData
     {
@@ -142,7 +84,10 @@ public class ReferralITest extends AbstractAdminTestCase
         String ref0 = "ldap://fermi:10389/ou=users,ou=system";
         String ref1 = "ldap://hertz:10389/ou=users,dc=example,dc=com";
         String ref2 = "ldap://maxwell:10389/ou=users,ou=system";
-        td.rootCtx = getSystemRoot();
+        td.rootCtx = getSystemContext( service );
+
+        Entry akarasulu = getUserAddLdif();
+        getRootContext( service ).createSubcontext( akarasulu.getDn(), akarasulu.getAttributes() );
 
         // -------------------------------------------------------------------
         // Adds a referral entry regardless of referral handling settings
@@ -217,8 +162,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testAddWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to add a normal entry below the referral parent. We should
         // encounter referral errors with referral setting set to throw.
@@ -248,8 +196,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testAddWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to add a normal entry below the referral ancestor. We should
         // encounter referral errors with referral setting set to throw.
@@ -279,8 +230,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testDeleteWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to delete a non-existent entry below the referral parent. 
         // We should encounter referral errors with referral setting set to 
@@ -306,8 +260,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testDeleteWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to delete a non-existent entry below the referral ancestor. 
         // We should encounter referral errors when referral setting is set to 
@@ -333,8 +290,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testCompareWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to compare attributes in an entry below the referral parent. 
         // We should encounter referral errors with referral setting set to 
@@ -369,8 +329,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testCompareWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to compare attributes in an entry below the referral ancestor. 
         // We should encounter referral errors when referral setting is set to 
@@ -405,8 +368,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the attributes of an entry below the referral 
         // parent.  We should encounter referral errors with referral setting 
@@ -433,8 +399,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the attributes of an entry below the referral 
         // ancestor. We should encounter referral errors when referral setting 
@@ -461,8 +430,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyWithReferralParent2() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the attributes of an entry below the referral 
         // parent.  We should encounter referral errors with referral setting 
@@ -490,8 +462,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyWithReferralAncestor2() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the attributes of an entry below the referral 
         // ancestor. We should encounter referral errors when referral setting 
@@ -520,8 +495,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyRdnWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an parent which is a referral. We should encounter 
@@ -548,8 +526,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testModifyRdnWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an ancestor which is a referral. We should encounter 
@@ -576,8 +557,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralParent() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an parent which is a referral. We should encounter 
@@ -604,8 +588,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralAncestor() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an ancestor which is a referral. We should encounter 
@@ -632,8 +619,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralParent2() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an parent which is a referral. We should encounter 
@@ -660,8 +650,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralAncestor2() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an ancestor which is a referral. We should encounter 
@@ -688,8 +681,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralParentDest() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an parent which is a referral. We should encounter 
@@ -717,8 +713,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralAncestorDest() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an ancestor which is a referral. We should encounter 
@@ -746,8 +745,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralParent2Dest() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an parent which is a referral. We should encounter 
@@ -775,8 +777,11 @@ public class ReferralITest extends AbstractAdminTestCase
      * 
      * @throws Exception if something goes wrong.
      */
+    @Test
     public void testMoveWithReferralAncestor2Dest() throws Exception
     {
+        addReferralEntry();
+
         // -------------------------------------------------------------------
         // Attempt to modify the last component of the entry's name which 
         // resides below an ancestor which is a referral. We should encounter 
@@ -799,12 +804,15 @@ public class ReferralITest extends AbstractAdminTestCase
 
     private void createLocalUser() throws Exception
     {
-        LdapContext userCtx = null;
+        addReferralEntry();
+
+        LdapContext userCtx;
         Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
         referral.put( "cn", "akarasulu" );
         referral.put( "sn", "karasulu" );
 
+        //noinspection EmptyCatchBlock
         try
         {
             td.rootCtx.destroySubcontext( "uid=akarasulu" );
@@ -830,6 +838,8 @@ public class ReferralITest extends AbstractAdminTestCase
 
     private void createDeepLocalUser() throws Exception
     {
+        addReferralEntry();
+
         LdapContext userCtx = null;
         Attributes referral = new AttributesImpl( "objectClass", "top", true );
         referral.get( "objectClass" ).add( "person" );
@@ -838,6 +848,7 @@ public class ReferralITest extends AbstractAdminTestCase
         referral.put( "sn", "karasulu" );
         referral.put( "ou", "deep" );
 
+        //noinspection EmptyCatchBlock
         try
         {
             td.rootCtx.destroySubcontext( "uid=akarasulu,ou=deep" );
@@ -845,6 +856,7 @@ public class ReferralITest extends AbstractAdminTestCase
         catch ( NameNotFoundException e )
         {
         }
+        //noinspection EmptyCatchBlock
         try
         {
             td.rootCtx.destroySubcontext( "ou=deep" );
@@ -873,8 +885,11 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchBaseIsReferral() throws Exception
     {
+        addReferralEntry();
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
@@ -895,8 +910,11 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchBaseParentIsReferral() throws Exception
     {
+        addReferralEntry();
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
@@ -916,8 +934,11 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchBaseAncestorIsReferral() throws Exception
     {
+        addReferralEntry();
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         td.refCtx.addToEnvironment( Context.REFERRAL, "throw" );
@@ -939,8 +960,11 @@ public class ReferralITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testSearchContinuations() throws Exception
     {
+        addReferralEntry();
+
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration list = td.rootCtx.search( "", "(objectClass=*)", controls );
@@ -1008,11 +1032,17 @@ public class ReferralITest extends AbstractAdminTestCase
         assertNull( results.get( "ou=users" ) );
     }
 
+
     /**
      * Checks that when injecting LDAP ref with an empty DN we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithEmptyDN() throws Exception
     {
+        addReferralEntry();
+
         Attributes attrs = new AttributesImpl( true );
 
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
@@ -1030,7 +1060,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1039,11 +1069,17 @@ public class ReferralITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Checks that when injecting LDAP ref with attribuutes we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithAttrs() throws Exception
     {
+        addReferralEntry();
+
         Attributes attrs = new AttributesImpl( true );
 
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
@@ -1061,7 +1097,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1070,13 +1106,18 @@ public class ReferralITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Checks that when injecting LDAP ref with a scope we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithScope() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
+        addReferralEntry();
 
+        Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
@@ -1092,7 +1133,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1101,13 +1142,18 @@ public class ReferralITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Checks that when injecting LDAP ref with a filter we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithFilters() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
+        addReferralEntry();
 
+        Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
@@ -1123,7 +1169,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1132,13 +1178,18 @@ public class ReferralITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Checks that when injecting LDAP ref with an extension we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithExtension() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
+        addReferralEntry();
 
+        Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
@@ -1154,7 +1205,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )
@@ -1163,13 +1214,18 @@ public class ReferralITest extends AbstractAdminTestCase
         }
     }
 
+
     /**
      * Checks that when injecting LDAP ref with a critical extension we get an exception
+     *
+     * @throws Exception on error
      */
+    @Test
     public void testAddWReferralWithCriticalExtension() throws Exception
     {
-        Attributes attrs = new AttributesImpl( true );
+        addReferralEntry();
 
+        Attributes attrs = new AttributesImpl( true );
         Attribute oc = new AttributeImpl( "ObjectClass", "top" );
         oc.add( "extensibleObject" );
         oc.add( "referral" );
@@ -1185,7 +1241,7 @@ public class ReferralITest extends AbstractAdminTestCase
         //create subcontext
         try
         {
-            sysRoot.createSubcontext( base, attrs );
+            getSystemContext( service ).createSubcontext( base, attrs );
             fail( "Should not reach this state" );
         }
         catch ( NamingException ne )

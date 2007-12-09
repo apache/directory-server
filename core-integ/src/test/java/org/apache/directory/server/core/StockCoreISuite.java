@@ -80,6 +80,7 @@ import org.junit.runners.Suite;
         SubentryServiceIT.class,
         LdapClassLoaderIT.class,
         NormalizationServiceIT.class,
+        ReferralIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
 @Scope ( ServiceScope.TESTSUITE )
