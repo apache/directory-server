@@ -131,7 +131,8 @@ public class BinaryValue implements Value<byte[]>
     {
         if ( wrapped != null )
         {
-            this.wrapped = Arrays.copyOf( wrapped, wrapped.length );
+            this.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, this.wrapped, 0, wrapped.length );
         }
         else
         {
@@ -151,7 +152,8 @@ public class BinaryValue implements Value<byte[]>
         
         if ( wrapped != null )
         {
-            cloned.wrapped = Arrays.copyOf(  wrapped, wrapped.length );
+            cloned.wrapped = new byte[ wrapped.length ];
+            System.arraycopy( wrapped, 0, cloned.wrapped, 0, wrapped.length );
         }
         
         return cloned;
