@@ -19,13 +19,9 @@
 package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.ServiceScope;
-import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.Mode;
-import org.apache.directory.server.core.integ.annotations.Scope;
-import org.apache.directory.server.core.schema.*;
+import org.apache.directory.server.core.integ.ServiceCleanupLevel;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.junit.runner.RunWith;
-import org.junit.Ignore;
 import org.junit.runners.Suite;
 
 
@@ -51,7 +47,7 @@ import org.junit.runners.Suite;
                                         // the default factory service running instead of
                                         // one with 
         } )
-@Scope ( ServiceScope.TESTSUITE )
+@CleanupLevel ( ServiceCleanupLevel.TESTSUITE )
 public class AuthzISuite
 {
 }

@@ -45,7 +45,7 @@ public class InheritableSettings
     /** junit test description containing all annotations queried */
     private final Description description;
     /** default scope of a service */
-    private static final ServiceScope DEFAULT_SCOPE = ServiceScope.TESTSUITE;
+    private static final ServiceCleanupLevel DEFAULT_CLEANUP_LEVEL = ServiceCleanupLevel.TESTSUITE;
 
 
     /**
@@ -200,18 +200,18 @@ public class InheritableSettings
     }
 
 
-    public ServiceScope getScope()
+    public ServiceCleanupLevel getCleanupLevel()
     {
-        ServiceScope parentScope = DEFAULT_SCOPE;
+        ServiceCleanupLevel parentCleanupLevel = DEFAULT_CLEANUP_LEVEL;
         if ( parent != null )
         {
-            parentScope = parent.getScope();
+            parentCleanupLevel = parent.getCleanupLevel();
         }
 
-        Scope annotation = description.getAnnotation( Scope.class );
+        CleanupLevel annotation = description.getAnnotation( CleanupLevel.class );
         if ( annotation == null )
         {
-            return parentScope;
+            return parentCleanupLevel;
         }
         else
         {

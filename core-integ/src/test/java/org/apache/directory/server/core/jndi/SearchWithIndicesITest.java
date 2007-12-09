@@ -26,9 +26,9 @@ import org.apache.directory.server.core.integ.CiRunner;
 import org.apache.directory.server.core.integ.DirectoryServiceFactory;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSchemaContext;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
-import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.ServiceCleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Factory;
-import org.apache.directory.server.core.integ.annotations.Scope;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
@@ -55,7 +55,7 @@ import java.util.Set;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@Scope ( ServiceScope.TESTCLASS )
+@CleanupLevel ( ServiceCleanupLevel.TESTCLASS )
 @Factory ( SearchWithIndicesITest.MyFactory.class )
 public class SearchWithIndicesITest
 {

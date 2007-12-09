@@ -25,11 +25,12 @@ package org.apache.directory.server.core.integ;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public enum ServiceScope
+public enum ServiceCleanupLevel
 {
     TESTSUITE( 0, "service has test suite level scope" ),
     TESTCLASS( 1, "service has test class level scope" ),
-    TESTSYSTEM( 2, "service has test system level scope" );
+    TESTSYSTEM( 2, "service has test system level scope" ),
+    TESTMETHOD( 3, "service has test method level scope" );
 
     public final int ordinal;
     public final String description;
@@ -37,9 +38,10 @@ public enum ServiceScope
     public static final int TESTSUITE_ORDINAL = 0;
     public static final int TESTCLASS_ORDINAL = 1;
     public static final int TESTSYSTEM_ORDINAL = 2;
+    public static final int TESTMETHOD_ORDINAL = 2;
 
 
-    ServiceScope( int ordinal, String description )
+    ServiceCleanupLevel( int ordinal, String description )
     {
         this.ordinal = ordinal;
         this.description = description;

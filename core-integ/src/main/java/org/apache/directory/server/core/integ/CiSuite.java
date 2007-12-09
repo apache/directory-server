@@ -112,7 +112,7 @@ public class CiSuite extends Suite
          * running tests.
          */
 
-        if ( settings.getScope() != ServiceScope.TESTSYSTEM )
+        if ( settings.getCleanupLevel() != ServiceCleanupLevel.TESTSYSTEM )
         {
             try
             {

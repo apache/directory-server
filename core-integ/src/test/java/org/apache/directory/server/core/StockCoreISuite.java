@@ -25,10 +25,10 @@ import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.event.EventServiceIT;
 import org.apache.directory.server.core.exception.ExceptionServiceIT;
 import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.ServiceCleanupLevel;
 import org.apache.directory.server.core.integ.SetupMode;
 import org.apache.directory.server.core.integ.annotations.Mode;
-import org.apache.directory.server.core.integ.annotations.Scope;
+import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.jndi.*;
 import org.apache.directory.server.core.normalization.NormalizationServiceIT;
 import org.apache.directory.server.core.operational.OperationalAttributeServiceIT;
@@ -85,7 +85,7 @@ import org.junit.runners.Suite;
         ReferralIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
-@Scope ( ServiceScope.TESTSUITE )
+@CleanupLevel ( ServiceCleanupLevel.TESTSUITE )
 @Mode ( SetupMode.ROLLBACK )
 public class StockCoreISuite
 {

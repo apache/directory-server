@@ -23,8 +23,6 @@ package org.apache.directory.server.core.configuration;
 import junit.framework.Assert;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.ServiceScope;
-import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.jndi.CoreContextFactory;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;

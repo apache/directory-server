@@ -70,8 +70,8 @@ public class CiRunner extends JUnit4ClassRunner
     public void run( final RunNotifier notifier )
     {
         super.run( notifier );
-        ServiceScope scope = getSettings().getScope();
-        if ( scope == ServiceScope.TESTCLASS )
+        ServiceCleanupLevel cleanupLevel = getSettings().getCleanupLevel();
+        if ( cleanupLevel == ServiceCleanupLevel.TESTCLASS )
         {
             try
             {
@@ -95,6 +95,23 @@ public class CiRunner extends JUnit4ClassRunner
         LOG.debug( "About to invoke test method {}", method.getName() );
         Description description = methodDescription( method );
         test( getTestClass(), wrapMethod( method ), notifier, new InheritableSettings( description, getSettings() ) );
+
+        ServiceCleanupLevel cleanupLevel = getSettings().getCleanupLevel();
+        if ( cleanupLevel == ServiceCleanupLevel.TESTMETHOD )
+        {
+            try
+            {
+                shutdown();
+                cleanup();
+                destroy();
+            }
+            catch ( Exception e )
+            {
+                LOG.error( "Encountered exception while trying to cleanup after test class: "
+                        + this.getDescription().getDisplayName(), e );
+                notifier.fireTestFailure( new Failure( getDescription(), e ) );
+            }
+        }
     }
 
 
