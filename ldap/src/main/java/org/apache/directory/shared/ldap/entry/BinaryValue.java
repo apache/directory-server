@@ -183,7 +183,7 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
-        if ( wrapped != binaryValue.wrapped  )
+        if ( isNull() != binaryValue.isNull() )
         {
             return false;
         }
