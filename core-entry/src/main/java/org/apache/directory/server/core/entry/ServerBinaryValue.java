@@ -192,7 +192,9 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
             getNormalizedReference();
         }
 
-        return Arrays.copyOf( normalizedValue, normalizedValue.length );
+        byte[] copy = new byte[ normalizedValue.length ];
+        System.arraycopy( normalizedValue, 0, copy, 0, normalizedValue.length );
+        return copy;
     }
 
 
