@@ -19,7 +19,7 @@
  */
 package org.apache.directory.server.core.integ.annotations;
 
-import org.apache.directory.server.core.integ.ServiceCleanupLevel;
+import org.apache.directory.server.core.integ.Level;
 
 import java.lang.annotation.*;
 
@@ -36,5 +36,5 @@ import java.lang.annotation.*;
 @Target ( { ElementType.METHOD, ElementType.TYPE } )
 public @interface CleanupLevel
 {
-     ServiceCleanupLevel value();
+     Level value();
 }

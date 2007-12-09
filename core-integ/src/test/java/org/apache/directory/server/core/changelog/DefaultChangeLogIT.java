@@ -21,6 +21,9 @@ package org.apache.directory.server.core.changelog;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.shutdown;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.startup;
+import static org.apache.directory.server.core.integ.state.TestServiceContext.revert;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -86,9 +89,8 @@ public class DefaultChangeLogIT
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( revision + 2, t1.getRevision() );
 
-        service.sync();
-        service.shutdown();
-        service.startup();
+        shutdown();
+        startup();
 
         assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
@@ -115,8 +117,8 @@ public class DefaultChangeLogIT
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         // no sync this time but should happen automatically
-        service.shutdown();
-        service.startup();
+        shutdown();
+        startup();
         assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
         assertEquals( revision + 2, t1.getRevision() );
@@ -146,10 +148,9 @@ public class DefaultChangeLogIT
         sysRoot.createSubcontext( "ou=test", attrs );
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
-        service.sync();
-        service.shutdown();
+        shutdown();
+        startup();
 
-        service.startup();
         assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
 

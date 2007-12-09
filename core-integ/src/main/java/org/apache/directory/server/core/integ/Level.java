@@ -20,28 +20,43 @@ package org.apache.directory.server.core.integ;
 
 
 /**
- * Document me!
+ * A scope or level of testing.  There are four levels:
+ *
+ * <ul>
+ *   <li>
+ *     <b>system level</b>: the level external to the testing framework</li>
+ *   </li>
+ *   <li>
+ *     <b>suite level</b>: the level representing test suite scope</li>
+ *   </li>
+ *   <li>
+ *     <b>class level</b>: the level representing test class scope</li>
+ *   </li>
+ *   <li>
+ *     <b>method level</b>: the lowest level representing test method scope</li>
+ *   </li>
+ * </ul>
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public enum ServiceCleanupLevel
+public enum Level
 {
-    TESTSUITE( 0, "service has test suite level scope" ),
-    TESTCLASS( 1, "service has test class level scope" ),
-    TESTSYSTEM( 2, "service has test system level scope" ),
-    TESTMETHOD( 3, "service has test method level scope" );
+    SUITE( 0, "test suite level" ),
+    CLASS( 1, "test class level" ),
+    SYSTEM( 2, "test system level" ),
+    METHOD( 3, "test method level" );
 
     public final int ordinal;
     public final String description;
 
-    public static final int TESTSUITE_ORDINAL = 0;
-    public static final int TESTCLASS_ORDINAL = 1;
-    public static final int TESTSYSTEM_ORDINAL = 2;
-    public static final int TESTMETHOD_ORDINAL = 2;
+    public static final int SUITE_ORDINAL = 0;
+    public static final int CLASS_ORDINAL = 1;
+    public static final int SYSTEM_ORDINAL = 2;
+    public static final int METHOD_ORDINAL = 3;
 
 
-    ServiceCleanupLevel( int ordinal, String description )
+    Level( int ordinal, String description )
     {
         this.ordinal = ordinal;
         this.description = description;

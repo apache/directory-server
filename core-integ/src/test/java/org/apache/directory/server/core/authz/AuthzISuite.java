@@ -19,7 +19,7 @@
 package org.apache.directory.server.core.authz;
 
 import org.apache.directory.server.core.integ.CiSuite;
-import org.apache.directory.server.core.integ.ServiceCleanupLevel;
+import org.apache.directory.server.core.integ.Level;
 import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -47,7 +47,7 @@ import org.junit.runners.Suite;
                                         // the default factory service running instead of
                                         // one with 
         } )
-@CleanupLevel ( ServiceCleanupLevel.TESTSUITE )
+@CleanupLevel ( Level.SUITE )
 public class AuthzISuite
 {
 }

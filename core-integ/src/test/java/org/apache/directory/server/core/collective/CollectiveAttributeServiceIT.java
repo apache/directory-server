@@ -22,9 +22,7 @@ package org.apache.directory.server.core.collective;
 
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.integ.CiRunner;
-import org.apache.directory.server.core.integ.ServiceCleanupLevel;
 import org.apache.directory.server.core.integ.SetupMode;
-import org.apache.directory.server.core.integ.annotations.CleanupLevel;
 import org.apache.directory.server.core.integ.annotations.Mode;
 import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
@@ -48,7 +46,6 @@ import java.util.Map;
  * @version $Rev$
  */
 @RunWith ( CiRunner.class )
-@CleanupLevel ( ServiceCleanupLevel.TESTSUITE )
 @Mode ( SetupMode.ROLLBACK )
 public class CollectiveAttributeServiceIT
 {

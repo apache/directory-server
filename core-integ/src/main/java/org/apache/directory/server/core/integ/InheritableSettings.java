@@ -44,8 +44,8 @@ public class InheritableSettings
     private final InheritableSettings parent;
     /** junit test description containing all annotations queried */
     private final Description description;
-    /** default scope of a service */
-    private static final ServiceCleanupLevel DEFAULT_CLEANUP_LEVEL = ServiceCleanupLevel.TESTSUITE;
+    /** default level at which a service is cleaned up */
+    private static final Level DEFAULT_CLEANUP_LEVEL = Level.SUITE;
 
 
     /**
@@ -57,12 +57,6 @@ public class InheritableSettings
     {
         this.description = description;
         this.parent = null;
-
-//        if ( ! description.isSuite() )
-//        {
-//            throw new IllegalStateException( String.format( "%s is not a suite! It requires parent settings.",
-//                    description.getDisplayName() ) );
-//        }
     }
 
 
@@ -200,9 +194,9 @@ public class InheritableSettings
     }
 
 
-    public ServiceCleanupLevel getCleanupLevel()
+    public Level getCleanupLevel()
     {
-        ServiceCleanupLevel parentCleanupLevel = DEFAULT_CLEANUP_LEVEL;
+        Level parentCleanupLevel = DEFAULT_CLEANUP_LEVEL;
         if ( parent != null )
         {
             parentCleanupLevel = parent.getCleanupLevel();

@@ -70,8 +70,8 @@ public class CiRunner extends JUnit4ClassRunner
     public void run( final RunNotifier notifier )
     {
         super.run( notifier );
-        ServiceCleanupLevel cleanupLevel = getSettings().getCleanupLevel();
-        if ( cleanupLevel == ServiceCleanupLevel.TESTCLASS )
+        Level cleanupLevel = getSettings().getCleanupLevel();
+        if ( cleanupLevel == Level.CLASS )
         {
             try
             {
@@ -96,8 +96,8 @@ public class CiRunner extends JUnit4ClassRunner
         Description description = methodDescription( method );
         test( getTestClass(), wrapMethod( method ), notifier, new InheritableSettings( description, getSettings() ) );
 
-        ServiceCleanupLevel cleanupLevel = getSettings().getCleanupLevel();
-        if ( cleanupLevel == ServiceCleanupLevel.TESTMETHOD )
+        Level cleanupLevel = getSettings().getCleanupLevel();
+        if ( cleanupLevel == Level.METHOD )
         {
             try
             {
