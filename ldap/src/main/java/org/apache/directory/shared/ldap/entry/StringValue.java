@@ -116,8 +116,8 @@ public class StringValue implements Value<String>
     {
         return wrapped;
     }
-    
-    
+
+
     public boolean isNull()
     {
         return wrapped == null;

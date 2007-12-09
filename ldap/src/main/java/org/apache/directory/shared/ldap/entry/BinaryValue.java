@@ -83,11 +83,11 @@ public class BinaryValue implements Value<byte[]>
 
 
     /**
-     * Returns the wrapped binary value. The value
-     * is copied, so any modification in the caller
-     * won't impact the local value.
+     * Gets a copy of the binary value.
+     *
+     * @return a copy of the binary value
      */
-    public byte[] get()
+    public byte[] getCopy()
     {
         if ( wrapped == null )
         {
@@ -101,11 +101,13 @@ public class BinaryValue implements Value<byte[]>
 
     
     /**
-     * Returns the wrapped binary value.
+     * Gets a reference to the wrapped binary value.
      * 
      * Warning ! The value is not copied !!!
+     *
+     * @return a direct handle on the binary value that is wrapped
      */
-    protected byte[] getUnsafe()
+    public byte[] getReference()
     {
         return wrapped;
     }
@@ -114,7 +116,7 @@ public class BinaryValue implements Value<byte[]>
     /**
      * Returns <code>true</code> if the wrapper contains no value.
      */
-    public boolean isNull()
+    public final boolean isNull()
     {
         return wrapped == null; 
     }
@@ -123,7 +125,7 @@ public class BinaryValue implements Value<byte[]>
     /**
      * Sets this value's wrapped value to a copy of the src array.
      *
-     * @param src the source byte array to use as the wrapped value
+     * @param wrapped the byte array to use as the wrapped value
      */
     public void set( byte[] wrapped )
     {
@@ -183,6 +185,7 @@ public class BinaryValue implements Value<byte[]>
             return true;
         }
 
+        //noinspection SimplifiableIfStatement
         if ( isNull() != binaryValue.isNull() )
         {
             return false;
@@ -195,10 +198,10 @@ public class BinaryValue implements Value<byte[]>
     /**
      * Compare with the current BinaryValue 
      *
-     * @param value The BinaryValue we want to compare the current value with
-     * @return 
+     * @see Comparable#compareTo(Object) 
      */
-    public int compareTo( Value<byte[]> value )
+    @SuppressWarnings ( { "JavaDoc" } )
+    public int compareTo( BinaryValue value )
     {
         if ( value == null )
         {
@@ -217,6 +220,6 @@ public class BinaryValue implements Value<byte[]>
             return -1;
         }
 
-        return BYTE_ARRAY_COMPARATOR.compare( wrapped, value.get() );
+        return BYTE_ARRAY_COMPARATOR.compare( wrapped, value.getReference() );
     }
 }

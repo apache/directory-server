@@ -117,11 +117,6 @@ public class StreamedValue implements Value<URI>
             return 1;
         }
 
-        if ( value.get() == null )
-        {
-            return -1;
-        }
-
-        return wrapped.compareTo( value.get() );
+        throw new NotImplementedException();
     }
 }

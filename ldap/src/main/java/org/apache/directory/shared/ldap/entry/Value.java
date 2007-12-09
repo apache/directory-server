@@ -29,12 +29,12 @@ package org.apache.directory.shared.ldap.entry;
  */
 public interface Value<T>
 {
-    /**
-     * Get the wrapped value.
-     *
-     * @return the wrapped value, as its original type (String,byte[],URI)
-     */
-    T get();
+//    /**
+//     * Get the wrapped value.
+//     *
+//     * @return the wrapped value, as its original type (String,byte[],URI)
+//     */
+//    T get();
 
 
     /**
