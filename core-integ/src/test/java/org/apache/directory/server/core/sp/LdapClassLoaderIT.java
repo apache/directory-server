@@ -21,15 +21,21 @@
 package org.apache.directory.server.core.sp;
 
 
-import javax.naming.Context;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getRootContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.util.Base64;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
 
 
 /**
@@ -38,7 +44,8 @@ import org.apache.directory.shared.ldap.util.Base64;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
-public class LdapClassLoaderITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public class LdapClassLoaderIT
 {
     private static final String HELLOWORLD_CLASS_BASE64 = "yv66vgAAADEAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpV"
         + "gEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzsp"
@@ -52,18 +59,16 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
     private static final byte[] HELLOWORLD_CLASS_BYTES = Base64.decode( HELLOWORLD_CLASS_BASE64.toCharArray() );
 
 
-    protected void setUp() throws Exception
-    {
-        // bind to RootDSE
-        overrideEnvironment( Context.PROVIDER_URL, "" );
-        super.setUp();
-    }
+    public static DirectoryService service;
 
 
+    @Test
     public void testLdapClassLoaderWithClassLoadedAnywhere() throws Exception
     {
+        LdapContext root = getRootContext( service );
+
         // get default naming context to work on
-        ServerLdapContext defaultContext = ( ServerLdapContext ) sysRoot.lookup( "ou=system" );
+        ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
 
         // set up
         Attributes attributes = new AttributesImpl( "objectClass", "top", true );
@@ -76,7 +81,7 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( sysRoot.lookup( "" ) ) );
+        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( root.lookup( "" ) ) );
         Class clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
@@ -84,11 +89,13 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testLdapClassLoaderWithClassLoadedAtDefaultSearchSubtree() throws Exception
     {
+        LdapContext root = getRootContext( service );
 
         // get default naming context to work on
-        ServerLdapContext defaultContext = ( ServerLdapContext ) sysRoot.lookup( "ou=system" );
+        ServerLdapContext defaultContext = ( ServerLdapContext ) root.lookup( "ou=system" );
 
         // create an extensible object for holding custom config data
         Attributes classLoaderDefaultSearchContextConfig = new AttributesImpl();
@@ -123,7 +130,7 @@ public class LdapClassLoaderITest extends AbstractAdminTestCase
         assertNotNull( defaultContext.lookup( "fullyQualifiedJavaClassName=HelloWorld" ) );
 
         // load the class
-        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( sysRoot.lookup( "" ) ) );
+        LdapClassLoader loader = new LdapClassLoader( ( ServerLdapContext ) ( root.lookup( "" ) ) );
         Class clazz = loader.loadClass( "HelloWorld" );
 
         // assert class loaded successfully
