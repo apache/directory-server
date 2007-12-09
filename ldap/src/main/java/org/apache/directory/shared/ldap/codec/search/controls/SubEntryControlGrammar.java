@@ -69,7 +69,7 @@ public class SubEntryControlGrammar extends AbstractGrammar implements IGrammar
                 public void action( IAsn1Container container ) throws DecoderException
                 {
                     SubEntryControlContainer subEntryContainer = ( SubEntryControlContainer ) container;
-                    SubEntryControl control = new SubEntryControl();
+                    SubEntryControlCodec control = new SubEntryControlCodec();
                     subEntryContainer.setSubEntryControl( control );
 
                     TLV tlv = subEntryContainer.getCurrentTLV();

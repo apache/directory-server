@@ -41,6 +41,6 @@ public class ManageDsaITControlDecoder implements ControlDecoder
 
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
-        return new org.apache.directory.shared.ldap.codec.controls.ManageDsaITControl();
+        return new org.apache.directory.shared.ldap.codec.controls.ManageDsaITControlCodec();
     }
 }

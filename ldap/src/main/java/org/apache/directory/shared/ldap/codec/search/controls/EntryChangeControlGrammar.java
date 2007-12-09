@@ -83,7 +83,7 @@ public class EntryChangeControlGrammar extends AbstractGrammar implements IGramm
                 public void action( IAsn1Container container )
                 {
                     EntryChangeControlContainer entryChangeContainer = ( EntryChangeControlContainer ) container;
-                    EntryChangeControl control = new EntryChangeControl();
+                    EntryChangeControlCodec control = new EntryChangeControlCodec();
                     entryChangeContainer.setEntryChangeControl( control );
                 }
             } );

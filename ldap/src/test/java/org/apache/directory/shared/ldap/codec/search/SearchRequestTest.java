@@ -45,7 +45,7 @@ import org.apache.directory.shared.ldap.codec.search.NotFilter;
 import org.apache.directory.shared.ldap.codec.search.OrFilter;
 import org.apache.directory.shared.ldap.codec.search.PresentFilter;
 import org.apache.directory.shared.ldap.codec.search.SearchRequest;
-import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
+import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.ScopeEnum;
@@ -1322,7 +1322,7 @@ public class SearchRequestTest extends TestCase
         Control subEntryControl = message.getControls( 0 );
         assertEquals( subEntryControlOID, subEntryControl.getControlType() );
         assertTrue( subEntryControl.getCriticality() );
-        assertTrue( ( ( SubEntryControl ) subEntryControl.getControlValue() ).isVisible() );
+        assertTrue( ( ( SubEntryControlCodec ) subEntryControl.getControlValue() ).isVisible() );
 
         SearchRequest sr = message.getSearchRequest();
         assertEquals( "dc=my-domain,dc=com", sr.getBaseObject().toString() );

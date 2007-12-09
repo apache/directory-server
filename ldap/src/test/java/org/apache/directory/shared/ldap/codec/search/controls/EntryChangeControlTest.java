@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -71,7 +71,7 @@ public class EntryChangeControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        EntryChangeControl entryChange = container.getEntryChangeControl();
+        EntryChangeControlCodec entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.MODDN, entryChange.getChangeType() );
         assertEquals( "a=b", entryChange.getPreviousDn().toString() );
         assertEquals( 16, entryChange.getChangeNumber() );
@@ -107,7 +107,7 @@ public class EntryChangeControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        EntryChangeControl entryChange = container.getEntryChangeControl();
+        EntryChangeControlCodec entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.ADD, entryChange.getChangeType() );
         assertNull( entryChange.getPreviousDn() );
         assertEquals( 16, entryChange.getChangeNumber() );
@@ -181,10 +181,10 @@ public class EntryChangeControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        EntryChangeControl entryChange = container.getEntryChangeControl();
+        EntryChangeControlCodec entryChange = container.getEntryChangeControl();
         assertEquals( ChangeType.ADD, entryChange.getChangeType() );
         assertNull( entryChange.getPreviousDn() );
-        assertEquals( EntryChangeControl.UNDEFINED_CHANGE_NUMBER, entryChange.getChangeNumber() );
+        assertEquals( EntryChangeControlCodec.UNDEFINED_CHANGE_NUMBER, entryChange.getChangeNumber() );
     }
 
 
@@ -242,7 +242,7 @@ public class EntryChangeControlTest extends TestCase
         String expected = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
-        EntryChangeControl entry = new EntryChangeControl();
+        EntryChangeControlCodec entry = new EntryChangeControlCodec();
         entry.setChangeType( ChangeType.MODDN );
         entry.setChangeNumber( 16 );
         entry.setPreviousDn( new LdapDN( "a=b" ) );

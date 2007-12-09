@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
+import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlDecoder;
 
@@ -63,7 +63,7 @@ public class SubEntryControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        SubEntryControl control = container.getSubEntryControl();
+        SubEntryControlCodec control = container.getSubEntryControl();
         assertTrue( control.isVisible() );
     }
 
@@ -91,7 +91,7 @@ public class SubEntryControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        SubEntryControl control = container.getSubEntryControl();
+        SubEntryControlCodec control = container.getSubEntryControl();
         assertFalse( control.isVisible() );
     }
 

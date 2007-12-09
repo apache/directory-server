@@ -96,7 +96,7 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
                 public void action( IAsn1Container container )
                 {
                     PSearchControlContainer psearchContainer = ( PSearchControlContainer ) container;
-                    PSearchControl control = new PSearchControl();
+                    PSearchControlCodec control = new PSearchControlCodec();
                     psearchContainer.setPSearchControl( control );
                 }
             } );
@@ -122,7 +122,7 @@ public class PSearchControlGrammar extends AbstractGrammar implements IGrammar
                     try
                     {
                         // Check that the value is into the allowed interval
-                        int changeTypes = IntegerDecoder.parse( value, PSearchControl.CHANGE_TYPES_MIN, PSearchControl.CHANGE_TYPES_MAX );
+                        int changeTypes = IntegerDecoder.parse( value, PSearchControlCodec.CHANGE_TYPES_MIN, PSearchControlCodec.CHANGE_TYPES_MAX );
                         
                         if ( IS_DEBUG )
                         {

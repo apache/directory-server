@@ -22,7 +22,7 @@ package org.apache.directory.shared.ldap.message;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.ldap.codec.search.controls.ChangeType;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +126,7 @@ public class PersistentSearchControl extends AbstractMutableControlImpl
 
     public byte[] getEncodedValue()
     {
-        PSearchControl psearchCtl = new PSearchControl();
+        PSearchControlCodec psearchCtl = new PSearchControlCodec();
         psearchCtl.setChangesOnly( isChangesOnly() );
         psearchCtl.setChangeTypes( getChangeTypes() );
         psearchCtl.setReturnECs( isReturnECs() );

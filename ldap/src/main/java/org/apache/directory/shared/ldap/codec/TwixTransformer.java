@@ -61,8 +61,8 @@ import org.apache.directory.shared.ldap.codec.search.SearchResultDone;
 import org.apache.directory.shared.ldap.codec.search.SearchResultEntry;
 import org.apache.directory.shared.ldap.codec.search.SearchResultReference;
 import org.apache.directory.shared.ldap.codec.search.SubstringFilter;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
-import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControl;
+import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlCodec;
+import org.apache.directory.shared.ldap.codec.search.controls.SubEntryControlCodec;
 import org.apache.directory.shared.ldap.codec.util.LdapURL;
 import org.apache.directory.shared.ldap.codec.util.LdapURLEncodingException;
 import org.apache.directory.shared.ldap.filter.AndNode;
@@ -731,25 +731,25 @@ public class TwixTransformer implements TransformerSpi
                 final org.apache.directory.shared.ldap.codec.Control twixControl = controls.next();
 
                 if ( twixControl.getControlValue() instanceof 
-                    org.apache.directory.shared.ldap.codec.controls.CascadeControl )
+                    org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec )
                 {
                     neutralControl = new CascadeControl();
                     neutralControl.setCritical( twixControl.getCriticality() );
                 }
-                else if ( twixControl.getControlValue() instanceof PSearchControl )
+                else if ( twixControl.getControlValue() instanceof PSearchControlCodec )
                 {
                     PersistentSearchControl neutralPsearch = new PersistentSearchControl();
                     neutralControl = neutralPsearch;
-                    PSearchControl twixPsearch = ( PSearchControl ) twixControl.getControlValue();
+                    PSearchControlCodec twixPsearch = ( PSearchControlCodec ) twixControl.getControlValue();
                     neutralPsearch.setChangeTypes( twixPsearch.getChangeTypes() );
                     neutralPsearch.setChangesOnly( twixPsearch.isChangesOnly() );
                     neutralPsearch.setReturnECs( twixPsearch.isReturnECs() );
                     neutralPsearch.setCritical( twixControl.getCriticality() );
                 }
-                else if ( twixControl.getControlValue() instanceof SubEntryControl )
+                else if ( twixControl.getControlValue() instanceof SubEntryControlCodec )
                 {
                     SubentriesControl neutralSubentriesControl = new SubentriesControl();
-                    SubEntryControl twixSubentriesControl = ( SubEntryControl ) twixControl.getControlValue();
+                    SubEntryControlCodec twixSubentriesControl = ( SubEntryControlCodec ) twixControl.getControlValue();
                     neutralControl = neutralSubentriesControl;
                     neutralSubentriesControl.setVisibility( twixSubentriesControl.isVisible() );
                     neutralSubentriesControl.setCritical( twixControl.getCriticality() );

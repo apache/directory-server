@@ -40,6 +40,6 @@ public class CascadeControlDecoder implements ControlDecoder
 
     public Asn1Object decode( byte[] controlBytes ) throws DecoderException
     {
-        return new org.apache.directory.shared.ldap.codec.controls.CascadeControl();
+        return new org.apache.directory.shared.ldap.codec.controls.CascadeControlCodec();
     }
 }

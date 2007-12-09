@@ -33,7 +33,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class SubEntryControl extends AbstractAsn1Object
+public class SubEntryControlCodec extends AbstractAsn1Object
 {
     private boolean visibility = false;
 
@@ -41,7 +41,7 @@ public class SubEntryControl extends AbstractAsn1Object
      * Default constructor
      *
      */
-    public SubEntryControl()
+    public SubEntryControlCodec()
     {
         super();
     }
