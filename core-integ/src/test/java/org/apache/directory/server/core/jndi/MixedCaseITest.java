@@ -20,20 +20,30 @@
 package org.apache.directory.server.core.jndi;
 
 
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import org.apache.directory.server.core.integ.DirectoryServiceFactory;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getContext;
+import org.apache.directory.server.core.integ.ServiceScope;
+import org.apache.directory.server.core.integ.annotations.Factory;
+import org.apache.directory.server.core.integ.annotations.Scope;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.LdapContext;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,59 +54,74 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class MixedCaseITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+@Scope ( ServiceScope.TESTCLASS )
+@Factory ( MixedCaseITest.MyFactory.class )
+public class MixedCaseITest
 {
-    String suffix = "dc=Apache,dc=Org";
+    public static DirectoryService service;
+
+    private static final String SUFFIX = "dc=Apache,dc=Org";
 
 
-    public void setUp() throws Exception
+    public static class MyFactory implements DirectoryServiceFactory
     {
-        JdbmPartition partition = new JdbmPartition();
-        partition.setId( "apache" );
-        partition.setSuffix( suffix );
+        public DirectoryService newInstance()
+        {
+            DirectoryService service = new DefaultDirectoryService();
+            service.getChangeLog().setEnabled( true );
 
-        HashSet<Index> indexedAttributes = new HashSet<Index>();
-        indexedAttributes.add( new JdbmIndex( "objectClass" ) );
-        indexedAttributes.add( new JdbmIndex( "ou" ) );
-        indexedAttributes.add( new JdbmIndex( "uid" ) );
-        partition.setIndexedAttributes( indexedAttributes );
+            JdbmPartition partition = new JdbmPartition();
+            partition.setId( "apache" );
+            partition.setSuffix( SUFFIX );
 
-        Attributes attrs = new AttributesImpl( true );
-        Attribute objectClass = new AttributeImpl( "objectClass" );
-        objectClass.add( "top" );
-        objectClass.add( "domain" );
-        objectClass.add( "extensibleObject" );
-        attrs.put( objectClass );
-        attrs.put( "dc", "Apache" );
+            HashSet<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "objectClass" ) );
+            indexedAttributes.add( new JdbmIndex( "ou" ) );
+            indexedAttributes.add( new JdbmIndex( "uid" ) );
+            partition.setIndexedAttributes( indexedAttributes );
 
-        partition.setContextEntry( attrs );
+            Attributes attrs = new AttributesImpl( true );
+            Attribute objectClass = new AttributeImpl( "objectClass" );
+            objectClass.add( "top" );
+            objectClass.add( "domain" );
+            objectClass.add( "extensibleObject" );
+            attrs.put( objectClass );
+            attrs.put( "dc", "Apache" );
 
-        Set<Partition> partitions = new HashSet<Partition>();
-        partitions.add( partition );
+            partition.setContextEntry( attrs );
 
-        service.setPartitions( partitions );
-        super.overrideEnvironment( Context.PROVIDER_URL, suffix );
+            Set<Partition> partitions = new HashSet<Partition>();
+            partitions.add( partition );
 
-        super.setUp();
+            service.setPartitions( partitions );
+            return service;
+        }
     }
 
     
+    @Test
     public void testSearch() throws NamingException
     {
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.SUBTREE_SCOPE );
 
-        NamingEnumeration ne = sysRoot.search( "", "(objectClass=*)", sc );
+        NamingEnumeration ne = ctxRoot.search( "", "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-        assertEquals( "The entry returned should be the root entry.", suffix, sr.getName() );
+        assertEquals( "The entry returned should be the root entry.", SUFFIX, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
 
+    @Test
     public void testAdd() throws NamingException
     {
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+
         String dn = "ou=Test";
 
         Attributes attributes = new AttributesImpl( true );
@@ -106,23 +131,26 @@ public class MixedCaseITest extends AbstractAdminTestCase
         attributes.put( attribute );
         attributes.put( "ou", "Test" );
 
-        DirContext ctx = sysRoot.createSubcontext( dn, attributes );
+        DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        NamingEnumeration ne = sysRoot.search( dn, "(objectClass=*)", sc );
+        NamingEnumeration ne = ctxRoot.search( dn, "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX, sr.getName() );
         assertFalse( "Search should return no more entries.", ne.hasMore() );
     }
 
 
+    @Test
     public void testModify() throws NamingException
     {
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+
         String dn = "ou=Test";
         String description = "New Value";
 
@@ -134,22 +162,22 @@ public class MixedCaseITest extends AbstractAdminTestCase
         attributes.put( "ou", "Test" );
         attributes.put( "description", "Old Value" );
 
-        DirContext ctx = sysRoot.createSubcontext( dn, attributes );
+        DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[1];
         mods[0] = new ModificationItemImpl( DirContext.REPLACE_ATTRIBUTE, new AttributeImpl( "description", description ) );
 
-        sysRoot.modifyAttributes( dn, mods );
+        ctxRoot.modifyAttributes( dn, mods );
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
-        NamingEnumeration ne = sysRoot.search( dn, "(objectClass=*)", sc );
+        NamingEnumeration ne = ctxRoot.search( dn, "(objectClass=*)", sc );
         assertTrue( "Search should return at least one entry.", ne.hasMore() );
 
         SearchResult sr = ( SearchResult ) ne.next();
-        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + suffix, sr.getName() );
+        assertEquals( "The entry returned should be the entry added earlier.", dn + "," + SUFFIX, sr.getName() );
 
         attributes = sr.getAttributes();
         attribute = attributes.get( "description" );
@@ -159,8 +187,11 @@ public class MixedCaseITest extends AbstractAdminTestCase
     }
 
 
+    @Test
     public void testDelete() throws NamingException
     {
+        LdapContext ctxRoot = getContext( "uid=admin,ou=system", service, SUFFIX );
+
         String dn = "ou=Test";
 
         Attributes attributes = new AttributesImpl( true );
@@ -170,17 +201,17 @@ public class MixedCaseITest extends AbstractAdminTestCase
         attributes.put( attribute );
         attributes.put( "ou", "Test" );
 
-        DirContext ctx = sysRoot.createSubcontext( dn, attributes );
+        DirContext ctx = ctxRoot.createSubcontext( dn, attributes );
         assertNotNull( ctx );
 
-        sysRoot.destroySubcontext( dn );
+        ctxRoot.destroySubcontext( dn );
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope( SearchControls.OBJECT_SCOPE );
 
         try
         {
-            sysRoot.search( dn, "(objectClass=*)", sc );
+            ctxRoot.search( dn, "(objectClass=*)", sc );
             fail( "Search should throw exception." );
         }
         catch ( LdapNameNotFoundException e )
