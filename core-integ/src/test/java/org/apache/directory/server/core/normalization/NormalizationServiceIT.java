@@ -20,11 +20,19 @@
 package org.apache.directory.server.core.normalization;
 
 
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapContext;
+
 
 
 /**
@@ -33,17 +41,40 @@ import javax.naming.directory.Attributes;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public final class NormalizationServiceITest extends AbstractAdminTestCase
+@RunWith ( CiRunner.class )
+public final class NormalizationServiceIT
 {
-    public NormalizationServiceITest()
-    {
-        super.setLoadClass( getClass() );
-    }
+    public static DirectoryService service;
 
 
+    @Test
     public void testDireve308Example() throws NamingException
     {
-        Attributes attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );
+        /*
+
+        Use @Ldif to load this data but for now we can do it with code.
+
+dn: ou=direct report view,ou=system
+objectClass: organizationalUnit
+ou: direct report view
+
+dn: ou=corporate category\, operations,ou=direct report view,ou=system
+objectClass: organizationalUnit
+ou: corporate category\, operations
+
+         */
+
+        LdapContext sysRoot = getSystemContext( service );
+
+        Attributes attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "direct report view" );
+        sysRoot.createSubcontext( "ou=direct report view", attrs );
+
+        attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
+        attrs.put( "ou", "corporate category\\, operations" );
+        sysRoot.createSubcontext( "ou=corporate category\\, operations,ou=direct report view", attrs );
+
+        attrs = sysRoot.getAttributes( "ou=corporate category\\, operations,ou=direct report view" );
         assertNotNull( attrs );
         Attribute ou = attrs.get( "ou" );
         assertEquals( "corporate category, operations", ou.get() );
