@@ -19,10 +19,11 @@
 package org.apache.directory.server.core.entry;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.BinaryValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
     private static final Logger LOG = LoggerFactory.getLogger( ServerBinaryValue.class );
 
     /** used to dynamically lookup the attributeType when/if deserializing */
+    @SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
     private final String oid;
 
     /** reference to the attributeType which is not serialized */
@@ -117,7 +119,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
     {
         // Why should we invalidate the normalized value if it's we're setting the
         // wrapper to it's current value?
-        byte[] value = getUnsafe();
+        byte[] value = getReference();
         
         if ( value != null )
         {
@@ -146,9 +148,10 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
      * this method do not unnecessarily normalize the wrapped value.  Only changes
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
-     * @see ServerValue#getNormalizedValue()
+     * @return a reference to the normalized version of the wrapped value
+     * @throws NamingException with failures to normalize
      */
-    public byte[] getNormalizedValue() throws NamingException
+    public byte[] getNormalizedReference() throws NamingException
     {
         if ( isNull() )
         {
@@ -161,15 +164,35 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
 
             if ( normalizer == null )
             {
-                normalizedValue = get();
+                normalizedValue = getCopy();
             }
             else
             {
-                normalizedValue = ( byte[] ) normalizer.normalize( get() );
+                normalizedValue = ( byte[] ) normalizer.normalize( getCopy() );
             }
         }
 
         return normalizedValue;
+    }
+
+
+    /**
+     * Gets a direct reference to the normalized representation for the
+     * wrapped value of this ServerValue wrapper. Implementations will most
+     * likely leverage the attributeType this value is associated with to
+     * determine how to properly normalize the wrapped value.
+     *
+     * @return the normalized version of the wrapped value
+     * @throws NamingException if schema entity resolution fails or normalization fails
+     */
+    public byte[] getNormalizedCopy() throws NamingException
+    {
+        if ( normalizedValue == null )
+        {
+            getNormalizedReference();
+        }
+
+        return Arrays.copyOf( normalizedValue, normalizedValue.length );
     }
 
 
@@ -189,12 +212,13 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
             return valid;
         }
 
-        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getUnsafe() );
+        valid = attributeType.getSyntax().getSyntaxChecker().isValidSyntax( getReference() );
         return valid;
     }
 
 
     /**
+     *
      * @see ServerValue#compareTo(ServerValue)
      * @throws IllegalStateException on failures to extract the comparator, or the
      * normalizers needed to perform the required comparisons based on the schema
@@ -219,18 +243,27 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
                 return 1;
             }
         }
-        
-        try
+
+        if ( value instanceof ServerBinaryValue )
         {
-            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
+            ServerBinaryValue binaryValue = ( ServerBinaryValue ) value;
+
+            try
+            {
+                //noinspection unchecked
+                return getComparator().compare( getNormalizedReference(), binaryValue.getNormalizedReference() );
+            }
+            catch ( NamingException e )
+            {
+                String msg = "Failed to compare normalized values for " + Arrays.toString( getReference() )
+                        + " and " + value;
+                LOG.error( msg, e );
+                throw new IllegalStateException( msg, e );
+            }
         }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to compare normalized values for " + Arrays.toString( getUnsafe() )
-                    + " and " + Arrays.toString( value.get() );
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+
+        throw new NotImplementedException( "I don't really know how to compare anything other " +
+                "than ServerBinaryValues at this point in time." );
     }
 
 
@@ -281,7 +314,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
 
         try
         {
-            return getNormalizedValue().hashCode();
+            return getNormalizedReference().hashCode();
         }
         catch ( NamingException e )
         {
@@ -332,7 +365,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
         // now unlike regular values we have to compare the normalized values
         try
         {
-            return Arrays.equals( getNormalizedValue(), other.getNormalizedValue() );
+            return Arrays.equals( getNormalizedReference(), other.getNormalizedReference() );
         }
         catch ( NamingException e )
         {
@@ -342,7 +375,7 @@ public class ServerBinaryValue extends BinaryValue implements ServerValue<byte[]
                     + toString() + " and " + other.toString() , e );
 
             // recover by comparing non-normalized values
-            return Arrays.equals( getUnsafe(), other.getUnsafe() );
+            return Arrays.equals( getReference(), other.getReference() );
         }
     }
 

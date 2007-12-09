@@ -19,6 +19,7 @@
 package org.apache.directory.server.core.entry;
 
 
+import org.apache.directory.shared.ldap.NotImplementedException;
 import org.apache.directory.shared.ldap.entry.StringValue;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
@@ -45,6 +46,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
     private static final Logger LOG = LoggerFactory.getLogger( ServerStringValue.class );
 
     /** used to dynamically lookup the attributeType when/if deserializing */
+    @SuppressWarnings ( { "FieldCanBeLocal", "UnusedDeclaration" } )
     private final String oid;
 
     /** reference to the attributeType which is not serialized */
@@ -141,9 +143,10 @@ public class ServerStringValue extends StringValue implements ServerValue<String
      * this method do not unnecessarily normalize the wrapped value.  Only changes
      * to the wrapped value result in attempts to normalize the wrapped value.
      *
-     * @see ServerValue#getNormalizedValue()
+     * @return gets the normalized value
+     * @throws NamingException if the value cannot be properly normalized
      */
-    public String getNormalizedValue() throws NamingException
+    public String getNormalized() throws NamingException
     {
         if ( isNull() )
         {
@@ -211,17 +214,24 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         {
             return 1;
         }
-        
-        try
+
+        if ( value instanceof ServerStringValue )
         {
-            return getComparator().compare( getNormalizedValue(), value.getNormalizedValue() );
+            ServerStringValue stringValue = ( ServerStringValue ) value;
+            try
+            {
+                //noinspection unchecked
+                return getComparator().compare( getNormalized(), stringValue.getNormalized() );
+            }
+            catch ( NamingException e )
+            {
+                String msg = "Failed to compare normalized values for " + get() + " and " + value;
+                LOG.error( msg, e );
+                throw new IllegalStateException( msg, e );
+            }
         }
-        catch ( NamingException e )
-        {
-            String msg = "Failed to compare normalized values for " + get() + " and " + value.get();
-            LOG.error( msg, e );
-            throw new IllegalStateException( msg, e );
-        }
+
+        throw new NotImplementedException( "I don't know what to do if value is not a ServerStringValue" );
     }
 
 
@@ -272,7 +282,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
 
         try
         {
-            return getNormalizedValue().hashCode();
+            return getNormalized().hashCode();
         }
         catch ( NamingException e )
         {
@@ -323,7 +333,7 @@ public class ServerStringValue extends StringValue implements ServerValue<String
         // now unlike regular values we have to compare the normalized values
         try
         {
-            return getNormalizedValue().equals( other.getNormalizedValue() );
+            return getNormalized().equals( other.getNormalized() );
         }
         catch ( NamingException e )
         {

@@ -154,9 +154,9 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
      *
      * @todo if URI is already cannonical this method may be useless
      * @todo consider this while figuring out how to deal with streamed values
-     * @see ServerValue#getNormalizedValue()
+     * @see ServerValue#getNormalizedReference()
      */
-    public URI getNormalizedValue() throws NamingException
+    public URI getNormalizedReference() throws NamingException
     {
         if ( get() == null )
         {
@@ -199,7 +199,7 @@ public class ServerStreamedValue extends StreamedValue implements ServerValue<UR
 
         try
         {
-            return getNormalizedValue().hashCode();
+            return getNormalizedReference().hashCode();
         }
         catch ( NamingException e )
         {

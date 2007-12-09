@@ -55,18 +55,6 @@ import javax.naming.NamingException;
 public interface ServerValue<T> extends Value<T>, Comparable<ServerValue<T>>
 {
     /**
-     * Gets the normalized representation for the wrapped value of this
-     * ServerValue wrapper. Implementations will most likely leverage the
-     * attributeType this value is associated with to determine how to
-     * properly normalize the wrapped value.
-     *
-     * @return the normalized version of the wrapped value
-     * @throws NamingException if schema entity resolution fails or normalization fails
-     */
-    T getNormalizedValue() throws NamingException;
-
-
-    /**
      * Checks to see if this ServerValue is valid according to the syntax
      * of the ServerAttribute which contains it.
      *

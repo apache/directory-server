@@ -267,7 +267,7 @@ public class ServerStringValueTest
 
         // check that normalization and syntax checks work as expected
         ServerStringValue value = new ServerStringValue( at, "HIGH" );
-        assertEquals( value.get(), value.getNormalizedValue() );
+        assertEquals( value.get(), value.get() );
         assertTrue( value.isValid() );
         value = new ServerStringValue( at, "high" );
         assertFalse( value.isValid() );
@@ -367,7 +367,7 @@ public class ServerStringValueTest
 
         // check that normalization and syntax checks work as expected
         ServerStringValue value = new ServerStringValue( at, "hello" );
-        assertEquals( value.get(), value.getNormalizedValue() );
+        assertEquals( value.get(), value.get() );
         assertTrue( value.isValid() );
 
         // create a bunch to best tested for equals and in containers
@@ -417,7 +417,7 @@ public class ServerStringValueTest
                 {
                     if ( o1 != null )
                     {
-                        String n1 = o1.getNormalizedValue();
+                        String n1 = o1.get();
                         if ( n1 != null )
                         {
                             b1 = n1.getBytes( "UTF-8" );
@@ -426,10 +426,10 @@ public class ServerStringValueTest
 
                     if ( o2 != null )
                     {
-                        String n2 = o2.getNormalizedValue();
+                        String n2 = o2.get();
                         if ( n2 != null )
                         {
-                            b2 = o2.getNormalizedValue().getBytes( "UTF-8" );
+                            b2 = o2.get().getBytes( "UTF-8" );
                         }
                     }
                 }
@@ -440,6 +440,7 @@ public class ServerStringValueTest
 
                 try
                 {
+                    //noinspection unchecked
                     return mr.getComparator().compare( b1, b2 );
                 }
                 catch ( Exception e )

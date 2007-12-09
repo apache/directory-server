@@ -63,9 +63,9 @@ public class BasicServerAttribute implements ServerAttribute
      * wrapped value is copied into a new ServerValue which uses the specified
      * attributeType.
      *
-     * @param attributeType
-     * @param val
-     * @throws NamingException
+     * @param attributeType the attribute type according to the schema
+     * @param val an initial value for this attribute
+     * @throws NamingException if there are problems creating the new attribute
      */
     public BasicServerAttribute( AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
@@ -81,9 +81,9 @@ public class BasicServerAttribute implements ServerAttribute
      * attributeType.
      *
      * @param upId
-     * @param attributeType
-     * @param val
-     * @throws NamingException
+     * @param attributeType the attribute type according to the schema
+     * @param val an initial value for this attribute
+     * @throws NamingException if there are problems creating the new attribute
      */
     public BasicServerAttribute( String upId, AttributeType attributeType, ServerValue<?> val ) throws NamingException
     {
@@ -107,11 +107,13 @@ public class BasicServerAttribute implements ServerAttribute
             }
             else if ( val instanceof ServerStringValue )
             {
-                values.add( new ServerStringValue( attributeType, ( String ) val.get() ) );
+                ServerStringValue serverString = ( ServerStringValue ) val;
+                values.add( new ServerStringValue( attributeType, serverString.get() ) );
             }
             else if ( val instanceof ServerBinaryValue )
             {
-                values.add( new ServerBinaryValue( attributeType, ( byte[] ) val.get() ) );
+                ServerBinaryValue serverBinary = ( ServerBinaryValue ) val;
+                values.add( new ServerBinaryValue( attributeType, serverBinary.getCopy() ) );
             }
             else
             {
