@@ -19,18 +19,16 @@
 package org.apache.directory.server.core.changelog;
 
 
-import junit.framework.TestCase;
-import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.server.core.integ.CiRunner;
+import static org.apache.directory.server.core.integ.IntegrationUtils.getSystemContext;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +37,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -52,214 +48,122 @@ import java.util.Arrays;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class DefaultChangeLogITest extends TestCase
+@RunWith ( CiRunner.class )
+public class DefaultChangeLogIT
 {
-    public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogITest.class );
+    public static final Logger LOG = LoggerFactory.getLogger( DefaultChangeLogIT.class );
 
-    /** the context root for the system partition */
-    protected LdapContext sysRoot;
-    protected DirectoryService service;
+    public static DirectoryService service;
 
 
-    public DefaultChangeLogITest()
-    {
-        this.service = new DefaultDirectoryService();
-    }
+//    service.setShutdownHookEnabled( false );
 
-
-    /**
-     * Get's the initial context factory for the provider's ou=system context
-     * root.
-     *
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        service.setShutdownHookEnabled( false );
-        service.getChangeLog().setEnabled( true );
-        doDelete( service.getWorkingDirectory() );
-        service.startup();
-        sysRoot = service.getJndiContext( new LdapPrincipal( new LdapDN(), AuthenticationLevel.SIMPLE ), "ou=system" );
-    }
-
-
-    /**
-     * Deletes the working directory.
-     *
-     * @param wkdir the working directory to delete
-     * @throws IOException if the working directory cannot be deleted
-     */
-    protected void doDelete( File wkdir ) throws IOException
-    {
-        if ( wkdir.exists() )
-        {
-            try
-            {
-                FileUtils.deleteDirectory( wkdir );
-            }
-            catch ( IOException e )
-            {
-                LOG.error( "Failed to delete the working directory.", e );
-            }
-        }
-        if ( wkdir.exists() )
-        {
-            throw new IOException( "Failed to delete: " + wkdir );
-        }
-    }
-
-
-    /**
-     * Issues a shutdown request to the server.
-     */
-    protected void shutdown()
-    {
-        try
-        {
-            service.shutdown();
-        }
-        catch ( Exception e )
-        {
-            LOG.error( "Encountered an error while shutting down directory service.", e );
-        }
-        sysRoot = null;
-        Runtime.getRuntime().gc();
-    }
-
-
-    /**
-     * Issues a sync request to the server.
-     */
-    protected void sync()
-    {
-        try
-        {
-            service.sync();
-        }
-        catch ( Exception e )
-        {
-            LOG.warn( "Encountered error while syncing.", e );
-        }
-    }
-
-
-    /**
-     * Sets the system context root to null.
-     *
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
-        shutdown();
-        service = new DefaultDirectoryService();
-        doDelete( service.getWorkingDirectory() );
-    }
-
-
+    @Test
     public void testManyTagsPersistenceAcrossRestarts() throws NamingException, InterruptedException
     {
-        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
-        assertNull( service.getChangeLog().getLatest() );
+        LdapContext sysRoot = getSystemContext( service );
+        long revision = service.getChangeLog().getCurrentRevision();
 
         // add new test entry
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test0" );
         sysRoot.createSubcontext( "ou=test0", attrs );
-        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
         Tag t0 = service.getChangeLog().tag();
         assertEquals( t0, service.getChangeLog().getLatest() );
-        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
-        assertEquals( 1, t0.getRevision() );
+        assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 1, t0.getRevision() );
 
         // add another test entry
         attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test1" );
         sysRoot.createSubcontext( "ou=test1", attrs );
-        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
 
         Tag t1 = service.getChangeLog().tag();
         assertEquals( t1, service.getChangeLog().getLatest() );
-        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
-        assertEquals( 2, t1.getRevision() );
+        assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 2, t1.getRevision() );
 
         service.sync();
         service.shutdown();
         service.startup();
 
-        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
-        assertEquals( 2, t1.getRevision() );
+        assertEquals( revision + 2, t1.getRevision() );
 
         // add third test entry
         attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test2" );
         sysRoot.createSubcontext( "ou=test2", attrs );
-        assertEquals( 3, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 3, service.getChangeLog().getCurrentRevision() );
 
         service.revert();
         sysRoot.getAttributes( "ou=test0" ); // test present
         sysRoot.getAttributes( "ou=test1" ); // test present
         assertNotPresent( sysRoot, "ou=test2" );
-        assertEquals( 4, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 4, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         service.revert( t0.getRevision() );
         sysRoot.getAttributes( "ou=test0" ); // test present
         assertNotPresent( sysRoot, "ou=test1" );
         assertNotPresent( sysRoot, "ou=test2" );
-        assertEquals( 7, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
 
         // no sync this time but should happen automatically
         service.shutdown();
         service.startup();
-        assertEquals( 7, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 7, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
-        assertEquals( 2, t1.getRevision() );
+        assertEquals( revision + 2, t1.getRevision() );
 
-        service.revert( 0 );
+        service.revert( revision );
         assertNotPresent( sysRoot, "ou=test0" );
         assertNotPresent( sysRoot, "ou=test1" );
         assertNotPresent( sysRoot, "ou=test2" );
-        assertEquals( 14, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 14, service.getChangeLog().getCurrentRevision() );
         assertEquals( t1, service.getChangeLog().getLatest() );
     }
 
 
+    @Test
     public void testTagPersistenceAcrossRestarts() throws NamingException, InterruptedException
     {
-        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
-        assertNull( service.getChangeLog().getLatest() );
+        LdapContext sysRoot = getSystemContext( service );
+        long revision = service.getChangeLog().getCurrentRevision();
 
         Tag t0 = service.getChangeLog().tag();
         assertEquals( t0, service.getChangeLog().getLatest() );
-        assertEquals( 0, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision, service.getChangeLog().getCurrentRevision() );
 
         // add new test entry
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
-        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
 
         service.sync();
         service.shutdown();
 
         service.startup();
-        assertEquals( 1, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 1, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
 
         service.revert();
         assertNotPresent( sysRoot, "ou=test" );
-        assertEquals( 2, service.getChangeLog().getCurrentRevision() );
+        assertEquals( revision + 2, service.getChangeLog().getCurrentRevision() );
         assertEquals( t0, service.getChangeLog().getLatest() );
     }
 
 
+    @Test
     public void testRevertAddOperations() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Tag t0 = service.getChangeLog().tag();
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
@@ -280,8 +184,10 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    @Test
     public void testRevertAddAndDeleteOperations() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         Tag t0 = service.getChangeLog().tag();
 
         // add new test entry
@@ -302,8 +208,10 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    @Test
     public void testRevertDeleteOperations() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "test" );
         sysRoot.createSubcontext( "ou=test", attrs );
@@ -322,8 +230,10 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    @Test
     public void testRevertRenameOperations() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
         attrs.put( "ou", "oldname" );
         sysRoot.createSubcontext( "ou=oldname", attrs );
@@ -344,11 +254,13 @@ public class DefaultChangeLogITest extends TestCase
     }
 
 
+    @Test
     public void testRevertModifyOperations() throws NamingException
     {
+        LdapContext sysRoot = getSystemContext( service );
         AttributesImpl attrs = new AttributesImpl( "objectClass", "organizationalUnit", true );
-        attrs.put( "ou", "test" );
-        sysRoot.createSubcontext( "ou=test", attrs );
+        attrs.put( "ou", "test5" );
+        sysRoot.createSubcontext( "ou=test5", attrs );
 
         // -------------------------------------------------------------------
         // Modify ADD Test
@@ -356,12 +268,12 @@ public class DefaultChangeLogITest extends TestCase
 
         // tag after the addition before modify ADD
         Tag t0 = service.getChangeLog().tag();
-        assertNotNull( sysRoot.getAttributes( "ou=test" ) );
+        assertNotNull( sysRoot.getAttributes( "ou=test5" ) );
 
         // modify the test entry to add description and test new attr appears
-        sysRoot.modifyAttributes( "ou=test", DirContext.ADD_ATTRIBUTE,
+        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
                 new AttributesImpl( "description", "a desc value", true ) );
-        Attributes resusitated = sysRoot.getAttributes( "ou=test" );
+        Attributes resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         Attribute description = resusitated.get( "description" );
         assertNotNull( description );
@@ -369,7 +281,7 @@ public class DefaultChangeLogITest extends TestCase
 
         // now revert and assert that the added entry re-appears
         service.revert( t0.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         assertNull( resusitated.get( "description" ) );
 
@@ -378,9 +290,9 @@ public class DefaultChangeLogITest extends TestCase
         // -------------------------------------------------------------------
 
         // add the attribute again and make sure it is old value
-        sysRoot.modifyAttributes( "ou=test", DirContext.ADD_ATTRIBUTE,
+        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
                 new AttributesImpl( "description", "old value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -388,9 +300,9 @@ public class DefaultChangeLogITest extends TestCase
 
         // now tag then replace the value to "new value" and confirm
         Tag t1 = service.getChangeLog().tag();
-        sysRoot.modifyAttributes( "ou=test", DirContext.REPLACE_ATTRIBUTE,
+        sysRoot.modifyAttributes( "ou=test5", DirContext.REPLACE_ATTRIBUTE,
                 new AttributesImpl( "description", "new value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -398,7 +310,7 @@ public class DefaultChangeLogITest extends TestCase
 
         // now revert and assert the old value is now reverted
         service.revert( t1.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -410,16 +322,16 @@ public class DefaultChangeLogITest extends TestCase
         // -------------------------------------------------------------------
 
         Tag t2 = service.getChangeLog().tag();
-        sysRoot.modifyAttributes( "ou=test", DirContext.REMOVE_ATTRIBUTE,
+        sysRoot.modifyAttributes( "ou=test5", DirContext.REMOVE_ATTRIBUTE,
                 new AttributesImpl( "description", "old value", true ) );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
 
         // now revert and assert the old value is now reverted
         service.revert( t2.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );
@@ -430,9 +342,9 @@ public class DefaultChangeLogITest extends TestCase
         // -------------------------------------------------------------------
 
         // add a userPassword attribute so we can test replacing it
-        sysRoot.modifyAttributes( "ou=test", DirContext.ADD_ATTRIBUTE,
+        sysRoot.modifyAttributes( "ou=test5", DirContext.ADD_ATTRIBUTE,
                 new AttributesImpl( "userPassword", "to be replaced", true ) );
-        assertPassword( sysRoot.getAttributes( "ou=test" ), "to be replaced" );
+        assertPassword( sysRoot.getAttributes( "ou=test5" ), "to be replaced" );
 
         ModificationItemImpl[] mods = new ModificationItemImpl[]
         {
@@ -447,8 +359,8 @@ public class DefaultChangeLogITest extends TestCase
 
         // now make the modification and check that description is gone,
         // seeAlso is added, and that the userPassword has been replaced
-        sysRoot.modifyAttributes( "ou=test", mods );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        sysRoot.modifyAttributes( "ou=test5", mods );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNull( description );
@@ -459,7 +371,7 @@ public class DefaultChangeLogITest extends TestCase
 
         // now we revert and make sure the old values are as they were
         service.revert( t3.getRevision() );
-        resusitated = sysRoot.getAttributes( "ou=test" );
+        resusitated = sysRoot.getAttributes( "ou=test5" );
         assertNotNull( resusitated );
         description = resusitated.get( "description" );
         assertNotNull( description );

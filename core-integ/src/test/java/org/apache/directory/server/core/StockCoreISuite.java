@@ -19,6 +19,7 @@
 package org.apache.directory.server.core;
 
 import org.apache.directory.server.core.authn.SimpleAuthenticationIT;
+import org.apache.directory.server.core.changelog.DefaultChangeLogIT;
 import org.apache.directory.server.core.collective.CollectiveAttributeServiceIT;
 import org.apache.directory.server.core.configuration.PartitionConfigurationIT;
 import org.apache.directory.server.core.event.EventServiceIT;
@@ -80,6 +81,7 @@ import org.junit.runners.Suite;
         SubentryServiceIT.class,
         LdapClassLoaderIT.class,
         NormalizationServiceIT.class,
+        DefaultChangeLogIT.class,
         ReferralIT.class,
         PartitionConfigurationIT.class  // Leaves the server in a bad state (partition removal is incomplete)
         } )
