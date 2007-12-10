@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev:  $ $Date:  $ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.directory.project</groupId>
+    <artifactId>project</artifactId>
+    <version>9-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.apache.directory.server</groupId>
+  <artifactId>apacheds-parent</artifactId>
+  <version>1.5.2-SNAPSHOT</version>
+  <name>ApacheDS</name>
+  <packaging>pom</packaging>
+
+  <url>http://directory.apache.org/apacheds/1.5</url>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-asn1-codec</artifactId>
+        <version>0.9.8-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap</artifactId>
+        <version>0.9.8-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.directory.shared</groupId>
+        <artifactId>shared-ldap-constants</artifactId>
+        <version>0.9.8-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.directory.daemon</groupId>
+        <artifactId>daemon-bootstrappers</artifactId>
+        <version>1.1.2-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.mina</groupId>
+        <artifactId>mina-core</artifactId>
+        <version>1.1.4-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.mina</groupId>
+        <artifactId>mina-filter-ssl</artifactId>
+        <version>1.1.4-SNAPSHOT</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-daemon</groupId>
+        <artifactId>commons-daemon</artifactId>
+        <version>1.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>2.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-cli</groupId>
+        <artifactId>commons-cli</artifactId>
+        <version>1.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-dbcp</groupId>
+        <artifactId>commons-dbcp</artifactId>
+        <version>1.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>1.4.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-pool</groupId>
+        <artifactId>commons-pool</artifactId>
+        <version>1.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.4.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl104-over-slf4j</artifactId>
+        <version>1.4.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.4.3</version>
+      </dependency>
+
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.14</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jdbm</groupId>
+        <artifactId>jdbm</artifactId>
+        <version>1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity</artifactId>
+        <version>1.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>antlr</groupId>
+        <artifactId>antlr</artifactId>
+        <version>2.7.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>opensymphony</groupId>
+        <artifactId>quartz</artifactId>
+        <version>1.6.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jug</groupId>
+        <artifactId>jug-asl</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>10.3.1.4</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>2.0.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>2.0.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>2.0.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-project</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-archiver</artifactId>
+        <version>2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>1.4.5</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-artifact</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ldapsdk</groupId>
+        <artifactId>ldapsdk</artifactId>
+        <version>4.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>dnsjava</groupId>
+        <artifactId>dnsjava</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>tanukisoft</groupId>
+        <artifactId>wrapper</artifactId>
+        <version>3.2.3</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://issues.apache.org/jira/browse/DIRSERVER</url>
+  </issueManagement>
+
+  <inceptionYear>2003</inceptionYear>
+
+  <mailingLists>
+    <mailingList>
+      <name>The Directory Developers List</name>
+      <subscribe>dev-subscribe@directory.apache.org</subscribe>
+      <unsubscribe>dev-unsubscribe@directory.apache.org</unsubscribe>
+      <post>dev@directory.apache.org</post>
+      <archive>http://mail-archives.apache.org/mod_mbox/directory-dev</archive>
+    </mailingList>
+    <mailingList>
+      <name>The Directory Commits (SVN) List</name>
+      <subscribe>commits-subscribe@directory.apache.org</subscribe>
+      <unsubscribe>commits-unsubscribe@directory.apache.org</unsubscribe>
+      <archive>http://mail-archives.apache.org/mod_mbox/directory-commits</archive>
+    </mailingList>
+  </mailingLists>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.shared</groupId>
+      <artifactId>shared-ldap</artifactId>
+    </dependency>
+
+    <!-- apacheds standard logging interface -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <!-- not sure what this is used for -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl104-over-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- standard logging implementation for tests -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <modules>
+    <module>bootstrap-extract</module>
+    <module>bootstrap-partition</module>
+    <module>bootstrap-plugin</module>
+    <module>schema-extras</module>
+    <module>schema-bootstrap</module>
+    <module>utils</module>
+    <module>schema-registries</module>
+    <module>jdbm-store</module>
+    <module>btree-base</module>
+    <module>core</module>
+    <module>core-constants</module>
+    <module>core-shared</module>
+    <module>core-plugin</module>
+    <module>core-unit</module>
+    <module>core-integ</module>
+    <module>core-entry</module>
+    <module>protocol-shared</module>
+    <module>protocol-ntp</module>
+    <module>protocol-ldap</module>
+    <module>protocol-kerberos</module>
+    <module>protocol-dhcp</module>
+    <module>protocol-dns</module>
+    <module>protocol-changepw</module>
+    <module>server-tools</module>
+
+    <!-- breaks the build on first try
+      <module>sar-plugin</module>
+      <module>server-sar</module>
+    -->
+
+    <module>server-xml</module>
+    <module>server-unit</module>
+    <module>server-jndi</module>
+    <module>kerberos-shared</module>
+    <!--module>kerberos-unit</module-->
+    <module>interceptor-kerberos</module>
+    <module>mitosis</module>
+    <module>server-replication</module>
+    <module>apacheds-xbean-spring</module>
+  </modules>
+
+  <developers>
+    <developer>
+      <id>adc</id>
+    </developer>
+    <developer>
+      <id>akarasulu</id>
+      <url>http://directory.apache.org/community/who/akarasulu.html</url>
+    </developer>
+    <developer>
+      <id>bayard</id>
+    </developer>
+    <developer>
+      <id>bloritsch</id>
+    </developer>
+    <developer>
+      <id>brett</id>
+    </developer>
+    <developer>
+      <id>ckoppelt</id>
+    </developer>
+    <developer>
+      <id>elecharny</id>
+      <url>http://directory.apache.org/community/who/elecharny.html</url>
+    </developer>
+    <developer>
+      <id>erodriguez</id>
+      <url>http://directory.apache.org/community/who/erodriguez.html</url>
+    </developer>
+    <developer>
+      <id>ersiner</id>
+      <url>http://directory.apache.org/community/who/ersiner.html</url>
+    </developer>
+    <developer>
+      <id>jmachols</id>
+      <url>http://directory.apache.org/community/who/jmachols.html</url>
+    </developer>
+    <developer>
+      <id>niklas</id>
+    </developer>
+    <developer>
+      <id>noel</id>
+      <url>http://directory.apache.org/community/who/noel.html</url>
+    </developer>
+    <developer>
+      <id>pamarcelot</id>
+    </developer>
+    <developer>
+      <id>psteitz</id>
+      <url>http://directory.apache.org/community/who/psteitz.html</url>
+    </developer>
+    <developer>
+      <id>szoerner</id>
+      <url>http://directory.apache.org/community/who/szoerner.html</url>
+    </developer>
+    <developer>
+      <id>trustin</id>
+      <url>http://directory.apache.org/community/who/trustin.html</url>
+    </developer>
+    <developer>
+      <id>vtence</id>
+      <url>http://directory.apache.org/community/who/vtence.html</url>
+    </developer>
+    <developer>
+      <id>wesmckean</id>
+      <url>http://directory.apache.org/community/who/wesmckean.html</url>
+    </developer>
+  </developers>
+
+  <contributors>
+    <contributor>
+      <name>Nick Faiz</name>
+    </contributor>
+  </contributors>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+    </license>
+  </licenses>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>dependency-maven-plugin</artifactId>
+          <version>1.0</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antlr-plugin</artifactId>
+          <version>2.0-beta-1</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+
+        <plugin>
+          <groupId>org.apache.xbean</groupId>
+          <artifactId>maven-xbean-plugin</artifactId>
+          <version>3.2</version>
+        </plugin>
+
+        <!--  lets ensure that the XSD gets deployed  -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.0</version>
+        </plugin>
+
+        <plugin>
+          <inherited>true</inherited>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.0.3</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagBase>https://svn.apache.org/repos/asf/directory/apacheds/releases</tagBase>
+        </configuration>
+      </plugin>
+
+      <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-compiler-plugin</artifactId>-->
+      <!--</plugin>-->
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>project-team</report>
+              <report>mailing-list</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+              <report>scm</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <modules>
+        <module>bootstrap-extract</module>
+        <module>bootstrap-partition</module>
+        <module>bootstrap-plugin</module>
+        <module>schema-extras</module>
+        <module>schema-bootstrap</module>
+        <module>utils</module>
+        <module>schema-registries</module>
+        <module>jdbm-store</module>
+        <module>constants</module>
+        <module>btree-base</module>
+        <module>core</module>
+        <module>core-shared</module>
+        <module>core-plugin</module>
+        <module>core-unit</module>
+        <module>protocol-shared</module>
+        <module>protocol-ntp</module>
+        <module>protocol-ldap</module>
+        <module>protocol-kerberos</module>
+        <module>protocol-dhcp</module>
+        <module>protocol-dns</module>
+        <module>protocol-changepw</module>
+        <module>server-tools</module>
+
+        <!-- breaks the build on first try
+        <module>sar-plugin</module>
+        <module>server-sar</module>
+        -->
+
+        <module>server-xml</module>
+        <module>server-unit</module>
+        <module>server-jndi</module>
+        <module>kerberos-shared</module>
+        <module>mitosis</module>
+        <module>server-replication</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <!-- TODO delete version tag after upgrade to TLP pom 9 -->
+            <version>2.0.3</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/directory/apacheds/branches/bigbang
+    </connection>
+  </scm>
+
+</project>

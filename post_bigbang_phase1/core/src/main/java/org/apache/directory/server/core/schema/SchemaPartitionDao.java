@@ -1,0 +1,940 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *  
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License. 
+ *  
+ */
+package org.apache.directory.server.core.schema;
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.directory.server.constants.MetaSchemaConstants;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.schema.bootstrap.Schema;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+import org.apache.directory.server.schema.registries.OidRegistry;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.AndNode;
+import org.apache.directory.shared.ldap.filter.BranchNode;
+import org.apache.directory.shared.ldap.filter.EqualityNode;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.OrNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.schema.MatchingRule;
+import org.apache.directory.shared.ldap.schema.ObjectClass;
+import org.apache.directory.shared.ldap.schema.syntax.NumericOidSyntaxChecker;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
+import org.apache.directory.shared.ldap.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+
+
+/**
+ * A specialized data access object for managing schema objects in the
+ * schema partition.  
+ * 
+ * WARNING:
+ * This dao operates directly on a partition.  Hence no interceptors are available
+ * to perform the various expected services of respective interceptors.  Take care
+ * to normalize all filters and distinguished names.
+ * 
+ * A single write operation exists for enabling schemas needed for operating indices
+ * in partitions and enabling schemas that are dependencies of other schemas that 
+ * are enabled.  In both these limited cases there is no need to worry about issues
+ * with a lack of replication propagation because these same updates will take place
+ * on replicas when the original operation is propagated or when replicas start up.
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
+ * @version $Rev$
+ */
+public class SchemaPartitionDao
+{
+    /** static class logger */
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaPartitionDao.class );
+    private static final NumericOidSyntaxChecker NUMERIC_OID_CHECKER = new NumericOidSyntaxChecker();
+    private static final String[] SCHEMA_ATTRIBUTES = new String[] { 
+        SchemaConstants.CREATORS_NAME_AT, 
+        "m-dependencies", 
+        SchemaConstants.OBJECT_CLASS_AT, 
+        SchemaConstants.CN_AT,
+        "m-disabled" };
+
+
+    private final Partition partition;
+    private final SchemaEntityFactory factory;
+    private final OidRegistry oidRegistry;
+    private final AttributeTypeRegistry attrRegistry;
+    
+    private final String M_NAME_OID;
+    private final String CN_OID;
+    private final String M_OID_OID;
+    private final String OBJECTCLASS_OID;
+    private final String M_SYNTAX_OID;
+    private final String M_ORDERING_OID;
+    private final String M_SUBSTRING_OID;
+    private final String M_EQUALITY_OID;
+    private final String M_SUP_ATTRIBUTE_TYPE_OID;
+    private final String M_MUST_OID;
+    private final String M_MAY_OID;
+    private final String M_AUX_OID;
+    private final String M_OC_OID;
+    private final String M_SUP_OBJECT_CLASS_OID;
+    private final String M_DEPENDENCIES_OID;
+    
+    private final AttributeType disabledAttributeType;
+    
+    
+    /**
+     * Creates a schema dao object backing information within a schema partition.
+     * 
+     * @param partition the schema partition
+     * @param bootstrapRegistries the bootstrap registries that were used to start up the schema partition
+     * @throws NamingException if there are problems initializing this schema partion dao
+     */
+    public SchemaPartitionDao( Partition partition, Registries bootstrapRegistries ) throws NamingException
+    {
+        this.partition = partition;
+        this.factory = new SchemaEntityFactory( bootstrapRegistries );
+        this.oidRegistry = bootstrapRegistries.getOidRegistry();
+        this.attrRegistry = bootstrapRegistries.getAttributeTypeRegistry();
+        
+        this.M_NAME_OID = oidRegistry.getOid( MetaSchemaConstants.M_NAME_AT );
+        this.CN_OID = oidRegistry.getOid( SchemaConstants.CN_AT );
+        this.disabledAttributeType = attrRegistry.lookup( MetaSchemaConstants.M_DISABLED_AT );
+        this.M_OID_OID = oidRegistry.getOid( MetaSchemaConstants.M_OID_AT );
+        this.OBJECTCLASS_OID = oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT );
+        this.M_SYNTAX_OID = oidRegistry.getOid( MetaSchemaConstants.M_SYNTAX_AT );
+        this.M_ORDERING_OID = oidRegistry.getOid( MetaSchemaConstants.M_ORDERING_AT );
+        this.M_EQUALITY_OID = oidRegistry.getOid( MetaSchemaConstants.M_EQUALITY_AT );
+        this.M_SUBSTRING_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUBSTR_AT );
+        this.M_SUP_ATTRIBUTE_TYPE_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_ATTRIBUTE_TYPE_AT );
+        this.M_MUST_OID = oidRegistry.getOid( MetaSchemaConstants.M_MUST_AT );
+        this.M_MAY_OID = oidRegistry.getOid( MetaSchemaConstants.M_MAY_AT );
+        this.M_AUX_OID = oidRegistry.getOid( MetaSchemaConstants.M_AUX_AT );
+        this.M_OC_OID = oidRegistry.getOid( MetaSchemaConstants.M_OC_AT );
+        this.M_SUP_OBJECT_CLASS_OID = oidRegistry.getOid( MetaSchemaConstants.M_SUP_OBJECT_CLASS_AT );
+        this.M_DEPENDENCIES_OID = oidRegistry.getOid( MetaSchemaConstants.M_DEPENDENCIES_AT );
+    }
+
+
+    public Map<String,Schema> getSchemas() throws NamingException
+    {
+        Map<String,Schema> schemas = new HashMap<String,Schema>();
+        NamingEnumeration list = listSchemas();
+        while( list.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) list.next();
+            Schema schema = factory.getSchema( sr.getAttributes() ); 
+            schemas.put( schema.getSchemaName(), schema );
+        }
+        
+        return schemas;
+    }
+
+    
+    public Set<String> getSchemaNames() throws NamingException
+    {
+        Set<String> schemaNames = new HashSet<String>();
+        NamingEnumeration list = listSchemas();
+        while( list.hasMore() )
+        {
+            SearchResult sr = ( SearchResult ) list.next();
+            schemaNames.add( ( String ) sr.getAttributes().get( SchemaConstants.CN_AT ).get() );
+        }
+        
+        return schemaNames;
+    }
+    
+
+    private NamingEnumeration listSchemas() throws NamingException
+    {
+        LdapDN base = new LdapDN( "ou=schema" );
+        base.normalize( attrRegistry.getNormalizerMapping() );
+        ExprNode filter = new EqualityNode( oidRegistry.getOid( SchemaConstants.OBJECT_CLASS_AT ), MetaSchemaConstants.META_SCHEMA_OC );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        searchControls.setReturningAttributes( SCHEMA_ATTRIBUTES );
+        return partition.search( 
+            new SearchOperationContext( base, AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+    }
+
+
+    public Schema getSchema( String schemaName ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        return factory.getSchema( partition.lookup( new LookupOperationContext( dn ) ) );
+    }
+
+
+    public boolean hasMatchingRule( String oid ) throws NamingException
+    {
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_MATCHING_RULE_OC ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+        }
+        else
+        {
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one matchingRule for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+    
+    
+    public boolean hasAttributeType( String oid ) throws NamingException
+    {
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID,  MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+        }
+        else
+        {
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( new SearchOperationContext(
+                    partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one attributeType for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+    
+    
+    public boolean hasObjectClass( String oid ) throws NamingException
+    {
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_OBJECT_CLASS_OC ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+        }
+        else
+        {
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one attributeType for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+    
+    
+    public boolean hasSyntax( String oid ) throws NamingException
+    {
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_OC ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+        }
+        else
+        {
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one syntax for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+    
+    
+    public boolean hasSyntaxChecker( String oid ) throws NamingException
+    {
+        BranchNode filter = new AndNode();
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_SYNTAX_CHECKER_OC ) );
+
+        if ( NUMERIC_OID_CHECKER.isValidSyntax( oid ) )
+        {
+            filter.addNode( new EqualityNode( M_OID_OID, oid ) );
+        }
+        else
+        {
+            filter.addNode( new EqualityNode( M_NAME_OID, oid.toLowerCase() ) );
+        }
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(), AliasDerefMode.DEREF_ALWAYS,
+                        filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return false;
+            }
+            
+            ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one syntaxChecker for oid of " + oid );
+            }
+
+            return true;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+    
+    
+    /**
+     * Given the non-normalized name (alias) or the OID for a schema entity.  This 
+     * method finds the schema under which that entity is located. 
+     * 
+     * NOTE: this method presumes that all alias names across schemas are unique.  
+     * This should be the case for LDAP but this can potentially be violated so 
+     * we should make sure this is a unique name.
+     * 
+     * @param entityName one of the names of the entity or it's numeric id
+     * @return the name of the schema that contains that entity or null if no entity with 
+     * that alias name exists
+     * @throws NamingException if more than one entity has the name, or if there 
+     * are underlying data access problems
+     */
+    public String findSchema( String entityName ) throws NamingException
+    {
+        LdapDN dn = findDn( entityName );
+        if ( dn == null )
+        {
+            return null;
+        }
+        
+        Rdn rdn = dn.getRdn( 1 );
+        if ( ! rdn.getNormType().equalsIgnoreCase( CN_OID ) )
+        {
+            throw new NamingException( "Attribute of second rdn in dn '" + dn.toNormName() 
+                + "' expected to be CN oid of " + CN_OID + " but was " + rdn.getNormType() );
+        }
+        
+        return ( String ) rdn.getValue();
+    }
+
+    
+    public LdapDN findDn( String entityName ) throws NamingException
+    {
+        SearchResult sr = find( entityName );
+        LdapDN dn = new LdapDN( sr.getName() );
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        return dn;
+    }
+    
+
+    /**
+     * Given the non-normalized name (alias) or the OID for a schema entity.  This 
+     * method finds the entry of the schema entity. 
+     * 
+     * NOTE: this method presumes that all alias names across schemas are unique.  
+     * This should be the case for LDAP but this can potentially be violated so 
+     * we should make sure this is a unique name.
+     * 
+     * @param entityName one of the names of the entity or it's numeric id
+     * @return the search result for the entity or null if no such entity exists with 
+     * that alias or numeric oid
+     * @throws NamingException if more than one entity has the name, or if there 
+     * are underlying data access problems
+     */
+    public SearchResult find( String entityName ) throws NamingException
+    {
+        BranchNode filter = new OrNode();
+        SimpleNode nameAVA = new EqualityNode( M_NAME_OID, entityName.toLowerCase() );
+        SimpleNode oidAVA = new EqualityNode( M_OID_OID, entityName.toLowerCase() );
+        filter.addNode( nameAVA );
+        filter.addNode( oidAVA );
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            
+            if ( ! ne.hasMore() )
+            {
+                return null;
+            }
+            
+            SearchResult sr = ne.next();
+            if ( ne.hasMore() )
+            {
+                throw new NamingException( "Got more than one result for the entity name: " + entityName );
+            }
+
+            return sr;
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+    }
+
+
+    /**
+     * Enables a schema by removing it's m-disabled attribute if present.
+     * 
+     * NOTE:
+     * This is a write operation and great care must be taken to make sure it
+     * is used in a limited capacity.  This method is called in two places 
+     * currently.  
+     * 
+     * (1) Within the initialization sequence to enable schemas required
+     *     for the correct operation of indices in other partitions.
+     * (2) Within the partition schema loader to auto enable schemas that are
+     *     depended on by other schemas which are enabled.
+     * 
+     * In both cases, the modifier is effectively the administrator since the 
+     * server is performing the operation directly or on behalf of a user.  In 
+     * case (1) during intialization there is no other user involved so naturally
+     * the modifier is the administrator.  In case (2) when a user enables a 
+     * schema with a dependency that is not enabled the server enables that 
+     * dependency on behalf of the user.  Again effectively it is the server that
+     * is modifying the schema entry and hence the admin is the modifier.
+     * 
+     * No need to worry about a lack of replication propagation in both cases.  In 
+     * case (1) all replicas will enable these schemas anyway on startup.  In case
+     * (2) the original operation that enabled the schema depending on the on that
+     * enableSchema() is called for itself will be replicated.  Hence the same chain 
+     * reaction will occur in a replica.
+     * 
+     * @param schemaName the name of the schema to enable
+     * @throws NamingException if there is a problem updating the schema entry
+     */
+    public void enableSchema( String schemaName ) throws NamingException
+    {
+        LdapDN dn = new LdapDN( "cn=" + schemaName + ",ou=schema" );
+        dn.normalize( attrRegistry.getNormalizerMapping() );
+        Attributes entry = partition.lookup( new LookupOperationContext( dn ) );
+        Attribute disabledAttr = AttributeUtils.getAttribute( entry, disabledAttributeType );
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>( 3 );
+        
+        if ( disabledAttr == null )
+        {
+            LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
+            return;
+        }
+        
+        boolean isDisabled = ( ( String ) disabledAttr.get() ).equalsIgnoreCase( "TRUE" );
+        if ( ! isDisabled )
+        {
+            LOG.warn( "Does not make sense: you're trying to enable {} schema which is already enabled", schemaName );
+            return;
+        }
+        
+        mods.add( new ModificationItemImpl( DirContext.REMOVE_ATTRIBUTE, 
+            new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT ) ) );
+        
+        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SchemaConstants.MODIFIERS_NAME_AT, ServerDNConstants.ADMIN_SYSTEM_DN ) ) );
+        
+        mods.add( new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
+            new AttributeImpl( SchemaConstants.MODIFY_TIMESTAMP_AT, DateUtils.getGeneralizedTime() ) ) );
+        
+        partition.modify( new ModifyOperationContext( dn, mods ) );
+    }
+
+
+    /**
+     * Returns the set of matchingRules and attributeTypes which depend on the 
+     * provided syntax.
+     *
+     * @param numericOid the numeric identifier for the entity
+     * @return the set of matchingRules and attributeTypes depending on a syntax
+     * @throws NamingException if the dao fails to perform search operations
+     */
+    public Set<SearchResult> listSyntaxDependents( String numericOid ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        // subfilter for (| (objectClass=metaMatchingRule) (objectClass=metaAttributeType))  
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_MATCHING_RULE_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
+        
+        filter.addNode( or );
+        filter.addNode( new EqualityNode( M_SYNTAX_OID, numericOid.toLowerCase() ) );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    public Set<SearchResult> listMatchingRuleDependents( MatchingRule mr ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        // ( objectClass = metaAttributeType )
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
+        
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( M_ORDERING_OID, mr.getOid() ) );
+        or.addNode( new EqualityNode( M_SUBSTRING_OID, mr.getOid() ) );
+        or.addNode( new EqualityNode( M_EQUALITY_OID, mr.getOid() ) );
+        filter.addNode( or );
+
+        if ( mr.getNames() != null || mr.getNames().length > 0 )
+        {
+            for ( String name : mr.getNames() )
+            {
+                or.addNode( new EqualityNode( M_ORDERING_OID, name.toLowerCase() ) );
+                or.addNode( new EqualityNode( M_SUBSTRING_OID, name.toLowerCase() ) );
+                or.addNode( new EqualityNode( M_EQUALITY_OID, name.toLowerCase() ) );
+            }
+        }
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    public NamingEnumeration<SearchResult> listAllNames() throws NamingException
+    {
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        BranchNode filter = new AndNode();
+        
+        // (& (m-oid=*) (m-name=*) )
+        filter.addNode( new PresenceNode( M_OID_OID ) );
+        filter.addNode( new PresenceNode( M_NAME_OID ) );
+        return partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                 AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+    }
+
+
+    public Set<SearchResult> listAttributeTypeDependents( AttributeType at ) throws NamingException
+    {
+        /*
+         * Right now the following inefficient filter is being used:
+         * 
+         * ( & 
+         *      ( | ( objectClass = metaAttributeType ) ( objectClass = metaObjectClass ) )
+         *      ( | ( m-oid = $oid ) ( m-must = $oid ) ( m-supAttributeType = $oid ) )
+         * )
+         * 
+         * the reason why this is inefficient is because the or terms have large scan counts
+         * and several loops are going to be required.  The following search is better because
+         * it constrains the results better:
+         * 
+         * ( |
+         *      ( & ( objectClass = metaAttributeType ) ( m-supAttributeType = $oid ) )
+         *      ( & ( objectClass = metaObjectClass ) ( | ( m-may = $oid ) ( m-must = $oid ) ) )
+         * )
+         */
+        
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        // ( objectClass = metaAttributeType )
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_ATTRIBUTE_TYPE_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
+        filter.addNode( or );
+
+        
+        or = new OrNode();
+        or.addNode( new EqualityNode( M_MAY_OID, at.getOid() ) );
+        or.addNode( new EqualityNode( M_MUST_OID, at.getOid() ) );
+        or.addNode( new EqualityNode( M_SUP_ATTRIBUTE_TYPE_OID, at.getOid() ) );
+        filter.addNode( or );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    /**
+     * Lists the SearchResults of metaSchema objects that depend on a schema.
+     * 
+     * @param schemaName the name of the schema to search for dependees
+     * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
+     * @throws NamingException if there is a problem while searching the schema partition
+     */
+    public Set<SearchResult> listSchemaDependents( String schemaName ) throws NamingException
+    {
+        /*
+         * The following filter is being used:
+         * 
+         * ( & ( objectClass = metaSchema ) ( m-dependencies = $schemaName ) )
+         */
+        
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase() ) );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    /**
+     * Lists the SearchResults of metaSchema objects that depend on a schema.
+     * 
+     * @param schemaName the name of the schema to search for dependees
+     * @return a set of SearchResults over the schemas whose m-dependency attribute contains schemaName
+     * @throws NamingException if there is a problem while searching the schema partition
+     */
+    public Set<SearchResult> listEnabledSchemaDependents( String schemaName ) throws NamingException
+    {
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        filter.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_SCHEMA_OC.toLowerCase() ) );
+        filter.addNode( new EqualityNode( M_DEPENDENCIES_OID, 
+            schemaName.toLowerCase() ) );
+        
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                     AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                SearchResult sr = ne.next();
+                Attribute disabled = AttributeUtils.getAttribute( sr.getAttributes(), disabledAttributeType );
+                
+                if ( disabled == null )
+                {
+                    set.add( sr );
+                }
+                else if ( disabled.get().equals( "FALSE" ) )
+                {
+                    set.add( sr );
+                }
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+
+
+    public Set<SearchResult> listObjectClassDependents( ObjectClass oc ) throws NamingException
+    {
+        /*
+         * Right now the following inefficient filter is being used:
+         * 
+         * ( & 
+         *      ( | ( objectClass = metaObjectClass ) ( objectClass = metaDITContentRule ) 
+         *          ( objectClass = metaNameForm ) )
+         *      ( | ( m-oc = $oid ) ( m-aux = $oid ) ( m-supObjectClass = $oid ) )
+         * )
+         * 
+         * The reason why this is inefficient is because the or terms have large scan counts
+         * and several loops are going to be required.  For example all the objectClasses and 
+         * all the metaDITContentRules and all the metaNameForm candidates will be a massive 
+         * number.  This is probably going to be bigger than the 2nd term where a candidate 
+         * satisfies one of the terms.
+         * 
+         * The following search is better because it constrains the results better:
+         * 
+         * ( |
+         *      ( & ( objectClass = metaNameForm ) ( m-oc = $oid ) )
+         *      ( & ( objectClass = metaObjectClass ) ( m-supObjectClass = $oid ) )
+         *      ( & ( objectClass = metaDITContentRule ) ( m-aux = $oid ) )
+         * )
+         */
+        
+        Set<SearchResult> set = new HashSet<SearchResult>( );
+        BranchNode filter = new AndNode();
+        
+        BranchNode or = new OrNode();
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_NAME_FORM_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_OBJECT_CLASS_OC.toLowerCase() ) );
+        or.addNode( new EqualityNode( OBJECTCLASS_OID, 
+            MetaSchemaConstants.META_DIT_CONTENT_RULE_OC.toLowerCase() ) );
+        filter.addNode( or );
+
+        
+        or = new OrNode();
+        or.addNode( new EqualityNode( M_AUX_OID, oc.getOid() ) );
+        or.addNode( new EqualityNode( M_OC_OID, oc.getOid() ) );
+        or.addNode( new EqualityNode( M_SUP_OBJECT_CLASS_OID, oc.getOid() ) );
+        filter.addNode( or );
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope( SearchControls.SUBTREE_SCOPE );
+        NamingEnumeration<SearchResult> ne = null;
+        
+        try
+        {
+            ne = partition.search( new SearchOperationContext( partition.getSuffixDn(),
+                    AliasDerefMode.DEREF_ALWAYS, filter, searchControls ) );
+            while( ne.hasMore() )
+            {
+                set.add( ne.next() );
+            }
+        }
+        finally
+        {
+            if ( ne != null )
+            {
+                ne.close();
+            }
+        }
+        
+        return set;
+    }
+}

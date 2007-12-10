@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<supplementalDataModels>
+  <supplement>
+    <project>
+      <groupId>jdbm</groupId>
+      <artifactId>jdbm</artifactId>
+      <name>JDBM</name>
+      <organization>
+        <name>JDBM</name>
+        <url>http://jdbm.sourceforge.net/</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>JDBM License v1.00 (BSD)</name>
+          <url>http://jdbm.cvs.sourceforge.net/jdbm/jdbm/LICENSE.txt?revision=1.1</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+  <supplement>
+    <project>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <name>ANTLR Parser Generator</name>
+      <organization>
+        <name>ANTLR</name>
+        <url>http://www.antlr.org/</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>ANTLR 2 License (public domain)</name>
+          <url>http://www.antlr2.org/license.html</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+
+</supplementalDataModels>

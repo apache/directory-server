@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev:  $ $Date:  $ -->
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-server-sar</artifactId>
+  <name>ApacheDS Server Sar (JBoss 3.x)</name>
+
+  <description>
+    A server archive file for ApacheDS to run within a JBoss 3.x instance
+  </description>
+
+  <packaging>sar</packaging>  
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-server-ssl</artifactId>
+      <version>${pom.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.apache.directory.daemon</groupId>
+      <artifactId>daemon-bootstrappers</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-system</artifactId>
+      <version>3.2.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>nlog4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>mojo.snapshots</id>
+      <name>Codehaus Snapshot Repository</name>
+      <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <extensions>true</extensions>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-sar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+aopalliance:aopalliance
+            </exclude>
+            <exclude>
+jasperreports:jasperreports
+            </exclude>
+            <exclude>
+asm:asm-util
+            </exclude>
+            <exclude>
+freemarker:freemarker
+            </exclude>
+            <exclude>
+asm:asm
+            </exclude>
+            <exclude>
+com.jamonapi:jamon
+            </exclude>
+            <exclude>
+velocity:velocity-dep
+            </exclude>
+            <exclude>
+commons-attributes:commons-attributes-compiler
+            </exclude>
+            <exclude>
+commons-attributes:commons-attributes-api
+            </exclude>
+            <exclude>
+cglib:cglib
+            </exclude>
+            <exclude>
+qdox:qdox
+            </exclude>
+            <exclude>
+oro:oro
+            </exclude>
+            <exclude>
+org.springframework:spring-aop
+            </exclude>
+            <exclude>
+velocity:velocity
+            </exclude>
+            <exclude>
+aspectwerkz:aspectwerkz-core
+            </exclude>
+            <exclude>
+xml-apis:xml-apis
+            </exclude>
+            <exclude>
+commons-pool:commons-pool
+            </exclude>
+            <exclude>
+xerces:xerces
+            </exclude>
+            <exclude>
+ant:ant
+            </exclude>
+            <exclude>
+jboss:jboss-system
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

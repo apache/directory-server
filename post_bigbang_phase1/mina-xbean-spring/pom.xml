@@ -1,0 +1,75 @@
+<?xml version="1.0"?><project>
+  <parent>
+    <artifactId>apacheds-parent</artifactId>
+    <groupId>org.apache.directory.server</groupId>
+    <version>1.5.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.directory.mina</groupId>
+  <artifactId>mina-xbean-spring</artifactId>
+  <name>Mina Xbean Spring</name>
+
+  <url>http://maven.apache.org</url>
+  <dependencies>
+      <dependency>
+        <groupId>org.apache.mina</groupId>
+        <artifactId>mina-core</artifactId>
+        <version>1.1.4-SNAPSHOT</version>
+        <classifier>sources</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.mina</groupId>
+        <artifactId>mina-filter-ssl</artifactId>
+        <version>1.1.4-SNAPSHOT</version>
+        <classifier>sources</classifier>
+      </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>maven-xbean-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <namespace>http://mina.org/config/1.0</namespace>
+              <schema>target/xbean/${pom.artifactId}.xsd</schema>
+            </configuration>
+            <goals>
+              <goal>mapping</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--  lets ensure that the XSD gets deployed  -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${basedir}/target/xbean/${pom.artifactId}.xsd</file>
+                  <type>xsd</type>
+                </artifact>
+                <artifact>
+                  <file>${basedir}/target/xbean/${pom.artifactId}.xsd.html</file>
+                  <type>xsd.html</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
