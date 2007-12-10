@@ -22,7 +22,7 @@ package org.apache.directory.server.kerberos.protocol;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
@@ -45,7 +45,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -56,7 +56,7 @@ public class EncTktInSkeyTest extends AbstractTicketGrantingServiceTest
      */
     public EncTktInSkeyTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcServer();
 
         /*
          * Body checksum verification must be disabled because we are bypassing

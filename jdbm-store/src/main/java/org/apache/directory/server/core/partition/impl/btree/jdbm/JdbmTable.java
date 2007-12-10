@@ -20,39 +20,22 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-
 import jdbm.RecordManager;
 import jdbm.btree.BTree;
 import jdbm.helper.Serializer;
 import jdbm.helper.TupleBrowser;
-
 import org.apache.commons.collections.iterators.ArrayIterator;
-import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
-import org.apache.directory.server.core.partition.impl.btree.KeyOnlyComparator;
-import org.apache.directory.server.core.partition.impl.btree.NoDupsEnumeration;
-import org.apache.directory.server.core.partition.impl.btree.Table;
-import org.apache.directory.server.core.partition.impl.btree.Tuple;
-import org.apache.directory.server.core.partition.impl.btree.TupleComparator;
-import org.apache.directory.server.core.partition.impl.btree.TupleEnumeration;
-import org.apache.directory.server.core.partition.impl.btree.TupleRenderer;
+import org.apache.directory.server.core.partition.impl.btree.*;
 import org.apache.directory.server.schema.SerializableComparator;
-
 import org.apache.directory.shared.ldap.exception.LdapNamingException;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.apache.directory.shared.ldap.util.SingletonEnumeration;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -82,7 +65,7 @@ public class JdbmTable implements Table
     /** */
     private TupleRenderer renderer;
 
-    private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
+    private int numDupLimit = JdbmIndex.DEFAULT_DUPLICATE_LIMIT;
 
     private Map<Long, BTree> duplicateBtrees = new HashMap<Long, BTree>();
     

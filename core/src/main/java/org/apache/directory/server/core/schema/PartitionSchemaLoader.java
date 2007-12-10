@@ -76,8 +76,8 @@ import org.slf4j.LoggerFactory;
 public class PartitionSchemaLoader extends AbstractSchemaLoader
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( PartitionSchemaLoader.class );
-    
+    private static final Logger LOG = LoggerFactory.getLogger( PartitionSchemaLoader.class );
+
     private final SchemaPartitionDao dao;
     private SchemaEntityFactory factory;
     private Partition partition;
@@ -212,13 +212,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         {
             if ( ! schema.isDisabled() )
             {
-                log.debug( "will attempt to load enabled schema: {}", schema.getSchemaName() );
+                LOG.debug( "will attempt to load enabled schema: {}", schema.getSchemaName() );
                     
                 enabledSchemaSet.add( schema );
             }
             else
             {
-                log.debug( "will NOT attempt to load disabled schema: {}", schema.getSchemaName() );
+                LOG.debug( "will NOT attempt to load disabled schema: {}", schema.getSchemaName() );
             }
         }
 
@@ -308,15 +308,13 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
     public final void loadWithDependencies( Collection<Schema> schemas, Registries targetRegistries ) throws NamingException
     {
         HashMap<String,Schema> notLoaded = new HashMap<String,Schema>();
-        Iterator<Schema> list = schemas.iterator();
-        
-        while ( list.hasNext() )
+
+        for ( Schema schema : schemas )
         {
-            Schema schema = list.next();
             notLoaded.put( schema.getSchemaName(), schema );
         }
 
-        list = notLoaded.values().iterator();
+        Iterator<Schema> list = notLoaded.values().iterator();
         while ( list.hasNext() )
         {
             Schema schema = list.next();
@@ -339,11 +337,11 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         
         if ( targetRegistries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
         {
-            log.debug( "schema {} already seems to be loaded", schema.getSchemaName() );
+            LOG.debug( "schema {} already seems to be loaded", schema.getSchemaName() );
             return;
         }
         
-        log.debug( "loading {} schema ...", schema.getSchemaName() );
+        LOG.debug( "loading {} schema ...", schema.getSchemaName() );
         
         loadComparators( schema, targetRegistries );
         loadNormalizers( schema, targetRegistries );
@@ -415,7 +413,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading objectClasses", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -436,8 +434,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
         }
         
-        log.debug( "Deferred queue size = {}", deferred.size() );
-        if ( log.isDebugEnabled() )
+        LOG.debug( "Deferred queue size = {}", deferred.size() );
+        if ( LOG.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
             buf.append( "Deferred queue contains: " );
@@ -455,7 +453,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         int lastCount = deferred.size();
         while ( ! deferred.isEmpty() )
         {
-            log.debug( "Deferred queue size = {}", deferred.size() );
+            LOG.debug( "Deferred queue size = {}", deferred.size() );
             ObjectClass oc = deferred.removeFirst();
             NamingException lastException = null;
             
@@ -515,7 +513,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading attributeTypes", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -535,8 +533,8 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             }
         }
 
-        log.debug( "Deferred queue size = {}", deferred.size() );
-        if ( log.isDebugEnabled() )
+        LOG.debug( "Deferred queue size = {}", deferred.size() );
+        if ( LOG.isDebugEnabled() )
         {
             StringBuffer buf = new StringBuffer();
             buf.append( "Deferred queue contains: " );
@@ -554,7 +552,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
         int lastCount = deferred.size();
         while ( ! deferred.isEmpty() )
         {
-            log.debug( "Deferred queue size = {}", deferred.size() );
+            LOG.debug( "Deferred queue size = {}", deferred.size() );
             AttributeType at = deferred.removeFirst();
             NamingException lastException = null;
             
@@ -612,7 +610,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading matchingRules", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -644,7 +642,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading syntaxes", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -675,7 +673,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading syntaxCheckers", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -708,7 +706,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading normalizers", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading normalizers", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )
@@ -777,7 +775,7 @@ public class PartitionSchemaLoader extends AbstractSchemaLoader
             return;
         }
         
-        log.debug( "{} schema: loading comparators", schema.getSchemaName() );
+        LOG.debug( "{} schema: loading comparators", schema.getSchemaName() );
         
         NamingEnumeration list = partition.list( new ListOperationContext( dn ) );
         while ( list.hasMore() )

@@ -20,10 +20,11 @@
 package org.apache.directory.server.kerberos.protocol;
 
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
@@ -38,7 +39,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -49,7 +50,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
      */
     public AuthenticationPolicyTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();
@@ -82,7 +83,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -117,7 +118,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -152,7 +153,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -187,7 +188,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + 1 * KerberosTime.DAY );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -222,7 +223,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedEndTime = new KerberosTime( now + KerberosTime.WEEK );
         modifier.setTill( requestedEndTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -260,7 +261,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -297,7 +298,7 @@ public class AuthenticationPolicyTest extends AbstractAuthenticationServiceTest
         KerberosTime requestedRenewTillTime = new KerberosTime( now + KerberosTime.WEEK / 2 );
         modifier.setRtime( requestedRenewTillTime );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, null, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, null, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 

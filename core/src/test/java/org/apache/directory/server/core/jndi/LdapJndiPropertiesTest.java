@@ -26,7 +26,7 @@ import javax.naming.Context;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.server.core.jndi.LdapJndiProperties;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.util.StringTools;
 

@@ -20,22 +20,20 @@
 package org.apache.directory.server.ssl;
 
 
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.Hashtable;
+import org.apache.directory.server.ssl.support.SSLSocketFactory;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import org.apache.directory.server.ldap.LdapConfiguration;
-import org.apache.directory.server.ssl.support.SSLSocketFactory;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.mina.util.AvailablePortFinder;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.Hashtable;
 
 
 /**
@@ -49,7 +47,7 @@ public class LdapsITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
 
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -57,41 +55,16 @@ public class LdapsITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        doDelete( configuration.getWorkingDirectory() );
-
-        int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
-        
-        LdapConfiguration ldapsCfg = configuration.getLdapsConfiguration();
-        ldapsCfg.setEnableLdaps( true );
-        ldapsCfg.setLdapsCertificatePassword( "boguspw" );
-        ldapsCfg.setIpPort( ldapsPort );
-
-        // Copy the bogus certificate to the certificates directory.
-        InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
-        ldapsCfg.getLdapsCertificateFile().getParentFile().mkdirs();
-
-        FileOutputStream out = new FileOutputStream( ldapsCfg.getLdapsCertificateFile() );
-
-        for ( ;; )
-        {
-            int c = in.read();
-            if ( c < 0 )
-            {
-                break;
-            }
-            out.write( c );
-        }
-
-        in.close();
-        out.close();
-
-        doDelete = false;
         super.setUp();
-        doDelete = true;
+
+//        int ldapsPort = AvailablePortFinder.getNextAvailable( 8192 );
+//
+//        LdapServer ldapsServer = new LdapServer( socketAcceptor, directoryService );
+
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( "java.naming.provider.url", "ldap://localhost:" + ldapsPort + "/ou=system" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.ldap.factory.socket", SSLSocketFactory.class.getName() );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
@@ -99,6 +72,40 @@ public class LdapsITest extends AbstractServerTest
         ctx = new InitialDirContext( env );
     }
 
+
+    @Override
+    protected void configureLdapServer()
+    {
+        ldapServer.setEnableLdaps( true );
+        ldapServer.setLdapsCertificatePassword( "boguspw" );
+//        ldapServer.setIpPort( ldapsPort );
+
+        // Copy the bogus certificate to the certificates directory.
+        InputStream in = getClass().getResourceAsStream( "/bogus.cert" );
+        ldapServer.getLdapsCertificateFile().getParentFile().mkdirs();
+
+        try
+        {
+            FileOutputStream out = new FileOutputStream( ldapServer.getLdapsCertificateFile() );
+
+            for ( ;; )
+            {
+                int c = in.read();
+                if ( c < 0 )
+                {
+                    break;
+                }
+                out.write( c );
+            }
+
+            in.close();
+            out.close();
+        } catch ( IOException e )
+        {
+            throw new RuntimeException( e );
+        }
+
+    }
 
     /**
      * Remove the person.
@@ -115,7 +122,7 @@ public class LdapsITest extends AbstractServerTest
     /**
      * Just a little test to check if the connection is made successfully.
      * 
-     * @throws NamingException
+     * @throws NamingException cannot create person
      */
     public void testSetUpTearDown() throws NamingException
     {

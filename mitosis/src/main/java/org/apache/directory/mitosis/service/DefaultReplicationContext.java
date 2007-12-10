@@ -20,12 +20,6 @@
 package org.apache.directory.mitosis.service;
 
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientContextHandler;
@@ -33,9 +27,11 @@ import org.apache.directory.mitosis.service.protocol.handler.ReplicationClientPr
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationContextHandler;
 import org.apache.directory.mitosis.service.protocol.handler.ReplicationProtocolHandler;
 import org.apache.directory.mitosis.service.protocol.message.BaseMessage;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.util.SessionLog;
+
+import java.util.*;
 
 /**
  * The default implementation of {@link ReplicationContext}
@@ -44,11 +40,11 @@ import org.apache.mina.util.SessionLog;
  */
 public class DefaultReplicationContext implements ReplicationContext
 {
-    private static final Timer expirationTimer = new Timer( "ReplicationMessageExpirer" );
+    private static final Timer EXPIRATION_TIMER = new Timer( "ReplicationMessageExpirer" );
 
-    private final ReplicationService service;
+    private final ReplicationInterceptor interceptor;
     private final ReplicationConfiguration configuration;
-    private final DirectoryServiceConfiguration serviceConfiguration;
+    private final DirectoryService directoryService;
     private final IoSession session;
     private final Map<Integer,ExpirationTask> expirableMessages = new HashMap<Integer,ExpirationTask>();
     private int nextSequence;
@@ -56,19 +52,19 @@ public class DefaultReplicationContext implements ReplicationContext
     private State state = State.INIT;
 
 
-    public DefaultReplicationContext( ReplicationService service, DirectoryServiceConfiguration serviceCfg,
+    public DefaultReplicationContext( ReplicationInterceptor interceptor, DirectoryService directoryService,
         ReplicationConfiguration configuration, IoSession session )
     {
-        this.service = service;
+        this.interceptor = interceptor;
         this.configuration = configuration;
-        this.serviceConfiguration = serviceCfg;
+        this.directoryService = directoryService;
         this.session = session;
     }
 
 
-    public ReplicationService getService()
+    public ReplicationInterceptor getService()
     {
-        return service;
+        return interceptor;
     }
 
 
@@ -78,9 +74,9 @@ public class DefaultReplicationContext implements ReplicationContext
     }
 
 
-    public DirectoryServiceConfiguration getServiceConfiguration()
+    public DirectoryService getDirectoryService()
     {
-        return serviceConfiguration;
+        return directoryService;
     }
 
 
@@ -127,10 +123,10 @@ public class DefaultReplicationContext implements ReplicationContext
         ExpirationTask task = new ExpirationTask( bm );
         synchronized ( expirableMessages )
         {
-            expirableMessages.put( new Integer( bm.getSequence() ), task );
+            expirableMessages.put( bm.getSequence(), task );
         }
 
-        expirationTimer.schedule( task, configuration.getResponseTimeout() * 1000L );
+        EXPIRATION_TIMER.schedule( task, configuration.getResponseTimeout() * 1000L );
     }
 
 
@@ -145,6 +141,7 @@ public class DefaultReplicationContext implements ReplicationContext
         task.cancel();
         return task.message;
     }
+
     
     public boolean replicate()
     {
@@ -165,10 +162,9 @@ public class DefaultReplicationContext implements ReplicationContext
     {
         synchronized ( expirableMessages )
         {
-            Iterator i = expirableMessages.values().iterator();
-            while ( i.hasNext() )
+            for ( ExpirationTask expirationTask : expirableMessages.values() )
             {
-                ( ( ExpirationTask ) i.next() ).cancel();
+                ( expirationTask ).cancel();
             }
         }
     }
@@ -188,10 +184,11 @@ public class DefaultReplicationContext implements ReplicationContext
         ExpirationTask task;
         synchronized ( expirableMessages )
         {
-            task = expirableMessages.remove( new Integer( sequence ) );
+            task = expirableMessages.remove( sequence );
         }
         return task;
     }
+
 
     private class ExpirationTask extends TimerTask
     {

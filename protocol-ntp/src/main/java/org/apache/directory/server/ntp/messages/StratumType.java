@@ -40,7 +40,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class StratumType implements Comparable
+public final class StratumType implements Comparable<StratumType>
 {
     /**
      * Constant for the "Unspecified or unavailable" stratum type.
@@ -66,7 +66,7 @@ public final class StratumType implements Comparable
     /**
      * A list of all the stratum type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<StratumType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the stratum type.
@@ -120,9 +120,9 @@ public final class StratumType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( StratumType that )
     {
-        return ordinal - ( ( StratumType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

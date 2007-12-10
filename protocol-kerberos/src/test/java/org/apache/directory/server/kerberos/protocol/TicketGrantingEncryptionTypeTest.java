@@ -26,7 +26,7 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
@@ -45,13 +45,13 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 /**
  * Tests various facets of working with encryption types in the Ticket-Granting Service (TGS).
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -62,7 +62,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
      */
     public TicketGrantingEncryptionTypeTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcServer();
 
         /*
          * Body checksum verification must be disabled because we are bypassing
@@ -98,8 +98,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.DES_CBC_MD5 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
         modifier.setEType( encryptionTypes );
 
@@ -119,20 +119,20 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
 
 
     /**
      * Tests the use of a TGT containing a DES-CBC-MD5 session key while the
      * requested encryption type is AES-128.
-     * 
+     *
      * @throws Exception
      */
     public void testRequestAes128() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -149,8 +149,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -170,9 +170,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-            .getEncryptionType() );
+                .getEType() );
     }
 
 
@@ -185,7 +185,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testRequestAes128TgtAndRequested() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -204,7 +204,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-            preAuthEncryptionTypes );
+                preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
@@ -213,8 +213,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -234,21 +234,21 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-            .getEncryptionType() );
+                .getEType() );
     }
 
 
     /**
      * Tests that the client-chosen nonce is correctly returned in the response.
-     * 
+     *
      * @throws Exception
      */
     public void testNonce() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -267,7 +267,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-            preAuthEncryptionTypes );
+                preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
@@ -276,8 +276,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -298,9 +298,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-            .getEncryptionType() );
+                .getEType() );
 
         assertEquals( "Nonce", nonce, reply.getNonce() );
     }
@@ -308,13 +308,13 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
     /**
      * Tests that the default reply key is the session key from the TGT.
-     * 
+     *
      * @throws Exception
      */
     public void testDecryptWithSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -333,7 +333,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-            preAuthEncryptionTypes );
+                preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
@@ -342,8 +342,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -363,9 +363,9 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-            .getEncryptionType() );
+                .getEType() );
     }
 
 
@@ -378,7 +378,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
     public void testDecryptWithSubSessionKey() throws Exception
     {
         EncryptionType[] configuredEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+                {EncryptionType.AES128_CTS_HMAC_SHA1_96};
         config.setEncryptionTypes( configuredEncryptionTypes );
 
         // Get the mutable ticket part.
@@ -397,7 +397,7 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         preAuthEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Map<EncryptionType, EncryptionKey> keyMap = KerberosKeyFactory.getKerberosKeys( principalName, passPhrase,
-            preAuthEncryptionTypes );
+                preAuthEncryptionTypes );
         EncryptionKey serverKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         Ticket tgt = getTicket( encTicketPartModifier, serverPrincipal, serverKey );
@@ -406,8 +406,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
         modifier.setServerName( getPrincipalName( "ldap/ldap.example.com@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
 
@@ -429,8 +429,8 @@ public class TicketGrantingEncryptionTypeTest extends AbstractTicketGrantingServ
 
         TicketGrantReply reply = ( TicketGrantReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
         assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getTicket().getEncPart()
-            .getEncryptionType() );
+                .getEType() );
     }
 }

@@ -19,12 +19,13 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
-import java.util.Map;
+
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 /**
  * A Search context used for Interceptors. It contains all the informations
@@ -35,67 +36,64 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class SearchOperationContext extends AbstractOperationContext
 {
-    /** The search environment type */
-    private Map<?, ?> env;
-    
     /** The filter */
     private ExprNode filter;
     
     /** The controls */
     private SearchControls searchControls;
 
+    private AliasDerefMode aliasDerefMode;
+
+
     /**
-     * 
      * Creates a new instance of SearchOperationContext.
-     *
      */
     public SearchOperationContext()
     {
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of SearchOperationContext.
-     *
+     * @param aliasDerefMode the alias dereferencing mode
+     * @param dn the dn of the search base
+     * @param filter the filter AST to use for the search
+     * @param searchControls the search controls
      */
-    public SearchOperationContext( LdapDN dn, Map<?, ?> env, ExprNode filter, SearchControls searchControls )
+    public SearchOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode, ExprNode filter,
+                                   SearchControls searchControls )
     {
         super( dn );
-        this.env = env;
         this.filter = filter;
+        this.aliasDerefMode = aliasDerefMode;
         this.searchControls = searchControls;
     }
 
-    public Map<?, ?> getEnv()
-    {
-        return env;
-    }
-
-    public void setEnv( Map<String, Object> env )
-    {
-        this.env = env;
-    }
 
     public ExprNode getFilter()
     {
         return filter;
     }
 
+
     public void setFilter( ExprNode filter )
     {
         this.filter = filter;
     }
+
 
     public SearchControls getSearchControls()
     {
         return searchControls;
     }
 
+
     public void setSearchControls( SearchControls searchControls )
     {
         this.searchControls = searchControls;
     }
+
 
     /**
      * @see Object#toString()
@@ -106,4 +104,15 @@ public class SearchOperationContext extends AbstractOperationContext
         + filter + "'"; 
     }
 
+
+    public AliasDerefMode getAliasDerefMode()
+    {
+        return aliasDerefMode;
+    }
+
+
+    public void setAliasDerefMode( AliasDerefMode aliasDerefMode )
+    {
+        this.aliasDerefMode = aliasDerefMode;
+    }
 }

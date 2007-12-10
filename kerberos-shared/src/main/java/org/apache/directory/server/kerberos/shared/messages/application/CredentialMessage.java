@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 
@@ -44,7 +44,7 @@ public class CredentialMessage extends KerberosMessage
      */
     public CredentialMessage( EncryptedData encPart, Ticket[] tickets )
     {
-        super( MessageType.KRB_CRED );
+        super( KerberosMessageType.KRB_CRED );
         this.encPart = encPart;
         this.tickets = tickets;
     }

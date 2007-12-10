@@ -20,22 +20,8 @@
 package org.apache.directory.server.tools.commands.disconnectnotificationcmd;
 
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.naming.directory.SearchControls;
-import javax.naming.event.EventContext;
-import javax.naming.event.NamingExceptionEvent;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.UnsolicitedNotification;
-import javax.naming.ldap.UnsolicitedNotificationEvent;
-import javax.naming.ldap.UnsolicitedNotificationListener;
-
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -46,6 +32,16 @@ import org.apache.directory.shared.ldap.message.extended.GracefulDisconnect;
 import org.apache.directory.shared.ldap.message.extended.NoticeOfDisconnect;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import javax.naming.directory.SearchControls;
+import javax.naming.event.EventContext;
+import javax.naming.event.NamingExceptionEvent;
+import javax.naming.ldap.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -60,9 +56,9 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
     public static final String BINDDN_PARAMETER = "bindDN";
 
     private String bindDN;
-    public final static String DEFAULT_BINDDN = "uid=admin,ou=system";
+    public static final String DEFAULT_BINDDN = ServerDNConstants.ADMIN_SYSTEM_DN;
     UnsolicitedNotification notification;
-    boolean canceled = false;
+    boolean canceled;
 
 
     public DisconnectNotificationCommandExecutor()
@@ -131,6 +127,7 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
 
         notifyOutputListener( "Listening for notifications." );
         notifyOutputListener( "Press any key to terminate." );
+        //noinspection ResultOfMethodCallIgnored
         System.in.read();
         ctx.close();
         notifyOutputListener( "Process terminated!!!" );
@@ -140,10 +137,9 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
     private void processParameters( Parameter[] params )
     {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        
-        for ( int i = 0; i < params.length; i++ )
+
+        for ( Parameter parameter : params )
         {
-            Parameter parameter = params[i];
             parameters.put( parameter.getName(), parameter.getValue() );
         }
 
@@ -151,21 +147,21 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
         Boolean quietParam = ( Boolean ) parameters.get( QUIET_PARAMETER );
         if ( quietParam != null )
         {
-            setQuietEnabled( quietParam.booleanValue() );
+            setQuietEnabled( quietParam );
         }
 
         // Debug param
         Boolean debugParam = ( Boolean ) parameters.get( DEBUG_PARAMETER );
         if ( debugParam != null )
         {
-            setDebugEnabled( debugParam.booleanValue() );
+            setDebugEnabled( debugParam );
         }
 
         // Verbose param
         Boolean verboseParam = ( Boolean ) parameters.get( VERBOSE_PARAMETER );
         if ( verboseParam != null )
         {
-            setVerboseEnabled( verboseParam.booleanValue() );
+            setVerboseEnabled( verboseParam );
         }
 
         // Install-path param
@@ -179,12 +175,10 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
                 {
                     notifyOutputListener( "loading settings from: " + getLayout().getConfigurationFile() );
                 }
-                ApplicationContext factory = null;
-                URL configUrl;
-
-                configUrl = getLayout().getConfigurationFile().toURI().toURL();
-                factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-                setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
+                
+                URL configUrl = getLayout().getConfigurationFile().toURI().toURL();
+                ApplicationContext factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+                setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
             }
             catch ( MalformedURLException e )
             {
@@ -213,11 +207,11 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
         Integer portParam = ( Integer ) parameters.get( PORT_PARAMETER );
         if ( portParam != null )
         {
-            port = portParam.intValue();
+            port = portParam;
         }
-        else if ( getConfiguration() != null )
+        else if ( getApacheDS() != null )
         {
-            port = getConfiguration().getLdapConfiguration().getIpPort();
+            port = getApacheDS().getLdapServer().getIpPort();
 
             if ( isDebugEnabled() )
             {
@@ -327,7 +321,8 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
 				// TODO Auto-generated catch block
 				de.printStackTrace();
 			}
-            
+
+            assert gd != null;
             notifyOutputListener( "LDAP server will shutdown in " + gd.getDelay() + " seconds." );
             notifyOutputListener( "LDAP server will be back online in " + gd.getTimeOffline() + " minutes." );
 
@@ -377,6 +372,7 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
                 }
                 catch ( InterruptedException e )
                 {
+                    e.printStackTrace();
                 }
                 notifyOutputListener( "." );
             }
@@ -389,7 +385,6 @@ public class DisconnectNotificationCommandExecutor extends BaseToolCommandExecut
             {
                 notifyOutputListener( "]" );
                 notifyOutputListener( "Client shutting down gracefully." );
-                return;
             }
         }
     }

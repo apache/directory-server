@@ -53,12 +53,6 @@ import javax.naming.NamingException;
  */
 public interface TagSearchEngine
 {
-
-    // -----------------------------------------------------------------------
-    // Tag Lookup Operations
-    // -----------------------------------------------------------------------
-
-    
     /**
      * Gets the tag for a specific snapshot if that snapshot exists. 
      *
@@ -101,6 +95,8 @@ public interface TagSearchEngine
      * @param order the revision order in which to return snapshot tags 
      * @return an enumeration over the tags of all snapshots taken before a revision inclusive
      * @throws NamingException if there is a problem accessing the store
+     * @throws IllegalArgumentException if the revision is greater than the current revision
+     * or less than 0.
      */
     NamingEnumeration<Tag> findBefore( long revision, RevisionOrder order ) throws NamingException;
     
@@ -112,6 +108,8 @@ public interface TagSearchEngine
      * @param order the revision order in which to return snapshot tags 
      * @return an enumeration over the tags of all snapshots taken after a revision inclusive
      * @throws NamingException if there is a problem accessing the store
+     * @throws IllegalArgumentException if the revision is greater than the current revision
+     * or less than 0.
      */
     NamingEnumeration<Tag> findAfter( long revision, RevisionOrder order ) throws NamingException;
     
@@ -120,9 +118,13 @@ public interface TagSearchEngine
      * range inclusive.  The first revision parameter should be less than or equal 
      * to the second revision parameter.
      *
-     * @param order the revision order in which to return snapshot tags 
+     * @param startRevision the revision to start on inclusive
+     * @param endRevision the revision to end on inclusive
+     * @param order the revision order in which to return snapshot tags
      * @return enumeration over all the snapshots taken in a revision range inclusive
      * @throws NamingException if there is a problem accessing the store
+     * @throws IllegalArgumentException if the revision range is not constructed properly
+     * or if either revision number is greater than the current revision or less than 0.
      */
     NamingEnumeration<Tag> find( long startRevision, long endRevision, RevisionOrder order ) 
         throws NamingException;

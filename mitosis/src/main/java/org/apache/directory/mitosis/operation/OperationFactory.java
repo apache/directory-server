@@ -19,25 +19,9 @@
  */
 package org.apache.directory.mitosis.operation;
 
-
-import java.util.Map;
-
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNFactory;
-import org.apache.directory.mitosis.common.Constants;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.UUIDFactory;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
@@ -47,10 +31,18 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
+
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.*;
+import java.util.List;
 
 
 /**
@@ -80,21 +72,19 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
 public class OperationFactory
 {
     private final ReplicaId replicaId;
-    private final Map<String, Object> environment;
     private final PartitionNexus nexus;
     private final UUIDFactory uuidFactory;
     private final CSNFactory csnFactory;
     private final AttributeTypeRegistry attributeRegistry;
 
 
-    public OperationFactory( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
+    public OperationFactory( DirectoryService directoryService, ReplicationConfiguration cfg )
     {
         this.replicaId = cfg.getReplicaId();
-        this.environment = serviceCfg.getEnvironment();
-        this.nexus = serviceCfg.getPartitionNexus();
+        this.nexus = directoryService.getPartitionNexus();
         this.uuidFactory = cfg.getUuidFactory();
         this.csnFactory = cfg.getCsnFactory();
-        this.attributeRegistry = serviceCfg.getRegistries().getAttributeTypeRegistry();
+        this.attributeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
     }
 
 
@@ -163,17 +153,15 @@ public class OperationFactory
      */
     public Operation newModify( ModifyOperationContext opContext )
     {
-        ModificationItemImpl[] items = opContext.getModItems();
+        List<ModificationItemImpl> items = opContext.getModItems();
         LdapDN normalizedName = opContext.getDn();
 
         CSN csn = newCSN();
         CompositeOperation result = new CompositeOperation( csn );
-        int length = items.length;
         
         // Transform into multiple {@link AttributeOperation}s.
-        for ( int i = 0; i < length; i++ )
+        for ( ModificationItem item:items )
         {
-            ModificationItemImpl item = items[i];
             result.add( newModify( csn, normalizedName, item.getModificationOp(), item.getAttribute() ) );
         }
 
@@ -211,10 +199,10 @@ public class OperationFactory
      * Returns a new {@link Operation} that performs "modifyRN" operation.
      * This operation is a subset of "move" operation.
      * Calling this method actually forwards the call to
-     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newParentName</tt>. 
      */
-    public Operation newModifyRn( LdapDN oldName, String newRdn, boolean deleteOldRn ) throws NamingException
+    public Operation newModifyRn( LdapDN oldName, Rdn newRdn, boolean deleteOldRn ) throws NamingException
     {
         LdapDN newParentName = ( LdapDN ) oldName.clone();
         newParentName.remove( oldName.size() - 1 );
@@ -226,12 +214,12 @@ public class OperationFactory
     /**
      * Returns a new {@link Operation} that performs "move" operation.
      * Calling this method actually forwards the call to
-     * {@link #newMove(LdapDN, LdapDN, String, boolean)} with unchanged
+     * {@link #newMove(LdapDN, LdapDN, Rdn, boolean)} with unchanged
      * <tt>newRdn</tt> and '<tt>true</tt>' <tt>deleteOldRn</tt>. 
      */
     public Operation newMove( LdapDN oldName, LdapDN newParentName ) throws NamingException
     {
-        return newMove( oldName, newParentName, oldName.get( oldName.size() - 1 ), true );
+        return newMove( oldName, newParentName, oldName.getRdn(), true );
     }
 
 
@@ -240,7 +228,7 @@ public class OperationFactory
      * Please note this operation is the most fragile operation I've written
      * so it should be reviewed completely again.
      */
-    public Operation newMove( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn )
+    public Operation newMove( LdapDN oldName, LdapDN newParentName, Rdn newRdn, boolean deleteOldRn )
         throws NamingException
     {
         // Prepare to create composite operations
@@ -250,12 +238,13 @@ public class OperationFactory
         // Retrieve all subtree including the base entry
         SearchControls ctrl = new SearchControls();
         ctrl.setSearchScope( SearchControls.SUBTREE_SCOPE );
-        NamingEnumeration e = nexus.search( 
-            new SearchOperationContext( oldName, environment, new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
+        NamingEnumeration<SearchResult> e = nexus.search( 
+            new SearchOperationContext( oldName, AliasDerefMode.DEREF_ALWAYS,
+                    new PresenceNode( SchemaConstants.OBJECT_CLASS_AT_OID ), ctrl ) );
 
         while ( e.hasMore() )
         {
-            SearchResult sr = ( SearchResult ) e.next();
+            SearchResult sr = e.next();
 
             // Get the name of the old entry
             LdapDN oldEntryName = new LdapDN( sr.getName() );
@@ -285,8 +274,8 @@ public class OperationFactory
                     }
                 }
                 // Add the new RDN attribute value.
-                String newRDNAttributeID = NamespaceTools.getRdnAttribute( newRdn );
-                String newRDNAttributeValue = NamespaceTools.getRdnValue( newRdn );
+                String newRDNAttributeID = newRdn.getUpType();
+                String newRDNAttributeValue = ( String ) newRdn.getUpValue();
                 Attribute newRDNAttribute = entry.get( newRDNAttributeID );
                 if ( newRDNAttribute != null )
                 {
@@ -324,6 +313,8 @@ public class OperationFactory
      * Make sure the specified <tt>newEntryName</tt> already exists.  It
      * checked {@link Constants#ENTRY_DELETED} additionally to see if the
      * entry actually exists in a {@link Partition} but maked as deleted.
+     *
+     * @param newEntryName makes sure an entry already exists.
      */
     private void checkBeforeAdd( LdapDN newEntryName ) throws NamingException
     {

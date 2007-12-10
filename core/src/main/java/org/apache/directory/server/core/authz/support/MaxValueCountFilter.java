@@ -30,10 +30,10 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.ProtectedItem.MaxValueCountItem;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -58,7 +58,8 @@ public class MaxValueCountFilter implements ACITupleFilter
             String attrId, 
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException
     {
         if ( scope != OperationScope.ATTRIBUTE_TYPE_AND_VALUE )
@@ -85,7 +86,7 @@ public class MaxValueCountFilter implements ACITupleFilter
                 if ( item instanceof ProtectedItem.MaxValueCount )
                 {
                     ProtectedItem.MaxValueCount mvc = ( ProtectedItem.MaxValueCount ) item;
-                    if ( isRemovable( mvc, attrId, entry ) )
+                    if ( isRemovable( mvc, attrId, entryView ) )
                     {
                         i.remove();
                         break;
@@ -98,16 +99,16 @@ public class MaxValueCountFilter implements ACITupleFilter
     }
 
 
-    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Attributes entry )
+    private boolean isRemovable( ProtectedItem.MaxValueCount mvc, String attrId, Attributes entryView )
     {
         for ( Iterator<ProtectedItem.MaxValueCountItem> k = mvc.iterator(); k.hasNext(); )
         {
             MaxValueCountItem mvcItem = k.next();
             if ( attrId.equalsIgnoreCase( mvcItem.getAttributeType() ) )
             {
-                Attribute attr = entry.get( attrId );
+                Attribute attr = entryView.get( attrId );
                 int attrCount = attr == null ? 0 : attr.size();
-                if ( attrCount >= mvcItem.getMaxCount() )
+                if ( attrCount > mvcItem.getMaxCount() )
                 {
                     return true;
                 }

@@ -20,24 +20,9 @@
 package org.apache.directory.server.ldap.support;
 
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.ReferralException;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.ldap.SessionRegistry;
-import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.DeleteRequest;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ManageDsaITControl;
-import org.apache.directory.shared.ldap.message.ReferralImpl;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -46,82 +31,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class DeleteHandler extends AbstractLdapHandler implements MessageHandler
+public abstract class DeleteHandler extends AbstractLdapHandler implements MessageHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( DeleteHandler.class );
+    protected abstract void deleteMessageReceived( IoSession session, DeleteRequest deleteRequest ) throws Exception;
 
-    /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
 
-    public void messageReceived( IoSession session, Object request ) throws Exception
+    public final void messageReceived( IoSession ioSession, Object o ) throws Exception
     {
-        DeleteRequest req = ( DeleteRequest ) request;
-        LdapResult result = req.getResultResponse().getLdapResult();
-
-        try
-        {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, true );
-            if ( req.getControls().containsKey( ManageDsaITControl.CONTROL_OID ) )
-            {
-                ctx.addToEnvironment( Context.REFERRAL, "ignore" );
-            }
-            else
-            {
-                ctx.addToEnvironment( Context.REFERRAL, "throw" );
-            }
-            
-            // Inject controls into the context
-            setRequestControls( ctx, req );
-
-            ctx.destroySubcontext( req.getName() );
-            result.setResultCode( ResultCodeEnum.SUCCESS );
-            req.getResultResponse().addAll( ctx.getResponseControls() );
-            session.write( req.getResultResponse() );
-        }
-        catch ( ReferralException e )
-        {
-            ReferralImpl refs = new ReferralImpl();
-            result.setReferral( refs );
-            result.setResultCode( ResultCodeEnum.REFERRAL );
-            result.setErrorMessage( "Encountered referral attempting to handle delete request." );
-            /* coming up null causing a NPE */
-            // result.setMatchedDn( e.getResolvedName().toString() );
-            do
-            {
-                refs.addLdapUrl( ( String ) e.getReferralInfo() );
-            }
-            while ( e.skipReferral() );
-            session.write( req.getResultResponse() );
-        }
-        catch ( NamingException e )
-        {
-            String msg = "failed to delete entry " + req.getName() + ": " + e.getMessage();
-
-            if ( IS_DEBUG )
-            {
-                msg += ":\n" + ExceptionUtils.getStackTrace( e );
-            }
-
-            ResultCodeEnum code;
-            if ( e instanceof LdapException )
-            {
-                code = ( ( LdapException ) e ).getResultCode();
-            }
-            else
-            {
-                code = ResultCodeEnum.getBestEstimate( e, req.getType() );
-            }
-
-            result.setResultCode( code );
-            result.setErrorMessage( msg );
-            if ( ( e.getResolvedName() != null )
-                && ( ( code == ResultCodeEnum.NO_SUCH_OBJECT ) || ( code == ResultCodeEnum.ALIAS_PROBLEM )
-                    || ( code == ResultCodeEnum.INVALID_DN_SYNTAX ) || ( code == ResultCodeEnum.ALIAS_DEREFERENCING_PROBLEM ) ) )
-            {
-                result.setMatchedDn( (LdapDN)e.getResolvedName() );
-            }
-
-            session.write( req.getResultResponse() );
-        }
+        deleteMessageReceived( ioSession, ( DeleteRequest ) o );
     }
 }

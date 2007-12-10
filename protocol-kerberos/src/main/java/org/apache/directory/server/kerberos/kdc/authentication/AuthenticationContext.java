@@ -20,9 +20,6 @@
 package org.apache.directory.server.kerberos.kdc.authentication;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.directory.server.kerberos.kdc.KdcContext;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -38,7 +35,7 @@ public class AuthenticationContext extends KdcContext
 {
     private static final long serialVersionUID = -2249170923251265359L;
 
-    private Map checksumEngines = new HashMap();
+    //private Map checksumEngines = new HashMap();
 
     private Ticket ticket;
     private EncryptionKey clientKey;
@@ -88,7 +85,7 @@ public class AuthenticationContext extends KdcContext
 
     /**
      * @return Returns the checksumEngines.
-     */
+     *
     public Map getChecksumEngines()
     {
         return checksumEngines;
@@ -97,7 +94,7 @@ public class AuthenticationContext extends KdcContext
 
     /**
      * @param checksumEngines The checksumEngines to set.
-     */
+     *
     public void setChecksumEngines( Map checksumEngines )
     {
         this.checksumEngines = checksumEngines;

@@ -37,7 +37,7 @@ import org.apache.directory.mitosis.common.DefaultCSNFactory;
 import org.apache.directory.mitosis.common.DefaultUUIDFactory;
 import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.common.UUIDFactory;
-import org.apache.directory.mitosis.service.ReplicationService;
+import org.apache.directory.mitosis.service.ReplicationInterceptor;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -45,9 +45,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A configuration for {@link ReplicationService}.  This configuration can be
- * used by calling {@link ReplicationService#setConfiguration(ReplicationConfiguration)}.
+ * A configuration for {@link ReplicationInterceptor}.  This configuration can be
+ * used by calling {@link ReplicationInterceptor#setConfiguration(ReplicationConfiguration)}.
  * 
+ * @org.apache.xbean.XBean
+ *
  * @author The Apache Directory Project Team
  */
 public class ReplicationConfiguration
@@ -92,7 +94,7 @@ public class ReplicationConfiguration
     }
 
     /**
-     * Returns the TCP/IP port number that a {@link ReplicationService}
+     * Returns the TCP/IP port number that a {@link ReplicationInterceptor}
      * listens to.  The default value is {@link #DEFAULT_SERVER_PORT}. 
      */
     public int getServerPort()
@@ -102,7 +104,7 @@ public class ReplicationConfiguration
 
 
     /**
-     * Sets the TCP/IP port number that a {@link ReplicationService}
+     * Sets the TCP/IP port number that a {@link ReplicationInterceptor}
      * listens to.  The default value is {@link #DEFAULT_SERVER_PORT}.
      */
     public void setServerPort( int serverPort )

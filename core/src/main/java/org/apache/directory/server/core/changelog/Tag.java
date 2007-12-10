@@ -31,7 +31,7 @@ public class Tag
 {
     /*
      * TODO should we have date in which tag was taken
-     * TODO should we have the date of the revision
+     * TODO should we have the date of the revision that was tagged
      */
     private final long revision;
     private final String description;
@@ -59,5 +59,25 @@ public class Tag
     public String getDescription()
     {
         return description;
+    }
+
+
+    public boolean equals( Object other )
+    {
+        if ( other instanceof Tag )
+        {
+            Tag ot = ( Tag ) other;
+
+            if ( description != null && ot.getDescription() != null )
+            {
+                return revision == ot.getRevision() && description.equals( ot.getDescription() );
+            }
+            else if ( description == null && ot.getDescription() == null )
+            {
+                return revision == ot.getRevision();
+            }
+        }
+
+        return false;
     }
 }

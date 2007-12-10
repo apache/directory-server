@@ -32,9 +32,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.ldif.Entry;
@@ -64,45 +65,6 @@ public class NegationOperatorITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        if ( this.getName().indexOf( "Indexed" ) != -1 )
-        {
-            MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
-            systemCfg.setId( "system" );
-            
-            // @TODO need to make this configurable for the system partition
-            systemCfg.setCacheSize( 500 );
-            
-            systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
-    
-            // Add indexed attributes for system partition
-            Set<Object> indexedAttrs = new HashSet<Object>();
-            indexedAttrs.add( Oid.ALIAS );
-            indexedAttrs.add( Oid.EXISTANCE );
-            indexedAttrs.add( Oid.HIERARCHY );
-            indexedAttrs.add( Oid.NDN );
-            indexedAttrs.add( Oid.ONEALIAS );
-            indexedAttrs.add( Oid.SUBALIAS );
-            indexedAttrs.add( Oid.UPDN );
-            indexedAttrs.add( SchemaConstants.OBJECT_CLASS_AT );
-            indexedAttrs.add( SchemaConstants.OU_AT );
-            systemCfg.setIndexedAttributes( indexedAttrs );
-    
-            // Add context entry for system partition
-            Attributes systemEntry = new AttributesImpl();
-            Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
-            objectClassAttr.add( SchemaConstants.TOP_OC );
-            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
-            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
-            systemEntry.put( objectClassAttr );
-            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, PartitionNexus.ADMIN_PRINCIPAL );
-            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
-            systemEntry.put( NamespaceTools.getRdnAttribute( PartitionNexus.SYSTEM_PARTITION_SUFFIX ),
-                NamespaceTools.getRdnValue( PartitionNexus.SYSTEM_PARTITION_SUFFIX ) );
-            systemCfg.setContextEntry( systemEntry );
-            
-            configuration.setSystemPartitionConfiguration( systemCfg );
-        }
-        
         super.setUp();
         loadedEntries = super.loadTestLdif( true );
         ctx = getWiredContext();
@@ -110,6 +72,42 @@ public class NegationOperatorITest extends AbstractServerTest
         assertEquals( 5, loadedEntries.size() );
     }
 
+
+    @Override
+    protected void configureDirectoryService()
+    {
+        if ( this.getName().indexOf( "Indexed" ) != -1 )
+        {
+            JdbmPartition system = new JdbmPartition();
+            system.setId( "system" );
+
+            // @TODO need to make this configurable for the system partition
+            system.setCacheSize( 500 );
+
+            system.setSuffix( "ou=system" );
+
+            // Add indexed attributes for system partition
+            Set<Index> indexedAttrs = new HashSet<Index>();
+            indexedAttrs.add( new JdbmIndex( SchemaConstants.OBJECT_CLASS_AT ) );
+            indexedAttrs.add( new JdbmIndex( SchemaConstants.OU_AT ) );
+            system.setIndexedAttributes( indexedAttrs );
+
+            // Add context entry for system partition
+            Attributes systemEntry = new AttributesImpl();
+            Attribute objectClassAttr = new AttributeImpl( SchemaConstants.OBJECT_CLASS_AT );
+            objectClassAttr.add( SchemaConstants.TOP_OC );
+            objectClassAttr.add( SchemaConstants.ORGANIZATIONAL_UNIT_OC );
+            objectClassAttr.add( SchemaConstants.EXTENSIBLE_OBJECT_OC );
+            systemEntry.put( objectClassAttr );
+            systemEntry.put( SchemaConstants.CREATORS_NAME_AT, "uid=admin, ou=system" );
+            systemEntry.put( SchemaConstants.CREATE_TIMESTAMP_AT, DateUtils.getGeneralizedTime() );
+            systemEntry.put( NamespaceTools.getRdnAttribute( "ou=system" ),
+                NamespaceTools.getRdnValue( "ou=system" ) );
+            system.setContextEntry( systemEntry );
+
+            directoryService.setSystemPartition( system );
+        }
+    }
 
     /**
      * Closes context and destroys server.

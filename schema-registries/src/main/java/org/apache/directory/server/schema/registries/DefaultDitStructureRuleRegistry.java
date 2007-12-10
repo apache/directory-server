@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultDitStructureRuleRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultDitStructureRuleRegistry.class );
     /** maps an OID to an DITStructureRule */
     private final Map<String,DITStructureRule> byOid;
     /** maps an OID to an DITStructureRule */
@@ -57,9 +57,12 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
 
     
     /**
-     * Creates an empty BootstrapDitStructureRuleRegistry.
+     * Creates an empty DefaultDitStructureRuleRegistry.
+     *
+     * @param oidRegistry used by this registry for OID to name resolution of
+     * dependencies and to automatically register and unregister it's aliases and OIDs
      */
-    public DefaultDitStructureRuleRegistry(OidRegistry oidRegistry)
+    public DefaultDitStructureRuleRegistry( OidRegistry oidRegistry )
     {
         this.byRuleId = new HashMap<Integer,DITStructureRule>();
         this.byOid = new HashMap<String,DITStructureRule>();
@@ -75,17 +78,16 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     {
         if ( byOid.containsKey( dITStructureRule.getOid() ) )
         {
-            NamingException e = new NamingException( "dITStructureRule w/ OID " + dITStructureRule.getOid()
+            throw new NamingException( "dITStructureRule w/ OID " + dITStructureRule.getOid()
                 + " has already been registered!" );
-            throw e;
         }
 
         oidRegistry.register( dITStructureRule.getName(), dITStructureRule.getOid() );
         byOid.put( dITStructureRule.getOid(), dITStructureRule );
         byRuleId.put( dITStructureRule.getRuleId(), dITStructureRule );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registered dITStructureRule: " + dITStructureRule );
+            LOG.debug( "registered dITStructureRule: " + dITStructureRule );
         }
     }
 
@@ -96,14 +98,13 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
 
         if ( !byOid.containsKey( id ) )
         {
-            NamingException e = new NamingException( "dITStructureRule w/ OID " + id + " not registered!" );
-            throw e;
+            throw new NamingException( "dITStructureRule w/ OID " + id + " not registered!" );
         }
 
         DITStructureRule dITStructureRule = byOid.get( id );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "lookup with id '" + id + "' for dITStructureRule: " + dITStructureRule );
+            LOG.debug( "lookup with id '" + id + "' for dITStructureRule: " + dITStructureRule );
         }
         return dITStructureRule;
     }
@@ -192,14 +193,7 @@ public class DefaultDitStructureRuleRegistry implements DITStructureRuleRegistry
     public boolean hasDITStructureRule( Integer ruleId )
     {
         DITStructureRule dsr = byRuleId.get( ruleId );
-        if ( dsr == null )
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return dsr != null;
     }
 
 

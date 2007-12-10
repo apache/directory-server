@@ -41,7 +41,7 @@ import java.util.List;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public final class LeapIndicatorType implements Comparable
+public final class LeapIndicatorType implements Comparable<LeapIndicatorType>
 {
     /**
      * Constant for the "No leap second warning" leap indicator type.
@@ -75,7 +75,7 @@ public final class LeapIndicatorType implements Comparable
     /**
      * A list of all the leap indicator type constants.
      */
-    public static final List VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
+    public static final List<LeapIndicatorType> VALUES = Collections.unmodifiableList( Arrays.asList( values ) );
 
     /**
      * The name of the leap indicator type.
@@ -129,9 +129,9 @@ public final class LeapIndicatorType implements Comparable
     }
 
 
-    public int compareTo( Object that )
+    public int compareTo( LeapIndicatorType that )
     {
-        return ordinal - ( ( LeapIndicatorType ) that ).ordinal;
+        return ordinal - that.ordinal;
     }
 
 

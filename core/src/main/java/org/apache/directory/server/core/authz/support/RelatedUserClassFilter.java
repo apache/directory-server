@@ -30,9 +30,9 @@ import javax.naming.directory.Attributes;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.subtree.SubtreeSpecification;
 
@@ -69,7 +69,8 @@ public class RelatedUserClassFilter implements ACITupleFilter
             String attrId, 
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException
     {
         if ( tuples.size() == 0 )

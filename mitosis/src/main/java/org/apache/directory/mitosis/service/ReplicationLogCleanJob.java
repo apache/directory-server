@@ -20,10 +20,6 @@
 package org.apache.directory.mitosis.service;
 
 
-import java.util.Iterator;
-
-import javax.naming.NamingException;
-
 import org.apache.directory.mitosis.common.Constants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.Interceptor;
@@ -31,11 +27,15 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import javax.naming.NamingException;
+import java.util.Map;
+
+
 /**
  * A <a href="http://www.opensymphony.com/quartz/">OpenSymphony Quartz</a>
  * {@link Job} that purges old replication logs and the old entries marked as
  * 'deleted' (i.e. {@link Constants#ENTRY_DELETED} is <tt>TRUE</tt>).  This
- * {@link Job} just calls {@link ReplicationService#purgeAgedData()} to
+ * {@link Job} just calls {@link ReplicationInterceptor#purgeAgedData()} to
  * purge old data. 
  * 
  * @author The Apache Directory Project Team
@@ -43,10 +43,12 @@ import org.quartz.JobExecutionException;
 public class ReplicationLogCleanJob implements Job
 {
     public static final String INSTANCE_ID = "instanceId";
+    private Map<String,DirectoryService> services;
 
 
-    public ReplicationLogCleanJob()
+    public ReplicationLogCleanJob( Map<String,DirectoryService> services )
     {
+        this.services = services;
     }
 
 
@@ -56,34 +58,30 @@ public class ReplicationLogCleanJob implements Job
         if ( instanceId == null )
         {
             // Execute for all instances in the VM if instanceId is not specified.
-            Iterator it = DirectoryService.getAllInstances().iterator();
-            while ( it.hasNext() )
+            for ( DirectoryService service : services.values() )
             {
-                DirectoryService service = ( DirectoryService ) it.next();
-                execute0( service.getConfiguration().getInstanceId() );
+                execute0( service );
             }
         }
         else
         {
             // Execute for the instance with the specified instanceId if
             // it is specified.
-            execute0( instanceId );
+
+            execute0( services.get( instanceId ) );
         }
     }
 
 
-    private void execute0( String instanceId ) throws JobExecutionException
+    private void execute0( DirectoryService service ) throws JobExecutionException
     {
-        DirectoryService service = DirectoryService.getInstance( instanceId );
-        Iterator it = service.getConfiguration().getInterceptorChain().getAll().iterator();
-        while ( it.hasNext() )
+        for ( Interceptor interceptor : service.getInterceptorChain().getAll() )
         {
-            Interceptor interceptor = ( Interceptor ) it.next();
-            if ( interceptor instanceof ReplicationService )
+            if ( interceptor instanceof ReplicationInterceptor )
             {
                 try
                 {
-                    ( ( ReplicationService ) interceptor ).purgeAgedData();
+                    ( ( ReplicationInterceptor ) interceptor ).purgeAgedData();
                 }
                 catch ( NamingException e )
                 {

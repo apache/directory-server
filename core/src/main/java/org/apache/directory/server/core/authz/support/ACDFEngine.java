@@ -29,19 +29,27 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
 import org.apache.directory.server.core.event.Evaluator;
+import org.apache.directory.server.core.event.EventInterceptor;
 import org.apache.directory.server.core.event.ExpressionEvaluator;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
 import org.apache.directory.server.core.subtree.RefinementEvaluator;
 import org.apache.directory.server.core.subtree.RefinementLeafEvaluator;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
+import org.apache.directory.server.core.trigger.TriggerInterceptor;
 import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.server.schema.registries.OidRegistry;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -116,14 +124,15 @@ public class ACDFEngine
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
+     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @throws NamingException if failed to evaluate ACI items
      */
     public void checkPermission( PartitionNexusProxy proxy, Collection<Name> userGroupNames, LdapDN username,
                                  AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                 Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
+                                 Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry, Attributes entryView ) throws NamingException
     {
         if ( !hasPermission( proxy, userGroupNames, username, authenticationLevel, entryName, attrId, attrValue,
-            microOperations, aciTuples, entry ) )
+            microOperations, aciTuples, entry, entryView ) )
         {
             throw new LdapNoPermissionException();
         }
@@ -133,15 +142,18 @@ public class ACDFEngine
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
-        c.add( StartupConfiguration.SUBENTRY_SERVICE_NAME );
-        c.add( StartupConfiguration.OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
-        c.add( StartupConfiguration.EVENT_SERVICE_NAME );
-        c.add( StartupConfiguration.TRIGGER_SERVICE_NAME );
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+//        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+//        c.add( ExceptionInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+//        c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+        c.add( TriggerInterceptor.class.getName() );
         USER_LOOKUP_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -161,10 +173,11 @@ public class ACDFEngine
      *                  <tt>null</tt> if the user is not accessing a specific attribute value.
      * @param microOperations the {@link org.apache.directory.shared.ldap.aci.MicroOperation}s to perform
      * @param aciTuples {@link org.apache.directory.shared.ldap.aci.ACITuple}s translated from {@link org.apache.directory.shared.ldap.aci.ACIItem}s in the subtree entries
+     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      */
     public boolean hasPermission( PartitionNexusProxy proxy, Collection<Name> userGroupNames, LdapDN userName,
                                   AuthenticationLevel authenticationLevel, LdapDN entryName, String attrId, Object attrValue,
-                                  Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry ) throws NamingException
+                                  Collection<MicroOperation> microOperations, Collection<ACITuple> aciTuples, Attributes entry, Attributes entryView ) throws NamingException
     {
         if ( entryName == null )
         {
@@ -196,7 +209,7 @@ public class ACDFEngine
         for ( ACITupleFilter filter : filters )
         {
             aciTuples = filter.filter( aciTuples, scope, proxy, userGroupNames, userName, userEntry,
-                authenticationLevel, entryName, attrId, attrValue, entry, microOperations );
+                authenticationLevel, entryName, attrId, attrValue, entry, microOperations, entryView );
         }
 
         // Deny access if no tuples left.

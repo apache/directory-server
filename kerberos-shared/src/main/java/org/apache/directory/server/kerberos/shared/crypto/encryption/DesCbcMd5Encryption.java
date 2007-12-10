@@ -71,7 +71,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
     {
         try
         {
-            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5 );
+            MessageDigest digester = MessageDigest.getInstance( LdapSecurityConstants.HASH_METHOD_MD5.getName() );
             return digester.digest( data );
         }
         catch ( NoSuchAlgorithmException nsae )
@@ -84,7 +84,7 @@ class DesCbcMd5Encryption extends EncryptionEngine
     public byte[] getDecryptedData( EncryptionKey key, EncryptedData data, KeyUsage usage ) throws KerberosException
     {
         // decrypt the data
-        byte[] decryptedData = decrypt( data.getCipherText(), key.getKeyValue() );
+        byte[] decryptedData = decrypt( data.getCipher(), key.getKeyValue() );
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];
@@ -115,10 +115,9 @@ class DesCbcMd5Encryption extends EncryptionEngine
         // build the ciphertext structure
         byte[] conFounder = getRandomBytes( getConfounderLength() );
         byte[] zeroedChecksum = new byte[getChecksumLength()];
-        byte[] paddedPlainText = padString( plainText );
-        byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, paddedPlainText ) );
-        byte[] checksumBytes = calculateIntegrity( dataBytes, null, usage );
+        byte[] dataBytes = concatenateBytes( conFounder, concatenateBytes( zeroedChecksum, plainText ) );
         byte[] paddedDataBytes = padString( dataBytes );
+        byte[] checksumBytes = calculateIntegrity( paddedDataBytes, null, usage );
 
         // lay the checksum into the ciphertext
         for ( int i = getConfounderLength(); i < getConfounderLength() + getChecksumLength(); i++ )

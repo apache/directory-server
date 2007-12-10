@@ -20,17 +20,6 @@
 package org.apache.directory.mitosis.operation;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
 import org.apache.directory.mitosis.common.CSN;
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.ReplicaId;
@@ -38,6 +27,15 @@ import org.apache.directory.mitosis.common.UUID;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -52,7 +50,7 @@ public class CompositeOperation extends Operation
     private static final ReplicationStore DUMMY_STORE = new ReplicationStore()
     {
 
-        public void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
+        public void open( DirectoryService directoryService, ReplicationConfiguration cfg )
         {
         }
 
@@ -165,10 +163,8 @@ public class CompositeOperation extends Operation
     protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
         throws NamingException
     {
-        Iterator<Operation> i = children.iterator();
-        while ( i.hasNext() )
+        for ( Operation op : children )
         {
-            Operation op = i.next();
             op.execute( nexus, DUMMY_STORE, registry );
         }
     }

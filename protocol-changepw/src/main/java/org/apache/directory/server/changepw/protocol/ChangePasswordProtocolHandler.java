@@ -28,13 +28,13 @@ import java.nio.ByteBuffer;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.changepw.messages.ChangePasswordErrorModifier;
 import org.apache.directory.server.changepw.messages.ChangePasswordRequest;
-import org.apache.directory.server.changepw.service.ChangePasswordChain;
 import org.apache.directory.server.changepw.service.ChangePasswordContext;
+import org.apache.directory.server.changepw.service.ChangePasswordService;
 import org.apache.directory.server.kerberos.shared.exceptions.KerberosException;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessageModifier;
@@ -45,7 +45,6 @@ import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.common.TransportType;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.handler.chain.IoHandlerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +57,8 @@ public class ChangePasswordProtocolHandler implements IoHandler
 {
     private static final Logger log = LoggerFactory.getLogger( ChangePasswordProtocolHandler.class );
 
-    private ChangePasswordConfiguration config;
+    private ChangePasswordServer config;
     private PrincipalStore store;
-    private IoHandlerCommand changepwService;
     private String contextKey = "context";
 
 
@@ -70,12 +68,10 @@ public class ChangePasswordProtocolHandler implements IoHandler
      * @param config
      * @param store
      */
-    public ChangePasswordProtocolHandler( ChangePasswordConfiguration config, PrincipalStore store )
+    public ChangePasswordProtocolHandler( ChangePasswordServer config, PrincipalStore store )
     {
         this.config = config;
         this.store = store;
-
-        changepwService = new ChangePasswordChain();
     }
 
 
@@ -140,7 +136,7 @@ public class ChangePasswordProtocolHandler implements IoHandler
             changepwContext.setRequest( request );
             session.setAttribute( getContextKey(), changepwContext );
 
-            changepwService.execute( null, session, message );
+            ChangePasswordService.execute( session, changepwContext );
 
             session.write( changepwContext.getReply() );
         }

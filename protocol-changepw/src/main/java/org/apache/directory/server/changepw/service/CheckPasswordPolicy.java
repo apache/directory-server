@@ -25,7 +25,7 @@ import java.util.List;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.changepw.ChangePasswordConfiguration;
+import org.apache.directory.server.changepw.ChangePasswordServer;
 import org.apache.directory.server.changepw.exceptions.ChangePasswordException;
 import org.apache.directory.server.changepw.exceptions.ErrorType;
 import org.apache.directory.server.kerberos.shared.messages.components.Authenticator;
@@ -53,7 +53,7 @@ public class CheckPasswordPolicy implements IoHandlerCommand
     {
         ChangePasswordContext changepwContext = ( ChangePasswordContext ) session.getAttribute( getContextKey() );
 
-        ChangePasswordConfiguration config = changepwContext.getConfig();
+        ChangePasswordServer config = changepwContext.getConfig();
         Authenticator authenticator = changepwContext.getAuthenticator();
         KerberosPrincipal clientPrincipal = authenticator.getClientPrincipal();
 

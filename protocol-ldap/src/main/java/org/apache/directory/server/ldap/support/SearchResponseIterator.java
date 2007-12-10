@@ -39,6 +39,7 @@ import org.apache.directory.shared.ldap.exception.LdapException;
 import org.apache.directory.shared.ldap.message.ManageDsaITControl;
 import org.apache.directory.shared.ldap.message.Message;
 import org.apache.directory.shared.ldap.message.ReferralImpl;
+import org.apache.directory.shared.ldap.message.Response;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.message.SearchRequest;
 import org.apache.directory.shared.ldap.message.SearchResponseDone;
@@ -62,20 +63,22 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-class SearchResponseIterator implements Iterator
+class SearchResponseIterator implements Iterator<Response>
 {
-    private static final Logger log = LoggerFactory.getLogger( SearchResponseIterator.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SearchResponseIterator.class );
     private final SearchRequest req;
     private final ServerLdapContext ctx;
-    private final NamingEnumeration underlying;
+    private final NamingEnumeration<SearchResult> underlying;
     private final IoSession session;
+    private final SessionRegistry registry;
     private SearchResponseDone respDone;
-    private boolean done = false;
-    private Object prefetched;
+    private boolean done;
+    private Response prefetched;
     private final int scope;
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
+
 
     /**
      * Creates a search response iterator for the resulting enumeration
@@ -83,15 +86,20 @@ class SearchResponseIterator implements Iterator
      *
      * @param req the search request to generate responses to
      * @param underlying the underlying JNDI enumeration containing SearchResults
+     * @param ctx the context where search is applied
+     * @param registry the session registry
+     * @param scope the scope of the search
+     * @param session the session of the issuer of the search
      */
-    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration underlying, int scope,
-        IoSession session )
+    public SearchResponseIterator( SearchRequest req, ServerLdapContext ctx, NamingEnumeration<SearchResult> underlying, int scope,
+        IoSession session, SessionRegistry registry )
     {
         this.req = req;
         this.ctx = ctx;
         this.scope = scope;
         this.underlying = underlying;
         this.session = session;
+        this.registry = registry;
 
         try
         {
@@ -137,6 +145,7 @@ class SearchResponseIterator implements Iterator
                             }
                             catch ( Throwable t )
                             {
+                                LOG.error( "Encountered error while trying to close underlying enumeration", t );
                             }
 
                             prefetched = null;
@@ -149,7 +158,7 @@ class SearchResponseIterator implements Iterator
             }
             else
             {
-                SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+                registry.removeOutstandingRequest( session, req.getMessageId() );
             }
         }
         catch ( NamingException e )
@@ -160,6 +169,7 @@ class SearchResponseIterator implements Iterator
             }
             catch ( Exception e2 )
             {
+                LOG.error( "Encountered error while trying to close underlying enumeration", e );
             }
 
             respDone = getResponse( req, e );
@@ -173,9 +183,9 @@ class SearchResponseIterator implements Iterator
     }
 
 
-    public Object next()
+    public Response next()
     {
-        Object next = prefetched;
+        Response next = prefetched;
         
         try
         {
@@ -191,7 +201,7 @@ class SearchResponseIterator implements Iterator
             throw nsee;
         }
         
-        SearchResult result = null;
+        SearchResult result;
 
         // if we're done we got nothing to give back
         if ( done )
@@ -225,12 +235,12 @@ class SearchResponseIterator implements Iterator
         try
         {
             /*
-             * If we have more results from the underlying cursorr then
+             * If we have more results from the underlying cursor then
              * we just set the result and build the response object below.
              */
             if ( underlying.hasMore() )
             {
-                result = ( SearchResult ) underlying.next();
+                result = underlying.next();
             }
             else
             {
@@ -240,12 +250,13 @@ class SearchResponseIterator implements Iterator
                 }
                 catch ( Throwable t )
                 {
+                    LOG.error( "Encountered error while trying to close underlying enumeration", t );
                 }
 
                 respDone = ( SearchResponseDone ) req.getResultResponse();
                 respDone.getLdapResult().setResultCode( ResultCodeEnum.SUCCESS );
                 prefetched = null;
-                SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+                registry.removeOutstandingRequest( session, req.getMessageId() );
                 return next;
             }
         }
@@ -257,6 +268,7 @@ class SearchResponseIterator implements Iterator
             }
             catch ( Throwable t )
             {
+                LOG.error( "Encountered error while trying to close underlying enumeration", t );
             }
 
             prefetched = null;
@@ -269,7 +281,7 @@ class SearchResponseIterator implements Iterator
          * local variable for the following call to next()
          */
         Attribute ref = result.getAttributes().get( SchemaConstants.REF_AT );
-        boolean isReferral = false;
+        boolean isReferral;
 
         try
         {
@@ -277,7 +289,7 @@ class SearchResponseIterator implements Iterator
         }
         catch ( NamingException e )
         {
-            log.error( "failed to determine if " + result.getName() + " is a referral", e );
+            LOG.error( "failed to determine if " + result.getName() + " is a referral", e );
             throw new RuntimeException( e );
         }
 
@@ -291,7 +303,7 @@ class SearchResponseIterator implements Iterator
             }
             catch ( NamingException e )
             {
-                log.error( "failed to lookup ref attribute for " + result.getName(), e );
+                LOG.error( "failed to lookup ref attribute for " + result.getName(), e );
                 throw new RuntimeException( e );
             }
         }
@@ -307,7 +319,7 @@ class SearchResponseIterator implements Iterator
             }
             catch ( InvalidNameException ine )
             {
-                log.error( "Invalid object name : " + result.getName(), ine);
+                LOG.error( "Invalid object name : " + result.getName(), ine);
                 throw new RuntimeException( ine );
             }
             
@@ -327,13 +339,14 @@ class SearchResponseIterator implements Iterator
                 }
                 catch ( NamingException e1 )
                 {
-                    log.error( "failed to access referral url." );
+                    LOG.error( "failed to access referral url." );
                     try
                     {
                         underlying.close();
                     }
                     catch ( Throwable t )
                     {
+                        LOG.error( "Encountered error while trying to close underlying enumeration", t );
                     }
 
                     prefetched = null;
@@ -356,7 +369,7 @@ class SearchResponseIterator implements Iterator
                 }
                 catch ( LdapURLEncodingException e )
                 {
-                    log
+                    LOG
                         .error( "Bad URL (" + val + ") for ref in " + result.getName()
                             + ".  Reference will be ignored." );
                     try
@@ -365,6 +378,7 @@ class SearchResponseIterator implements Iterator
                     }
                     catch ( Throwable t )
                     {
+                        LOG.error( "Encountered error while trying to close underlying enumeration", t );
                     }
 
                     prefetched = null;
@@ -433,7 +447,7 @@ class SearchResponseIterator implements Iterator
         }
 
         SearchResponseDone resp = ( SearchResponseDone ) req.getResultResponse();
-        ResultCodeEnum code = null;
+        ResultCodeEnum code;
         
         if ( e instanceof LdapException )
         {
@@ -459,7 +473,7 @@ class SearchResponseIterator implements Iterator
             }
         }
         
-        SessionRegistry.getSingleton().removeOutstandingRequest( session, req.getMessageId() );
+        registry.removeOutstandingRequest( session, req.getMessageId() );
         return resp;
     }
 }

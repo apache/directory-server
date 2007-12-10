@@ -20,11 +20,25 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.event.EventInterceptor;
+import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.normalization.NormalizationInterceptor;
+import org.apache.directory.server.core.operational.OperationalAttributeInterceptor;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaInterceptor;
+import org.apache.directory.server.core.subtree.SubentryInterceptor;
+import org.apache.directory.shared.ldap.aci.ACITuple;
+import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.aci.ProtectedItem;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.filter.PresenceNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
@@ -32,18 +46,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
-import org.apache.directory.shared.ldap.aci.MicroOperation;
-import org.apache.directory.shared.ldap.aci.ProtectedItem;
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
@@ -79,7 +85,8 @@ public class MaxImmSubFilter implements ACITupleFilter
             String attrId, 
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException
     {
         if ( entryName.size() == 0 )
@@ -107,9 +114,8 @@ public class MaxImmSubFilter implements ACITupleFilter
                 continue;
             }
 
-            for ( Iterator<ProtectedItem> j = tuple.getProtectedItems().iterator(); j.hasNext(); )
+            for ( ProtectedItem item : tuple.getProtectedItems() )
             {
-                ProtectedItem item = j.next();
                 if ( item instanceof ProtectedItem.MaxImmSub )
                 {
                     if ( immSubCount < 0 )
@@ -134,14 +140,18 @@ public class MaxImmSubFilter implements ACITupleFilter
     static
     {
         Collection<String> c = new HashSet<String>();
-        c.add( StartupConfiguration.NORMALIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
-        c.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
-        c.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
-        c.add( StartupConfiguration.SUBENTRY_SERVICE_NAME );
-        c.add( StartupConfiguration.OPERATIONAL_ATTRIBUTE_SERVICE_NAME );
-        c.add( StartupConfiguration.EVENT_SERVICE_NAME );
+        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+//        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+//        c.add( ExceptionInterceptor.class.getName() );
+        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+        c.add( SubentryInterceptor.class.getName() );
+//        c.add( CollectiveAttributeInterceptor.class.getName() );
+        c.add( EventInterceptor.class.getName() );
+//        c.add( TriggerInterceptor.class.getName() );
         SEARCH_BYPASS = Collections.unmodifiableCollection( c );
     }
 
@@ -153,9 +163,8 @@ public class MaxImmSubFilter implements ACITupleFilter
         
         try
         {
-            e = proxy.search( 
-                new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ), 
-                    new HashMap<String,Object>(), childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
+            e = proxy.search( new SearchOperationContext( ( LdapDN ) entryName.getPrefix( 1 ),
+                    AliasDerefMode.DEREF_ALWAYS, childrenFilter, childrenSearchControls ), SEARCH_BYPASS );
 
             while ( e.hasMore() )
             {

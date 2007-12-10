@@ -48,7 +48,7 @@ public class JavaStoredProcEngineConfig implements StoredProcEngineConfig
      */
     public String getStoredProcLangId()
     {
-        return JavaStoredProcEngine.storedProcLangId;
+        return JavaStoredProcEngine.STORED_PROC_LANG_ID;
     }
 
 }

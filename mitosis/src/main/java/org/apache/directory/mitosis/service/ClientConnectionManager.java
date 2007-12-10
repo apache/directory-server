@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Manages all outgoing connections to remote replicas.
  * It gets the list of the peer {@link Replica}s from
- * {@link ReplicationService} and keeps trying to connect to them.
+ * {@link ReplicationInterceptor} and keeps trying to connect to them.
  * <p>
  * When the connection attempt fails, the interval between each connection
  * attempt doubles up (0, 2, 4, 8, 16, ...) to 60 seconds at maximum.
@@ -68,9 +68,9 @@ import org.slf4j.LoggerFactory;
  */
 class ClientConnectionManager
 {
-    private static final Logger log = LoggerFactory.getLogger( ClientConnectionManager.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ClientConnectionManager.class );
 
-    private final ReplicationService service;
+    private final ReplicationInterceptor interceptor;
     private final IoConnector connector = new SocketConnector();
     private final IoConnectorConfig connectorConfig = new SocketConnectorConfig();
     private final Map<ReplicaId,Connection> sessions = new HashMap<ReplicaId,Connection>();
@@ -78,9 +78,9 @@ class ClientConnectionManager
     private ConnectionMonitor monitor;
 
 
-    ClientConnectionManager( ReplicationService service )
+    ClientConnectionManager( ReplicationInterceptor interceptor )
     {
-        this.service = service;
+        this.interceptor = interceptor;
 
         ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "mitosis" );
         threadModel.setExecutor( new ThreadPoolExecutor( 16, 16, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>() ) );
@@ -98,7 +98,6 @@ class ClientConnectionManager
     public void start( ReplicationConfiguration cfg ) throws Exception
     {
         this.configuration = cfg;
-
         monitor = new ConnectionMonitor();
         monitor.start();
     }
@@ -117,48 +116,50 @@ class ClientConnectionManager
         // Remove all status values.
         sessions.clear();
     }
-    
+
+
     public void replicate()
     {
         // FIXME Can get ConcurrentModificationException.
-        for( Iterator i = sessions.values().iterator(); i.hasNext(); )
+        for ( Connection connection : sessions.values() )
         {
-            Connection con = ( Connection ) i.next();
-            synchronized( con )
+            synchronized ( connection )
             {
                 // Begin replication for the connected replicas.
-                if ( con.session != null )
+                if ( connection.session != null )
                 {
-                    ( ( ReplicationProtocolHandler ) con.session.getHandler() ).getContext( con.session ).replicate();
+                    ( ( ReplicationProtocolHandler ) connection.session.getHandler() )
+                            .getContext( connection.session ).replicate();
                 }
             }
         }
     }
-    
+
+
     /**
      * Interrupt the unconnected connections to make them attempt to connect immediately.
      *
      */
     public void interruptConnectors()
     {
-        for( Iterator i = sessions.values().iterator(); i.hasNext(); )
+        for ( Connection connection : sessions.values() )
         {
-            Connection con = ( Connection ) i.next();
-            synchronized( con )
+            synchronized ( connection )
             {
                 // Wake up the replicas that are sleeping.
-                if ( con.inProgress && con.connector != null )
+                if ( connection.inProgress && connection.connector != null )
                 {
-                    con.connector.interrupt();
+                    connection.connector.interrupt();
                 }
             }
         }
         
     }
 
+
     private class ConnectionMonitor extends Thread
     {
-        private boolean timeToShutdown = false;
+        private boolean timeToShutdown;
 
 
         public ConnectionMonitor()
@@ -166,14 +167,13 @@ class ClientConnectionManager
             super( "ClientConnectionManager" );
             
             // Initialize the status map.
-            Iterator i = configuration.getPeerReplicas().iterator();
-            while ( i.hasNext() )
+            for ( Replica replica : configuration.getPeerReplicas() )
             {
-                Replica replica = ( Replica ) i.next();
                 Connection con = sessions.get( replica.getId() );
                 if ( con == null )
                 {
                     con = new Connection();
+                    con.replicaId = replica.getId();
                     sessions.put( replica.getId(), con );
                 }
             }
@@ -191,7 +191,7 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    log.warn( "Unexpected exception.", e );
+                    LOG.warn( "[Replica-{}] Unexpected exception.", configuration.getReplicaId(), e );
                 }
             }
         }
@@ -208,7 +208,7 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    log.warn( "Unexpected exception.", e );
+                    LOG.warn( "[Replica-{}] Unexpected exception.", configuration.getReplicaId(), e );
                 }
             }
 
@@ -218,16 +218,15 @@ class ClientConnectionManager
 
         private void connectUnconnected()
         {
-            Iterator i = configuration.getPeerReplicas().iterator();
-            while ( i.hasNext() )
+            for ( Replica replica : configuration.getPeerReplicas() )
             {
                 // Someone might have modified the configuration,
                 // and therefore we try to detect newly added replicas.
-                Replica replica = ( Replica ) i.next();
                 Connection con = sessions.get( replica.getId() );
                 if ( con == null )
                 {
                     con = new Connection();
+                    con.replicaId = replica.getId();
                     sessions.put( replica.getId(), con );
                 }
 
@@ -282,7 +281,7 @@ class ClientConnectionManager
 
         private void disconnectConnected()
         {
-            log.info( "Closing all connections..." );
+            LOG.info( "[Replica-{}] Closing all connections...", configuration.getReplicaId() );
             for ( ;; )
             {
                 Iterator i = sessions.values().iterator();
@@ -304,6 +303,8 @@ class ClientConnectionManager
 
                         if ( con.session != null )
                         {
+                            LOG.info( "[Replica-{}] Closed connection to Replica-{}", configuration.getReplicaId(),
+                                    con.replicaId );
                             con.session.close();
                         }
                     }
@@ -321,11 +322,11 @@ class ClientConnectionManager
                 }
                 catch ( InterruptedException e )
                 {
-                    log.warn( "Unexpected exception.", e );
                 }
             }
         }
     }
+
 
     private class Connector extends Thread
     {
@@ -345,7 +346,12 @@ class ClientConnectionManager
         {
             if ( con.delay > 0 )
             {
-                log.info( "[" + replica + "] Waiting for " + con.delay + " seconds to reconnect." );
+                if ( LOG.isInfoEnabled() )
+                {
+                    LOG.info( "[Replica-{}] Waiting for {} seconds to reconnect to replica-" + con.replicaId,
+                            ClientConnectionManager.this.configuration.getReplicaId(), con.delay );
+                }
+                
                 try
                 {
                     Thread.sleep( con.delay * 1000L );
@@ -355,14 +361,15 @@ class ClientConnectionManager
                 }
             }
 
-            log.info( "[" + replica + "] Connecting..." );
+            LOG.info( "[Replica-{}] Connecting to replica-{}",
+                    ClientConnectionManager.this.configuration.getReplicaId(), replica.getId() );
 
             IoSession session;
             try
             {
                 connectorConfig.setConnectTimeout( configuration.getResponseTimeout() );
                 ConnectFuture future = connector.connect( replica.getAddress(), new ReplicationClientProtocolHandler(
-                    service ), connectorConfig );
+                        interceptor ), connectorConfig );
 
                 future.join();
                 session = future.getSession();
@@ -372,11 +379,13 @@ class ClientConnectionManager
                     con.session = session;
                     con.delay = -1; // reset delay
                     con.inProgress = false;
+                    con.replicaId = replica.getId();
                 }
             }
             catch ( RuntimeIOException e )
             {
-                log.warn( "[" + replica + "] Failed to connect.", e );
+                LOG.error( "[Replica-" + ClientConnectionManager.this.configuration.getReplicaId()
+                        + "] Failed to connect to replica-" + replica.getId(), e );
             }
             finally
             {
@@ -395,6 +404,7 @@ class ClientConnectionManager
         private int delay = -1;
         private boolean inProgress;
         private Connector connector;
+        private ReplicaId replicaId;
 
 
         public Connection()

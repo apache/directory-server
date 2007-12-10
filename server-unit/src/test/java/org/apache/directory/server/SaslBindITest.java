@@ -20,9 +20,13 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -31,12 +35,9 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -48,7 +49,7 @@ import org.apache.directory.shared.ldap.message.AttributesImpl;
  */
 public class SaslBindITest extends AbstractServerTest
 {
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -57,38 +58,8 @@ public class SaslBindITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
-        configuration.getLdapConfiguration().setSaslHost( "localhost" );
-
-        Attributes attrs;
-        Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
-
-        MutablePartitionConfiguration pcfg;
-
-        // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
-        pcfg.setSuffix( "dc=example,dc=com" );
-
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
-
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        pcfg.setContextEntry( attrs );
-
-        pcfgs.add( pcfg );
-        configuration.setPartitionConfigurations( pcfgs );
         super.setUp();
+        setAllowAnonymousAccess( false );
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -98,6 +69,7 @@ public class SaslBindITest extends AbstractServerTest
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialDirContext( env );
 
+        Attributes attrs = new AttributesImpl( true );
         attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
 
@@ -105,6 +77,42 @@ public class SaslBindITest extends AbstractServerTest
         users.createSubcontext( "uid=hnelson", attrs );
     }
 
+
+    @Override
+    protected void configureDirectoryService()
+    {
+
+        Set<Partition> partitions = new HashSet<Partition>();
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
+
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
+
+        Attributes attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attrs.put( attr );
+        attr = new AttributeImpl( "dc" );
+        attr.add( "example" );
+        attrs.put( attr );
+        partition.setContextEntry( attrs );
+
+        partitions.add( partition );
+        directoryService.setPartitions( partitions );
+    }
+
+
+    @Override
+    protected void configureLdapServer()
+    {
+        ldapServer.setSaslHost( "localhost" );
+    }
 
     /**
      * Tear down.
@@ -321,44 +329,37 @@ public class SaslBindITest extends AbstractServerTest
     /**
      * Tests to make sure DIGEST-MD5 binds below the RootDSE work.
      */
-    public void testSaslDigestMd5Bind()
+    public void testSaslDigestMd5Bind() throws Exception
     {
-        try
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
+
+        env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
+        env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
+        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+
+        // Specify realm
+        env.put( "java.naming.security.sasl.realm", "example.com" );
+
+        // Request privacy protection
+        env.put( "javax.security.sasl.qop", "auth-conf" );
+
+        DirContext ctx = new InitialDirContext( env );
+
+        String[] attrIDs =
+            { "uid" };
+
+        Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
+
+        String uid = null;
+
+        if ( attrs.get( "uid" ) != null )
         {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-            env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
-
-            env.put( Context.SECURITY_AUTHENTICATION, "DIGEST-MD5" );
-            env.put( Context.SECURITY_PRINCIPAL, "hnelson" );
-            env.put( Context.SECURITY_CREDENTIALS, "secret" );
-
-            // Specify realm
-            env.put( "java.naming.security.sasl.realm", "example.com" );
-
-            // Request privacy protection
-            env.put( "javax.security.sasl.qop", "auth-conf" );
-
-            DirContext ctx = new InitialDirContext( env );
-
-            String[] attrIDs =
-                { "uid" };
-
-            Attributes attrs = ctx.getAttributes( "uid=hnelson,ou=users,dc=example,dc=com", attrIDs );
-
-            String uid = null;
-
-            if ( attrs.get( "uid" ) != null )
-            {
-                uid = ( String ) attrs.get( "uid" ).get();
-            }
-
-            assertEquals( uid, "hnelson" );
+            uid = ( String ) attrs.get( "uid" ).get();
         }
-        catch ( NamingException e )
-        {
-            fail( "Should not have caught exception." );
-        }
+
+        assertEquals( uid, "hnelson" );
     }
 
 

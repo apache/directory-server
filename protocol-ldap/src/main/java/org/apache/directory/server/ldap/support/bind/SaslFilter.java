@@ -24,6 +24,7 @@ import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslException;
 import javax.security.sasl.SaslServer;
 
+import org.apache.directory.shared.ldap.constants.SaslQoP;
 import org.apache.mina.common.ByteBuffer;
 import org.apache.mina.common.IoFilterAdapter;
 import org.apache.mina.common.IoSession;
@@ -87,7 +88,7 @@ public class SaslFilter extends IoFilterAdapter
          * Unwrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
         String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
-        boolean hasSecurityLayer = ( qop != null && ( qop.equals( "auth-int" ) || qop.equals( "auth-conf" ) ) );
+        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
 
         if ( hasSecurityLayer )
         {
@@ -131,7 +132,7 @@ public class SaslFilter extends IoFilterAdapter
          * Wrap the data for mechanisms that support QoP (DIGEST-MD5, GSSAPI).
          */
         String qop = ( String ) context.getNegotiatedProperty( Sasl.QOP );
-        boolean hasSecurityLayer = ( qop != null && ( qop.equals( "auth-int" ) || qop.equals( "auth-conf" ) ) );
+        boolean hasSecurityLayer = ( qop != null && ( qop.equals( SaslQoP.QOP_AUTH_INT ) || qop.equals( SaslQoP.QOP_AUTH_CONF ) ) );
 
         ByteBuffer saslLayerBuffer = null;
 

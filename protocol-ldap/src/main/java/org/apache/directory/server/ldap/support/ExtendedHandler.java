@@ -25,12 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
-import org.apache.directory.shared.ldap.message.ExtendedResponse;
-import org.apache.directory.shared.ldap.message.LdapResult;
-import org.apache.directory.shared.ldap.message.ResultCodeEnum;
-import org.apache.directory.shared.ldap.util.ExceptionUtils;
 import org.apache.mina.common.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
@@ -41,12 +36,12 @@ import org.apache.mina.handler.demux.MessageHandler;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ExtendedHandler extends AbstractLdapHandler implements MessageHandler
+public abstract class ExtendedHandler extends AbstractLdapHandler implements MessageHandler
 {
-    private Map<String, ExtendedOperationHandler> handlers = new HashMap<String, ExtendedOperationHandler>();
+    private final Map<String, ExtendedOperationHandler> handlers = new HashMap<String, ExtendedOperationHandler>();
 
 
-    public ExtendedOperationHandler addHandler( ExtendedOperationHandler eoh )
+    public final ExtendedOperationHandler addHandler( ExtendedOperationHandler eoh )
     {
         synchronized ( handlers )
         {
@@ -55,7 +50,7 @@ public class ExtendedHandler extends AbstractLdapHandler implements MessageHandl
     }
 
 
-    public ExtendedOperationHandler removeHandler( String oid )
+    public final ExtendedOperationHandler removeHandler( String oid )
     {
         synchronized ( handlers )
         {
@@ -64,49 +59,24 @@ public class ExtendedHandler extends AbstractLdapHandler implements MessageHandl
     }
 
 
-    public ExtendedOperationHandler getHandler( String oid )
+    public final ExtendedOperationHandler getHandler( String oid )
     {
         return handlers.get( oid );
     }
 
 
-    public Map getHandlerMap()
+    public final Map<String,ExtendedOperationHandler> getHandlerMap()
     {
         return Collections.unmodifiableMap( handlers );
     }
 
 
-    public void messageReceived( IoSession session, Object request ) throws Exception
+    public final void messageReceived( IoSession session, Object request ) throws Exception
     {
-        ExtendedRequest req = ( ExtendedRequest ) request;
-        ExtendedOperationHandler handler = handlers.get( req.getOid() );
-
-        if ( handler == null )
-        {
-            // As long as no extended operations are implemented, send appropriate
-            // error back to the client.
-            String msg = "Unrecognized extended operation EXTENSION_OID: " + req.getOid();
-            LdapResult result = req.getResultResponse().getLdapResult();
-            result.setResultCode( ResultCodeEnum.PROTOCOL_ERROR );
-            result.setErrorMessage( msg );
-            session.write( req.getResultResponse() );
-        }
-        else
-        {
-            try
-            {
-                handler.handleExtendedOperation( session, SessionRegistry.getSingleton(), req );
-            }
-            catch ( Exception e )
-            {
-                LdapResult result = req.getResultResponse().getLdapResult();
-                result.setResultCode( ResultCodeEnum.OTHER );
-                result.setErrorMessage( "Extended operation handler for the specified EXTENSION_OID (" + req.getOid()
-                    + ") has failed to process your request:\n" + ExceptionUtils.getStackTrace( e ) );
-                ExtendedResponse resp = ( ExtendedResponse ) req.getResultResponse();
-                resp.setResponse( new byte[0] );
-                session.write( req.getResultResponse() );
-            } 
-        }
+        extendedMessageReceived( session, ( ExtendedRequest ) request );
     }
+
+
+    protected abstract void extendedMessageReceived( IoSession session, ExtendedRequest extendedRequest )
+            throws Exception;
 }

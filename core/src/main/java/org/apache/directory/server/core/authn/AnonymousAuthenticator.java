@@ -23,6 +23,7 @@ package org.apache.directory.server.core.authn;
 import javax.naming.NamingException;
 
 import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
@@ -40,7 +41,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public AnonymousAuthenticator()
     {
-        super( "none" );
+        super( AuthenticationLevel.NONE.toString() );
     }
 
 
@@ -50,7 +51,7 @@ public class AnonymousAuthenticator extends AbstractAuthenticator
      */
     public LdapPrincipal authenticate( LdapDN bindDn, ServerContext ctx ) throws NamingException
     {
-        if ( getFactoryConfiguration().getStartupConfiguration().isAllowAnonymousAccess() )
+        if ( super.getDirectoryService().isAllowAnonymousAccess() )
         {
             return LdapPrincipal.ANONYMOUS;
         }

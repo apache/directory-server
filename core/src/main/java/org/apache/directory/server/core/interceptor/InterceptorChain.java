@@ -20,48 +20,22 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.invocation.Invocation;
+import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.ConfigurationException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.invocation.Invocation;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 
 /**
@@ -72,19 +46,24 @@ import org.slf4j.LoggerFactory;
  */
 public class InterceptorChain
 {
-    private static final Logger log = LoggerFactory.getLogger( InterceptorChain.class );
+    private static final Logger LOG = LoggerFactory.getLogger( InterceptorChain.class );
 
     /** Speedup for logs */
-    private static final boolean IS_DEBUG = log.isDebugEnabled();
+    private static final boolean IS_DEBUG = LOG.isDebugEnabled();
 
     private final Interceptor FINAL_INTERCEPTOR = new Interceptor()
     {
         private PartitionNexus nexus;
 
 
-        public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg )
+        public String getName()
         {
-            this.nexus = factoryCfg.getPartitionNexus();
+            return "FINAL";
+        }
+
+        public void init( DirectoryService directoryService )
+        {
+            this.nexus = directoryService.getPartitionNexus();
         }
 
 
@@ -217,7 +196,8 @@ public class InterceptorChain
 
     private Entry head;
 
-    private DirectoryServiceConfiguration factoryCfg;
+    @SuppressWarnings ( { "UnusedDeclaration" } )
+    private DirectoryService directoryService;
 
 
     /**
@@ -232,30 +212,27 @@ public class InterceptorChain
 
     /**
      * Initializes and registers all interceptors according to the specified
-     * {@link DirectoryServiceConfiguration}.
+     * {@link DirectoryService}.
+     * @throws javax.naming.NamingException if an interceptor cannot be initialized.
+     * @param directoryService the directory core
      */
-    public synchronized void init( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public synchronized void init( DirectoryService directoryService ) throws NamingException
     {
-        this.factoryCfg = factoryCfg;
-
         // Initialize tail first.
-        FINAL_INTERCEPTOR.init( factoryCfg, null );
+        this.directoryService = directoryService;
+        FINAL_INTERCEPTOR.init( directoryService );
 
         // And register and initialize all interceptors
-        ListIterator<InterceptorConfiguration> i = factoryCfg.getStartupConfiguration().getInterceptorConfigurations().listIterator();
-        Interceptor interceptor = null;
         try
         {
-            while ( i.hasNext() )
+            for ( Interceptor interceptor: directoryService.getInterceptors() )
             {
-                InterceptorConfiguration cfg = i.next();
-
                 if ( IS_DEBUG )
                 {
-                    log.debug( "Adding interceptor " + cfg.getName() );
+                    LOG.debug( "Adding interceptor " + interceptor.getName() );
                 }
 
-                register( cfg );
+                register( interceptor );
             }
         }
         catch ( Throwable t )
@@ -269,7 +246,7 @@ public class InterceptorChain
             }
             else
             {
-                throw new InterceptorException( interceptor, "Failed to initialize interceptor chain.", t );
+                throw new InterceptorException( null, "Failed to initialize interceptor chain.", t );
             }
         }
     }
@@ -282,7 +259,7 @@ public class InterceptorChain
     {
         List<Entry> entries = new ArrayList<Entry>();
         Entry e = tail;
-        
+
         do
         {
             entries.add( e );
@@ -300,7 +277,7 @@ public class InterceptorChain
                 }
                 catch ( Throwable t )
                 {
-                    log.warn( "Failed to deregister an interceptor: " + entry.getName(), t );
+                    LOG.warn( "Failed to deregister an interceptor: " + entry.getName(), t );
                 }
             }
         }
@@ -309,6 +286,7 @@ public class InterceptorChain
 
     /**
      * Returns the registered interceptor with the specified name.
+     * @param interceptorName name of the interceptor to look for
      * @return <tt>null</tt> if the specified name doesn't exist.
      */
     public Interceptor get( String interceptorName )
@@ -325,12 +303,13 @@ public class InterceptorChain
 
     /**
      * Returns the list of all registered interceptors.
+     * @return a list of all the registered interceptors.
      */
     public synchronized List<Interceptor> getAll()
     {
         List<Interceptor> result = new ArrayList<Interceptor>();
         Entry e = head;
-        
+
         do
         {
             result.add( e.interceptor );
@@ -342,19 +321,19 @@ public class InterceptorChain
     }
 
 
-    public synchronized void addFirst( InterceptorConfiguration cfg ) throws NamingException
+    public synchronized void addFirst( Interceptor interceptor ) throws NamingException
     {
-        register0( cfg, head );
+        register0( interceptor, head );
     }
 
 
-    public synchronized void addLast( InterceptorConfiguration cfg ) throws NamingException
+    public synchronized void addLast( Interceptor interceptor ) throws NamingException
     {
-        register0( cfg, tail );
+        register0( interceptor, tail );
     }
 
 
-    public synchronized void addBefore( String nextInterceptorName, InterceptorConfiguration cfg )
+    public synchronized void addBefore( String nextInterceptorName, Interceptor interceptor )
         throws NamingException
     {
         Entry e = name2entry.get( nextInterceptorName );
@@ -362,7 +341,7 @@ public class InterceptorChain
         {
             throw new ConfigurationException( "Interceptor not found: " + nextInterceptorName );
         }
-        register0( cfg, e );
+        register0( interceptor, e );
     }
 
 
@@ -372,7 +351,7 @@ public class InterceptorChain
     }
 
 
-    public synchronized void addAfter( String prevInterceptorName, InterceptorConfiguration cfg )
+    public synchronized void addAfter( String prevInterceptorName, Interceptor interceptor )
         throws NamingException
     {
         Entry e = name2entry.get( prevInterceptorName );
@@ -380,22 +359,28 @@ public class InterceptorChain
         {
             throw new ConfigurationException( "Interceptor not found: " + prevInterceptorName );
         }
-        register0( cfg, e.nextEntry );
+        register0( interceptor, e.nextEntry );
     }
 
 
     /**
      * Adds and initializes an interceptor with the specified configuration.
+     * @param interceptor interceptor to add to end of chain
+     * @throws javax.naming.NamingException if there is already an interceptor of this name or the interceptor
+     * cannot be initialized.
      */
-    private void register( InterceptorConfiguration cfg ) throws NamingException
+    private void register( Interceptor interceptor ) throws NamingException
     {
-        checkAddable( cfg );
-        register0( cfg, tail );
+        checkAddable( interceptor );
+        register0( interceptor, tail );
     }
 
 
     /**
      * Removes and deinitializes the interceptor with the specified name.
+     * @param name name of interceptor to remove
+     * @return name of interceptor removed, if any
+     * @throws javax.naming.ConfigurationException if no interceptor registered under that name
      */
     private String deregister( String name ) throws ConfigurationException
     {
@@ -426,68 +411,27 @@ public class InterceptorChain
         return entry.getName();
     }
 
-    
-    private Interceptor getInterceptorInstance( InterceptorConfiguration interceptorConfiguration ) 
-        throws NamingException
+    private void register0( Interceptor interceptor, Entry nextEntry ) throws NamingException
     {
-        Class<?> interceptorClass = null;
-        Interceptor interceptor = null;
-        
-        // Load the interceptor class and if we cannot find it blow a config exception
-        try
-        {
-            interceptorClass = Class.forName( interceptorConfiguration.getInterceptorClassName() );
-        }
-        catch( ClassNotFoundException e )
-        {
-            LdapConfigurationException lce = new LdapConfigurationException( "Failed to load interceptor class '" +
-                interceptorConfiguration.getInterceptorClassName() + "' for interceptor named '" +
-                interceptorConfiguration.getName() );
-            lce.setRootCause( e );
-            throw lce;
-        }
-        
-        // Now instantiate the interceptor
-        try
-        {
-            interceptor = ( Interceptor ) interceptorClass.newInstance();
-        }
-        catch ( Exception e )
-        {
-            LdapConfigurationException lce = 
-                new LdapConfigurationException( "Failed while trying to instantiate interceptor class '" +
-                interceptorConfiguration.getInterceptorClassName() + "' for interceptor named '" +
-                interceptorConfiguration.getName() );
-            lce.setRootCause( e );
-            throw lce;
-        }
-        
-        return interceptor;
-    }
-    
+        String name = interceptor.getName();
 
-    private void register0( InterceptorConfiguration cfg, Entry nextEntry ) throws NamingException
-    {
-        String name = cfg.getName();
-        Interceptor interceptor = getInterceptorInstance( cfg );
-        interceptor.init( factoryCfg, cfg );
-
+        interceptor.init( directoryService );
         Entry newEntry;
         if ( nextEntry == head )
         {
-            newEntry = new Entry( cfg.getName(), null, head, interceptor );
+            newEntry = new Entry( interceptor.getName(), null, head, interceptor );
             head.prevEntry = newEntry;
             head = newEntry;
         }
         else if ( head == tail )
         {
-            newEntry = new Entry( cfg.getName(), null, tail, interceptor );
+            newEntry = new Entry( interceptor.getName(), null, tail, interceptor );
             tail.prevEntry = newEntry;
             head = newEntry;
         }
         else
         {
-            newEntry = new Entry( cfg.getName(), nextEntry.prevEntry, nextEntry, interceptor );
+            newEntry = new Entry( interceptor.getName(), nextEntry.prevEntry, nextEntry, interceptor );
             nextEntry.prevEntry.nextEntry = newEntry;
             nextEntry.prevEntry = newEntry;
         }
@@ -499,15 +443,17 @@ public class InterceptorChain
     /**
      * Throws an exception when the specified interceptor name is not registered in this chain.
      *
+     * @param name name of interceptor to look for
      * @return An interceptor entry with the specified name.
+     * @throws javax.naming.ConfigurationException if no interceptor has that name
      */
-    private Entry checkOldName( String baseName ) throws ConfigurationException
+    private Entry checkOldName( String name ) throws ConfigurationException
     {
-        Entry e = name2entry.get( baseName );
+        Entry e = name2entry.get( name );
 
         if ( e == null )
         {
-            throw new ConfigurationException( "Unknown interceptor name:" + baseName );
+            throw new ConfigurationException( "Unknown interceptor name:" + name );
         }
 
         return e;
@@ -516,12 +462,14 @@ public class InterceptorChain
 
     /**
      * Checks the specified interceptor name is already taken and throws an exception if already taken.
+     * @param interceptor interceptor to check
+     * @throws javax.naming.ConfigurationException if interceptor name is already registered
      */
-    private void checkAddable( InterceptorConfiguration cfg ) throws ConfigurationException
+    private void checkAddable( Interceptor interceptor ) throws ConfigurationException
     {
-        if ( name2entry.containsKey( cfg.getName() ) )
+        if ( name2entry.containsKey( interceptor.getName() ) )
         {
-            throw new ConfigurationException( "Other interceptor is using name '" + cfg.getName() + "'" );
+            throw new ConfigurationException( "Other interceptor is using name '" + interceptor.getName() + "'" );
         }
     }
 
@@ -571,7 +519,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.getRootDSE( next, opContext );
@@ -615,7 +563,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.getSuffix( next, opContext );
@@ -637,7 +585,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.compare( next, opContext );
@@ -659,7 +607,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.listSuffixes( next, opContext );
@@ -681,7 +629,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.addContextPartition( next, opContext );
@@ -703,7 +651,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.removeContextPartition( next, opContext );
@@ -725,7 +673,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.delete( next, opContext );
@@ -746,7 +694,7 @@ public class InterceptorChain
         Entry node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
-        
+
         try
         {
             head.add( next, opContext );
@@ -767,7 +715,7 @@ public class InterceptorChain
         Entry node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
-        
+
         try
         {
             head.bind( next, opContext );
@@ -788,7 +736,7 @@ public class InterceptorChain
         Entry node = getStartingEntry();
         Interceptor head = node.interceptor;
         NextInterceptor next = node.nextInterceptor;
-        
+
         try
         {
             head.unbind( next, opContext );
@@ -809,7 +757,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.modify( next, opContext );
@@ -830,7 +778,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.configuration.getInterceptor();
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.modify( next, name, mods );
@@ -851,7 +799,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.list( next, opContext );
@@ -874,7 +822,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.search( next, opContext );
@@ -896,7 +844,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.lookup( next, opContext );
@@ -918,7 +866,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             return head.hasEntry( next, opContext );
@@ -940,7 +888,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.rename( next, opContext );
@@ -961,7 +909,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.move( next, opContext );
@@ -982,7 +930,7 @@ public class InterceptorChain
         Entry entry = getStartingEntry();
         Interceptor head = entry.interceptor;
         NextInterceptor next = entry.nextInterceptor;
-        
+
         try
         {
             head.moveAndRename( next, opContext );
@@ -1002,27 +950,27 @@ public class InterceptorChain
      */
     private class Entry
     {
-        private Entry prevEntry;
+        private volatile Entry prevEntry;
 
-        private Entry nextEntry;
+        private volatile Entry nextEntry;
 
         private final String name;
-        
+
         private final Interceptor interceptor;
 
         private final NextInterceptor nextInterceptor;
 
-        
-        private final String getName()
+
+        private String getName()
         {
             return name;
         }
 
-        
+
         private Entry( String name, Entry prevEntry, Entry nextEntry, Interceptor interceptor )
         {
             this.name = name;
-            
+
             if ( interceptor == null )
             {
                 throw new NullPointerException( "interceptor" );
@@ -1070,6 +1018,7 @@ public class InterceptorChain
                     return next;
                 }
 
+
                 public boolean compare( CompareOperationContext opContext ) throws NamingException
                 {
                     Entry next = getNextEntry();
@@ -1089,6 +1038,7 @@ public class InterceptorChain
                         throw new InternalError(); // Should be unreachable
                     }
                 }
+
 
                 public Attributes getRootDSE( GetRootDSEOperationContext opContext ) throws NamingException
                 {

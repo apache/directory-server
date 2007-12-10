@@ -61,51 +61,47 @@ import org.slf4j.LoggerFactory;
 
 public class SessionsFrame extends JFrame
 {
-    private static final Logger log = LoggerFactory.getLogger( SessionsFrame.class );
+    private static final Logger LOG = LoggerFactory.getLogger( SessionsFrame.class );
     private static final long serialVersionUID = -863445561454536133L;
     private static final String REFRESH_COMMAND = "Refresh";
 
     boolean isServiceBound = true;
     private IoSession requestor;
     private IoHandler ldapProvider;
-    private JPanel jContentPane = null;
-    private JPanel mainPanel = null;
-    private JScrollPane sessionsPane = null;
-    private JTable sessionsTable = null;
-    private JPanel filterPanel = null;
-    private JButton filterButton = null;
-    private JTextField filterText = null;
-    private JMenuBar menuBar = null;
-    private JMenu menuFile = null;
-    private JMenuItem exitItem = null;
-    private JMenu menuSession = null;
-    private JMenuItem closeItem = null;
-    private JMenu menuSendNoD = null;
-    private JMenuItem unavailableItem = null;
-    private JMenuItem protocolErrorItem = null;
-    private JMenuItem strongAuthRequiredItem = null;
-    private JPanel southPanel = null;
-    private JMenuItem showRequests = null;
-    //    private JPopupMenu popupMenu = null;
-    //    private JMenuItem jMenuItem = null;
-    //    private JMenu jMenu = null;
-    //    private JMenuItem jMenuItem1 = null;
-    //    private JMenuItem jMenuItem2 = null;
-    //    private JMenuItem jMenuItem3 = null;
-    //    private JMenuItem jMenuItem4 = null;
-    private JButton refreshButton = null;
+    private JPanel jContentPane;
+    private JPanel mainPanel;
+    private JScrollPane sessionsPane;
+    private JTable sessionsTable;
+    private JPanel filterPanel;
+    private JButton filterButton;
+    private JTextField filterText;
+    private JMenuBar menuBar;
+    private JMenu menuFile;
+    private JMenuItem exitItem;
+    private JMenu menuSession;
+    private JMenuItem closeItem;
+    private JMenu menuSendNoD;
+    private JMenuItem unavailableItem;
+    private JMenuItem protocolErrorItem;
+    private JMenuItem strongAuthRequiredItem;
+    private JPanel southPanel;
+    private JMenuItem showRequests;
+    private JButton refreshButton;
 
     private IoSession selected;
-    private JMenuItem unbindItem = null;
-    private JMenuItem bindItem = null;
+    private JMenuItem unbindItem;
+    private JMenuItem bindItem;
+    private SessionRegistry registry;
 
- 
+
     /**
      * This is the default constructor
+     * @param registry the session registry
      */
-    public SessionsFrame()
+    public SessionsFrame( SessionRegistry registry )
     {
         super();
+        this.registry = registry;
         initialize();
     }
 
@@ -194,35 +190,7 @@ public class SessionsFrame extends JFrame
         {
             sessionsTable = new JTable();
             sessionsTable.setSelectionMode( javax.swing.ListSelectionModel.SINGLE_SELECTION );
-            //            sessionsTable.addMouseListener( new java.awt.event.MouseAdapter()
-            //            {
-            //                public void mouseReleased(java.awt.event.MouseEvent e)
-            //                {
-            //                    if ( e.getButton() == MouseEvent.BUTTON3 )
-            //                    {
-            //                        if ( popupMenu == null )
-            //                        {
-            //                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
-            //                        }
-            //                        popupMenu.setVisible( false );
-            //                    }
-            //                }
-            //
-            //                public void mousePressed(java.awt.event.MouseEvent e)
-            //                {
-            //                    if ( e.getButton() == MouseEvent.BUTTON3 )
-            //                    {
-            //                        if ( popupMenu == null )
-            //                        {
-            //                            popupMenu = SessionsFrame.this.getSessionsPopupMenu();
-            //                        }
-            //                        Point location = e.getComponent().getLocationOnScreen();
-            //                        popupMenu.setLocation( location.x + e.getPoint().x, location.y + e.getPoint().y );
-            //                        popupMenu.setVisible( true );
-            //                    }
-            //                }
-            //            } );
-            sessionsTable.setModel( new SessionsModel( SessionRegistry.getSingleton().getSessions() ) );
+            sessionsTable.setModel( new SessionsModel( registry.getSessions() ) );
             sessionsTable.getSelectionModel().addListSelectionListener( new ListSelectionListener()
             {
                 public void valueChanged( ListSelectionEvent e )
@@ -394,14 +362,14 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    SessionRegistry.getSingleton().terminateSession( selected );
+                    registry.terminateSession( selected );
                     try
                     {
                         Thread.sleep( 250 );
                     }
                     catch ( InterruptedException e1 )
                     {
-                        log.error( "", e1 );
+                        LOG.error( "", e1 );
                     }
                     refresh();
                 }
@@ -452,7 +420,7 @@ public class SessionsFrame extends JFrame
                     }
                     catch ( InterruptedException e1 )
                     {
-                        log.error( "", e1 );
+                        LOG.error( "", e1 );
                     }
                     refresh();
                 }
@@ -484,7 +452,7 @@ public class SessionsFrame extends JFrame
                     }
                     catch ( InterruptedException e1 )
                     {
-                        log.error( "", e1 );
+                        LOG.error( "", e1 );
                     }
                     refresh();
                 }
@@ -518,7 +486,7 @@ public class SessionsFrame extends JFrame
                     }
                     catch ( Exception e1 )
                     {
-                        log.error( "", e1 );
+                        LOG.error( "", e1 );
                     }
                     refresh();
                 }
@@ -578,7 +546,8 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    OutstandingRequestsDialog dialog = new OutstandingRequestsDialog( SessionsFrame.this, selected );
+                    OutstandingRequestsDialog dialog =
+                            new OutstandingRequestsDialog( SessionsFrame.this, selected, registry );
                     dialog.addWindowListener( new WindowAdapter()
                     {
                         public void windowClosed( WindowEvent e )
@@ -707,7 +676,7 @@ public class SessionsFrame extends JFrame
             {
                 public void actionPerformed( java.awt.event.ActionEvent e )
                 {
-                    if ( e.getActionCommand() == REFRESH_COMMAND )
+                    if ( e.getActionCommand().equals( REFRESH_COMMAND ) )
                     {
                         refresh();
                     }
@@ -720,8 +689,8 @@ public class SessionsFrame extends JFrame
 
     private void refresh()
     {
-        log.info( "Refreshing Sessions UI" );
-        sessionsTable.setModel( new SessionsModel( SessionRegistry.getSingleton().getSessions() ) );
+        LOG.info( "Refreshing Sessions UI" );
+        sessionsTable.setModel( new SessionsModel( registry.getSessions() ) );
         closeItem.setEnabled( false );
         menuSendNoD.setEnabled( false );
         showRequests.setEnabled( false );
@@ -755,28 +724,11 @@ public class SessionsFrame extends JFrame
                             + "\nSelecting yes will send both.  Cancel will abort unbind.",
                         "Send graceful disconnect before disconnect notice?", JOptionPane.YES_NO_CANCEL_OPTION );
                     IoAcceptor acceptor = ( IoAcceptor ) requestor.getService();
-                    List sessions = new ArrayList( acceptor.getManagedSessions( requestor.getServiceAddress() ) );
-                    //                    ServerLdapContext ctx;
-                    //                    try
-                    //                    {
-                    //                        ctx = ( ServerLdapContext ) SessionRegistry.getSingleton()
-                    //                            .getLdapContext( requestor, null, false );
-                    //                    }
-                    //                    catch ( NamingException ne )
-                    //                    {
-                    //                        JOptionPane.showInternalMessageDialog( SessionsFrame.this, 
-                    //                            ne.getMessage(), "Encountered an Error", JOptionPane.ERROR_MESSAGE );
-                    //                        log.warn( "Could not access requestor's context.", ne );
-                    //                        return;
-                    //                    }
-                    //                    DirectoryService service = ctx.getService();
-                    //                    StartupConfiguration cfg = service.getConfiguration().getStartupConfiguration();
-                    // might add an exit vm feature using the default from the 
-                    // configuration property
+                    List<IoSession> sessions = new ArrayList<IoSession>(
+                            acceptor.getManagedSessions( requestor.getServiceAddress() ) );
 
                     if ( input == JOptionPane.CANCEL_OPTION )
                     {
-                        return;
                     }
                     else if ( input == JOptionPane.NO_OPTION )
                     {
@@ -789,7 +741,6 @@ public class SessionsFrame extends JFrame
                             + requestor.getLocalAddress() + " has been successfully unbound.", "Success!",
                             JOptionPane.INFORMATION_MESSAGE );
                         refresh();
-                        return;
                     }
                     else
                     {
@@ -800,13 +751,13 @@ public class SessionsFrame extends JFrame
 
                         if ( dialog.isSendCanceled() )
                         {
-                            log.debug( "GracefulShutdown was canceled." );
+                            LOG.debug( "GracefulShutdown was canceled." );
                             JOptionPane.showMessageDialog( SessionsFrame.this, "Shutdown has been canceled.",
                                 "Graceful Shutdown Aborted", JOptionPane.OK_OPTION );
                             return;
                         }
 
-                        log.debug( "GracefulShutdown parameters captured." );
+                        LOG.debug( "GracefulShutdown parameters captured." );
                         int timeOffline = dialog.getTimeOffline();
                         int delay = dialog.getDelay();
                         GracefulDisconnect graceful = new GracefulDisconnect( timeOffline, delay );
@@ -884,7 +835,7 @@ public class SessionsFrame extends JFrame
                     }
                     catch ( IOException e1 )
                     {
-                        log.error( "failed to rebind ldap service", e1 );
+                        LOG.error( "failed to rebind ldap service", e1 );
                         JOptionPane.showMessageDialog( SessionsFrame.this, e1.getMessage(), "Error encountered!",
                             JOptionPane.ERROR_MESSAGE );
                     }

@@ -122,7 +122,7 @@ public class DbFileListing
      * @param resourceDescription
      * @return the InputStream to read the contents of the resource
      * @throws IOException if there are problems reading or finding a unique copy of the resource
-     */
+     */                                                                                                
     public static InputStream getUniqueResourceAsStream( String resourceName, String resourceDescription ) throws IOException
     {
         resourceName = BASE_PATH + resourceName;
@@ -177,9 +177,9 @@ public class DbFileListing
      *
      * @return set of user index names
      */
-    public Set<Object> getIndexedAttributes()
+    public Set<String> getIndexedAttributes()
     {
-        Set<Object> attributes = new HashSet<Object>();
+        Set<String> attributes = new HashSet<String>();
         Iterator<String> ii = iterator();
         while( ii.hasNext() )
         {

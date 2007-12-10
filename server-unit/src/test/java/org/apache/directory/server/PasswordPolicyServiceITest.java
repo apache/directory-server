@@ -20,85 +20,50 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.kerberos.PasswordPolicyInterceptor;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.kerberos.PasswordPolicyService;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 
 
 /**
- * An {@link AbstractServerTest} testing the (@link {@link PasswordPolicyService}.
+ * An {@link AbstractServerTest} testing the (@link {@link PasswordPolicyInterceptor}.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class PasswordPolicyServiceITest extends AbstractServerTest
 {
-    private DirContext ctx = null;
-    private DirContext users = null;
+    private DirContext ctx;
+    private DirContext users;
 
 
     /**
-     * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyService}
+     * Set up a partition for EXAMPLE.COM, add the {@link PasswordPolicyInterceptor}
      * interceptor, and create a users subcontext.
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        super.setUp();
+        setAllowAnonymousAccess( false );
 
         Attributes attrs;
-        Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
 
-        MutablePartitionConfiguration pcfg;
-
-        // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
-        pcfg.setSuffix( "dc=example,dc=com" );
-
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
-
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        pcfg.setContextEntry( attrs );
-
-        pcfgs.add( pcfg );
-        configuration.setPartitionConfigurations( pcfgs );
-
-        MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
-        List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
-
-        interceptorCfg.setName( PasswordPolicyService.NAME );
-        interceptorCfg.setInterceptorClassName( "org.apache.directory.server.core.kerberos.PasswordPolicyService" );
-        list.add( interceptorCfg );
-        configuration.setInterceptorConfigurations( list );
-
-        super.setUp();
 
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
@@ -110,6 +75,41 @@ public class PasswordPolicyServiceITest extends AbstractServerTest
 
         attrs = getOrgUnitAttributes( "users" );
         users = ctx.createSubcontext( "ou=users", attrs );
+    }
+
+    protected void configureDirectoryService()
+    {
+        Attributes attrs;
+        Set<Partition> partitions = new HashSet<Partition>();
+
+        // Add partition 'example'
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
+
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
+
+        attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attrs.put( attr );
+        attr = new AttributeImpl( "dc" );
+        attr.add( "example" );
+        attrs.put( attr );
+        partition.setContextEntry( attrs );
+
+        partitions.add( partition );
+        directoryService.setPartitions( partitions );
+
+        List<Interceptor> list = directoryService.getInterceptors();
+
+        list.add( new PasswordPolicyInterceptor() );
+        directoryService.setInterceptors( list );
     }
 
 

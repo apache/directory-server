@@ -20,19 +20,14 @@
 package org.apache.directory.mitosis.store;
 
 
-import java.util.Set;
-
-import javax.naming.Name;
-
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.Replica;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.UUID;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Name;
+import java.util.Set;
 
 /**
  * Provides an abstract storage that stores data required to perform
@@ -48,7 +43,7 @@ public interface ReplicationStore
     /**
      * Opens this storage.
      */
-    void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg );
+    void open( DirectoryService directoryService, ReplicationConfiguration cfg );
 
     /**
      * Closes this storage and releases the resources allocated when it's

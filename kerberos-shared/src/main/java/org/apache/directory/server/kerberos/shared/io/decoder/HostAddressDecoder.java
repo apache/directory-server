@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
-import org.apache.directory.server.kerberos.shared.messages.value.HostAddressType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.HostAddrType;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -46,10 +46,10 @@ public class HostAddressDecoder
      */
     protected static HostAddress decode( DERSequence sequence )
     {
-        HostAddressType type = HostAddressType.ADDRTYPE_IPV4;
+        HostAddrType type = HostAddrType.ADDRTYPE_INET;
         byte[] value = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -59,8 +59,9 @@ public class HostAddressDecoder
             {
                 case 0:
                     DERInteger addressType = ( DERInteger ) derObject;
-                    type = HostAddressType.getTypeByOrdinal( addressType.intValue() );
+                    type = HostAddrType.getTypeByOrdinal( addressType.intValue() );
                     break;
+                    
                 case 1:
                     DEROctetString address = ( DEROctetString ) derObject;
                     value = address.getOctets();
@@ -83,7 +84,8 @@ public class HostAddressDecoder
         HostAddress[] addresses = new HostAddress[sequence.size()];
 
         int ii = 0;
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERSequence object = ( DERSequence ) e.nextElement();
             HostAddress address = decode( object );

@@ -1,303 +1,207 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.directory.server.core.changelog;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.BaseInterceptor;
 import org.apache.directory.server.core.interceptor.NextInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
+import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
 import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
 import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
+import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.schema.registries.AttributeTypeRegistry;
-
+import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaService;
 import org.apache.directory.shared.ldap.ldif.ChangeType;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifUtils;
-import org.apache.directory.shared.ldap.util.Base64;
-import org.apache.directory.shared.ldap.util.DateUtils;
-
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+import org.apache.directory.shared.ldap.schema.AttributeType;
+import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+
 
 /**
- * An interceptor which maintains a change log as it intercepts changes to the
- * directory.  It mainains a changes.log file using the LDIF format for changes.
- * It appends changes to this file so the entire LDIF file can be loaded to 
- * replicate the state of the server.
- * 
+ * An interceptor which intercepts write operations to the directory and
+ * logs them with the server's ChangeLog service.
  */
-public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
+public class ChangeLogInterceptor extends BaseInterceptor
 {
-    /** logger used by this class */
-    private static final Logger log = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    /** for debugging */
+    private static final Logger LOG = LoggerFactory.getLogger( ChangeLogInterceptor.class );
+    /** used to ignore modify operations to tombstone entries */
+    private AttributeType entryDeleted;
+    /** the changelog service to log changes to */
+    private ChangeLog changeLog;
+    /** we need the schema service to deal with special conditions */
+    private SchemaService schemaService;
 
-    /** time to wait before automatically waking up the writer thread */
-    private static final long WAIT_TIMEOUT_MILLIS = 1000;
-    
-    /** the changes.log file's stream which we append change log messages to */
-    private PrintWriter out = null;
-    
-    /** queue of string buffers awaiting serialization to the log file */
-    private Queue<StringBuilder> queue = new LinkedList<StringBuilder>();
-    
-    /** a handle on the attributeType registry to determine the binary nature of attributes */
-    private AttributeTypeRegistry registry = null;
-    
-    /** determines if this service has been activated */
-    private boolean isActive = false;
-    
-    /** thread used to asynchronously write change logs to disk */
-    private Thread writer = null;
-    
-    
     // -----------------------------------------------------------------------
     // Overridden init() and destroy() methods
     // -----------------------------------------------------------------------
 
-    
-    public void init( DirectoryServiceConfiguration dsConfig, InterceptorConfiguration iConfig ) throws NamingException
+
+    public void init( DirectoryService directoryService ) throws NamingException
     {
-        super.init( dsConfig, iConfig );
+        super.init( directoryService );
 
-        // Get a handle on the attribute registry to check if attributes are binary
-        registry = dsConfig.getRegistries().getAttributeTypeRegistry();
-
-        // Open a print stream to use for flushing LDIFs into
-        File changes = new File( dsConfig.getStartupConfiguration().getWorkingDirectory(), "changes.log" );
-        
-        try
-        {
-            if ( changes.exists() )
-            {
-                out = new PrintWriter( new FileWriter( changes, true ) );
-            }
-            else
-            {
-                out = new PrintWriter( new FileWriter( changes ) );
-            }
-        }
-        catch( Exception e )
-        {
-            log.error( "Failed to open the change log file: " + changes, e );
-        }
-        
-        out.println( "# -----------------------------------------------------------------------------" );
-        out.println( "# Initializing changelog service: " + DateUtils.getGeneralizedTime() );
-        out.println( "# -----------------------------------------------------------------------------" );
-        out.flush();
-        
-        writer = new Thread( this );
-        isActive = true;
-        writer.start();
+        changeLog = directoryService.getChangeLog();
+        schemaService = directoryService.getSchemaService();
+        entryDeleted = directoryService.getRegistries().getAttributeTypeRegistry()
+                .lookup( ApacheSchemaConstants.ENTRY_DELETED_OID );
     }
-    
-    
-    public void destroy()
-    {
-        // Gracefully stop writer thread and push remaining enqueued buffers ourselves
-        isActive = false;
-        
-        do
-        {
-            // Let's notify the writer thread to make it die faster
-            synchronized( queue )
-            {
-                queue.notifyAll();
-            }
-            
-            // Sleep tiny bit waiting for the writer to die
-            try
-            {
-                Thread.sleep( 50 );
-            }
-            catch ( InterruptedException e )
-            {
-                log.error( "Failed to sleep while waiting for writer to die", e );
-            }
-        } while ( writer.isAlive() );
-        
-        // Ok lock down queue and start draining it
-        synchronized( queue )
-        {
-            while ( ! queue.isEmpty() )
-            {
-                StringBuilder buf = queue.poll();
-                
-                if ( buf != null )
-                {
-                    out.println( buf );
-                }
-            }
-        }
 
-        // Print message that we're stopping log service, flush and close
-        out.println( "# -----------------------------------------------------------------------------" );
-        out.println( "# Deactivating changelog service: " + DateUtils.getGeneralizedTime() );
-        out.println( "# -----------------------------------------------------------------------------" );
-        out.flush();
-        out.close();
-        
-        super.destroy();
-    }
-    
-    
-    // -----------------------------------------------------------------------
-    // Implementation for Runnable.run() for writer Thread
-    // -----------------------------------------------------------------------
 
-    
-    public void run()
-    {
-        while ( isActive )
-        {
-            StringBuilder buf = null;
-
-            // Grab semphore to queue and dequeue from it
-            synchronized( queue )
-            {
-                try 
-                { 
-                    queue.wait( WAIT_TIMEOUT_MILLIS ); 
-                } 
-                catch ( InterruptedException e ) 
-                { 
-                    log.error( "Failed to to wait() on queue", e ); 
-                }
-                
-                buf = queue.poll();
-                queue.notifyAll();
-            }
-            
-            // Do writing outside of synch block to allow other threads to enqueue
-            if ( buf != null )
-            {
-                out.println( buf );
-                out.flush();
-            }
-        }
-    }
-    
-    
     // -----------------------------------------------------------------------
     // Overridden (only change inducing) intercepted methods
     // -----------------------------------------------------------------------
 
     public void add( NextInterceptor next, AddOperationContext opContext ) throws NamingException
     {
-        StringBuilder buf;
         next.add( opContext );
-        
-        if ( ! isActive )
+
+        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
             return;
         }
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuilder();
-        buf.append( "\n#! creatorsName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! createTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        // Append the LDIF entry now
-        buf.append( LdifUtils.convertToLdif( opContext.getEntry() ) );
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.Add );
+        forward.setDn( opContext.getDn().getUpName() );
+        NamingEnumeration<? extends Attribute> list = opContext.getEntry().getAll();
+        
+        while ( list.hasMore() )
         {
-            queue.offer( buf );
-            queue.notifyAll();
+            forward.addAttribute( ( Attribute ) list.next() );
         }
+        
+        Entry reverse = LdifUtils.reverseAdd( opContext.getDn() );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
+
 
     /**
      * The delete operation has to be stored with a way to restore the deleted element.
-     * There is no way to do that but reading the entry and dump it into the log.
+     * There is no way to do that but reading the entry and dump it into the LOG.
      */
     public void delete( NextInterceptor next, DeleteOperationContext opContext ) throws NamingException
     {
+        // @todo make sure we're not putting in operational attributes that cannot be user modified
+        // must save the entry if change log is enabled
+        Attributes attributes = null;
+
+        if ( changeLog.isEnabled() && ! opContext.isCollateralOperation() )
+        {
+            attributes = getAttributes( opContext.getDn() );
+        }
+
         next.delete( opContext );
 
-        if ( ! isActive )
+        if ( ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
             return;
         }
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        StringBuilder buf = new StringBuilder();
-        buf.append( "\n#! deletorsName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! deleteTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        Entry entry = new Entry();
-        entry.setDn( opContext.getDn().getUpName() );
-        entry.setChangeType( ChangeType.Delete );
-        buf.append( LdifUtils.convertToLdif( entry ) );
-        
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
-        {
-            queue.offer( buf );
-            queue.notifyAll();
-        }
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.Delete );
+        forward.setDn( opContext.getDn().getUpName() );
+        Entry reverse = LdifUtils.reverseDel( opContext.getDn(), attributes );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
 
-    
+
+    /**
+     * Gets attributes required for modifications.
+     *
+     * @param dn the dn of the entry to get
+     * @return the entry's attributes (may be immutable if the schema subentry)
+     * @throws NamingException on error accessing the entry's attributes
+     */
+    private Attributes getAttributes( LdapDN dn ) throws NamingException
+    {
+        Attributes attributes;
+
+        // @todo make sure we're not putting in operational attributes that cannot be user modified
+        Invocation invocation = InvocationStack.getInstance().peek();
+        PartitionNexusProxy proxy = invocation.getProxy();
+
+        if ( schemaService.isSchemaSubentry( dn.toNormName() ) )
+        {
+            return schemaService.getSubschemaEntryCloned();
+        }
+        else
+        {
+            attributes = proxy.lookup( new LookupOperationContext( dn ), PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
+        return attributes;
+    }
+
+
     public void modify( NextInterceptor next, ModifyOperationContext opContext ) throws NamingException
     {
-        StringBuilder buf;
+        Attributes attributes = null;
+        boolean isDelete = AttributeUtils.getAttribute( opContext.getModItems(), entryDeleted ) != null;
+
+        if ( ! isDelete && ( changeLog.isEnabled() && ! opContext.isCollateralOperation() ) )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            attributes = getAttributes( opContext.getDn() );
+        }
+
         next.modify( opContext );
 
-        if ( ! isActive )
+        // @TODO: needs big consideration!!!
+        // NOTE: perhaps we need to log this as a system operation that cannot and should not be reapplied?
+        if ( isDelete || ! changeLog.isEnabled() || opContext.isCollateralOperation() )
         {
+            if ( isDelete )
+            {
+                LOG.debug( "Bypassing changelog on modify of entryDeleted attribute." );
+            }
             return;
         }
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuilder();
-        buf.append( "\n#! modifiersName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! modifyTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        // Append the LDIF record now
-        buf.append( "\ndn: " );
-        buf.append( opContext.getDn() );
-        buf.append( "\nchangetype: modify" );
 
-        ModificationItem[] mods = opContext.getModItems();
-        for ( int ii = 0; ii < mods.length; ii++ )
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.Modify );
+        forward.setDn( opContext.getDn().getUpName() );
+        for ( ModificationItemImpl modItem : opContext.getModItems() )
         {
-            append( buf, mods[ii].getAttribute(), getModOpStr( mods[ii].getModificationOp() ) );
+            forward.addModificationItem( modItem );
         }
-        buf.append( "\n" );
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
-        {
-            queue.offer( buf );
-            queue.notifyAll();
-        }
+        Entry reverse = LdifUtils.reverseModify( opContext.getDn(), opContext.getModItems(), attributes );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
 
 
@@ -305,257 +209,82 @@ public class ChangeLogInterceptor extends BaseInterceptor implements Runnable
     // Though part left as an exercise (Not Any More!)
     // -----------------------------------------------------------------------
 
-    
+
     public void rename ( NextInterceptor next, RenameOperationContext renameContext ) throws NamingException
     {
+        Attributes attributes = null;
+        if ( changeLog.isEnabled() && ! renameContext.isCollateralOperation() )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            attributes = getAttributes( renameContext.getDn() );
+        }
+
         next.rename( renameContext );
-        
-        if ( ! isActive )
+
+        if ( ! changeLog.isEnabled() || renameContext.isCollateralOperation() )
         {
             return;
         }
-        
-        StringBuilder buf;
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuilder();
-        buf.append( "\n#! principleName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! operationTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        // Append the LDIF record now
-        buf.append( "\ndn: " );
-        buf.append( renameContext.getDn() );
-        buf.append( "\nchangetype: modrdn" );
-        buf.append( "\nnewrdn: " + renameContext.getNewRdn() );
-        buf.append( "\ndeleteoldrdn: " + ( renameContext.getDelOldDn() ? "1" : "0" ) );
-        
-        buf.append( "\n" );
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
-        {
-            queue.offer( buf );
-            queue.notifyAll();
-        }
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.ModRdn );
+        forward.setDn( renameContext.getDn().getUpName() );
+        forward.setDeleteOldRdn( renameContext.getDelOldDn() );
+
+        Entry reverse = LdifUtils.reverseModifyRdn( attributes, null, renameContext.getDn(),
+                new Rdn( renameContext.getNewRdn() ) );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
 
-    
-    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext moveAndRenameOperationContext )
+
+    public void moveAndRename( NextInterceptor next, MoveAndRenameOperationContext opCtx )
         throws NamingException
     {
-        next.moveAndRename( moveAndRenameOperationContext );
-        
-        if ( ! isActive )
+        Attributes attributes = null;
+        if ( changeLog.isEnabled() && ! opCtx.isCollateralOperation() )
+        {
+            // @todo make sure we're not putting in operational attributes that cannot be user modified
+            Invocation invocation = InvocationStack.getInstance().peek();
+            PartitionNexusProxy proxy = invocation.getProxy();
+            attributes = proxy.lookup( new LookupOperationContext( opCtx.getDn() ),
+                    PartitionNexusProxy.LOOKUP_BYPASS );
+        }
+
+        next.moveAndRename( opCtx );
+
+        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
         {
             return;
         }
-        
-        StringBuilder buf;
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuilder();
-        buf.append( "\n#! principleName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! operationTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        // Append the LDIF record now
-        buf.append( "\ndn: " );
-        buf.append( moveAndRenameOperationContext.getDn() );
-        buf.append( "\nchangetype: modrdn" ); // FIXME: modrdn --> moddn ?
-        buf.append( "\nnewrdn: " + moveAndRenameOperationContext.getNewRdn() );
-        buf.append( "\ndeleteoldrdn: " + ( moveAndRenameOperationContext.getDelOldDn() ? "1" : "0" ) );
-        buf.append( "\nnewsperior: " + moveAndRenameOperationContext.getParent() );
-        
-        buf.append( "\n" );
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
-        {
-            queue.offer( buf );
-            queue.notifyAll();
-        }
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.ModDn );
+        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setDeleteOldRdn( opCtx.getDelOldDn() );
+        forward.setNewRdn( opCtx.getNewRdn().getUpName() );
+        forward.setNewSuperior( opCtx.getParent().getUpName() );
+
+        Entry reverse = LdifUtils.reverseModifyRdn( attributes, opCtx.getParent(), opCtx.getDn(),
+                new Rdn( opCtx.getNewRdn() ) );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
 
-    
-    public void move ( NextInterceptor next, MoveOperationContext moveOperationContext ) throws NamingException
+
+    public void move ( NextInterceptor next, MoveOperationContext opCtx ) throws NamingException
     {
-        next.move( moveOperationContext );
-        
-        if ( ! isActive )
+        next.move( opCtx );
+
+        if ( ! changeLog.isEnabled() || opCtx.isCollateralOperation() )
         {
             return;
         }
-        
-        StringBuilder buf;
-        
-        // Append comments that can be used to track the user and time this operation occurred
-        buf = new StringBuilder();
-        buf.append( "\n#! principleName: " );
-        buf.append( getPrincipalName() );
-        buf.append( "\n#! operationTimestamp: " );
-        buf.append( DateUtils.getGeneralizedTime() );
-        
-        // Append the LDIF record now
-        buf.append( "\ndn: " );
-        buf.append( moveOperationContext.getDn() );
-        buf.append( "\nchangetype: moddn" ); 
-        buf.append( "\nnewsperior: " + moveOperationContext.getParent() );
-        
-        buf.append( "\n" );
 
-        // Enqueue the buffer onto a queue that is emptied by another thread asynchronously. 
-        synchronized ( queue )
-        {
-            queue.offer( buf );
-            queue.notifyAll();
-        }
-    }
+        Entry forward = new Entry();
+        forward.setChangeType( ChangeType.ModDn );
+        forward.setDn( opCtx.getDn().getUpName() );
+        forward.setNewSuperior( opCtx.getParent().getUpName() );
 
-    
-    // -----------------------------------------------------------------------
-    // Private utility methods used by interceptor methods
-    // -----------------------------------------------------------------------
-
-    
-    /**
-     * Appends an Attribute and its values to a buffer containing an LDIF entry taking
-     * into account whether or not the attribute's syntax is binary or not.
-     * 
-     * @param buf the buffer written to and returned (for chaining)
-     * @param attr the attribute written to the buffer
-     * @return the buffer argument to allow for call chaining.
-     * @throws NamingException if the attribute is not identified by the registry
-     */
-    private StringBuilder append( StringBuilder buf, Attribute attr ) throws NamingException
-    {
-        String id = ( String ) attr.getID();
-        int sz = attr.size();
-        boolean isBinary = ! registry.lookup( id ).getSyntax().isHumanReadable();
-        
-        if ( isBinary )
-        {
-            for ( int ii = 0; ii < sz; ii++  )
-            {
-                buf.append( "\n" );
-                buf.append( id );
-                buf.append( ":: " );
-                Object value = attr.get( ii );
-                String encoded;
-                
-                if ( value instanceof String )
-                {
-                    encoded = ( String ) value;
-                    
-                    try
-                    {
-                        encoded = new String( Base64.encode( encoded.getBytes( "UTF-8" ) ) );
-                    }
-                    catch ( UnsupportedEncodingException e )
-                    {
-                        log.error( "can't convert to UTF-8: " + encoded, e );
-                    }
-                }
-                else
-                {
-                    encoded = new String( Base64.encode( ( byte[] ) attr.get( ii ) ) );
-                }
-                buf.append( encoded );
-            }
-        }
-        else
-        {
-            for ( int ii = 0; ii < sz; ii++  )
-            {
-                buf.append( "\n" );
-                buf.append( id );
-                buf.append( ": " );
-                buf.append( attr.get( ii ) );
-            }
-        }
-        
-        return buf;
-    }
-    
-
-    /**
-     * Gets the DN of the user currently bound to the server executing this operation.  If 
-     * the user is anonymous "" is returned.
-     * 
-     * @return the DN of the user executing the current intercepted operation
-     * @throws NamingException if we cannot access the interceptor stack
-     */
-    private String getPrincipalName() throws NamingException
-    {
-        ServerContext ctx = ( ServerContext ) InvocationStack.getInstance().peek().getCaller();
-        return ctx.getPrincipal().getName();
-    }
-
-
-    /**
-     * Gets a String representation of the JNDI attribute modificaion flag.  Here are the mappings:
-     * <table>
-     *   <tr><th>JNDI Constant</th><th>Returned String</th></tr>
-     *   <tr><td>DirContext.ADD_ATTRIBUTE</td><td>'add: '</td></tr>
-     *   <tr><td>DirContext.REMOVE_ATTRIBUTE</td><td>'delete: '</td></tr>
-     *   <tr><td>DirContext.REPLACE_ATTRIBUTE</td><td>'replace: '</td></tr>
-     * </table>
-     * <ul><li>
-     * Note that the String in right hand column is quoted to show trailing space.
-     * </li></ul>
-     * 
-     * @param modOp the int value of the JNDI modification operation
-     * @return the string representation of the JNDI Modification operation
-     */
-    private String getModOpStr( int modOp ) 
-    {
-        String opStr;
-        
-        switch( modOp )
-        {
-            case( DirContext.ADD_ATTRIBUTE ):
-                opStr = "add: ";
-                break;
-                
-            case( DirContext.REMOVE_ATTRIBUTE ):
-                opStr = "delete: ";
-                break;
-                
-            case( DirContext.REPLACE_ATTRIBUTE ):
-                opStr = "replace: ";
-                break;
-                
-            default:
-                throw new IllegalArgumentException( "Undefined attribute modify operation: " + modOp );
-        }
-        return opStr;
-    }
-    
-
-    /**
-     * Appends a modification delta instruction to an LDIF: i.e. 
-     * <pre>
-     * add: telephoneNumber
-     * telephoneNumber: +1 408 555 1234
-     * telephoneNumber: +1 408 444 9999
-     * -
-     * </pre>
-     * 
-     * @param buf the buffer to append the attribute delta to
-     * @param mod the modified values if any for that attribute
-     * @param modOp the modification operation as a string followd by ": "
-     * @return the buffer argument provided for chaining
-     * @throws NamingException if the modification attribute id is undefined
-     */
-    private StringBuilder append( StringBuilder buf, Attribute mod, String modOp ) throws NamingException
-    {
-        buf.append( "\n" );
-        buf.append( modOp );
-        buf.append( mod.getID() );
-        append( buf, mod );
-        buf.append( "\n-" );
-        return buf;
+        Entry reverse = LdifUtils.reverseModifyDn( opCtx.getParent(), opCtx.getDn() );
+        changeLog.log( getPrincipal(), forward, reverse );
     }
 }

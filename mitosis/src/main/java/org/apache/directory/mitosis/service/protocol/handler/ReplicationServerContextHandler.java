@@ -20,26 +20,18 @@
 package org.apache.directory.mitosis.service.protocol.handler;
 
 
-import java.net.InetSocketAddress;
-import java.util.Iterator;
-
 import org.apache.directory.mitosis.common.CSNVector;
 import org.apache.directory.mitosis.common.Replica;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.service.ReplicationContext;
 import org.apache.directory.mitosis.service.ReplicationContext.State;
 import org.apache.directory.mitosis.service.protocol.Constants;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.BeginLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.EndLogEntriesMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LogEntryMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginAckMessage;
-import org.apache.directory.mitosis.service.protocol.message.LoginMessage;
+import org.apache.directory.mitosis.service.protocol.message.*;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.util.SessionLog;
+
+import java.net.InetSocketAddress;
 
 
 /**
@@ -53,7 +45,7 @@ import org.apache.mina.util.SessionLog;
  */
 public class ReplicationServerContextHandler implements ReplicationContextHandler
 {
-    private Replica replicaInTransaction = null;
+    private Replica replicaInTransaction;
 
 
     public void contextBegin( ReplicationContext ctx ) throws Exception
@@ -118,7 +110,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     public void exceptionCaught( ReplicationContext ctx, Throwable cause ) throws Exception
     {
-        SessionLog.warn( ctx.getSession(), "Unexpected exception.", cause );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unexpected exception.", cause );
         ctx.getSession().close();
     }
 
@@ -127,7 +120,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
     {
         if ( ctx.getState() == State.INIT )
         {
-            SessionLog.warn( ctx.getSession(), "No login attempt in " + ctx.getConfiguration().getResponseTimeout()
+            SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] No login attempt in " + ctx.getConfiguration().getResponseTimeout()
                 + " second(s)." );
             ctx.getSession().close();
         }
@@ -136,19 +130,17 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     private void onLogin( ReplicationContext ctx, LoginMessage message )
     {
-        Iterator i = ctx.getConfiguration().getPeerReplicas().iterator();
-        while ( i.hasNext() )
+        for ( Replica replica : ctx.getConfiguration().getPeerReplicas() )
         {
-            Replica replica = ( Replica ) i.next();
             if ( replica.getId().equals( message.getReplicaId() ) )
             {
                 if ( replica.getAddress().getAddress().equals(
-                    ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
+                        ( ( InetSocketAddress ) ctx.getSession().getRemoteAddress() ).getAddress() ) )
                 {
                     ctx.getSession()
-                        .write(
-                            new LoginAckMessage( message.getSequence(), Constants.OK, ctx.getConfiguration()
-                                .getReplicaId() ) );
+                            .write(
+                                    new LoginAckMessage( message.getSequence(), Constants.OK, ctx.getConfiguration()
+                                            .getReplicaId() ) );
                     ctx.setPeer( replica );
                     ctx.setState( State.READY );
 
@@ -158,18 +150,20 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
                 }
                 else
                 {
-                    SessionLog.warn( ctx.getSession(), "Peer address mismatches: "
-                        + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
+                    SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                            + "] Peer address mismatches: "
+                            + ctx.getSession().getRemoteAddress() + " (expected: " + replica.getAddress() );
                     ctx.getSession().write(
-                        new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
-                            .getReplicaId() ) );
+                            new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration()
+                                    .getReplicaId() ) );
                     ctx.getSession().close();
                     return;
                 }
             }
         }
 
-        SessionLog.warn( ctx.getSession(), "Unknown peer replica ID: " + message.getReplicaId() );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unknown peer replica ID: " + message.getReplicaId() );
         ctx.getSession().write(
             new LoginAckMessage( message.getSequence(), Constants.NOT_OK, ctx.getConfiguration().getReplicaId() ) );
         ctx.getSession().close();
@@ -190,9 +184,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
         LogEntryAckMessage ack = null;
         try
         {
-            op.execute( ctx.getServiceConfiguration().getPartitionNexus(), 
-                ctx.getConfiguration().getStore(),
-                ctx.getServiceConfiguration().getRegistries().getAttributeTypeRegistry() );
+            op.execute( ctx.getDirectoryService().getPartitionNexus(), ctx.getConfiguration().getStore(),
+                ctx.getDirectoryService().getRegistries().getAttributeTypeRegistry() );
             ack = new LogEntryAckMessage( message.getSequence(), Constants.OK );
         }
         catch ( Exception e )
@@ -251,7 +244,8 @@ public class ReplicationServerContextHandler implements ReplicationContextHandle
 
     private void onUnexpectedMessage( ReplicationContext ctx, Object message )
     {
-        SessionLog.warn( ctx.getSession(), "Unexpected message: " + message );
+        SessionLog.warn( ctx.getSession(), "[Replica-" + ctx.getConfiguration().getReplicaId()
+                + "] Unexpected message: " + message );
         ctx.getSession().close();
     }
 }

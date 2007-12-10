@@ -234,7 +234,7 @@ public class LeafEvaluator implements Evaluator
      * 
      * @param node the greater than or less than node to evaluate
      * @param record the IndexRecord of the perspective candidate
-     * @param isGreater true if it is a greater than or equal to comparison,
+     * @param isGreaterOrLesser true if it is a greater than or equal to comparison,
      *      false if it is a less than or equal to comparison.
      * @return the ava evaluation on the perspective candidate
      * @throws NamingException if there is a database access failure

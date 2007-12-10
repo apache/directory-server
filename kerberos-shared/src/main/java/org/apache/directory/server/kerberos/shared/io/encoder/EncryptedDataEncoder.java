@@ -72,14 +72,14 @@ public class EncryptedDataEncoder
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( encryptedData.getEncryptionType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 0, DERInteger.valueOf( encryptedData.getEType().getOrdinal() ) ) );
 
-        if ( encryptedData.getKeyVersion() > 0 )
+        if ( encryptedData.hasKvno() )
         {
-            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( encryptedData.getKeyVersion() ) ) );
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( encryptedData.getKvno() ) ) );
         }
 
-        sequence.add( new DERTaggedObject( 2, new DEROctetString( encryptedData.getCipherText() ) ) );
+        sequence.add( new DERTaggedObject( 2, new DEROctetString( encryptedData.getCipher() ) ) );
 
         return sequence;
     }

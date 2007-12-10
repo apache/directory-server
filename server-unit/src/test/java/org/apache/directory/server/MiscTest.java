@@ -20,29 +20,13 @@
 package org.apache.directory.server;
 
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.asn1.util.Asn1StringUtils;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.MutableControl;
-import org.apache.directory.shared.ldap.util.ArrayUtils;
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
-
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Set;
 
 import javax.naming.Context;
-import javax.naming.NoPermissionException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NoPermissionException;
 import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -51,6 +35,21 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.asn1.util.Asn1StringUtils;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.directory.shared.ldap.util.ArrayUtils;
+import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 
 
 /**
@@ -76,20 +75,27 @@ public class MiscTest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
+        super.setUp();
         if ( this.getName().equals( "testDisableAnonymousBinds" ) ||
-             this.getName().equals( "testCompareWithoutAuthentication" ) )
+                this.getName().equals( "testCompareWithoutAuthentication" ) ||
+                this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
         {
-            configuration.setAllowAnonymousAccess( false );
+            setAllowAnonymousAccess( false );
+        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+        {
+            setAllowAnonymousAccess( true );
         }
-        else if ( this.getName().equals( "testEnableAnonymousBindsOnRootDSE" ) )
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
+        if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
         {
-            configuration.setAllowAnonymousAccess( false );
-        }
-        else if ( this.getName().equals( "testUserAuthOnMixedCaseSuffix" ) )
-        {
-            Set<PartitionConfiguration> partitions = new HashSet<PartitionConfiguration>();
-            partitions.addAll( configuration.getPartitionConfigurations() );
-            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
+            Set<Partition> partitions = new HashSet<Partition>();
+            partitions.addAll( directoryService.getPartitions() );
+            JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=aPache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "aPache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
@@ -98,19 +104,17 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setId( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
+            Set<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            configuration.setPartitionConfigurations( partitions );
-        }
-        else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
+            directoryService.setPartitions( partitions );
+        } else if ( this.getName().equals( "testAnonymousBindsEnabledBaseSearch" ) )
         {
-            // allow anonymous access
-            configuration.setAllowAnonymousAccess( true );
-
             // create a partition to search
             Set partitions = new HashSet();
-            partitions.addAll( configuration.getPartitionConfigurations() );
-            MutablePartitionConfiguration partition = new MutablePartitionConfiguration();
+            partitions.addAll( directoryService.getPartitions() );
+            JdbmPartition partition = new JdbmPartition();
             partition.setSuffix( "dc=apache,dc=org" );
             Attributes entry = new AttributesImpl( "dc", "apache", true );
             Attribute oc = new AttributeImpl( "objectClass" );
@@ -119,14 +123,13 @@ public class MiscTest extends AbstractServerTest
             oc.add( "domain" );
             partition.setId( "apache" );
             partition.setContextEntry( entry );
-            partition.setIndexedAttributes( Collections.singleton( ( Object ) "dc" ) );
+            Set<Index> indexedAttributes = new HashSet<Index>();
+            indexedAttributes.add( new JdbmIndex( "dc" ) );
+            partition.setIndexedAttributes( indexedAttributes );
             partitions.add( partition );
-            configuration.setPartitionConfigurations( partitions );
+            directoryService.setPartitions( partitions );
         }
-
-        super.setUp();
     }
-
 
     public void testCompareWithoutAuthentication() throws LDAPException
     {
@@ -138,13 +141,13 @@ public class MiscTest extends AbstractServerTest
             conn.compare( "uid=admin,ou=system", attr );
             fail( "Compare success without authentication" );
         }
-        catch( LDAPException e )
+        catch ( LDAPException e )
         {
             assertEquals( "no permission exception", 50, e.getLDAPResultCode() );
         }
     }
-    
-    
+
+
     /**
      * Test to make sure anonymous binds are disabled when going through
      * the wire protocol.
@@ -209,7 +212,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Properties env = new Properties();
+        final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -233,7 +236,7 @@ public class MiscTest extends AbstractServerTest
 
 
     /**
-     * Test to make sure that if anonymous binds are allowed a user may search 
+     * Test to make sure that if anonymous binds are allowed a user may search
      * within a a partition.
      *
      * @throws Exception if anything goes wrong
@@ -242,7 +245,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Properties env = new Properties();
+        final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/" );
         env.put( Context.SECURITY_AUTHENTICATION, "none" );
@@ -275,7 +278,7 @@ public class MiscTest extends AbstractServerTest
     {
         // Use the SUN JNDI provider to hit server port and bind as anonymous
 
-        final Properties env = new Properties();
+        final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port );
         env.put( "java.naming.ldap.version", "3" );
@@ -292,7 +295,7 @@ public class MiscTest extends AbstractServerTest
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.OBJECT_SCOPE );
         controls.setReturningAttributes( new String[]
-            { "+" } );
+                {"+"} );
         NamingEnumeration list = ctx.search( "ou=blah,ou=system", "(objectClass=*)", controls );
         SearchResult result = ( SearchResult ) list.next();
         list.close();
@@ -311,7 +314,7 @@ public class MiscTest extends AbstractServerTest
      */
     public void testUserAuthOnMixedCaseSuffix() throws Exception
     {
-        final Properties env = new Properties();
+        final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/dc=aPache,dc=org" );
         env.put( "java.naming.ldap.version", "3" );
@@ -423,7 +426,7 @@ public class MiscTest extends AbstractServerTest
                 return new byte[0];
             }
         };
-        final Properties env = new Properties();
+        final Hashtable env = new Hashtable();
 
         env.put( Context.PROVIDER_URL, "ldap://localhost:" + port + "/ou=system" );
         env.put( "java.naming.ldap.version", "3" );
@@ -443,7 +446,7 @@ public class MiscTest extends AbstractServerTest
         user.put( "sn", "Bush" );
         user.put( "userPassword", "Aerial" );
         ctx.setRequestControls( new MutableControl[]
-            { unsupported } );
+                {unsupported} );
 
         try
         {
@@ -457,6 +460,6 @@ public class MiscTest extends AbstractServerTest
         DirContext kate = ctx.createSubcontext( "cn=Kate Bush", user );
         assertNotNull( kate );
         assertTrue( ArrayUtils.isEquals( Asn1StringUtils.getBytesUtf8( "Aerial" ), kate.getAttributes( "" ).get(
-            "userPassword" ).get() ) );
+                "userPassword" ).get() ) );
     }
 }

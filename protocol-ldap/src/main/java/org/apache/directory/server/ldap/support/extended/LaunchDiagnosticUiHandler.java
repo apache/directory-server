@@ -32,6 +32,7 @@ import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 import javax.swing.JFrame;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
 import org.apache.directory.server.core.jndi.ServerLdapContext;
@@ -40,7 +41,7 @@ import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.impl.btree.BTreePartition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionFrame;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.server.ldap.gui.SessionsFrame;
 import org.apache.directory.shared.ldap.message.ExtendedRequest;
@@ -50,10 +51,13 @@ import org.apache.directory.shared.ldap.message.extended.LaunchDiagnosticUiRespo
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.common.IoSession;
 
-
+/**
+ * @org.apache.xbean.XBean
+ * 
+ */
 public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 {
-    public static final Set EXTENSION_OIDS;
+    public static final Set<String> EXTENSION_OIDS;
 
     static
     {
@@ -63,7 +67,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
         EXTENSION_OIDS = Collections.unmodifiableSet( set );
     }
 
-    private LdapProtocolProvider ldapProvider;
+    private LdapServer ldapProvider;
 
 
     public String getOid()
@@ -83,7 +87,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
             ServerLdapContext slc = ( ServerLdapContext ) ctx;
             DirectoryService service = slc.getService();
 
-            if ( !slc.getPrincipal().getName().equalsIgnoreCase( PartitionNexus.ADMIN_PRINCIPAL_NORMALIZED ) )
+            if ( !slc.getPrincipal().getName().equalsIgnoreCase( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED ) )
             {
                 requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId(),
                     ResultCodeEnum.INSUFFICIENT_ACCESS_RIGHTS ) );
@@ -92,18 +96,19 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
 
             requestor.write( new LaunchDiagnosticUiResponse( req.getMessageId() ) );
 
-            PartitionNexus nexus = service.getConfiguration().getPartitionNexus();
-            Iterator list = nexus.listSuffixes( new ListSuffixOperationContext() );
+            PartitionNexus nexus = service.getPartitionNexus();
+            Iterator<String> list = nexus.listSuffixes( new ListSuffixOperationContext() );
             int launchedWindowCount = 0;
             
             while ( list.hasNext() )
             {
-                LdapDN dn = new LdapDN( ( String ) list.next() );
+                LdapDN dn = new LdapDN( list.next() );
                 Partition partition = nexus.getPartition( dn );
+                
                 if ( partition instanceof BTreePartition )
                 {
                     BTreePartition btPartition = ( BTreePartition ) partition;
-                    PartitionFrame frame = new PartitionFrame( btPartition, btPartition.getSearchEngine() );
+                    PartitionFrame frame = new PartitionFrame( btPartition );
                     Point pos = getCenteredPosition( frame );
                     pos.y = launchedWindowCount * 20 + pos.y;
                     double multiplier = getAspectRatio() * 20.0;
@@ -114,7 +119,7 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
                 }
             }
 
-            SessionsFrame sessions = new SessionsFrame();
+            SessionsFrame sessions = new SessionsFrame( ldapProvider.getRegistry() );
             sessions.setRequestor( requestor );
             sessions.setLdapProvider( ldapProvider.getHandler() );
             Point pos = getCenteredPosition( sessions );
@@ -149,13 +154,13 @@ public class LaunchDiagnosticUiHandler implements ExtendedOperationHandler
     }
 
 
-    public Set getExtensionOids()
+    public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
 
 
-    public void setLdapProvider( LdapProtocolProvider provider )
+    public void setLdapProvider( LdapServer provider )
     {
         this.ldapProvider = provider;
     }

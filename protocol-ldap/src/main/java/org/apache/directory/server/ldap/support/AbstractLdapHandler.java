@@ -20,13 +20,14 @@
 package org.apache.directory.server.ldap.support;
 
 
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.message.Message;
+import org.apache.directory.shared.ldap.message.MutableControl;
+import org.apache.mina.handler.demux.MessageHandler;
+
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.shared.ldap.message.MutableControl;
-
-import org.apache.directory.shared.ldap.message.Message;
-import org.apache.mina.handler.demux.MessageHandler;
 
 
 /**
@@ -37,7 +38,28 @@ import org.apache.mina.handler.demux.MessageHandler;
  */
 public abstract class AbstractLdapHandler implements MessageHandler
 {
-	/**
+    private LdapServer ldapServer;
+
+
+    public final LdapServer getProtocolProvider()
+    {
+        return ldapServer;
+    }
+
+
+    public final void setProtocolProvider( LdapServer provider )
+    {
+        this.ldapServer = provider;
+    }
+
+
+    public final SessionRegistry getSessionRegistry()
+    {
+        return this.ldapServer.getRegistry();
+    }
+
+
+    /**
 	 * Return an array containing the controls for this message.
 	 *  
 	 * @param context The context in which we will store teh found controls

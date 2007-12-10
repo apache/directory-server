@@ -36,30 +36,27 @@ public class AddOperationContext extends AbstractOperationContext
     /** The added Attribute  */
     private Attributes entry;
     
+
     /**
-     * 
      * Creates a new instance of AddOperationContext.
-     *
      */
     public AddOperationContext()
     {
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of AddOperationContext.
-     *
      */
     public AddOperationContext( LdapDN dn )
     {
         super( dn );
     }
 
+
     /**
-     * 
      * Creates a new instance of ModifyOperationContext.
-     *
      */
     public AddOperationContext( LdapDN dn, Attributes entry )
     {
@@ -67,7 +64,45 @@ public class AddOperationContext extends AbstractOperationContext
         this.entry = entry;
     }
 
-	/**
+
+    /**
+     * Creates a new instance of AddOperationContext.
+     *
+     * @param collateralOperation whether or not this is a side-effect
+     */
+    public AddOperationContext( boolean collateralOperation )
+    {
+    	super( collateralOperation );
+    }
+
+
+    /**
+     * Creates a new instance of AddOperationContext.
+     *
+     * @param dn the name of the entry being added
+     * @param collateralOperation whether or not this is a side-effect
+     */
+    public AddOperationContext( LdapDN dn, boolean collateralOperation )
+    {
+        super( dn, collateralOperation );
+    }
+
+
+    /**
+     * Creates a new instance of ModifyOperationContext.
+     *
+     * @param dn the name of the entry being added
+     * @param entry the entry being added
+     * @param collateralOperation whether or not this is a side-effect
+     */
+    public AddOperationContext( LdapDN dn, Attributes entry, boolean collateralOperation )
+    {
+    	super( dn, collateralOperation );
+        this.entry = entry;
+    }
+
+
+    /**
 	 * @return The added attributes
 	 */
 	public Attributes getEntry() 

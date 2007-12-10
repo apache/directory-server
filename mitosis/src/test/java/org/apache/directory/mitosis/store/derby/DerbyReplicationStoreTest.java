@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -36,15 +35,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.schema.SchemaManager;
-import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -66,7 +57,6 @@ import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.ReplaceAttributeOperation;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
-import org.apache.directory.mitosis.store.derby.DerbyReplicationStore;
 
 
 public class DerbyReplicationStoreTest extends TestCase
@@ -100,7 +90,9 @@ public class DerbyReplicationStoreTest extends TestCase
         // Open store
         store = new DerbyReplicationStore();
         store.setTablePrefix( "TEST_" );
-        store.open( new DirectoryServiceConfigurationImpl(), cfg );
+        DefaultDirectoryService service = new DefaultDirectoryService();
+        service.setWorkingDirectory( DB_PATH );
+        store.open( service, cfg );
     }
 
 
@@ -219,12 +211,15 @@ public class DerbyReplicationStoreTest extends TestCase
         expected.add( op2 );
         CSNVector updateVector = new CSNVector();
         testGetLogs( updateVector, true, expected );
+
         updateVector = new CSNVector();
         updateVector.setCSN( op1.getCSN() );
         testGetLogs( updateVector, true, expected );
+        
         updateVector = new CSNVector();
         updateVector.setCSN( op2.getCSN() );
         testGetLogs( updateVector, true, expected );
+        
         updateVector = new CSNVector();
         updateVector.setCSN( op1.getCSN() );
         updateVector.setCSN( op2.getCSN() );
@@ -321,12 +316,10 @@ public class DerbyReplicationStoreTest extends TestCase
     }
 
 
-    private void testGetLogs( CSN csn, List operations )
+    private void testGetLogs( CSN csn, List<Operation> operations )
     {
-        Iterator it = operations.iterator();
-        ReplicationLogIterator rit;
-
-        rit = store.getLogs( csn, true );
+        Iterator<Operation> it = operations.iterator();
+        ReplicationLogIterator rit = store.getLogs( csn, true );
         testGetLogs( it, rit );
 
         rit = store.getLogs( csn, false );
@@ -335,21 +328,19 @@ public class DerbyReplicationStoreTest extends TestCase
     }
 
 
-    private void testGetLogs( CSNVector updateVector, boolean inclusive, List operations )
+    private void testGetLogs( CSNVector updateVector, boolean inclusive, List<Operation> operations )
     {
-        Iterator it = operations.iterator();
-        ReplicationLogIterator rit;
-
-        rit = store.getLogs( updateVector, inclusive );
+        Iterator<Operation> it = operations.iterator();
+        ReplicationLogIterator rit = store.getLogs( updateVector, inclusive );
         testGetLogs( it, rit );
     }
 
 
-    private void testGetLogs( Iterator expectedIt, ReplicationLogIterator actualIt )
+    private void testGetLogs( Iterator<Operation> expectedIt, ReplicationLogIterator actualIt )
     {
         while ( expectedIt.hasNext() )
         {
-            Operation expected = ( Operation ) expectedIt.next();
+            Operation expected = expectedIt.next();
             Assert.assertTrue( actualIt.next() );
 
             Operation actual = actualIt.getOperation();
@@ -378,69 +369,5 @@ public class DerbyReplicationStoreTest extends TestCase
     private static void assertEquals( Operation expected, Operation actual )
     {
         Assert.assertEquals( expected.toString(), actual.toString() );
-    }
-
-    private static class DirectoryServiceConfigurationImpl implements DirectoryServiceConfiguration
-    {
-        public DirectoryService getService()
-        {
-            return null;
-        }
-
-
-        public String getInstanceId()
-        {
-            return null;
-        }
-
-
-        public Hashtable getEnvironment()
-        {
-            return null;
-        }
-
-
-        public StartupConfiguration getStartupConfiguration()
-        {
-            MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-            cfg.setWorkingDirectory( DB_PATH );
-            return cfg;
-        }
-
-
-        public Registries getRegistries()
-        {
-            return null;
-        }
-
-
-        public PartitionNexus getPartitionNexus()
-        {
-            return null;
-        }
-
-
-        public InterceptorChain getInterceptorChain()
-        {
-            return null;
-        }
-
-
-        public boolean isFirstStart()
-        {
-            return false;
-        }
-
-
-        public DirectoryServiceListener getServiceListener()
-        {
-            return null;
-        }
-
-
-        public SchemaManager getSchemaManager()
-        {
-            return null;
-        }
     }
 }

@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.components.EncKdcRepPart;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
@@ -29,8 +30,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 import org.apache.directory.server.kerberos.shared.messages.value.LastRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**
@@ -39,7 +40,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
  */
 public class KdcReply extends KerberosMessage implements Encodable
 {
-    private PreAuthenticationData[] paData; //optional
+    private PaData[] paData; //optional
     private KerberosPrincipal clientPrincipal;
     private Ticket ticket;
 
@@ -52,7 +53,7 @@ public class KdcReply extends KerberosMessage implements Encodable
      *
      * @param msgType
      */
-    public KdcReply( MessageType msgType )
+    public KdcReply( KerberosMessageType msgType )
     {
         super( msgType );
     }
@@ -67,8 +68,8 @@ public class KdcReply extends KerberosMessage implements Encodable
      * @param encPart
      * @param msgType
      */
-    public KdcReply( PreAuthenticationData[] paData, KerberosPrincipal clientPrincipal, Ticket ticket,
-        EncryptedData encPart, MessageType msgType )
+    public KdcReply( PaData[] paData, KerberosPrincipal clientPrincipal, Ticket ticket,
+        EncryptedData encPart, KerberosMessageType msgType )
     {
         this( msgType );
         this.paData = paData;
@@ -112,11 +113,11 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
-     * Returns an array of {@link PreAuthenticationData}s.
+     * Returns an array of {@link PaData}s.
      *
-     * @return The array of {@link PreAuthenticationData}s.
+     * @return The array of {@link PaData}s.
      */
-    public PreAuthenticationData[] getPaData()
+    public PaData[] getPaData()
     {
         return paData;
     }
@@ -167,11 +168,11 @@ public class KdcReply extends KerberosMessage implements Encodable
 
 
     /**
-     * Sets the array of {@link PreAuthenticationData}s.
+     * Sets the array of {@link PaData}s.
      *
      * @param data
      */
-    public void setPaData( PreAuthenticationData[] data )
+    public void setPaData( PaData[] data )
     {
         paData = data;
     }

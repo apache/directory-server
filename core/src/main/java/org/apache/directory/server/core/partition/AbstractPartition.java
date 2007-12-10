@@ -20,19 +20,13 @@
 package org.apache.directory.server.core.partition;
 
 
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attributes;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.ReplaceOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 
 
 /**
@@ -45,14 +39,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractPartition implements Partition
 {
-    /** {@link DirectoryServiceConfiguration} specified at {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}. */
-    private DirectoryServiceConfiguration factoryCfg;
-    /** {@link PartitionConfiguration} specified at {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}. */
-    private PartitionConfiguration cfg;
+    /** {@link DirectoryService} specified at {@link #init(DirectoryService)}. */
+    protected DirectoryService directoryService;
     /** <tt>true</tt> if and only if this partition is initialized. */
-    private boolean initialized;
-    /** the normalized suffix DN for this partition */
-    private LdapDN suffixDn;
+    protected boolean initialized;
 
 
     protected AbstractPartition()
@@ -61,14 +51,12 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Sets up default properties(<tt>factoryConfiguration</tt> and <tt>configuration</tt>) and
-     * calls {@link #doInit()} where you have to put your initialization code in.
-     * {@link #isInitialized()} will return <tt>true</tt> if {@link #doInit()} returns
-     * without any errors.  {@link #destroy()} is called automatically as a clean-up process
-     * if {@link #doInit()} throws an exception.
+     * Sets up (<tt>directoryService</tt> and calls {@link #doInit()} where you have to put your
+     * initialization code in.  {@link #isInitialized()} will return <tt>true</tt> if
+     * {@link #doInit()} returns without any errors.  {@link #destroy()} is called automatically
+     * as a clean-up process if {@link #doInit()} throws an exception.
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
-        throws NamingException
+    public final void init( DirectoryService directoryService ) throws NamingException
     {
         if ( initialized )
         {
@@ -76,8 +64,7 @@ public abstract class AbstractPartition implements Partition
             return;
         }
 
-        this.factoryCfg = factoryCfg;
-        this.cfg = cfg;
+        this.directoryService = directoryService;
         try
         {
             doInit();
@@ -108,12 +95,6 @@ public abstract class AbstractPartition implements Partition
      */
     public final void destroy()
     {
-        if ( cfg == null )
-        {
-            // Already destroyed.
-            return;
-        }
-
         try
         {
             doDestroy();
@@ -121,8 +102,7 @@ public abstract class AbstractPartition implements Partition
         finally
         {
             initialized = false;
-            factoryCfg = null;
-            cfg = null;
+            directoryService = null;
         }
     }
 
@@ -145,34 +125,13 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * Returns {@link DirectoryServiceConfiguration} that is provided from
-     * {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}.
+     * Returns {@link DirectoryService} that is provided from
+     * {@link #init(DirectoryService)}.
+     * @return return the directory service core
      */
-    public final DirectoryServiceConfiguration getFactoryConfiguration()
+    public final DirectoryService getDirectoryService()
     {
-        return factoryCfg;
-    }
-
-
-    /**
-     * Returns {@link PartitionConfiguration} that is provided from
-     * {@link #init(DirectoryServiceConfiguration, PartitionConfiguration)}.
-     */
-    public final PartitionConfiguration getConfiguration()
-    {
-        return cfg;
-    }
-
-
-    public final LdapDN getSuffix() throws NamingException
-    {
-        if ( suffixDn == null )
-        {
-            suffixDn = new LdapDN( cfg.getSuffix() );
-            suffixDn.normalize( factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping() );
-        }
-
-        return suffixDn;
+        return directoryService;
     }
 
 
@@ -185,7 +144,7 @@ public abstract class AbstractPartition implements Partition
 
 
     /**
-     * This method calls {@link Partition#lookup(EntryOperationContext)} and return <tt>true</tt>
+     * This method calls {@link Partition#lookup(LookupOperationContext)} and return <tt>true</tt>
      * if it returns an entry by default.  Please override this method if
      * there is more effective way for your implementation.
      */
@@ -210,30 +169,5 @@ public abstract class AbstractPartition implements Partition
     public Attributes lookup( LookupOperationContext lookupContext ) throws NamingException
     {
         return null;
-    }
-
-
-    /**
-     * This method calls {@link Partition#move(MoveOperationContext)} and
-     * {@link Partition#rename(RenameOperationContext)} subsequently
-     * by default.  Please override this method if there is more effactive
-     * way for your implementation.
-     */
-    public void move( LdapDN oldName, LdapDN newParentName, String newRdn, boolean deleteOldRn ) throws NamingException
-    {
-        LdapDN newName = ( LdapDN ) newParentName.clone();
-        newName.add( newRdn );
-        move( new MoveOperationContext( oldName, newParentName ) );
-        rename( new RenameOperationContext( newName, newRdn, deleteOldRn ) );
-    }
-
-
-    /**
-     * This method throws {@link OperationNotSupportedException} by default.
-     * Please override this method to implement move operation.
-     */
-    public void replace( ReplaceOperationContext replaceContext ) throws NamingException
-    {
-        throw new OperationNotSupportedException( "Moving an entry to other parent entry is not supported." );
     }
 }

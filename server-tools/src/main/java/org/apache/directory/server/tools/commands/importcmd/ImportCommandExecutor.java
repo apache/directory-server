@@ -20,28 +20,7 @@
 package org.apache.directory.server.tools.commands.importcmd;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.SocketAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
-import org.apache.directory.server.configuration.ServerStartupConfiguration;
+import org.apache.directory.server.configuration.ApacheDS;
 import org.apache.directory.server.tools.ToolCommandListener;
 import org.apache.directory.server.tools.execution.BaseToolCommandExecutor;
 import org.apache.directory.server.tools.util.ListenerParameter;
@@ -52,11 +31,7 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 import org.apache.directory.shared.asn1.ber.tlv.TLVStateEnum;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.EncoderException;
-import org.apache.directory.shared.ldap.codec.LdapConstants;
-import org.apache.directory.shared.ldap.codec.LdapDecoder;
-import org.apache.directory.shared.ldap.codec.LdapMessage;
-import org.apache.directory.shared.ldap.codec.LdapMessageContainer;
-import org.apache.directory.shared.ldap.codec.LdapResult;
+import org.apache.directory.shared.ldap.codec.*;
 import org.apache.directory.shared.ldap.codec.add.AddRequest;
 import org.apache.directory.shared.ldap.codec.bind.BindRequest;
 import org.apache.directory.shared.ldap.codec.bind.BindResponse;
@@ -78,6 +53,22 @@ import org.apache.directory.shared.ldap.util.StringTools;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import javax.naming.InvalidNameException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 
 /**
  * This is the Executor Class of the Import Command.
@@ -96,9 +87,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
     private File ldifFile;
 
-    private String logs;
-
-    private boolean ignoreErrors = false;
+    private boolean ignoreErrors;
 
     private static final int IMPORT_ERROR = -1;
 
@@ -108,8 +97,6 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Socket used to connect to the server
      */
     private SocketChannel channel;
-
-    private SocketAddress serverAddress;
 
     private IAsn1Container ldapMessageContainer = new LdapMessageContainer();
 
@@ -131,14 +118,12 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Output Streams. All the required information for the connection should be
      * in the options from the command line, or the default values.
      * 
-     * @throws UnknownHostException
-     *             The hostname or the Address of server could not be found
-     * @throws IOException
-     *             There was a error opening or establishing the socket
+     * @throws UnknownHostException the hostname or the Address of server could not be found
+     * @throws IOException there was a error opening or establishing the socket
      */
-    private void connect() throws UnknownHostException, IOException
+    private void connect() throws IOException
     {
-        serverAddress = new InetSocketAddress( host, port );
+        SocketAddress serverAddress = new InetSocketAddress( host, port );
         channel = SocketChannel.open( serverAddress );
         channel.configureBlocking( true );
     }
@@ -213,12 +198,15 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to add
-     * @param msgId
-     *            message id number
+     * @param entry the entry to add
+     * @param messageId message id number
+     * @return ??
+     * @throws IOException ??
+     * @throws DecoderException ??
+     * @throws NamingException ??
+     * @throws EncoderException ??
      */
-    private int addEntry( Entry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
+    private int addEntry( Entry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         AddRequest addRequest = new AddRequest();
@@ -291,12 +279,15 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to delete
-     * @param msgId
-     *            message id number
+     * @param entry the entry to delete
+     * @param messageId message id number
+     * @return ???
+     * @throws IOException ???
+     * @throws DecoderException ??
+     * @throws NamingException ??
+     * @throws EncoderException ??
      */
-    private int deleteEntry( Entry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
+    private int deleteEntry( Entry entry, int messageId ) throws IOException, DecoderException,
         NamingException, EncoderException
     {
         DelRequest delRequest = new DelRequest();
@@ -350,13 +341,16 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to modify
-     * @param msgId
-     *            message id number
+     * @param entry the entry to modify
+     * @param messageId message id number
+     * @return ??
+     * @throws IOException ??
+     * @throws InvalidNameException ??
+     * @throws DecoderException ??
+     * @throws EncoderException ??
      */
     private int changeModRDNEntry( Entry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+        NamingException, EncoderException
     {
         ModifyDNRequest modifyDNRequest = new ModifyDNRequest();
 
@@ -371,7 +365,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         modifyDNRequest.setDeleteOldRDN( entry.isDeleteOldRdn() );
         modifyDNRequest.setNewRDN( new Rdn( entry.getNewRdn() ) );
 
-        if ( StringTools.isEmpty( entry.getNewSuperior() ) == false )
+        if ( ! StringTools.isEmpty( entry.getNewSuperior() ) )
         {
             modifyDNRequest.setNewSuperior( new LdapDN( entry.getNewSuperior() ) );
         }
@@ -416,13 +410,16 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Send the entry to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to modify
-     * @param msgId
-     *            message id number
+     * @param entry the entry to modify
+     * @param messageId message id number
+     * @return ??
+     * @throws IOException ??
+     * @throws NamingException ??
+     * @throws DecoderException ??
+     * @throws EncoderException ??
      */
     private int changeModifyEntry( Entry entry, int messageId ) throws IOException, DecoderException,
-        InvalidNameException, NamingException, EncoderException
+        NamingException, EncoderException
     {
         ModifyRequest modifyRequest = new ModifyRequest();
 
@@ -436,13 +433,9 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         modifyRequest.setObject( new LdapDN( dn ) );
         modifyRequest.initModifications();
 
-        Iterator modifications = entry.getModificationItems().iterator();
-
-        while ( modifications.hasNext() )
+        for ( ModificationItemImpl modificationItem : entry.getModificationItems() )
         {
-            ModificationItemImpl modification = ( ModificationItemImpl ) modifications.next();
-
-            switch ( modification.getModificationOp() )
+            switch ( modificationItem.getModificationOp() )
             {
                 case DirContext.ADD_ATTRIBUTE:
                     modifyRequest.setCurrentOperation( LdapConstants.OPERATION_ADD );
@@ -460,9 +453,9 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                     notifyErrorListener( "Unknown modify operation for DN " + dn );
             }
 
-            modifyRequest.addAttributeTypeAndValues( modification.getAttribute().getID() );
+            modifyRequest.addAttributeTypeAndValues( modificationItem.getAttribute().getID() );
 
-            for ( NamingEnumeration values = modification.getAttribute().getAll(); values.hasMoreElements(); )
+            for ( NamingEnumeration values = modificationItem.getAttribute().getAll(); values.hasMoreElements(); )
             {
                 Object value = values.nextElement();
                 modifyRequest.addAttributeValue( value );
@@ -509,13 +502,16 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Send the change operation to the encoder, then wait for a
      * reponse from the LDAP server on the results of the operation.
      * 
-     * @param entry
-     *            The entry to add
-     * @param msgId
-     *            message id number
+     * @param entry the entry to add
+     * @param messageId message id number
+     * @return ??
+     * @throws IOException ??
+     * @throws NamingException ??
+     * @throws DecoderException ??
+     * @throws EncoderException ??
      */
-    private int changeEntry( Entry entry, int messageId ) throws IOException, DecoderException, InvalidNameException,
-        NamingException, EncoderException
+    private int changeEntry( Entry entry, int messageId ) throws IOException, DecoderException,
+            NamingException, EncoderException
     {
         switch ( entry.getChangeType().getChangeType() )
         {
@@ -543,7 +539,11 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
      * Bind to the ldap server
      * 
      * @param messageId The message Id
-     * @throws NamingException 
+     * @throws NamingException ??
+     * @throws IOException ??
+     * @throws ToolCommandException ??
+     * @throws DecoderException ??
+     * @throws EncoderException ??
      */
     private void bind( int messageId ) throws EncoderException, DecoderException, IOException,
         ToolCommandException, NamingException
@@ -600,12 +600,9 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
     /**
      * Unbind from the server
      * 
-     * @param messageId
-     *            The message Id
-     * @throws InvalidNameException
-     * @throws EncoderException
-     * @throws DecoderException
-     * @throws IOException
+     * @param messageId the message Id
+     * @throws EncoderException ??
+     * @throws IOException ??
      */
     private void unbind( int messageId ) throws EncoderException, IOException
     {
@@ -640,7 +637,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         
         if ( quietParam != null )
         {
-            setQuietEnabled( quietParam.booleanValue() );
+            setQuietEnabled( quietParam );
         }
 
         // Debug param
@@ -648,7 +645,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         
         if ( debugParam != null )
         {
-            setDebugEnabled( debugParam.booleanValue() );
+            setDebugEnabled( debugParam );
         }
 
         // Verbose param
@@ -656,7 +653,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         
         if ( verboseParam != null )
         {
-            setVerboseEnabled( verboseParam.booleanValue() );
+            setVerboseEnabled( verboseParam );
         }
 
         // Install-path param
@@ -671,12 +668,10 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                 {
                     notifyOutputListener( "loading settings from: " + getLayout().getConfigurationFile() );
                 }
-                ApplicationContext factory = null;
-                URL configUrl;
 
-                configUrl = getLayout().getConfigurationFile().toURI().toURL();
-                factory = new FileSystemXmlApplicationContext( configUrl.toString() );
-                setConfiguration( ( ServerStartupConfiguration ) factory.getBean( "configuration" ) );
+                URL configUrl = getLayout().getConfigurationFile().toURI().toURL();
+                ApplicationContext factory = new FileSystemXmlApplicationContext( configUrl.toString() );
+                setApacheDS( ( ApacheDS ) factory.getBean( "apacheDS" ) );
             }
             catch ( MalformedURLException e )
             {
@@ -707,11 +702,11 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         
         if ( portParam != null )
         {
-            port = portParam.intValue();
+            port = portParam;
         }
-        else if ( getConfiguration() != null )
+        else if ( getApacheDS() != null )
         {
-            port = getConfiguration().getLdapConfiguration().getIpPort();
+            port = getApacheDS().getLdapServer().getIpPort();
 
             if ( isDebugEnabled() )
             {
@@ -792,7 +787,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         
         if ( ignoreErrorsParam != null )
         {
-            ignoreErrors = ignoreErrorsParam.booleanValue();
+            ignoreErrors = ignoreErrorsParam;
         }
         else if ( isDebugEnabled() )
         {
@@ -812,7 +807,6 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
             notifyOutputListener( "user = " + user );
             notifyOutputListener( "auth type = " + auth );
             notifyOutputListener( "file = " + ldifFile );
-            notifyOutputListener( "logs = " + logs );
         }
 
         int messageId = 0;
@@ -825,7 +819,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
             notifyOutputListener( "Connection to the server established.\n" + "Importing data ... " );
         }
 
-        LdifReader ldifReader = null;
+        LdifReader ldifReader;
 
         try
         {
@@ -855,7 +849,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                     notifyErrorListener( "Found an error while persing an entry : "
                         + ldifReader.getError().getMessage() );
 
-                    if ( ignoreErrors == false )
+                    if ( !ignoreErrors )
                     {
                         unbind( messageId );
 
@@ -868,7 +862,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
                 if ( addEntry( entry, messageId++ ) == IMPORT_ERROR )
                 {
-                    if ( ignoreErrors == false )
+                    if ( !ignoreErrors )
                     {
                         unbind( messageId );
 
@@ -887,7 +881,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
                 if ( nbAdd % 10 == 0 )
                 {
-                    notifyOutputListener( new Character( '.' ) );
+                    notifyOutputListener( '.' );
                 }
 
                 if ( nbAdd % 500 == 0 )
@@ -920,7 +914,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
                     notifyErrorListener( "Found an error while persing an entry : "
                         + ldifReader.getError().getMessage() );
 
-                    if ( ignoreErrors == false )
+                    if ( !ignoreErrors )
                     {
                         unbind( messageId );
 
@@ -934,7 +928,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
                 if ( changeEntry( entry, messageId++ ) == IMPORT_ERROR )
                 {
-                    if ( ignoreErrors == false )
+                    if ( !ignoreErrors )
                     {
                         unbind( messageId );
 
@@ -954,7 +948,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
 
                 if ( nbMod % 10 == 0 )
                 {
-                    notifyOutputListener( new Character( '.' ) );
+                    notifyOutputListener( '.' );
                 }
 
                 if ( nbMod % 500 == 0 )
@@ -972,6 +966,7 @@ public class ImportCommandExecutor extends BaseToolCommandExecutor
         }
 
         // Logout to the server
+        //noinspection UnusedAssignment
         unbind( messageId++ );
     }
 

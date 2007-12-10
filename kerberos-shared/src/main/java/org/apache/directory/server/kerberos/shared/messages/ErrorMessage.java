@@ -22,6 +22,7 @@ package org.apache.directory.server.kerberos.shared.messages;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
 
@@ -59,7 +60,7 @@ public class ErrorMessage extends KerberosMessage
         int serverMicroSecond, int errorCode, KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
         String explanatoryText, byte[] explanatoryData )
     {
-        super( MessageType.KRB_ERROR );
+        super( KerberosMessageType.KRB_ERROR );
 
         this.clientTime = clientTime;
         this.clientMicroSecond = clientMicroSecond;

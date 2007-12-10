@@ -20,15 +20,18 @@
 package org.apache.directory.server.kerberos.shared.messages;
 
 
+import java.util.Set;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 
 
@@ -38,7 +41,7 @@ import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
  */
 public class KdcRequest extends KerberosMessage
 {
-    private PreAuthenticationData[] preAuthData; //optional
+    private PaData[] preAuthData; //optional
     private RequestBody requestBody;
     private byte[] bodyBytes;
 
@@ -51,7 +54,7 @@ public class KdcRequest extends KerberosMessage
      * @param preAuthData
      * @param requestBody
      */
-    public KdcRequest( int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody )
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody )
     {
         super( pvno, messageType );
         this.preAuthData = preAuthData;
@@ -68,7 +71,7 @@ public class KdcRequest extends KerberosMessage
      * @param requestBody
      * @param bodyBytes
      */
-    public KdcRequest( int pvno, MessageType messageType, PreAuthenticationData[] preAuthData, RequestBody requestBody,
+    public KdcRequest( int pvno, KerberosMessageType messageType, PaData[] preAuthData, RequestBody requestBody,
         byte[] bodyBytes )
     {
         this( pvno, messageType, preAuthData, requestBody );
@@ -77,11 +80,11 @@ public class KdcRequest extends KerberosMessage
 
 
     /**
-     * Returns an array of {@link PreAuthenticationData}s.
+     * Returns an array of {@link PaData}s.
      *
-     * @return The array of {@link PreAuthenticationData}s.
+     * @return The array of {@link PaData}s.
      */
-    public PreAuthenticationData[] getPreAuthData()
+    public PaData[] getPreAuthData()
     {
         return preAuthData;
     }
@@ -172,7 +175,7 @@ public class KdcRequest extends KerberosMessage
      *
      * @return The array of {@link EncryptionType}s.
      */
-    public EncryptionType[] getEType()
+    public Set<EncryptionType> getEType()
     {
         return requestBody.getEType();
     }

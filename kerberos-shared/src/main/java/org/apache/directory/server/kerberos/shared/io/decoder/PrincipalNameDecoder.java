@@ -23,7 +23,6 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameModifier;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERGeneralString;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -50,9 +49,9 @@ public class PrincipalNameDecoder
      */
     public static PrincipalName decode( DERSequence sequence )
     {
-        PrincipalNameModifier modifier = new PrincipalNameModifier();
+        PrincipalName principalName = new PrincipalName();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -62,25 +61,26 @@ public class PrincipalNameDecoder
             {
                 case 0:
                     DERInteger nameType = ( DERInteger ) derObject;
-                    modifier.setType( nameType.intValue() );
+                    principalName.setNameType( nameType.intValue() );
                     break;
+                    
                 case 1:
                     DERSequence nameString = ( DERSequence ) derObject;
-                    decodeNameString( nameString, modifier );
+                    decodeNameString( nameString, principalName );
                     break;
             }
         }
 
-        return modifier.getPrincipalName();
+        return principalName;
     }
 
 
-    private static void decodeNameString( DERSequence sequence, PrincipalNameModifier modifier )
+    private static void decodeNameString( DERSequence sequence, PrincipalName principalName )
     {
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERGeneralString object = ( DERGeneralString ) e.nextElement();
-            modifier.addName( object.getString() );
+            principalName.addName( object.getString() );
         }
     }
 }

@@ -28,8 +28,8 @@ import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -59,9 +59,9 @@ public interface ACITupleFilter
      * @param attrValue the value of the attribute the current user accesses
      * @param entry the {@link Attributes} of the entry the current user accesses
      * @param microOperations the set of {@link MicroOperation}s the current user will perform
-     * 
+     * @param entryView in case of a Modify operation, view of the entry being modified as if the modification permitted and completed
      * @return the collection of filtered tuples
-     * @throws NamingException if failed to filter the specifiec tuples
+     * @throws NamingException if failed to filter the specific tuples
      */
     Collection<ACITuple> filter( 
             Collection<ACITuple> tuples, 
@@ -75,6 +75,7 @@ public interface ACITupleFilter
             String attrId,
             Object attrValue, 
             Attributes entry, 
-            Collection<MicroOperation> microOperations )
+            Collection<MicroOperation> microOperations,
+            Attributes entryView )
         throws NamingException;
 }

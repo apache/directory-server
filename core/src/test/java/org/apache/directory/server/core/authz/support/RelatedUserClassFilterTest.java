@@ -36,10 +36,10 @@ import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.server.core.authz.support.RelatedUserClassFilter;
 import org.apache.directory.server.core.subtree.SubtreeEvaluator;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 
@@ -88,7 +88,7 @@ public class RelatedUserClassFilterTest extends TestCase
     public void testZeroTuple() throws Exception
     {
         Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -97,7 +97,7 @@ public class RelatedUserClassFilterTest extends TestCase
         Collection<ACITuple> tuples = getTuples( UserClass.ALL_USERS );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
     }
 
 
@@ -106,9 +106,9 @@ public class RelatedUserClassFilterTest extends TestCase
         Collection<ACITuple> tuples = getTuples( UserClass.THIS_ENTRY );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, USER_NAME, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null ).size() );
+            AuthenticationLevel.NONE, new LdapDN( "ou=unrelated" ), null, null, null, null, null ).size() );
     }
 
 
@@ -116,10 +116,10 @@ public class RelatedUserClassFilterTest extends TestCase
     {
         Collection<ACITuple> tuples = getTuples( new UserClass.Name( USER_NAMES ) );
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, USER_NAME, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null,
             new LdapDN( "ou=unrelateduser, ou=users" ), null, AuthenticationLevel.NONE, USER_NAME, null, null, null,
-            null ).size() );
+            null, null ).size() );
     }
 
 
@@ -127,13 +127,13 @@ public class RelatedUserClassFilterTest extends TestCase
     {
         Collection<ACITuple> tuples = getTuples( new UserClass.UserGroup( GROUP_NAMES ) );
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, GROUP_NAMES, USER_NAME, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
 
         Set<Name> wrongGroupNames = new HashSet<Name>();
         wrongGroupNames.add( new LdapDN( "ou=unrelatedgroup" ) );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, wrongGroupNames, USER_NAME, null,
-            AuthenticationLevel.NONE, USER_NAME, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, USER_NAME, null, null, null, null, null ).size() );
     }
 
 
@@ -148,24 +148,24 @@ public class RelatedUserClassFilterTest extends TestCase
         Collection<ACITuple> tuples = getTuples( AuthenticationLevel.SIMPLE, true );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.STRONG, null, null, null, null, null ).size() );
+            AuthenticationLevel.STRONG, null, null, null, null, null, null ).size() );
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.SIMPLE, null, null, null, null, null ).size() );
+            AuthenticationLevel.SIMPLE, null, null, null, null, null, null ).size() );
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
 
         tuples = getTuples( AuthenticationLevel.SIMPLE, false );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.NONE, null, null, null, null, null ).size() );
+            AuthenticationLevel.NONE, null, null, null, null, null, null ).size() );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.STRONG, null, null, null, null, null ).size() );
+            AuthenticationLevel.STRONG, null, null, null, null, null, null ).size() );
 
         tuples = getTuples( AuthenticationLevel.SIMPLE, false );
 
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null,
-            AuthenticationLevel.SIMPLE, null, null, null, null, null ).size() );
+            AuthenticationLevel.SIMPLE, null, null, null, null, null, null ).size() );
     }
 
 

@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 
 
@@ -41,7 +41,7 @@ public class ApplicationReply extends KerberosMessage
      */
     public ApplicationReply( EncryptedData encPart )
     {
-        super( MessageType.KRB_AP_REP );
+        super( KerberosMessageType.AP_REP );
         encryptedPart = encPart;
     }
 

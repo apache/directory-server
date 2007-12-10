@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides the entry point to an instance of the
+ * Provides the entry point to instances of the
  * {@link org.apache.directory.server.ntp.NtpServer},
  * as well as support for configuration and the root
  * of the exception hierarchy.

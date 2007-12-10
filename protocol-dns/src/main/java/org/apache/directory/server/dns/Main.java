@@ -20,17 +20,12 @@
 package org.apache.directory.server.dns;
 
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
 
-import org.apache.directory.server.dns.store.RecordStore;
-import org.apache.directory.server.dns.store.RecordStoreStub;
-import org.apache.mina.common.ExecutorThreadModel;
-import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.transport.socket.nio.DatagramAcceptor;
-import org.apache.mina.transport.socket.nio.DatagramAcceptorConfig;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.protocol.shared.DatagramAcceptor;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,18 +37,9 @@ import org.slf4j.LoggerFactory;
 public class Main
 {
     /** Logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( Main.class );
+    private static final Logger LOG = LoggerFactory.getLogger( Main.class );
 
-    private static final int MAX_THREADS_DEFAULT = 4;
-
-    protected static IoAcceptor udpAcceptor;
-    protected static IoAcceptor tcpAcceptor;
-    protected static ThreadPoolExecutor threadPoolExecutor;
-    protected static ExecutorThreadModel threadModel = ExecutorThreadModel.getInstance( "ApacheDS" );
-
-    private static DnsServer udpDnsServer;
-    private static DnsServer tcpDnsServer;
-
+    private static DnsServer dnsConfiguration;
 
     /**
      * Entry point for the DNS server.
@@ -63,14 +49,6 @@ public class Main
      */
     public static void main( String[] args ) throws Exception
     {
-        int maxThreads = MAX_THREADS_DEFAULT;
-        threadPoolExecutor = new ThreadPoolExecutor( maxThreads, maxThreads, 60, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<Runnable>() );
-        threadModel.setExecutor( threadPoolExecutor );
-
-        udpAcceptor = new DatagramAcceptor();
-        tcpAcceptor = new SocketAcceptor();
-
         new Main().go();
     }
 
@@ -78,65 +56,26 @@ public class Main
     /**
      * Start an instance of the DNS server.
      */
-    public void go()
+    public void go() throws IOException
     {
-        DnsConfiguration dnsConfiguration = new DnsConfiguration();
+        LOG.debug( "Starting the DNS server" );
+        
+        DatagramAcceptor datagramAcceptor = new DatagramAcceptor( null );
+        SocketAcceptor socketAcceptor = new SocketAcceptor( null );
+        DirectoryService directoryService = new DefaultDirectoryService();
+        dnsConfiguration = new DnsServer();
+        dnsConfiguration.setDatagramAcceptor( datagramAcceptor );
+        dnsConfiguration.setSocketAcceptor( socketAcceptor );
+        dnsConfiguration.setDirectoryService( directoryService );
         dnsConfiguration.setEnabled( true );
         dnsConfiguration.setIpPort( 10053 );
-
-        RecordStore store = new RecordStoreStub();
-
-        startup( dnsConfiguration, store );
-    }
-
-
-    private void startup( DnsConfiguration dnsConfig, RecordStore store )
-    {
-        // Skip if disabled
-        if ( !dnsConfig.isEnabled() )
-        {
-            return;
-        }
-
-        try
-        {
-            DatagramAcceptorConfig serviceConfig = new DatagramAcceptorConfig();
-            serviceConfig.setThreadModel( threadModel );
-
-            udpDnsServer = new DnsServer( dnsConfig, udpAcceptor, serviceConfig, store );
-            tcpDnsServer = new DnsServer( dnsConfig, tcpAcceptor, serviceConfig, store );
-        }
-        catch ( Throwable t )
-        {
-            log.error( "Failed to start the DNS service", t );
-        }
+        dnsConfiguration.start();
     }
 
 
     protected void shutdown()
     {
-        if ( udpDnsServer != null )
-        {
-            udpDnsServer.destroy();
-
-            if ( log.isInfoEnabled() )
-            {
-                log.info( "Unbind of DNS Service complete: " + udpDnsServer );
-            }
-
-            udpDnsServer = null;
-        }
-
-        if ( tcpDnsServer != null )
-        {
-            tcpDnsServer.destroy();
-
-            if ( log.isInfoEnabled() )
-            {
-                log.info( "Unbind of DNS Service complete: " + tcpDnsServer );
-            }
-
-            tcpDnsServer = null;
-        }
+        LOG.debug( "Stopping the DNS server" );
+        dnsConfiguration.stop();
     }
 }

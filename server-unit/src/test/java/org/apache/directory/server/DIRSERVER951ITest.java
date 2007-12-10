@@ -20,8 +20,15 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.directory.server.core.partition.Oid;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.unit.AbstractServerTest;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.util.DateUtils;
+import org.apache.directory.shared.ldap.util.NamespaceTools;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,15 +37,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.partition.Oid;
-import org.apache.directory.server.core.partition.PartitionNexus;
-import org.apache.directory.server.core.partition.impl.btree.MutableBTreePartitionConfiguration;
-import org.apache.directory.server.unit.AbstractServerTest;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.util.DateUtils;
-import org.apache.directory.shared.ldap.util.NamespaceTools;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -52,7 +52,7 @@ import org.apache.directory.shared.ldap.util.NamespaceTools;
  */
 public class DIRSERVER951ITest extends AbstractServerTest
 {
-    private LdapContext ctx = null;
+    private LdapContext ctx;
 
 
     /**
@@ -60,25 +60,35 @@ public class DIRSERVER951ITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        MutableBTreePartitionConfiguration systemCfg = new MutableBTreePartitionConfiguration();
+        super.setUp();
+        super.loadTestLdif( true );
+        ctx = getWiredContext();
+        assertNotNull( ctx );
+    }
+
+
+    @Override
+    protected void configureDirectoryService()
+    {
+        JdbmPartition systemCfg = new JdbmPartition();
         systemCfg.setId( "system" );
-        
+
         // @TODO need to make this configurable for the system partition
         systemCfg.setCacheSize( 500 );
-        
-        systemCfg.setSuffix( PartitionNexus.SYSTEM_PARTITION_SUFFIX );
+
+        systemCfg.setSuffix( "ou=system" );
 
         // Add indexed attributes for system partition
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( Oid.ALIAS );
-        indexedAttrs.add( Oid.EXISTANCE );
-        indexedAttrs.add( Oid.HIERARCHY );
-        indexedAttrs.add( Oid.NDN );
-        indexedAttrs.add( Oid.ONEALIAS );
-        indexedAttrs.add( Oid.SUBALIAS );
-        indexedAttrs.add( Oid.UPDN );
-        indexedAttrs.add( "objectClass" );
-        indexedAttrs.add( "ou" );
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( Oid.ALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.EXISTANCE ) );
+        indexedAttrs.add( new JdbmIndex( Oid.HIERARCHY ) );
+        indexedAttrs.add( new JdbmIndex( Oid.NDN ) );
+        indexedAttrs.add( new JdbmIndex( Oid.ONEALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.SUBALIAS ) );
+        indexedAttrs.add( new JdbmIndex( Oid.UPDN ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
         systemCfg.setIndexedAttributes( indexedAttrs );
 
         // Add context entry for system partition
@@ -94,15 +104,9 @@ public class DIRSERVER951ITest extends AbstractServerTest
             NamespaceTools.getRdnValue( "ou=system" ) );
         systemEntry.put( "uid", "testUid" );
         systemCfg.setContextEntry( systemEntry );
-        
-        configuration.setSystemPartitionConfiguration( systemCfg );
-        
-        super.setUp();
-        super.loadTestLdif( true );
-        ctx = getWiredContext();
-        assertNotNull( ctx );
-    }
 
+        directoryService.setSystemPartition( systemCfg );
+    }
 
     /**
      * Closes context and destroys server.
@@ -119,6 +123,8 @@ public class DIRSERVER951ITest extends AbstractServerTest
      * Tests to make sure a negated search for OU of "test1" returns
      * those entries that do not have the OU attribute or do not have
      * a "test1" value for OU if the attribute exists.
+     * 
+     * @throws Exception on failure to search
      */
     public void testSearchNotOU() throws Exception
     {

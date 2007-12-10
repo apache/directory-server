@@ -35,10 +35,10 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.authz.support.MostSpecificProtectedItemFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.filter.PresenceNode;
 
 
@@ -148,13 +148,13 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
         MostSpecificProtectedItemFilter filter = new MostSpecificProtectedItemFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null,
-            null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null ).size() );
 
         Collection<ACITuple> tuples = new ArrayList<ACITuple>();
         tuples.add( new ACITuple( EMPTY_USER_CLASS_COLLECTION, AuthenticationLevel.NONE, EMPTY_PROTECTED_ITEM_COLLECTION, EMPTY_MICRO_OPERATION_SET, false, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, null, null, null, null,
-            null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -164,7 +164,7 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_A );
         tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 4, tuples.size() );
         Assert.assertSame( TUPLES_A.get( 0 ), tuples.get( 0 ) );
@@ -180,7 +180,7 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_B );
         tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 3, tuples.size() );
         Assert.assertSame( TUPLES_B.get( 0 ), tuples.get( 0 ) );
@@ -195,7 +195,7 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_C );
         tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_C.get( 0 ), tuples.get( 0 ) );
@@ -209,7 +209,7 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_D );
         tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 1, tuples.size() );
         Assert.assertSame( TUPLES_D.get( 0 ), tuples.get( 0 ) );
@@ -222,7 +222,7 @@ public class MostSpecificProtectedItemFilterTest extends TestCase
 
         List<ACITuple> tuples = new ArrayList<ACITuple>( TUPLES_E );
         tuples = ( List<ACITuple> ) filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null, null,
-            null, null );
+            null, null, null );
 
         Assert.assertEquals( 2, tuples.size() );
         Assert.assertSame( TUPLES_E.get( 0 ), tuples.get( 0 ) );

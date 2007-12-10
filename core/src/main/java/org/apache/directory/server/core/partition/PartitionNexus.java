@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
 import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
 import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
@@ -54,36 +55,13 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
  */
 public abstract class PartitionNexus implements Partition
 {
-    /** the default user principal or DN */
-    public final static String ADMIN_PRINCIPAL = "uid=admin,ou=system";
-    
-    /** the DN for the global schema subentry */
-    public final static String GLOBAL_SCHEMA_SUBENTRY_DN = "cn=schema";
-    
-    /** the normalized user principal or DN */
-    public final static String ADMIN_PRINCIPAL_NORMALIZED = "0.9.2342.19200300.100.1.1=admin,2.5.4.11=system";
-    
     /** the admin super user uid */
     public final static String ADMIN_UID = "admin";
     
     /** the initial admin passwd set on startup */
     public static final String ADMIN_PASSWORD = "secret";
     
-    /** the base dn under which all users reside */
-    public final static String USERS_BASE_NAME = "ou=users,ou=system";
-    
-    /** the base dn under which all groups reside */
-    public final static String GROUPS_BASE_NAME = "ou=groups,ou=system";
-
-    /**
-     * System partition suffix constant.  Should be kept down to a single Dn name 
-     * component or the default constructor will have to parse it instead of 
-     * building the name.  Note that what ever the SUFFIX equals it should be 
-     * both the normalized and the user provided form.
-     */
-    public static final String SYSTEM_PARTITION_SUFFIX = "ou=system";
-
-
+   
     /**
      * Gets the DN for the admin user.
      * 
@@ -95,7 +73,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            adminDn = new LdapDN( ADMIN_PRINCIPAL );
+            adminDn = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN );
         }
         catch ( NamingException e )
         {
@@ -140,7 +118,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            groupsBaseDn = new LdapDN( GROUPS_BASE_NAME );
+            groupsBaseDn = new LdapDN( ServerDNConstants.GROUPS_SYSTEM_DN );
         }
         catch ( NamingException e )
         {
@@ -162,7 +140,7 @@ public abstract class PartitionNexus implements Partition
 
         try
         {
-            usersBaseDn = new LdapDN( USERS_BASE_NAME );
+            usersBaseDn = new LdapDN( ServerDNConstants.USERS_SYSTEM_DN );
         }
         catch ( NamingException e )
         {
@@ -198,7 +176,7 @@ public abstract class PartitionNexus implements Partition
      * @return true if the entry contains an attribute with the value, false otherwise
      * @throws NamingException if there is a problem accessing the entry and its values
      */
-    public abstract boolean compare( CompareOperationContext opContext ) throws NamingException;
+    public abstract boolean compare( CompareOperationContext compareContext ) throws NamingException;
 
 
     public abstract void addContextPartition( AddContextPartitionOperationContext opContext ) throws NamingException;
@@ -233,7 +211,7 @@ public abstract class PartitionNexus implements Partition
      * the empty string distinguished name if no match was found.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext opContext ) throws NamingException;
+    public abstract LdapDN getMatchedName ( GetMatchedNameOperationContext getMatchedNameContext ) throws NamingException;
 
 
     /**
@@ -241,13 +219,13 @@ public abstract class PartitionNexus implements Partition
      * the supplied distinguished name parameter.  If the DN argument does not
      * fall under a partition suffix then the empty string Dn is returned.
      *
-     * @param getSuffixContext the Context containing normalized distinguished 
+     * @param suffixContext the Context containing normalized distinguished
      * name to use for finding a suffix.
      * @return the suffix portion of dn, or the valid empty string Dn if no
      * naming context was found for dn.
      * @throws NamingException if there are any problems
      */
-    public abstract LdapDN getSuffix ( GetSuffixOperationContext opContext ) throws NamingException;
+    public abstract LdapDN getSuffix ( GetSuffixOperationContext suffixContext ) throws NamingException;
 
 
     /**

@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+
 
 /**
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
@@ -34,7 +36,7 @@ public final class LastRequestType implements Comparable<LastRequestType>
     /**
      * Constant for the "none" last request type.
      */
-    public static final LastRequestType NONE = new LastRequestType( 0, "none" );
+    public static final LastRequestType NONE = new LastRequestType( 0, AuthenticationLevel.NONE.toString() );
 
     /**
      * Constant for the "time of initial ticket" last request type.

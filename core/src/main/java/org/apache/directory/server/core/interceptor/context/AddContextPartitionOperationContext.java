@@ -20,14 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 
-import javax.naming.NamingException;
-
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.partition.Partition;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -41,10 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class AddContextPartitionOperationContext  extends EmptyOperationContext
 {
-    private static final Logger log = LoggerFactory.getLogger( AddContextPartitionOperationContext.class );
-    
-    /** The context partition configuration */
-    private PartitionConfiguration partitionConfiguration;
     /** the instantiated partition class */
     private Partition partition;
        
@@ -52,23 +41,11 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
     /**
      * Creates a new instance of AddContextPartitionOperationContext.
      *
-     * @param entryDn The partition configuration to add
+     * @param partition The partition to add
      */
-    public AddContextPartitionOperationContext( PartitionConfiguration cfg )
+    public AddContextPartitionOperationContext( Partition partition )
     {
         super();
-        this.partitionConfiguration = cfg;
-    }
-    
-    
-    /**
-     * Creates a new instance of AddContextPartitionOperationContext.
-     *
-     * @param entryDn The partition configuration to add
-     */
-    public AddContextPartitionOperationContext( PartitionConfiguration cfg, Partition partition )
-    {
-        this( cfg );
         this.partition = partition;
     }
     
@@ -78,83 +55,26 @@ public class AddContextPartitionOperationContext  extends EmptyOperationContext
      */
     public String toString()
     {
-        return "AddContextPartitionOperationContext for partition context '" + partitionConfiguration.getId() + "'";
+        return "AddContextPartitionOperationContext for partition context '" + partition.getId() + "'";
     }
 
     
     /**
-     * @return The partition configuration
+     * @return The partition
      */
-    public PartitionConfiguration getPartitionConfiguration()
+    public Partition getPartition()
     {
-        return partitionConfiguration;
-    }
-
-    
-    /**
-     * Set the partition configuration
-     * 
-     * @param partitionConfiguration The configuration
-     */
-    public void setPartitionConfiguration( PartitionConfiguration partitionConfiguration )
-    {
-        this.partitionConfiguration = partitionConfiguration;
-    }
-
-
-    /**
-     * Get's the partition instance.
-     *
-     * @return the partition to add
-     */
-    public Partition getPartition() throws NamingException
-    {
-        if ( partition != null )
-        {
-            return partition;
-        }
-        
-        if ( partitionConfiguration == null )
-        {
-            throw new IllegalStateException( "Cannot get instance of partition without a proper " +
-                    "partition configuration." );
-        }
-        
-        Class partitionClass;
-        try
-        {
-            partitionClass = Class.forName( partitionConfiguration.getPartitionClassName() );
-        }
-        catch ( ClassNotFoundException e )
-        {
-            String msg = "Could not load partition implementation class '" 
-                + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId();
-            log.error( msg );
-            throw new LdapConfigurationException( msg, e );
-        }
-        
-        try
-        {
-            partition = ( Partition ) partitionClass.newInstance();
-        }
-        catch ( InstantiationException e )
-        {
-            String msg = "No default constructor in partition implementation class '" 
-                + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId();
-            log.error( msg );
-            throw new LdapConfigurationException( msg, e );
-        }
-        catch ( IllegalAccessException e )
-        {
-            String msg = "Default constructor for partition implementation class '" 
-                + partitionConfiguration.getPartitionClassName() + "' for partition with id " 
-                + partitionConfiguration.getId() + " is not publicly accessible.";
-            log.error( msg );
-            throw new LdapConfigurationException( msg, e );
-        }
-        
         return partition;
+    }
+
+    
+    /**
+     * Set the partition.
+     * 
+     * @param partition the partition
+     */
+    public void setPartitionConfiguration( Partition partition )
+    {
+        this.partition = partition;
     }
 }

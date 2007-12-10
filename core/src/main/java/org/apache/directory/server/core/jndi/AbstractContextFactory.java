@@ -20,27 +20,9 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.util.Hashtable;
-
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.AddPartitionConfiguration;
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.RemovePartitionConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.configuration.SyncConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
-import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.util.StringTools;
+import javax.naming.InitialContext;
+import javax.naming.spi.InitialContextFactory;
 
 
 /**
@@ -62,184 +44,11 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * Please note that you'll also have to maintain any stateful information
  * as using singleton pattern if you're going to extend this factory.
  * <p>
- * This class implements {@link DirectoryServiceListener}.  This means that
- * you can listen to the changes occurs to {@link DirectoryService}, and
- * react to it (e.g. executing additional business logic).
- * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  * 
  * @see javax.naming.spi.InitialContextFactory
  */
-public abstract class AbstractContextFactory implements InitialContextFactory, DirectoryServiceListener
+public abstract class AbstractContextFactory implements InitialContextFactory
 {
-    //TM private static long cumul = 0L;
-    //TM private static long count = 0;
-    // ------------------------------------------------------------------------
-    // Members
-    // ------------------------------------------------------------------------
-
-    /**
-     * Creates a new instance.
-     */
-    protected AbstractContextFactory()
-    {
-    }
-
-
-    @SuppressWarnings(value={"unchecked"})
-    public final synchronized Context getInitialContext( Hashtable env ) throws NamingException
-    {
-        //TM long t0 = System.nanoTime();
-        Configuration cfg = Configuration.toConfiguration( env );
-        
-        env = ( Hashtable<String, Object> ) env.clone();
-        
-        LdapDN principalDn = null;
-        if ( env.containsKey( Context.SECURITY_PRINCIPAL ) )
-        {
-            if ( env.get( Context.SECURITY_PRINCIPAL ) instanceof LdapDN )
-            {
-                principalDn = ( LdapDN ) env.get( Context.SECURITY_PRINCIPAL );
-            }
-        }
-        
-        String principal = getPrincipal( env );
-        byte[] credential = getCredential( env );
-        String authentication = getAuthentication( env );
-        String providerUrl = getProviderUrl( env );
-
-        DirectoryService service = DirectoryService.getInstance( cfg.getInstanceId() );
-
-        // Execute configuration
-        if ( cfg instanceof ShutdownConfiguration )
-        {
-            service.shutdown();
-            return new DeadContext();
-        }
-        else if ( cfg instanceof SyncConfiguration )
-        {
-            service.sync();
-        }
-        else if ( cfg instanceof StartupConfiguration )
-        {
-            service.startup( this, env );
-        }
-        else if ( cfg instanceof AddPartitionConfiguration )
-        {
-            AddContextPartitionOperationContext ctxPartition = 
-                new AddContextPartitionOperationContext( ( ( AddPartitionConfiguration ) cfg ).getDirectoryPartitionConfiguration() );
-            
-            Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" ); 
-            
-            new PartitionNexusProxy( ctx, service ).addContextPartition( ctxPartition );
-        }
-        else if ( cfg instanceof RemovePartitionConfiguration )
-        {
-            Context ctx = service.getJndiContext( principalDn, principal, credential, authentication, "" );
-            PartitionNexusProxy proxy = new PartitionNexusProxy( ctx, service );
-            proxy.removeContextPartition( 
-                new RemoveContextPartitionOperationContext( ( ( RemovePartitionConfiguration ) cfg ).getSuffix() ) );
-        }
-        else if ( service == null )
-        {
-            throw new NamingException( "Unknown configuration: " + cfg );
-        }
-
-        Context context = service.getJndiContext( principalDn, principal, credential, authentication, providerUrl );
-        //TM long t1 = System.nanoTime();
-        //TM cumul += (t1 - t0)/1000;
-        //TM count++;
-        
-        //TM if ( count % 1000 == 0)
-        //TM {
-        //TM     System.out.println( "getInitialContext cost : " + (cumul/count) );
-        //TM }
-        
-        return context;
-    }
-
-
-    public static String getProviderUrl( Hashtable<String, Object> env )
-    {
-        String providerUrl;
-        Object value;
-        value = env.get( Context.PROVIDER_URL );
-        if ( value == null )
-        {
-            value = "";
-        }
-        providerUrl = value.toString();
-
-        env.put( Context.PROVIDER_URL, providerUrl );
-
-        return providerUrl;
-    }
-
-
-    public static String getAuthentication( Hashtable<String, Object> env )
-    {
-        String authentication;
-        Object value = env.get( Context.SECURITY_AUTHENTICATION );
-        if ( value == null )
-        {
-            authentication = "none";
-        }
-        else
-        {
-            authentication = value.toString();
-        }
-
-        env.put( Context.SECURITY_AUTHENTICATION, authentication );
-
-        return authentication;
-    }
-
-
-    public static byte[] getCredential( Hashtable<String, Object> env ) throws ConfigurationException
-    {
-        byte[] credential;
-        Object value = env.get( Context.SECURITY_CREDENTIALS );
-        if ( value == null )
-        {
-            credential = null;
-        }
-        else if ( value instanceof String )
-        {
-            credential = StringTools.getBytesUtf8( (String)value );
-        }
-        else if ( value instanceof byte[] )
-        {
-            credential = ( byte[] ) value;
-        }
-        else
-        {
-            throw new ConfigurationException( "Can't convert '" + Context.SECURITY_CREDENTIALS + "' to byte[]." );
-        }
-
-        if ( credential != null )
-        {
-            env.put( Context.SECURITY_CREDENTIALS, credential );
-        }
-
-        return credential;
-    }
-
-
-    public static String getPrincipal( Hashtable env )
-    {
-        String principal;
-        Object value = env.get( Context.SECURITY_PRINCIPAL );
-        if ( value == null )
-        {
-            principal = null;
-        }
-        else
-        {
-            principal = value.toString();
-            env.put( Context.SECURITY_PRINCIPAL, principal );
-        }
-
-        return principal;
-    }
 }

@@ -25,7 +25,6 @@ import java.util.Enumeration;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
-import org.apache.directory.server.kerberos.shared.messages.value.EncryptedDataModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
@@ -71,9 +70,9 @@ public class EncryptedDataDecoder
      */
     public static EncryptedData decode( DERSequence sequence )
     {
-        EncryptedDataModifier modifier = new EncryptedDataModifier();
+        EncryptedData encryptedData = new EncryptedData();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -83,19 +82,21 @@ public class EncryptedDataDecoder
             {
                 case 0:
                     DERInteger etype = ( DERInteger ) derObject;
-                    modifier.setEncryptionType( EncryptionType.getTypeByOrdinal( etype.intValue() ) );
+                    encryptedData.setEType( EncryptionType.getTypeByOrdinal( etype.intValue() ) );
                     break;
+                    
                 case 1:
                     DERInteger kvno = ( DERInteger ) derObject;
-                    modifier.setKeyVersion( kvno.intValue() );
+                    encryptedData.setKvno( kvno.intValue() );
                     break;
+                    
                 case 2:
                     DEROctetString cipher = ( DEROctetString ) derObject;
-                    modifier.setCipherText( cipher.getOctets() );
+                    encryptedData.setCipher( cipher.getOctets() );
                     break;
             }
         }
 
-        return modifier.getEncryptedData();
+        return encryptedData;
     }
 }

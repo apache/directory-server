@@ -20,6 +20,7 @@
 package org.apache.directory.server.core.interceptor.context;
 
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 /**
  * A ListContext context used for Interceptors. It contains all the informations
@@ -30,6 +31,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public class ListOperationContext  extends AbstractOperationContext
 {
+    private AliasDerefMode aliasDerefMode = AliasDerefMode.DEREF_ALWAYS;
+
+
     /**
      * Creates a new instance of ListOperationContext.
      */
@@ -37,7 +41,8 @@ public class ListOperationContext  extends AbstractOperationContext
     {
         super();
     }
-    
+
+
     /**
      * Creates a new instance of ListOperationContext.
      *
@@ -47,6 +52,20 @@ public class ListOperationContext  extends AbstractOperationContext
     {
         super( dn );
     }
+
+
+    /**
+     * Creates a new instance of ListOperationContext.
+     *
+     * @param dn The DN to get the suffix from
+     * @param aliasDerefMode the alias dereferencing mode to use
+     */
+    public ListOperationContext( LdapDN dn, AliasDerefMode aliasDerefMode )
+    {
+        super( dn );
+        this.aliasDerefMode = aliasDerefMode;
+    }
+
     
     /**
      * @see Object#toString()
@@ -54,5 +73,11 @@ public class ListOperationContext  extends AbstractOperationContext
     public String toString()
     {
         return "ListOperationContext with DN '" + getDn().getUpName() + "'";
+    }
+
+
+    public AliasDerefMode getAliasDerefMode()
+    {
+        return aliasDerefMode;
     }
 }

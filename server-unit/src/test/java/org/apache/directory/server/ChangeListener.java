@@ -29,7 +29,7 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.HasControls;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControl;
+import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.EntryChangeControlDecoder;
 import org.apache.directory.shared.ldap.message.PersistentSearchControl;
 
@@ -65,7 +65,7 @@ public class ChangeListener
         {
             Control[] respCtls;
             ctx.setRequestControls( ctxCtls );
-            EntryChangeControl ecCtl = null;
+            EntryChangeControlCodec ecCtl = null;
             NamingEnumeration list = ctx.search( "", "objectClass=*", null );
             while ( list.hasMore() )
             {
@@ -81,7 +81,7 @@ public class ChangeListener
                                 org.apache.directory.shared.ldap.message.EntryChangeControl.CONTROL_OID ) )
                             {
                                 EntryChangeControlDecoder decoder = new EntryChangeControlDecoder();
-                                ecCtl = ( EntryChangeControl ) decoder.decode( respCtls[ii].getEncodedValue() );
+                                ecCtl = ( EntryChangeControlCodec ) decoder.decode( respCtls[ii].getEncodedValue() );
                             }
                         }
                     }

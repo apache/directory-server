@@ -20,40 +20,30 @@
 package org.apache.directory.mitosis.store.derby;
 
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.naming.Name;
-import javax.naming.ldap.LdapName;
-
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.mitosis.common.CSN;
-import org.apache.directory.mitosis.common.CSNVector;
-import org.apache.directory.mitosis.common.ReplicaId;
-import org.apache.directory.mitosis.common.DefaultCSN;
-import org.apache.directory.mitosis.common.UUID;
+import org.apache.directory.mitosis.common.*;
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
 import org.apache.directory.mitosis.operation.Operation;
 import org.apache.directory.mitosis.operation.OperationCodec;
 import org.apache.directory.mitosis.store.ReplicationLogIterator;
 import org.apache.directory.mitosis.store.ReplicationStore;
 import org.apache.directory.mitosis.store.ReplicationStoreException;
+import org.apache.directory.server.core.DirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Name;
+import javax.naming.ldap.LdapName;
+import java.io.File;
+import java.sql.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 
 public class DerbyReplicationStore implements ReplicationStore
 {
-    private static final Logger log = LoggerFactory.getLogger( DerbyReplicationStore.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DerbyReplicationStore.class );
 
     private static final String DEFAULT_TABLE_PREFIX = "REPLICATION_";
     private static final String KEY_REPLICA_ID = "replicaId";
@@ -96,12 +86,12 @@ public class DerbyReplicationStore implements ReplicationStore
     }
 
 
-    public void open( DirectoryServiceConfiguration serviceCfg, ReplicationConfiguration cfg )
+    public void open( DirectoryService serviceCfg, ReplicationConfiguration cfg )
     {
         replicaId = cfg.getReplicaId();
 
         // Calculate DB URI
-        dbURI = DB_URI_PREFIX + serviceCfg.getStartupConfiguration().getWorkingDirectory().getPath() + File.separator
+        dbURI = DB_URI_PREFIX + serviceCfg.getWorkingDirectory().getPath() + File.separator
             + "replication";
 
         // Create database if not exists.
@@ -278,7 +268,7 @@ public class DerbyReplicationStore implements ReplicationStore
         }
         catch ( SQLException e )
         {
-            log.warn( "Failed to close the dataSource.", e );
+            LOG.warn( "Failed to close the dataSource.", e );
         }
         dataSource = null;
         replicaId = null;
@@ -384,6 +374,7 @@ public class DerbyReplicationStore implements ReplicationStore
             }
             catch ( SQLException e1 )
             {
+                LOG.error( "Failed to rollback transaction.", e );
             }
 
             throw new ReplicationStoreException( e );
@@ -478,9 +469,9 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public ReplicationLogIterator getLogs( CSNVector updateVector, boolean inclusive )
     {
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        Connection con;
+        PreparedStatement ps;
+        ResultSet rs;
 
         updateVector = getNormalizedUpdateVector( updateVector );
 
@@ -547,10 +538,9 @@ public class DerbyReplicationStore implements ReplicationStore
         CSNVector newUV = new CSNVector();
         synchronized ( knownReplicaIds )
         {
-            Iterator<ReplicaId> i = knownReplicaIds.iterator();
-            while ( i.hasNext() )
+            for ( ReplicaId knownReplicaId : knownReplicaIds )
             {
-                newUV.setCSN( new DefaultCSN( 0, i.next(), 0 ) );
+                newUV.setCSN( new DefaultCSN( 0, knownReplicaId, 0 ) );
             }
         }
 
@@ -561,9 +551,9 @@ public class DerbyReplicationStore implements ReplicationStore
 
     public ReplicationLogIterator getLogs( CSN fromCSN, boolean inclusive )
     {
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        Connection con;
+        PreparedStatement ps;
+        ResultSet rs;
 
         try
         {

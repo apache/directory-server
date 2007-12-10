@@ -6,9 +6,6 @@
 		name="apacheds.system:service=Directory">
 
 		<attribute name="EmbeddedServerEnabled">true</attribute>
-		<attribute name="ContextFactory">
-			org.apache.directory.server.jndi.ServerContextFactory
-		</attribute>
 		<attribute name="ContextProviderURL">
 			uid=admin,ou=system
 		</attribute>

@@ -114,6 +114,6 @@ public class Operation implements Serializable
     protected void execute0( PartitionNexus nexus, ReplicationStore store, AttributeTypeRegistry registry ) 
         throws NamingException
     {
-        throw new OperationNotSupportedException( nexus.getSuffix().toString() );
+        throw new OperationNotSupportedException( nexus.getSuffixDn().toString() );
     }
 }

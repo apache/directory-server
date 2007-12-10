@@ -45,7 +45,7 @@ public class KerberosPrincipalModifier
         if ( nameComponent != null )
         {
             StringBuffer sb = new StringBuffer();
-            sb.append( nameComponent.getNameComponent() );
+            sb.append( nameComponent.getNameString() );
 
             if ( realm != null )
             {
@@ -53,7 +53,7 @@ public class KerberosPrincipalModifier
                 sb.append( realm );
             }
 
-            return new KerberosPrincipal( sb.toString(), nameComponent.getNameType() );
+            return new KerberosPrincipal( sb.toString(), nameComponent.getNameType().getOrdinal() );
         }
 
         return null;

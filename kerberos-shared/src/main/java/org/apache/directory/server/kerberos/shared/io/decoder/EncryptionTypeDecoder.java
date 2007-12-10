@@ -21,8 +21,11 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 
 
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
+import org.apache.directory.shared.asn1.der.DEREncodable;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DERSequence;
 
@@ -37,15 +40,16 @@ public class EncryptionTypeDecoder
      * etype[8]             SEQUENCE OF INTEGER, -- EncryptionType,
      *             -- in preference order
      */
-    protected static EncryptionType[] decode( DERSequence sequence )
+    protected static Set<EncryptionType> decode( DERSequence sequence )
     {
-        EncryptionType[] eTypes = new EncryptionType[sequence.size()];
+        Set<EncryptionType> eTypes = new HashSet<EncryptionType>( sequence.size() );
 
         int ii = 0;
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERInteger object = ( DERInteger ) e.nextElement();
-            eTypes[ii] = EncryptionType.getTypeByOrdinal( object.intValue() );
+            eTypes.add( EncryptionType.getTypeByOrdinal( object.intValue() ) );
             ii++;
         }
 

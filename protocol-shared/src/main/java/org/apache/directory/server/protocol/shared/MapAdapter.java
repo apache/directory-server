@@ -40,7 +40,7 @@ import java.util.Set;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class MapAdapter implements Map
+public class MapAdapter implements Map<Object, Object>
 {
     private Dictionary<Object, Object> dictionary;
 
@@ -86,11 +86,11 @@ public class MapAdapter implements Map
     /**
      * @see java.util.Map#entrySet()
      */
-    public Set entrySet()
+    public Set<Map.Entry<Object, Object>> entrySet()
     {
         Map<Object, Object> map = new HashMap<Object, Object>();
 
-        Enumeration e = dictionary.keys();
+        Enumeration<Object> e = dictionary.keys();
 
         while ( e.hasMoreElements() )
         {
@@ -124,7 +124,7 @@ public class MapAdapter implements Map
     /**
      * @see java.util.Map#keySet()
      */
-    public Set keySet()
+    public Set<Object> keySet()
     {
         return new HashSet<Object>( Collections.list( dictionary.keys() ) );
     }
@@ -175,7 +175,7 @@ public class MapAdapter implements Map
     /**
      * @see java.util.Map#values()
      */
-    public Collection values()
+    public Collection<Object> values()
     {
         return Collections.list( dictionary.elements() );
     }

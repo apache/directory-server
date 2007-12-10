@@ -19,24 +19,7 @@
  */
 package org.apache.directory.server.core.authz;
 
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.schema.ConcreteNameComponentNormalizer;
@@ -49,6 +32,7 @@ import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.exception.LdapSchemaViolationException;
 import org.apache.directory.shared.ldap.filter.EqualityNode;
 import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
@@ -58,6 +42,21 @@ import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Name;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -71,11 +70,8 @@ import org.slf4j.LoggerFactory;
 public class TupleCache
 {
     /** the logger for this class */
-    private static final Logger log = LoggerFactory.getLogger( TupleCache.class );
+    private static final Logger LOG = LoggerFactory.getLogger( TupleCache.class );
 
-    /** cloned startup environment properties we use for subentry searching */
-    private final Map<?, ?> env;
-    
     /** a map of strings to ACITuple collections */
     private final Map<String,List<ACITuple>> tuples = new HashMap<String,List<ACITuple>>();
     
@@ -85,9 +81,6 @@ public class TupleCache
     /** a normalizing ACIItem parser */
     private final ACIItemParser aciParser;
 
-    /** Stores a reference to the AttributeType registry */ 
-    private AttributeTypeRegistry attributeTypeRegistry;
-    
     /** A starage for the PrescriptiveACI attributeType */
     private AttributeType prescriptiveAciAT;
     
@@ -99,18 +92,18 @@ public class TupleCache
     /**
      * Creates a ACITuple cache.
      *
-     * @param factoryCfg the context factory configuration for the server
+     * @param directoryService the context factory configuration for the server
+     * @throws NamingException if initialization fails
      */
-    public TupleCache( DirectoryServiceConfiguration factoryCfg ) throws NamingException
+    public TupleCache( DirectoryService directoryService ) throws NamingException
     {
-    	normalizerMap = factoryCfg.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
-        this.nexus = factoryCfg.getPartitionNexus();
-        attributeTypeRegistry = factoryCfg.getRegistries().getAttributeTypeRegistry();
-        OidRegistry oidRegistry = factoryCfg.getRegistries().getOidRegistry();
+    	normalizerMap = directoryService.getRegistries().getAttributeTypeRegistry().getNormalizerMapping();
+        this.nexus = directoryService.getPartitionNexus();
+        AttributeTypeRegistry attributeTypeRegistry = directoryService.getRegistries().getAttributeTypeRegistry();
+        OidRegistry oidRegistry = directoryService.getRegistries().getOidRegistry();
         NameComponentNormalizer ncn = new ConcreteNameComponentNormalizer( attributeTypeRegistry, oidRegistry );
         aciParser = new ACIItemParser( ncn, normalizerMap );
-        env = ( Map<?, ?> ) factoryCfg.getEnvironment().clone();
-        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT ); 
+        prescriptiveAciAT = attributeTypeRegistry.lookup( SchemaConstants.PRESCRIPTIVE_ACI_AT );
         initialize();
     }
 
@@ -134,11 +127,12 @@ public class TupleCache
         {
             String suffix = suffixes.next();
             LdapDN baseDn = parseNormalized( suffix );
-            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
+            ExprNode filter = new EqualityNode( SchemaConstants.OBJECT_CLASS_AT,
+                    SchemaConstants.ACCESS_CONTROL_SUBENTRY_OC );
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope( SearchControls.SUBTREE_SCOPE );
-            NamingEnumeration<SearchResult> results = 
-                nexus.search( new SearchOperationContext( baseDn, env, filter, ctls ) );
+            NamingEnumeration<SearchResult> results = nexus.search( new SearchOperationContext( baseDn,
+                    AliasDerefMode.NEVER_DEREF_ALIASES, filter, ctls ) );
             
             while ( results.hasMore() )
             {
@@ -148,12 +142,13 @@ public class TupleCache
                 
                 if ( aci == null )
                 {
-                    log.warn( "Found accessControlSubentry '" + subentryDn + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
+                    LOG.warn( "Found accessControlSubentry '" + subentryDn
+                            + "' without any " + SchemaConstants.PRESCRIPTIVE_ACI_AT );
                     continue;
                 }
 
                 LdapDN normName = parseNormalized( subentryDn );
-                subentryAdded( subentryDn, normName, result.getAttributes() );
+                subentryAdded( normName, result.getAttributes() );
             }
             
             results.close();
@@ -186,7 +181,7 @@ public class TupleCache
     }
 
 
-    public void subentryAdded( String upName, LdapDN normName, Attributes entry ) throws NamingException
+    public void subentryAdded( LdapDN normName, Attributes entry ) throws NamingException
     {
         // only do something if the entry contains prescriptiveACI
         Attribute aci = AttributeUtils.getAttribute( entry, prescriptiveAciAT );
@@ -214,11 +209,10 @@ public class TupleCache
                         "Cannnot add ACITuples to TupleCache.\n" +
                         "Check that the syntax of the ACI item is correct. \nUntil this error " +
                         "is fixed your security settings will not be as expected.";
-                log.error( msg, e );
+                LOG.error( msg, e );
                 
                 // do not process this ACI Item because it will be null
                 // continue on to process the next ACI item in the entry
-                continue;
             }
         }
         
@@ -237,28 +231,27 @@ public class TupleCache
     }
 
 
-    public void subentryModified( LdapDN normName, ModificationItemImpl[] mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, List<ModificationItemImpl> mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
             return;
         }
-        
-        for ( int ii = 0; ii < mods.length; ii++ )
+
+        for ( ModificationItemImpl mod : mods )
         {
-            String attrID = mods[ii].getAttribute().getID();
+            String attrID = mod.getAttribute().getID();
             if ( attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT ) ||
-                attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
+                    attrID.equalsIgnoreCase( SchemaConstants.PRESCRIPTIVE_ACI_AT_OID ) )
             {
                 subentryDeleted( normName, entry );
-                subentryAdded( normName.getUpName(), normName, entry );
-                continue;
+                subentryAdded( normName, entry );
             }
         }
     }
 
 
-    public void subentryModified( LdapDN normName, int modOp, Attributes mods, Attributes entry ) throws NamingException
+    public void subentryModified( LdapDN normName, Attributes mods, Attributes entry ) throws NamingException
     {
         if ( !hasPrescriptiveACI( entry ) )
         {
@@ -268,7 +261,7 @@ public class TupleCache
         if ( AttributeUtils.getAttribute( mods, prescriptiveAciAT ) != null )
         {
             subentryDeleted( normName, entry );
-            subentryAdded( normName.getUpName(), normName, entry );
+            subentryAdded( normName, entry );
         }
     }
 

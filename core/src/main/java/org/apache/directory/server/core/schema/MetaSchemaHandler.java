@@ -20,15 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
@@ -39,10 +30,21 @@ import org.apache.directory.shared.ldap.exception.LdapOperationNotSupportedExcep
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.message.ResultCodeEnum;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.NamespaceTools;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -123,11 +125,12 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param mods the attribute modifications as an ModificationItem arry
      * @param entry the entry after the modifications have been applied
      */
-    public void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, 
+    public void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry,
         Attributes targetEntry, boolean cascade ) throws NamingException
     {
         Attribute disabledInEntry = AttributeUtils.getAttribute( entry, disabledAT );
-        ModificationItemImpl disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
+        ModificationItem disabledModification = AttributeUtils.getModificationItem( mods, disabledAT );
+        
         if ( disabledModification != null )
         {
             disable( name, disabledModification.getModificationOp(), disabledModification.getAttribute(), 
@@ -137,6 +140,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         // check if the new schema is enabled or disabled
         boolean isEnabled = false;
         Attribute disabled = AttributeUtils.getAttribute( targetEntry, this.disabledAT );
+        
         if ( disabled == null )
         {
             isEnabled = true;
@@ -147,13 +151,20 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         }
 
         Attribute dependencies = AttributeUtils.getAttribute( mods, dependenciesAT );
+        
         if ( dependencies != null )
         {
             checkForDependencies( isEnabled, targetEntry );
         }
     }
-    
-    
+
+
+    public void move( LdapDN oriChildName, LdapDN newParentName, Rdn newRn, boolean deleteOldRn, Attributes entry, boolean cascaded ) throws NamingException
+    {
+
+    }
+
+
     /**
      * Handles the addition of a metaSchema object to the schema partition.
      * 
@@ -247,6 +258,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
 
 
+
     /**
      * Responds to the rdn (commonName) of the metaSchema object being 
      * changed.  Changes all the schema entities associated with the 
@@ -256,9 +268,9 @@ public class MetaSchemaHandler implements SchemaChangeHandler
      * @param entry the entry of the metaSchema object before the rename
      * @param newRdn the new commonName of the metaSchema object
      */
-    public void rename( LdapDN name, Attributes entry, String newRdn, boolean cascade ) throws NamingException
+    public void rename( LdapDN name, Attributes entry, Rdn newRdn, boolean cascade ) throws NamingException
     {
-        String rdnAttribute = NamespaceTools.getRdnAttribute( newRdn );
+        String rdnAttribute = newRdn.getUpType();
         String rdnAttributeOid = globalRegistries.getOidRegistry().getOid( rdnAttribute );
         if ( ! rdnAttributeOid.equals( cnAT.getOid() ) )
         {
@@ -315,7 +327,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
         // do steps 2 and 3 if the schema has been enabled and is loaded
         
         // step [2] 
-        String newSchemaName = NamespaceTools.getRdnValue( newRdn );
+        String newSchemaName = ( String ) newRdn.getUpValue();
         globalRegistries.getComparatorRegistry().renameSchema( schemaName, newSchemaName );
         globalRegistries.getNormalizerRegistry().renameSchema( schemaName, newSchemaName );
         globalRegistries.getSyntaxCheckerRegistry().renameSchema( schemaName, newSchemaName );
@@ -417,7 +429,7 @@ public class MetaSchemaHandler implements SchemaChangeHandler
     }
 
 
-    private final String getSchemaName( LdapDN schema )
+    private String getSchemaName( LdapDN schema )
     {
         return ( String ) schema.getRdn().getValue();
     }

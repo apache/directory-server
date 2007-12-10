@@ -20,15 +20,17 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.security.PrivilegedExceptionAction;
-import java.util.Map;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.mina.common.IoSession;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
-
-import org.apache.mina.common.IoSession;
+import java.security.PrivilegedExceptionAction;
+import java.util.Map;
 
 
 /**
@@ -37,7 +39,15 @@ import org.apache.mina.common.IoSession;
  */
 public class GssapiMechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception
+    private final DirectoryService directoryService;
+
+
+    public GssapiMechanismHandler( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
@@ -49,16 +59,16 @@ public class GssapiMechanismHandler implements MechanismHandler
         {
             Subject subject = ( Subject ) session.getAttribute( "saslSubject" );
 
-            final Map saslProps = ( Map ) session.getAttribute( "saslProps" );
+            final Map<String, String> saslProps = ( Map<String, String> ) session.getAttribute( "saslProps" );
             final String saslHost = ( String ) session.getAttribute( "saslHost" );
 
-            final CallbackHandler callbackHandler = new GssapiCallbackHandler( session, message );
+            final CallbackHandler callbackHandler = new GssapiCallbackHandler( directoryService, session, bindRequest );
 
-            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction()
+            ss = ( SaslServer ) Subject.doAs( subject, new PrivilegedExceptionAction<SaslServer>()
             {
-                public Object run() throws Exception
+                public SaslServer run() throws Exception
                 {
-                    return Sasl.createSaslServer( "GSSAPI", "ldap", saslHost, saslProps, callbackHandler );
+                    return Sasl.createSaslServer( SupportedSASLMechanisms.GSSAPI, "ldap", saslHost, saslProps, callbackHandler );
                 }
             } );
 

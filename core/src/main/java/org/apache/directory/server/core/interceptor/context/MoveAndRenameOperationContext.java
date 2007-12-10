@@ -19,7 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+
 
 /**
  * A Move And Rename context used for Interceptors. It contains all the informations
@@ -32,27 +35,31 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
 {
     /** The parent DN */
     private LdapDN parent;
-    
+
+
     /**
-     * 
      * Creates a new instance of MoveAndRenameOperationContext.
-     *
      */
     public MoveAndRenameOperationContext()
     {
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of MoveAndRenameOperationContext.
      *
+     * @param oldDn the original source entry DN to be moved and renamed
+     * @param parent the new entry superior of the target after the move
+     * @param newRdn the new rdn to use for the target once renamed
+     * @param delOldRdn true if the old rdn value is deleted, false otherwise
      */
-    public MoveAndRenameOperationContext( LdapDN oldDn, LdapDN parent, String newRdn, boolean delOldDn )
+    public MoveAndRenameOperationContext( LdapDN oldDn, LdapDN parent, Rdn newRdn, boolean delOldRdn )
     {
-        super( oldDn, newRdn, delOldDn );
+        super( oldDn, newRdn, delOldRdn );
         this.parent = parent;
     }
+
 
     /**
      *  @return The parent DN
@@ -61,6 +68,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
     {
         return parent;
     }
+
 
     /**
      * Set the parent DN
@@ -72,6 +80,7 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         this.parent = parent;
     }
 
+
     /**
      * @see Object#toString()
      */
@@ -80,5 +89,4 @@ public class MoveAndRenameOperationContext extends RenameOperationContext
         return "ReplaceContext for old DN '" + getDn().getUpName() + "'" +
         ", parent '" + parent + "'";
     }
-
 }

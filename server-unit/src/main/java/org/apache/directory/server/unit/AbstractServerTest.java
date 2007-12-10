@@ -20,32 +20,15 @@
 package org.apache.directory.server.unit;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.ConfigurationException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.directory.server.configuration.MutableServerStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.jndi.ServerContextFactory;
+import org.apache.directory.server.constants.ServerDNConstants;
+import org.apache.directory.server.core.DefaultDirectoryService;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.server.ldap.LdapServer;
+import org.apache.directory.server.protocol.shared.SocketAcceptor;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
@@ -53,6 +36,18 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.mina.util.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 /**
@@ -63,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractServerTest extends TestCase
 {
-    private static final Logger log = LoggerFactory.getLogger( AbstractServerTest.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractServerTest.class );
     private static final List<Entry> EMPTY_LIST = Collections.unmodifiableList( new ArrayList<Entry>( 0 ) );
     private static final String CTX_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 
@@ -76,31 +71,21 @@ public abstract class AbstractServerTest extends TestCase
     /** the context root for the schema */
     protected LdapContext schemaRoot;
 
-    /** flag that indicates whether or not the server has started */
-    private boolean serverOnline = false;
-    
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
-    protected MutableServerStartupConfiguration configuration = new MutableServerStartupConfiguration();
+//    protected ApacheDS apacheDS = new ApacheDS();
 
     protected int port = -1;
 
-    private static int start = 0;
-    private static long t0 = 0L;
+    private static int start;
+    private static long t0;
     protected static int nbTests = 10000;
-    
-    /**
-     * Tells subclasses whether or not the server is online.
-     *
-     * @return true if the server has started false otherwise.
-     */
-    public boolean isServerOnline()
-    {
-        return serverOnline;
-    }
-    
-    
+    protected DirectoryService directoryService;
+    protected SocketAcceptor socketAcceptor;
+    protected LdapServer ldapServer;
+
+
     /**
      * If there is an LDIF file with the same name as the test class 
      * but with the .ldif extension then it is read and the entries 
@@ -110,7 +95,7 @@ public abstract class AbstractServerTest extends TestCase
      * @param verifyEntries whether or not all entry additions are checked
      * to see if they were in fact correctly added to the server
      * @return a list of entries added to the server in the order they were added
-     * @throws NamingException
+     * @throws NamingException of the load fails
      */
     protected List<Entry> loadTestLdif( boolean verifyEntries ) throws NamingException
     {
@@ -118,11 +103,6 @@ public abstract class AbstractServerTest extends TestCase
         if ( in == null )
         {
             return EMPTY_LIST;
-        }
-        
-        if ( ! serverOnline )
-        {
-            throw new ConfigurationException( "The server has not been started - cannot add entries." );
         }
         
         LdifReader ldifReader = new LdifReader( in );
@@ -135,11 +115,11 @@ public abstract class AbstractServerTest extends TestCase
             if ( verifyEntries )
             {
                 verify( entry );
-                log.info( "Successfully verified addition of entry {}", entry.getDn() );
+                LOG.info( "Successfully verified addition of entry {}", entry.getDn() );
             }
             else
             {
-                log.info( "Added entry {} without verification", entry.getDn() );
+                LOG.info( "Added entry {} without verification", entry.getDn() );
             }
             
             entries.add( entry );
@@ -170,7 +150,7 @@ public abstract class AbstractServerTest extends TestCase
             {
                 if ( ! readAttribute.contains( origAttribute.get( ii ) ) )
                 {
-                    log.error( "Failed to verify entry addition of {}. {} attribute in original " +
+                    LOG.error( "Failed to verify entry addition of {}. {} attribute in original " +
                     		"entry missing from read entry.", entry.getDn(), id );
                     throw new AssertionFailedError( "Failed to verify entry addition of " + entry.getDn()  );
                 }
@@ -190,7 +170,7 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext getWiredContext() throws NamingException
     {
-        return getWiredContext( "uid=admin,ou=system", "secret" );
+        return getWiredContext( ServerDNConstants.ADMIN_SYSTEM_DN, "secret" );
     }
     
     
@@ -207,10 +187,10 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected LdapContext getWiredContext( String bindPrincipalDn, String password ) throws NamingException
     {
-        if ( ! serverOnline )
-        {
-            throw new ConfigurationException( "The server is not online! Cannot connect to it." );
-        }
+//        if ( ! apacheDS.isStarted() )
+//        {
+//            throw new ConfigurationException( "The server is not online! Cannot connect to it." );
+//        }
         
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, CTX_FACTORY );
@@ -238,27 +218,41 @@ public abstract class AbstractServerTest extends TestCase
         }
 
         start++;
+        directoryService = new DefaultDirectoryService();
+        directoryService.setShutdownHookEnabled( false );
+        socketAcceptor = new SocketAcceptor( null );
+        ldapServer = new LdapServer();
+        ldapServer.setSocketAcceptor( socketAcceptor );
+        ldapServer.setDirectoryService( directoryService );
+        ldapServer.setIpPort( port = AvailablePortFinder.getNextAvailable( 1024 ) );
 
-        doDelete( configuration.getWorkingDirectory() );
-        port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.getLdapConfiguration().setIpPort( port );
-        configuration.setShutdownHookEnabled( false );
-        
-        try
-        {
-            setContexts( "uid=admin,ou=system", "secret" );
-            serverOnline = true;
-        }
-        catch( Exception e )
-        {
-            serverOnline = false;
-            throw e;
-        }
+        doDelete( directoryService.getWorkingDirectory() );
+        configureDirectoryService();
+        directoryService.startup();
+
+        configureLdapServer();
+        ldapServer.start();
+        setContexts( "uid=admin,ou=system", "secret" );
     }
 
+    protected void configureDirectoryService()
+    {
+    }
+
+    protected void configureLdapServer()
+    {
+    }
+
+    protected void setAllowAnonymousAccess( boolean anonymousAccess )
+    {
+        directoryService.setAllowAnonymousAccess( anonymousAccess );
+        ldapServer.setAllowAnonymousAccess( anonymousAccess );
+    }
 
     /**
      * Deletes the Eve working directory.
+     * @param wkdir the directory to delete
+     * @throws IOException if the directory cannot be deleted
      */
     protected void doDelete( File wkdir ) throws IOException
     {
@@ -268,6 +262,7 @@ public abstract class AbstractServerTest extends TestCase
             {
                 FileUtils.deleteDirectory( wkdir );
             }
+
             if ( wkdir.exists() )
             {
                 throw new IOException( "Failed to delete: " + wkdir );
@@ -287,11 +282,12 @@ public abstract class AbstractServerTest extends TestCase
      */
     protected void setContexts( String user, String passwd ) throws NamingException
     {
-        Hashtable<String, Object> env = new Hashtable<String, Object>( configuration.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, directoryService );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName() );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         setContexts( env );
     }
 
@@ -306,7 +302,7 @@ public abstract class AbstractServerTest extends TestCase
     protected void setContexts( Hashtable<String, Object> env ) throws NamingException
     {
         Hashtable<String, Object> envFinal = new Hashtable<String, Object>( env );
-        envFinal.put( Context.PROVIDER_URL, "ou=system" );
+        envFinal.put( Context.PROVIDER_URL, ServerDNConstants.SYSTEM_DN );
         sysRoot = new InitialLdapContext( envFinal, null );
 
         envFinal.put( Context.PROVIDER_URL, "" );
@@ -325,24 +321,18 @@ public abstract class AbstractServerTest extends TestCase
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
-        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
+        ldapServer.stop();
         try
         {
-            new InitialContext( env );
-            serverOnline = false;
+            directoryService.shutdown();
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
         }
 
         sysRoot = null;
-        doDelete( configuration.getWorkingDirectory() );
-        configuration = new MutableServerStartupConfiguration();
+//        apacheDS = new ApacheDS();
         
         if ( start >= nbTests )
         {
@@ -359,6 +349,7 @@ public abstract class AbstractServerTest extends TestCase
      *
      * @throws NamingException if there are problems reading the ldif file and
      * adding those entries to the system partition
+     * @param in the input stream with the ldif
      */
     protected void importLdif( InputStream in ) throws NamingException
     {
@@ -385,17 +376,16 @@ public abstract class AbstractServerTest extends TestCase
     /**
      * Inject an ldif String into the server. DN must be relative to the
      * root.
+     * @param ldif the entries to inject
+     * @throws NamingException if the entries cannot be added
      */
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
         List<Entry> entries = reader.parseLdif( ldif );
-        
-        Iterator<Entry> entryIter = entries.iterator(); 
-        
-        while ( entryIter.hasNext() )
+
+        for ( Entry entry : entries )
         {
-            Entry entry = entryIter.next();
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }

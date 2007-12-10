@@ -50,7 +50,7 @@ public class ChecksumDecoder
         ChecksumType type = ChecksumType.NULL;
         byte[] data = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -62,6 +62,7 @@ public class ChecksumDecoder
                     DERInteger tag0 = ( DERInteger ) derObject;
                     type = ChecksumType.getTypeByOrdinal( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DEROctetString tag1 = ( DEROctetString ) derObject;
                     data = tag1.getOctets();

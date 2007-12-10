@@ -27,8 +27,8 @@ import org.apache.directory.server.kerberos.shared.messages.value.AuthorizationD
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddresses;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**

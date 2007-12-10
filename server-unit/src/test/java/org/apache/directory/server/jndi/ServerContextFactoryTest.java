@@ -20,9 +20,14 @@
 package org.apache.directory.server.jndi;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
+import org.apache.directory.server.core.unit.AbstractAdminTestCase;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -30,12 +35,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.unit.AbstractAdminTestCase;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -54,20 +56,18 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     public void setUp() throws Exception
     {
         Attributes attrs;
-        Set indexedAttrs;
-        Set pcfgs = new HashSet();
-
-        MutablePartitionConfiguration pcfg;
+        Set<Index> indexedAttrs;
+        Set<Partition> partitions = new HashSet<Partition>();
 
         // Add partition 'testing'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "testing" );
-        pcfg.setSuffix( "ou=testing" );
+        JdbmPartition partition = new JdbmPartition();
+        partition.setId( "testing" );
+        partition.setSuffix( "ou=testing" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
         Attribute attr = new AttributeImpl( "objectClass" );
@@ -78,20 +78,20 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr = new AttributeImpl( "ou" );
         attr.add( "testing" );
         attrs.put( attr );
-        pcfg.setContextEntry( attrs );
+        partition.setContextEntry( attrs );
 
-        pcfgs.add( pcfg );
+        partitions.add( partition );
 
         // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
-        pcfg.setSuffix( "dc=example" );
+        partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
         attr = new AttributeImpl( "objectClass" );
@@ -102,19 +102,19 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr = new AttributeImpl( "dc" );
         attr.add( "example" );
         attrs.put( attr );
-        pcfg.setContextEntry( attrs );
+        partition.setContextEntry( attrs );
 
-        pcfgs.add( pcfg );
+        partitions.add( partition );
 
         // Add partition 'MixedCase'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "mixedcase" );
-        pcfg.setSuffix( "dc=MixedCase" );
+        partition = new JdbmPartition();
+        partition.setId( "mixedcase" );
+        partition.setSuffix( "dc=MixedCase" );
 
-        indexedAttrs = new HashSet();
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
+        indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
 
         attrs = new AttributesImpl( true );
         attr = new AttributeImpl( "objectClass" );
@@ -125,11 +125,11 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
         attr = new AttributeImpl( "dc" );
         attr.add( "MixedCase" );
         attrs.put( attr );
-        pcfg.setContextEntry( attrs );
+        partition.setContextEntry( attrs );
 
-        pcfgs.add( pcfg );
+        partitions.add( partition );
 
-        configuration.setPartitionConfigurations( pcfgs );
+        service.setPartitions( partitions );
 
         super.setUp();
     }
@@ -168,137 +168,84 @@ public class ServerContextFactoryTest extends AbstractAdminTestCase
     public void testSetupTeardown() throws NamingException
     {
         assertNotNull( sysRoot );
-
         Attributes attributes = sysRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "system", attributes.get( "ou" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
 
     public void testAppPartitionExample() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "dc=example" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "example", attributes.get( "dc" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "domain" ) );
     }
 
 
     public void testAppPartitionTesting() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "ou=testing" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "testing", attributes.get( "ou" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "organizationalUnit" ) );
     }
 
 
     public void testAppPartitionMixedCase() throws NamingException
     {
-        Hashtable env = new Hashtable( configuration.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
 
         env.put( Context.PROVIDER_URL, "dc=MixedCase" );
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         env.put( Context.SECURITY_CREDENTIALS, "secret" );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.jndi.ServerContextFactory" );
+        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
 
         InitialContext initialContext = new InitialContext( env );
-
         DirContext appRoot = ( DirContext ) initialContext.lookup( "" );
-
         assertNotNull( appRoot );
-
         Attributes attributes = appRoot.getAttributes( "" );
-
         assertNotNull( attributes );
-
         assertEquals( "MixedCase", attributes.get( "dc" ).get() );
-
         Attribute attribute = attributes.get( "objectClass" );
-
         assertNotNull( attribute );
-
         assertTrue( attribute.contains( "top" ) );
-
         assertTrue( attribute.contains( "domain" ) );
-    }
-
-    
-    public void testBadPartition() throws Exception
-    {
-        MutablePartitionConfiguration pcfg;
-
-        // Add partition 'test=testing'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "testing" );
-        
-        try
-        {
-            pcfg.setSuffix( "ou=test+testing" );
-        }
-        catch ( LdapConfigurationException ce )
-        {
-            assertTrue( true );
-            return;
-        }
-        
-        fail();
     }
 }

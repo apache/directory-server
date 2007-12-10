@@ -32,10 +32,10 @@ import junit.framework.TestCase;
 import org.apache.directory.server.core.authz.support.MicroOperationFilter;
 import org.apache.directory.server.core.authz.support.OperationScope;
 import org.apache.directory.shared.ldap.aci.ACITuple;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.aci.MicroOperation;
 import org.apache.directory.shared.ldap.aci.ProtectedItem;
 import org.apache.directory.shared.ldap.aci.UserClass;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 
 
 /**
@@ -71,7 +71,7 @@ public class MicroOperationFilterTest extends TestCase
         MicroOperationFilter filter = new MicroOperationFilter();
 
         Assert.assertEquals( 0, filter.filter( EMPTY_ACI_TUPLE_COLLECTION, OperationScope.ATTRIBUTE_TYPE_AND_VALUE, 
-            null, null, null, null, null, null, null, null, null, null ).size() );
+            null, null, null, null, null, null, null, null, null, null, null ).size() );
     }
 
 
@@ -84,8 +84,8 @@ public class MicroOperationFilterTest extends TestCase
             TUPLE_OPERATIONS, true, 0 ) );
 
         Assert.assertEquals( 1, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
-            null, null, USER_OPERATIONS_A ).size() );
+            null, null, USER_OPERATIONS_A, null ).size() );
         Assert.assertEquals( 0, filter.filter( tuples, OperationScope.ENTRY, null, null, null, null, null, null, null,
-            null, null, USER_OPERATIONS_B ).size() );
+            null, null, USER_OPERATIONS_B, null ).size() );
     }
 }

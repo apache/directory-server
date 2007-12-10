@@ -26,7 +26,9 @@ import java.util.Set;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-import org.apache.directory.server.kerberos.kdc.KdcConfiguration;
+import org.apache.directory.server.kerberos.kdc.KdcServer;
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KerberosKeyFactory;
@@ -35,17 +37,14 @@ import org.apache.directory.server.kerberos.shared.io.encoder.EncryptedDataEncod
 import org.apache.directory.server.kerberos.shared.messages.AuthenticationReply;
 import org.apache.directory.server.kerberos.shared.messages.ErrorMessage;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
 import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
 
 
@@ -57,7 +56,7 @@ import org.apache.directory.server.kerberos.shared.store.PrincipalStore;
  */
 public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServiceTest
 {
-    private KdcConfiguration config;
+    private KdcServer config;
     private PrincipalStore store;
     private KerberosProtocolHandler handler;
     private DummySession session;
@@ -68,7 +67,7 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
      */
     public AuthenticationEncryptionTypeTest()
     {
-        config = new KdcConfiguration();
+        config = new KdcServer();
         store = new MapPrincipalStoreImpl();
         handler = new KerberosProtocolHandler( config, store );
         session = new DummySession();
@@ -88,8 +87,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.DES_CBC_MD5 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.DES_CBC_MD5 );
 
         modifier.setEType( encryptionTypes );
         modifier.setNonce( random.nextInt() );
@@ -101,15 +100,15 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
-        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEncryptionType() );
+        assertEquals( "Encryption type", EncryptionType.DES_CBC_MD5, reply.getEncPart().getEType() );
     }
 
 
@@ -129,8 +128,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
         modifier.setNonce( random.nextInt() );
@@ -150,17 +149,17 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         EncryptionKey clientKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         KerberosTime timeStamp = new KerberosTime();
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getFlags().get( TicketFlags.PRE_AUTHENT ) );
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
     }
 
 
@@ -180,8 +179,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] encryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> encryptionTypes = new HashSet<EncryptionType>();
+        encryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( encryptionTypes );
         int nonce = random.nextInt();
@@ -202,17 +201,17 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         EncryptionKey clientKey = keyMap.get( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         KerberosTime timeStamp = new KerberosTime();
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientKey, timeStamp );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
         AuthenticationReply reply = ( AuthenticationReply ) session.getMessage();
 
         assertTrue( "Requested end time", requestedEndTime.equals( reply.getEndTime() ) );
-        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getFlags().get( TicketFlags.PRE_AUTHENT ) );
-        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEncryptionType() );
+        assertTrue( "PRE_AUTHENT flag", reply.getTicket().getEncTicketPart().getFlags().isPreAuth() );
+        assertEquals( "Encryption type", EncryptionType.AES128_CTS_HMAC_SHA1_96, reply.getEncPart().getEType() );
 
         assertEquals( "Nonce", nonce, reply.getNonce() );
     }
@@ -231,8 +230,8 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
         modifier.setServerName( getPrincipalName( "krbtgt/EXAMPLE.COM@EXAMPLE.COM" ) );
         modifier.setRealm( "EXAMPLE.COM" );
 
-        EncryptionType[] requestedEncryptionTypes =
-            { EncryptionType.AES128_CTS_HMAC_SHA1_96 };
+        Set<EncryptionType> requestedEncryptionTypes = new HashSet<EncryptionType>();
+        requestedEncryptionTypes.add( EncryptionType.AES128_CTS_HMAC_SHA1_96 );
 
         modifier.setEType( requestedEncryptionTypes );
         modifier.setNonce( random.nextInt() );
@@ -244,9 +243,9 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         KerberosPrincipal clientPrincipal = new KerberosPrincipal( "hnelson@EXAMPLE.COM" );
         String passPhrase = "secret";
-        PreAuthenticationData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
+        PaData[] paData = getPreAuthEncryptedTimeStamp( clientPrincipal, passPhrase );
 
-        KdcRequest message = new KdcRequest( 5, MessageType.KRB_AS_REQ, paData, modifier.getRequestBody() );
+        KdcRequest message = new KdcRequest( KerberosConstants.KERBEROS_V5, KerberosMessageType.AS_REQ, paData, modifier.getRequestBody() );
 
         handler.messageReceived( session, message );
 
@@ -255,10 +254,10 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
     }
 
 
-    protected PreAuthenticationData[] getPreAuthEncryptedTimeStamp( EncryptionKey clientKey, KerberosTime timeStamp )
+    protected PaData[] getPreAuthEncryptedTimeStamp( EncryptionKey clientKey, KerberosTime timeStamp )
         throws Exception
     {
-        PreAuthenticationData[] paData = new PreAuthenticationData[1];
+        PaData[] paData = new PaData[1];
 
         EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
 
@@ -266,11 +265,11 @@ public class AuthenticationEncryptionTypeTest extends AbstractAuthenticationServ
 
         byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
 
-        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
-        preAuth.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        preAuth.setDataValue( encodedEncryptedData );
+        PaData preAuth = new PaData();
+        preAuth.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
+        preAuth.setPaDataValue( encodedEncryptedData );
 
-        paData[0] = preAuth.getPreAuthenticationData();
+        paData[0] = preAuth;
 
         return paData;
     }

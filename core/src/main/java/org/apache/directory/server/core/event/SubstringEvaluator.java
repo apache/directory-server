@@ -81,6 +81,7 @@ public class SubstringEvaluator implements Evaluator
         }
         
         Normalizer normalizer = matchingRule.getNormalizer();
+        
 
         // get the attribute
         Attribute attr = entry.get( snode.getAttribute() );

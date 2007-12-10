@@ -19,7 +19,7 @@
  */
 
 /**
- * Contains the {@link IoHandlerChain} implementing LDAP binds
+ * Contains the implementation of LDAP binds
  * with Simple and SASL authentication mechanisms.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

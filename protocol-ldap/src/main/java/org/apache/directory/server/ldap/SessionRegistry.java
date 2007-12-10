@@ -23,7 +23,6 @@ package org.apache.directory.server.ldap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -34,6 +33,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
 import org.apache.directory.server.core.jndi.ServerLdapContext;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapNoPermissionException;
 import org.apache.directory.shared.ldap.message.AbandonableRequest;
 import org.apache.directory.shared.ldap.message.Request;
@@ -48,9 +48,6 @@ import org.apache.mina.common.IoSession;
  */
 public class SessionRegistry
 {
-    /** the singleton for this registry */
-    private static SessionRegistry singleton;
-
     /** the set of client contexts */
     private final Map<IoSession, LdapContext> contexts = new HashMap<IoSession, LdapContext>();
 
@@ -61,47 +58,18 @@ public class SessionRegistry
     private Hashtable<String, Object> env;
 
     /** the configuration associated with this SessionRegistry */
-    private LdapConfiguration cfg;
-
-
-    /**
-     * Gets the singleton instance for this SessionRegistry.  If the singleton
-     * does not exist one is created.
-     *
-     * @return the singleton SessionRegistry instance
-     */
-    public static SessionRegistry getSingleton()
-    {
-        if ( singleton == null )
-        {
-            singleton = new SessionRegistry( new LdapConfiguration(), new Hashtable<String, Object>() );
-        }
-
-        return singleton;
-    }
-
-
-    static void releaseSingleton()
-    {
-        singleton = null;
-    }
+    private LdapServer ldapServer;
 
 
     /**
      * Creates a singleton session state object for the system.
      *
      * @param env the properties associated with this SessionRegistry
+     * @param ldapServer the ldap configuration
      */
-    SessionRegistry( LdapConfiguration cfg, Hashtable<String, Object> env )
+    public SessionRegistry( LdapServer ldapServer, Hashtable<String, Object> env )
     {
-        if ( singleton == null )
-        {
-            singleton = this;
-        }
-        else
-        {
-            throw new IllegalStateException( "There can only be one singleton." );
-        }
+        this.ldapServer = ldapServer;
 
         if ( env == null )
         {
@@ -113,15 +81,6 @@ public class SessionRegistry
         {
             this.env = env;
             this.env.put( Context.PROVIDER_URL, "" );
-        }
-
-        if ( cfg == null )
-        {
-            this.cfg = new LdapConfiguration();
-        }
-        else
-        {
-            this.cfg = cfg;
         }
     }
 
@@ -211,6 +170,7 @@ public class SessionRegistry
         
         if ( reqmap == null )
         {
+            //noinspection unchecked
             return Collections.EMPTY_MAP;
         }
         
@@ -223,7 +183,7 @@ public class SessionRegistry
      * Overload that does not require boxing of primitive messageId.
      * 
      * @param session the session associated with the request
-     * @param messageId the id of the request
+     * @param abandonedId the id of the request
      * @return the request in session for id or null if request has completed
      */
     public Request getOutstandingRequest( IoSession session, int abandonedId )
@@ -280,11 +240,12 @@ public class SessionRegistry
      * @param allowAnonymous true if anonymous requests will create anonymous
      * InitialContext if one is not present for the operation
      * @return the InitialContext or null
+     * @throws NamingException if something goes wrong
      */
     public LdapContext getLdapContext( IoSession session, Control[] connCtls, boolean allowAnonymous )
         throws NamingException
     {
-        LdapContext ctx = null;
+        LdapContext ctx;
 
         synchronized ( contexts )
         {
@@ -295,7 +256,7 @@ public class SessionRegistry
         if ( ctx == null && allowAnonymous )
         {
             // if configuration says disable anonymous binds we throw exception
-            if ( !cfg.isAllowAnonymousAccess() )
+            if ( !ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
@@ -313,8 +274,9 @@ public class SessionRegistry
             }
             else
             {
+                //noinspection unchecked
                 Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
-                cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
+                cloned.put( Context.SECURITY_AUTHENTICATION, AuthenticationLevel.NONE.toString() );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
                 ctx = new InitialLdapContext( cloned, connCtls );
@@ -323,7 +285,7 @@ public class SessionRegistry
         // the context came up non null so we binded explicitly and op now is not bind
         else if ( ctx != null && allowAnonymous )
         {
-            ServerLdapContext slc = null;
+            ServerLdapContext slc;
             
             if ( !( ctx instanceof ServerLdapContext ) )
             {
@@ -338,7 +300,7 @@ public class SessionRegistry
 
             // if the user principal is anonymous and the configuration does not allow anonymous binds we
             // prevent the operation by blowing a NoPermissionsException
-            if ( isAnonymousUser && !cfg.isAllowAnonymousAccess() )
+            if ( isAnonymousUser && !ldapServer.isAllowAnonymousAccess() )
             {
                 throw new LdapNoPermissionException( "Anonymous binds have been disabled!" );
             }
@@ -356,10 +318,11 @@ public class SessionRegistry
      * @param session the client's key
      * @param connCtls connection controls if any to use if creating anon context
      * @return the InitialContext or null
+     * @throws NamingException if something goes wrong
      */
     public LdapContext getLdapContextOnRootDSEAccess( IoSession session, Control[] connCtls ) throws NamingException
     {
-        LdapContext ctx = null;
+        LdapContext ctx;
 
         synchronized ( contexts )
         {
@@ -381,8 +344,9 @@ public class SessionRegistry
             }
             else
             {
+                //noinspection unchecked
                 Hashtable<String, Object> cloned = ( Hashtable<String, Object> ) env.clone();
-                cloned.put( Context.SECURITY_AUTHENTICATION, "none" );
+                cloned.put( Context.SECURITY_AUTHENTICATION, AuthenticationLevel.NONE.toString() );
                 cloned.remove( Context.SECURITY_PRINCIPAL );
                 cloned.remove( Context.SECURITY_CREDENTIALS );
                 ctx = new InitialLdapContext( cloned, connCtls );
@@ -420,7 +384,7 @@ public class SessionRegistry
             contexts.remove( session );
         }
 
-        Map<Integer, Request> reqmap = null;
+        Map<Integer, Request> reqmap;
         
         synchronized ( requests )
         {
@@ -432,12 +396,8 @@ public class SessionRegistry
             return;
         }
 
-        Iterator<Request> list = reqmap.values().iterator();
-        
-        while ( list.hasNext() )
+        for ( Request request : reqmap.values() )
         {
-            Request request = list.next();
-
             if ( request instanceof AbandonableRequest )
             {
                 ( ( AbandonableRequest ) request ).abandon();

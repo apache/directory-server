@@ -42,7 +42,7 @@ import org.apache.directory.server.core.sp.StoredProcEngineConfig;
 import org.apache.directory.server.core.sp.StoredProcExecutionManager;
 import org.apache.directory.server.core.sp.java.JavaStoredProcEngineConfig;
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapProtocolProvider;
+import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.SessionRegistry;
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.ber.IAsn1Container;
@@ -60,6 +60,8 @@ import org.apache.mina.common.IoSession;
 
 
 /**
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$ $Date$
  */
@@ -67,6 +69,7 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
 {
     private StoredProcExecutionManager manager;
     private static final Object[] EMPTY_CLASS_ARRAY = new Object[0];
+    
     public StoredProcedureExtendedOperationHandler()
     {
         super();
@@ -100,20 +103,24 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
         Attributes spUnit = manager.findStoredProcUnit( ctx, procedure );
         StoredProcEngine engine = manager.getStoredProcEngineInstance( spUnit );
         
-        List valueList = new ArrayList( spBean.getParameters().size() );
+        List<Object> valueList = new ArrayList<Object>( spBean.getParameters().size() );
         Iterator<StoredProcedureParameter> it = spBean.getParameters().iterator();
+        
         while ( it.hasNext() )
         {
             StoredProcedureParameter pPojo = it.next();
             byte[] serializedValue = pPojo.getValue();
             Object value = SerializationUtils.deserialize( serializedValue );
+            
             if ( value.getClass().equals( LdapContextParameter.class ) )
             {
                 String paramCtx = ( ( LdapContextParameter ) value ).getValue();
                 value = ctx.lookup( paramCtx );
             }
+            
             valueList.add( value );
         }
+        
         Object[] values = valueList.toArray( EMPTY_CLASS_ARRAY );
         
         Object response = engine.invokeProcedure( ctx, procedure, values );
@@ -151,7 +158,8 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
 
 
-    private static final Set EXTENSION_OIDS;
+    private static final Set<String> EXTENSION_OIDS;
+    
     static
     {
         Set<String> s = new HashSet<String>();
@@ -161,13 +169,13 @@ public class StoredProcedureExtendedOperationHandler implements ExtendedOperatio
     }
     
     
-    public Set getExtensionOids()
+    public Set<String> getExtensionOids()
     {
         return EXTENSION_OIDS;
     }
 
     
-	public void setLdapProvider(LdapProtocolProvider provider) 
+	public void setLdapProvider( LdapServer provider)
     {
 	}
 }

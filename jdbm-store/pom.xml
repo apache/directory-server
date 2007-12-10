@@ -51,7 +51,7 @@
 
     <dependency>
       <groupId>${pom.groupId}</groupId>
-      <artifactId>apacheds-constants</artifactId>
+      <artifactId>apacheds-core-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
 

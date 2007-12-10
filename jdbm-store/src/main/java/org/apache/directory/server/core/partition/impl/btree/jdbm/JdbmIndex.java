@@ -20,23 +20,12 @@
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.regex.Pattern;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
 import jdbm.RecordManager;
 import jdbm.helper.MRU;
 import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
-
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexComparator;
-import org.apache.directory.server.core.partition.impl.btree.IndexConfiguration;
 import org.apache.directory.server.core.partition.impl.btree.IndexEnumeration;
 import org.apache.directory.server.core.partition.impl.btree.Tuple;
 import org.apache.directory.server.schema.SerializableComparator;
@@ -44,72 +33,132 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.SynchronizedLRUMap;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.IOException;
+import java.util.regex.Pattern;
+
 
 /** 
  * A Jdbm based index implementation.
  *
+ * @org.apache.xbean.XBean
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public class JdbmIndex implements Index
 {
-    /**  */
+    /**
+     * default duplicate limit before duplicate keys switch to using a btree for values
+     */
+    public static final int DEFAULT_DUPLICATE_LIMIT = 512;
+
+    /**  the key used for the forward btree name */
     public static final String FORWARD_BTREE = "_forward";
-    /** */
+    /**  the key used for the reverse btree name */
     public static final String REVERSE_BTREE = "_reverse";
 
-    /** */
+
+    /** the attribute type resolved for this JdbmIndex */
     private AttributeType attribute;
-    /** */
-    private JdbmTable forward = null;
-    /** */
-    private JdbmTable reverse = null;
-    /** */
-    private RecordManager recMan = null;
-    /** 
+    /**
+     * the forward btree where the btree key is the value of the indexed attribute and
+     * the value of the btree is the entry id of the entry containing an attribute with
+     * that value
+     */
+    private JdbmTable forward;
+    /**
+     * the reverse btree where the btree key is the entry id of the entry containing a
+     * value for the indexed attribute, and the btree value is the value of the indexed
+     * attribute
+     */
+    private JdbmTable reverse;
+    /**
+     * the JDBM record manager for the file containing this index
+     */
+    private RecordManager recMan;
+    /**
+     * the normalized value cache for this index
      * @todo I don't think the keyCache is required anymore since the normalizer
      * will cache values for us.
      */
-    private SynchronizedLRUMap keyCache = null;
-    
-    private int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
+    private SynchronizedLRUMap keyCache;
+    /** the size (number of index entries) for the cache */
+    private int cacheSize = DEFAULT_INDEX_CACHE_SIZE;
+    /**
+     * duplicate limit before duplicate keys switch to using a btree for values
+     */
+    private int numDupLimit = DEFAULT_DUPLICATE_LIMIT;
+    /**
+     * the attribute identifier set at configuration time for this index which may not
+     * be the OID but an alias name for the attributeType associated with this Index
+     */
+    private String attributeId;
+    /** whether or not this index has been initialized */
+    private boolean initialized;
+    /** a customm working directory path when specified in configuration */
+    private File wkDirPath;
+
+
+    /*
+     * NOTE: Duplicate Key Limit
+     *
+     * Jdbm cannot store duplicate keys: meaning it cannot have more than one value
+     * for the same key in the btree.  Thus as a workaround we stuff values for the
+     * same key into a TreeSet.  This is only effective up to some threshold after
+     * which we run into problems with serialization on and off disk.  A threshold
+     * is used to determine when to switch from using a TreeSet to start using another
+     * btree in the same index file just for the values.  This value only btree just
+     * has keys populated without a value for it's btree entries. When the switch
+     * occurs the value for the key in the index btree contains a pointer to the
+     * btree containing it's values.
+     *
+     * This numDupLimit is the threshold at which we switch from using in memory
+     * containers for values of the same key to using a btree for those values
+     * instead with indirection.
+     */
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
-//    /**
-//     * Creates an Index using an existing record manager based on a file.  The
-//     * index table B+Tree are created and saved within this file rather than
-//     * creating a new file.
-//     *
-//     * @param attribute the attribute specification to base this index on
-//     * @param recMan the record manager
-//     * @throws NamingException if we fail to create B+Trees using recMan
-//     */
-//    public JdbmIndex( AttributeType attribute, RecordManager recMan ) throws NamingException
-//    {
-//        this.attribute = attribute;
-//        keyCache = new SynchronizedLRUMap( 1000 );
-//        this.recMan = recMan;
-//        initTables();
-//    }
 
-
-    public JdbmIndex( AttributeType attribute, File wkDirPath, int cacheSize, int numDupLimit ) throws NamingException
+    public JdbmIndex()
     {
-        this.numDupLimit = numDupLimit;
-        File file = new File( wkDirPath.getPath() + File.separator + attribute.getName() );
-        this.attribute = attribute;
-        keyCache = new SynchronizedLRUMap( cacheSize );
+        initialized = false;
+    }
+
+
+    public JdbmIndex( String attributeId )
+    {
+        initialized = false;
+        setAttributeId( attributeId );
+    }
+
+
+    public void init( AttributeType attributeType, File wkDirPath ) throws NamingException
+    {
+        this.keyCache = new SynchronizedLRUMap( cacheSize );
+        this.attribute = attributeType;
+        if ( this.wkDirPath ==  null )
+        {
+            this.wkDirPath = wkDirPath;
+        }
+
+        File file = new File( this.wkDirPath.getPath() + File.separator + attribute.getName() );
+
 
         try
         {
             String path = file.getAbsolutePath();
             BaseRecordManager base = new BaseRecordManager( path );
             base.disableTransactions();
-            recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
+            this.recMan = new CacheRecordManager( base, new MRU( cacheSize ) );
         }
         catch ( IOException e )
         {
@@ -119,6 +168,7 @@ public class JdbmIndex implements Index
         }
 
         initTables();
+        initialized = true;
     }
 
 
@@ -140,8 +190,8 @@ public class JdbmIndex implements Index
          */
         forward = new JdbmTable( 
             attribute.getName() + FORWARD_BTREE, 
-            true, 
-            numDupLimit, 
+            true,
+            numDupLimit,
             recMan, 
             new IndexComparator( comp, true ),
             null, null );
@@ -155,8 +205,8 @@ public class JdbmIndex implements Index
          */
         reverse = new JdbmTable( 
             attribute.getName() + REVERSE_BTREE, 
-            !attribute.isSingleValue(), 
-            numDupLimit, 
+            !attribute.isSingleValue(),
+            numDupLimit,
             recMan,
             new IndexComparator( comp, false ),
             null, //LongSerializer.INSTANCE,
@@ -174,8 +224,127 @@ public class JdbmIndex implements Index
 
 
     // ------------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Protects configuration properties from being set after initialization.
+     *
+     * @param property the property to protect
+     */
+    private void protect( String property )
+    {
+        if ( initialized )
+        {
+            throw new IllegalStateException( "The " + property
+                    + " property for an index cannot be set after it has been initialized." );
+        }
+    }
+
+
+    /**
+     * Gets the attribute identifier set at configuration time for this index which may not
+     * be the OID but an alias name for the attributeType associated with this Index
+     *
+     * @return configured attribute oid or alias name
+     */
+    public String getAttributeId()
+    {
+        return attributeId;
+    }
+
+
+    /**
+     * Sets the attribute identifier set at configuration time for this index which may not
+     * be the OID but an alias name for the attributeType associated with this Index
+     *
+     * @param attributeId configured attribute oid or alias name
+     */
+    public void setAttributeId( String attributeId )
+    {
+        protect( "attributeId" );
+        this.attributeId = attributeId;
+    }
+
+
+    /**
+     * Gets the threshold at which point duplicate keys use btree indirection to store
+     * their values.
+     *
+     * @return the threshold for storing a keys values in another btree
+     */
+    public int getNumDupLimit()
+    {
+        return numDupLimit;
+    }
+
+
+    /**
+     * Sets the threshold at which point duplicate keys use btree indirection to store
+     * their values.
+     *
+     * @param numDupLimit the threshold for storing a keys values in another btree
+     */
+    public void setNumDupLimit( int numDupLimit )
+    {
+        protect( "numDupLimit" );
+        this.numDupLimit = numDupLimit;
+    }
+
+
+    /**
+     * Gets the size of the index cache in terms of the number of index entries to be cached.
+     *
+     * @return the size of the index cache
+     */
+    public int getCacheSize()
+    {
+        return cacheSize;
+    }
+
+
+    /**
+     * Sets the size of the index cache in terms of the number of index entries to be cached.
+     *
+     * @param cacheSize the size of the index cache
+     */
+    public void setCacheSize( int cacheSize )
+    {
+        protect( "cacheSize" );
+        this.cacheSize = cacheSize;
+    }
+
+
+    /**
+     * Sets the working directory path to something other than the default. Sometimes more
+     * performance is gained by locating indices on separate disk spindles.
+     *
+     * @param wkDirPath optional working directory path
+     */
+    public void setWkDirPath( File wkDirPath )
+    {
+        protect( "wkDirPath" );
+        this.wkDirPath = wkDirPath;
+    }
+
+
+    /**
+     * Gets the working directory path to something other than the default. Sometimes more
+     * performance is gained by locating indices on separate disk spindles.
+     *
+     * @return optional working directory path 
+     */
+    public File getWkDirPath()
+    {
+        return wkDirPath;
+    }
+
+
+    // ------------------------------------------------------------------------
     // Scan Count Methods
     // ------------------------------------------------------------------------
+
 
     /**
      * @see Index#count()
@@ -208,6 +377,7 @@ public class JdbmIndex implements Index
     // Forward and Reverse Lookups
     // ------------------------------------------------------------------------
 
+
     /**
      * @see Index#forwardLookup(java.lang.Object)
      */
@@ -218,7 +388,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#reverseLookup(java.math.BigInteger)
+     * @see Index#reverseLookup(Object)
      */
     public Object reverseLookup( Object id ) throws NamingException
     {
@@ -230,9 +400,9 @@ public class JdbmIndex implements Index
     // Add/Drop Methods
     // ------------------------------------------------------------------------
 
+
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#add(java.lang.Object,
-     * java.math.BigInteger)
+     * @see Index#add(Object,Object)
      */
     public synchronized void add( Object attrVal, Object id ) throws NamingException
     {
@@ -242,8 +412,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#add(
-     * javax.naming.directory.Attribute, java.math.BigInteger)
+     * @see Index#add(Attribute, Object)
      */
     public synchronized void add( Attribute attr, Object id ) throws NamingException
     {
@@ -261,8 +430,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#add(
-     * javax.naming.directory.Attributes, java.math.BigInteger)
+     * @see Index#add(Attributes, Object)
      */
     public synchronized void add( Attributes attrs, Object id ) throws NamingException
     {
@@ -271,8 +439,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#drop(java.lang.Object,
-     * java.math.BigInteger)
+     * @see Index#drop(Object,Object)
      */
     public synchronized void drop( Object attrVal, Object id ) throws NamingException
     {
@@ -282,7 +449,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#drop(java.math.BigInteger)
+     * @see Index#drop(Object)
      */
     public void drop( Object entryId ) throws NamingException
     {
@@ -298,8 +465,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#drop(
-     * javax.naming.directory.Attribute, java.math.BigInteger)
+     * @see Index#drop(Attribute, Object)
      */
     public void drop( Attribute attr, Object id ) throws NamingException
     {
@@ -325,8 +491,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#drop(
-     * javax.naming.directory.Attributes, java.math.BigInteger)
+     * @see Index#drop(Attributes, Object)
      */
     public void drop( Attributes attrs, Object id ) throws NamingException
     {
@@ -338,8 +503,9 @@ public class JdbmIndex implements Index
     // Index Listing Operations
     // ------------------------------------------------------------------------
 
+
     /**
-     * @see Index#listReverseIndices(BigInteger)
+     * @see Index#listReverseIndices(Object)
      */
     public IndexEnumeration listReverseIndices( Object id ) throws NamingException
     {
@@ -357,7 +523,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#listIndices(java.lang.Object)
+     * @see Index#listIndices(Object)
      */
     public IndexEnumeration listIndices( Object attrVal ) throws NamingException
     {
@@ -366,8 +532,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see org.apache.directory.server.core.partition.impl.btree.Index#listIndices(java.lang.Object,
-     * boolean)
+     * @see Index#listIndices(Object,boolean)
      */
     public IndexEnumeration<Tuple> listIndices( Object attrVal, boolean isGreaterThan ) throws NamingException
     {
@@ -376,7 +541,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#listIndices(org.apache.regexp.RE)
+     * @see Index#listIndices(Pattern)
      */
     public IndexEnumeration<Tuple> listIndices( Pattern regex ) throws NamingException
     {
@@ -385,8 +550,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#listIndices(org.apache.regexp.RE,
-     * java.lang.String)
+     * @see Index#listIndices(Pattern,String)
      */
     public IndexEnumeration<Tuple> listIndices( Pattern regex, String prefix ) throws NamingException
     {
@@ -398,9 +562,10 @@ public class JdbmIndex implements Index
     // Value Assertion (a.k.a Index Lookup) Methods //
     // ------------------------------------------------------------------------
 
+    
     /**
      * @see Index#hasValue(java.lang.Object,
-     * java.math.BigInteger)
+     * Object)
      */
     public boolean hasValue( Object attrVal, Object id ) throws NamingException
     {
@@ -410,7 +575,7 @@ public class JdbmIndex implements Index
 
     /**
      * @see Index#hasValue(java.lang.Object,
-     * java.math.BigInteger, boolean)
+     * Object, boolean)
      */
     public boolean hasValue( Object attrVal, Object id, boolean isGreaterThan ) throws NamingException
     {
@@ -419,8 +584,7 @@ public class JdbmIndex implements Index
 
 
     /**
-     * @see Index#hasValue(org.apache.regexp.RE,
-     * java.math.BigInteger)
+     * @see Index#hasValue(Pattern,Object)
      */
     public boolean hasValue( Pattern regex, Object id ) throws NamingException
     {
@@ -435,6 +599,7 @@ public class JdbmIndex implements Index
     // Maintenance Methods 
     // ------------------------------------------------------------------------
 
+    
     /**
      * @see Index#close()
      */

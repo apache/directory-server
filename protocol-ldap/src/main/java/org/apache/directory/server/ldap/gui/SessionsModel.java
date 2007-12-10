@@ -32,7 +32,7 @@ public class SessionsModel implements TableModel
 {
     final String[] columns = new String[]
         { "client address", "client port", "server address", "server port" };
-    final Class[] columnClasses = new Class[]
+    final Class<?>[] columnClasses = new Class[]
         { String.class, Integer.class, String.class, Integer.class };
     final IoSession[] sessions;
 
@@ -67,7 +67,7 @@ public class SessionsModel implements TableModel
     }
 
 
-    public Class getColumnClass( int columnIndex )
+    public Class<?> getColumnClass( int columnIndex )
     {
         return columnClasses[columnIndex];
     }

@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.decoder;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.application.PrivateMessage;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
@@ -62,7 +62,7 @@ public class PrivateMessageDecoder
     {
         PrivateMessage message = new PrivateMessage();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -74,10 +74,12 @@ public class PrivateMessageDecoder
                     DERInteger tag0 = ( DERInteger ) derObject;
                     message.setProtocolVersionNumber( tag0.intValue() );
                     break;
+                    
                 case 1:
                     DERInteger tag1 = ( DERInteger ) derObject;
-                    message.setMessageType( MessageType.getTypeByOrdinal( tag1.intValue() ) );
+                    message.setMessageType( KerberosMessageType.getTypeByOrdinal( tag1.intValue() ) );
                     break;
+                    
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
                     message.setEncryptedPart( EncryptedDataDecoder.decode( tag3 ) );

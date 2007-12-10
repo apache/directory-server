@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.SchemaViolationException;
 import javax.naming.directory.SearchControls;
@@ -36,36 +37,42 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 
-import org.apache.directory.server.unit.AbstractServerFastTest;
+import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+
+import java.util.Hashtable;
 
 
 /**
  * Various add scenario tests.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev: 569879 $
+ * @version $Rev$
  */
-public class AddITest extends AbstractServerFastTest
+public class AddITest extends AbstractServerTest
 {
     private static final String RDN = "cn=The Person";
+
+    private DirContext ctx;
+
 
     /**
      * Create an entry for a person.
      */
-    @Before
     public void setUp() throws Exception
     {
+        super.setUp();
+
+        Hashtable<String, String> env = new Hashtable<String,String>();
+        env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
+        env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
+        env.put( "java.naming.security.principal", "uid=admin,ou=system" );
+        env.put( "java.naming.security.credentials", "secret" );
+        env.put( "java.naming.security.authentication", "simple" );
+        ctx = new InitialDirContext( env );
+
         // Create a person
         Attributes attributes = new AttributesImpl( true );
         Attribute attribute = new AttributeImpl( "objectClass" );
@@ -79,11 +86,17 @@ public class AddITest extends AbstractServerFastTest
 
         assertNotNull( person );
     }
-    
-    @After
-    public void cleanUp() throws NamingException
+
+
+    /**
+     * Remove the person.
+     */
+    public void tearDown() throws Exception
     {
-        ctx.destroySubcontext( RDN );
+        ctx.unbind( RDN );
+        ctx.close();
+        ctx = null;
+        super.tearDown();
     }
 
 
@@ -91,9 +104,8 @@ public class AddITest extends AbstractServerFastTest
      * Just a little test to check wether the person is created correctly after
      * setup.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect to the server
      */
-    @Test
     public void testSetUpTearDown() throws NamingException
     {
         DirContext person = ( DirContext ) ctx.lookup( RDN );
@@ -104,11 +116,9 @@ public class AddITest extends AbstractServerFastTest
         Attributes attributes = person.getAttributes( "" );
         Attribute ocls = attributes.get( "objectClass" );
 
-        String[] expectedOcls =
-            { "top", "person" };
-        for ( int i = 0; i < expectedOcls.length; i++ )
+        String[] expectedOcls = { "top", "person" };
+        for ( String name : expectedOcls )
         {
-            String name = expectedOcls[i];
             assertTrue( "object class " + name + " is NOT present when it should be!", ocls.contains( name ) );
         }
     }
@@ -117,9 +127,8 @@ public class AddITest extends AbstractServerFastTest
     /**
      * This is the original defect as in JIRA DIREVE-216.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect and perform add operations
      */
-    @Test
     public void testAddObjectClasses() throws NamingException
     {
 
@@ -138,11 +147,9 @@ public class AddITest extends AbstractServerFastTest
         attributes = person.getAttributes( "" );
         Attribute newOcls = attributes.get( "objectClass" );
 
-        String[] expectedOcls =
-            { "top", "person", "organizationalPerson", "inetOrgPerson" };
-        for ( int i = 0; i < expectedOcls.length; i++ )
+        String[] expectedOcls = { "top", "person", "organizationalPerson", "inetOrgPerson" };
+        for ( String name : expectedOcls )
         {
-            String name = expectedOcls[i];
             assertTrue( "object class " + name + " is present", newOcls.contains( name ) );
         }
     }
@@ -151,9 +158,8 @@ public class AddITest extends AbstractServerFastTest
     /**
      * This changes a single attribute value. Just as a reference.
      * 
-     * @throws NamingException
+     * @throws NamingException if we cannot connect and modify the description
      */
-    @Test
     public void testModifyDescription() throws NamingException
     {
         String newDescription = "More info on the user ...";
@@ -178,9 +184,8 @@ public class AddITest extends AbstractServerFastTest
     /**
      * Try to add entry with required attribute missing.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect
      */
-    @Test
     public void testAddWithMissingRequiredAttributes() throws NamingException
     {
         // person without sn
@@ -215,13 +220,12 @@ public class AddITest extends AbstractServerFastTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
-    @Test
     public void testAddEntryWithTwoDescriptions() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, port, USER, PASSWORD );
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -258,13 +262,12 @@ public class AddITest extends AbstractServerFastTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
-    @Test
     public void testAddEntryWithTwoDescriptionsVariant() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, port, USER, PASSWORD );
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -302,13 +305,12 @@ public class AddITest extends AbstractServerFastTest
      * two description attributes does not combine values."). Uses Sun ONE Directory
      * SDK for Java 4.1 , or comparable (Netscape, Mozilla).
      * 
-     * @throws LDAPException 
+     * @throws LDAPException if we fail to connect and add entries
      */
-    @Test
     public void testAddEntryWithTwoDescriptionsSecondVariant() throws LDAPException
     {
         LDAPConnection con = new LDAPConnection();
-        con.connect( 3, HOST, port, USER, PASSWORD );
+        con.connect( 3, HOST, super.port, USER, PASSWORD );
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute ocls = new LDAPAttribute( "objectclass", new String[]
             { "top", "person" } );
@@ -343,10 +345,9 @@ public class AddITest extends AbstractServerFastTest
     /**
      * Try to add entry with invalid number of values for a single-valued atribute
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      * @see <a href="http://issues.apache.org/jira/browse/DIRSERVER-614">DIRSERVER-614</a>
      */
-    @Test
     public void testAddWithInvalidNumberOfAttributeValues() throws NamingException
     {
         // add inetOrgPerson with two displayNames
@@ -377,9 +378,8 @@ public class AddITest extends AbstractServerFastTest
     /**
      * Try to add entry and an alias to it. Afterwards, remove it.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      */
-    @Test
     public void testAddAlias() throws NamingException
     {
 
@@ -416,9 +416,8 @@ public class AddITest extends AbstractServerFastTest
      * Try to add entry and an alias to it. Afterwards, remove it. This version
      * cretes a container entry before the operations.
      * 
-     * @throws NamingException 
+     * @throws NamingException if we fail to connect and add entries
      */
-    @Test
     public void testAddAliasInContainer() throws NamingException
     {
         // Create container
@@ -486,7 +485,7 @@ public class AddITest extends AbstractServerFastTest
         ne = containerCtx.search( "ou=bestFruit", "(objectClass=*)", controls );
         assertTrue( ne.hasMore() );
         sr = ne.next();
-        assertEquals( "ldap://localhost:" + port + "/ou=favorite,ou=Fruits,ou=system", sr.getName() );
+        assertEquals( "ldap://localhost:"+super.port+"/ou=favorite,ou=Fruits,ou=system", sr.getName() );
         assertFalse( ne.hasMore() );
         
         // Remove alias and entry

@@ -21,6 +21,7 @@ package org.apache.directory.server.core.partition.impl.btree;
 
 
 import java.util.regex.Pattern;
+import java.io.File;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -37,6 +38,70 @@ import org.apache.directory.shared.ldap.schema.AttributeType;
  */
 public interface Index
 {
+    int DEFAULT_INDEX_CACHE_SIZE = 100;
+    
+    // -----------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
+    /**
+     * Gets the attribute identifier set at configuration time for this index which may not
+     * be the OID but an alias name for the attributeType associated with this Index
+     *
+     * @return configured attribute oid or alias name
+     */
+    String getAttributeId();
+
+
+    /**
+     * Sets the attribute identifier set at configuration time for this index which may not
+     * be the OID but an alias name for the attributeType associated with this Index
+     *
+     * @param attributeId configured attribute oid or alias name
+     */
+    void setAttributeId( String attributeId );
+
+
+    /**
+     * Gets the size of the index cache in terms of the number of index entries to be cached.
+     *
+     * @return the size of the index cache
+     */
+    int getCacheSize();
+
+
+    /**
+     * Sets the size of the index cache in terms of the number of index entries to be cached.
+     *
+     * @param cacheSize the size of the index cache
+     */
+    void setCacheSize( int cacheSize );
+
+
+    /**
+     * Sets the working directory path to something other than the default. Sometimes more
+     * performance is gained by locating indices on separate disk spindles.
+     *
+     * @param wkDirPath optional working directory path
+     */
+    void setWkDirPath( File wkDirPath );
+
+
+    /**
+     * Gets the working directory path to something other than the default. Sometimes more
+     * performance is gained by locating indices on separate disk spindles.
+     *
+     * @return optional working directory path
+     */
+    File getWkDirPath();
+
+
+    // -----------------------------------------------------------------------
+    // E N D   C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
     /**
      * Gets the attribute this Index is built upon.
      *

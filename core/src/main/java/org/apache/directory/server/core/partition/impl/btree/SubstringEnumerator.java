@@ -80,8 +80,9 @@ public class SubstringEnumerator implements Enumerator
         Index idx = null;
         final SubstringNode snode = ( SubstringNode ) node;
         AttributeType type = attributeTypeRegistry.lookup( snode.getAttribute() );
+
         MatchingRule matchingRule = type.getSubstr();
-        
+
         if ( matchingRule == null )
         {
             matchingRule = type.getEquality();

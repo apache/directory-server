@@ -20,13 +20,13 @@
 package org.apache.directory.server.schema.registries;
 
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.naming.NamingException;
-
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
+
+import javax.naming.NamingException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -46,6 +46,17 @@ public interface AttributeTypeRegistry extends SchemaObjectRegistry
      */
     void register( AttributeType attributeType ) throws NamingException;
 
+
+    /**
+     * Gets a set of Strings representing the aliases, and numeric identifiers of
+     * all binary attributes.  The set will contain all the aliases for a binary
+     * attributeType (one whose syntax is not human readible) along with its numeric
+     * identifier.
+     *
+     * @return set of aliases and numeric ids for binary attributeTypes
+     * @throws NamingException if there are issues resolving type information
+     */
+    Set<String> getBinaryAttributes() throws NamingException;
 
     /**
      * Looks up an AttributeType by its unique Object Identifier or by its
@@ -79,6 +90,9 @@ public interface AttributeTypeRegistry extends SchemaObjectRegistry
     /**
      * Gets an oid/name to normalizer mapping used to normalize distinguished 
      * names.
+     *
+     * @return a map of OID Strings to OidNormalizer instances
+     * @throws NamingException if for some reason this information cannot be returned
      */
     Map<String, OidNormalizer> getNormalizerMapping() throws NamingException; 
     

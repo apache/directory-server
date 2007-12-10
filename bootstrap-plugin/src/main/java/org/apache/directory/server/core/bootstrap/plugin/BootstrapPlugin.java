@@ -20,31 +20,12 @@
 package org.apache.directory.server.core.bootstrap.plugin;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.List;
-import java.net.URLClassLoader;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.apache.directory.server.constants.ApacheSchemaConstants;
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.core.partition.impl.btree.Index;
 import org.apache.directory.server.core.partition.impl.btree.IndexNotFoundException;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStore;
-import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmStoreConfiguration;
 import org.apache.directory.server.schema.SerializableComparator;
 import org.apache.directory.server.schema.bootstrap.ApacheSchema;
 import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
@@ -63,12 +44,15 @@ import org.apache.directory.server.schema.registries.ObjectClassRegistry;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.server.schema.registries.SyntaxCheckerRegistry;
 import org.apache.directory.server.schema.registries.SyntaxRegistry;
+//import org.apache.directory.server.schema.bootstrap.*;
+//import org.apache.directory.server.schema.registries.*;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
+//import org.apache.directory.shared.ldap.schema.*;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.ObjectClass;
@@ -80,6 +64,26 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -234,10 +238,10 @@ public class BootstrapPlugin extends AbstractMojo
                 getLog().info( "------------------------------------------------------------------------" );
                 getLog().info( "" );
 
-                for ( int ii = 0; ii < disabledSchemas.length; ii++ )
+                for ( String disabledSchema : disabledSchemas )
                 {
-                    disableSchema( disabledSchemas[ii] );
-                    getLog().info( "\t\t o " + disabledSchemas[ii] );
+                    disableSchema( disabledSchema );
+                    getLog().info( "\t\t o " + disabledSchema );
                 }
 
                 getLog().info( "" );
@@ -617,34 +621,33 @@ public class BootstrapPlugin extends AbstractMojo
      */
     private void initializePartition( File workingDirectory ) throws MojoFailureException
     {
-        JdbmStoreConfiguration storeConfig = new JdbmStoreConfiguration();
-        storeConfig.setAttributeTypeRegistry( registries.getAttributeTypeRegistry() );
-        storeConfig.setCacheSize( 1000 );
-        storeConfig.setEnableOptimizer( false );
-        storeConfig.setName( "schema" );
-        storeConfig.setOidRegistry( registries.getOidRegistry() );
-        storeConfig.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
-        storeConfig.setSyncOnWrite( false );
-        storeConfig.setWorkingDirectory( workingDirectory );
+        store.setCacheSize( 1000 );
+        store.setEnableOptimizer( false );
+        store.setName( "schema" );
+        store.setSuffixDn( SchemaConstants.OU_AT + "=schema" );
+        store.setSyncOnWrite( false );
+        store.setWorkingDirectory( workingDirectory );
 
         // add the indices
-        Set<String> indexSet = new HashSet<String>();
+        Set<JdbmIndex> userIndices = new HashSet<JdbmIndex>();
         
         for ( String indexedAttribute:indexedAttributes )
         {
-            indexSet.add( indexedAttribute );
+            JdbmIndex index = new JdbmIndex();
+            index.setAttributeId( indexedAttribute );
+            userIndices.add( index );
         }
         
-        storeConfig.setIndexedAttributes( indexSet );
+        store.setUserIndices( userIndices );
 
         Attributes rootEntry = new AttributesImpl( SchemaConstants.OBJECT_CLASS_AT, 
             SchemaConstants.ORGANIZATIONAL_UNIT_OC, true );
         rootEntry.put( SchemaConstants.OU_AT, "schema" );
-        storeConfig.setContextEntry( rootEntry );
+        store.setContextEntry( rootEntry );
 
         try
         {
-            store.init( storeConfig );
+            store.init( this.registries.getOidRegistry(), this.registries.getAttributeTypeRegistry() );
         }
         catch ( NamingException e )
         {
@@ -740,7 +743,7 @@ public class BootstrapPlugin extends AbstractMojo
         {
             try
             {
-                Class schemaClass = cl.loadClass( bootstrapSchemaClasses[ii] );
+                Class<?> schemaClass = cl.loadClass( bootstrapSchemaClasses[ii] );
                 schema = ( BootstrapSchema ) schemaClass.newInstance();
                 schemas.put( schema.getSchemaName(), schema );
             }
@@ -825,9 +828,12 @@ public class BootstrapPlugin extends AbstractMojo
         LdapDN dn = new LdapDN( SchemaConstants.CN_AT + "=" + schemaName
                 + "," + SchemaConstants.OU_AT + "=schema" );
         dn.normalize( registries.getAttributeTypeRegistry().getNormalizerMapping() );
+        
         ModificationItemImpl mod = new ModificationItemImpl( DirContext.ADD_ATTRIBUTE,
                 new AttributeImpl( MetaSchemaConstants.M_DISABLED_AT, "TRUE" ) );
-        ModificationItemImpl[] mods = new ModificationItemImpl[] {mod};
+        
+        List<ModificationItemImpl> mods = new ArrayList<ModificationItemImpl>();
+        mods.add( mod );
         store.modify( dn, mods );
     }
 
@@ -857,7 +863,7 @@ public class BootstrapPlugin extends AbstractMojo
         StringBuffer buf = new StringBuffer();
         buf.append( "schema/master.db\n" );
 
-        Iterator<String> systemIndices = store.getSystemIndices();
+        Iterator<String> systemIndices = store.systemIndices();
         
         while ( systemIndices.hasNext() )
         {

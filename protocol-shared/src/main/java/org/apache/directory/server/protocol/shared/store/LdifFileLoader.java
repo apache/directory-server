@@ -35,9 +35,11 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,25 +52,37 @@ import org.slf4j.LoggerFactory;
  */
 public class LdifFileLoader
 {
-    /** the log for this class */
+    /**
+     * the log for this class
+     */
     private static final Logger log = LoggerFactory.getLogger( LdifFileLoader.class );
 
-    /** a handle on the top initial context: get new context from this */
+    /**
+     * a handle on the top initial context: get new context from this
+     */
     protected DirContext ctx;
-    /** the LDIF file or directory containing LDIFs to load */
+    /**
+     * the LDIF file or directory containing LDIFs to load
+     */
     protected File ldif;
-    /** the filters to use while loading entries into the server */
+    /**
+     * the filters to use while loading entries into the server
+     */
     protected final List<LdifLoadFilter> filters;
-    /** the class loader to use if we cannot file the file as a path */
+    /**
+     * the class loader to use if we cannot file the file as a path
+     */
     protected final ClassLoader loader;
-    /** the total count of entries loaded */
+    /**
+     * the total count of entries loaded
+     */
     private int count;
 
 
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param ctx the context to load the entries into.
+     * @param ctx  the context to load the entries into.
      * @param ldif the file of LDIF entries to load.
      */
     public LdifFileLoader( DirContext ctx, String ldif )
@@ -84,7 +98,7 @@ public class LdifFileLoader
      * @param ldif
      * @param filters
      */
-    public LdifFileLoader( DirContext ctx, File ldif, List<LdifLoadFilter> filters )
+    public LdifFileLoader( DirContext ctx, File ldif, List<? extends LdifLoadFilter> filters )
     {
         this( ctx, ldif, filters, null );
     }
@@ -98,7 +112,7 @@ public class LdifFileLoader
      * @param filters
      * @param loader
      */
-    public LdifFileLoader( DirContext ctx, File ldif, List<LdifLoadFilter> filters, ClassLoader loader )
+    public LdifFileLoader( DirContext ctx, File ldif, List<? extends LdifLoadFilter> filters, ClassLoader loader )
     {
         this.ctx = ctx;
         this.ldif = ldif;
@@ -107,8 +121,7 @@ public class LdifFileLoader
         if ( filters == null )
         {
             this.filters = Collections.emptyList();
-        }
-        else
+        } else
         {
             this.filters = Collections.unmodifiableList( filters );
         }
@@ -118,7 +131,7 @@ public class LdifFileLoader
     /**
      * Applies filters making sure failures in one filter do not effect another.
      *
-     * @param dn the DN of the entry
+     * @param dn    the DN of the entry
      * @param entry the attributes of the entry
      * @return true if all filters passed the entry, false otherwise
      */
@@ -155,7 +168,7 @@ public class LdifFileLoader
 
     /**
      * Opens the LDIF file and loads the entries into the context.
-     * 
+     *
      * @return The count of entries created.
      */
     public int execute()
@@ -174,32 +187,48 @@ public class LdifFileLoader
 
                 String dn = entry.getDn();
 
-                if ( entry.isEntry() == false )
+                if ( entry.isEntry() )
                 {
-                    // If the entry is a modification, just skip it
-                    continue;
-                }
+                    Attributes attributes = entry.getAttributes();
+                    boolean filterAccepted = applyFilters( dn, attributes );
 
-                Attributes attributes = entry.getAttributes();
-                boolean filterAccepted = applyFilters( dn, attributes );
+                    if ( !filterAccepted )
+                    {
+                        continue;
+                    }
 
-                if ( !filterAccepted )
+                    rdn = getRelativeName( ctx, dn );
+
+                    try
+                    {
+                        ctx.lookup( rdn );
+                        log.info( "Found {}, will not create.", rdn );
+                    }
+                    catch ( Exception e )
+                    {
+                        try
+                        {
+                            ctx.createSubcontext( rdn, attributes );
+                            count++;
+                            log.info( "Created {}.", rdn );
+                        } catch ( NamingException e1 )
+                        {
+                            log.info( "Could not create: " + dn + " with attributes: " + attributes, e1 );
+                        }
+                    }
+                } else
                 {
-                    continue;
-                }
-
-                rdn = getRelativeName( ctx, dn );
-
-                try
-                {
-                    ctx.lookup( rdn );
-                    log.info( "Found {}, will not create.", rdn );
-                }
-                catch ( Exception e )
-                {
-                    ctx.createSubcontext( rdn, attributes );
-                    count++;
-                    log.info( "Created {}.", rdn );
+                    //modify
+                    List<ModificationItemImpl> items = entry.getModificationItems();
+                    try
+                    {
+                        ctx.modifyAttributes( dn, items.toArray( new ModificationItem[items.size()] ) );
+                        log.info( "Modified: " + dn + " with modificationItems: " + items );
+                    }
+                    catch ( NamingException e )
+                    {
+                        log.info( "Could not modify: " + dn + " with modificationItems: " + items, e );
+                    }
                 }
             }
         }
@@ -277,8 +306,7 @@ public class LdifFileLoader
         if ( ldif.exists() )
         {
             in = new FileInputStream( ldif );
-        }
-        else
+        } else
         {
             if ( loader != null && ( in = loader.getResourceAsStream( ldif.getName() ) ) != null )
             {

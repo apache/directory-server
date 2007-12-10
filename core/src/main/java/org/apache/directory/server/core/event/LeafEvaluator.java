@@ -305,7 +305,6 @@ public class LeafEvaluator implements Evaluator
     private Comparator getComparator( String attrId ) throws NamingException
     {
         MatchingRule mrule = getMatchingRule( attrId, EQUALITY_MATCH );
-
         return mrule.getComparator();
     }
 
@@ -359,7 +358,7 @@ public class LeafEvaluator implements Evaluator
         {
             mrule = type.getEquality();
         }
-        
+
         return mrule;
     }
 }

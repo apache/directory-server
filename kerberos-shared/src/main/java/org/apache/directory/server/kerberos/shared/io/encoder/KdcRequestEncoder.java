@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERApplicationSpecific;
@@ -198,7 +198,7 @@ public class KdcRequestEncoder
      padata-value[2]       OCTET STRING,
      -- might be encoded AP-REQ
      }*/
-    private DERSequence encodePreAuthData( PreAuthenticationData[] preAuthData )
+    private DERSequence encodePreAuthData( PaData[] preAuthData )
     {
         DERSequence preAuth = new DERSequence();
 
@@ -206,8 +206,8 @@ public class KdcRequestEncoder
         {
             DERSequence sequence = new DERSequence();
 
-            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getDataType().getOrdinal() ) ) );
-            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getDataValue() ) ) );
+            sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuthData[ii].getPaDataType().getOrdinal() ) ) );
+            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuthData[ii].getPaDataValue() ) ) );
             preAuth.add( sequence );
         }
 

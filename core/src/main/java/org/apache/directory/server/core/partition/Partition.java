@@ -20,27 +20,15 @@
 package org.apache.directory.server.core.partition;
 
 
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.shared.ldap.name.LdapDN;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 
 /**
@@ -51,31 +39,104 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * base suffix.  Each partition contains entries whose name ends with that
  * base suffix.
  *
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public interface Partition
 {
-    /**
-     * Get's the configuration for this partition.
-     *
-     * @return the configuration for this partition.
-     */
-    PartitionConfiguration getConfiguration();
+    /** The name of reserved system partition */
+    String SYSTEM_PARTITION_NAME = "system";
+    /** default partition implementation class */
+    String DEFAULT_PARTITION_IMPLEMENTATION = "org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition";
+    /** the default entry cache size to use for a partition */
+    int DEFAULT_CACHE_SIZE = 10000;
     
+
+    // -----------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
     
     /**
-     * Get's the unique identifier for this partition.
+     * Gets the unique identifier for this partition.
      *
      * @return the unique identifier for this partition
      */
     String getId();
-    
-    
+
+
+    /**
+     * Sets the unique identifier for this partition.
+     *
+     * @param id the unique identifier for this partition
+     */
+    void setId( String id );
+
+
+    /**
+     * Gets the root entry of the partition, the entry for the suffix.
+     *
+     * @return the entry for the suffix of this Partition.
+     */
+    Attributes getContextEntry();
+
+
+    /**
+     * Sets the root entry of the partition, the entry for the suffix.
+     *
+     * @param contextEntry the entry for the suffix of this Partition.
+     */
+    void setContextEntry( Attributes contextEntry );
+
+
+    /**
+     * Gets the non-normalized suffix for this Partition as a string.
+     *
+     * @return the suffix string for this Partition.
+     */
+    String getSuffix();
+
+
+    /**
+     * Sets the non-normalized suffix for this Partition as a string.
+     *
+     * @param suffix the suffix string for this Partition.
+     */
+    void setSuffix( String suffix );
+
+
+
+    /**
+     * Used to specify the entry cache size for a Partition.  Various Partition
+     * implementations may interpret this value in different ways: i.e. total cache
+     * size limit verses the number of entries to cache.
+     *
+     * @param cacheSize the size of the cache
+     */
+    void setCacheSize( int cacheSize );
+
+
+    /**
+     * Gets the entry cache size for this partition.
+     *
+     * @return the size of the cache
+     */
+    int getCacheSize();
+
+
+    // -----------------------------------------------------------------------
+    // E N D   C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
     /**
      * Initializes this partition.
+     *
+     * @param core the directory core for the server.
+     * @throws NamingException if initialization fails in any way
      */
-    void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg ) throws NamingException;
+    void init( DirectoryService core ) throws NamingException;
 
 
     /**
@@ -86,12 +147,14 @@ public interface Partition
 
     /**
      * Checks to see if this partition is initialized or not.
+     * @return true if the partition is initialized, false otherwise
      */
     boolean isInitialized();
 
 
     /**
      * Flushes any changes made to this partition now.
+     * @throws NamingException if buffers cannot be flushed to disk
      */
     void sync() throws NamingException;
 
@@ -102,8 +165,9 @@ public interface Partition
      *
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
+     * @throws NamingException if access or suffix parsing fails
      */
-    LdapDN getSuffix() throws NamingException;
+    LdapDN getSuffixDn() throws NamingException;
 
     /**
      * Gets the distinguished/absolute name of the suffix for all entries
@@ -111,8 +175,9 @@ public interface Partition
      *
      * @return Name representing the distinguished/absolute name of this
      * ContextPartitions root context.
+     * @throws NamingException if access or suffix parsing fails
      */
-    LdapDN getUpSuffix() throws NamingException;
+    LdapDN getUpSuffixDn() throws NamingException;
 
     /**
      * Deletes a leaf entry from this ContextPartition: non-leaf entries cannot be 

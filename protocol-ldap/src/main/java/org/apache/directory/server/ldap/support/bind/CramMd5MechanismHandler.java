@@ -20,14 +20,16 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.constants.SupportedSASLMechanisms;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.mina.common.IoSession;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslServer;
-
-import org.apache.mina.common.IoSession;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -36,7 +38,16 @@ import org.apache.mina.common.IoSession;
  */
 public class CramMd5MechanismHandler implements MechanismHandler
 {
-    public SaslServer handleMechanism( IoSession session, Object message ) throws Exception
+    private final DirectoryService directoryService;
+
+
+    public CramMd5MechanismHandler( DirectoryService directoryService )
+    {
+        this.directoryService = directoryService;
+    }
+
+
+    public SaslServer handleMechanism( IoSession session, BindRequest bindRequest ) throws Exception
     {
         SaslServer ss;
 
@@ -54,9 +65,9 @@ public class CramMd5MechanismHandler implements MechanismHandler
              */
             Map<String, String> saslProps = new HashMap<String, String>();
 
-            CallbackHandler callbackHandler = new CramMd5CallbackHandler( session, message );
+            CallbackHandler callbackHandler = new CramMd5CallbackHandler( directoryService, session, bindRequest );
 
-            ss = Sasl.createSaslServer( "CRAM-MD5", "ldap", saslHost, saslProps, callbackHandler );
+            ss = Sasl.createSaslServer( SupportedSASLMechanisms.CRAM_MD5, "ldap", saslHost, saslProps, callbackHandler );
             session.setAttribute( SASL_CONTEXT, ss );
         }
 

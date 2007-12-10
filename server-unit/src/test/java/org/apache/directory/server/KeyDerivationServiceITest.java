@@ -20,29 +20,12 @@
 package org.apache.directory.server;
 
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.spec.DESKeySpec;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
-import org.apache.directory.server.core.kerberos.KeyDerivationService;
+import org.apache.directory.server.core.interceptor.Interceptor;
+import org.apache.directory.server.core.kerberos.KeyDerivationInterceptor;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.io.decoder.EncryptionKeyDecoder;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
@@ -51,11 +34,21 @@ import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.mina.util.AvailablePortFinder;
+
+import javax.crypto.spec.DESKeySpec;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.util.*;
 
 
 /**
- * An {@link AbstractServerTest} testing the (@link {@link KeyDerivationService}'s
+ * An {@link AbstractServerTest} testing the (@link {@link KeyDerivationInterceptor}'s
  * ability to derive Kerberos symmetric keys based on userPassword and principal
  * name and to generate random keys when the special keyword "randomKey" is used.
  * 
@@ -66,7 +59,7 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 {
     private static final String RDN = "uid=hnelson,ou=users,dc=example,dc=com";
 
-    private DirContext ctx = null;
+    private DirContext ctx;
 
 
     /**
@@ -75,49 +68,17 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      */
     public void setUp() throws Exception
     {
-        configuration.setAllowAnonymousAccess( false );
+        super.setUp();
+//        setAllowAnonymousAccess( false );
 
         Attributes attrs;
-        Set<PartitionConfiguration> pcfgs = new HashSet<PartitionConfiguration>();
 
-        MutablePartitionConfiguration pcfg;
+//        doDelete( directoryService.getWorkingDirectory() );
+//        port = AvailablePortFinder.getNextAvailable( 1024 );
+//        ldapServer.setIpPort( port );
+//        directoryService.setShutdownHookEnabled( false );
 
-        // Add partition 'example'
-        pcfg = new MutablePartitionConfiguration();
-        pcfg.setId( "example" );
-        pcfg.setSuffix( "dc=example,dc=com" );
 
-        Set<Object> indexedAttrs = new HashSet<Object>();
-        indexedAttrs.add( "ou" );
-        indexedAttrs.add( "dc" );
-        indexedAttrs.add( "objectClass" );
-        pcfg.setIndexedAttributes( indexedAttrs );
-
-        attrs = new AttributesImpl( true );
-        Attribute attr = new AttributeImpl( "objectClass" );
-        attr.add( "top" );
-        attr.add( "domain" );
-        attrs.put( attr );
-        attr = new AttributeImpl( "dc" );
-        attr.add( "example" );
-        attrs.put( attr );
-        pcfg.setContextEntry( attrs );
-
-        pcfgs.add( pcfg );
-        configuration.setPartitionConfigurations( pcfgs );
-
-        MutableInterceptorConfiguration interceptorCfg = new MutableInterceptorConfiguration();
-        List<InterceptorConfiguration> list = configuration.getInterceptorConfigurations();
-
-        interceptorCfg.setName( KeyDerivationService.NAME );
-        interceptorCfg.setInterceptorClassName( "org.apache.directory.server.core.kerberos.KeyDerivationService" );
-        list.add( interceptorCfg );
-        configuration.setInterceptorConfigurations( list );
-
-        doDelete( configuration.getWorkingDirectory() );
-        port = AvailablePortFinder.getNextAvailable( 1024 );
-        configuration.getLdapConfiguration().setIpPort( port );
-        configuration.setShutdownHookEnabled( false );
         setContexts( "uid=admin,ou=system", "secret" );
 
         // -------------------------------------------------------------------
@@ -141,13 +102,16 @@ public class KeyDerivationServiceITest extends AbstractServerTest
             schemaRoot.modifyAttributes( "cn=Krb5kdc", mods );
         }
 
+/*
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/dc=example,dc=com" );
         env.put( "java.naming.security.principal", "uid=admin,ou=system" );
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
-        ctx = new InitialDirContext( env );
+*/
+        ctx =   directoryService.getJndiContext( "dc=example,dc=com" );
+//                new InitialDirContext( env );
 
         attrs = getOrgUnitAttributes( "users" );
         DirContext users = ctx.createSubcontext( "ou=users", attrs );
@@ -156,12 +120,49 @@ public class KeyDerivationServiceITest extends AbstractServerTest
         users.createSubcontext( "uid=hnelson", attrs );
     }
 
+    protected void configureDirectoryService()
+    {
+        Attributes attrs;
+        Set<Partition> partitions = new HashSet<Partition>();
+
+        JdbmPartition partition;
+
+        // Add partition 'example'
+        partition = new JdbmPartition();
+        partition.setId( "example" );
+        partition.setSuffix( "dc=example,dc=com" );
+
+        Set<Index> indexedAttrs = new HashSet<Index>();
+        indexedAttrs.add( new JdbmIndex( "ou" ) );
+        indexedAttrs.add( new JdbmIndex( "dc" ) );
+        indexedAttrs.add( new JdbmIndex( "objectClass" ) );
+        partition.setIndexedAttributes( indexedAttrs );
+
+        attrs = new AttributesImpl( true );
+        Attribute attr = new AttributeImpl( "objectClass" );
+        attr.add( "top" );
+        attr.add( "domain" );
+        attrs.put( attr );
+        attr = new AttributeImpl( "dc" );
+        attr.add( "example" );
+        attrs.put( attr );
+        partition.setContextEntry( attrs );
+
+        partitions.add( partition );
+        directoryService.setPartitions( partitions );
+
+        List<Interceptor> list = directoryService.getInterceptors();
+
+        list.add( new KeyDerivationInterceptor() );
+        directoryService.setInterceptors( list );
+    }
+
 
     /**
      * Tests that the addition of an entry caused keys to be derived and added.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testAddDerivedKeys() throws NamingException, IOException
     {
@@ -230,8 +231,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * Tests that the modification of an entry caused keys to be derived and modified.  The
      * modify request contains both the 'userPassword' and the 'krb5PrincipalName'.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testModifyDerivedKeys() throws NamingException, IOException
     {
@@ -367,8 +368,8 @@ public class KeyDerivationServiceITest extends AbstractServerTest
      * modify request contains only the 'userPassword'.  The 'krb5PrincipalName' is to be
      * obtained from the initial add of the user principal entry.
      * 
-     * @throws NamingException
-     * @throws IOException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
      */
     public void testModifyDerivedKeysWithoutPrincipalName() throws NamingException, IOException
     {
@@ -495,9 +496,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
     /**
      * Tests that the addition of an entry caused random keys to be derived and added.
      * 
-     * @throws NamingException 
-     * @throws IOException 
-     * @throws InvalidKeyException 
+     * @throws NamingException failure to perform LDAP operations
+     * @throws IOException on network errors
+     * @throws InvalidKeyException if the incorrect key results
      */
     public void testAddRandomKeys() throws NamingException, IOException, InvalidKeyException
     {
@@ -610,6 +611,13 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
     /**
      * Convenience method for creating a person.
+     *
+     * @param cn the commonName of the person
+     * @param sn the surName of the person
+     * @param uid the unique id of the person
+     * @param userPassword the password of the person
+     * @param principal the kerberos principal name for the person
+     * @return the attributes of the person entry
      */
     protected Attributes getPersonAttributes( String sn, String cn, String uid, String userPassword, String principal )
     {
@@ -634,6 +642,9 @@ public class KeyDerivationServiceITest extends AbstractServerTest
 
     /**
      * Convenience method for creating an organizational unit.
+     *
+     * @param ou the organizational unit to create
+     * @return the attributes of the organizationalUnit
      */
     protected Attributes getOrgUnitAttributes( String ou )
     {

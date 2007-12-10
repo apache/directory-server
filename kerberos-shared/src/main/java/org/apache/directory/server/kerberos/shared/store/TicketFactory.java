@@ -28,6 +28,7 @@ import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.kerberos.KerberosTicket;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.CipherTextHandler;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
 import org.apache.directory.server.kerberos.shared.crypto.encryption.KeyUsage;
@@ -37,12 +38,12 @@ import org.apache.directory.server.kerberos.shared.io.encoder.TicketEncoder;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPart;
 import org.apache.directory.server.kerberos.shared.messages.components.EncTicketPartModifier;
 import org.apache.directory.server.kerberos.shared.messages.components.Ticket;
-import org.apache.directory.server.kerberos.shared.messages.components.TicketModifier;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.TicketFlags;
 import org.apache.directory.server.kerberos.shared.messages.value.TransitedEncoding;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlag;
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
 
 
 /**
@@ -97,7 +98,7 @@ public class TicketFactory
         EncTicketPartModifier encTicketModifier = new EncTicketPartModifier();
 
         TicketFlags ticketFlags = new TicketFlags();
-        ticketFlags.set( TicketFlags.RENEWABLE );
+        ticketFlags.setFlag( TicketFlag.RENEWABLE );
         encTicketModifier.setFlags( ticketFlags );
 
         EncryptionKey sessionKey = RandomKeyFactory.getRandomKey( EncryptionType.DES_CBC_MD5 );
@@ -118,12 +119,10 @@ public class TicketFactory
 
         EncryptedData encryptedTicketPart = cipherTextHandler.seal( serverKey, encTicketPart, KeyUsage.NUMBER2 );
 
-        TicketModifier ticketModifier = new TicketModifier();
-        ticketModifier.setTicketVersionNumber( 5 );
-        ticketModifier.setServerPrincipal( serverPrincipal );
-        ticketModifier.setEncPart( encryptedTicketPart );
-
-        Ticket ticket = ticketModifier.getTicket();
+        Ticket ticket = new Ticket();
+        ticket.setTktVno( KerberosConstants.KERBEROS_V5 );
+        ticket.setServerPrincipal( serverPrincipal );
+        ticket.setEncPart( encryptedTicketPart );
 
         ticket.setEncTicketPart( encTicketPart );
 
@@ -142,28 +141,28 @@ public class TicketFactory
     {
         byte[] asn1Encoding = TicketEncoder.encodeTicket( ticket );
 
-        KerberosPrincipal client = ticket.getClientPrincipal();
+        KerberosPrincipal client = ticket.getEncTicketPart().getClientPrincipal();
         KerberosPrincipal server = ticket.getServerPrincipal();
-        byte[] sessionKey = ticket.getSessionKey().getKeyValue();
-        int keyType = ticket.getSessionKey().getKeyType().getOrdinal();
+        byte[] sessionKey = ticket.getEncTicketPart().getSessionKey().getKeyValue();
+        int keyType = ticket.getEncTicketPart().getSessionKey().getKeyType().getOrdinal();
 
         boolean[] flags = new boolean[32];
 
         for ( int ii = 0; ii < flags.length; ii++ )
         {
-            flags[ii] = ticket.getFlag( ii );
+            flags[ii] = ticket.getEncTicketPart().getFlags().isFlagSet( ii );
         }
 
-        Date authTime = ticket.getAuthTime().toDate();
-        Date endTime = ticket.getEndTime().toDate();
+        Date authTime = ticket.getEncTicketPart().getAuthTime().toDate();
+        Date endTime = ticket.getEncTicketPart().getEndTime().toDate();
 
-        Date startTime = ( ticket.getStartTime() != null ? ticket.getStartTime().toDate() : null );
+        Date startTime = ( ticket.getEncTicketPart().getStartTime() != null ? ticket.getEncTicketPart().getStartTime().toDate() : null );
 
         Date renewTill = null;
 
-        if ( ticket.getFlag( TicketFlags.RENEWABLE ) )
+        if ( ticket.getEncTicketPart().getFlags().isRenewable() )
         {
-            renewTill = ( ticket.getRenewTill() != null ? ticket.getRenewTill().toDate() : null );
+            renewTill = ( ticket.getEncTicketPart().getRenewTill() != null ? ticket.getEncTicketPart().getRenewTill().toDate() : null );
         }
 
         InetAddress[] clientAddresses = new InetAddress[0];

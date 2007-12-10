@@ -20,6 +20,7 @@
 package org.apache.directory.server.schema.bootstrap;
 
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.shared.ldap.util.ArrayUtils;
 import org.apache.directory.shared.ldap.util.ClassUtils;
 
@@ -33,7 +34,7 @@ import org.apache.directory.shared.ldap.util.ClassUtils;
 public class AbstractBootstrapSchema implements BootstrapSchema
 {
     protected static final String[] DEFAULT_DEPS = ArrayUtils.EMPTY_STRING_ARRAY;
-    private static final String DEFAULT_OWNER = "uid=admin,ou=system";
+    private static final String DEFAULT_OWNER = ServerDNConstants.ADMIN_SYSTEM_DN;
     private static final String DEFAULT_SCHEMA_NAME = "default";
     private static final String DEFAULT_PACKAGE_NAME = AbstractBootstrapSchema.class.getPackage().getName();
 

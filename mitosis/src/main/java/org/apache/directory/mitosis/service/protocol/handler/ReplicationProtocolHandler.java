@@ -21,10 +21,10 @@ package org.apache.directory.mitosis.service.protocol.handler;
 
 
 import org.apache.directory.mitosis.configuration.ReplicationConfiguration;
-import org.apache.directory.mitosis.service.ReplicationContext;
-import org.apache.directory.mitosis.service.ReplicationService;
 import org.apache.directory.mitosis.service.DefaultReplicationContext;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
+import org.apache.directory.mitosis.service.ReplicationContext;
+import org.apache.directory.mitosis.service.ReplicationInterceptor;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.mina.common.IdleStatus;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoSession;
@@ -40,20 +40,20 @@ public class ReplicationProtocolHandler implements IoHandler
 {
     private static final String CONTEXT = "context";
 
-    private final ReplicationService service;
+    private final ReplicationInterceptor interceptor;
     private final ReplicationConfiguration configuration;
-    private final DirectoryServiceConfiguration serviceCfg;
+    private final DirectoryService directoryService;
     private final ReplicationContextHandler contextHandler;
 
 
-    public ReplicationProtocolHandler( ReplicationService service, ReplicationContextHandler contextHandler )
+    public ReplicationProtocolHandler( ReplicationInterceptor interceptor, ReplicationContextHandler contextHandler )
     {
-        assert service != null;
+        assert interceptor != null;
         assert contextHandler != null;
 
-        this.service = service;
-        this.configuration = service.getConfiguration();
-        this.serviceCfg = service.getFactoryConfiguration();
+        this.interceptor = interceptor;
+        this.configuration = interceptor.getConfiguration();
+        this.directoryService = interceptor.getDirectoryService();
         this.contextHandler = contextHandler;
     }
 
@@ -70,7 +70,8 @@ public class ReplicationProtocolHandler implements IoHandler
 
     public void sessionCreated( IoSession session ) throws Exception
     {
-        session.setAttribute( CONTEXT, new DefaultReplicationContext( service, serviceCfg, configuration, session ) );
+        session.setAttribute( CONTEXT,
+                new DefaultReplicationContext( interceptor, directoryService, configuration, session ) );
     }
 
 

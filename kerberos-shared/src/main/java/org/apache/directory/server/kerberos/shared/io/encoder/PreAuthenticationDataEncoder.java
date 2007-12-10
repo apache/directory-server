@@ -23,7 +23,7 @@ package org.apache.directory.server.kerberos.shared.io.encoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.shared.asn1.der.ASN1OutputStream;
 import org.apache.directory.shared.asn1.der.DERInteger;
 import org.apache.directory.shared.asn1.der.DEROctetString;
@@ -38,13 +38,13 @@ import org.apache.directory.shared.asn1.der.DERTaggedObject;
 public class PreAuthenticationDataEncoder
 {
     /**
-     * Encodes an array of {@link PreAuthenticationData}s into a byte array.
+     * Encodes an array of {@link PaData}s into a byte array.
      *
      * @param preAuth
      * @return The byte array.
      * @throws IOException
      */
-    public static byte[] encode( PreAuthenticationData[] preAuth ) throws IOException
+    public static byte[] encode( PaData[] preAuth ) throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
@@ -59,7 +59,7 @@ public class PreAuthenticationDataEncoder
     /**
      * METHOD-DATA     ::= SEQUENCE OF PA-DATA
      */
-    protected static DERSequence encodeSequence( PreAuthenticationData[] preAuth )
+    protected static DERSequence encodeSequence( PaData[] preAuth )
     {
         DERSequence sequence = new DERSequence();
 
@@ -78,15 +78,15 @@ public class PreAuthenticationDataEncoder
      *         padata-value[2]       OCTET STRING
      * }
      */
-    protected static DERSequence encode( PreAuthenticationData preAuth )
+    protected static DERSequence encode( PaData preAuth )
     {
         DERSequence sequence = new DERSequence();
 
-        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuth.getDataType().getOrdinal() ) ) );
+        sequence.add( new DERTaggedObject( 1, DERInteger.valueOf( preAuth.getPaDataType().getOrdinal() ) ) );
 
-        if ( preAuth.getDataValue() != null )
+        if ( preAuth.getPaDataValue() != null )
         {
-            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuth.getDataValue() ) ) );
+            sequence.add( new DERTaggedObject( 2, new DEROctetString( preAuth.getPaDataValue() ) ) );
         }
 
         return sequence;

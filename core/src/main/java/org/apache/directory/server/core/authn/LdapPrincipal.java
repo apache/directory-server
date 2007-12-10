@@ -25,7 +25,7 @@ import java.security.Principal;
 
 import javax.naming.Name;
 
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
 
@@ -50,7 +50,9 @@ public final class LdapPrincipal implements Principal, Serializable
     /** the authentication level for this principal */
     private final AuthenticationLevel authenticationLevel;
     
-    /** The userPassword */
+    /** The userPassword
+     * @todo security risk remove this immediately
+     */
     private byte[] userPassword;
 
 
@@ -60,11 +62,15 @@ public final class LdapPrincipal implements Principal, Serializable
      * trusted principal.
      *
      * @param name the normalized distinguished name of the principal
-     * @param authenticationLevel
+     * @param authenticationLevel the authentication level for this principal
      */
-    LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
+    public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel )
     {
         this.name = name;
+        if ( ! name.isNormalized() )
+        {
+            throw new IllegalStateException( "Names used for principals must be normalized!" );
+        }
         this.authenticationLevel = authenticationLevel;
         this.userPassword = null;
     }
@@ -75,10 +81,10 @@ public final class LdapPrincipal implements Principal, Serializable
      * trusted principal.
      *
      * @param name the normalized distinguished name of the principal
-     * @param authenticationLevel
+     * @param authenticationLevel the authentication level for this principal
      * @param userPassword The user password
      */
-    LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
+    public LdapPrincipal( LdapDN name, AuthenticationLevel authenticationLevel, byte[] userPassword )
     {
         this.name = name;
         this.authenticationLevel = authenticationLevel;
@@ -90,7 +96,7 @@ public final class LdapPrincipal implements Principal, Serializable
      * Creates a principal for the no name anonymous user whose DN is the empty
      * String.
      */
-    private LdapPrincipal()
+    public LdapPrincipal()
     {
         name = new LdapDN();
         authenticationLevel = AuthenticationLevel.NONE;

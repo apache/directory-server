@@ -30,7 +30,7 @@ public class OutstandingRequestsModel implements TableModel
 {
     final String[] columns = new String[]
         { "messageId", "type" };
-    final Class[] columnClasses = new Class[]
+    final Class<?>[] columnClasses = new Class[]
         { Integer.class, String.class };
     final AbandonableRequest[] requests;
 
@@ -65,7 +65,7 @@ public class OutstandingRequestsModel implements TableModel
     }
 
 
-    public Class getColumnClass( int columnIndex )
+    public Class<?> getColumnClass( int columnIndex )
     {
         return columnClasses[columnIndex];
     }

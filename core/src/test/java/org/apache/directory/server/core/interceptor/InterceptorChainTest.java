@@ -20,28 +20,28 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-
 import junit.framework.TestCase;
-
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutableInterceptorConfiguration;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.changelog.ChangeLog;
 import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.DeadContext;
+import org.apache.directory.server.core.partition.Partition;
+import org.apache.directory.server.core.partition.PartitionNexus;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.schema.SchemaOperationControl;
+import org.apache.directory.server.core.schema.SchemaService;
+import org.apache.directory.server.schema.registries.Registries;
+import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+import java.io.File;
+import java.util.*;
 
 
 /**
@@ -69,19 +69,12 @@ public class InterceptorChainTest extends TestCase
 
         for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
         {
-            MutableInterceptorConfiguration config = new MutableInterceptorConfiguration();
-            config.setInterceptorClassName( MockInterceptor.class.getName() );
-            config.setName( Integer.toString( ii ) );
-            chain.addLast( config );
-        }
-        
-        List interceptorsInChain = chain.getAll();
-        for ( int ii = 0; ii < INTERCEPTOR_COUNT; ii++ )
-        {
-            MockInterceptor interceptor = ( MockInterceptor ) interceptorsInChain.get( ii );
+            MockInterceptor interceptor = new MockInterceptor();
             interceptor.setTest( this );
             interceptor.setName( Integer.toString( ii ) );
+            chain.addLast(interceptor);
         }
+        
     }
 
 
@@ -250,48 +243,300 @@ public class InterceptorChainTest extends TestCase
     }
 
     
-    class MockDirectoryService extends DirectoryService
+    class MockDirectoryService implements DirectoryService
     {
-        public void startup( DirectoryServiceListener listener, Hashtable environment ) throws NamingException
+        public Hashtable<String, Object> getEnvironment()
         {
-            //To change body of implemented methods use File | Settings | File Templates.
+            return null;
+        }
+
+
+        public void setEnvironment( Hashtable<String, Object> environment )
+        {
+        }
+
+
+        public long revert( long revision ) throws NamingException
+        {
+            return 0;
+        }
+
+
+        public long revert() throws NamingException
+        {
+            return 0;
+        }
+
+
+        public PartitionNexus getPartitionNexus()
+        {
+            return null;
+        }
+
+
+        public InterceptorChain getInterceptorChain()
+        {
+            return null;
+        }
+
+
+        public void addPartition( Partition partition ) throws NamingException
+        {
+        }
+
+
+        public void removePartition( Partition partition ) throws NamingException
+        {
+        }
+
+
+        public Registries getRegistries()
+        {
+            return null;
+        }
+
+
+        public void setRegistries( Registries registries )
+        {
+        }
+
+
+        public SchemaService getSchemaService()
+        {
+            return null;
+        }
+
+
+        public void setSchemaService( SchemaService schemaService )
+        {
+
+        }
+
+
+        public SchemaOperationControl getSchemaManager()
+        {
+            return null;
+        }
+
+
+        public void setSchemaManager( SchemaOperationControl schemaManager )
+        {
+        }
+
+
+        public void startup() throws NamingException
+        {
         }
 
 
         public void shutdown() throws NamingException
         {
-            //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public void sync() throws NamingException
         {
-            //To change body of implemented methods use File | Settings | File Templates.
         }
 
 
         public boolean isStarted()
         {
-            return false; //To change body of implemented methods use File | Settings | File Templates.
+            return false;
         }
 
 
-        public DirectoryServiceConfiguration getConfiguration()
+        public LdapContext getJndiContext() throws NamingException
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
 
 
-        public Context getJndiContext( String baseName ) throws NamingException
+        public DirectoryService getDirectoryService()
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
 
 
-        public Context getJndiContext( LdapDN principalDn, String principal, byte[] credential, 
+        public LdapContext getJndiContext( String baseName ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public LdapContext getJndiContext( LdapPrincipal principal ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public LdapContext getJndiContext( LdapPrincipal principal, String dn ) throws NamingException
+        {
+            return null;
+        }
+
+
+        public LdapContext getJndiContext( LdapDN principalDn, String principal, byte[] credential,
             String authentication, String baseName ) throws NamingException
         {
-            return null; //To change body of implemented methods use File | Settings | File Templates.
+            return null;
+        }
+
+
+        public void setInstanceId( String instanceId )
+        {
+        }
+
+
+        public String getInstanceId()
+        {
+            return null;
+        }
+
+
+        public Set<? extends Partition> getPartitions()
+        {
+            return null;
+        }
+
+
+        public void setPartitions( Set<? extends Partition> partitions )
+        {
+        }
+
+
+        public boolean isAccessControlEnabled()
+        {
+            return false;
+        }
+
+
+        public void setAccessControlEnabled( boolean accessControlEnabled )
+        {
+        }
+
+
+        public boolean isAllowAnonymousAccess()
+        {
+            return false;
+        }
+
+
+        public void setAllowAnonymousAccess( boolean enableAnonymousAccess )
+        {
+        }
+
+
+        public List<Interceptor> getInterceptors()
+        {
+            return null;
+        }
+
+
+        public void setInterceptors( List<Interceptor> interceptors )
+        {
+        }
+
+
+        public List<Entry> getTestEntries()
+        {
+            return null;
+        }
+
+
+        public void setTestEntries( List<? extends Entry> testEntries )
+        {
+        }
+
+
+        public File getWorkingDirectory()
+        {
+            return null;
+        }
+
+
+        public void setWorkingDirectory( File workingDirectory )
+        {
+        }
+
+
+        public void validate()
+        {
+        }
+
+
+        public void setShutdownHookEnabled( boolean shutdownHookEnabled )
+        {
+        }
+
+
+        public boolean isShutdownHookEnabled()
+        {
+            return false;
+        }
+
+
+        public void setExitVmOnShutdown( boolean exitVmOnShutdown )
+        {
+        }
+
+
+        public boolean isExitVmOnShutdown()
+        {
+            return false;
+        }
+
+
+        public void setMaxSizeLimit( int maxSizeLimit )
+        {
+        }
+
+
+        public int getMaxSizeLimit()
+        {
+            return 0;
+        }
+
+
+        public void setMaxTimeLimit( int maxTimeLimit )
+        {
+        }
+
+
+        public int getMaxTimeLimit()
+        {
+            return 0;
+        }
+
+
+        public void setSystemPartition( Partition systemPartition )
+        {
+        }
+
+
+        public Partition getSystemPartition()
+        {
+            return null;
+        }
+
+
+        public boolean isDenormalizeOpAttrsEnabled()
+        {
+            return false;
+        }
+
+
+        public void setDenormalizeOpAttrsEnabled( boolean denormalizeOpAttrsEnabled )
+        {
+        }
+        
+        public void setChangeLog( ChangeLog changeLog )
+        {
+            
+        }
+        
+        public ChangeLog getChangeLog()
+        {
+            return null;
         }
     }
 }

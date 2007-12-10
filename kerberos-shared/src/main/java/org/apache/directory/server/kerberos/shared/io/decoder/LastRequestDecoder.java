@@ -50,7 +50,7 @@ public class LastRequestDecoder
         LastRequestEntry[] entries = new LastRequestEntry[sequence.size()];
 
         int ii = 0;
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERSequence object = ( DERSequence ) e.nextElement();
             LastRequestEntry entry = decode( object );
@@ -67,7 +67,7 @@ public class LastRequestDecoder
         LastRequestType type = LastRequestType.NONE;
         KerberosTime value = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();

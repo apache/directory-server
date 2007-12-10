@@ -20,46 +20,32 @@
 package org.apache.directory.server.core.jndi;
 
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Hashtable;
-import java.util.Iterator;
-
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.Referenceable;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidSearchFilterException;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.event.EventDirContext;
-import javax.naming.event.NamingListener;
-import javax.naming.spi.DirStateFactory;
-import javax.naming.spi.DirectoryManager;
-
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.authn.LdapPrincipal;
 import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.filter.AndNode;
-import org.apache.directory.shared.ldap.filter.BranchNode;
-import org.apache.directory.shared.ldap.filter.EqualityNode;
-import org.apache.directory.shared.ldap.filter.ExprNode;
-import org.apache.directory.shared.ldap.filter.FilterParser;
-import org.apache.directory.shared.ldap.filter.PresenceNode;
-import org.apache.directory.shared.ldap.filter.SimpleNode;
+import org.apache.directory.shared.ldap.filter.*;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
 import org.apache.directory.shared.ldap.name.AttributeTypeAndValue;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
 import org.apache.directory.shared.ldap.util.StringTools;
+
+import javax.naming.*;
+import javax.naming.directory.*;
+import javax.naming.event.EventDirContext;
+import javax.naming.event.NamingListener;
+import javax.naming.spi.DirStateFactory;
+import javax.naming.spi.DirectoryManager;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -96,7 +82,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @param principal the principal which is propagated
      * @param dn the distinguished name of this context
      */
-    protected ServerDirContext(DirectoryService service, LdapPrincipal principal, Name dn) throws NamingException
+    public ServerDirContext( DirectoryService service, LdapPrincipal principal, Name dn ) throws NamingException
     {
         super( service, principal, dn );
     }
@@ -159,17 +145,16 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, int modOp, Attributes attrs ) throws NamingException
     {
-        ModificationItemImpl[] modItems = null;
+        List<ModificationItemImpl> modItems = null;
         
         if ( attrs != null )
         {
-            modItems = new ModificationItemImpl[attrs.size()];
-            NamingEnumeration e = attrs.getAll();
-            int i = 0;
+            modItems = new ArrayList<ModificationItemImpl>( attrs.size() );
+            NamingEnumeration<? extends Attribute> e = (NamingEnumeration<? extends Attribute>)attrs.getAll();
             
             while ( e.hasMore() )
             {
-                modItems[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() ) ;
+                modItems.add( new ModificationItemImpl( modOp, e.next() ) );
             }
         }
 
@@ -216,11 +201,11 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      */
     public void modifyAttributes( Name name, ModificationItem[] mods ) throws NamingException
     {
-        ModificationItemImpl[] newMods = new ModificationItemImpl[ mods.length ];
+        List<ModificationItemImpl> newMods = new ArrayList<ModificationItemImpl>( mods.length );
         
-        for ( int i = 0; i < mods.length; i++ )
+        for ( ModificationItem mod:mods )
         {
-            newMods[i] = new ModificationItemImpl( mods[i] );
+            newMods.add( new ModificationItemImpl( mod ) );
         }
         
         doModifyOperation( buildTarget( new LdapDN( name ) ), newMods );
@@ -231,7 +216,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
      * @see javax.naming.directory.DirContext#modifyAttributes(
      * javax.naming.Name, javax.naming.directory.ModificationItem[])
      */
-    public void modifyAttributes( Name name, ModificationItemImpl[] mods ) throws NamingException
+    public void modifyAttributes( Name name, List<ModificationItemImpl> mods ) throws NamingException
     {
         doModifyOperation( buildTarget( new LdapDN( name ) ), mods );
     }
@@ -287,7 +272,7 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( Attributes ) attrs.clone();
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
@@ -315,7 +300,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( Attributes ) attrs.clone();
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
@@ -333,12 +319,14 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             Attributes attributes = ( ( DirContext ) obj ).getAttributes( "" );
             if ( outAttrs != null && outAttrs.size() > 0 )
             {
-                NamingEnumeration list = outAttrs.getAll();
+                NamingEnumeration<? extends Attribute> list = outAttrs.getAll();
+                
                 while ( list.hasMore() )
                 {
                     attributes.put( ( Attribute ) list.next() );
                 }
             }
+            
             LdapDN target = buildTarget( name );
             doAddOperation( target, attributes );
         }
@@ -541,14 +529,15 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         if ( ( null == matchingAttributes ) || ( matchingAttributes.size() <= 0 ) )
         {
             PresenceNode filter = new PresenceNode( SchemaConstants.OBJECT_CLASS_AT );
-            return doSearchOperation( target, getEnvironment(), filter, ctls );
+            AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+            return doSearchOperation( target, aliasDerefMode, filter, ctls );
         }
 
         // Handle simple filter expressions without multiple terms
         if ( matchingAttributes.size() == 1 )
         {
-            NamingEnumeration list = matchingAttributes.getAll();
-            Attribute attr = ( Attribute ) list.next();
+            NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
+            Attribute attr = list.next();
             list.close();
             
             if ( attr.size() == 1 )
@@ -565,7 +554,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
                     node = new EqualityNode( attr.getID(), ( String ) value );
                 }
 
-                return doSearchOperation( target, getEnvironment(), node, ctls );
+                AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+                return doSearchOperation( target, aliasDerefMode, node, ctls );
             }
         }
         
@@ -576,12 +566,12 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
         Attribute attr;
         SimpleNode node;
         BranchNode filter = new AndNode();
-        NamingEnumeration list = matchingAttributes.getAll();
+        NamingEnumeration<? extends Attribute> list = matchingAttributes.getAll();
 
         // Loop through each attribute value pair
         while ( list.hasMore() )
         {
-            attr = ( Attribute ) list.next();
+            attr = list.next();
 
             /*
              * According to JNDI if an attribute in the matchingAttributes
@@ -611,7 +601,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             }
         }
 
-        return doSearchOperation( target, getEnvironment(), filter, ctls );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filter, ctls );
     }
 
 
@@ -639,7 +630,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
     public NamingEnumeration<SearchResult> search( Name name, ExprNode filter, SearchControls cons ) throws NamingException
     {
         LdapDN target = buildTarget( name );
-        return doSearchOperation( target, getEnvironment(), filter, cons );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filter, cons );
     }
 
 
@@ -664,7 +656,8 @@ public abstract class ServerDirContext extends ServerContext implements EventDir
             throw isfe;
         }
 
-        return doSearchOperation( target, getEnvironment(), filterNode, cons );
+        AliasDerefMode aliasDerefMode = AliasDerefMode.getEnum( getEnvironment() );
+        return doSearchOperation( target, aliasDerefMode, filterNode, cons );
     }
 
 

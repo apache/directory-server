@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultMatchingRuleUseRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultMatchingRuleUseRegistry.class );
     /** maps a name to an MatchingRuleUse */
     private final Map<String,MatchingRuleUse> byName;
 
@@ -52,7 +52,7 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
 
     
     /**
-     * Creates an empty BootstrapMatchingRuleUseRegistry.
+     * Creates an empty DefaultMatchingRuleUseRegistry.
      */
     public DefaultMatchingRuleUseRegistry()
     {
@@ -69,15 +69,14 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     {
         if ( byName.containsKey( matchingRuleUse.getName() ) )
         {
-            NamingException e = new NamingException( "matchingRuleUse w/ name " + matchingRuleUse.getName()
+            throw new NamingException( "matchingRuleUse w/ name " + matchingRuleUse.getName()
                 + " has already been registered!" );
-            throw e;
         }
 
         byName.put( matchingRuleUse.getName(), matchingRuleUse );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registed matchingRuleUse: " + matchingRuleUse );
+            LOG.debug( "registed matchingRuleUse: " + matchingRuleUse );
         }
     }
 
@@ -86,14 +85,13 @@ public class DefaultMatchingRuleUseRegistry implements MatchingRuleUseRegistry
     {
         if ( !byName.containsKey( name ) )
         {
-            NamingException e = new NamingException( "matchingRuleUse w/ name " + name + " not registered!" );
-            throw e;
+            throw new NamingException( "matchingRuleUse w/ name " + name + " not registered!" );
         }
 
         MatchingRuleUse matchingRuleUse = byName.get( name );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "lookup with name '"+ name + "' of matchingRuleUse: " + matchingRuleUse );
+            LOG.debug( "lookup with name '"+ name + "' of matchingRuleUse: " + matchingRuleUse );
         }
         return matchingRuleUse;
     }

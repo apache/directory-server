@@ -28,11 +28,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.directory.server.constants.MetaSchemaConstants;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
+import org.apache.directory.server.core.authn.AuthenticationInterceptor;
+import org.apache.directory.server.core.authz.AciAuthorizationInterceptor;
+import org.apache.directory.server.core.authz.DefaultAuthorizationInterceptor;
+import org.apache.directory.server.core.exception.ExceptionInterceptor;
 import org.apache.directory.server.core.interceptor.context.AddOperationContext;
 import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.partition.PartitionNexusProxy;
+import org.apache.directory.server.core.referral.ReferralInterceptor;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.utils.AttributesFactory;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
@@ -67,14 +71,20 @@ public class SchemaSubentryModifier
     
     static
     {
-        Set<String> bypass = new HashSet<String>();
-        bypass.add( StartupConfiguration.AUTHENTICATION_SERVICE_NAME );
-        bypass.add( StartupConfiguration.REFERRAL_SERVICE_NAME );
-        bypass.add( StartupConfiguration.AUTHORIZATION_SERVICE_NAME );
-        bypass.add( StartupConfiguration.DEFAULT_AUTHORIZATION_SERVICE_NAME );
-        bypass.add( StartupConfiguration.EXCEPTION_SERVICE_NAME );
-        bypass.add( StartupConfiguration.SCHEMA_SERVICE_NAME );
-        BYPASS = Collections.unmodifiableCollection( bypass );
+        Set<String> c = new HashSet<String>();
+//        c.add( NormalizationInterceptor.class.getName() );
+        c.add( AuthenticationInterceptor.class.getName() );
+        c.add( ReferralInterceptor.class.getName() );
+        c.add( AciAuthorizationInterceptor.class.getName() );
+        c.add( DefaultAuthorizationInterceptor.class.getName() );
+        c.add( ExceptionInterceptor.class.getName() );
+//        c.add( OperationalAttributeInterceptor.class.getName() );
+        c.add( SchemaInterceptor.class.getName() );
+//        c.add( SubentryInterceptor.class.getName() );
+//        c.add( CollectiveAttributeInterceptor.class.getName() );
+//        c.add( EventInterceptor.class.getName() );
+//        c.add( TriggerInterceptor.class.getName() );
+        BYPASS = Collections.unmodifiableCollection( c );
     }
     
     private AttributesFactory factory = new AttributesFactory();
@@ -136,7 +146,7 @@ public class SchemaSubentryModifier
         Schema schema = dao.getSchema( obj.getSchema() );
         LdapDN dn = getDn( obj );
         Attributes attrs = factory.getAttributes( obj, schema );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
 
 
@@ -144,7 +154,7 @@ public class SchemaSubentryModifier
     {
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = getDn( obj );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
     
@@ -154,7 +164,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -164,7 +174,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -174,7 +184,7 @@ public class SchemaSubentryModifier
         PartitionNexusProxy proxy = InvocationStack.getInstance().peek().getProxy();
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
-        proxy.delete( new DeleteOperationContext( dn ), BYPASS );
+        proxy.delete( new DeleteOperationContext( dn, true ), BYPASS );
     }
 
 
@@ -185,7 +195,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + comparatorDescription.getNumericOid() + ",ou=comparators,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( comparatorDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     
@@ -219,7 +229,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + normalizerDescription.getNumericOid() + ",ou=normalizers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( normalizerDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     
@@ -253,7 +263,7 @@ public class SchemaSubentryModifier
         LdapDN dn = new LdapDN( "m-oid=" + syntaxCheckerDescription.getNumericOid() + ",ou=syntaxCheckers,cn=" 
             + schemaName + ",ou=schema" );
         Attributes attrs = getAttributes( syntaxCheckerDescription );
-        proxy.add( new AddOperationContext( dn, attrs ), BYPASS );
+        proxy.add( new AddOperationContext( dn, attrs, true ), BYPASS );
     }
     
     

@@ -20,39 +20,25 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
+import junit.framework.TestCase;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.DirectoryServiceListener;
-import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.StartupConfiguration;
-import org.apache.directory.server.core.interceptor.InterceptorChain;
-import org.apache.directory.server.core.partition.PartitionNexus;
+import org.apache.directory.server.core.partition.impl.btree.Index;
+import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.schema.SerializableComparator;
-import org.apache.directory.server.schema.bootstrap.ApacheSchema;
-import org.apache.directory.server.schema.bootstrap.ApachemetaSchema;
-import org.apache.directory.server.schema.bootstrap.BootstrapSchemaLoader;
-import org.apache.directory.server.schema.bootstrap.CoreSchema;
-import org.apache.directory.server.schema.bootstrap.Schema;
-import org.apache.directory.server.schema.bootstrap.SystemSchema;
+import org.apache.directory.server.schema.bootstrap.*;
 import org.apache.directory.server.schema.bootstrap.partition.SchemaPartitionExtractor;
 import org.apache.directory.server.schema.registries.DefaultOidRegistry;
 import org.apache.directory.server.schema.registries.DefaultRegistries;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 
-import junit.framework.TestCase;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -64,8 +50,7 @@ import junit.framework.TestCase;
 public class PartitionSchemaLoaderTest extends TestCase
 {
     private Registries registries;
-    private MutableStartupConfiguration startupConfiguration = new MutableStartupConfiguration();
-    private DirectoryServiceConfiguration configuration;
+    private DirectoryService directoryService;
     private JdbmPartition schemaPartition;
 
 
@@ -74,12 +59,13 @@ public class PartitionSchemaLoaderTest extends TestCase
         super.setUp();
 
         // setup working directory
+        directoryService = new DefaultDirectoryService();
         File workingDirectory = new File( System.getProperty( "workingDirectory", System.getProperty( "user.dir" ) ) );
         if ( ! workingDirectory.exists() )
         {
             workingDirectory.mkdirs();
         }
-        startupConfiguration.setWorkingDirectory( workingDirectory );
+        directoryService.setWorkingDirectory( workingDirectory );
         
         // --------------------------------------------------------------------
         // Load the bootstrap schemas to start up the schema partition
@@ -88,6 +74,7 @@ public class PartitionSchemaLoaderTest extends TestCase
         // setup temporary loader and temp registry 
         BootstrapSchemaLoader loader = new BootstrapSchemaLoader();
         registries = new DefaultRegistries( "bootstrap", loader, new DefaultOidRegistry() );
+        directoryService.setRegistries( registries );
         
         // load essential bootstrap schemas 
         Set<Schema> bootstrapSchemas = new HashSet<Schema>();
@@ -107,8 +94,7 @@ public class PartitionSchemaLoaderTest extends TestCase
         }
 
         SerializableComparator.setRegistry( registries.getComparatorRegistry() );
-        configuration = new TestConfiguration( registries, startupConfiguration );
-        
+
         // --------------------------------------------------------------------
         // If not present extract schema partition from jar
         // --------------------------------------------------------------------
@@ -116,7 +102,7 @@ public class PartitionSchemaLoaderTest extends TestCase
         SchemaPartitionExtractor extractor = null; 
         try
         {
-            extractor = new SchemaPartitionExtractor( startupConfiguration.getWorkingDirectory() );
+            extractor = new SchemaPartitionExtractor( directoryService.getWorkingDirectory() );
             extractor.extract();
         }
         catch ( IOException e )
@@ -129,21 +115,26 @@ public class PartitionSchemaLoaderTest extends TestCase
         // --------------------------------------------------------------------
         // Initialize schema partition
         // --------------------------------------------------------------------
-        
-        MutablePartitionConfiguration pc = new MutablePartitionConfiguration();
-        pc.setId( "schema" );
-        pc.setCacheSize( 1000 );
-        pc.setPartitionClassName( JdbmPartition.class.getName() );
-        pc.setIndexedAttributes( extractor.getDbFileListing().getIndexedAttributes() );
-        pc.setSuffix( "ou=schema" );
+
+        schemaPartition = new JdbmPartition();
+        schemaPartition.setId( "schema" );
+        schemaPartition.setCacheSize( 1000 );
+
+        Set<Index> indexedAttributes = new HashSet<Index>();
+        for ( String attributeId : extractor.getDbFileListing().getIndexedAttributes() )
+        {
+            indexedAttributes.add( new JdbmIndex( attributeId ) );
+        }
+
+        schemaPartition.setIndexedAttributes( indexedAttributes );
+        schemaPartition.setSuffix( "ou=schema" );
         
         Attributes entry = new AttributesImpl();
         entry.put( "objectClass", "top" );
         entry.get( "objectClass" ).add( "organizationalUnit" );
         entry.put( "ou", "schema" );
-        pc.setContextEntry( entry );
-        schemaPartition = new JdbmPartition();
-        schemaPartition.init( configuration, pc );
+        schemaPartition.setContextEntry( entry );
+        schemaPartition.init( directoryService );
     }
     
     
@@ -286,69 +277,5 @@ public class PartitionSchemaLoaderTest extends TestCase
         assertTrue( schemaNames.contains( "inetorgperson" ) );
         assertTrue( schemaNames.contains( "system" ) );
         assertTrue( schemaNames.contains( "apachemeta" ) );
-    }
-    
-    
-    class TestConfiguration implements DirectoryServiceConfiguration
-    {
-        Registries registries;
-        StartupConfiguration startupConfiguration;
-        
-        
-        public TestConfiguration( Registries registries, StartupConfiguration startupConfiguration )
-        {
-            this.registries = registries;
-            this.startupConfiguration = startupConfiguration;
-        }
-        
-        public Hashtable getEnvironment()
-        {
-            return new Hashtable();
-        }
-
-        public String getInstanceId()
-        {
-            return "default";
-        }
-
-        public InterceptorChain getInterceptorChain()
-        {
-            return null;
-        }
-
-        public PartitionNexus getPartitionNexus()
-        {
-            return null;
-        }
-
-        public Registries getRegistries()
-        {
-            return registries;
-        }
-
-        public DirectoryService getService()
-        {
-            return null;
-        }
-
-        public DirectoryServiceListener getServiceListener()
-        {
-            return null;
-        }
-
-        public StartupConfiguration getStartupConfiguration()
-        {
-            return startupConfiguration;
-        }
-
-        public boolean isFirstStart()
-        {
-            return false;
-        }
-
-        public SchemaManager getSchemaManager()
-        {
-            return null;
-        }
     }
 }

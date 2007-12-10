@@ -20,7 +20,12 @@
 package org.apache.directory.server.core.interceptor;
 
 
-import java.util.Iterator;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.authn.LdapPrincipal;
+import org.apache.directory.server.core.interceptor.context.*;
+import org.apache.directory.server.core.invocation.InvocationStack;
+import org.apache.directory.server.core.jndi.ServerContext;
+import org.apache.directory.shared.ldap.name.LdapDN;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -28,32 +33,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.authn.LdapPrincipal;
-import org.apache.directory.server.core.configuration.InterceptorConfiguration;
-import org.apache.directory.server.core.interceptor.context.AddContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.BindOperationContext;
-import org.apache.directory.server.core.interceptor.context.CompareOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetMatchedNameOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetRootDSEOperationContext;
-import org.apache.directory.server.core.interceptor.context.GetSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListSuffixOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RemoveContextPartitionOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
-import org.apache.directory.server.core.interceptor.context.UnbindOperationContext;
-import org.apache.directory.server.core.invocation.InvocationStack;
-import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.shared.ldap.name.LdapDN;
+import java.util.Iterator;
 
 
 /**
@@ -61,13 +41,26 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  * implemented to pass the flow of control to next interceptor by defaults.
  * Please override the methods you have concern in.
  *
+ * @org.apache.xbean.XBean
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public abstract class BaseInterceptor implements Interceptor
 {
     /**
+     * default interceptor name is its class, preventing accidental duplication of interceptors by naming
+     * instances differently
+     * @return (default, class name) interceptor name
+     */
+    public String getName()
+    {
+        return getClass().getName();
+    }
+    
+    /**
      * Returns {@link LdapPrincipal} of current context.
+     * @return the authenticated principal
      */
     public static LdapPrincipal getPrincipal()
     {
@@ -78,6 +71,7 @@ public abstract class BaseInterceptor implements Interceptor
 
     /**
      * Returns the current JNDI {@link Context}.
+     * @return the context on the invocation stack
      */
     public static LdapContext getContext()
     {
@@ -96,7 +90,7 @@ public abstract class BaseInterceptor implements Interceptor
     /**
      * This method does nothing by default.
      */
-    public void init( DirectoryServiceConfiguration factoryCfg, InterceptorConfiguration cfg ) throws NamingException
+    public void init( DirectoryService directoryService ) throws NamingException
     {
     }
 

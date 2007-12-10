@@ -22,9 +22,7 @@ package org.apache.directory.server.dns.store.jndi;
 
 import java.util.Set;
 
-import javax.naming.spi.InitialContextFactory;
-
-import org.apache.directory.server.dns.DnsConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.dns.DnsException;
 import org.apache.directory.server.dns.messages.QuestionRecord;
 import org.apache.directory.server.dns.messages.ResourceRecord;
@@ -32,35 +30,32 @@ import org.apache.directory.server.dns.store.RecordStore;
 
 
 /**
- * A JNDI-backed implementation of the RecordStore interface.  This RecordStore uses
+ * A DirectoryService-backed implementation of the RecordStore interface.  This RecordStore uses
  * the Strategy pattern to either serve records based on a single base DN or to lookup
  * catalog mappings from directory configuration.
- * 
+ *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
 public class JndiRecordStoreImpl implements RecordStore
 {
-    /** a handle on the configuration */
-    private DnsConfiguration config;
-    /** a handle on the provider factory */
-    private InitialContextFactory factory;
-    /** a handle on the searchh strategy */
-    private SearchStrategy strategy;
+    /**
+     * a handle on the searchh strategy
+     */
+    private final SearchStrategy strategy;
 
 
     /**
      * Creates a new instance of JndiRecordStoreImpl.
      *
-     * @param config
-     * @param factory
+     * @param catalogBaseDn base of catalog of searchDns
+     * @param searchBaseDn single search base for when there is no catalog
+     * @param directoryService DirectoryService backend for the searches.
      */
-    public JndiRecordStoreImpl( DnsConfiguration config, InitialContextFactory factory )
+    public JndiRecordStoreImpl( String catalogBaseDn, String searchBaseDn, DirectoryService directoryService )
     {
-        this.config = config;
-        this.factory = factory;
 
-        strategy = getSearchStrategy();
+        strategy = getSearchStrategy( catalogBaseDn, searchBaseDn, directoryService );
     }
 
 
@@ -70,15 +65,15 @@ public class JndiRecordStoreImpl implements RecordStore
     }
 
 
-    private SearchStrategy getSearchStrategy()
+    private SearchStrategy getSearchStrategy( String catalogBaseDn, String searchBaseDn, DirectoryService directoryService )
     {
-        if ( config.getCatalogBaseDn() != null )
+        if ( catalogBaseDn != null )
         {
             // build catalog from factory
-            return new MultiBaseSearch( config, factory );
+            return new MultiBaseSearch( catalogBaseDn, directoryService );
         }
 
         // use config for catalog baseDN
-        return new SingleBaseSearch( config, factory );
+        return new SingleBaseSearch( searchBaseDn, directoryService );
     }
 }

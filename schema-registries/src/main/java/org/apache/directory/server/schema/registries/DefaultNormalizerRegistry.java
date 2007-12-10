@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultNormalizerRegistry implements NormalizerRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultNormalizerRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultNormalizerRegistry.class );
     /** a map of Normalizers looked up by OID */
     private final Map<String,Normalizer> byOid;
     /** maps an OID to a normalizerDescription */
@@ -55,8 +55,9 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
-     * Creates a default normalizer registry.
+     * Creates a new default DefaultNormalizerRegistry.
      */
     public DefaultNormalizerRegistry()
     {
@@ -75,15 +76,14 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
         String oid = description.getNumericOid();
         if ( byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer already " + "registered for OID " + oid );
-            throw e;
+            throw new NamingException( "Normalizer already " + "registered for OID " + oid );
         }
 
         oidToDescription.put( oid, description );
         byOid.put( oid, normalizer );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registered normalizer with oid: " + oid );
+            LOG.debug( "registered normalizer with oid: " + oid );
         }
     }
 
@@ -92,14 +92,13 @@ public class DefaultNormalizerRegistry implements NormalizerRegistry
     {
         if ( !byOid.containsKey( oid ) )
         {
-            NamingException e = new NamingException( "Normalizer for OID " + oid + " does not exist!" );
-            throw e;
+            throw new NamingException( "Normalizer for OID " + oid + " does not exist!" );
         }
 
         Normalizer normalizer = byOid.get( oid );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registered normalizer with oid: " + oid );
+            LOG.debug( "registered normalizer with oid: " + oid );
         }
         return normalizer;
     }

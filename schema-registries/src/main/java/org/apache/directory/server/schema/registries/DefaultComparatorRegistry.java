@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultComparatorRegistry implements ComparatorRegistry
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( DefaultComparatorRegistry.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DefaultComparatorRegistry.class );
     /** the comparators in this registry */
     private final Map<String,Comparator> byOid;
     /** maps oids to a comparator description */
@@ -54,8 +54,9 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
 
+
     /**
-     * Creates a default ComparatorRegistry by initializing the map and the
+     * Creates a DefaultComparatorRegistry by initializing the map and the
      * montior.
      */
     public DefaultComparatorRegistry()
@@ -74,16 +75,15 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
     {
         if ( byOid.containsKey( description.getNumericOid() ) )
         {
-            NamingException e = new NamingException( "Comparator with OID " + description.getNumericOid() 
+            throw new NamingException( "Comparator with OID " + description.getNumericOid() 
                 + " already registered!" );
-            throw e;
         }
 
         oidToDescription.put( description.getNumericOid(), description );
         byOid.put( description.getNumericOid(), comparator );
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "registed comparator with OID: " + description.getNumericOid() );
+            LOG.debug( "registed comparator with OID: " + description.getNumericOid() );
         }
     }
 
@@ -106,15 +106,14 @@ public class DefaultComparatorRegistry implements ComparatorRegistry
         if ( byOid.containsKey( oid ) )
         {
             Comparator c = byOid.get( oid );
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                log.debug( "looked up comparator with OID: " + oid );
+                LOG.debug( "looked up comparator with OID: " + oid );
             }
             return c;
         }
 
-        NamingException e = new NamingException( "Comparator not found for OID: " + oid );
-        throw e;
+        throw new NamingException( "Comparator not found for OID: " + oid );
     }
 
 

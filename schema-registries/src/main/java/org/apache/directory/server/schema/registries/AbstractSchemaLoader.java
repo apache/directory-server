@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractSchemaLoader implements SchemaLoader
 {
     /** static class logger */
-    private final static Logger log = LoggerFactory.getLogger( AbstractSchemaLoader.class );
+    private static final Logger LOG = LoggerFactory.getLogger( AbstractSchemaLoader.class );
     
     protected SchemaLoaderListener listener;
     
@@ -79,7 +79,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
      * @param notLoaded hash of schemas keyed by name which have yet to be loaded
      * @param schema the current schema we are attempting to load
      * @param registries the set of registries to use while loading
-     * @param props to use while trying resolve other schemas
+     * @param props to use while trying to resolve other schemas
      * @throws NamingException if there is a cycle detected and/or another
      * failure results while loading, producing and or registering schema objects
      */
@@ -88,7 +88,7 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
     {
         if ( registries.getLoadedSchemas().containsKey( schema.getSchemaName() ) )
         {
-            log.warn( "{} schema has already been loaded" + schema.getSchemaName() );
+            LOG.warn( "{} schema has already been loaded" + schema.getSchemaName() );
             return;
         }
         
@@ -117,20 +117,27 @@ public abstract class AbstractSchemaLoader implements SchemaLoader
          * all deps loading them with their deps first if they have not been
          * loaded.
          */
-        for ( int ii = 0; ii < deps.length; ii++ )
+        for ( String depName : deps )
         {
-            if ( !notLoaded.containsKey( deps[ii] ) )
+            // @todo if a dependency is not loaded it's not in this list
+            // @todo why is it not in this list?  Without being in this list
+            // @todo this for loop is absolutely useless - we will not load
+            // @todo any disabled dependencies at all.  I'm shocked that the
+            // @todo samba schema is actually loading when the nis dependency
+            // @todo is not loaded.
+
+            if ( !notLoaded.containsKey( depName ) )
             {
                 continue;
             }
 
-            Schema dep = notLoaded.get( deps[ii] );
-            
+            Schema dep = notLoaded.get( depName );
+
             // dep is not in the set of schema objects we need to try to resolve it
             if ( dep == null )
             {
-                // try to load dependency with the provided properties default 
-                dep = getSchema( deps[ii], props );
+                // try to load dependency with the provided properties default
+                dep = getSchema( depName, props );
             }
 
             if ( beenthere.contains( dep.getSchemaName() ) )

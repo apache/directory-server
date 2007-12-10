@@ -20,27 +20,27 @@
 
 package org.apache.directory.server.core.trigger;
 
-import java.util.Map;
-
-import javax.naming.NamingException;
-
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
 import org.apache.directory.shared.ldap.trigger.StoredProcedureParameter;
+
+import javax.naming.NamingException;
+import java.util.Map;
 
 
 public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProcedureParameterInjector
 {
     private boolean deleteOldRn;
     private LdapDN oldRDN;
-    private LdapDN newRDN;
+    private Rdn newRDN;
     private LdapDN oldSuperiorDN;
     private LdapDN newSuperiorDN;
     private LdapDN oldDN;
     private LdapDN newDN;
 
 	public ModifyDNStoredProcedureParameterInjector( Invocation invocation, boolean deleteOldRn,
-        LdapDN oldRDN, LdapDN newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
+        LdapDN oldRDN, Rdn newRDN, LdapDN oldSuperiorDN, LdapDN newSuperiorDN, LdapDN oldDN, LdapDN newDN)
     {
         super( invocation );
         this.deleteOldRn = deleteOldRn;
@@ -84,7 +84,7 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
             return new LdapDN( newRDN.getUpName() );
         }
     };
-    
+
     /**
      * Injector for 'newrdn' parameter of ModifyDNRequest as in RFC4511.
      */
@@ -93,10 +93,10 @@ public class ModifyDNStoredProcedureParameterInjector extends AbstractStoredProc
         public Object inject( StoredProcedureParameter param ) throws NamingException
         {
             // Return a safe copy constructed with user provided name.
-            return new Boolean( deleteOldRn );
+            return deleteOldRn;
         }
     };
-    
+
     /**
      * Injector for 'newSuperior' parameter of ModifyDNRequest as in RFC4511.
      */

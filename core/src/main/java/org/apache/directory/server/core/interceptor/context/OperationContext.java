@@ -35,6 +35,24 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public interface OperationContext
 {
     /**
+     * Checks to see if this operation is an indirect system issued operation.
+     * Collateral operations often result from direct operations.
+     *
+     * @return true if the operation represents a collateral request
+     */
+    boolean isCollateralOperation();
+
+
+    /**
+     * Sets this operation context to represent an operation that results as a
+     * byproduct of another directly issued request.
+     *
+     * @param collateralOperation true if this is collateral, false otherwise
+     */
+    void setCollateralOperation( boolean collateralOperation );
+
+
+    /**
      * @return The associated DN
      */
     LdapDN getDn();

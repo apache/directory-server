@@ -43,7 +43,7 @@ import java.util.HashSet;
 
 
 /**
- * Performs schema checks on behalf of the SchemaService.
+ * Performs schema checks on behalf of the SchemaInterceptor.
  *
  * TODO: we really need to refactor this code since there's much duplication
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>

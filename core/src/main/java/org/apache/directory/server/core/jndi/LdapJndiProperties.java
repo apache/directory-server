@@ -28,7 +28,7 @@ import java.util.List;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -82,11 +82,11 @@ public class LdapJndiProperties
         }
         else
         {
-            if ( "none".equals( authentication ) )
+            if ( AuthenticationLevel.NONE.toString().equals( authentication ) )
             {
                 level = AuthenticationLevel.NONE;
             }
-            else if ( "simple".equals( authentication ) )
+            else if ( AuthenticationLevel.SIMPLE.toString().equals( authentication ) )
             {
                 level = AuthenticationLevel.SIMPLE;
             }
@@ -150,12 +150,12 @@ public class LdapJndiProperties
             if ( credobj == null )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( "none" );
+                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
             else
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( "simple" );
+                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
         }
         else if ( !( authentication instanceof String ) )
@@ -165,25 +165,25 @@ public class LdapJndiProperties
         }
         else
         {
-            if ( "none".equals( authentication ) )
+            if ( AuthenticationLevel.NONE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.NONE;
-                props.mechanisms.add( "none" );
+                props.mechanisms.add( AuthenticationLevel.NONE.toString() );
             }
-            else if ( "simple".equals( authentication ) )
+            else if ( AuthenticationLevel.SIMPLE.toString().equals( authentication ) )
             {
                 props.level = AuthenticationLevel.SIMPLE;
-                props.mechanisms.add( "simple" );
+                props.mechanisms.add( AuthenticationLevel.SIMPLE.toString() );
             }
             else
             {
                 props.level = AuthenticationLevel.STRONG;
                 String[] mechList = ( ( String ) authentication ).trim().split( " " );
-                for ( int ii = 0; ii < mechList.length; ii++ )
+                for ( String mech : mechList )
                 {
-                    if ( !mechList[ii].trim().equals( "" ) )
+                    if ( !mech.trim().equals( "" ) )
                     {
-                        props.mechanisms.add( mechList[ii] );
+                        props.mechanisms.add( mech );
                     }
                 }
             }
@@ -193,18 +193,20 @@ public class LdapJndiProperties
         // Figure out and set the security principal bindDn and saslAuthId
         // -------------------------------------------------------------------
 
-        if ( principal == null )
+        if ( principal == null && props.level == AuthenticationLevel.SIMPLE )
         {
             throw new LdapConfigurationException( Context.SECURITY_PRINCIPAL + " cannot be null." );
         }
-        
-        if ( !( principal instanceof String ) )
+        else if ( principal == null && props.level == AuthenticationLevel.NONE )
+        {
+            props.bindDn = LdapDN.EMPTY_LDAPDN;
+        }
+        else if ( !( principal instanceof String ) )
         {
             throw new LdapConfigurationException( "Don't know how to interpret " + principal.getClass()
                 + " objects for environment property " + Context.SECURITY_PRINCIPAL );
         }
-        
-        if ( ( ( String ) principal ).trim().equals( "" ) )
+        else if ( ( ( String ) principal ).trim().equals( "" ) )
         {
             props.bindDn = LdapDN.EMPTY_LDAPDN;
         }

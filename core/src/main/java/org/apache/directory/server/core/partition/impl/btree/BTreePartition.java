@@ -20,30 +20,8 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.PartitionConfiguration;
 import org.apache.directory.server.core.enumeration.SearchResultEnumeration;
-import org.apache.directory.server.core.interceptor.context.AddOperationContext;
-import org.apache.directory.server.core.interceptor.context.DeleteOperationContext;
-import org.apache.directory.server.core.interceptor.context.EntryOperationContext;
-import org.apache.directory.server.core.interceptor.context.ListOperationContext;
-import org.apache.directory.server.core.interceptor.context.LookupOperationContext;
-import org.apache.directory.server.core.interceptor.context.ModifyOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveAndRenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.MoveOperationContext;
-import org.apache.directory.server.core.interceptor.context.RenameOperationContext;
-import org.apache.directory.server.core.interceptor.context.SearchOperationContext;
+import org.apache.directory.server.core.interceptor.context.*;
 import org.apache.directory.server.core.partition.Oid;
 import org.apache.directory.server.core.partition.Partition;
 import org.apache.directory.server.core.partition.impl.btree.gui.PartitionViewer;
@@ -54,33 +32,61 @@ import org.apache.directory.shared.ldap.exception.LdapContextNotEmptyException;
 import org.apache.directory.shared.ldap.exception.LdapNameNotFoundException;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
-import org.apache.directory.shared.ldap.schema.AttributeType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 
 /**
  * An abstract {@link Partition} that uses general BTree operations.
  *
+ * @org.apache.xbean.XBean
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
 public abstract class BTreePartition implements Partition
 {
-    private static final Logger log = LoggerFactory.getLogger( BTreePartition.class );
+    protected static final Set<String> SYS_INDEX_OIDS;
+
+    static
+    {
+        Set<String> set = new HashSet<String>();
+        set.add( Oid.ALIAS );
+        set.add( Oid.EXISTANCE );
+        set.add( Oid.HIERARCHY );
+        set.add( Oid.NDN );
+        set.add( Oid.ONEALIAS );
+        set.add( Oid.SUBALIAS );
+        set.add( Oid.UPDN );
+        SYS_INDEX_OIDS = Collections.unmodifiableSet( set );
+    }
 
     /** the search engine used to search the database */
-    private SearchEngine searchEngine = null;
-    private Optimizer optimizer;
-    private BTreePartitionConfiguration cfg;
-    
-    protected AttributeTypeRegistry attributeTypeRegistry = null;
-    protected OidRegistry oidRegistry = null;
+    protected SearchEngine searchEngine;
+    protected Optimizer optimizer;
+
+    protected AttributeTypeRegistry attributeTypeRegistry;
+    protected OidRegistry oidRegistry;
+
+    protected String id;
+    protected int cacheSize = -1;
+    protected LdapDN suffixDn;
+    protected String suffix;
+    protected Attributes contextEntry = new AttributesImpl( true );
 
 
     // ------------------------------------------------------------------------
     // C O N S T R U C T O R S
     // ------------------------------------------------------------------------
+
 
     /**
      * Creates a B-tree based context partition.
@@ -90,18 +96,84 @@ public abstract class BTreePartition implements Partition
     }
 
     
-    public BTreePartitionConfiguration getConfiguration()
+    // ------------------------------------------------------------------------
+    // C O N F I G U R A T I O N   M E T H O D S
+    // ------------------------------------------------------------------------
+
+
+    /**
+     * Used to specify the entry cache size for a Partition.  Various Partition
+     * implementations may interpret this value in different ways: i.e. total cache
+     * size limit verses the number of entries to cache.
+     *
+     * @param cacheSize the maximum size of the cache in the number of entries
+     */
+    public void setCacheSize( int cacheSize )
     {
-        return cfg;
+        this.cacheSize = cacheSize;
     }
-    
-    
+
+
+    /**
+     * Gets the entry cache size for this BTreePartition.
+     *
+     * @return the maximum size of the cache as the number of entries maximum before paging out
+     */
+    public int getCacheSize()
+    {
+        return cacheSize;
+    }
+
+
+    /**
+     * Returns root entry for this BTreePartition.
+     *
+     * @return the root suffix entry for this BTreePartition
+     */
+    public Attributes getContextEntry()
+    {
+        return ( Attributes ) contextEntry.clone();
+    }
+
+
+    /**
+     * Sets root entry for this BTreePartition.
+     *
+     * @param rootEntry the root suffix entry of this BTreePartition
+     */
+    public void setContextEntry( Attributes rootEntry )
+    {
+        this.contextEntry = ( Attributes ) rootEntry.clone();
+    }
+
+
+    /**
+     * Gets the unique identifier for this partition.
+     *
+     * @return the unique identifier for this partition
+     */
     public String getId()
     {
-        return cfg.getId();
+        return id;
+    }
+
+
+    /**
+     * Sets the unique identifier for this partition.
+     *
+     * @param id the unique identifier for this partition
+     */
+    public void setId( String id )
+    {
+        this.id = id;
     }
     
     
+    // -----------------------------------------------------------------------
+    // E N D   C O N F I G U R A T I O N   M E T H O D S
+    // -----------------------------------------------------------------------
+
+
     /**
      * Allows for schema entity registries to be swapped out during runtime.  This is 
      * primarily here to facilitate the swap out of a temporary bootstrap registry.  
@@ -110,285 +182,9 @@ public abstract class BTreePartition implements Partition
      * 
      * @param registries the schema entity registries
      */
-    public void initRegistries( Registries registries )
-    {
-        initRegistries1( registries );
-    }
-    
-    
-    /**
-     * This should be called second after initializing the optimizer with 
-     * initOptimizer0.  This is the same as calling initRegistries() 
-     * (initRegistries actually calls initRegistries1) except it is protected 
-     * to hide the '1' at the end of the method name.  The '1' indicates it 
-     * is the 2nd thing that must be executed during initialization.
-     * 
-     * @param registries the schema entity registries
-     */
-    protected void initRegistries1( Registries registries )
-    {
-        attributeTypeRegistry = registries.getAttributeTypeRegistry();
-        oidRegistry = registries.getOidRegistry();
-        ExpressionEvaluator evaluator = new ExpressionEvaluator( this, oidRegistry, attributeTypeRegistry );
-        ExpressionEnumerator enumerator = new ExpressionEnumerator( this, attributeTypeRegistry, evaluator );
-        this.searchEngine = new DefaultSearchEngine( this, evaluator, enumerator, optimizer );
-    }
-    
-    
-    /**
-     * Use this method to initialize the indices.  Only call this after
-     * the registries and the optimizer have been enabled.  The '2' at the end
-     * shows this is the 3rd init method called in the init sequence.
-     * 
-     * @param indices
-     * @throws NamingException
-     */
-    protected void initIndices2(Set indices ) throws NamingException
-    {
-        Set<String> sysOidSet = new HashSet<String>();
-        sysOidSet.add( Oid.EXISTANCE );
-        sysOidSet.add( Oid.HIERARCHY );
-        sysOidSet.add( Oid.UPDN );
-        sysOidSet.add( Oid.NDN );
-        sysOidSet.add( Oid.ONEALIAS );
-        sysOidSet.add( Oid.SUBALIAS );
-        sysOidSet.add( Oid.ALIAS );
-
-        // Used to calculate the system indices we must automatically add
-        Set<String> customAddedSystemIndices = new HashSet<String>();
-        
-        for ( Iterator ii = indices.iterator(); ii.hasNext(); /**/ )
-        {
-            /*
-             * NOTE
-             * ====
-             * 
-             * The object returned by the indexedAttributes property
-             * of the configuration may include just a simple set of <String> 
-             * names for the attributes being index OR may include a set 
-             * of IndexConfiguration objects.
-             * 
-             * If the objects are strings extra information about the
-             * cacheSize of an index is not available and so the default is
-             * used.  If an IndexConfiguration is available then the custom
-             * cacheSize is used.
-             */
-            
-            Object nextObject = ii.next();
-            String name = null;
-            int cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-            int numDupLimit = IndexConfiguration.DEFAULT_DUPLICATE_LIMIT;
-            
-            // no custom cacheSize info is available so default sticks
-            if ( nextObject instanceof String ) 
-            {
-                name = ( String ) nextObject;
-                log.warn( "Using default cache size of {} for index on attribute {}", 
-                    new Integer( cacheSize ), name );
-            }
-            // custom cache size is used
-            else if ( nextObject instanceof IndexConfiguration )
-            {
-                IndexConfiguration indexConfiguration = ( IndexConfiguration ) nextObject;
-                name = indexConfiguration.getAttributeId();
-                cacheSize = indexConfiguration.getCacheSize();
-                numDupLimit = indexConfiguration.getDuplicateLimit();
-                
-                if ( cacheSize <= 0 ) 
-                {
-                    log.warn( "Cache size {} for index on attribute is null or negative. Using default value.", 
-                        new Integer(cacheSize), name );
-                    cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-                }
-                else
-                {
-                    log.info( "Using cache size of {} for index on attribute {}", 
-                        new Integer( cacheSize ), name );
-                }
-                
-                if ( cacheSize <= 0 ) 
-                {
-                    log.warn( "Duplicate limit {} for index on attribute is null or negative. Using default value.", 
-                        new Integer(numDupLimit), name );
-                    cacheSize = IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE;
-                }
-                else
-                {
-                    log.info( "Using duplicate limit of {} for index on attribute {}", 
-                        new Integer( numDupLimit ), name );
-                }
-            }
-            
-            String oid = oidRegistry.getOid( name );
-            AttributeType type = attributeTypeRegistry.lookup( oid );
-
-            // check if attribute is a system attribute
-            if ( sysOidSet.contains( oid ) )
-            {
-                if ( oid.equals( Oid.EXISTANCE ) )
-                {
-                    setExistanceIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.EXISTANCE );
-                }
-                else if ( oid.equals( Oid.HIERARCHY ) )
-                {
-                    setHierarchyIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.HIERARCHY );
-                }
-                else if ( oid.equals( Oid.UPDN ) )
-                {
-                    setUpdnIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.UPDN );
-                }
-                else if ( oid.equals( Oid.NDN ) )
-                {
-                    setNdnIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.NDN );
-                }
-                else if ( oid.equals( Oid.ONEALIAS ) )
-                {
-                    setOneAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.ONEALIAS );
-                }
-                else if ( oid.equals( Oid.SUBALIAS ) )
-                {
-                    setSubAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.SUBALIAS);
-                }
-                else if ( oid.equals( Oid.ALIAS ) )
-                {
-                    setAliasIndexOn( type, cacheSize, numDupLimit );
-                    customAddedSystemIndices.add( Oid.ALIAS );
-                }
-                else
-                {
-                    throw new NamingException( "Unidentified system index " + oid );
-                }
-            }
-            else
-            {
-                addIndexOn( type, cacheSize, numDupLimit );
-            }
-        }
-        
-        // -------------------------------------------------------------------
-        // Add all system indices that were not custom configured by iterating
-        // through all system index oids and checking of that index is 
-        // contained within the customAddedSystemIndices set.  If it is not
-        // contained in this set then the system index was not custom 
-        // configured above and must be configured with defaults below.
-        // -------------------------------------------------------------------
-        
-        for ( Iterator ii = sysOidSet.iterator(); ii.hasNext(); /**/ )
-        {
-            String systemIndexName = ( String ) ii.next();
-            if ( ! customAddedSystemIndices.contains( systemIndexName ) )
-            {
-                AttributeType type = attributeTypeRegistry.lookup( systemIndexName );
-                log.warn( "Using default cache size of {} for index on attribute {}", 
-                    new Integer( IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE ), systemIndexName );
-                if ( systemIndexName.equals( Oid.EXISTANCE ) )
-                {
-                    setExistanceIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE, 
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.HIERARCHY ) )
-                {
-                    setHierarchyIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.UPDN ) )
-                {
-                    setUpdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.NDN ) )
-                {
-                    setNdnIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.ONEALIAS ) )
-                {
-                    setOneAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.SUBALIAS ) )
-                {
-                    setSubAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else if ( systemIndexName.equals( Oid.ALIAS ) )
-                {
-                    setAliasIndexOn( type, IndexConfiguration.DEFAULT_INDEX_CACHE_SIZE,
-                        IndexConfiguration.DEFAULT_DUPLICATE_LIMIT );
-                }
-                else
-                {
-                    throw new NamingException( "Unidentified system index " + systemIndexName );
-                }
-            }
-        }
-    }
+    public abstract void setRegistries( Registries registries );
 
     
-    /**
-     * Called last (4th) to check if the suffix entry has been created on disk,
-     * and if not it is created.
-     *  
-     * @param suffix
-     * @param entry
-     * @throws NamingException
-     */
-    protected void initSuffixEntry3( String suffix, Attributes entry ) throws NamingException
-    {
-        // add entry for context, if it does not exist
-        Attributes suffixOnDisk = getSuffixEntry();
-        if ( suffixOnDisk == null )
-        {
-            LdapDN dn = new LdapDN( suffix );
-            LdapDN normalizedSuffix = LdapDN.normalize( dn, attributeTypeRegistry.getNormalizerMapping() );
-            add( new AddOperationContext( normalizedSuffix, entry ) );
-        }
-    }
-
-    
-    /**
-     * Call this first in the init sequence to initialize the optimizer.
-     * 
-     * @param cfg
-     */
-    protected void initOptimizerAndConfiguration0( PartitionConfiguration cfg ) throws NamingException
-    {
-        if ( cfg instanceof BTreePartitionConfiguration )
-        {
-            this.cfg = ( BTreePartitionConfiguration ) cfg;
-            if ( ! this.cfg.isOptimizerEnabled() )
-            {
-                optimizer = new NoOpOptimizer();
-            }
-            else
-            {
-                optimizer = new DefaultOptimizer( this );
-            }
-        }
-        else
-        {
-            this.cfg = BTreePartitionConfiguration.convert( cfg );
-            optimizer = new DefaultOptimizer( this );
-        }
-    }
-
-    
-    public void init( DirectoryServiceConfiguration factoryCfg, PartitionConfiguration cfg )
-        throws NamingException
-    {
-        initOptimizerAndConfiguration0( cfg );
-        initRegistries1( factoryCfg.getRegistries() );
-        initIndices2( cfg.getIndexedAttributes() );
-        initSuffixEntry3( cfg.getSuffix(), cfg.getContextEntry() );
-    }
-
-
     // ------------------------------------------------------------------------
     // Public Accessors - not declared in any interfaces just for this class
     // ------------------------------------------------------------------------
@@ -406,8 +202,9 @@ public abstract class BTreePartition implements Partition
 
 
     // ------------------------------------------------------------------------
-    // ContextPartition Interface Method Implementations
+    // Partition Interface Method Implementations
     // ------------------------------------------------------------------------
+
 
     public void delete( DeleteOperationContext opContext ) throws NamingException
     {
@@ -440,8 +237,9 @@ public abstract class BTreePartition implements Partition
 
 
     private static final String[] ENTRY_DELETED_ATTRS = new String[] { "entrydeleted" };
-    
-    public NamingEnumeration list( ListOperationContext opContext ) throws NamingException
+
+
+    public NamingEnumeration<SearchResult> list( ListOperationContext opContext ) throws NamingException
     {
         SearchResultEnumeration list;
         list = new BTreeSearchResultEnumeration( ENTRY_DELETED_ATTRS, list( getEntryId( opContext.getDn().getNormName() ) ),
@@ -455,14 +253,15 @@ public abstract class BTreePartition implements Partition
     {
         SearchControls searchCtls = opContext.getSearchControls();
         String[] attrIds = searchCtls.getReturningAttributes();
-        NamingEnumeration underlying = null;
+        NamingEnumeration underlying;
 
         underlying = searchEngine.search( 
-            opContext.getDn(), 
-            opContext.getEnv(), 
+            opContext.getDn(),
+            opContext.getAliasDerefMode(),
             opContext.getFilter(), 
             searchCtls );
 
+        //noinspection unchecked
         return new BTreeSearchResultEnumeration( attrIds, underlying, this, attributeTypeRegistry );
     }
 
@@ -519,7 +318,7 @@ public abstract class BTreePartition implements Partition
 
     public void inspect() throws Exception
     {
-        PartitionViewer viewer = new PartitionViewer( this, searchEngine );
+        PartitionViewer viewer = new PartitionViewer( this );
         viewer.execute();
     }
 
@@ -531,7 +330,7 @@ public abstract class BTreePartition implements Partition
     // Index Operations 
     // ------------------------------------------------------------------------
 
-    public abstract void addIndexOn( AttributeType attribute, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void addIndexOn( Index index ) throws NamingException;
 
 
     public abstract boolean hasUserIndexOn( String attribute ) throws NamingException;
@@ -603,41 +402,46 @@ public abstract class BTreePartition implements Partition
      * Sets the system index defined on the ALIAS_ATTRIBUTE which for LDAP would
      * be the aliasedObjectName and for X.500 would be aliasedEntryName.
      * 
-     * @param attrType the index on the ALIAS_ATTRIBUTE
+     * @param index the index on the ALIAS_ATTRIBUTE
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setAliasIndexOn( Index index ) throws NamingException;
 
 
     /**
      * Sets the attribute existance Index.
      *
-     * @param attrType the attribute existance Index
+     * @param index the attribute existance Index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setExistanceIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setExistanceIndexOn( Index index ) throws NamingException;
 
 
     /**
      * Sets the hierarchy Index.
      *
-     * @param attrType the hierarchy Index
+     * @param index the hierarchy Index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setHierarchyIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setHierarchyIndexOn( Index index ) throws NamingException;
 
 
     /**
      * Sets the user provided distinguished name Index.
      *
-     * @param attrType the updn Index
+     * @param index the updn Index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setUpdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setUpdnIndexOn( Index index ) throws NamingException;
 
 
     /**
      * Sets the normalized distinguished name Index.
      *
-     * @param attrType the ndn Index
+     * @param index the ndn Index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setNdnIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setNdnIndexOn( Index index ) throws NamingException;
 
 
     /**
@@ -645,9 +449,10 @@ public abstract class BTreePartition implements Partition
      * children one level below them; this system index is used to dereference
      * aliases on one/single level scoped searches.
      * 
-     * @param attrType a one level alias index
+     * @param index a one level alias index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setOneAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setOneAliasIndexOn( Index index ) throws NamingException;
 
 
     /**
@@ -655,9 +460,10 @@ public abstract class BTreePartition implements Partition
      * alias descendents; this system index is used to dereference aliases on 
      * subtree scoped searches.
      * 
-     * @param attrType a subtree alias index
+     * @param index a subtree alias index
+     * @throws NamingException if there is a problem setting up the index
      */
-    public abstract void setSubAliasIndexOn( AttributeType attrType, int cacheSize, int numDupLimit ) throws NamingException;
+    public abstract void setSubAliasIndexOn( Index index ) throws NamingException;
 
 
     public abstract Index getUserIndex( String attribute ) throws IndexNotFoundException;
@@ -704,7 +510,7 @@ public abstract class BTreePartition implements Partition
     public abstract void delete( Long id ) throws NamingException;
 
 
-    public abstract NamingEnumeration list( Long id ) throws NamingException;
+    public abstract NamingEnumeration<IndexRecord> list( Long id ) throws NamingException;
 
 
     public abstract int getChildCount( Long id ) throws NamingException;

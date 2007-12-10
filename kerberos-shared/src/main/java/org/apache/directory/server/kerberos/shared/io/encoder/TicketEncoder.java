@@ -69,9 +69,9 @@ public class TicketEncoder
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( ticket.getVersionNumber() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( ticket.getTktVno() ) ) );
         vector.add( new DERTaggedObject( 1, DERGeneralString.valueOf( ticket.getRealm() ) ) );
-        vector.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( ticket.getServerPrincipal() ) ) );
+        vector.add( new DERTaggedObject( 2, PrincipalNameEncoder.encode( ticket.getSName() ) ) );
         vector.add( new DERTaggedObject( 3, EncryptedDataEncoder.encodeSequence( ticket.getEncPart() ) ) );
 
         DERApplicationSpecific ticketSequence = null;

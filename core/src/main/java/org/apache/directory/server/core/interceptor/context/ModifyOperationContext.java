@@ -19,6 +19,9 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -40,8 +43,9 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class ModifyOperationContext extends AbstractOperationContext
 {
     /** The modification items */
-    private ModificationItemImpl[] modItems;
-    
+    private List<ModificationItemImpl> modItems;
+
+
     /**
      * 
      * Creates a new instance of ModifyOperationContext.
@@ -52,48 +56,68 @@ public class ModifyOperationContext extends AbstractOperationContext
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of ModifyOperationContext.
      *
+     * @param dn the dn of the entry to be modified
+     * @param modItems the modifications to be performed on the entry
      */
-    public ModifyOperationContext( LdapDN dn, ModificationItemImpl[] modItems )
+    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems )
     {
         super( dn );
         this.modItems = modItems;
     }
 
+
+    /**
+     * Creates a new instance of ModifyOperationContext.
+     *
+     * @param dn the dn of the entry to be modified
+     * @param modItems the modifications to be performed on the entry
+     * @param collateralOperation true if op is collateral, false otherwise
+     */
+    public ModifyOperationContext( LdapDN dn, List<ModificationItemImpl> modItems, boolean collateralOperation )
+    {
+        super( dn, collateralOperation );
+        this.modItems = modItems;
+    }
+
+
     /**
      * Set the modified attributes
-     * @param value The modified attributes
+     * @param modItems The modified attributes
      */
-    public void setModItems( ModificationItemImpl[] modItems ) 
+    public void setModItems( List<ModificationItemImpl> modItems )
     {
         this.modItems = modItems;
     }
 
+
     /**
      * @return The modifications
      */
-    public ModificationItemImpl[] getModItems() 
+    public List<ModificationItemImpl> getModItems() 
     {
         return modItems;
     }
-    
-    public static ModificationItemImpl[] createModItems( Attributes attributes, int modOp ) throws NamingException
+
+
+    @SuppressWarnings( value = "unchecked" )
+    public static List<ModificationItemImpl> createModItems( Attributes attributes, int modOp ) throws NamingException
     {
-        ModificationItemImpl[] items = new ModificationItemImpl[attributes.size()];
-        NamingEnumeration e = attributes.getAll();
-        int i = 0;
+        List<ModificationItemImpl> items = new ArrayList<ModificationItemImpl>( attributes.size() );
+        NamingEnumeration<Attribute> e = ( NamingEnumeration<Attribute> ) attributes.getAll();
         
         while ( e.hasMore() )
         {
-            items[i++] = new ModificationItemImpl( modOp, ( Attribute ) e.next() );
+            items.add( new ModificationItemImpl( modOp, e.next() ) );
         }
 
         return items;
     }
-    
+
+
     /**
      * @see Object#toString()
      */

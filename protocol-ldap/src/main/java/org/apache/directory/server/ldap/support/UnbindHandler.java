@@ -20,15 +20,8 @@
 package org.apache.directory.server.ldap.support;
 
 
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.core.jndi.ServerLdapContext;
-import org.apache.directory.server.ldap.SessionRegistry;
+import org.apache.directory.shared.ldap.message.UnbindRequest;
 import org.apache.mina.common.IoSession;
-import org.apache.mina.handler.demux.MessageHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -38,33 +31,13 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class UnbindHandler implements MessageHandler
+public abstract class UnbindHandler extends AbstractLdapHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( UnbindHandler.class );
-
-
-    public void messageReceived( IoSession session, Object request ) throws Exception
+    public final void messageReceived( IoSession session, Object request ) throws Exception
     {
-        SessionRegistry registry = SessionRegistry.getSingleton();
-
-        try
-        {
-            LdapContext ctx = SessionRegistry.getSingleton().getLdapContext( session, null, false );
-
-            if ( ctx != null )
-            {
-                if ( ctx instanceof ServerLdapContext && ( ( ServerLdapContext ) ctx ).getService().isStarted() )
-                {
-                    ( ( ServerLdapContext ) ctx ).ldapUnbind();
-                }
-                ctx.close();
-            }
-            registry.terminateSession( session );
-            registry.remove( session );
-        }
-        catch ( NamingException e )
-        {
-            log.error( "failed to unbind session properly", e );
-        }
+        unbindMessageReceived( session, ( UnbindRequest ) request );
     }
+
+
+    protected abstract void unbindMessageReceived( IoSession session, UnbindRequest unbindRequest ) throws Exception;
 }

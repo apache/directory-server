@@ -24,10 +24,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Enumeration;
 
+import org.apache.directory.server.kerberos.shared.KerberosConstants;
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KdcRequest;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.KdcOptions;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBody;
 import org.apache.directory.server.kerberos.shared.messages.value.RequestBodyModifier;
 import org.apache.directory.shared.asn1.der.ASN1InputStream;
@@ -78,14 +79,14 @@ public class KdcRequestDecoder
      }*/
     private KdcRequest decodeKdcRequestSequence( DERSequence sequence ) throws IOException
     {
-        int pvno = 5;
-        MessageType msgType = MessageType.NULL;
+        int pvno = KerberosConstants.KERBEROS_V5;
+        KerberosMessageType msgType = null;
 
-        PreAuthenticationData[] paData = null;
+        PaData[] paData = null;
         RequestBody requestBody = null;
         byte[] bodyBytes = null;
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -97,14 +98,17 @@ public class KdcRequestDecoder
                     DERInteger tag1 = ( DERInteger ) derObject;
                     pvno = tag1.intValue();
                     break;
+                    
                 case 2:
                     DERInteger tag2 = ( DERInteger ) derObject;
-                    msgType = MessageType.getTypeByOrdinal( tag2.intValue() );
+                    msgType = KerberosMessageType.getTypeByOrdinal( tag2.intValue() );
                     break;
+                    
                 case 3:
                     DERSequence tag3 = ( DERSequence ) derObject;
                     paData = PreAuthenticationDataDecoder.decodeSequence( tag3 );
                     break;
+                    
                 case 4:
                     DERSequence tag4 = ( DERSequence ) derObject;
                     requestBody = decodeRequestBody( tag4 );
@@ -147,7 +151,7 @@ public class KdcRequestDecoder
     {
         RequestBodyModifier modifier = new RequestBodyModifier();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();
@@ -191,6 +195,7 @@ public class KdcRequestDecoder
                     DERSequence etype = ( DERSequence ) derObject;
                     modifier.setEType( EncryptionTypeDecoder.decode( etype ) );
                     break;
+                    
                 case 9:
                     DERSequence hostAddresses = ( DERSequence ) derObject;
                     modifier.setAddresses( HostAddressDecoder.decodeSequence( hostAddresses ) );

@@ -37,12 +37,10 @@ import org.apache.directory.server.kerberos.shared.messages.value.EncryptedData;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptedTimeStamp;
 import org.apache.directory.server.kerberos.shared.messages.value.EncryptionKey;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationData;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PreAuthenticationDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.PaData;
 import org.apache.directory.server.kerberos.shared.messages.value.PrincipalName;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameModifier;
-import org.apache.directory.server.kerberos.shared.messages.value.PrincipalNameType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PaDataType;
+import org.apache.directory.server.kerberos.shared.messages.value.types.PrincipalNameType;
 import org.apache.mina.common.IoFilterChain;
 import org.apache.mina.common.IoHandler;
 import org.apache.mina.common.IoService;
@@ -66,7 +64,7 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
     protected static final SecureRandom random = new SecureRandom();
 
 
-    protected PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
+    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal, String passPhrase )
         throws Exception
     {
         KerberosTime timeStamp = new KerberosTime();
@@ -75,10 +73,10 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
     }
 
 
-    protected PreAuthenticationData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal,
+    protected PaData[] getPreAuthEncryptedTimeStamp( KerberosPrincipal clientPrincipal,
         String passPhrase, KerberosTime timeStamp ) throws Exception
     {
-        PreAuthenticationData[] paData = new PreAuthenticationData[1];
+        PaData[] paData = new PaData[1];
 
         EncryptedTimeStamp encryptedTimeStamp = new EncryptedTimeStamp( timeStamp, 0 );
 
@@ -88,23 +86,23 @@ public abstract class AbstractAuthenticationServiceTest extends TestCase
 
         byte[] encodedEncryptedData = EncryptedDataEncoder.encode( encryptedData );
 
-        PreAuthenticationDataModifier preAuth = new PreAuthenticationDataModifier();
-        preAuth.setDataType( PreAuthenticationDataType.PA_ENC_TIMESTAMP );
-        preAuth.setDataValue( encodedEncryptedData );
+        PaData preAuth = new PaData();
+        preAuth.setPaDataType( PaDataType.PA_ENC_TIMESTAMP );
+        preAuth.setPaDataValue( encodedEncryptedData );
 
-        paData[0] = preAuth.getPreAuthenticationData();
+        paData[0] = preAuth;
 
         return paData;
     }
 
 
-    protected PrincipalName getPrincipalName( String principalName )
+    protected PrincipalName getPrincipalName( String name )
     {
-        PrincipalNameModifier principalNameModifier = new PrincipalNameModifier();
-        principalNameModifier.addName( principalName );
-        principalNameModifier.setType( PrincipalNameType.KRB_NT_PRINCIPAL.getOrdinal() );
+        PrincipalName principalName = new PrincipalName();
+        principalName.addName( name );
+        principalName.setNameType( PrincipalNameType.KRB_NT_PRINCIPAL );
 
-        return principalNameModifier.getPrincipalName();
+        return principalName;
     }
 
 

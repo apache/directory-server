@@ -20,15 +20,16 @@
 package org.apache.directory.server.ldap.support.bind;
 
 
-import java.util.Hashtable;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.shared.ldap.message.BindRequest;
+import org.apache.mina.common.IoSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.ldap.LdapContext;
 import javax.security.sasl.AuthorizeCallback;
-
-import org.apache.mina.common.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Hashtable;
 
 
 /**
@@ -37,10 +38,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 {
-    private static final Logger log = LoggerFactory.getLogger( DigestMd5CallbackHandler.class );
+    private static final Logger LOG = LoggerFactory.getLogger( DigestMd5CallbackHandler.class );
 
     private IoSession session;
-    private Object message;
+    private BindRequest bindRequest;
 
     private String bindDn;
     private String userPassword;
@@ -49,21 +50,23 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
     /**
      * Creates a new instance of DigestMd5CallbackHandler.
      *
-     * @param session
-     * @param message
+     * @param session the mina IoSession
+     * @param message the message
+     * @param directoryService the directory service core
      */
-    public DigestMd5CallbackHandler( IoSession session, Object message )
+    public DigestMd5CallbackHandler( DirectoryService directoryService, IoSession session, BindRequest bindRequest )
     {
+        super( directoryService );
         this.session = session;
-        this.message = message;
+        this.bindRequest = bindRequest;
     }
 
 
     protected String lookupPassword( String username, String realm )
     {
-        Hashtable env = getEnvironment( session );
+        Hashtable<String, Object> env = getEnvironment( session );
 
-        LdapContext ctx = getContext( session, message, env );
+        LdapContext ctx = getContext( session, bindRequest, env );
 
         // TODO - Use realm with multi-realm support.
 
@@ -80,9 +83,9 @@ public class DigestMd5CallbackHandler extends AbstractSaslCallbackHandler
 
     protected void authorize( AuthorizeCallback authorizeCB )
     {
-        if ( log.isDebugEnabled() )
+        if ( LOG.isDebugEnabled() )
         {
-            log.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword + "." );
+            LOG.debug( "Converted username " + getUsername() + " to DN " + bindDn + " with password " + userPassword + "." );
         }
 
         session.setAttribute( Context.SECURITY_PRINCIPAL, bindDn );

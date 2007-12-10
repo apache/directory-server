@@ -20,34 +20,26 @@
 package org.apache.directory.server.core.unit;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
+import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.DirectoryService;
-import org.apache.directory.server.core.configuration.Configuration;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.configuration.SyncConfiguration;
 import org.apache.directory.server.schema.registries.Registries;
 import org.apache.directory.shared.ldap.ldif.Entry;
 import org.apache.directory.shared.ldap.ldif.LdifReader;
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -58,6 +50,8 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractTestCase extends TestCase
 {
+    public static final Logger LOG = LoggerFactory.getLogger( AbstractTestCase.class );
+
     public static final String LDIF = 
     	"dn: uid=akarasulu,ou=users,ou=system\n" + 
     	"cn: Alex Karasulu\n" +
@@ -93,8 +87,6 @@ public abstract class AbstractTestCase extends TestCase
     /** flag whether to delete database files for each test or not */
     protected boolean doDelete = true;
 
-    protected MutableStartupConfiguration configuration = new MutableStartupConfiguration();
-
     /** A testEntries of entries as Attributes to add to the DIT for testing */
     protected List<Entry> testEntries = new ArrayList<Entry>();
 
@@ -107,9 +99,11 @@ public abstract class AbstractTestCase extends TestCase
     private Hashtable<String,Object> overrides = new Hashtable<String,Object>();
 
     protected Registries registries;
-    
 
-    protected AbstractTestCase(String username, String password)
+    protected DirectoryService service;
+
+
+    protected AbstractTestCase( String username, String password )
     {
         if ( username == null || password == null )
         {
@@ -118,6 +112,7 @@ public abstract class AbstractTestCase extends TestCase
 
         this.username = username;
         this.password = password;
+        this.service = new DefaultDirectoryService();
     }
 
 
@@ -158,15 +153,28 @@ public abstract class AbstractTestCase extends TestCase
         super.setUp();
 
         // -------------------------------------------------------------------
+        // Bypass normal startup if changelog has been enabled and the server
+        // has already started.
+        // -------------------------------------------------------------------
+
+        /// still working on it!!!
+//        if ( service.getChangeLog().isEnabled() )
+//        {
+//            startTag = service.getChangeLog().tag();
+//
+//            if ( service.isStarted() )
+//            {
+//                return;
+//            }
+//        }
+
+        // -------------------------------------------------------------------
         // Add a single test entry
         // -------------------------------------------------------------------
 
         LdifReader reader = new LdifReader();
-        
     	List entries = reader.parseLdif( LDIF );
-        
         Entry entry = ( Entry ) entries.get(0);
-
         testEntries.add( entry );
 
         // -------------------------------------------------------------------
@@ -183,27 +191,28 @@ public abstract class AbstractTestCase extends TestCase
             File ldifFile = new File( ldifPath );
             if ( ldifFile.exists() )
             {
+                //noinspection UnusedAssignment
                 in = new FileInputStream( ldifPath );
             }
             else
             {
+                //noinspection UnusedAssignment
                 in = getClass().getResourceAsStream( ldifPath );
             }
             throw new FileNotFoundException( ldifPath );
         }
-        else if ( loadClass != null && ldifPath != null )
+        else if ( loadClass != null )
         {
             in = loadClass.getResourceAsStream( ldifPath );
         }
 
         if ( in != null )
         {
-            Iterator list = new LdifReader( in );
+            Iterator<Entry> list = new LdifReader( in );
             
             while ( list.hasNext() )
             {
-                entry = ( Entry ) list.next();
-                
+                entry = list.next();
                 testEntries.add( entry );
             }
         }
@@ -212,27 +221,36 @@ public abstract class AbstractTestCase extends TestCase
         // Add key for extra entries to the testEntries of extras
         // -------------------------------------------------------------------
 
-        configuration.setTestEntries( testEntries );
-        configuration.setShutdownHookEnabled( false );
-        doDelete( configuration.getWorkingDirectory() );
-        setContextRoots( username, password, configuration );
-        registries = DirectoryService.getInstance().getConfiguration().getRegistries();
+        service.setTestEntries( testEntries );
+        service.setShutdownHookEnabled( false );
+        doDelete( service.getWorkingDirectory() );
+        service.startup();
+        setContextRoots( username, password );
+        registries = service.getRegistries();
     }
 
     
     /**
      * Restarts the server without loading data when it has been shutdown.
+     * @throws NamingException if the restart fails
      */
     protected void restart() throws NamingException
     {
-        configuration = new MutableStartupConfiguration();
-        configuration.setShutdownHookEnabled( false );
-        setContextRoots( username, password, configuration );
+        if ( service == null )
+        {
+            service = new DefaultDirectoryService();
+        }
+        service.setShutdownHookEnabled( false );
+        service.startup();
+        setContextRoots( username, password );
     }
     
 
     /**
-     * Deletes the Eve working directory.
+     * Deletes the working directory.
+     *
+     * @param wkdir the working directory to delete
+     * @throws IOException if the working directory cannot be deleted
      */
     protected void doDelete( File wkdir ) throws IOException
     {
@@ -240,7 +258,14 @@ public abstract class AbstractTestCase extends TestCase
         {
             if ( wkdir.exists() )
             {
-                FileUtils.deleteDirectory( wkdir );
+                try
+                {
+                    FileUtils.deleteDirectory( wkdir );
+                }
+                catch ( IOException e )
+                {
+                    LOG.error( "Failed to delete the working directory.", e );
+                }
             }
             if ( wkdir.exists() )
             {
@@ -259,9 +284,10 @@ public abstract class AbstractTestCase extends TestCase
      * @param passwd the password of the user
      * @throws NamingException if there is a failure of any kind
      */
-    protected void setContextRoots( String user, String passwd, Configuration cfg ) throws NamingException
+    protected void setContextRoots( String user, String passwd ) throws NamingException
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>( cfg.toJndiEnvironment() );
+        Hashtable<String,Object> env = new Hashtable<String,Object>();
+        env.put(  DirectoryService.JNDI_KEY, service );
         env.put( Context.SECURITY_PRINCIPAL, user );
         env.put( Context.SECURITY_CREDENTIALS, passwd );
         env.put( Context.SECURITY_AUTHENTICATION, "simple" );
@@ -293,6 +319,8 @@ public abstract class AbstractTestCase extends TestCase
         adminEnv.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
         adminEnv.put( Context.SECURITY_CREDENTIALS, "secret" );
         adminEnv.put( Context.SECURITY_AUTHENTICATION, "simple" );
+        adminEnv.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
+        adminEnv.put( DirectoryService.JNDI_KEY, service );
         new InitialLdapContext( adminEnv, null );
 
         // OK, now let's get an appropriate context.
@@ -309,6 +337,8 @@ public abstract class AbstractTestCase extends TestCase
     /**
      * Overrides default JNDI environment properties.  Please call this method
      * to override any JNDI environment properties this test case will set.
+     * @param key the key of the hashtable entry to add to the environment
+     * @param value the value of the hashtable entry to add to the environment
      */
     protected void overrideEnvironment( String key, Object value )
     {
@@ -327,21 +357,13 @@ public abstract class AbstractTestCase extends TestCase
      */
     protected void shutdown()
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.putAll( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-
         try
         {
-            new InitialContext( env );
+            service.shutdown();
         }
         catch ( Exception e )
         {
+            LOG.error( "Encountered an error while shutting down directory service.", e );
         } 
         sysRoot = null;
         Runtime.getRuntime().gc();
@@ -353,21 +375,13 @@ public abstract class AbstractTestCase extends TestCase
      */
     protected void sync()
     {
-        Hashtable<String,Object> env = new Hashtable<String,Object>();
-
-        env.put( Context.PROVIDER_URL, "ou=system" );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, "org.apache.directory.server.core.jndi.CoreContextFactory" );
-        env.putAll( new SyncConfiguration().toJndiEnvironment() );
-        env.put( Context.SECURITY_PRINCIPAL, "uid=admin,ou=system" );
-        env.put( Context.SECURITY_CREDENTIALS, "secret" );
-        env.put( Context.SECURITY_AUTHENTICATION, "simple" );
-
         try
         {
-            new InitialContext( env );
+            service.sync();
         }
         catch ( Exception e )
         {
+            LOG.warn( "Encountered error while syncing.", e );
         } 
     }
 
@@ -385,8 +399,8 @@ public abstract class AbstractTestCase extends TestCase
         ldifPath = null;
         loadClass = null;
         overrides.clear();
-        configuration = new MutableStartupConfiguration();
-        doDelete( configuration.getWorkingDirectory() );
+        service = new DefaultDirectoryService();
+        doDelete( service.getWorkingDirectory() );
     }
 
 
@@ -399,17 +413,17 @@ public abstract class AbstractTestCase extends TestCase
     /**
      * Inject an ldif String into the server. DN must be relative to the
      * root.
+     * 
+     * @param ldif the ldif containing entries to add to the server.
+     * @throws NamingException if there is a problem adding the entries from the LDIF
      */
     protected void injectEntries( String ldif ) throws NamingException
     {
         LdifReader reader = new LdifReader();
         List<Entry> entries = reader.parseLdif( ldif );
-        
-        Iterator<Entry> entryIter = entries.iterator(); 
-        
-        while ( entryIter.hasNext() )
+
+        for ( Entry entry : entries )
         {
-            Entry entry = entryIter.next();
             rootDSE.createSubcontext( new LdapDN( entry.getDn() ), entry.getAttributes() );
         }
     }

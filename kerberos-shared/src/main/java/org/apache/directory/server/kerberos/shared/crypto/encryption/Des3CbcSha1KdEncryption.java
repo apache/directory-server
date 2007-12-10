@@ -93,7 +93,7 @@ public class Des3CbcSha1KdEncryption extends EncryptionEngine implements Checksu
     {
         byte[] Ke = deriveKey( key.getKeyValue(), getUsageKe( usage ), 64, 168 );
 
-        byte[] encryptedData = data.getCipherText();
+        byte[] encryptedData = data.getCipher();
 
         // extract the old checksum
         byte[] oldChecksum = new byte[getChecksumLength()];

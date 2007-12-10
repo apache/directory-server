@@ -20,24 +20,22 @@
 package org.apache.directory.server;
 
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-
 import org.apache.directory.server.ldap.ExtendedOperationHandler;
-import org.apache.directory.server.ldap.LdapConfiguration;
 import org.apache.directory.server.ldap.support.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.sp.JavaStoredProcUtils;
 import org.apache.directory.shared.ldap.sp.LdapContextParameter;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 
 /**
@@ -46,19 +44,12 @@ import org.apache.directory.shared.ldap.sp.LdapContextParameter;
  */
 public class StoredProcedureExecutionITest extends AbstractServerTest
 {
-    private LdapContext ctx = null;
-    private LdapContext spCtx = null;
+    private LdapContext ctx;
+    private LdapContext spCtx;
 
     
     public void setUp() throws Exception
     {
-        /////////////////////////////////////////////////////////
-        // Enable the Stored Procedure Extended Operation Handler
-        /////////////////////////////////////////////////////////
-        LdapConfiguration ldapCfg = super.configuration.getLdapConfiguration();
-        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapCfg.getExtendedOperationHandlers() );
-        handlers.add( new StoredProcedureExtendedOperationHandler() );
-        ldapCfg.setExtendedOperationHandlers( handlers );
 
         super.setUp();
 
@@ -76,6 +67,17 @@ public class StoredProcedureExecutionITest extends AbstractServerTest
         spCtx = ( LdapContext ) ctx.createSubcontext( "ou=Stored Procedures", spContainer );
     }
 
+
+    @Override
+    protected void configureLdapServer()
+    {
+        /////////////////////////////////////////////////////////
+        // Enable the Stored Procedure Extended Operation Handler
+        /////////////////////////////////////////////////////////
+        Set<ExtendedOperationHandler> handlers = new HashSet<ExtendedOperationHandler>( ldapServer.getExtendedOperationHandlers() );
+        handlers.add( new StoredProcedureExtendedOperationHandler() );
+        ldapServer.setExtendedOperationHandlers( handlers );
+    }
 
     public void tearDown() throws Exception
     {

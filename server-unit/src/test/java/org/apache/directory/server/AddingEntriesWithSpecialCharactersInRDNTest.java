@@ -110,15 +110,18 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(cn=Kate\\#Bush)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(cn=Kate\\#Bush)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute cn = sr.getAttributes().get("cn");
            assertNotNull(cn);
            assertTrue(cn.contains("Kate#Bush"));
        }
+       
        ctx.destroySubcontext(rdn);
    }
 
@@ -136,10 +139,12 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(cn=Bush, Kate)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(cn=Bush, Kate)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute cn = sr.getAttributes().get("cn");
            assertNotNull(cn);
@@ -216,10 +221,12 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(ou=East -> West)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(ou=East -> West)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute ou = sr.getAttributes().get("ou");
            assertNotNull(ou);
@@ -243,10 +250,12 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(ou=Scissors 8<)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(ou=Scissors 8<)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute ou = sr.getAttributes().get("ou");
            assertNotNull(ou);
@@ -270,10 +279,12 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(ou=semicolon group;)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(ou=semicolon group;)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute ou = sr.getAttributes().get("ou");
            assertNotNull(ou);
@@ -297,10 +308,12 @@ public class AddingEntriesWithSpecialCharactersInRDNTest extends AbstractServerT
        SearchControls sctls = new SearchControls();
        sctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       NamingEnumeration enm = ctx.search("", "(ou=nomen=omen)", sctls);
+       NamingEnumeration<SearchResult> enm = ctx.search("", "(ou=nomen=omen)", sctls);
        assertEquals("entry found", true, enm.hasMore());
-       while (enm.hasMore()) {
-           SearchResult sr = (SearchResult) enm.next();
+       
+       while (enm.hasMore()) 
+       {
+           SearchResult sr = enm.next();
            attrs = sr.getAttributes();
            Attribute ou = sr.getAttributes().get("ou");
            assertNotNull(ou);

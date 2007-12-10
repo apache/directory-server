@@ -65,9 +65,9 @@ public class EncryptionTypeInfo2Decoder
         EncryptionTypeInfo2Entry[] entrySequence = new EncryptionTypeInfo2Entry[sequence.size()];
 
         int ii = 0;
-        for ( Enumeration<DERSequence> e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
-            DERSequence object = e.nextElement();
+            DERSequence object = (DERSequence)e.nextElement();
             entrySequence[ii] = decode( object );
             ii++;
         }
@@ -89,9 +89,9 @@ public class EncryptionTypeInfo2Decoder
         String salt = new String();
         byte[] s2kparams = new byte[0];
 
-        for ( Enumeration<DERTaggedObject> e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
-            DERTaggedObject object = e.nextElement();
+            DERTaggedObject object = (DERTaggedObject)e.nextElement();
             int tag = object.getTagNo();
             DEREncodable derObject = object.getObject();
 

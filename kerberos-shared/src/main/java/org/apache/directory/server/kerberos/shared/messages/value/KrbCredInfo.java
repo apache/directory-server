@@ -22,6 +22,8 @@ package org.apache.directory.server.kerberos.shared.messages.value;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 
+import org.apache.directory.server.kerberos.shared.messages.value.flags.TicketFlags;
+
 
 /**
  * Kerberos credential information.

@@ -88,7 +88,7 @@ public class ErrorMessageDecoder
         KerberosPrincipalModifier clientModifier = new KerberosPrincipalModifier();
         KerberosPrincipalModifier serverModifier = new KerberosPrincipalModifier();
 
-        for ( Enumeration e = sequence.getObjects(); e.hasMoreElements(); )
+        for ( Enumeration<DEREncodable> e = sequence.getObjects(); e.hasMoreElements(); )
         {
             DERTaggedObject object = ( DERTaggedObject ) e.nextElement();
             int tag = object.getTagNo();

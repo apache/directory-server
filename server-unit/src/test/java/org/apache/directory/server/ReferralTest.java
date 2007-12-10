@@ -865,7 +865,7 @@ public class ReferralTest extends AbstractServerTest
         SearchControls controls = new SearchControls();
         controls.setSearchScope( SearchControls.SUBTREE_SCOPE );
         NamingEnumeration list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        Map<String,SearchResult> results = new HashMap<String,SearchResult>();
+        Map results = new HashMap();
         while ( list.hasMore() )
         {
             SearchResult result = ( SearchResult ) list.next();
@@ -880,7 +880,7 @@ public class ReferralTest extends AbstractServerTest
 
         td.rootCtx.addToEnvironment( Context.REFERRAL, "throw" );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        results = new HashMap<String,SearchResult>();
+        results = new HashMap();
 
         try
         {
@@ -906,7 +906,7 @@ public class ReferralTest extends AbstractServerTest
 
         controls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
         list = td.rootCtx.search( "", "(objectClass=*)", controls );
-        results = new HashMap<String,SearchResult>();
+        results = new HashMap();
 
         try
         {

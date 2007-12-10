@@ -34,9 +34,18 @@
 
   <dependencies>
 
+<!-- should be transitive now
     <dependency>
       <groupId>org.apache.mina</groupId>
       <artifactId>mina-core</artifactId>
+    </dependency>
+-->
+
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
     </dependency>
 
     <dependency>

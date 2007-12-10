@@ -20,15 +20,14 @@
 package org.apache.directory.server.core.partition.impl.btree;
 
 
-import java.util.Map;
+import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.filter.ExprNode;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
-
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
-import org.apache.directory.shared.ldap.filter.ExprNode;
 
 
 /**
@@ -79,13 +78,14 @@ public interface SearchEngine
      * Conducts a search on a database.
      * 
      * @param base the search base
-     * @param env the environment for the search
+     * @param aliasDerefMode the alias dereferencing mode to use
      * @param filter the search filter AST root
      * @param searchCtls the JNDI search controls
      * @return enumeration over SearchResults
      * @throws NamingException if the search fails
      */
-    NamingEnumeration search( Name base, Map<?, ?> env, ExprNode filter, SearchControls searchCtls ) throws NamingException;
+    NamingEnumeration search( Name base, AliasDerefMode aliasDerefMode, ExprNode filter,
+                              SearchControls searchCtls ) throws NamingException;
 
 
     /**

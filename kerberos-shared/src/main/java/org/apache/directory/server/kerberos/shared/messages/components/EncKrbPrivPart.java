@@ -20,9 +20,9 @@
 package org.apache.directory.server.kerberos.shared.messages.components;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.Encodable;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
 
@@ -56,7 +56,7 @@ public class EncKrbPrivPart extends KerberosMessage implements Encodable
     public EncKrbPrivPart( byte[] userData, KerberosTime timestamp, Integer usec, Integer sequenceNumber,
         HostAddress senderAddress, HostAddress recipientAddress )
     {
-        super( MessageType.ENC_PRIV_PART );
+        super( KerberosMessageType.ENC_PRIV_PART );
 
         this.userData = userData;
         this.timestamp = timestamp;

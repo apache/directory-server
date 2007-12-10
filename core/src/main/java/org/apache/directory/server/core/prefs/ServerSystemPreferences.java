@@ -20,14 +20,14 @@
 package org.apache.directory.server.core.prefs;
 
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.prefs.AbstractPreferences;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+import org.apache.directory.server.constants.ApacheSchemaConstants;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.core.jndi.CoreContextFactory;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.message.AttributeImpl;
+import org.apache.directory.shared.ldap.message.AttributesImpl;
+import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.util.PreferencesDictionary;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -39,17 +39,10 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.server.constants.ApacheSchemaConstants;
-import org.apache.directory.server.core.configuration.MutableStartupConfiguration;
-import org.apache.directory.server.core.configuration.ShutdownConfiguration;
-import org.apache.directory.server.core.jndi.CoreContextFactory;
-
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
-import org.apache.directory.shared.ldap.message.AttributeImpl;
-import org.apache.directory.shared.ldap.message.AttributesImpl;
-import org.apache.directory.shared.ldap.message.ModificationItemImpl;
-import org.apache.directory.shared.ldap.util.PreferencesDictionary;
+import java.util.*;
+import java.util.prefs.AbstractPreferences;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 
 /**
@@ -80,17 +73,15 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     /**
      * Creates a preferences object for the system preferences root.
+     * @param service the directory service core
      */
-    public ServerSystemPreferences()
+    public ServerSystemPreferences( DirectoryService service )
     {
         super( null, "" );
-
         super.newNode = false;
 
-        MutableStartupConfiguration cfg = new MutableStartupConfiguration();
-        cfg.setAllowAnonymousAccess( true );
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>( cfg.toJndiEnvironment() );
+        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        env.put( DirectoryService.JNDI_KEY, service );
         env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
         env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
 
@@ -105,32 +96,24 @@ public class ServerSystemPreferences extends AbstractPreferences
     }
 
 
-    public synchronized void close()
+    public synchronized void close() throws NamingException
     {
         if ( this.parent() != null )
         {
             throw new ServerSystemPreferenceException( "Cannot close child preferences." );
         }
 
-        Hashtable<String, Object> env = new Hashtable<String, Object>( new ShutdownConfiguration().toJndiEnvironment() );
-        env.put( Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName() );
-        env.put( Context.PROVIDER_URL, PreferencesUtils.SYSPREF_BASE );
-
-        try
-        {
-            ctx = new InitialLdapContext( env, null );
-        }
-        catch ( Exception e )
-        {
-            throw new ServerSystemPreferenceException( "Failed to close.", e );
-        }
+        this.ctx.close();
     }
 
 
     /**
      * Creates a preferences object using a relative name.
+     * 
+     * @param name the name of the preference node to create
+     * @param parent the parent of the preferences node to create
      */
-    public ServerSystemPreferences(ServerSystemPreferences parent, String name)
+    public ServerSystemPreferences( ServerSystemPreferences parent, String name )
     {
         super( parent, name );
         LdapContext parentCtx = parent.getLdapContext();
@@ -189,7 +172,8 @@ public class ServerSystemPreferences extends AbstractPreferences
      * Sets up a new ServerPreferences node by injecting the required information
      * such as the node name attribute and the objectClass attribute.
      *
-     * @param name the name of the new ServerPreferences node.
+     * @param name the name of the new ServerPreferences node
+     * @throws NamingException if we fail to created the new node
      */
     private void setUpNode( String name ) throws NamingException
     {
@@ -228,7 +212,8 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            ctx.modifyAttributes( "", ( ModificationItemImpl[] ) changes.toArray( EMPTY_MODS ) );
+            //noinspection SuspiciousToArrayCall
+            ctx.modifyAttributes( "", changes.toArray( EMPTY_MODS ) );
         }
         catch ( NamingException e )
         {
@@ -271,7 +256,8 @@ public class ServerSystemPreferences extends AbstractPreferences
 
         try
         {
-            ctx.modifyAttributes( "", ( ModificationItemImpl[] ) changes.toArray( EMPTY_MODS ) );
+            //noinspection SuspiciousToArrayCall
+            ctx.modifyAttributes( "", changes.toArray( EMPTY_MODS ) );
         }
         catch ( NamingException e )
         {
@@ -286,7 +272,7 @@ public class ServerSystemPreferences extends AbstractPreferences
     protected String[] childrenNamesSpi() throws BackingStoreException
     {
         List<String> children = new ArrayList<String>();
-        NamingEnumeration list = null;
+        NamingEnumeration list;
 
         try
         {
@@ -304,13 +290,13 @@ public class ServerSystemPreferences extends AbstractPreferences
             throw new BackingStoreException( e );
         }
 
-        return ( String[] ) children.toArray( EMPTY_STRINGS );
+        return children.toArray( EMPTY_STRINGS );
     }
 
 
     protected String[] keysSpi() throws BackingStoreException
     {
-        Attributes attrs = null;
+        Attributes attrs;
         List<String> keys = new ArrayList<String>();
 
         try
@@ -335,7 +321,7 @@ public class ServerSystemPreferences extends AbstractPreferences
             throw new BackingStoreException( e );
         }
 
-        return ( String[] ) keys.toArray( EMPTY_STRINGS );
+        return keys.toArray( EMPTY_STRINGS );
     }
 
 
@@ -350,12 +336,12 @@ public class ServerSystemPreferences extends AbstractPreferences
     private void addDelta( ModificationItemImpl mi )
     {
         String key = mi.getAttribute().getID();
-        List<ModificationItem> deltas = null;
+        List<ModificationItem> deltas;
         changes.add( mi );
         
         if ( keyToChange.containsKey( key ) )
         {
-            deltas = ( List<ModificationItem> ) keyToChange.get( key );
+            deltas = keyToChange.get( key );
         }
         else
         {
@@ -369,24 +355,23 @@ public class ServerSystemPreferences extends AbstractPreferences
 
     protected String getSpi( String key )
     {
-        String value = null;
+        String value;
 
         try
         {
             Attribute attr = ctx.getAttributes( "" ).get( key );
             if ( keyToChange.containsKey( key ) )
             {
-                List mods = ( List ) keyToChange.get( key );
-                for ( int ii = 0; ii < mods.size(); ii++ )
+                List<ModificationItem> mods = keyToChange.get( key );
+                for ( ModificationItem mod : mods )
                 {
-                    ModificationItemImpl mi = ( ModificationItemImpl ) mods.get( ii );
-                    if ( mi.getModificationOp() == DirContext.REMOVE_ATTRIBUTE )
+                    if ( mod.getModificationOp() == DirContext.REMOVE_ATTRIBUTE )
                     {
                         attr = null;
                     }
                     else
                     {
-                        attr = mi.getAttribute();
+                        attr = mod.getAttribute();
                     }
                 }
             }

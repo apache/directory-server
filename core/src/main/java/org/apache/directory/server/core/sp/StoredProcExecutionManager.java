@@ -22,17 +22,15 @@
 package org.apache.directory.server.core.sp;
 
 
-import java.util.List;
+import org.apache.directory.shared.ldap.constants.SchemaConstants;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
 import javax.naming.ldap.LdapContext;
-
-import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import java.util.List;
 
 /**
  * A Factory type class which holds a registry of supported {@link StoredProcEngineConfig}s. A container reference
@@ -78,8 +76,7 @@ public class StoredProcExecutionManager
         String spUnitName = StoredProcUtils.extractStoredProcUnitName( fullSPName );
         String filter = "(storedProcUnitName=" + spUnitName + ")";
         NamingEnumeration<SearchResult> results = rootDSE.search( storedProcContainer, filter, controls );
-        Attributes spUnitEntry = results.nextElement().getAttributes();
-        return spUnitEntry;
+        return results.nextElement().getAttributes();
     }
 
 
@@ -93,7 +90,6 @@ public class StoredProcExecutionManager
      */
     public StoredProcEngine getStoredProcEngineInstance( Attributes spUnitEntry ) throws NamingException
     {
-
         String spLangId = ( String ) spUnitEntry.get( "storedProcLangId" ).get();
 
         for ( StoredProcEngineConfig engineConfig : storedProcEngineConfigs )

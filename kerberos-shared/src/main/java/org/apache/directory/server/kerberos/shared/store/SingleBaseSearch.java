@@ -21,22 +21,13 @@
 package org.apache.directory.server.kerberos.shared.store;
 
 
-import java.util.Hashtable;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
-import javax.security.auth.kerberos.KerberosPrincipal;
-
-import org.apache.directory.server.kerberos.shared.store.operations.AddPrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.ChangePassword;
-import org.apache.directory.server.kerberos.shared.store.operations.DeletePrincipal;
-import org.apache.directory.server.kerberos.shared.store.operations.GetAllPrincipals;
-import org.apache.directory.server.kerberos.shared.store.operations.GetPrincipal;
-import org.apache.directory.server.protocol.shared.ServiceConfiguration;
+import org.apache.directory.server.core.DirectoryService;
+import org.apache.directory.server.kerberos.shared.store.operations.*;
 import org.apache.directory.server.protocol.shared.ServiceConfigurationException;
-import org.apache.directory.server.protocol.shared.store.ContextOperation;
+
+import javax.naming.directory.DirContext;
+import javax.naming.NamingException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 
 /**
@@ -48,68 +39,50 @@ import org.apache.directory.server.protocol.shared.store.ContextOperation;
  */
 class SingleBaseSearch implements PrincipalStore
 {
-    private DirContext ctx;
-    private Hashtable<String, Object> env = new Hashtable<String, Object>();
-    private InitialContextFactory factory;
+    private final DirContext ctx;
 
 
-    SingleBaseSearch( ServiceConfiguration config, InitialContextFactory factory )
+    SingleBaseSearch( String searchBaseDn, DirectoryService directoryService )
     {
-        env.put( Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory() );
-        env.put( Context.PROVIDER_URL, config.getSearchBaseDn() );
-        env.put( Context.SECURITY_AUTHENTICATION, config.getSecurityAuthentication() );
-        env.put( Context.SECURITY_CREDENTIALS, config.getSecurityCredentials() );
-        env.put( Context.SECURITY_PRINCIPAL, config.getSecurityPrincipal() );
+        try
+        {
+            ctx = directoryService.getJndiContext(searchBaseDn);
+        } catch ( NamingException e )
+        {
+            throw new ServiceConfigurationException("Can't get context at" + searchBaseDn, e);
+        }
 
-        this.factory = factory;
     }
 
 
     public String addPrincipal( PrincipalStoreEntry entry ) throws Exception
     {
-        return ( String ) execute( new AddPrincipal( entry ) );
+        return ( String ) new AddPrincipal( entry ).execute( ctx, null );
     }
 
 
     public String deletePrincipal( KerberosPrincipal principal ) throws Exception
     {
-        return ( String ) execute( new DeletePrincipal( principal ) );
+        return ( String ) new DeletePrincipal( principal ).execute( ctx, null );
     }
 
 
     public PrincipalStoreEntry[] getAllPrincipals( String realm ) throws Exception
     {
-        return ( PrincipalStoreEntry[] ) execute( new GetAllPrincipals() );
+        return ( PrincipalStoreEntry[] ) new GetAllPrincipals().execute( ctx, null );
     }
 
 
     public PrincipalStoreEntry getPrincipal( KerberosPrincipal principal ) throws Exception
     {
-        return ( PrincipalStoreEntry ) execute( new GetPrincipal( principal ) );
+        return ( PrincipalStoreEntry ) new GetPrincipal( principal ).execute( ctx, null );
     }
 
 
     public String changePassword( KerberosPrincipal principal, String newPassword ) throws Exception
     {
-        return ( String ) execute( new ChangePassword( principal, newPassword ) );
+        return ( String ) new ChangePassword( principal, newPassword ).execute( ctx, null );
     }
 
 
-    private Object execute( ContextOperation operation ) throws Exception
-    {
-        if ( ctx == null )
-        {
-            try
-            {
-                ctx = ( DirContext ) factory.getInitialContext( env );
-            }
-            catch ( NamingException ne )
-            {
-                String message = "Failed to get initial context " + ( String ) env.get( Context.PROVIDER_URL );
-                throw new ServiceConfigurationException( message, ne );
-            }
-        }
-
-        return operation.execute( ctx, null );
-    }
 }

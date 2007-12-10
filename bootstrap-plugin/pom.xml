@@ -28,9 +28,9 @@
   <packaging>maven-plugin</packaging>
 
   <description>
-    This plugin pre-loads a set of schema objects into a special fixed schema 
+    This plugin pre-loads a set of schema objects into a special fixed schema
     partition within the server.  It uses the bootstrap schema objects to do
-    this at build time.  The schema partition files created are then packaged 
+    this at build time.  The schema partition files created are then packaged
     using the jar plugin to become what is known as the bootstrap partition jar.
   </description>
 
@@ -59,7 +59,7 @@
 
     <dependency>
       <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-constants</artifactId>
+      <artifactId>apacheds-core-constants</artifactId>
       <version>${pom.version}</version>
     </dependency>
 

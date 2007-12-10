@@ -20,8 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.application;
 
 
+import org.apache.directory.server.kerberos.shared.KerberosMessageType;
 import org.apache.directory.server.kerberos.shared.messages.KerberosMessage;
-import org.apache.directory.server.kerberos.shared.messages.MessageType;
 import org.apache.directory.server.kerberos.shared.messages.value.Checksum;
 import org.apache.directory.server.kerberos.shared.messages.value.HostAddress;
 import org.apache.directory.server.kerberos.shared.messages.value.KerberosTime;
@@ -45,7 +45,7 @@ public class SafeMessage extends KerberosMessage
      */
     public SafeMessage( SafeBody safeBody, Checksum cksum )
     {
-        super( MessageType.KRB_SAFE );
+        super( KerberosMessageType.KRB_SAFE );
         this.safeBody = safeBody;
         this.cksum = cksum;
     }

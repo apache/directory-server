@@ -20,14 +20,6 @@
 package org.apache.directory.server.core.schema;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchResult;
-
 import org.apache.directory.server.constants.MetaSchemaConstants;
 import org.apache.directory.server.schema.bootstrap.Schema;
 import org.apache.directory.server.schema.registries.Registries;
@@ -38,6 +30,14 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaObject;
 import org.apache.directory.shared.ldap.util.AttributeUtils;
+
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchResult;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -66,32 +66,32 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     protected void checkOidIsUnique( Attributes entry ) throws NamingException
     {
         String oid = getOid( entry );
-        
+
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
 
-    
+
     protected void checkOidIsUnique( SchemaObject schemaObject ) throws NamingException
     {
         String oid = schemaObject.getOid();
-        
+
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
-    
-    
+
+
     protected void checkOidIsUnique( String oid ) throws NamingException
     {
         if ( targetRegistries.getOidRegistry().hasOid( oid ) )
         {
-            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.", 
+            throw new LdapNamingException( "Oid " + oid + " for new schema entity is not unique.",
                 ResultCodeEnum.OTHER );
         }
     }
@@ -108,7 +108,7 @@ public abstract class AbstractSchemaChangeHandler implements SchemaChangeHandler
     }
 
 
-    public final void modify( LdapDN name, ModificationItemImpl[] mods, Attributes entry, 
+    public final void modify( LdapDN name, List<ModificationItemImpl> mods, Attributes entry,
         Attributes targetEntry, boolean cascade ) throws NamingException
     {
         modify( name, entry, targetEntry, cascade );

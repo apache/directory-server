@@ -19,7 +19,10 @@
  */
 package org.apache.directory.server.core.interceptor.context;
 
+
 import org.apache.directory.shared.ldap.name.LdapDN;
+import org.apache.directory.shared.ldap.name.Rdn;
+
 
 /**
  * A RenameService context used for Interceptors. It contains all the informations
@@ -33,32 +36,35 @@ import org.apache.directory.shared.ldap.name.LdapDN;
 public class RenameOperationContext extends AbstractOperationContext
 {
     /** The new DN */
-    private String newRdn;
+    private Rdn newRdn;
 
     /** The flag to remove the old DN Attribute  */
     private boolean delOldDn;
-    
+
+
     /**
-     * 
      * Creates a new instance of RenameOperationContext.
-     *
      */
     public RenameOperationContext()
     {
     	super();
     }
 
+
     /**
-     * 
      * Creates a new instance of RenameOperationContext.
      *
+     * @param oldDn the dn of the entry before the rename
+     * @param newRdn the new RDN to use for the target
+     * @param delOldDn true if we delete the old RDN value
      */
-    public RenameOperationContext( LdapDN oldDn, String newRdn, boolean delOldDn )
+    public RenameOperationContext( LdapDN oldDn, Rdn newRdn, boolean delOldDn )
     {
         super( oldDn );
         this.newRdn = newRdn;
         this.delOldDn = delOldDn;
     }
+
 
     /**
      * @return The delete old DN flag
@@ -68,7 +74,8 @@ public class RenameOperationContext extends AbstractOperationContext
 		return delOldDn;
 	}
 
-	/**
+
+    /**
 	 * Set the flag to delete the old DN
 	 * @param delOldDn the flag to set
 	 */
@@ -77,24 +84,27 @@ public class RenameOperationContext extends AbstractOperationContext
 		this.delOldDn = delOldDn;
 	}
 
-	/**
+
+    /**
 	 * @return The new RDN
 	 */
-	public String getNewRdn() 
+	public Rdn getNewRdn()
 	{
 		return newRdn;
 	}
 
-	/**
+
+    /**
 	 * Set the new RDN
-	 * @param newDn The new RDN
+	 * @param newRdn The new RDN
 	 */
-	public void setNewRdn( String newRdn ) 
+	public void setNewRdn( Rdn newRdn )
 	{
 		this.newRdn = newRdn;
 	}
 
-	/**
+
+    /**
      * @see Object#toString()
      */
     public String toString()

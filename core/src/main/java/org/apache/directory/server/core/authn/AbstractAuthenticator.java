@@ -20,14 +20,11 @@
 package org.apache.directory.server.core.authn;
 
 
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-
-import org.apache.directory.server.core.DirectoryServiceConfiguration;
-import org.apache.directory.server.core.configuration.AuthenticatorConfiguration;
+import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.shared.ldap.aci.AuthenticationLevel;
 import org.apache.directory.shared.ldap.name.LdapDN;
+
+import javax.naming.NamingException;
 
 
 /**
@@ -38,11 +35,10 @@ import org.apache.directory.shared.ldap.name.LdapDN;
  */
 public abstract class AbstractAuthenticator implements Authenticator
 {
-    private DirectoryServiceConfiguration factoryCfg;
-    private AuthenticatorConfiguration cfg;
+    private DirectoryService directoryService;
 
     /** authenticator type */
-    private String authenticatorType;
+    private final String authenticatorType;
 
 
     /**
@@ -50,30 +46,21 @@ public abstract class AbstractAuthenticator implements Authenticator
      *
      * @param type the type of this authenticator (e.g. <tt>'simple'</tt>, <tt>'none'</tt>...)
      */
-    protected AbstractAuthenticator(String type)
+    protected AbstractAuthenticator( String type )
     {
         this.authenticatorType = type;
     }
 
 
     /**
-     * Returns {@link DirectoryServiceConfiguration} of {@link InitialContextFactory}
-     * which initialized this authenticator.
+     * Returns {@link DirectoryService} for this authenticator.
+     * @return the directory service core
      */
-    public DirectoryServiceConfiguration getFactoryConfiguration()
+    public DirectoryService getDirectoryService()
     {
-        return factoryCfg;
+        return directoryService;
     }
-
-
-    /**
-     * Returns the configuration of this authenticator.
-     */
-    public AuthenticatorConfiguration getConfiguration()
-    {
-        return cfg;
-    }
-
+    
 
     public String getAuthenticatorType()
     {
@@ -82,15 +69,14 @@ public abstract class AbstractAuthenticator implements Authenticator
 
 
     /**
-     * Initializes default properties (<tt>factoryConfiguration</tt> and
-     * <tt>configuration</tt>, and calls {@link #doInit()} method.
+     * Initializes (<tt>directoryService</tt> and and calls {@link #doInit()} method.
      * Please put your initialization code into {@link #doInit()}.
+     * @param directoryService the directory core for this authenticator
+     * @throws NamingException if there is a problem starting up the authenticator
      */
-    public final void init( DirectoryServiceConfiguration factoryCfg, AuthenticatorConfiguration cfg )
-        throws NamingException
+    public final void init( DirectoryService directoryService ) throws NamingException
     {
-        this.factoryCfg = factoryCfg;
-        this.cfg = cfg;
+        this.directoryService = directoryService;
         doInit();
     }
 
@@ -116,8 +102,7 @@ public abstract class AbstractAuthenticator implements Authenticator
         }
         finally
         {
-            this.factoryCfg = null;
-            this.cfg = null;
+            this.directoryService = null;
         }
     }
 
@@ -139,21 +124,5 @@ public abstract class AbstractAuthenticator implements Authenticator
     public void invalidateCache( LdapDN bindDn )
     {
     }
-    
 
-    /**
-     * Returns a new {@link LdapPrincipal} instance whose value is the specified
-     * <tt>name</tt>.
-     *
-     * @param name the distinguished name of the X.500 principal
-     * @param authenticationLeve
-     * @return the principal for the <tt>name</tt>
-     * @throws NamingException if there is a problem parsing <tt>name</tt>
-     */
-    protected static LdapPrincipal createLdapPrincipal( String name, AuthenticationLevel authenticationLeve )
-        throws NamingException
-    {
-        LdapDN principalDn = new LdapDN( name );
-        return new LdapPrincipal( principalDn, AuthenticationLevel.SIMPLE );
-    }
 }

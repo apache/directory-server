@@ -19,30 +19,21 @@
  */
 package org.apache.directory.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Hashtable;
 
-import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.server.unit.AbstractServerFastTest;
+import org.apache.directory.server.unit.AbstractServerTest;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +45,7 @@ import org.junit.Test;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ModifyRdnTest extends AbstractServerFastTest
+public class ModifyRdnTest extends AbstractServerTest
 {
 
     private LdapContext ctx = null;
@@ -76,8 +67,8 @@ public class ModifyRdnTest extends AbstractServerFastTest
 
         return attributes;
     }
-    
-    
+
+
     /**
      * Create attributes for a organizational unit entry.
      */
@@ -90,16 +81,18 @@ public class ModifyRdnTest extends AbstractServerFastTest
         attributes.put( attribute );
         attributes.put( "ou", ou );
         attributes.put( "description", ou + " is an organizational unit." );
-        
+   
         return attributes;
     }
-
-
+   
+   
     /**
      * Create context
      */
     @Before public void setUp() throws Exception
     {
+        super.setUp();
+
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put( "java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory" );
         env.put( "java.naming.provider.url", "ldap://localhost:" + port + "/ou=system" );
@@ -107,7 +100,7 @@ public class ModifyRdnTest extends AbstractServerFastTest
         env.put( "java.naming.security.credentials", "secret" );
         env.put( "java.naming.security.authentication", "simple" );
         ctx = new InitialLdapContext( env, null );
-        Assert.assertNotNull( ctx );
+        assertNotNull( ctx );
     }
 
 
@@ -118,6 +111,8 @@ public class ModifyRdnTest extends AbstractServerFastTest
     {
         ctx.close();
         ctx = null;
+
+        super.tearDown();
     }
 
 
@@ -125,7 +120,7 @@ public class ModifyRdnTest extends AbstractServerFastTest
      * Just a little test to check wether opening the connection succeeds.
      */
     @Test public void testSetUpTearDown()
-    {        
+    {
         assertNotNull( ctx );
     }
 
@@ -153,7 +148,7 @@ public class ModifyRdnTest extends AbstractServerFastTest
         try
         {
             ctx.lookup( oldRdn );
-            Assert.fail( "Entry must not exist" );
+            fail( "Entry must not exist" );
         }
         catch ( NameNotFoundException ignored )
         {
@@ -372,10 +367,11 @@ public class ModifyRdnTest extends AbstractServerFastTest
     }
     
     
+              
     /**
      * Test for DIRSERVER-1086.
      * Modify Rdn of an entry that has a child entry, delete its old rdn value.
-     * 
+     *
      * @throws NamingException
      */
     /*
@@ -386,41 +382,41 @@ public class ModifyRdnTest extends AbstractServerFastTest
         String oldRdn = "ou=" + oldOu;
         Attributes attributes = this.getOrganizationalUnitAttributes( oldOu );
         DirContext createdCtx = ctx.createSubcontext( oldRdn, attributes );
-        
+  
         // Create a child
         String childCn = "Tori Amos";
         String childRdn = "cn=" + childCn;
         Attributes childAttributes = this.getPersonAttributes( "Amos", childCn );
         createdCtx.createSubcontext( childRdn, childAttributes );
-
+  
         // modify Rdn
         String newOu = "Singers";
         String newRdn = "ou=" + newOu;
         ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
         ctx.rename( oldRdn, newRdn );
-
+  
         // Check, whether old Entry does not exists
         try
         {
             ctx.lookup( oldRdn );
-            Assert.fail( "Entry must not exist" );
+            fail( "Entry must not exist" );
         }
         catch ( NameNotFoundException ignored )
         {
             // expected behaviour
             assertTrue( true );
         }
-
+  
         // Check, whether new Entry exists
         DirContext org = ( DirContext ) ctx.lookup( newRdn );
         assertNotNull( org );
-
+  
         // Check values of ou
         Attribute ou = org.getAttributes( "" ).get( "ou" );
         assertTrue( ou.contains( newOu ) );
         assertTrue( !ou.contains( oldOu ) ); // old value is gone
         assertEquals( 1, ou.size() );
-
+  
         // Perform a search under renamed ou and check whether exactly one child entry exist
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope( SearchControls.ONELEVEL_SCOPE );
@@ -429,13 +425,65 @@ public class ModifyRdnTest extends AbstractServerFastTest
         assertTrue( results.hasMore() );
         results.next();
         assertTrue( !results.hasMore() );
-        
+  
         // Check whether Tori exists
         DirContext tori = ( DirContext ) org.lookup( childRdn );
         assertNotNull( tori );
-        
+  
         // Remove entry (use new rdn)
         ctx.unbind( newRdn );
     }
     */
+
+
+    /**
+     * Test for DIRSERVER-1096.
+     * Modify the RDN of an entry with an encoded new RDN. 
+     * Ensure that the attribute itself contains the unencoded value.
+     *
+     * @throws Exception
+     */
+    /*
+    @Test public void testModifyRdnWithEncodedNewRdn() throws Exception
+    {
+        // Create a person, cn value is rdn
+        String cnVal = "Tori Amos";
+        String snVal = "Amos";
+        String oldRdn = "cn=" + cnVal;
+        Attributes attributes = this.getPersonAttributes( snVal, cnVal );
+        ctx.createSubcontext( oldRdn, attributes );
+
+        // modify Rdn from cn=Tori Amos to cn=Ä\+
+        String newCnVal = new String( new byte[]
+             { ( byte ) 0xC3, ( byte ) 0x84, '\\', '+' }, "UTF-8" );
+        ctx.addToEnvironment( "java.naming.ldap.deleteRDN", "true" );
+        String newRdn = "cn=" + newCnVal;
+        ctx.rename( oldRdn, newRdn );
+
+        // Check, whether old Entry does not exists
+        try
+        {
+            ctx.lookup( oldRdn );
+            fail( "Entry must not exist" );
+        }
+        catch ( NameNotFoundException ignored )
+        {
+            // expected behaviour
+        }
+        
+        // Check, whether new Entry exists
+        DirContext newCtx = ( DirContext ) ctx.lookup( newRdn );
+        assertNotNull( newCtx );
+
+        // Check that cn contains the unecnoded value
+        Attribute cn = newCtx.getAttributes( "" ).get( "cn" );
+        assertEquals( "Number of cn occurences", 1, cn.size() );
+        assertTrue( cn.contains( newCnVal ) );
+
+        // Remove entry (use new rdn)
+        ctx.unbind( newRdn );
+    }
+    */
+
 }
+

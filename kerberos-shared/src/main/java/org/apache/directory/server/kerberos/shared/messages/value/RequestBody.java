@@ -20,6 +20,8 @@
 package org.apache.directory.server.kerberos.shared.messages.value;
 
 
+import java.util.Set;
+
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.apache.directory.server.kerberos.shared.crypto.encryption.EncryptionType;
@@ -39,7 +41,7 @@ public class RequestBody
     private KerberosTime till;
     private KerberosTime rtime; //optional
     private int nonce;
-    private EncryptionType[] eType;
+    private Set<EncryptionType> eType;
     private HostAddresses addresses; //optional
     private EncryptedData encAuthorizationData; //optional
     private Ticket[] additionalTickets; //optional
@@ -61,7 +63,7 @@ public class RequestBody
      * @param additionalTickets
      */
     public RequestBody( KdcOptions kdcOptions, KerberosPrincipal clientPrincipal, KerberosPrincipal serverPrincipal,
-        KerberosTime from, KerberosTime till, KerberosTime rtime, int nonce, EncryptionType[] eType,
+        KerberosTime from, KerberosTime till, KerberosTime rtime, int nonce, Set<EncryptionType> eType,
         HostAddresses addresses, EncryptedData encAuthorizationData, Ticket[] additionalTickets )
     {
         this.kdcOptions = kdcOptions;
@@ -138,7 +140,7 @@ public class RequestBody
      *
      * @return The requested {@link EncryptionType}s.
      */
-    public EncryptionType[] getEType()
+    public Set<EncryptionType> getEType()
     {
         return eType;
     }

@@ -20,10 +20,7 @@
 package org.apache.directory.server.core.authz.support;
 
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import javax.naming.NamingException;
 
@@ -183,6 +180,18 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 public MatchingRule getSubstr() throws NamingException
                 {
                     return null;
+                }
+
+
+                public boolean isAncestorOf( AttributeType descendant ) throws NamingException
+                {
+                    return false;
+                }
+
+
+                public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+                {
+                    return false;
                 }
 
 
@@ -450,6 +459,18 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
                 }
 
 
+                public boolean isAncestorOf( AttributeType descendant ) throws NamingException
+                {
+                    return false;
+                }
+
+
+                public boolean isDescentantOf( AttributeType ancestor ) throws NamingException
+                {
+                    return false;
+                }
+
+
                 public boolean isObsolete()
                 {
                     return false;
@@ -544,5 +565,11 @@ public class DummyAttributeTypeRegistry implements AttributeTypeRegistry
 
     public void register( AttributeType attributeType ) throws NamingException
     {
+    }
+
+
+    public Set<String> getBinaryAttributes() throws NamingException
+    {
+        return null;
     }
 }

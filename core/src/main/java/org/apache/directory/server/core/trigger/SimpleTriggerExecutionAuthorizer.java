@@ -24,10 +24,10 @@ import java.security.Principal;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 
+import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.invocation.Invocation;
 import org.apache.directory.server.core.invocation.InvocationStack;
 import org.apache.directory.server.core.jndi.ServerContext;
-import org.apache.directory.server.core.partition.PartitionNexusProxy;
 import org.apache.directory.shared.ldap.name.LdapDN;
 
 public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthorizer
@@ -38,7 +38,7 @@ public class SimpleTriggerExecutionAuthorizer implements TriggerExecutionAuthori
     {
         try
         {
-            adminName = new LdapDN( PartitionNexusProxy.ADMIN_PRINCIPAL_NORMALIZED );
+            adminName = new LdapDN( ServerDNConstants.ADMIN_SYSTEM_DN_NORMALIZED );
         }
         catch ( InvalidNameException e )
         {

@@ -6,16 +6,16 @@
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
- *  
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
  *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
- *  under the License. 
- *  
+ *  under the License.
+ *
  */
 package org.apache.directory.server.core.partition.impl.btree.jdbm;
 
@@ -26,7 +26,6 @@ import javax.naming.directory.Attributes;
 import jdbm.RecordManager;
 import jdbm.helper.LongSerializer;
 import jdbm.helper.StringComparator;
-
 import org.apache.directory.server.core.partition.impl.btree.MasterTable;
 import org.apache.directory.server.schema.SerializableComparator;
 
@@ -40,35 +39,37 @@ import org.apache.directory.server.schema.SerializableComparator;
 public class JdbmMasterTable extends JdbmTable implements MasterTable
 {
     private static final StringComparator STRCOMP = new StringComparator();
-    private static final SerializableComparator LONG_COMPARATOR = new SerializableComparator(
-        "1.3.6.1.4.1.18060.0.4.1.1.2" )
+
+    private static final SerializableComparator LONG_COMPARATOR = new SerializableComparator( "1.3.6.1.4.1.18060.0.4.1.1.2" )
     {
         private static final long serialVersionUID = 4048791282048841016L;
 
 
         public int compare( Object o1, Object o2 )
         {
-        	try
-        	{
-	        	long thisVal = (Long)o1;
-	        	long anotherVal = (Long)o2;
-	        	return ( thisVal < anotherVal ? -1 : ( thisVal == anotherVal ? 0 : 1 ) );
-        	}
-        	catch ( NullPointerException npe )
-        	{
-    	        if ( o1 == null )
-    	        {
-    	            throw new IllegalArgumentException( "Argument 'obj1' is null" );
-    	        }
-    	        else
-    	        {
-    	            throw new IllegalArgumentException( "Argument 'obj2' is null" );
-    	        }
-        	}
+            if ( o1 == null )
+            {
+                throw new IllegalArgumentException( "Argument 'obj1' is null" );
+            } else if ( o2 == null )
+            {
+                throw new IllegalArgumentException( "Argument 'obj2' is null" );
+            }
+            //NB qdox has a fit if you try to compare 2 longs with < or >, but accepts the following circuitous locution:
+            long thisVal = ( Long ) o1;
+            long anotherVal = ( Long ) o2;
+            if ( thisVal == anotherVal )
+            {
+                return 0;
+            }
+            if (  thisVal < anotherVal )
+            {
+                return 1;
+            }
+            return -1;
         }
     };
-    private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator(
-        "1.3.6.1.4.1.18060.0.4.1.1.3" )
+
+    private static final SerializableComparator STRING_COMPARATOR = new SerializableComparator( "1.3.6.1.4.1.18060.0.4.1.1.3" )
     {
         private static final long serialVersionUID = 3258689922792961845L;
 
@@ -78,8 +79,8 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             return STRCOMP.compare( o1, o2 );
         }
     };
-    /**  */
-    private JdbmTable adminTbl = null;
+
+    private final JdbmTable adminTbl;
 
 
     /**
@@ -88,7 +89,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * @param recMan the jdbm record manager
      * @throws NamingException if there is an error opening the Db file.
      */
-    public JdbmMasterTable(RecordManager recMan) throws NamingException
+    public JdbmMasterTable( RecordManager recMan ) throws NamingException
     {
         super( DBF, recMan, LONG_COMPARATOR, LongSerializer.INSTANCE, new AttributesSerializer() );
         adminTbl = new JdbmTable( "admin", recMan, STRING_COMPARATOR, null, null );
@@ -115,12 +116,12 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
 
 
     /**
-     * Puts the Attributes of an entry into this master table at an index 
-     * specified by id.  Used both to create new entries and update existing 
+     * Puts the Attributes of an entry into this master table at an index
+     * specified by id.  Used both to create new entries and update existing
      * ones.
      *
      * @param entry the Attributes of entry w/ operational attributes
-     * @param id the BigInteger id of the entry to put
+     * @param id    the BigInteger id of the entry to put
      * @return the Attributes of the entry put
      * @throws NamingException if there is a write error on the underlying Db.
      */
@@ -149,16 +150,17 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @return the current value.
      * @throws NamingException if the admin table storing sequences cannot be
-     * read.
+     *                         read.
      */
     public Long getCurrentId() throws NamingException
     {
-        Long id = null;
+        Long id;
 
         synchronized ( adminTbl )
         {
             id = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
+            //noinspection ConstantConditions
             if ( null == id )
             {
                 adminTbl.put( SEQPROP_KEY, "0" );
@@ -178,23 +180,23 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      *
      * @return the current value incremented by one.
      * @throws NamingException if the admin table storing sequences cannot be
-     * read and writen to.
+     *                         read and writen to.
      */
     public Long getNextId() throws NamingException
     {
-        Long lastVal = null;
-        Long nextVal = null;
+        Long lastVal;
+        Long nextVal;
 
         synchronized ( adminTbl )
         {
             lastVal = new Long( ( String ) adminTbl.get( SEQPROP_KEY ) );
 
+            //noinspection ConstantConditions
             if ( null == lastVal )
             {
                 adminTbl.put( SEQPROP_KEY, "1" );
                 return 1L;
-            }
-            else
+            } else
             {
                 nextVal = lastVal + 1L;
                 adminTbl.put( SEQPROP_KEY, nextVal.toString() );
@@ -225,7 +227,7 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
      * Sets a persistant property stored in the admin table of this MasterTable.
      *
      * @param property the key of the property to set the value of
-     * @param value the value of the property
+     * @param value    the value of the property
      * @throws NamingException when the underlying admin table cannot be writen
      */
     public void setProperty( String property, String value ) throws NamingException
@@ -235,4 +237,5 @@ public class JdbmMasterTable extends JdbmTable implements MasterTable
             adminTbl.put( property, value );
         }
     }
+
 }

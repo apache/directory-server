@@ -75,7 +75,7 @@ public class PrincipalNameEncoder
     {
         DERSequence vector = new DERSequence();
 
-        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType() ) ) );
+        vector.add( new DERTaggedObject( 0, DERInteger.valueOf( name.getNameType().getOrdinal() ) ) );
         vector.add( new DERTaggedObject( 1, encodeNameSequence( name ) ) );
 
         return vector;
@@ -105,24 +105,15 @@ public class PrincipalNameEncoder
     }
 
 
-    private static DERSequence encodeNameSequence( PrincipalName name )
+    private static DERSequence encodeNameSequence( PrincipalName principalName )
     {
-        Iterator<String> it = getNameStrings( name ).iterator();
-
         DERSequence vector = new DERSequence();
 
-        while ( it.hasNext() )
+        for ( String name:principalName.getNames() )
         {
-            vector.add( DERGeneralString.valueOf( it.next() ) );
+            vector.add( DERGeneralString.valueOf( name ) );
         }
 
         return vector;
-    }
-
-
-    private static List<String> getNameStrings( PrincipalName name )
-    {
-        String[] components = name.getNameComponent().split( COMPONENT_SEPARATOR );
-        return Arrays.asList( components );
     }
 }
