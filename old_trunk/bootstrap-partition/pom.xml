@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev:  $ $Date:  $ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.2-SNAPSHOT</version>
+  </parent>
+  <artifactId>apacheds-bootstrap-partition</artifactId>
+  <name>ApacheDS Bootstrap Partition</name>
+  <packaging>jar</packaging>
+
+  <description>
+    A special jar file that contains a pre-loaded partition with schema 
+    information.  This schema partition will mount off of the ou=schema 
+    namingContext.  This artifact contains the db files for this partition.
+    It must be used with the apacheds-bootstrap-extract jar which contains
+    the classes to install these files.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId> 
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-jdbm-store</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-bootstrap-extract</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-schema-extras</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration> 
+          <systemProperties>
+            <property>
+              <name>jarFilePath</name>
+              <value>${basedir}/src/test/resources/test.jar</value>
+            </property>
+            <property>
+              <name>destDirPath</name>
+              <value>${basedir}/target/extracted</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-bootstrap-plugin</artifactId>
+        <configuration>
+          <disabledSchemas>
+            <disabledSchema>nis</disabledSchema>
+            <disabledSchema>krb5kdc</disabledSchema>
+            <disabledSchema>samba</disabledSchema>
+            <disabledSchema>autofs</disabledSchema>
+            <disabledSchema>apachedns</disabledSchema>
+            <disabledSchema>corba</disabledSchema>
+            <disabledSchema>dhcp</disabledSchema>
+            <disabledSchema>mozilla</disabledSchema>
+          </disabledSchemas>
+          <indexedAttributes>
+            <indexedAttribute>objectClass</indexedAttribute>
+            <indexedAttribute>ou</indexedAttribute>
+            <indexedAttribute>cn</indexedAttribute>
+            <indexedAttribute>m-oid</indexedAttribute>
+            <indexedAttribute>m-disabled</indexedAttribute>
+          </indexedAttributes>
+          <bootstrapSchemaClasses>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.ApachednsSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.AutofsSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CollectiveSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CorbaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.CosineSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.DhcpSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.InetorgpersonSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.JavaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.Krb5kdcSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.MozillaSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.NisSchema</bootstrapSchemaClass>
+            <bootstrapSchemaClass>org.apache.directory.server.schema.bootstrap.SambaSchema</bootstrapSchemaClass>
+          </bootstrapSchemaClasses>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>load</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

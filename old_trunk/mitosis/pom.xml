@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev:  $ $Date:  $ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.directory.server</groupId>
+    <artifactId>apacheds-parent</artifactId>
+    <version>1.5.2-SNAPSHOT</version>
+  </parent>
+  <artifactId>mitosis</artifactId>
+  <name>ApacheDS replication</name>
+  <packaging>jar</packaging>
+
+  <description>
+     Mitosis is the multi-master replications service included into Apache
+     Directory Server
+  </description>
+  
+  <repositories>
+    <repository>
+      <id>safehauS-m1-repository</id>
+      <name>SafeHaus.org Maven 1.x Repository</name>
+      <url>http://maven.safehaus.org/</url>
+      <layout>legacy</layout>
+    </repository>
+  </repositories>
+
+  <!-- =======  Dependencies are declared here  ======= -->
+  <dependencies>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-pool</groupId>
+      <artifactId>commons-pool</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jug</groupId>
+      <artifactId>jug-asl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-shared</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-bootstrap-partition</artifactId>
+      <version>${pom.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>opensymphony</groupId>
+      <artifactId>quartz</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+    <id>no-integration-or-perf-tests</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*ITest.java</exclude>
+              <exclude>**/*PTest.java</exclude>
+            </excludes>
+            <argLine>-Xmx1024m</argLine>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                          W A R N I N G
+                          -------------
+
+Integration and performance tests have been disabled.  To enable
+integration tests run maven with the -Dintegration switch.  To
+enable performance tests run maven with the -Dperformance switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>integration</id>
+      <activation>
+        <property><name>integration</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>pertest</forkMode>
+              <excludes>
+                <exclude>**/*PTest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   I N T E G R A T I O N
+                   ---------------------
+
+Performance tests have been disabled.  To enable
+performance tests run maven with the -Dperformance switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+ 
+    <profile>
+      <id>performance</id>
+      <activation>
+        <property><name>performance</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemProperties>
+                <property>
+                  <name>outputDirectory</name>
+                  <value>${basedir}/target</value>
+                </property>
+              </systemProperties>
+              <excludes>
+                <exclude>**/*ITest.java</exclude>
+              </excludes>
+              <argLine>-Xmx1024m</argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <configuration>
+                  <tasks>
+                    <echo>
+=================================================================
+                   P E R F O R M A N C E
+                   ---------------------
+
+Integration tests have been disabled.  To enable integration
+tests run maven with the -Dintegration switch.
+=================================================================
+                    </echo>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
+

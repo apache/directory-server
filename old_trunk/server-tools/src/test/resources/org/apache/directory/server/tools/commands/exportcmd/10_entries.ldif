@@ -1,0 +1,90 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+#   EXAMPLE.COM is reserved for testing according to this RFC:
+#
+#   http://www.rfc-editor.org/rfc/rfc2606.txt
+#
+
+dn: o=neworganization, dc=example,dc=com
+objectclass: organization
+objectclass: top
+o: neworganization
+
+dn: cn=newperson1, o=neworganization, dc=example,dc=com
+cn: newperson1
+objectclass: top
+objectclass: person
+telephoneNumber: 0101010101
+sn: aValue
+
+dn: cn=newperson2, o=neworganization, dc=example,dc=com
+cn: newperson2
+objectclass: top
+objectclass: person
+telephoneNumber: 0202020202
+sn: aValue
+
+dn: cn=newperson3, o=neworganization, dc=example,dc=com
+cn: newperson3
+objectclass: top
+objectclass: person
+telephoneNumber: 0303030303
+sn: aValue
+
+dn: cn=newperson4, o=neworganization, dc=example,dc=com
+cn: newperson4
+objectclass: top
+objectclass: person
+telephoneNumber: 0404040404
+sn: aValue
+
+dn: cn=newperson5, o=neworganization, dc=example,dc=com
+cn: newperson5
+objectclass: top
+objectclass: person
+telephoneNumber: 0505050505
+sn: aValue
+
+dn: cn=newperson6, o=neworganization, dc=example,dc=com
+cn: newperson6
+objectclass: top
+objectclass: person
+telephoneNumber: 0606060606
+sn: aValue
+
+dn: cn=newperson7, o=neworganization, dc=example,dc=com
+cn: newperson7
+objectclass: top
+objectclass: person
+telephoneNumber: 0707070707
+sn: aValue
+
+dn: cn=newperson8, o=neworganization, dc=example,dc=com
+cn: newperson8
+objectclass: top
+objectclass: person
+telephoneNumber: 0808080808
+sn: aValue
+
+dn: cn=newperson9, o=neworganization, dc=example,dc=com
+cn: newperson9
+objectclass: top
+objectclass: person
+telephoneNumber: 0909090909
+sn: aValue
