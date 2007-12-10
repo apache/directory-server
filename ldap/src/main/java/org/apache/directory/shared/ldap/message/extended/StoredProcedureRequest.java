@@ -189,7 +189,7 @@ public class StoredProcedureRequest extends ExtendedRequestImpl
     }
     
     
-    public Class getJavaParameterType( int index )
+    public Class<?> getJavaParameterType( int index )
     {
         throw new NotImplementedException( "class loading of procedure type not implemented" );
     }

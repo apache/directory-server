@@ -56,7 +56,7 @@ public abstract class AbstractSimpleComponentsMonitor implements ComponentsMonit
     }
 
 
-    public List getRemainingComponents()
+    public List<String> getRemainingComponents()
     {
         return Collections.unmodifiableList( components );
     }

@@ -93,7 +93,7 @@ public interface Referral
      * 
      * @return the alternative url objects.
      */
-    Collection getLdapUrls();
+    Collection<String> getLdapUrls();
 
 
     /**

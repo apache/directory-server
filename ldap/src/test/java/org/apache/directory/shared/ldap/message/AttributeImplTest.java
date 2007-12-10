@@ -92,15 +92,15 @@ public class AttributeImplTest extends TestCase
     /**
      * Tests for inequality with different id with only case differences.
      */
-    public void testNotEqualDiffCasedId()
+    public void testEqualsDiffCasedId()
     {
         AttributeImpl attr0 = getAttribute();
         AttributeImpl attr1 = new AttributeImpl( "TEST-attr1" );
         attr1.add( "value0" );
         attr1.add( "value1" );
         attr1.add( "value2" );
-        assertFalse( "Attributes with different id case should not be equal", attr0.equals( attr1 ) );
-        assertFalse( "Attributes with different id case should not be equal", attr1.equals( attr0 ) );
+        assertTrue( "Attributes with different id case should not be equal", attr0.equals( attr1 ) );
+        assertTrue( "Attributes with different id case should not be equal", attr1.equals( attr0 ) );
     }
 
 
@@ -202,7 +202,7 @@ public class AttributeImplTest extends TestCase
         assertEquals( "test", clone.getID() );
         
         // Now test the values
-        NamingEnumeration values = clone.getAll();
+        NamingEnumeration<?> values = clone.getAll();
         
         int i = 0;
         
@@ -281,7 +281,7 @@ public class AttributeImplTest extends TestCase
         assertEquals( "test", clone.getID() );
         
         // Now test the values
-        NamingEnumeration values = clone.getAll();
+        NamingEnumeration<?> values = clone.getAll();
         
         int i = 0;
         
@@ -351,7 +351,7 @@ public class AttributeImplTest extends TestCase
         assertEquals( "test", copy.getID() );
         
         // Now test the values
-        NamingEnumeration values = copy.getAll();
+        NamingEnumeration<?> values = copy.getAll();
         
         int i = 0;
         
@@ -430,7 +430,7 @@ public class AttributeImplTest extends TestCase
         assertEquals( "test", copy.getID() );
         
         // Now test the values
-        NamingEnumeration values = copy.getAll();
+        NamingEnumeration<?> values = copy.getAll();
         
         int i = 0;
         

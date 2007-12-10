@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 
 import java.util.Properties;
 import java.util.Hashtable;
-import java.util.Set;
 
 
 /**
@@ -55,7 +54,7 @@ public abstract class Provider
         + System.getProperty( "java.home" ) + "\n\tjava.class.path = " + System.getProperty( "java.class.path" );
 
     /** Use the no-op monitor by default unless we find something else */
-    private static ProviderMonitor monitor = null;
+    private static ProviderMonitor monitor;
 
     static
     {
@@ -75,7 +74,7 @@ public abstract class Provider
 
             if ( fqcn != null )
             {
-                Class mc;
+                Class<?> mc;
 
                 try
                 {
@@ -127,7 +126,7 @@ public abstract class Provider
      * @param vendor
      *            the berlib vendor used by the provider
      */
-    protected Provider(String name, String vendor)
+    protected Provider( String name, String vendor )
     {
         this.name = name;
         this.vendor = vendor;
@@ -175,10 +174,11 @@ public abstract class Provider
      * Gets the decoder associated with this provider.
      * 
      * @return the provider's decoder.
-     * @throws ProviderException
-     *             if the provider or its decoder cannot be found
+     * @throws ProviderException if the provider or its decoder cannot be found
+     * @param binaryAttributeDetector detects whether or not attributes are binary
      */
-    public abstract ProviderDecoder getDecoder( Set binaries ) throws ProviderException;
+    public abstract ProviderDecoder getDecoder( BinaryAttributeDetector binaryAttributeDetector )
+            throws ProviderException;
 
 
     /**
@@ -195,6 +195,7 @@ public abstract class Provider
     // Factory/Environment Methods
     // ------------------------------------------------------------------------
 
+    
     /**
      * Gets an instance of the configured Provider. The configured provider is
      * the classname specified by the <code>asn.1.berlib.provider</code>
@@ -219,16 +220,16 @@ public abstract class Provider
      * property value. The property is searched for within properties object
      * passed in as a parameter for this method only.
      * 
-     * @param a_env
+     * @param env
      *            the environment used to locate the provider
      * @return a singleton instance of the ASN.1 BER Library Provider
      * @throws ProviderException
      *             if the provider cannot be found
      */
-    public static Provider getProvider( Hashtable a_env ) throws ProviderException
+    public static Provider getProvider( Hashtable<Object, Object> env ) throws ProviderException
     {
         Provider provider;
-        String className = ( String ) a_env.get( BERLIB_PROVIDER );
+        String className = ( String ) env.get( BERLIB_PROVIDER );
 
         // --------------------------------------------------------------------
         // Check for a valid property value
@@ -241,7 +242,7 @@ public abstract class Provider
 
         try
         {
-            Class clazz = Class.forName( className );
+            Class<?> clazz = Class.forName( className );
             Method method = clazz.getMethod( "getProvider", (Class[])null );
             provider = ( Provider ) method.invoke( null, (Object[])null );
         }
@@ -296,7 +297,6 @@ public abstract class Provider
         Properties env = new Properties();
         env.setProperty( BERLIB_PROVIDER, DEFAULT_PROVIDER );
         monitor.usingDefaults( USING_DEFAULTS_MSG, env );
-
         return env;
     }
 }

@@ -21,8 +21,6 @@ package org.apache.directory.shared.ldap.util;
 
 
 import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -51,7 +49,7 @@ public class ArrayUtils
     /**
      * An empty immutable <code>Class</code> array.
      */
-    public static final Class[] EMPTY_CLASS_ARRAY = new Class[0];
+    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
 
     /**
      * An empty immutable <code>String</code> array.
@@ -204,6 +202,7 @@ public class ArrayUtils
         {
             return stringIfNull;
         }
+        
         return new ToStringBuilder( array, ToStringStyle.SIMPLE_STYLE ).append( array ).toString();
     }
 
@@ -247,80 +246,6 @@ public class ArrayUtils
     {
         return new EqualsBuilder().append( array1, array2 ).isEquals();
     }
-
-
-    // To map
-    // -----------------------------------------------------------------------
-    /**
-     * <p>
-     * Converts the given array into a {@link java.util.Map}. Each element of
-     * the array must be either a {@link java.util.Map.Entry} or an Array,
-     * containing at least two elements, where the first element is used as key
-     * and the second as value.
-     * </p>
-     * <p>
-     * This method can be used to initialize:
-     * </p>
-     * 
-     * <pre>
-     *  // Create a Map mapping colors.
-     *  Map colorMap = MapUtils.toMap(new String[][] {{
-     *      {&quot;RED&quot;, &quot;#FF0000&quot;},
-     *      {&quot;GREEN&quot;, &quot;#00FF00&quot;},
-     *      {&quot;BLUE&quot;, &quot;#0000FF&quot;}});
-     * </pre>
-     * 
-     * <p>
-     * This method returns <code>null</code> if <code>null</code> array
-     * input.
-     * </p>
-     * 
-     * @param array
-     *            an array whose elements are either a
-     *            {@link java.util.Map.Entry} or an Array containing at least
-     *            two elements, may be <code>null</code>
-     * @return a <code>Map</code> that was created from the array
-     * @throws IllegalArgumentException
-     *             if one element of this Array is itself an Array containing
-     *             less then two elements
-     * @throws IllegalArgumentException
-     *             if the array contains elements other than
-     *             {@link java.util.Map.Entry} and an Array
-     */
-    public static Map toMap( Object[] array )
-    {
-        if ( array == null )
-        {
-            return null;
-        }
-        final Map map = new HashMap( ( int ) ( array.length * 1.5 ) );
-        for ( int i = 0; i < array.length; i++ )
-        {
-            Object object = array[i];
-            if ( object instanceof Map.Entry )
-            {
-                Map.Entry entry = ( Map.Entry ) object;
-                map.put( entry.getKey(), entry.getValue() );
-            }
-            else if ( object instanceof Object[] )
-            {
-                Object[] entry = ( Object[] ) object;
-                if ( entry.length < 2 )
-                {
-                    throw new IllegalArgumentException( "Array element " + i + ", '" + object
-                        + "', has a length less than 2" );
-                }
-                map.put( entry[0], entry[1] );
-            }
-            else
-            {
-                throw new IllegalArgumentException( "Array element " + i + ", '" + object
-                    + "', is neither of type Map.Entry nor an Array" );
-            }
-        }
-        return map;
-    }
-
 
     // Clone
     // -----------------------------------------------------------------------
@@ -601,7 +526,7 @@ public class ArrayUtils
             endIndexExclusive = array.length;
         }
         int newSize = endIndexExclusive - startIndexInclusive;
-        Class type = array.getClass().getComponentType();
+        Class<?> type = array.getClass().getComponentType();
         if ( newSize <= 0 )
         {
             return ( Object[] ) Array.newInstance( type, 0 );
@@ -4570,7 +4495,7 @@ public class ArrayUtils
      *            1 array of this type.
      * @return A new copy of the array of size 1 greater than the input.
      */
-    private static Object copyArrayGrow1( Object array, Class newArrayComponentType )
+    private static Object copyArrayGrow1( Object array, Class<?> newArrayComponentType )
     {
         if ( array != null )
         {

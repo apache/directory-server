@@ -47,7 +47,13 @@ public class ArrayEnumeration implements Enumeration
      */
     public ArrayEnumeration(Object[] array)
     {
-        this.array = array;
+        if ( array != null )
+        {
+            this.array = new Object[ array.length ];
+            System.arraycopy( array, 0, this.array, 0, array.length );
+        } else {
+            this.array = null;
+        }
     }
 
 

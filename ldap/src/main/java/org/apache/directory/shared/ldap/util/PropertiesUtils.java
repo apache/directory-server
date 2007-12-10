@@ -200,7 +200,15 @@ public class PropertiesUtils
         {
             try
             {
-                properties.load( new FileInputStream( file ) );
+                final FileInputStream fis = new FileInputStream( file );
+                try
+                {
+                    properties.load( fis );
+                }
+                finally
+                {
+                    fis.close();
+                }
             }
             catch ( IOException e )
             {

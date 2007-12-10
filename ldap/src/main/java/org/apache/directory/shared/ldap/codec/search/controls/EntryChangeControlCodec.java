@@ -78,7 +78,7 @@ import org.apache.directory.shared.ldap.util.StringTools;
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
-public class EntryChangeControl extends AbstractAsn1Object
+public class EntryChangeControlCodec extends AbstractAsn1Object
 {
     public static final int UNDEFINED_CHANGE_NUMBER = -1;
 
@@ -99,7 +99,7 @@ public class EntryChangeControl extends AbstractAsn1Object
     /**
      * @see Asn1Object#Asn1Object
      */
-    public EntryChangeControl()
+    public EntryChangeControlCodec()
     {
         super();
     }

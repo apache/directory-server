@@ -22,7 +22,6 @@ package org.apache.directory.shared.ldap.message;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Hashtable;
 
 import org.apache.directory.shared.asn1.codec.EncoderException;
 import org.apache.directory.shared.asn1.codec.stateful.EncoderCallback;
@@ -56,12 +55,9 @@ public final class MessageEncoder implements ProviderEncoder
      * Creates a MessageEncoder using default properties for enabling a BER
      * library provider.
      * 
-     * @param env
-     *            The Map of environment parameters.
-     * @throws MessageException
-     *             if the encoder cannot be created.
+     * @throws MessageException if the encoder cannot be created.
      */
-    public MessageEncoder(final Hashtable env) throws MessageException
+    public MessageEncoder() throws MessageException
     {
         this.provider = Provider.getProvider( Provider.getEnvironment() );
         this.encoder = provider.getEncoder();

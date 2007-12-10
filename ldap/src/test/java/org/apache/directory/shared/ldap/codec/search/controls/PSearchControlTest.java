@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.directory.shared.asn1.ber.Asn1Decoder;
 import org.apache.directory.shared.asn1.codec.DecoderException;
-import org.apache.directory.shared.ldap.codec.search.controls.PSearchControl;
+import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlCodec;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlContainer;
 import org.apache.directory.shared.ldap.codec.search.controls.PSearchControlDecoder;
 import org.apache.directory.shared.ldap.util.StringTools;
@@ -57,7 +57,7 @@ public class PSearchControlTest extends TestCase
         String expected = StringTools.dumpBytes( bb.array() );
         bb.flip();
 
-        PSearchControl ctrl = new PSearchControl();
+        PSearchControlCodec ctrl = new PSearchControlCodec();
         ctrl.setChangesOnly( false );
         ctrl.setReturnECs( false );
         ctrl.setChangeTypes( 1 );
@@ -92,10 +92,10 @@ public class PSearchControlTest extends TestCase
             Assert.fail( de.getMessage() );
         }
 
-        PSearchControl control = container.getPSearchControl();
+        PSearchControlCodec control = container.getPSearchControl();
         int changeTypes = control.getChangeTypes();
-        assertEquals( PSearchControl.CHANGE_TYPE_ADD, changeTypes & PSearchControl.CHANGE_TYPE_ADD );
-        assertEquals( PSearchControl.CHANGE_TYPE_MODDN, changeTypes & PSearchControl.CHANGE_TYPE_MODDN );
+        assertEquals( PSearchControlCodec.CHANGE_TYPE_ADD, changeTypes & PSearchControlCodec.CHANGE_TYPE_ADD );
+        assertEquals( PSearchControlCodec.CHANGE_TYPE_MODDN, changeTypes & PSearchControlCodec.CHANGE_TYPE_MODDN );
         assertEquals( false, control.isChangesOnly() );
         assertEquals( false, control.isReturnECs() );
     }

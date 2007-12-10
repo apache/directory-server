@@ -95,7 +95,13 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
         try
         {
             GracefulShutdown gs = ( GracefulShutdown ) decoder.decode( payload );
-            this.payload = payload;
+            if ( payload != null )
+            {
+                this.payload = new byte[ payload.length ];
+                System.arraycopy( payload, 0, this.payload, 0, payload.length );
+            } else {
+                this.payload = null;
+            }
             this.timeOffline = gs.getTimeOffline();
             this.delay = gs.getDelay();
         }
@@ -135,7 +141,14 @@ public class GracefulShutdownRequest extends ExtendedRequestImpl
             }
         }
 
-        return payload;
+        if ( payload == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ payload.length ];
+        System.arraycopy( payload, 0, copy, 0, payload.length );
+        return copy;
     }
 
 

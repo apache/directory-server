@@ -20,25 +20,19 @@
 package org.apache.directory.shared.ldap.message;
 
 
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
 import org.apache.directory.shared.asn1.Asn1Object;
 import org.apache.directory.shared.asn1.codec.DecoderException;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderCallback;
 import org.apache.directory.shared.asn1.codec.stateful.DecoderMonitor;
 import org.apache.directory.shared.asn1.codec.stateful.StatefulDecoder;
 import org.apache.directory.shared.ldap.codec.ResponseCarryingException;
-import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
+import org.apache.directory.shared.ldap.message.spi.BinaryAttributeDetector;
 import org.apache.directory.shared.ldap.message.spi.Provider;
 import org.apache.directory.shared.ldap.message.spi.ProviderDecoder;
 import org.apache.directory.shared.ldap.message.spi.TransformerSpi;
-import org.apache.directory.shared.ldap.util.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.Hashtable;
 
 
 /**
@@ -50,15 +44,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class MessageDecoder implements ProviderDecoder
 {
-    private static final Logger log = LoggerFactory.getLogger( MessageDecoder.class );
-
-    private static final String BINARY_KEY = JndiPropertyConstants.JNDI_LDAP_ATTRIBUTES_BINARY;
-    
-    private final static Set<String> EMPTY_SET_STRING = new HashSet<String>();
-
-    /** Environment parameters stored here */
-    private final Hashtable<String, Object> env;
-
     /** the ASN.1 provider */
     private final Provider provider;
 
@@ -76,79 +61,16 @@ public final class MessageDecoder implements ProviderDecoder
      * Creates a MessageDecoder using default properties for enabling a BER
      * library provider.
      * 
-     * @param env
-     *            The Map of environment parameters.
-     * @throws MessageException
-     *             if there is a problem creating this decoder.
+     * @param binaryAttributeDetector detects whether or not an attribute is binary
+     * @throws MessageException if there is a problem creating this decoder.
      */
-    public MessageDecoder(final Hashtable<String, Object> env) throws MessageException
+    public MessageDecoder( BinaryAttributeDetector binaryAttributeDetector ) throws MessageException
     {
-        this.env = ( Hashtable<String, Object> ) env.clone();
-        
         // We need to get the encoder class name
-        Hashtable providerEnv = Provider.getEnvironment();
+        Hashtable<Object, Object> providerEnv = Provider.getEnvironment();
         
-        this.env.put( Provider.BERLIB_PROVIDER, providerEnv.get( Provider.BERLIB_PROVIDER ) );
         this.provider = Provider.getProvider( providerEnv );
-
-        Set<String> binaries;
-
-        if ( env.containsKey( BINARY_KEY ) )
-        {
-            Object val = env.get( BINARY_KEY );
-
-            if ( val == null )
-            {
-                if ( log.isWarnEnabled() )
-                {
-                    log.warn( "Null value for " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
-                }
-                
-                binaries = EMPTY_SET_STRING;
-            }
-            else if ( val instanceof String )
-            {
-                // parse out all words based on expected JNDI format of this
-                // attribute
-                String binaryIds = ( String ) val;
-                binaries = new HashSet<String>();
-
-                if ( !StringTools.isEmpty( binaryIds ) )
-                {
-                    String[] binaryArray = binaryIds.split( " " );
-
-                    for ( String binary:binaryArray )
-                    {
-                        binaries.add( StringTools.lowerCaseAscii( StringTools.trim( binary ) ) );
-                    }
-                }
-            } // if already parsed and set as a collection use it
-            else if ( val instanceof Collection )
-            {
-                binaries = new HashSet<String>();
-                binaries.addAll( ( Set<String> ) val );
-            } // complain if it's something else
-            else
-            {
-                if ( log.isWarnEnabled() )
-                {
-                    log.warn( "Unrecognized value for " + BINARY_KEY
-                        + " key in environment.  Using empty set for binaries." );
-                }
-                
-                binaries = EMPTY_SET_STRING;
-            }
-        }
-        else
-        {
-            if ( log.isWarnEnabled() )
-            {
-                log.warn( "Could not find " + BINARY_KEY + " key in environment.  Using empty set for binaries." );
-            }
-            binaries = EMPTY_SET_STRING;
-        }
-
-        this.decoder = this.provider.getDecoder( binaries );
+        this.decoder = this.provider.getDecoder( binaryAttributeDetector );
         this.transformer = this.provider.getTransformer();
         this.decoder.setCallback( new DecoderCallback()
         {
@@ -202,14 +124,13 @@ public final class MessageDecoder implements ProviderDecoder
                 }
             }
         }
-        catch (Exception e) 
+        catch ( Exception e )
         {
-            throw (MessageException)e;
+            throw ( MessageException ) e;
         }
 
         // Call on transformer to convert stub based PDU into Message based PDU
-        Message message = transformer.transform( providerEnvelope );
-        return message;
+        return transformer.transform( providerEnvelope );
     }
 
 

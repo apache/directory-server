@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.directory.project</groupId>
     <artifactId>project</artifactId>
-    <version>8</version>
+    <version>9-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.directory.shared</groupId>
   <artifactId>shared-parent</artifactId>
@@ -198,5 +198,12 @@
       </build>
     </profile>
   </profiles>
+ 
+  <scm>
+    <connection>
+      scm:svn:http://svn.apache.org/repos/asf/directory/shared/branches/bigbang
+    </connection>
+  </scm>
+
 </project>
 

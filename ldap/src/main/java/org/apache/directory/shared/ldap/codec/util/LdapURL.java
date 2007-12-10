@@ -329,7 +329,14 @@ public class LdapURL
         }
 
         string = StringTools.utf8ToString( bytes );
-        this.bytes = bytes;
+
+        if ( bytes != null )
+        {
+            this.bytes = new byte[ bytes.length ];
+            System.arraycopy( bytes, 0, this.bytes, 0, bytes.length );
+        } else {
+            this.bytes = null;
+        }
 
         parse( string.toCharArray() );
     }
@@ -1421,5 +1428,29 @@ public class LdapURL
     public String getString()
     {
         return string;
+    }
+
+    public int hashCode()
+    {
+        return this.toString().hashCode();
+    }
+
+    public boolean equals( Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        
+        final LdapURL other = ( LdapURL ) obj;
+        return this.toString().equals( other.toString() );
     }
 }

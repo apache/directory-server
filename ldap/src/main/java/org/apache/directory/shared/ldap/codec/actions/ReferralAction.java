@@ -100,7 +100,7 @@ public class ReferralAction extends GrammarAction
 
         if ( IS_DEBUG )
         {
-            Iterator urls = ldapResult.getReferrals().iterator();
+            Iterator<LdapURL> urls = ldapResult.getReferrals().iterator();
 
             StringBuffer sb = new StringBuffer();
             boolean isFirst = true;

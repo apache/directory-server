@@ -17,16 +17,32 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.constants;
+package org.apache.directory.shared.ldap.common;
 
 /**
- * A utility class where we declare all the statically defined DN used in the server.
- *
+ * 
+ * The RenameModification class is used to store a Rename Modification
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Rev:$
+ * @version $Rev$, $Date$
  */
-public class ServerDNConstants 
+public class RenameModification extends ServerModification
 {
-	public static final String ADMINISTRATORS_GROUP_DN = "cn=Administrators,ou=groups,ou=system";
-
+    /**
+     * 
+     * Creates a new instance of RenameModification.
+     *
+     */
+    public RenameModification()
+    {
+        super();
+    }
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Rename Modification" + super.toString();
+    }
 }

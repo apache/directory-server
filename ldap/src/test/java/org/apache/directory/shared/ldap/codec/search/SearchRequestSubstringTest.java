@@ -153,8 +153,8 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
-        assertEquals( "t", substringFilter.getInitialSubstrings().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
+        assertEquals( "t", substringFilter.getInitialSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();
@@ -269,8 +269,8 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
-        assertEquals( "t", substringFilter.getInitialSubstrings().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
+        assertEquals( "t", substringFilter.getInitialSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();
@@ -392,7 +392,7 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
         assertEquals( null, substringFilter.getInitialSubstrings() );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
         assertEquals( null, substringFilter.getFinalSubstrings() );
@@ -509,10 +509,10 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
         assertEquals( null, substringFilter.getInitialSubstrings() );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
-        assertEquals( "t", substringFilter.getFinalSubstrings().toString() );
+        assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();
@@ -627,10 +627,10 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
-        assertEquals( "t", substringFilter.getInitialSubstrings().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
+        assertEquals( "t", substringFilter.getInitialSubstrings() );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
-        assertEquals( "t", substringFilter.getFinalSubstrings().toString() );
+        assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();
@@ -744,8 +744,8 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
-        assertEquals( "t", substringFilter.getInitialSubstrings().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
+        assertEquals( "t", substringFilter.getInitialSubstrings() );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
 
         // The attributes
@@ -855,11 +855,11 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
         assertEquals( null, substringFilter.getInitialSubstrings() );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 0 ) );
         assertEquals( "t", substringFilter.getAnySubstrings().get( 1 ) );
-        assertEquals( "t", substringFilter.getFinalSubstrings().toString() );
+        assertEquals( "t", substringFilter.getFinalSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();
@@ -973,8 +973,8 @@ public class SearchRequestSubstringTest extends TestCase
         SubstringFilter substringFilter = ( SubstringFilter ) sr.getFilter();
         assertNotNull( substringFilter );
 
-        assertEquals( "objectclass", substringFilter.getType().toString() );
-        assertEquals( "t", substringFilter.getInitialSubstrings().toString() );
+        assertEquals( "objectclass", substringFilter.getType() );
+        assertEquals( "t", substringFilter.getInitialSubstrings() );
         assertEquals( "*", substringFilter.getAnySubstrings().get( 0 ) );
 
         // The attributes
@@ -1212,7 +1212,7 @@ public class SearchRequestSubstringTest extends TestCase
         assertEquals( "objectclass", substringFilter.getType() );
         assertEquals( null, substringFilter.getInitialSubstrings() );
         assertEquals( 0, substringFilter.getAnySubstrings().size() );
-        assertEquals( "Amos", substringFilter.getFinalSubstrings().toString() );
+        assertEquals( "Amos", substringFilter.getFinalSubstrings() );
 
         // The attributes
         Attributes attributes = sr.getAttributes();

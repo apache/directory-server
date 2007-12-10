@@ -238,7 +238,7 @@ public class SearchResultEntry extends LdapMessage
 
         if ( ( partialAttributeList != null ) && ( partialAttributeList.size() != 0 ) )
         {
-            NamingEnumeration attributes = partialAttributeList.getAll();
+            NamingEnumeration<? extends Attribute> attributes = partialAttributeList.getAll();
             attributeLength = new LinkedList<Integer>();
             valsLength = new LinkedList<Integer>();
 
@@ -259,7 +259,7 @@ public class SearchResultEntry extends LdapMessage
                     // The values
                     try
                     {
-                        NamingEnumeration values = attribute.getAll();
+                        NamingEnumeration<?> values = attribute.getAll();
 
                         if ( values.hasMoreElements() )
                         {
@@ -372,7 +372,7 @@ public class SearchResultEntry extends LdapMessage
             // The partial attribute list
             if ( ( partialAttributeList != null ) && ( partialAttributeList.size() != 0 ) )
             {
-                NamingEnumeration attributes = partialAttributeList.getAll();
+                NamingEnumeration<? extends Attribute> attributes = partialAttributeList.getAll();
                 int attributeNumber = 0;
 
                 // Compute the attributes length
@@ -397,7 +397,7 @@ public class SearchResultEntry extends LdapMessage
                     {
                         try
                         {
-                            NamingEnumeration values = attribute.getAll();
+                            NamingEnumeration<?> values = attribute.getAll();
 
                             if ( values.hasMoreElements() )
                             {

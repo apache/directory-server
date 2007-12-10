@@ -140,7 +140,13 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
      */
     public void setCredentials( byte[] credentials )
     {
-        this.credentials = credentials;
+        if ( credentials != null )
+        {
+            this.credentials = new byte[ credentials.length ];
+            System.arraycopy( credentials, 0, this.credentials, 0, credentials.length );
+        } else {
+            this.credentials = null;
+        }
         
         if ( credentials != null )
         {
@@ -388,7 +394,7 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
         sb.append( "    BindRequest\n" );
         sb.append( "        Version : '" ).append( isVersion3 ? "3" : "2" ).append( "'\n" );
 
-        if ( StringTools.isEmpty( name.toString() ) )
+        if ( StringTools.isEmpty( name.toString() ) && isSimple )
         {
             sb.append( "        Name : anonymous\n" );
         }
@@ -405,9 +411,19 @@ public class BindRequestImpl extends AbstractRequest implements BindRequest
             {
                 sb.append( "        Sasl credentials\n" );
                 sb.append( "            Mechanism :'" ).append( mechanism ).append( "'\n" );
-
-                sb.append( "            Credentials : '" ).append( StringTools.utf8ToString( credentials ) ).append(
-                    '/' ).append( StringTools.dumpBytes( credentials ) ).append( "'\n" );
+                
+                if ( credentials == null )
+                {
+                    sb.append( "            Credentials : null" );
+                }
+                else
+                {
+                    sb.append( "            Credentials : '" ).
+                        append( StringTools.utf8ToString( credentials ) ).
+                        append( '/' ).
+                        append( StringTools.dumpBytes( credentials ) ).
+                        append( "'\n" );
+                }
             }
         }
 

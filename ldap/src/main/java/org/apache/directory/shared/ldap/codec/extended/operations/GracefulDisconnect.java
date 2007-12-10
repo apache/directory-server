@@ -132,12 +132,12 @@ public class GracefulDisconnect extends GracefulAction
         {
             replicatedContextsLength = 0;
 
-            Iterator replicatedContextIterator = replicatedContexts.iterator();
+            Iterator<LdapURL> replicatedContextIterator = replicatedContexts.iterator();
 
             // We may have more than one reference.
             while ( replicatedContextIterator.hasNext() )
             {
-                int ldapUrlLength = ( ( LdapURL ) replicatedContextIterator.next() ).getNbBytes();
+                int ldapUrlLength = replicatedContextIterator.next().getNbBytes();
                 replicatedContextsLength += 1 + TLV.getNbBytes( ldapUrlLength ) + ldapUrlLength;
             }
 
@@ -181,12 +181,12 @@ public class GracefulDisconnect extends GracefulAction
             bb.put( UniversalTag.SEQUENCE_TAG );
             bb.put( TLV.getBytes( replicatedContextsLength ) );
 
-            Iterator replicatedContextIterator = replicatedContexts.iterator();
+            Iterator<LdapURL> replicatedContextIterator = replicatedContexts.iterator();
 
             // We may have more than one reference.
             while ( replicatedContextIterator.hasNext() )
             {
-                LdapURL url = ( LdapURL ) replicatedContextIterator.next();
+                LdapURL url = replicatedContextIterator.next();
                 Value.encode( bb, url.getBytes() );
             }
         }

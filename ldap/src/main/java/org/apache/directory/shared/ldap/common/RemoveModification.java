@@ -17,30 +17,32 @@
  *  under the License. 
  *  
  */
-
-package org.apache.directory.shared.ldap.url;
-
-
-import javax.naming.NamingException;
-
+package org.apache.directory.shared.ldap.common;
 
 /**
- * An LDAP URL parser.
  * 
- * @see <a href="http://www.faqs.org/rfcs/rfc2255.html">RFC 2255</a>
+ * The RemoveModification class is used to store a Remove Modification
+ * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
- * @version $Revision$
+ * @version $Rev$, $Date$
  */
-public interface LdapUrlParser
+public class RemoveModification extends ServerModification
 {
     /**
-     * Parses an LDAP URL.
      * 
-     * @param a_urlString
-     *            the LDAP URL as a String
-     * @return a parsed instance of LdapUrl.
-     * @throws NamingException
-     *             if the URL or any one of its components is malformed.
+     * Creates a new instance of RemoveModification.
+     *
      */
-    LdapUrl parse( String a_urlString ) throws NamingException;
+    public RemoveModification()
+    {
+        super();
+    }
+    
+    /**
+     * @see Object#toString()
+     */
+    public String toString()
+    {
+        return "Remove Modification" + super.toString();
+    }
 }

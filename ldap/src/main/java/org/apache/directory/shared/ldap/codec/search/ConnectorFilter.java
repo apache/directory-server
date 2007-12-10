@@ -109,11 +109,11 @@ public abstract class ConnectorFilter extends Filter
 
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-            Iterator filterIterator = filterSet.iterator();
+            Iterator<Filter> filterIterator = filterSet.iterator();
 
             while ( filterIterator.hasNext() )
             {
-                Filter filter = ( Filter ) filterIterator.next();
+                Filter filter = filterIterator.next();
 
                 connectorFilterLength += filter.computeLength();
             }
@@ -142,11 +142,11 @@ public abstract class ConnectorFilter extends Filter
         // encode each filter
         if ( ( filterSet != null ) && ( filterSet.size() != 0 ) )
         {
-            Iterator filterIterator = filterSet.iterator();
+            Iterator<Filter> filterIterator = filterSet.iterator();
 
             while ( filterIterator.hasNext() )
             {
-                Filter filter = ( Filter ) filterIterator.next();
+                Filter filter = filterIterator.next();
 
                 filter.encode( buffer );
             }

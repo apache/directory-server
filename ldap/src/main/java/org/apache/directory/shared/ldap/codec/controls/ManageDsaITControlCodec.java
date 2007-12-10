@@ -64,7 +64,7 @@ import org.apache.directory.shared.asn1.codec.EncoderException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public class ManageDsaITControl extends AbstractAsn1Object
+public class ManageDsaITControlCodec extends AbstractAsn1Object
 {
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate( 0 );
 
@@ -72,7 +72,7 @@ public class ManageDsaITControl extends AbstractAsn1Object
      * Default constructor
      *
      */
-    public ManageDsaITControl()
+    public ManageDsaITControlCodec()
     {
         super();
     }

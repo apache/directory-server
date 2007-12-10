@@ -57,12 +57,13 @@ public class AttributeImpl implements Attribute
 
     /** In case we have only one value, just use this container */
     private Object value;
-    
+
     /** the list of attribute values, if unordered */
     private List<Object> list;
-    
+
     /** The number of values stored */
     private int size = 0;
+
 
     // ------------------------------------------------------------------------
     // Constructors
@@ -117,6 +118,7 @@ public class AttributeImpl implements Attribute
         size = 1;
     }
 
+
     /**
      * Create a copy of an Attribute, be it an AttributeImpl
      * instance of a BasicAttribute instance
@@ -132,9 +134,9 @@ public class AttributeImpl implements Attribute
         }
         else if ( attribute instanceof AttributeImpl )
         {
-            AttributeImpl clone = (AttributeImpl)attribute.clone();
-            
-            upId  = clone.upId;
+            AttributeImpl clone = ( AttributeImpl ) attribute.clone();
+
+            upId = clone.upId;
             list = clone.list;
             size = clone.size;
             value = clone.value;
@@ -142,9 +144,9 @@ public class AttributeImpl implements Attribute
         else if ( attribute instanceof BasicAttribute )
         {
             upId = attribute.getID();
-            
-            NamingEnumeration values = attribute.getAll();
-            
+
+            NamingEnumeration<?> values = attribute.getAll();
+
             while ( values.hasMoreElements() )
             {
                 add( values.nextElement() );
@@ -155,6 +157,7 @@ public class AttributeImpl implements Attribute
             throw new NamingException( "Attribute must be an instance of BasicAttribute or AttributeImpl" );
         }
     }
+
 
     // ------------------------------------------------------------------------
     // javax.naming.directory.Attribute Interface Method Implementations
@@ -171,26 +174,29 @@ public class AttributeImpl implements Attribute
         {
             return new IteratorNamingEnumeration<Object>( new Iterator<Object>()
             {
-                private boolean more = (size != 0);
-                    
-                public boolean hasNext() 
+                private boolean more = ( size != 0 );
+
+
+                public boolean hasNext()
                 {
                     return more;
                 }
-                
-                public Object next() 
+
+
+                public Object next()
                 {
                     more = false;
                     return value;
                 }
-                
-                public void remove() 
+
+
+                public void remove()
                 {
                     value = null;
                     more = true;
                     size = 0;
                 }
-            });
+            } );
         }
         else
         {
@@ -248,17 +254,17 @@ public class AttributeImpl implements Attribute
      */
     public boolean contains( Object attrVal )
     {
-        switch (size)
+        switch ( size )
         {
-            case 0 :
+            case 0:
                 return false;
-                
-            case 1 :
+
+            case 1:
                 return AttributeUtils.equals( value, attrVal );
-                
-            default :
-                Iterator values = list.iterator();
-            
+
+            default:
+                Iterator<Object> values = list.iterator();
+
                 while ( values.hasNext() )
                 {
                     if ( AttributeUtils.equals( values.next(), attrVal ) )
@@ -266,7 +272,7 @@ public class AttributeImpl implements Attribute
                         return true;
                     }
                 }
-                
+
                 return false;
         }
     }
@@ -284,25 +290,25 @@ public class AttributeImpl implements Attribute
     public boolean add( Object attrVal )
     {
         boolean exists = false;
-        
+
         if ( contains( attrVal ) )
         {
             // Do not duplicate values
             return true;
         }
-        
+
         // First copy the value
         attrVal = AttributeUtils.cloneValue( attrVal );
-        
+
         switch ( size )
         {
-            case 0 :
+            case 0:
                 value = attrVal;
                 size++;
                 return true;
-                
-            case 1 :
-                exists = value.equals( attrVal );
+
+            case 1:
+                exists = contains( attrVal );
 
                 if ( exists )
                 {
@@ -318,10 +324,10 @@ public class AttributeImpl implements Attribute
                     value = null;
                     return true;
                 }
-                
-            default :
-                exists = list.contains( attrVal ); 
-            
+
+            default:
+                exists = contains( attrVal );
+
                 list.add( attrVal );
                 size++;
                 return exists;
@@ -341,25 +347,88 @@ public class AttributeImpl implements Attribute
     {
         switch ( size )
         {
-            case 0 :
+            case 0:
                 return false;
-                
-            case 1 :
-                value = null;
-                size--;
-                return true;
-                
-            case 2 : 
-                list.remove( attrVal );
-                value = list.get(0);
-                size = 1;
-                list = null;
-                return true;
-                
-            default :
-                list.remove( attrVal );
-                size--;
-                return true;
+
+            case 1:
+                if ( contains( attrVal ) )
+                {
+                    value = null;
+                    size--;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            case 2:
+                if ( contains( attrVal ) )
+                {
+                    if ( attrVal instanceof byte[] )
+                    {
+                        for ( Object val : list )
+                        {
+                            if ( val instanceof byte[] )
+                            {
+                                if ( Arrays.equals( ( byte[] )val, ( byte[] ) attrVal ) )
+                                {
+                                    list.remove( val );
+                                    value = list.get( 0 );
+                                    size = 1;
+                                    list = null;
+                                    return true;
+                                }
+                            }
+                        }
+    
+                        return false;
+                    }
+                    else
+                    {
+                        list.remove( attrVal );
+                        value = list.get( 0 );
+                        size = 1;
+                        list = null;
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
+            default:
+                if ( contains( attrVal ) )
+                {
+                    if ( attrVal instanceof byte[] )
+                    {
+                        for ( Object val : list )
+                        {
+                            if ( val instanceof byte[] )
+                            {
+                                if ( Arrays.equals( ( byte[] ) val, ( byte[] ) attrVal ) )
+                                {
+                                    list.remove( val );
+                                    size--;
+                                    return true;
+                                }
+                            }
+                        }
+    
+                        return false;
+                    }
+                    else
+                    {
+                        list.remove( attrVal );
+                        size--;
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
         }
     }
 
@@ -371,15 +440,15 @@ public class AttributeImpl implements Attribute
     {
         switch ( size )
         {
-            case 0 :
+            case 0:
                 return;
-                
-            case 1 :
+
+            case 1:
                 value = null;
                 size = 0;
                 return;
-                
-            default :
+
+            default:
                 list = null;
                 size = 0;
                 return;
@@ -419,8 +488,8 @@ public class AttributeImpl implements Attribute
     {
         try
         {
-            AttributeImpl clone = (AttributeImpl)super.clone();
-            
+            AttributeImpl clone = ( AttributeImpl ) super.clone();
+
             if ( size < 2 )
             {
                 clone.value = AttributeUtils.cloneValue( value );
@@ -428,14 +497,14 @@ public class AttributeImpl implements Attribute
             else
             {
                 clone.list = new ArrayList<Object>( size );
-                
+
                 for ( int i = 0; i < size; i++ )
                 {
                     Object newValue = AttributeUtils.cloneValue( list.get( i ) );
                     clone.list.add( newValue );
                 }
             }
-            
+
             return clone;
         }
         catch ( CloneNotSupportedException cnse )
@@ -466,20 +535,20 @@ public class AttributeImpl implements Attribute
      */
     public Object get( int index )
     {
-        if ( (index < 0 ) || ( index > size + 1 ) )
+        if ( ( index < 0 ) || ( index > size + 1 ) )
         {
             return null;
         }
-        
+
         switch ( size )
         {
-            case 0 :
+            case 0:
                 return null;
-                
-            case 1 :
+
+            case 1:
                 return value;
-                
-            default :
+
+            default:
                 return list.get( index );
         }
     }
@@ -495,33 +564,32 @@ public class AttributeImpl implements Attribute
      */
     public Object remove( int index )
     {
-        if ( (index < 0 ) || ( index > size + 1 ) )
+        if ( ( index < 0 ) || ( index > size + 1 ) )
         {
             return null;
         }
-        
+
         switch ( size )
         {
-            case 0 :
+            case 0:
                 return null;
-                
-            case 1 :
+
+            case 1:
                 Object result = value;
                 value = null;
                 size = 0;
                 return result;
-                
-            case 2 :
+
+            case 2:
                 Object removed = list.remove( index );
-                value = list.get(0);
+                value = list.get( 0 );
                 size = 1;
                 list = null;
                 return removed;
-                
-                
-            default :
+
+            default:
                 size--;
-            
+
                 return list.remove( index );
         }
     }
@@ -540,17 +608,17 @@ public class AttributeImpl implements Attribute
     {
         // First copy the value
         attrVal = AttributeUtils.cloneValue( attrVal );
-        
+
         switch ( size )
         {
-            case 0 :
+            case 0:
                 size++;
                 value = attrVal;
                 return;
-                
-            case 1 :
+
+            case 1:
                 list = new ArrayList<Object>();
-                
+
                 if ( index == 0 )
                 {
                     list.add( attrVal );
@@ -565,8 +633,8 @@ public class AttributeImpl implements Attribute
                 size++;
                 value = null;
                 return;
-                
-            default :
+
+            default:
                 list.add( index, attrVal );
                 size++;
                 return;
@@ -587,15 +655,15 @@ public class AttributeImpl implements Attribute
     {
         // First copy the value
         attrVal = AttributeUtils.cloneValue( attrVal );
-        
+
         switch ( size )
         {
-            case 0 :
+            case 0:
                 size++;
                 value = attrVal;
                 return null;
-                
-            case 1 :
+
+            case 1:
                 if ( index == 0 )
                 {
                     Object result = value;
@@ -611,26 +679,53 @@ public class AttributeImpl implements Attribute
                     value = null;
                     return null;
                 }
-                
-            default :
+
+            default:
                 Object oldValue = list.get( index );
                 list.set( index, attrVal );
                 return oldValue;
         }
     }
+    
+    
+    /**
+     * Compute the hashcode for this attribute. It's a combinaison
+     * of the ID and all the values' hashcodes.
+     * 
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 17;
+        
+        hash += hash*37 + StringTools.toLowerCase( getID() ).hashCode();
+        
+        if ( ( list != null ) && ( list.size() != 0 ) )
+        {
+            for ( Object value:list )
+            {
+                if ( value instanceof byte[] )
+                {
+                    hash += hash*37 + Arrays.hashCode( (byte[])value );
+                }
+                else 
+                {
+                    hash += hash*37 + value.hashCode();
+                }
+            }
+        }
+        
+        return hash;
+    }
 
 
     /**
-     * Checks for equality between this Attribute instance and another. The
-     * lockable properties are not factored into the equality semantics and
-     * neither is the Attribute implementation. The Attribute ID's are compared
-     * with regard to case and value order is only considered if the Attribute
-     * arguement is ordered itself.
+     * Checks for equality between this Attribute instance and another. The 
+     * Attribute ID's aren't compared with regard to case.
      * 
      * TODO start looking at comparing syntaxes to determine if attributes are
      *       really equal
-     * @param obj
-     *            the Attribute to test for equality
+     * @param obj the Attribute to test for equality
      * @return true if the obj is an Attribute and equals this Attribute false
      *         otherwise
      */
@@ -647,8 +742,8 @@ public class AttributeImpl implements Attribute
         }
 
         Attribute attr = ( Attribute ) obj;
-        
-        if ( !upId.equals( attr.getID() ) )
+
+        if ( !StringTools.toLowerCase( upId ).equals( StringTools.toLowerCase( attr.getID() ) ) )
         {
             return false;
         }
@@ -687,57 +782,39 @@ public class AttributeImpl implements Attribute
             // We have to do that because attribute's values are
             // not ordered.
             Map<Integer, Object> hash = new HashMap<Integer, Object>();
-            
-            for ( Object v:list )
+
+            for ( Object v : list )
             {
                 int h = 0;
-                
+
                 if ( v instanceof String )
                 {
                     h = v.hashCode();
                 }
                 else if ( v instanceof byte[] )
                 {
-                    byte[] bv = (byte[])v;
+                    byte[] bv = ( byte[] ) v;
                     h = Arrays.hashCode( bv );
                 }
                 else
                 {
                     return false;
                 }
-                
+
                 hash.put( Integer.valueOf( h ), v );
             }
-            
+
             try
             {
-                NamingEnumeration attrValues = attr.getAll();
-                
+                NamingEnumeration<?> attrValues = attr.getAll();
+
                 while ( attrValues.hasMoreElements() )
                 {
                     Object val = attrValues.next();
-                    
+
                     if ( val instanceof String )
                     {
                         Integer h = Integer.valueOf( val.hashCode() );
-                        
-                        if ( !hash.containsKey( h ) )
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            Object val2 = hash.remove( h );
-                            
-                            if ( !val.equals( val2 ) )
-                            {
-                                return false;
-                            }
-                        }
-                    }
-                    else if ( val instanceof byte[] )
-                    {
-                        Integer h = Integer.valueOf( Arrays.hashCode( (byte[])val ) );
 
                         if ( !hash.containsKey( h ) )
                         {
@@ -746,8 +823,26 @@ public class AttributeImpl implements Attribute
                         else
                         {
                             Object val2 = hash.remove( h );
-                            
-                            if ( !Arrays.equals( (byte[])val, (byte[])val2 ) )
+
+                            if ( !val.equals( val2 ) )
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    else if ( val instanceof byte[] )
+                    {
+                        Integer h = Integer.valueOf( Arrays.hashCode( ( byte[] ) val ) );
+
+                        if ( !hash.containsKey( h ) )
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            Object val2 = hash.remove( h );
+
+                            if ( !Arrays.equals( ( byte[] ) val, ( byte[] ) val2 ) )
                             {
                                 return false;
                             }
@@ -758,7 +853,7 @@ public class AttributeImpl implements Attribute
                         return false;
                     }
                 }
-                
+
                 if ( hash.size() != 0 )
                 {
                     return false;
@@ -775,45 +870,46 @@ public class AttributeImpl implements Attribute
             }
         }
     }
-    
+
+
     /**
      * @see Object#toString()
      */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
-        
+
         sb.append( "Attribute id : '" ).append( upId ).append( "', " );
-        sb.append( " Values : [");
-        
-        switch (size)
+        sb.append( " Values : [" );
+
+        switch ( size )
         {
-            case 0 :
+            case 0:
                 sb.append( "]\n" );
                 break;
-                
-            case 1 :
-                if ( value instanceof String ) 
+
+            case 1:
+                if ( value instanceof String )
                 {
                     sb.append( '\'' ).append( value ).append( '\'' );
                 }
                 else
                 {
-                    sb.append( StringTools.dumpBytes( (byte[])value ) );
+                    sb.append( StringTools.dumpBytes( ( byte[] ) value ) );
                 }
-                
+
                 sb.append( "]\n" );
                 break;
-                
-            default :
+
+            default:
                 boolean isFirst = true;
-            
-                Iterator values = list.iterator();
-                
+
+                Iterator<Object> values = list.iterator();
+
                 while ( values.hasNext() )
                 {
                     Object v = values.next();
-                    
+
                     if ( isFirst == false )
                     {
                         sb.append( ", " );
@@ -822,21 +918,21 @@ public class AttributeImpl implements Attribute
                     {
                         isFirst = false;
                     }
-                    
-                    if ( v instanceof String ) 
+
+                    if ( v instanceof String )
                     {
                         sb.append( '\'' ).append( v ).append( '\'' );
                     }
                     else
                     {
-                        sb.append( StringTools.dumpBytes( (byte[])v ) );
+                        sb.append( StringTools.dumpBytes( ( byte[] ) v ) );
                     }
                 }
-                
+
                 sb.append( "]\n" );
                 break;
         }
-        
+
         return sb.toString();
     }
 }

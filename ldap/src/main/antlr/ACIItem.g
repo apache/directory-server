@@ -54,6 +54,7 @@ import org.apache.directory.shared.ldap.util.NoDuplicateKeysMap;
 import org.apache.directory.shared.ldap.util.OptionalComponentsMonitor;
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.constants.SchemaConstants;
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 
 import org.slf4j.Logger;
@@ -125,8 +126,8 @@ tokens
     private Set<UserPermission> userPermissions;
     private Map<String, OidNormalizer> oidsMap;
     
-    private Set<Name> chopBeforeExclusions;
-    private Set<Name> chopAfterExclusions;
+    private Set<LdapDN> chopBeforeExclusions;
+    private Set<LdapDN> chopAfterExclusions;
     private SubtreeSpecificationModifier ssModifier = null;
     
     private ComponentsMonitor mainACIItemComponentsMonitor;
@@ -1021,8 +1022,8 @@ subtreeSpecification returns [SubtreeSpecification ss]
     // in case something is left from the last parse
     ss = null;
     ssModifier = new SubtreeSpecificationModifier();
-    chopBeforeExclusions = new HashSet<Name>();
-    chopAfterExclusions = new HashSet<Name>();
+    chopBeforeExclusions = new HashSet<LdapDN>();
+    chopAfterExclusions = new HashSet<LdapDN>();
     subtreeSpecificationComponentsMonitor = new OptionalComponentsMonitor( 
             new String [] { "base", "specificExclusions", "minimum", "maximum" } );
 }

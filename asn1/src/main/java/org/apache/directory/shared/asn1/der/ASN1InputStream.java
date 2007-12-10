@@ -188,15 +188,22 @@ public class ASN1InputStream extends FilterInputStream
                 return new DERNull();
             case DERObject.SEQUENCE | DERObject.CONSTRUCTED:
                 ASN1InputStream ais = new ASN1InputStream( bytes );
-
+                DEREncodable obj = null;
                 DERSequence sequence = new DERSequence();
 
-                DEREncodable obj = ais.readObject();
-
-                while ( obj != null )
+                try
                 {
-                    sequence.add( obj );
                     obj = ais.readObject();
+    
+                    while ( obj != null )
+                    {
+                        sequence.add( obj );
+                        obj = ais.readObject();
+                    }
+                }
+                finally
+                {
+                    ais.close();
                 }
 
                 return sequence;
@@ -204,12 +211,19 @@ public class ASN1InputStream extends FilterInputStream
                 ais = new ASN1InputStream( bytes );
                 DERSet set = new DERSet();
 
-                obj = ais.readObject();
-
-                while ( obj != null )
+                try
                 {
-                    set.add( obj );
                     obj = ais.readObject();
+    
+                    while ( obj != null )
+                    {
+                        set.add( obj );
+                        obj = ais.readObject();
+                    }
+                }
+                finally
+                {
+                    ais.close();
                 }
 
                 return set;
@@ -292,25 +306,32 @@ public class ASN1InputStream extends FilterInputStream
 
                     ais = new ASN1InputStream( bytes );
 
-                    DEREncodable encodable = ais.readObject();
-
-                    // Explicitly tagged - if it isn't we'd have to tell from
-                    // the context.
-                    if ( ais.available() == 0 )
+                    try
                     {
-                        return new DERTaggedObject( true, tagNo, encodable, bytes );
+                        DEREncodable encodable = ais.readObject();
+    
+                        // Explicitly tagged - if it isn't we'd have to tell from
+                        // the context.
+                        if ( ais.available() == 0 )
+                        {
+                            return new DERTaggedObject( true, tagNo, encodable, bytes );
+                        }
+    
+                        // Another implicit object, create a sequence.
+                        DERSequence derSequence = new DERSequence();
+    
+                        while ( encodable != null )
+                        {
+                            derSequence.add( encodable );
+                            encodable = ais.readObject();
+                        }
+
+                        return new DERTaggedObject( false, tagNo, derSequence );
                     }
-
-                    // Another implicit object, create a sequence.
-                    DERSequence derSequence = new DERSequence();
-
-                    while ( encodable != null )
+                    finally
                     {
-                        derSequence.add( encodable );
-                        encodable = ais.readObject();
+                        ais.close();
                     }
-
-                    return new DERTaggedObject( false, tagNo, derSequence );
                 }
 
                 return new DERUnknownTag( tag, bytes );
@@ -345,7 +366,7 @@ public class ASN1InputStream extends FilterInputStream
 
     private BERConstructedOctetString buildConstructedOctetString() throws IOException
     {
-        Vector octets = new Vector();
+        Vector<DEREncodable> octets = new Vector<DEREncodable>();
 
         for ( ;; )
         {

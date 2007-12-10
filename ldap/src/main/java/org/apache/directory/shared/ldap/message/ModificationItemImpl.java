@@ -41,12 +41,8 @@ public class ModificationItemImpl extends ModificationItem
 {
     private static final long serialVersionUID = 1L;
     
-    /** 
-     * A special flag set to false by default, used to indicate
-     * that some modification has been done by the server. Usefull
-     * for Operationnal Attributes.
-     */
-    private boolean modifiedByServer;
+    /** A flag set when the server has created this item */
+    private boolean serverModified;
 
     /**
      * Create a modificationItemImpl
@@ -59,7 +55,8 @@ public class ModificationItemImpl extends ModificationItem
     public ModificationItemImpl( int modificationOp, Attribute attribute ) 
     {
         super( modificationOp, AttributeUtils.toAttributeImpl( attribute ) );
-        modifiedByServer = false;
+        
+        serverModified = false;
     }
     
     /**
@@ -74,7 +71,8 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
-        modifiedByServer = false;
+        
+        serverModified = false;
     }
     
     /**
@@ -85,7 +83,8 @@ public class ModificationItemImpl extends ModificationItem
     {
         super( modification.getModificationOp(), 
             AttributeUtils.toAttributeImpl( modification.getAttribute() ) );
-        modifiedByServer = false;
+        
+        serverModified = false;
     }
     
     /**
@@ -114,31 +113,30 @@ public class ModificationItemImpl extends ModificationItem
         return new ModificationItemImpl( getModificationOp(), (Attribute)getAttribute().clone() ); 
     }
     
-
+    
+    
     /**
      * 
-     * tells if the modification has been done by the server
+     * Tells if this modification has been created by the server or not
      *
-     * @return <code>true</code> if the server has modified this attribute
+     * @return <code>true</code> if the server has created this modifictionItem
      */
-    public boolean isModifiedByServer()
+    public boolean isServerModified()
     {
-        return modifiedByServer;
+        return serverModified;
     }
 
     
     /**
-     * 
-     * Method called when the server modifies an operationnal
-     * attribute, as we must protect the attribute from being
-     * checked by the SchemaService interceptor
+     * Set the serverModified item
      *
+     * @param serverModified 
      */
-    public void modifiedByServer()
+    public void setServerModified()
     {
-        modifiedByServer = true;
+        serverModified = true;
     }
-
+    
     
     /**
      * @see Object#toString()
@@ -149,9 +147,9 @@ public class ModificationItemImpl extends ModificationItem
         
         sb.append( "ModificationItem" );
         
-        if ( modifiedByServer )
+        if ( serverModified )
         {
-            sb.append( "[Op]" );
+            sb.append( "[op]" );
         }
         
         sb.append( " : \n" );
@@ -178,5 +176,53 @@ public class ModificationItemImpl extends ModificationItem
         sb.append( AttributeUtils.toString( "    ", getAttribute() ) );
         
         return sb.toString();
+    }
+    
+    
+    /**
+     * @see Object#hashCode()
+     */
+    public int hashCode()
+    {
+        int hash = 37;
+        
+        hash += hash*17 + getModificationOp();
+        hash += hash*17 + getAttribute().hashCode();
+        return hash;
+    }
+    
+    
+    /**
+     * @see Object#equals(Object)
+     */
+    public boolean equals( Object o )
+    {
+        // Basic equals checks
+        if ( this == o )
+        {
+            return true;
+        }
+        
+        if ( o == null )
+        {
+            return false;
+        }
+        
+        if ( ! (o instanceof ModificationItemImpl ) )
+        {
+            return false;
+        }
+        
+        ModificationItemImpl mod = (ModificationItemImpl)o;
+        
+        // Now, compares the modification content
+        // First, the modification type
+        if ( this.getModificationOp() != mod.getModificationOp() )
+        {
+            return false;
+        }
+        
+        // then the attribute
+        return this.getAttribute().equals( mod.getAttribute() );
     }
 }

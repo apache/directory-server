@@ -188,21 +188,19 @@ public class DNUtils
      * [0x3D-0x7F] &lt;safe-chars&gt; ::= &lt;safe-char&gt; &lt;safe-chars&gt; | &lt;safe-char&gt; ::=
      * [0x01-0x09] | 0x0B | 0x0C | [0x0E-0x7F]
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return The position of the first character which is not a Safe Char
      */
-    public static int parseSafeString( byte[] byteArray, int index )
+    public static int parseSafeString( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return -1;
         }
         else
         {
-            byte c = byteArray[index];
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_INIT_CHAR[c] == false ) )
             {
@@ -211,9 +209,9 @@ public class DNUtils
 
             index++;
 
-            while ( index < byteArray.length )
+            while ( index < bytes.length )
             {
-                c = byteArray[index];
+                c = bytes[index];
 
                 if ( ( ( c | 0x7F ) != 0x7F ) || ( SAFE_CHAR[c] == false ) )
                 {
@@ -232,21 +230,19 @@ public class DNUtils
      * Walk the buffer while characters are Alpha characters : &lt;alpha&gt; ::=
      * [0x41-0x5A] | [0x61-0x7A]
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return The position of the first character which is not an Alpha Char
      */
-    public static int parseAlphaASCII( byte[] byteArray, int index )
+    public static int parseAlphaASCII( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return -1;
         }
         else
         {
-            byte b = byteArray[index++];
+            byte b = bytes[index++];
 
             if ( StringTools.isAlpha( b ) == false )
             {
@@ -261,56 +257,22 @@ public class DNUtils
 
 
     /**
-     * Walk the buffer while characters are Alpha characters : &lt;alpha&gt; ::=
-     * [0x41-0x5A] | [0x61-0x7A]
-     * 
-     * @param charArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
-     * @return The position of the first character which is not an Alpha Char
-     */
-    public static int parseAlphaASCII( char[] charArray, int index )
-    {
-        if ( ( charArray == null ) || ( charArray.length == 0 ) || ( index < 0 ) || ( index >= charArray.length ) )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            char c = charArray[index++];
-
-            if ( StringTools.isAlpha( c ) == false )
-            {
-                return PARSING_ERROR;
-            }
-            else
-            {
-                return index;
-            }
-        }
-    }
-
-
-    /**
      * Check if the current character is a Pair Char &lt;pairchar&gt; ::= ',' | '=' |
      * '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return <code>true</code> if the current character is a Pair Char
      */
-    public static boolean isPairChar( byte[] byteArray, int index )
+    public static boolean isPairChar( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return false;
         }
         else
         {
-            byte c = byteArray[index];
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
             {
@@ -318,9 +280,9 @@ public class DNUtils
             }
             else
             {
-                if ( StringTools.isHex( byteArray, index++ ) )
+                if ( StringTools.isHex( bytes, index++ ) )
                 {
-                    return StringTools.isHex( byteArray, index );
+                    return StringTools.isHex( bytes, index );
                 }
                 else
                 {
@@ -330,44 +292,6 @@ public class DNUtils
         }
     }
 
-
-    /**
-     * Check if the current character is a Pair Char &lt;pairchar&gt; ::= ',' | '=' |
-     * '+' | '<' | '>' | '#' | ';' | '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
-     * 
-     * @param charArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
-     * @return <code>true</code> if the current character is a Pair Char
-     */
-    public static boolean isPairChar( char[] charArray, int index )
-    {
-        if ( ( charArray == null ) || ( charArray.length == 0 ) || ( index < 0 ) || ( index >= charArray.length ) )
-        {
-            return false;
-        }
-        else
-        {
-            char c = charArray[index];
-
-            if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
-            {
-                return false;
-            }
-            else
-            {
-                if ( StringTools.isHex( charArray, index++ ) )
-                {
-                    return StringTools.isHex( charArray, index );
-                }
-                else
-                {
-                    return true;
-                }
-            }
-        }
-    }
 
     /**
      * Check if the current character is a Pair Char 
@@ -375,20 +299,18 @@ public class DNUtils
      * &lt;pairchar&gt; ::= ' ' | ',' | '=' | '+' | '<' | '>' | '#' | ';' | 
      *                  '\' | '"' | [0-9a-fA-F] [0-9a-fA-F]
      * 
-     * @param string
-     *            The string which contains the data
-     * @param index
-     *            Current position in the string
-     * @return <code>true</code> if the current character is a Pair Char
+     * @param bytes The byte array which contains the data
+     * @param index Current position in the byte array
+     * @return <code>true</code> if the current byte is a Pair Char
      */
-    public static int isPairChar( String string, int index )
+    public static int countPairChar( byte[] bytes, int index )
     {
-        if ( string == null )
+        if ( bytes == null )
         {
             return PARSING_ERROR;
         }
 
-        int length = string.length();
+        int length = bytes.length;
         
         if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
         {
@@ -396,7 +318,7 @@ public class DNUtils
         }
         else
         {
-            char c = string.charAt( index );
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F )  || ( PAIR_CHAR[c] == false ) )
             {
@@ -404,9 +326,9 @@ public class DNUtils
             }
             else
             {
-                if ( StringTools.isHex( string, index++ ) )
+                if ( StringTools.isHex( bytes, index++ ) )
                 {
-                    return StringTools.isHex( string, index ) ? 2 : PARSING_ERROR;
+                    return StringTools.isHex( bytes, index ) ? 2 : PARSING_ERROR;
                 }
                 else
                 {
@@ -421,22 +343,20 @@ public class DNUtils
      * Check if the current character is a String Char. Chars are Unicode, not
      * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return The current char if it is a String Char, or '#' (this is simpler
      *         than throwing an exception :)
      */
-    public static int isStringChar( byte[] byteArray, int index )
+    public static int isStringChar( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return -1;
         }
         else
         {
-            byte c = byteArray[index];
+            byte c = bytes[index];
 
             if ( ( c | 0x3F ) == 0x3F )
             {
@@ -444,80 +364,7 @@ public class DNUtils
             }
             else
             {
-                return StringTools.countBytesPerChar( byteArray, index );
-            }
-        }
-    }
-
-
-    /**
-     * Check if the current character is a String Char. Chars are Unicode, not
-     * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
-     * 
-     * @param charArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
-     * @return The current char if it is a String Char, or '#' (this is simpler
-     *         than throwing an exception :)
-     */
-    public static int isStringChar( char[] charArray, int index )
-    {
-        if ( ( charArray == null ) || ( charArray.length == 0 ) || ( index < 0 ) || ( index >= charArray.length ) )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            char c = charArray[index];
-
-            if ( ( c == 0x0A ) || ( c == 0x0D ) || ( c == '"' ) || ( c == '#' ) || ( c == '+' ) || ( c == ',' )
-                || ( c == ';' ) || ( c == '<' ) || ( c == '=' ) || ( c == '>' ) )
-            {
-                return PARSING_ERROR;
-            }
-            else
-            {
-                return ONE_CHAR;
-            }
-        }
-    }
-
-    /**
-     * Check if the current character is a String Char. Chars are Unicode, not
-     * ASCII. &lt;stringchar&gt; ::= [0x00-0xFFFF] - [,=+<>#;\"\n\r]
-     * 
-     * @param string
-     *            The string which contains the data
-     * @param index
-     *            Current position in the string
-     * @return The current char if it is a String Char, or '#' (this is simpler
-     *         than throwing an exception :)
-     */
-    public static int isStringChar( String string, int index )
-    {
-        if ( string == null )
-        {
-            return PARSING_ERROR;
-        }
-        
-        int length = string.length();
-        
-        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            char c = string.charAt( index );
-
-            if ( ( c | 0x3F) == 0x3F )
-            {
-                return STRING_CHAR[ c ];
-            }
-            else
-            {
-                return ONE_CHAR;
+                return StringTools.countBytesPerChar( bytes, index );
             }
         }
     }
@@ -527,20 +374,20 @@ public class DNUtils
      * Check if the current character is a Quote Char We are testing Unicode
      * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
      * 
-     * @param byteArray The buffer which contains the data
+     * @param bytes The buffer which contains the data
      * @param index Current position in the buffer
      *
      * @return <code>true</code> if the current character is a Quote Char
      */
-    public static int isQuoteChar( byte[] byteArray, int index )
+    public static int isQuoteChar( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return -1;
         }
         else
         {
-            byte c = byteArray[index];
+            byte c = bytes[index];
 
             if ( ( c == '\\' ) || ( c == '"' ) )
             {
@@ -548,75 +395,7 @@ public class DNUtils
             }
             else
             {
-                return StringTools.countBytesPerChar( byteArray, index );
-            }
-        }
-    }
-
-
-    /**
-     * Check if the current character is a Quote Char We are testing Unicode
-     * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
-     * 
-     * @param charArray The buffer which contains the data
-     * @param index Current position in the buffer
-     *
-     * @return <code>true</code> if the current character is a Quote Char
-     */
-    public static int isQuoteChar( char[] charArray, int index )
-    {
-        if ( ( charArray == null ) || ( charArray.length == 0 ) || ( index < 0 ) || ( index >= charArray.length ) )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            char c = charArray[index];
-
-            if ( ( c == '\\' ) || ( c == '"' ) )
-            {
-                return PARSING_ERROR;
-            }
-            else
-            {
-                return ONE_CHAR;
-            }
-        }
-    }
-
-    /**
-     * Check if the current character is a Quote Char We are testing Unicode
-     * chars &lt;quotechar&gt; ::= [0x00-0xFFFF] - [\"]
-     * 
-     * @param string The string which contains the data
-     * @param index Current position in the string
-     *
-     * @return <code>true</code> if the current character is a Quote Char
-     */
-    public static int isQuoteChar( String string, int index )
-    {
-        if ( string == null )
-        {
-            return PARSING_ERROR;
-        }
-
-        int length = string.length();
-
-        if ( ( length == 0 ) || ( index < 0 ) || ( index >= length ) )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            char c = string.charAt( index );
-
-            if ( ( c == '\\' ) || ( c == '"' ) )
-            {
-                return PARSING_ERROR;
-            }
-            else
-            {
-                return ONE_CHAR;
+                return StringTools.countBytesPerChar( bytes, index );
             }
         }
     }
@@ -625,18 +404,16 @@ public class DNUtils
     /**
      * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return The new position, -1 if the buffer does not contain an HexPair,
      *         -2 if the buffer contains an hex byte but not two.
      */
-    public static int parseHexPair( byte[] byteArray, int index )
+    public static int parseHexPair( byte[] bytes, int index )
     {
-        if ( StringTools.isHex( byteArray, index ) )
+        if ( StringTools.isHex( bytes, index ) )
         {
-            if ( StringTools.isHex( byteArray, index + 1 ) )
+            if ( StringTools.isHex( bytes, index + 1 ) )
             {
                 return index + 2;
             }
@@ -655,91 +432,30 @@ public class DNUtils
     /**
      * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
      * 
-     * @param charArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
-     * @return The new position, -1 if the buffer does not contain an HexPair,
-     *         -2 if the buffer contains an hex byte but not two.
+     * @param bytes The byte array which contains the data
+     * @param index Current position in the byte array
+     * @return The new position, -1 if the byte array does not contain an HexPair,
+     *         -2 if the byte array contains an hex byte but not two.
      */
-    public static int parseHexPair( char[] charArray, int index )
+    private static byte getHexPair( byte[] bytes, int index )
     {
-        if ( StringTools.isHex( charArray, index ) )
-        {
-            if ( StringTools.isHex( charArray, index + 1 ) )
-            {
-                return index + TWO_CHARS;
-            }
-            else
-            {
-                return BAD_HEX_PAIR;
-            }
-        }
-        else
-        {
-            return PARSING_ERROR;
-        }
+        return StringTools.getHexValue( bytes[index], bytes[index + 1] );
     }
 
-    /**
-     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
-     * 
-     * @param string
-     *            The string which contains the data
-     * @param index
-     *            Current position in the string
-     * @return The new position, -1 if the string does not contain an HexPair,
-     *         -2 if the string contains an hex byte but not two.
-     */
-    public static int parseHexPair( String string, int index )
-    {
-        if ( StringTools.isHex( string, index ) )
-        {
-            if ( StringTools.isHex( string, index + 1 ) )
-            {
-                return index + TWO_CHARS;
-            }
-            else
-            {
-                return BAD_HEX_PAIR;
-            }
-        }
-        else
-        {
-            return PARSING_ERROR;
-        }
-    }
-
-    /**
-     * Parse an hex pair &lt;hexpair&gt; ::= &lt;hex&gt; &lt;hex&gt;
-     * 
-     * @param string
-     *            The string which contains the data
-     * @param index
-     *            Current position in the string
-     * @return The new position, -1 if the string does not contain an HexPair,
-     *         -2 if the string contains an hex byte but not two.
-     */
-    private static byte getHexPair( String string, int index )
-    {
-    	return StringTools.getHexValue( string.charAt( index ), string.charAt( index + 1 ) );
-    }
-
+    
     /**
      * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
      * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return Return the first position which is not an hex pair, or -1 if
      *         there is no hexpair at the beginning or if an hexpair is invalid
      *         (if we have only one hex instead of 2)
      */
-    public static int parseHexString( byte[] byteArray, int index )
+    public static int parseHexString( byte[] bytes, int index )
     {
-        int result = parseHexPair( byteArray, index );
+        int result = parseHexPair( bytes, index );
 
         if ( result < 0 )
         {
@@ -750,7 +466,7 @@ public class DNUtils
             index += 2;
         }
 
-        while ( ( result = parseHexPair( byteArray, index ) ) >= 0 )
+        while ( ( result = parseHexPair( bytes, index ) ) >= 0 )
         {
             index += 2;
         }
@@ -763,85 +479,18 @@ public class DNUtils
      * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
      * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
      * 
-     * @param charArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
-     * @return Return the first position which is not an hex pair, or -1 if
-     *         there is no hexpair at the beginning or if an hexpair is invalid
-     *         (if we have only one hex instead of 2)
-     */
-    public static int parseHexString( char[] charArray, int index )
-    {
-        int result = parseHexPair( charArray, index );
-
-        if ( result < 0 )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            index += TWO_CHARS;
-        }
-
-        while ( ( result = parseHexPair( charArray, index ) ) >= 0 )
-        {
-            index += TWO_CHARS;
-        }
-
-        return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : index );
-    }
-
-    /**
-     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
-     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
-     * 
-     * @param string
-     *            The string which contains the data
-     * @param pos
-     *            Current position in the string
-     * @return Return the first position which is not an hex pair, or -1 if
-     *         there is no hexpair at the beginning or if an hexpair is invalid
-     *         (if we have only one hex instead of 2)
-     */
-    public static int parseHexString( String string, Position pos )
-    {
-        pos.end = pos.start;
-        int result = parseHexPair( string, pos.start );
-
-        if ( result < 0 )
-        {
-            return PARSING_ERROR;
-        }
-        else
-        {
-            pos.end += TWO_CHARS;
-        }
-
-        while ( ( result = parseHexPair( string, pos.end ) ) >= 0 )
-        {
-            pos.end += TWO_CHARS;
-        }
-
-        return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : PARSING_OK );
-    }
-
-    /**
-     * Parse an hex string, which is a list of hex pairs &lt;hexstring&gt; ::=
-     * &lt;hexpair&gt; &lt;hexpairs&gt; &lt;hexpairs&gt; ::= &lt;hexpair&gt; &lt;hexpairs&gt; | e
-     * 
-     * @param string The string which contains the data
+     * @param bytes The byte array which contains the data
      * @param hex The result as a byte array
      * @param pos Current position in the string
      * @return Return the first position which is not an hex pair, or -1 if
      *         there is no hexpair at the beginning or if an hexpair is invalid
      *         (if we have only one hex instead of 2)
      */
-    public static int parseHexString( String string, byte[] hex, Position pos )
+    public static int parseHexString( byte[] bytes, byte[] hex, Position pos )
     {
-    	int i = 0;
+        int i = 0;
         pos.end = pos.start;
-        int result = parseHexPair( string, pos.start );
+        int result = parseHexPair( bytes, pos.start );
 
         if ( result < 0 )
         {
@@ -849,40 +498,39 @@ public class DNUtils
         }
         else
         {
-        	hex[i++] = getHexPair( string, pos.end );
+            hex[i++] = getHexPair( bytes, pos.end );
             pos.end += TWO_CHARS;
         }
 
-        while ( ( result = parseHexPair( string, pos.end ) ) >= 0 )
+        while ( ( result = parseHexPair( bytes, pos.end ) ) >= 0 )
         {
-        	hex[i++] = getHexPair( string, pos.end );
+            hex[i++] = getHexPair( bytes, pos.end );
             pos.end += TWO_CHARS;
         }
 
         return ( ( result == BAD_HEX_PAIR ) ? PARSING_ERROR : PARSING_OK );
     }
 
+    
     /**
      * Walk the buffer while characters are Base64 characters : &lt;base64-string&gt;
      * ::= &lt;base64-char&gt; &lt;base64-chars&gt; &lt;base64-chars&gt; ::= &lt;base64-char&gt;
      * &lt;base64-chars&gt; | &lt;base64-char&gt; ::= 0x2B | 0x2F | [0x30-0x39] | 0x3D |
      * [0x41-0x5A] | [0x61-0x7A]
      * 
-     * @param byteArray
-     *            The buffer which contains the data
-     * @param index
-     *            Current position in the buffer
+     * @param bytes The buffer which contains the data
+     * @param index Current position in the buffer
      * @return The position of the first character which is not a Base64 Char
      */
-    public static int parseBase64String( byte[] byteArray, int index )
+    public static int parseBase64String( byte[] bytes, int index )
     {
-        if ( ( byteArray == null ) || ( byteArray.length == 0 ) || ( index < 0 ) || ( index >= byteArray.length ) )
+        if ( ( bytes == null ) || ( bytes.length == 0 ) || ( index < 0 ) || ( index >= bytes.length ) )
         {
             return -1;
         }
         else
         {
-            byte c = byteArray[index];
+            byte c = bytes[index];
 
             if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
             {
@@ -891,9 +539,9 @@ public class DNUtils
 
             index++;
 
-            while ( index < byteArray.length )
+            while ( index < bytes.length )
             {
-                c = byteArray[index];
+                c = bytes[index];
 
                 if ( ( ( c | 0x7F ) != 0x7F )  || ( BASE64_CHAR[c] == false ) )
                 {

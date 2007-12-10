@@ -34,7 +34,8 @@ public class BERSet extends DERSet
         out.write( DERObject.SET | DERObject.CONSTRUCTED );
         out.write( DERObject.TAGGED );
 
-        Enumeration e = getObjects();
+        Enumeration<DEREncodable> e = getObjects();
+        
         while ( e.hasMoreElements() )
         {
             out.writeObject( e.nextElement() );

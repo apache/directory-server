@@ -20,20 +20,77 @@
 package org.apache.directory.shared.ldap.constants;
 
 /**
- * A class to store all the security constants used in the server
+ * An enum to store all the security constants used in the server
  *
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev:$
  */
-public class LdapSecurityConstants
+public enum LdapSecurityConstants
 {
-    public static final String HASH_METHOD_SHA = "sha";
+    HASH_METHOD_SHA( "sha" ),
 
-    public static final String HASH_METHOD_SSHA = "ssha";
+    HASH_METHOD_SSHA( "ssha" ),
 
-    public static final String HASH_METHOD_MD5 = "md5";
+    HASH_METHOD_MD5( "md5" ),
 
-    public static final String HASH_METHOD_SMD5 = "smd5";
+    HASH_METHOD_SMD5( "smd5" ),
 
-    public static final String HASH_METHOD_CRYPT = "crypt";
+    HASH_METHOD_CRYPT( "crypt" );
+    
+    private String name;
+    
+    /**
+     * Creates a new instance of LdapSecurityConstants.
+     */
+    private LdapSecurityConstants( String name )
+    {
+        this.name = name;
+    }
+
+    /**
+     * Return the name associated with the constant.
+     */
+    public String getName()
+    {
+        return name;
+    }
+    
+    
+    /**
+     * Get the associated constant from a string
+     *
+     * @param name The algorithm's name
+     * @return The associated constant
+     */
+    public static LdapSecurityConstants getAlgorithm( String name )
+    {
+        String algorithm = ( name == null ? "" : name.toLowerCase() );
+        
+        if ( HASH_METHOD_SHA.getName().equalsIgnoreCase( algorithm ) )
+        {
+            return HASH_METHOD_SHA;
+        }
+
+        if ( HASH_METHOD_SSHA.getName().equalsIgnoreCase( algorithm ) )
+        {
+            return HASH_METHOD_SSHA;
+        }
+
+        if ( HASH_METHOD_MD5.getName().equalsIgnoreCase( algorithm ) )
+        {
+            return HASH_METHOD_MD5;
+        }
+
+        if ( HASH_METHOD_SMD5.getName().equalsIgnoreCase( algorithm ) )
+        {
+            return HASH_METHOD_SMD5;
+        }
+        
+        if ( HASH_METHOD_CRYPT.getName().equalsIgnoreCase( algorithm ) )
+        {
+            return HASH_METHOD_CRYPT;
+        }
+        
+        return null;
+    }
 }

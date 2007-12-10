@@ -20,22 +20,29 @@
 package org.apache.directory.shared.ldap.util;
 
 
-import java.text.ParseException;
-import java.util.Arrays;
-
+import org.apache.directory.shared.ldap.common.ServerAttribute;
+import org.apache.directory.shared.ldap.common.ServerAttributeImpl;
+import org.apache.directory.shared.ldap.common.ServerEntry;
+import org.apache.directory.shared.ldap.common.ServerEntryImpl;
 import org.apache.directory.shared.ldap.message.AttributeImpl;
 import org.apache.directory.shared.ldap.message.AttributesImpl;
 import org.apache.directory.shared.ldap.message.ModificationItemImpl;
+import org.apache.directory.shared.ldap.name.LdapDN;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.MatchingRule;
 import org.apache.directory.shared.ldap.schema.NoOpNormalizer;
 import org.apache.directory.shared.ldap.schema.Normalizer;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -86,7 +93,7 @@ public class AttributeUtils
      * @param value2 The second value
      * @return true if both value are null or if they are equal.
      */
-    public final static boolean equals( Object value1, Object value2 )
+    public static final boolean equals( Object value1, Object value2 )
     {
         if ( value1 == value2 )
         {
@@ -109,7 +116,8 @@ public class AttributeUtils
             return value1.equals( value2 );
         }
     }
-    
+
+
     /**
      * Clone the value. An attribute value is supposed to be either a String
      * or a byte array. If it's a String, then we just return it ( as String
@@ -119,7 +127,7 @@ public class AttributeUtils
      * @param value The value to clone
      * @return The cloned value
      */
-    public final static Object cloneValue( Object value )
+    public static Object cloneValue( Object value )
     {
         // First copy the value
         Object newValue = null;
@@ -136,6 +144,7 @@ public class AttributeUtils
         return newValue;
     }
 
+
     /**
      * Switch from a BasicAttribute to a AttributeImpl. This is
      * necessary to allow cloning to be correctly handled.
@@ -143,7 +152,7 @@ public class AttributeUtils
      * @param attribute The attribute to transform
      * @return A instance of AttributeImpl
      */
-    public final static Attribute toAttributeImpl( Attribute attribute )
+    public static final Attribute toAttributeImpl( Attribute attribute )
     {
         if ( attribute instanceof AttributeImpl )
         {
@@ -157,7 +166,7 @@ public class AttributeUtils
             
             try
             {
-                NamingEnumeration values = attribute.getAll();
+                NamingEnumeration<?> values = attribute.getAll();
                 
                 while ( values.hasMoreElements() )
                 {
@@ -172,7 +181,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Switch from a BasicAttributes to a AttributesImpl. This is
      * necessary to allow cloning to be correctly handled.
@@ -180,7 +190,7 @@ public class AttributeUtils
      * @param attributes The attributes to transform
      * @return A instance of AttributesImpl
      */
-    public final static Attributes toAttributesImpl( Attributes attributes )
+    public static final Attributes toAttributesImpl( Attributes attributes )
     {
         if ( attributes instanceof AttributesImpl )
         {
@@ -194,7 +204,7 @@ public class AttributeUtils
             
             try
             {
-                NamingEnumeration values = attributes.getAll();
+                NamingEnumeration<?> values = attributes.getAll();
                 
                 while ( values.hasMoreElements() )
                 {
@@ -211,7 +221,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Utility method to extract an attribute from Attributes object using
      * all combinationos of the name including aliases.
@@ -220,7 +231,7 @@ public class AttributeUtils
      * @param type the attribute type specification
      * @return an Attribute with matching the attributeType spec or null
      */
-    public final static Attribute getAttribute( Attributes attrs, AttributeType type )
+    public static final Attribute getAttribute( Attributes attrs, AttributeType type )
     {
         // check if the attribute's OID is used
         Attribute attr = attrs.get( type.getOid() );
@@ -263,7 +274,7 @@ public class AttributeUtils
      * @param type the attributeType spec of the Attribute to extract
      * @return the modification item on the attributeType specified
      */
-    public final static ModificationItemImpl getModificationItem( ModificationItemImpl[] mods, AttributeType type )
+    public static final ModificationItem getModificationItem( ModificationItem[] mods, AttributeType type )
     {
         // optimization bypass to avoid cost of the loop below
         if ( type.getNames().length == 1 )
@@ -303,22 +314,91 @@ public class AttributeUtils
     
     
     /**
+     * Utility method to extract a modification item from an array of modifications.
+     * 
+     * @param mods the array of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the modification item on the attributeType specified
+     */
+    public static final ModificationItem getModificationItem( List<ModificationItemImpl> mods, AttributeType type )
+    {
+        // optimization bypass to avoid cost of the loop below
+        if ( type.getNames().length == 1 )
+        {
+            for ( ModificationItem mod:mods )
+            {
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[0] ) )
+                {
+                    return mod;
+                }
+            }
+        }
+        
+        // check if the attribute's OID is used
+        for ( ModificationItem mod:mods )
+        {
+            if ( mod.getAttribute().getID().equals( type.getOid() ) )
+            {
+                return mod;
+            }
+        }
+        
+        // iterate through aliases
+        for ( int ii = 0; ii < type.getNames().length; ii++ )
+        {
+            for ( ModificationItem mod:mods )
+            {
+                if ( mod.getAttribute().getID().equalsIgnoreCase( type.getNames()[ii] ) )
+                {
+                    return mod;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    
+    /**
      * Utility method to extract an attribute from an array of modifications.
      * 
      * @param mods the array of ModificationItems to extract the Attribute from.
      * @param type the attributeType spec of the Attribute to extract
      * @return the extract Attribute or null if no such attribute exists
      */
-    public final static Attribute getAttribute( ModificationItemImpl[] mods, AttributeType type )
+    public static final Attribute getAttribute( ModificationItem[] mods, AttributeType type )
     {
-        ModificationItemImpl mod = getModificationItem( mods, type );
+        ModificationItem mod = getModificationItem( mods, type );
+        
         if ( mod != null )
         {
             return mod.getAttribute();
         }
+        
         return null;
     }
     
+
+    /**
+     * Utility method to extract an attribute from a list of modifications.
+     * 
+     * @param mods the list of ModificationItems to extract the Attribute from.
+     * @param type the attributeType spec of the Attribute to extract
+     * @return the extract Attribute or null if no such attribute exists
+     */
+    public static Attribute getAttribute( List<ModificationItemImpl> mods, AttributeType type )
+    {
+        ModificationItem mod = getModificationItem( mods, type );
+        
+        if ( mod != null )
+        {
+            return mod.getAttribute();
+        }
+        
+        return null;
+    }
+    
+
     /**
      * Check if an attribute contains a specific value, using the associated matchingRule for that
      *
@@ -328,7 +408,7 @@ public class AttributeUtils
      * @return <code>true</code> if the value exists in the attribute</code>
      * @throws NamingException If something went wrong while accessing the data
      */
-    public final static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    public static boolean containsValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
     {
         // quick bypass test
         if ( attr.contains( compared ) )
@@ -353,11 +433,9 @@ public class AttributeUtils
         {
             String comparedStr = ( String ) normalizer.normalize( compared );
             
-            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
-            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
             {
                 String value = (String)values.nextElement();
-                //String value = ( String ) attr.get( ii );
                 if ( comparedStr.equals( normalizer.normalize( value ) ) )
                 {
                     return true;
@@ -426,8 +504,7 @@ public class AttributeUtils
                 comparedBytes = ( byte[] ) compared;
             }
             
-            for ( NamingEnumeration values = attr.getAll(); values.hasMoreElements(); /**/ )
-            //for ( int ii = attr.size() - 1; ii >= 0; ii-- )
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
             {
                 Object value = values.nextElement();
                 
@@ -444,6 +521,7 @@ public class AttributeUtils
         return false;
     }
 
+
     /**
      * Check if an attribute contains a value. The test is case insensitive,
      * and the value is supposed to be a String. If the value is a byte[],
@@ -454,7 +532,7 @@ public class AttributeUtils
      * @return true if the value is present in the attribute
      * @throws NamingException
      */
-    public final static boolean containsValueCaseIgnore( Attribute attr, Object value )
+    public static boolean containsValueCaseIgnore( Attribute attr, Object value )
     {
         // quick bypass test
         if ( attr.contains( value ) )
@@ -468,7 +546,7 @@ public class AttributeUtils
             {
                 String strVal = (String)value;
 
-                NamingEnumeration attrVals = attr.getAll();
+                NamingEnumeration<?> attrVals = attr.getAll();
 
                 while ( attrVals.hasMoreElements() )
                 {
@@ -487,7 +565,7 @@ public class AttributeUtils
             {
                 byte[] valueBytes = ( byte[] )value;
 
-                NamingEnumeration attrVals = attr.getAll();
+                NamingEnumeration<?> attrVals = attr.getAll();
 
                 while ( attrVals.hasMoreElements() )
                 {
@@ -685,6 +763,7 @@ public class AttributeUtils
         return attr;
     }
 
+
     /**
      * Check if the attributes is a BasicAttributes, and if so, switch
      * the case sensitivity to false to avoid tricky problems in the server.
@@ -709,10 +788,10 @@ public class AttributeUtils
             else
             {
                 // Ok, bad news : we have to create a new BasicAttributes
-                // whiwh will be case insensitive
+                // which will be case insensitive
                 Attributes newAttrs = new BasicAttributes( true );
                 
-                NamingEnumeration attrs = attributes.getAll();
+                NamingEnumeration<?> attrs = attributes.getAll();
                 
                 if ( attrs != null )
                 {
@@ -794,6 +873,7 @@ public class AttributeUtils
         return sb.toString();
     }
 
+
     /**
      * Return a string representing the attribute
      * 
@@ -805,6 +885,7 @@ public class AttributeUtils
     {
         return toString( "", attribute );
     }
+
 
     /**
      * Return a string representing the attributes with tabs in front of the
@@ -819,24 +900,23 @@ public class AttributeUtils
     public static String toString( String tabs, Attributes attributes )
     {
         StringBuffer sb = new StringBuffer();
-
         sb.append( tabs ).append( "Attributes\n" );
 
         if ( attributes != null )
         {
-            NamingEnumeration attributesIterator = attributes.getAll();
+            NamingEnumeration<?> attributesIterator = attributes.getAll();
     
             while ( attributesIterator.hasMoreElements() )
             {
                 Attribute attribute = ( Attribute ) attributesIterator.nextElement();
-    
                 sb.append( tabs ).append( attribute.toString() );
             }
         }
         
         return sb.toString();
     }
-    
+
+
     /**
      * Parse attribute's options :
      * 
@@ -865,7 +945,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Parse a number :
      * 
@@ -957,7 +1038,8 @@ public class AttributeUtils
             }
         }
     }
-    
+
+
     /**
      * Parse an attribute. The grammar is :
      * attributedescription = attributetype options
@@ -972,7 +1054,7 @@ public class AttributeUtils
      * keychar = 'a'-z' | 'A'-'Z' / '0'-'9' / '-'
      * number = '0'-'9' / ( '1'-'9' 1*'0'-'9' )
      *
-     * @param attr The parsed attribute,
+     * @param str The parsed attribute,
      * @param pos The position of the attribute in the current string
      * @return The parsed attribute if valid
      */
@@ -1039,5 +1121,285 @@ public class AttributeUtils
     public static String toString( Attributes attributes )
     {
         return toString( "", attributes );
+    }
+    
+    
+    /**
+     * Convert a BasicAttribute or an AttributeImpl instance to a
+     * ServerAttribute instance
+     *
+     * @param attribute The attribute to convert
+     * @return A ServerAttributeImpl instance 
+     */
+    public static ServerAttribute convertAttribute( Attribute attribute ) throws NamingException
+    {
+        assert( attribute != null );
+        
+        ServerAttribute serverAttribute = new ServerAttributeImpl( attribute.getID() );
+        NamingEnumeration<?> values = attribute.getAll();
+        
+        while ( values.hasMoreElements() )
+        {
+            Object value = values.nextElement();
+            
+            if ( value instanceof String )
+            {
+                serverAttribute.add( (String)value );
+            }
+            else if ( value instanceof byte[] )
+            {
+                serverAttribute.add( (byte[])value );
+            }
+            else
+            {
+                serverAttribute.add( (String)null );
+            }
+        }
+        
+        return serverAttribute;
+    }
+    
+    
+    /**
+     * Convert an instance of Attributes to an instance of ServerEntry
+     *
+     * @param attributes The instance to convert
+     * @return An instance of ServerEntryImpl
+     */
+    public static ServerEntry convertEntry( LdapDN dn, Attributes attributes ) throws NamingException
+    {
+        assert( dn != null );
+        assert( attributes != null );
+        
+        ServerEntry serverEntry = new ServerEntryImpl( dn );
+        
+        NamingEnumeration<? extends Attribute> attrs = attributes.getAll();
+        
+        while ( attrs.hasMoreElements() )
+        {
+            Attribute attribute = attrs.nextElement();
+            serverEntry.put( convertAttribute( attribute ) );
+        }
+        
+        return serverEntry;
+    }
+
+
+
+    /**
+     * A method to apply a modification to an existing entry.
+     * 
+     * @param entry The entry on which we want to apply a modification
+     * @param modification the Modification to be applied
+     * @throws NamingException if some operation fails.
+     */
+    public static void applyModification( Attributes entry, ModificationItem modification ) throws NamingException
+    {
+        Attribute modAttr = modification.getAttribute(); 
+        String modificationId = modAttr.getID();
+        
+        switch ( modification.getModificationOp() )
+        {
+            case DirContext.ADD_ATTRIBUTE :
+                Attribute modifiedAttr = entry.get( modificationId ) ;
+                
+                if ( modifiedAttr == null )
+                {
+                    // The attribute should be added.
+                    entry.put( modAttr );
+                }
+                else
+                {
+                    // The attribute exists : the values can be different,
+                    // so we will just add the new values to the existing ones.
+                    NamingEnumeration<?> values = modAttr.getAll();
+                    
+                    while ( values.hasMoreElements() )
+                    {
+                        // If the value already exist, nothing is done.
+                        // Note that the attribute *must* have been
+                        // normalized before.
+                        modifiedAttr.add( values.nextElement() );
+                    }
+                }
+                
+                break;
+                
+            case DirContext.REMOVE_ATTRIBUTE :
+                if ( modAttr.get() == null )
+                {
+                    // We have no value in the ModificationItem attribute :
+                    // we have to remove the whole attribute from the initial
+                    // entry
+                    entry.remove( modificationId );
+                }
+                else
+                {
+                    // We just have to remove the values from the original
+                    // entry, if they exist.
+                    modifiedAttr = entry.get( modificationId ) ;
+                    
+                    if ( modifiedAttr == null )
+                    {
+                        break;
+                    }
+
+                    NamingEnumeration<?> values = modAttr.getAll();
+                    
+                    while ( values.hasMoreElements() )
+                    {
+                        // If the value does not exist, nothing is done.
+                        // Note that the attribute *must* have been
+                        // normalized before.
+                        modifiedAttr.remove( values.nextElement() );
+                    }
+                    
+                    if ( modifiedAttr.size() == 0 )
+                    {
+                        // If this was the last value, remove the attribute
+                        entry.remove( modifiedAttr.getID() );
+                    }
+                }
+
+                break;
+                
+            case DirContext.REPLACE_ATTRIBUTE :
+                if ( modAttr.get() == null )
+                {
+                    // If the modification does not have any value, we have
+                    // to delete the attribute from the entry.
+                    entry.remove( modificationId );
+                }
+                else
+                {
+                    // otherwise, just substitute the existing attribute.
+                    entry.put( modAttr );
+                }
+
+                break;
+        }
+    }
+
+
+    /**
+     * Check if an attribute contains a specific value and remove it using the associated
+     * matchingRule for the attribute type supplied.
+     *
+     * @param attr the attribute we are searching in
+     * @param compared the object we are looking for
+     * @param type the attribute type
+     * @return the value removed from the attribute, otherwise null
+     * @throws NamingException if something went wrong while removing the value
+     */
+    public static Object removeValue( Attribute attr, Object compared, AttributeType type ) throws NamingException
+    {
+        // quick bypass test
+        if ( attr.contains( compared ) )
+        {
+            return attr.remove( compared );
+        }
+
+        MatchingRule matchingRule = type.getEquality();
+        Normalizer normalizer;
+
+        if ( matchingRule != null )
+        {
+            normalizer = type.getEquality().getNormalizer();
+        }
+        else
+        {
+            normalizer = new NoOpNormalizer();
+        }
+
+        if ( type.getSyntax().isHumanReadable() )
+        {
+            String comparedStr = ( String ) normalizer.normalize( compared );
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            {
+                String value = ( String ) values.nextElement();
+                if ( comparedStr.equals( normalizer.normalize( value ) ) )
+                {
+                    return attr.remove( value );
+                }
+            }
+        }
+        else
+        {
+            byte[] comparedBytes = null;
+
+            if ( compared instanceof String )
+            {
+                if ( ( ( String ) compared ).length() < 3 )
+                {
+                    return null;
+                }
+
+                // Tansform the String to a byte array
+                int state = 1;
+                comparedBytes = new byte[( ( String ) compared ).length() / 3];
+                int pos = 0;
+
+                for ( char c:((String)compared).toCharArray() )
+                {
+                    switch ( state )
+                    {
+                        case 1 :
+                            if ( c != '\\' )
+                            {
+                                return null;
+                            }
+
+                            state++;
+                            break;
+
+                        case 2 :
+                            int high = StringTools.getHexValue( c );
+
+                            if ( high == -1 )
+                            {
+                                return null;
+                            }
+
+                            comparedBytes[pos] = (byte)(high << 4);
+
+                            state++;
+                            break;
+
+                        case 3 :
+                            int low = StringTools.getHexValue( c );
+
+                            if ( low == -1 )
+                            {
+                                return null;
+                            }
+
+                            comparedBytes[pos] += (byte)low;
+                            pos++;
+
+                            state = 1;
+                    }
+                }
+            }
+            else
+            {
+                comparedBytes = ( byte[] ) compared;
+            }
+
+            for ( NamingEnumeration<?> values = attr.getAll(); values.hasMoreElements(); /**/ )
+            {
+                Object value = values.nextElement();
+
+                if ( value instanceof byte[] )
+                {
+                    if ( ArrayUtils.isEquals( comparedBytes, value ) )
+                    {
+                        return attr.remove( value );
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

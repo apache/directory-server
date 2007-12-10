@@ -77,7 +77,14 @@ public class ExtensibleNode extends LeafNode
     {
         super( attribute );
 
-        this.value = value;
+        if ( value != null )
+        {
+            this.value = new byte[ value.length ];
+            System.arraycopy( value, 0, this.value, 0, value.length );
+        } else {
+            this.value = null;
+        }
+
         this.matchingRuleId = matchingRuleId;
         this.dnAttributes = dnAttributes;
     }
@@ -132,7 +139,14 @@ public class ExtensibleNode extends LeafNode
      */
     public final byte[] getValue()
     {
-        return value;
+        if ( value == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ value.length ];
+        System.arraycopy( value, 0, copy, 0, value.length );
+        return copy;
     }
 
 

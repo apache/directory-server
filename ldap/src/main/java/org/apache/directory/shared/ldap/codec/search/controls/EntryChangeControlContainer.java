@@ -30,7 +30,7 @@ import org.apache.directory.shared.asn1.ber.IAsn1Container;
 public class EntryChangeControlContainer extends AbstractContainer implements IAsn1Container
 {
     /** EntryChangeControl */
-    private EntryChangeControl control;
+    private EntryChangeControlCodec control;
 
 
     /**
@@ -49,7 +49,7 @@ public class EntryChangeControlContainer extends AbstractContainer implements IA
     /**
      * @return Returns the EntryChangeControl.
      */
-    public EntryChangeControl getEntryChangeControl()
+    public EntryChangeControlCodec getEntryChangeControl()
     {
         return control;
     }
@@ -61,7 +61,7 @@ public class EntryChangeControlContainer extends AbstractContainer implements IA
      * 
      * @param control the EntryChangeControl to set.
      */
-    public void setEntryChangeControl( EntryChangeControl control )
+    public void setEntryChangeControl( EntryChangeControlCodec control )
     {
         this.control = control;
     }

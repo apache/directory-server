@@ -21,7 +21,6 @@
 package org.apache.directory.shared.ldap.name;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -34,7 +33,6 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 
 import org.apache.directory.shared.ldap.name.DefaultStringNormalizer;
-import org.apache.directory.shared.ldap.schema.Normalizer;
 import org.apache.directory.shared.ldap.schema.OidNormalizer;
 import org.apache.directory.shared.ldap.util.StringTools;
 import org.slf4j.Logger;
@@ -84,7 +82,11 @@ public class LdapDN implements Name
 
     // ~ Static fields/initializers
     // -----------------------------------------------------------------
-    /** The RDNs that are elements of the DN */
+    /**
+     *  The RDNs that are elements of the DN
+     * NOTE THAT THESE ARE IN THE OPPOSITE ORDER FROM THAT IMPLIED BY THE JAVADOC!
+     * Rdn[0] is rdns.get(n) and Rdn[n] is rdns.get(0)
+     */
     protected List<Rdn> rdns = new ArrayList<Rdn>( 5 );
 
     /** The user provided name */
@@ -164,13 +166,13 @@ public class LdapDN implements Name
      * @param nameComponents
      *            List of String name components.
      */
-    LdapDN( Iterator nameComponents ) throws InvalidNameException
+    LdapDN( Iterator<String> nameComponents ) throws InvalidNameException
     {
         if ( nameComponents != null )
         {
             while ( nameComponents.hasNext() )
             {
-                String nameComponent = ( String ) nameComponents.next();
+                String nameComponent = nameComponents.next();
                 add( 0, nameComponent );
             }
         }
@@ -266,19 +268,10 @@ public class LdapDN implements Name
      */
     public LdapDN( byte[] bytes ) throws InvalidNameException
     {
-        try
-        {
-            upName = new String( bytes, "UTF-8" );
-            LdapDnParser.parseInternal( upName, rdns );
-            this.normName = toNormName();
-            normalized = false;
-        }
-        catch ( UnsupportedEncodingException uee )
-        {
-            log.error( "The byte array is not an UTF-8 encoded Unicode String : " + uee.getMessage() );
-            throw new InvalidNameException( "The byte array is not an UTF-8 encoded Unicode String : "
-                + uee.getMessage() );
-        }
+        upName = StringTools.utf8ToString( bytes );
+        LdapDnParser.parseInternal( bytes, rdns );
+        this.normName = toNormName();
+        normalized = false;
     }
 
 
@@ -494,7 +487,7 @@ public class LdapDN implements Name
     {
         int result = 17;
 
-        if ( ( rdns != null ) && ( rdns.size() == 0 ) )
+        if ( ( rdns != null ) && ( rdns.size() != 0 ) )
         {
             for ( Rdn rdn : rdns )
             {
@@ -773,7 +766,7 @@ public class LdapDN implements Name
 
 
     /**
-     * Retrieves the last component of this name.
+     * Retrieves the last (leaf) component of this name.
      *
      * @return the last component of this DN
      */
@@ -813,6 +806,7 @@ public class LdapDN implements Name
      * Retrieves the components of this name as an enumeration of strings. The
      * effect on the enumeration of updates to this name is undefined. If the
      * name has zero components, an empty (non-null) enumeration is returned.
+     * This starts at the root (rightmost) rdn.
      *
      * @return an enumeration of the components of this name, each as string
      */
@@ -855,6 +849,7 @@ public class LdapDN implements Name
      * Retrieves the components of this name as an enumeration of strings. The
      * effect on the enumeration of updates to this name is undefined. If the
      * name has zero components, an empty (non-null) enumeration is returned.
+     * This starts at the root (rightmost) rdn.
      *
      * @return an enumeration of the components of this name, as Rdn
      */
@@ -896,7 +891,8 @@ public class LdapDN implements Name
     /**
      * Creates a name whose components consist of a prefix of the components of
      * this name. Subsequent changes to this name will not affect the name that
-     * is returned and vice versa.
+     * is returned and vice versa. Note this includes the original root (rightmost rdn)
+     * and not the original leaf (leftmost rdn).
      *
      * @param posn
      *            the 0-based index of the component at which to stop. Must be
@@ -938,7 +934,8 @@ public class LdapDN implements Name
     /**
      * Creates a name whose components consist of a suffix of the components in
      * this name. Subsequent changes to this name do not affect the name that is
-     * returned and vice versa.
+     * returned and vice versa.   This includes the original leaf (leftmost rdn)
+     * and not the orginal root (rightmost rdn)
      *
      * @param posn
      *            the 0-based index of the component at which to start. Must be
@@ -985,7 +982,7 @@ public class LdapDN implements Name
      * components. Compoenents are supposed to be normalized.
      *
      * @param posn the index in this name at which to add the new components.
-     *            Must be in the range [0,size()].
+     *            Must be in the range [0,size()]. Note this is from the opposite end as rnds.get(posn)
      * @param name the components to add
      * @return the updated name (not a new one)
      * @throws ArrayIndexOutOfBoundsException
@@ -1042,7 +1039,7 @@ public class LdapDN implements Name
     }
 
     /**
-     * Adds the components of a name -- in order -- to the end of this name.
+     * Adds the components of a name -- in order -- to the (leaf) end of this name.
      *
      * @param suffix
      *            the components to add
@@ -1068,7 +1065,7 @@ public class LdapDN implements Name
      * components.
      *
      * @param posn the index in this name at which to add the new components.
-     *            Must be in the range [0,size()].
+     *            Must be in the range [0,size()].  Note this is the from the opposite end as rdns.get(posn).
      * @param name the components to add
      * @return the updated name (not a new one)
      * @throws ArrayIndexOutOfBoundsException
@@ -1129,7 +1126,7 @@ public class LdapDN implements Name
 
 
     /**
-     * Adds a single component to the end of this name.
+     * Adds a single component to the (leaf) end of this name.
      *
      * @param comp
      *            the component to add
@@ -1157,7 +1154,7 @@ public class LdapDN implements Name
 
 
     /**
-     * Adds a single RDN to the end of this name.
+     * Adds a single RDN to the (leaf) end of this name.
      *
      * @param newRdn the RDN to add
      * @return the updated name (not a new one)
@@ -1173,7 +1170,7 @@ public class LdapDN implements Name
     }
 
     /**
-     * Adds a single normalized RDN to the end of this name.
+     * Adds a single normalized RDN to the (leaf) end of this name.
      *
      * @param newRdn the RDN to add
      * @return the updated name (not a new one)
@@ -1423,7 +1420,7 @@ public class LdapDN implements Name
                 {
                     return new AttributeTypeAndValue( atav.getUpType(), oidNormalizer.getAttributeTypeOid(), 
                     		atav.getUpValue(),
-                    		((Normalizer<Object>)oidNormalizer.getNormalizer()).normalize( atav.getValue() ) );
+                    		oidNormalizer.getNormalizer().normalize( atav.getValue() ) );
 
                 }
                 else
@@ -1458,7 +1455,7 @@ public class LdapDN implements Name
         Object normValue = DefaultStringNormalizer.normalizeString( ( String ) upValue );
 
         rdn.addAttributeTypeAndValue( upType, oidNormalizer.getAttributeTypeOid(), upValue, 
-            ((Normalizer<Object>)oidNormalizer.getNormalizer()).normalize( normValue ) );
+                oidNormalizer.getNormalizer().normalize( normValue ) );
 
     }
 
@@ -1481,11 +1478,11 @@ public class LdapDN implements Name
             Rdn rdnCopy = ( Rdn ) rdn.clone();
             rdn.clear();
 
-            Iterator atavs = rdnCopy.iterator();
+            Iterator<AttributeTypeAndValue> atavs = rdnCopy.iterator();
 
             while ( atavs.hasNext() )
             {
-            	AttributeTypeAndValue val = (AttributeTypeAndValue)atavs.next();
+            	AttributeTypeAndValue val = atavs.next();
                 AttributeTypeAndValue newAtav = atavOidToName( val, oidsMap );
                 rdn.addAttributeTypeAndValue( val.getUpType(), newAtav.getNormType(), val.getUpValue(), newAtav.getValue() );
             }
@@ -1566,8 +1563,7 @@ public class LdapDN implements Name
      * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
-    public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws InvalidNameException,
-        NamingException
+    public static LdapDN normalize( LdapDN dn, Map<String, OidNormalizer> oidsMap ) throws NamingException
     {
         if ( ( dn == null ) || ( dn.size() == 0 ) || ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
@@ -1609,16 +1605,16 @@ public class LdapDN implements Name
      * @throws InvalidNameException If the DN is invalid.
      * @throws NamingException If something went wrong.
      */
-    public void normalize( Map<String, OidNormalizer> oidsMap ) throws InvalidNameException, NamingException
+    public LdapDN normalize( Map<String, OidNormalizer> oidsMap ) throws NamingException
     {
         if ( ( oidsMap == null ) || ( oidsMap.size() == 0 ) )
         {
-            return;
+            return this;
         }
 
         if ( size() == 0 )
         {
-            return;
+            return this;
         }
 
         Enumeration<Rdn> localRdns = getAllRdn();
@@ -1635,6 +1631,7 @@ public class LdapDN implements Name
 
         normalizeInternal();
         normalized = true;
+        return this;
     }
 
 

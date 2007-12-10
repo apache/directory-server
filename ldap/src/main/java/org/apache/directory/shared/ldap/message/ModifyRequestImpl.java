@@ -275,14 +275,14 @@ public class ModifyRequestImpl extends AbstractAbandonableRequest implements Mod
 
             Set<Object> attrHash0 = new HashSet<Object>();
 
-            NamingEnumeration iter0 = attr0.getAll();
+            NamingEnumeration<?> iter0 = attr0.getAll();
 
             while ( iter0.hasMoreElements() )
             {
                 attrHash0.add( iter0.next() );
             }
 
-            NamingEnumeration iter1 = attr1.getAll();
+            NamingEnumeration<?> iter1 = attr1.getAll();
 
             while ( iter1.hasMoreElements() )
             {

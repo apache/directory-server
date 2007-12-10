@@ -31,7 +31,7 @@ import java.util.Vector;
 
 public class BERConstructedOctetString extends DEROctetString
 {
-    private Vector octets;
+    private Vector<DEREncodable> octets;
 
 
     /**
@@ -44,7 +44,7 @@ public class BERConstructedOctetString extends DEROctetString
     }
 
 
-    public BERConstructedOctetString(Vector octets)
+    public BERConstructedOctetString(Vector<DEREncodable> octets)
     {
         super( toBytes( octets ) );
 
@@ -55,7 +55,7 @@ public class BERConstructedOctetString extends DEROctetString
     /**
      * Convert a vector of octet strings into a single byte string.
      */
-    static private byte[] toBytes( Vector octs )
+    static private byte[] toBytes( Vector<DEREncodable> octs )
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -85,7 +85,7 @@ public class BERConstructedOctetString extends DEROctetString
     /**
      * @return Enumeration the DER octets that make up this string.
      */
-    public Enumeration getObjects()
+    public Enumeration<DEREncodable> getObjects()
     {
         if ( octets == null )
         {
@@ -96,11 +96,11 @@ public class BERConstructedOctetString extends DEROctetString
     }
 
 
-    private Vector generateOcts()
+    private Vector<DEREncodable> generateOcts()
     {
         int start = 0;
         int end = 0;
-        Vector vector = new Vector();
+        Vector<DEREncodable> vector = new Vector<DEREncodable>();
 
         while ( ( end + 1 ) < value.length )
         {

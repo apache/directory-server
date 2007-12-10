@@ -31,15 +31,16 @@ import javax.naming.NamingException;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$
  */
-public interface Normalizer<T> extends Serializable
+public interface Normalizer extends Serializable
 {
     /**
      * Gets the normalized value.
      * 
-     * @param value the value to normalize. It must *not* be null !
+     * @param value
+     *            the value to normalize. It must *not* be null !
      * @return the normalized form for a value
      * @throws NamingException
      *             if an error results during normalization
      */
-    T normalize( T value ) throws NamingException;
+    Object normalize( Object value ) throws NamingException;
 }

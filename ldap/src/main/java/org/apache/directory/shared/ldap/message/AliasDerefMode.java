@@ -27,29 +27,34 @@ import org.apache.directory.shared.ldap.constants.JndiPropertyConstants;
 
 /**
  * Type-safe derefAliases search parameter enumeration which determines the mode
- * of alias handling. Note that the names of these ValuedEnums correspond to the
- * value for the java.naming.ldap.derefAliases JNDI LDAP specific property.
+ * of alias handling. Note that the jndi values of these ValuedEnums correspond
+ * to the string value for the java.naming.ldap.derefAliases JNDI LDAP specific
+ * property.  The integer value represents the values used in the LDAP ASN.1 for
+ * different settings.
  * 
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Revision$
  */
-public enum DerefAliasesEnum
+public enum AliasDerefMode
 {
     /** Alias handling mode value that treats aliases like entries */
-    NEVER_DEREF_ALIASES(0),
+    NEVER_DEREF_ALIASES( 0, "never" ),
 
     /** Alias handling mode value that dereferences only when searching */
-    DEREF_IN_SEARCHING(1),
+    DEREF_IN_SEARCHING( 1, "searching" ),
 
     /** Alias handling mode value that dereferences only in finding the base */
-    DEREF_FINDING_BASE_OBJ(2),
+    DEREF_FINDING_BASE_OBJ( 2, "finding" ),
 
     /** Alias handling mode value that dereferences always */
-    DEREF_ALWAYS(3);
+    DEREF_ALWAYS( 3, "always" );
 
 
     /** Stores the integer value of each element of the enumeration */
     private int value;
+    /** Stores the integer value of each element of the enumeration */
+    private String jndiValue;
+
     
     /**
      * Private constructor so no other instances can be created other than the
@@ -57,9 +62,10 @@ public enum DerefAliasesEnum
      * 
      * @param value the integer value of the enumeration.
      */
-    private DerefAliasesEnum( int value )
+    private AliasDerefMode( int value, String jndiValue )
     {
        this.value = value;
+       this.jndiValue = jndiValue;
     }
 
     
@@ -81,9 +87,9 @@ public enum DerefAliasesEnum
      *            java.naming.ldap.derefAliases property
      * @return the enumeration for the environment
      */
-    public static DerefAliasesEnum getEnum( Map<String, DerefAliasesEnum> env )
+    public static AliasDerefMode getEnum( Map<String, Object> env )
     {
-        DerefAliasesEnum property = env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
+        String property = ( String ) env.get( JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES );
         
         if ( null == property )
         {
@@ -91,7 +97,28 @@ public enum DerefAliasesEnum
         }
         else
         {
-            return property;
+            if ( property.trim().equalsIgnoreCase( "always" ) )
+            {
+                return DEREF_ALWAYS;
+            }
+            else if ( property.trim().equalsIgnoreCase( "never" ) )
+            {
+                return NEVER_DEREF_ALIASES;
+            }
+            else if ( property.trim().equalsIgnoreCase( "finding" ) )
+            {
+                return DEREF_FINDING_BASE_OBJ;
+            }
+            else if ( property.trim().equalsIgnoreCase( "searching" ) )
+            {
+                return DEREF_IN_SEARCHING;
+            }
+            else
+            {
+                throw new IllegalArgumentException( "Unrecogniced value '" + property + "' for "
+                        + JndiPropertyConstants.JNDI_LDAP_DAP_DEREF_ALIASES + " JNDI property.\n"
+                        + "Expected a value of either always, never, searching, or finding." );
+            }
         }
     }
     
@@ -170,5 +197,11 @@ public enum DerefAliasesEnum
             default:
                 throw new IllegalArgumentException( "Class has bug: check for valid enumeration values" );
         }
+    }
+
+
+    public String getJndiValue()
+    {
+        return jndiValue;
     }
 }

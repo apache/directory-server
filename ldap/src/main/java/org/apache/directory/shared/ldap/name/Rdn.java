@@ -531,19 +531,19 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
 
    /**
-    * Retrieves the components of this name as an enumeration of strings. The
-    * effect on the enumeration of updates to this name is undefined. If the
-    * name has zero components, an empty (non-null) enumeration is returned.
+    * Retrieves the components of this RDN as an iterator of AttributeTypeAndValue. 
+    * The effect on the iterator of updates to this RDN is undefined. If the
+    * RDN has zero components, an empty (non-null) iterator is returned.
     *
-    * @return an enumeration of the components of this name, each a string
+    * @return an iterator of the components of this RDN, each an AttributeTypeAndValue
     */
    public Iterator<AttributeTypeAndValue> iterator()
    {
-       if ( nbAtavs == 1 )
+       if ( nbAtavs == 1 || nbAtavs == 0 )
        {
            return new Iterator<AttributeTypeAndValue>()
            {
-               private boolean hasMoreElement = true;
+               private boolean hasMoreElement = nbAtavs == 1;
 
 
                public boolean hasNext()
@@ -684,18 +684,18 @@ public class Rdn implements Cloneable, Comparable, Serializable
                                // We have to verify that each value of the
                                // first list are present in
                                // the second list
-                               Iterator atavLocals = atavLocalList.iterator();
+                               Iterator<AttributeTypeAndValue> atavLocals = atavLocalList.iterator();
 
                                while ( atavLocals.hasNext() )
                                {
-                                   AttributeTypeAndValue atavLocal = ( AttributeTypeAndValue ) atavLocals.next();
+                                   AttributeTypeAndValue atavLocal = atavLocals.next();
 
-                                   Iterator atavParams = atavParamList.iterator();
+                                   Iterator<AttributeTypeAndValue> atavParams = atavParamList.iterator();
                                    boolean found = false;
 
                                    while ( atavParams.hasNext() )
                                    {
-                                       AttributeTypeAndValue atavParam = ( AttributeTypeAndValue ) atavParams.next();
+                                       AttributeTypeAndValue atavParam = atavParams.next();
 
                                        if ( atavLocal.compareTo( atavParam ) == EQUALS )
                                        {
@@ -940,11 +940,11 @@ public class Rdn implements Cloneable, Comparable, Serializable
 
                    attribute = new AttributeImpl( type );
 
-                   Iterator iterValues = values.iterator();
+                   Iterator<AttributeTypeAndValue> iterValues = values.iterator();
 
                    while ( iterValues.hasNext() )
                    {
-                       AttributeTypeAndValue value = ( AttributeTypeAndValue ) iterValues.next();
+                       AttributeTypeAndValue value = iterValues.next();
 
                        attribute.add( value.getValue() );
                    }
@@ -1125,8 +1125,32 @@ public class Rdn implements Cloneable, Comparable, Serializable
            switch ( chars[i] )
            {
                case ' ':
-               case '"':
+                   if ( ( i > 0 ) && ( i < chars.length - 1 ) )
+                   {
+                       newChars[pos++] = chars[i];
+                   }
+                   else
+                   {
+                       newChars[pos++] = '\\';
+                       newChars[pos++] = chars[i];
+                   }
+                   
+                   break;
+                   
                case '#':
+                   if ( i != 0 )
+                   {
+                       newChars[pos++] = chars[i];
+                   }
+                   else
+                   {
+                       newChars[pos++] = '\\';
+                       newChars[pos++] = chars[i];
+                   }
+                   
+                   break;
+                   
+               case '"':
                case '+':
                case ',':
                case ';':

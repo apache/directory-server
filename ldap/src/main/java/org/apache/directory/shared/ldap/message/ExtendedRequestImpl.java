@@ -101,7 +101,14 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
      */
     public byte[] getPayload()
     {
-        return payload;
+        if ( payload == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ payload.length ];
+        System.arraycopy( payload, 0, copy, 0, payload.length );
+        return copy;
     }
 
 
@@ -113,7 +120,13 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
      */
     public void setPayload( byte[] payload )
     {
-        this.payload = payload;
+        if ( payload != null )
+        {
+            this.payload = new byte[ payload.length ];
+            System.arraycopy( payload, 0, this.payload, 0, payload.length );
+        } else {
+            this.payload = null;
+        }
     }
 
 
@@ -164,6 +177,11 @@ public class ExtendedRequestImpl extends AbstractRequest implements ExtendedRequ
         }
 
         if ( !super.equals( obj ) )
+        {
+            return false;
+        }
+        
+        if ( !( obj instanceof ExtendedRequest ) )
         {
             return false;
         }

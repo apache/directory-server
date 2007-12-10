@@ -31,7 +31,7 @@ import java.util.Vector;
 
 public class DERSequence implements DEREncodable
 {
-    private Vector v = new Vector();
+    private Vector<DEREncodable> v = new Vector<DEREncodable>();
 
 
     public void add( DEREncodable obj )
@@ -40,7 +40,7 @@ public class DERSequence implements DEREncodable
     }
 
 
-    public Enumeration getObjects()
+    public Enumeration<DEREncodable> getObjects()
     {
         return v.elements();
     }
@@ -69,7 +69,7 @@ public class DERSequence implements DEREncodable
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ASN1OutputStream aos = new ASN1OutputStream( baos );
 
-        Enumeration e = getObjects();
+        Enumeration<DEREncodable> e = getObjects();
 
         while ( e.hasMoreElements() )
         {

@@ -34,7 +34,8 @@ public class BERSequence extends DERSequence
         out.write( DERObject.SEQUENCE | DERObject.CONSTRUCTED );
         out.write( DERObject.TAGGED );
 
-        Enumeration e = getObjects();
+        Enumeration<DEREncodable> e = getObjects();
+        
         while ( e.hasMoreElements() )
         {
             out.writeObject( e.nextElement() );

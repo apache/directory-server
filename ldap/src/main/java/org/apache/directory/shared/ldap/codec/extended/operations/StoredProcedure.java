@@ -80,13 +80,26 @@ public class StoredProcedure extends AbstractAsn1Object
 
     public byte[] getProcedure()
     {
-        return procedure;
+        if ( procedure == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ procedure.length ];
+        System.arraycopy( procedure, 0, copy, 0, procedure.length );
+        return copy;
     }
 
 
     public void setProcedure( byte[] procedure )
     {
-        this.procedure = procedure;
+        if ( procedure != null )
+        {
+            this.procedure = new byte[ procedure.length ];
+            System.arraycopy( procedure, 0, this.procedure, 0, procedure.length );
+        } else {
+            this.procedure = null;
+        }
     }
 
 
@@ -126,25 +139,51 @@ public class StoredProcedure extends AbstractAsn1Object
 
         public byte[] getType()
         {
-            return type;
+            if ( type == null )
+            {
+                return null;
+            }
+
+            final byte[] copy = new byte[ type.length ];
+            System.arraycopy( type, 0, copy, 0, type.length );
+            return copy;
         }
 
 
         public void setType( byte[] type )
         {
-            this.type = type;
+            if ( type != null )
+            {
+                this.type = new byte[ type.length ];
+                System.arraycopy( type, 0, this.type, 0, type.length );
+            } else {
+                this.type = null;
+            }
         }
 
 
         public byte[] getValue()
         {
-            return value;
+            if ( value == null )
+            {
+                return null;
+            }
+
+            final byte[] copy = new byte[ value.length ];
+            System.arraycopy( value, 0, copy, 0, value.length );
+            return copy;
         }
 
 
         public void setValue( byte[] value )
         {
-            this.value = value;
+            if ( value != null )
+            {
+                this.value = new byte[ value.length ];
+                System.arraycopy( value, 0, this.value, 0, value.length );
+            } else {
+                this.value = null;
+            }
         }
     }
 
@@ -193,7 +232,7 @@ public class StoredProcedure extends AbstractAsn1Object
             paramTypeLength = new LinkedList<Integer>();
             paramValueLength = new LinkedList<Integer>();
             
-    		Iterator params = parameters.iterator();
+    		Iterator<StoredProcedureParameter> params = parameters.iterator();
     		
     		while ( params.hasNext() )
     		{
@@ -201,7 +240,7 @@ public class StoredProcedure extends AbstractAsn1Object
     			int localParamTypeLength = 0;
     			int localParamValueLength = 0;
     			
-    			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
+    			StoredProcedureParameter spParam = params.next();
     			
     			localParamTypeLength = 1 + TLV.getNbBytes( spParam.type.length ) + spParam.type.length;
     			localParamValueLength = 1 + TLV.getNbBytes( spParam.value.length ) + spParam.value.length;
@@ -253,11 +292,11 @@ public class StoredProcedure extends AbstractAsn1Object
             if ( ( parameters != null ) && ( parameters.size() != 0 ) )
             {
             	int parameterNumber = 0;
-        		Iterator params = parameters.iterator();
+        		Iterator<StoredProcedureParameter> params = parameters.iterator();
         		
         		while ( params.hasNext() )
         		{
-        			StoredProcedureParameter spParam = (StoredProcedureParameter)params.next();
+        			StoredProcedureParameter spParam = params.next();
 
                     // The parameter sequence
                     bb.put( UniversalTag.SEQUENCE_TAG );
@@ -306,7 +345,7 @@ public class StoredProcedure extends AbstractAsn1Object
         {
             sb.append( "        Parameters\n" );
 
-            Iterator params = parameters.iterator();
+            Iterator<StoredProcedureParameter> params = parameters.iterator();
             int i = 1;
     		
     		while ( params.hasNext() )

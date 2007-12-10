@@ -73,19 +73,32 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
      */
     public byte[] getResponse()
     {
-        return value;
+        if ( value == null )
+        {
+            return null;
+        }
+
+        final byte[] copy = new byte[ value.length ];
+        System.arraycopy( value, 0, copy, 0, value.length );
+        return copy;
     }
 
 
     /**
-     * Sets the reponse OID specific encoded response values.
+     * Sets the response OID specific encoded response values.
      * 
      * @param value
      *            the response specific encoded response values.
      */
     public void setResponse( byte[] value )
     {
-        this.value = value;
+        if ( value != null )
+        {
+            this.value = new byte[ value.length ];
+            System.arraycopy( value, 0, this.value, 0, value.length );
+        } else {
+            this.value = null;
+        }
     }
     
     
@@ -135,6 +148,11 @@ public class ExtendedResponseImpl extends AbstractResultResponse implements Exte
         }
 
         if ( !super.equals( obj ) )
+        {
+            return false;
+        }
+        
+        if ( !( obj instanceof ExtendedResponse ) )
         {
             return false;
         }

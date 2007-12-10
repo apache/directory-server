@@ -55,7 +55,13 @@ public class JoinIterator implements Iterator
                 + "null, empty or composed of less than two Iterators" );
         }
 
-        this.iterators = iterators;
+        if ( iterators != null )
+        {
+            this.iterators = new Iterator[ iterators.length ];
+            System.arraycopy( iterators, 0, this.iterators, 0, iterators.length );
+        } else {
+            this.iterators = null;
+        }
         this.index = 0;
     }
 

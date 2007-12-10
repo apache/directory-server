@@ -149,11 +149,13 @@ import org.slf4j.LoggerFactory;
  *  - The ValueSpec rule must accept multilines values. In this case, we have a LF followed by a 
  *  single space before the continued value.
  * </pre>
+ * 
+ * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  */
 public class LdifReader implements Iterator<Entry>
 {
     /** A logger */
-    private static final Logger log = LoggerFactory.getLogger( LdifReader.class );
+    private static final Logger LOG = LoggerFactory.getLogger( LdifReader.class );
 
     /** A private class to track the current position in a line */
     private class Position
@@ -263,13 +265,13 @@ public class LdifReader implements Iterator<Entry>
 
         if ( inf.exists() == false )
         {
-            log.error( "File {} cannot be found", inf.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", inf.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
         }
 
         if ( inf.canRead() == false )
         {
-            log.error( "File {} cannot be read", inf.getName() );
+            LOG.error( "File {} cannot be read", inf.getName() );
             throw new NamingException( "Cannot read file " + inf.getName() );
         }
 
@@ -279,7 +281,7 @@ public class LdifReader implements Iterator<Entry>
         }
         catch (FileNotFoundException fnfe)
         {
-            log.error( "File {} cannot be found", inf.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", inf.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + inf.getAbsoluteFile() );
         }
     }
@@ -335,13 +337,13 @@ public class LdifReader implements Iterator<Entry>
     {
         if ( in.exists() == false )
         {
-            log.error( "File {} cannot be found", in.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", in.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
         }
 
         if ( in.canRead() == false )
         {
-            log.error( "File {} cannot be read", in.getName() );
+            LOG.error( "File {} cannot be read", in.getName() );
             throw new NamingException( "Cannot read file " + in.getName() );
         }
 
@@ -351,7 +353,7 @@ public class LdifReader implements Iterator<Entry>
         }
         catch (FileNotFoundException fnfe)
         {
-            log.error( "File {} cannot be found", in.getAbsoluteFile() );
+            LOG.error( "File {} cannot be found", in.getAbsoluteFile() );
             throw new NamingException( "Cannot find file " + in.getAbsoluteFile() );
         }
     }
@@ -487,7 +489,7 @@ public class LdifReader implements Iterator<Entry>
             if ( length == 3 )
             {
                 // The DN is empty : error
-                log.error( "A ldif entry must have a non empty DN" );
+                LOG.error( "A ldif entry must have a non empty DN" );
                 throw new NamingException( "No DN for entry" );
             }
             else if ( line.charAt( 3 ) == ':' )
@@ -504,14 +506,14 @@ public class LdifReader implements Iterator<Entry>
                     catch (UnsupportedEncodingException uee)
                     {
                         // The DN is not base 64 encoded
-                        log.error( "The ldif entry is supposed to have a base 64 encoded DN" );
+                        LOG.error( "The ldif entry is supposed to have a base 64 encoded DN" );
                         throw new NamingException( "Invalid base 64 encoded DN" );
                     }
                 }
                 else
                 {
                     // The DN is empty : error
-                    log.error( "A ldif entry must have a non empty DN" );
+                    LOG.error( "A ldif entry must have a non empty DN" );
                     throw new NamingException( "No DN for entry" );
                 }
             }
@@ -522,7 +524,7 @@ public class LdifReader implements Iterator<Entry>
         }
         else
         {
-            log.error( "A ldif entry must start with a DN" );
+            LOG.error( "A ldif entry must start with a DN" );
             throw new NamingException( "No DN for entry" );
         }
 
@@ -533,7 +535,7 @@ public class LdifReader implements Iterator<Entry>
         }
         catch (InvalidNameException ine)
         {
-            log.error( "The DN {} is not valid" );
+            LOG.error( "The DN {} is not valid" );
             throw ine;
         }
 
@@ -611,7 +613,7 @@ public class LdifReader implements Iterator<Entry>
 
                         if ( file.exists() == false )
                         {
-                            log.error( "File {} not found", fileName );
+                            LOG.error( "File {} not found", fileName );
                             throw new NamingException( "Bad URL, file not found" );
                         }
                         else
@@ -620,7 +622,7 @@ public class LdifReader implements Iterator<Entry>
 
                             if ( length > sizeLimit )
                             {
-                                log.error( "File {} is too big", fileName );
+                                LOG.error( "File {} is too big", fileName );
                                 throw new NamingException( "File too big" );
                             }
                             else
@@ -640,12 +642,12 @@ public class LdifReader implements Iterator<Entry>
                                     // We can't reach this point, the file
                                     // existence has already been
                                     // checked
-                                    log.error( "File {} not found", fileName );
+                                    LOG.error( "File {} not found", fileName );
                                     throw new NamingException( "Bad URL, file not found" );
                                 }
                                 catch (IOException ioe)
                                 {
-                                    log.error( "File {} error reading", fileName );
+                                    LOG.error( "File {} error reading", fileName );
                                     throw new NamingException( "Bad URL, file can't be read" );
                                 }
                                 finally
@@ -658,7 +660,7 @@ public class LdifReader implements Iterator<Entry>
                                         }
                                         catch ( IOException ioe )
                                         {
-                                            log.error( "Error while closing the stream : {}", ioe.getMessage() );
+                                            LOG.error( "Error while closing the stream : {}", ioe.getMessage() );
                                             // Just do nothing ...
                                         }
                                     }
@@ -668,13 +670,13 @@ public class LdifReader implements Iterator<Entry>
                     }
                     else
                     {
-                        log.error( "Protocols other than file: are not supported" );
+                        LOG.error( "Protocols other than file: are not supported" );
                         throw new NamingException( "Unsupported URL protocol" );
                     }
                 }
                 catch (MalformedURLException mue)
                 {
-                    log.error( "Bad URL {}", urlName );
+                    LOG.error( "Bad URL {}", urlName );
                     throw new NamingException( "Bad URL" );
                 }
             }
@@ -715,7 +717,7 @@ public class LdifReader implements Iterator<Entry>
         if ( pos > length )
         {
             // No OID : error !
-            log.error( "The control does not have an OID" );
+            LOG.error( "The control does not have an OID" );
             throw new NamingException( "Bad control, no oid" );
         }
 
@@ -729,7 +731,7 @@ public class LdifReader implements Iterator<Entry>
         if ( pos == initPos )
         {
             // Not a valid OID !
-            log.error( "The control does not have an OID" );
+            LOG.error( "The control does not have an OID" );
             throw new NamingException( "Bad control, no oid" );
         }
 
@@ -744,7 +746,7 @@ public class LdifReader implements Iterator<Entry>
         }
         catch (DecoderException de)
         {
-            log.error( "The OID {} is not valid", oidString );
+            LOG.error( "The OID {} is not valid", oidString );
             throw new NamingException( "Bad control oid" );
         }
 
@@ -783,7 +785,7 @@ public class LdifReader implements Iterator<Entry>
         {
             // If we have a criticality, it should be either "true" or "false",
             // nothing else
-            log.error( "The control muts have a valid criticality" );
+            LOG.error( "The control muts have a valid criticality" );
             throw new NamingException( "Bad control criticality" );
         }
 
@@ -862,7 +864,7 @@ public class LdifReader implements Iterator<Entry>
         // We should *not* have a DN twice
         if ( attributeType.equals( "dn" ) )
         {
-            log.error( "An entry must not have two DNs" );
+            LOG.error( "An entry must not have two DNs" );
             throw new NamingException( "A ldif entry should not have two DN" );
         }
 
@@ -900,14 +902,14 @@ public class LdifReader implements Iterator<Entry>
             }
             else
             {
-                log.error( "A modrdn operation must start with a \"newrdn:\"" );
+                LOG.error( "A modrdn operation must start with a \"newrdn:\"" );
                 throw new NamingException( "Bad modrdn operation" );
             }
 
         }
         else
         {
-            log.error( "A modrdn operation must start with a \"newrdn:\"" );
+            LOG.error( "A modrdn operation must start with a \"newrdn:\"" );
             throw new NamingException( "Bad modrdn operation, no newrdn" );
         }
 
@@ -924,13 +926,13 @@ public class LdifReader implements Iterator<Entry>
             }
             else
             {
-                log.error( "A modrdn operation must contains a \"deleteoldrdn:\"" );
+                LOG.error( "A modrdn operation must contains a \"deleteoldrdn:\"" );
                 throw new NamingException( "Bad modrdn operation, no deleteoldrdn" );
             }
         }
         else
         {
-            log.error( "A modrdn operation must contains a \"deleteoldrdn:\"" );
+            LOG.error( "A modrdn operation must contains a \"deleteoldrdn:\"" );
             throw new NamingException( "Bad modrdn operation, no deleteoldrdn" );
         }
 
@@ -957,7 +959,8 @@ public class LdifReader implements Iterator<Entry>
     {
         int state = MOD_SPEC;
         String modified = null;
-        int modification = 0;
+        int modificationType = 0;
+        Attribute attribute = null;
 
         // The following flag is used to deal with empty modifications
         boolean isEmptyValue = true;
@@ -971,7 +974,7 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( state != ATTRVAL_SPEC_OR_SEP )
                 {
-                    log.error( "Bad state : we should have come from an ATTRVAL_SPEC" );
+                    LOG.error( "Bad state : we should have come from an ATTRVAL_SPEC" );
                     throw new NamingException( "Bad modify separator" );
                 }
                 else
@@ -979,7 +982,12 @@ public class LdifReader implements Iterator<Entry>
                     if ( isEmptyValue )
                     {
                         // Update the entry
-                        entry.addModificationItem( modification, modified, null );
+                        entry.addModificationItem( modificationType, modified, null );
+                    }
+                    else
+                    {
+                        // Update the entry with the attribute
+                        entry.addModificationItem( modificationType, attribute );
                     }
 
                     state = MOD_SPEC;
@@ -991,12 +999,13 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( ( state != MOD_SPEC ) && ( state != ATTRVAL_SPEC ) )
                 {
-                    log.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
+                    LOG.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
                     throw new NamingException( "Bad modify state" );
                 }
 
                 modified = StringTools.trim( line.substring( "add:".length() ) );
-                modification = DirContext.ADD_ATTRIBUTE;
+                modificationType = DirContext.ADD_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC;
             }
@@ -1004,12 +1013,13 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( ( state != MOD_SPEC ) && ( state != ATTRVAL_SPEC ) )
                 {
-                    log.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
+                    LOG.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
                     throw new NamingException( "Bad modify state" );
                 }
 
                 modified = StringTools.trim( line.substring( "delete:".length() ) );
-                modification = DirContext.REMOVE_ATTRIBUTE;
+                modificationType = DirContext.REMOVE_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1017,12 +1027,13 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( ( state != MOD_SPEC ) && ( state != ATTRVAL_SPEC ) )
                 {
-                    log.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
+                    LOG.error( "Bad state : we should have come from a MOD_SPEC or an ATTRVAL_SPEC" );
                     throw new NamingException( "Bad modify state" );
                 }
 
                 modified = StringTools.trim( line.substring( "replace:".length() ) );
-                modification = DirContext.REPLACE_ATTRIBUTE;
+                modificationType = DirContext.REPLACE_ATTRIBUTE;
+                attribute = new AttributeImpl( modified );
 
                 state = ATTRVAL_SPEC_OR_SEP;
             }
@@ -1030,7 +1041,7 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( ( state != ATTRVAL_SPEC ) && ( state != ATTRVAL_SPEC_OR_SEP ) )
                 {
-                    log.error( "Bad state : we should have come from an ATTRVAL_SPEC" );
+                    LOG.error( "Bad state : we should have come from an ATTRVAL_SPEC" );
                     throw new NamingException( "Bad modify state" );
                 }
 
@@ -1041,21 +1052,21 @@ public class LdifReader implements Iterator<Entry>
 
                 if ( attributeType.equalsIgnoreCase( modified ) == false )
                 {
-                    log.error( "The modified attribute and the attribute value spec must be equal" );
+                    LOG.error( "The modified attribute and the attribute value spec must be equal" );
                     throw new NamingException( "Bad modify attribute" );
                 }
 
                 // We should *not* have a DN twice
                 if ( attributeType.equalsIgnoreCase( "dn" ) )
                 {
-                    log.error( "An entry must not have two DNs" );
+                    LOG.error( "An entry must not have two DNs" );
                     throw new NamingException( "A ldif entry should not have two DN" );
                 }
 
                 Object attributeValue = parseValue( line, colonIndex );
 
-                // Update the entry
-                entry.addModificationItem( modification, modified, attributeValue );
+                attribute.add( attributeValue );
+                
                 isEmptyValue = false;
 
                 state = ATTRVAL_SPEC_OR_SEP;
@@ -1143,7 +1154,7 @@ public class LdifReader implements Iterator<Entry>
                     {
                         if ( operation == ChangeType.ModDn )
                         {
-                            log.error( "A moddn operation must contains a \"newsuperior:\"" );
+                            LOG.error( "A moddn operation must contains a \"newsuperior:\"" );
                             throw new NamingException( "Bad moddn operation, no newsuperior" );
                         }
                     }
@@ -1152,7 +1163,7 @@ public class LdifReader implements Iterator<Entry>
                 {
                     if ( operation == ChangeType.ModDn )
                     {
-                        log.error( "A moddn operation must contains a \"newsuperior:\"" );
+                        LOG.error( "A moddn operation must contains a \"newsuperior:\"" );
                         throw new NamingException( "Bad moddn operation, no newsuperior" );
                     }
                 }
@@ -1161,7 +1172,7 @@ public class LdifReader implements Iterator<Entry>
 
             default:
                 // This is an error
-                log.error( "Unknown operation" );
+                LOG.error( "Unknown operation" );
                 throw new NamingException( "Bad operation" );
         }
     }
@@ -1180,7 +1191,7 @@ public class LdifReader implements Iterator<Entry>
     {
         if ( ( lines == null ) || ( lines.size() == 0 ) )
         {
-            log.debug( "The entry is empty : end of ldif file" );
+            LOG.debug( "The entry is empty : end of ldif file" );
             return null;
         }
 
@@ -1229,7 +1240,7 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( containsEntries )
                 {
-                    log.error( "We cannot have changes when reading a file which already contains entries" );
+                    LOG.error( "We cannot have changes when reading a file which already contains entries" );
                     throw new NamingException( "No changes withing entries" );
                 }
 
@@ -1237,7 +1248,7 @@ public class LdifReader implements Iterator<Entry>
 
                 if ( controlSeen )
                 {
-                    log.error( "We already have had a control" );
+                    LOG.error( "We already have had a control" );
                     throw new NamingException( "Control misplaced" );
                 }
 
@@ -1249,7 +1260,7 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( containsEntries )
                 {
-                    log.error( "We cannot have changes when reading a file which already contains entries" );
+                    LOG.error( "We cannot have changes when reading a file which already contains entries" );
                     throw new NamingException( "No changes withing entries" );
                 }
 
@@ -1257,7 +1268,7 @@ public class LdifReader implements Iterator<Entry>
 
                 if ( changeTypeSeen )
                 {
-                    log.error( "We already have had a changeType" );
+                    LOG.error( "We already have had a changeType" );
                     throw new NamingException( "ChangeType misplaced" );
                 }
 
@@ -1275,7 +1286,7 @@ public class LdifReader implements Iterator<Entry>
             {
                 if ( containsChanges )
                 {
-                    log.error( "We cannot have entries when reading a file which already contains changes" );
+                    LOG.error( "We cannot have entries when reading a file which already contains changes" );
                     throw new NamingException( "No entries within changes" );
                 }
 
@@ -1283,7 +1294,7 @@ public class LdifReader implements Iterator<Entry>
 
                 if ( controlSeen || changeTypeSeen )
                 {
-                    log.error( "We can't have a Attribute/Value pair after a control or a changeType" );
+                    LOG.error( "We can't have a Attribute/Value pair after a control or a changeType" );
                     throw new NamingException( "AttributeType misplaced" );
                 }
 
@@ -1293,23 +1304,23 @@ public class LdifReader implements Iterator<Entry>
             else
             {
                 // Invalid attribute Value
-                log.error( "Expecting an attribute type" );
+                LOG.error( "Expecting an attribute type" );
                 throw new NamingException( "Bad attribute" );
             }
         }
 
         if ( type == ENTRY )
         {
-            log.debug( "Read an entry : {}", entry );
+            LOG.debug( "Read an entry : {}", entry );
         }
         else if ( type == CHANGE )
         {
             entry.setChangeType( operation );
-            log.debug( "Read a modification : {}", entry );
+            LOG.debug( "Read a modification : {}", entry );
         }
         else
         {
-            log.error( "Unknown entry type" );
+            LOG.error( "Unknown entry type" );
             throw new NamingException( "Unknown entry" );
         }
 
@@ -1319,12 +1330,10 @@ public class LdifReader implements Iterator<Entry>
     /**
      * Parse the version from the ldif input.
      * 
-     * @param in
-     *            The input which contains the ldif data
      * @return A number representing the version (default to 1)
      * @throws NamingException
      *             If the version is incorrect
-     * @throws IOException
+     * @throws NamingException
      *             If the input is incorrect
      */
     private int parseVersion() throws NamingException
@@ -1336,7 +1345,7 @@ public class LdifReader implements Iterator<Entry>
 
         if ( lines.size() == 0 )
         {
-            log.warn( "The ldif file is empty" );
+            LOG.warn( "The ldif file is empty" );
             return ver;
         }
 
@@ -1358,7 +1367,7 @@ public class LdifReader implements Iterator<Entry>
             // We should not have any other chars after the number
             if ( position.pos != document.length )
             {
-                log.error( "The version is not a number" );
+                LOG.error( "The version is not a number" );
                 throw new NamingException( "Ldif parsing error" );
             }
 
@@ -1368,11 +1377,11 @@ public class LdifReader implements Iterator<Entry>
             }
             catch (NumberFormatException nfe)
             {
-                log.error( "The version is not a number" );
+                LOG.error( "The version is not a number" );
                 throw new NamingException( "Ldif parsing error" );
             }
 
-            log.debug( "Ldif version : {}", versionNumber );
+            LOG.debug( "Ldif version : {}", versionNumber );
 
             // We have found the version, just discard the line from the list
             lines.remove( 0 );
@@ -1385,7 +1394,7 @@ public class LdifReader implements Iterator<Entry>
         }
         else
         {
-            log.warn( "No version information : assuming version: 1" );
+            LOG.warn( "No version information : assuming version: 1" );
         }
 
         return ver;
@@ -1397,10 +1406,7 @@ public class LdifReader implements Iterator<Entry>
      * 
      * The lines represent *one* entry.
      * 
-     * @param in
-     *            The buffer
-     * @throws NamingException
-     *             If something went wrong
+     * @throws NamingException If something went wrong
      */
     private void readLines() throws NamingException
     {
@@ -1445,7 +1451,7 @@ public class LdifReader implements Iterator<Entry>
                         }
                         else if ( sb.length() == 0 )
                         {
-                            log.error( "Cannot have an empty continuation line" );
+                            LOG.error( "Cannot have an empty continuation line" );
                             throw new NamingException( "Ldif Parsing error" );
                         }
                         else
@@ -1515,7 +1521,7 @@ public class LdifReader implements Iterator<Entry>
     {
         if ( StringTools.isEmpty( fileName ) )
         {
-            log.error( "Cannot parse an empty file name !" );
+            LOG.error( "Cannot parse an empty file name !" );
             throw new NamingException( "Empty filename" );
         }
 
@@ -1523,7 +1529,7 @@ public class LdifReader implements Iterator<Entry>
 
         if ( file.exists() == false )
         {
-            log.error( "Cannot parse the file {}, it does not exist", fileName );
+            LOG.error( "Cannot parse the file {}, it does not exist", fileName );
             throw new NamingException( "Filename " + fileName + " not found." );
         }
 
@@ -1536,7 +1542,7 @@ public class LdifReader implements Iterator<Entry>
         }
         catch (FileNotFoundException fnfe)
         {
-            log.error( "Cannot find file {}", fileName );
+            LOG.error( "Cannot find file {}", fileName );
             throw new NamingException( "Filename " + fileName + " not found." );
         }
 
@@ -1554,7 +1560,7 @@ public class LdifReader implements Iterator<Entry>
      */
     public List<Entry> parseLdif( String ldif ) throws NamingException
     {
-        log.debug( "Starts parsing ldif buffer" );
+        LOG.debug( "Starts parsing ldif buffer" );
 
         if ( StringTools.isEmpty( ldif ) )
         {
@@ -1568,16 +1574,16 @@ public class LdifReader implements Iterator<Entry>
         {
             List<Entry> entries = parseLdif( inf );
 
-            if ( log.isDebugEnabled() )
+            if ( LOG.isDebugEnabled() )
             {
-                log.debug( "Parsed {} entries.", ( entries == null ? Integer.valueOf( 0 ) : Integer.valueOf( entries.size() ) ) );
+                LOG.debug( "Parsed {} entries.", ( entries == null ? Integer.valueOf( 0 ) : Integer.valueOf( entries.size() ) ) );
             }
 
             return entries;
         }
         catch (NamingException ne)
         {
-            log.error( "Cannot parse the ldif buffer : {}", ne.getMessage() );
+            LOG.error( "Cannot parse the ldif buffer : {}", ne.getMessage() );
             throw new NamingException( "Error while parsing the ldif buffer" );
         }
     }
@@ -1595,7 +1601,7 @@ public class LdifReader implements Iterator<Entry>
     {
         try
         {
-            log.debug( "next(): -- called" );
+            LOG.debug( "next(): -- called" );
 
             Entry entry = prefetched;
             readLines();
@@ -1609,13 +1615,13 @@ public class LdifReader implements Iterator<Entry>
                 error = ne;
             }
 
-            log.debug( "next(): -- returning ldif {}\n", entry );
+            LOG.debug( "next(): -- returning ldif {}\n", entry );
 
             return entry;
         }
         catch (NamingException ne)
         {
-            log.error( "Premature termination of LDIF iterator" );
+            LOG.error( "Premature termination of LDIF iterator" );
             error = ne;
             return null;
         }
@@ -1628,7 +1634,7 @@ public class LdifReader implements Iterator<Entry>
      */
     public boolean hasNext()
     {
-        log.debug( "hasNext(): -- returning {}", ( prefetched != null ) ? Boolean.TRUE : Boolean.FALSE );
+        LOG.debug( "hasNext(): -- returning {}", ( prefetched != null ) ? Boolean.TRUE : Boolean.FALSE );
 
         return null != prefetched;
     }

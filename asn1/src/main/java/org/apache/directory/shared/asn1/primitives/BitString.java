@@ -71,18 +71,6 @@ public class BitString implements Serializable
     // ~ Constructors
     // -------------------------------------------------------------------------------*
     /**
-     * A private constructor used to initialized the empty BitString
-     */
-    private BitString()
-    {
-        nbBits = 0;
-        nbBytes = 0;
-        nbUnusedBits = 8;
-        isStreamed = false;
-        bytes = new byte[]{};
-    }
-    
-    /**
      * Creates a BitString with a specific length (length is the number of
      * bits).
      * 
@@ -170,13 +158,13 @@ public class BitString implements Serializable
 
             // It will be a streamed OctetString.
             // TODO : implement the streaming
-            bytes = new byte[nbBytes];
+            this.bytes = new byte[nbBytes];
         }
         else
         {
             isStreamed = false;
 
-            bytes = new byte[nbBytes];
+            this.bytes = new byte[nbBytes];
         }
 
         setBytes( bytes, nbBytes );
@@ -272,9 +260,9 @@ public class BitString implements Serializable
             throw new IndexOutOfBoundsException( "Bad bit number : out of bound" );
         }
         
-        int posInt = pos / 8;
+        int posInt = nbBytes - 1 - ( ( pos + nbUnusedBits ) >> 3 );
+        int bitNumber = ( pos + nbUnusedBits ) % 8;
 
-        int bitNumber = 7 - ( pos % 8 );
         bytes[posInt] |= ( 1 << bitNumber );
     }
     
@@ -293,27 +281,27 @@ public class BitString implements Serializable
             throw new IndexOutOfBoundsException( "Bad bit number : out of bound" );
         }
         
-        int posInt = pos / 8;
+        int posInt = nbBytes - 1 - ( ( pos + nbUnusedBits ) >> 3 );
+        int bitNumber = ( pos + nbUnusedBits ) % 8;
 
-        int bitNumber = 7 - ( pos % 8 );
         bytes[posInt] &= ~( 1 << bitNumber );
     }
     
     /**
      * Get the bit stored into the BitString at a specific position. 
-     * The bits are stored from left to right.
-     * For instance, if we have 10 bits, then they are coded as b0 b1 b2 b3 b4 b5 b6 b7 - b8 b9 x x x x x x
+     * The bits are stored from left to right, the LSB on the right and the
+     * MSB on the left
+     * For instance, if we have 10 bits, then they are coded as 
+     * b9 b8 b7 b6 - b5 b4 b3 b2 - b1 b0 x x - x x x x
      * 
      * With '1001 000x', where x is an unused bit, 
-     *       ^ ^    ^^ 
-     *       | |    || 
-     *       | |    |+---- getBit(7) IndexOutOfBoundException  
-     *       | |    +----- getBit(6) = 0 
-     *       | +---------- getBit(2) = 0 
-     *       +------------ getBit(0) = 1
+     *       ^ ^    ^ 
+     *       | |    | 
+     *       | |    |  
+     *       | |    +----- getBit(0) = 0 
+     *       | +---------- getBit(4) = 0 
+     *       +------------ getBit(6) = 1
      *       
-     * getBit(7) -> IndexOutOfBoundsException
-     * 
      * @param pos The position of the requested bit.  
      * 
      * @return <code>true</code> if the bit is set, <code>false</code>
@@ -328,9 +316,9 @@ public class BitString implements Serializable
                 + nbBits + " ints" );
         }
 
-        int posInt = pos / 8;
+        int posInt = nbBytes - 1 - ( ( pos + nbUnusedBits ) >> 3 );
+        int bitNumber = ( pos + nbUnusedBits ) % 8;
 
-        int bitNumber = 7 - ( pos % 8 );
         int res = bytes[posInt] & ( 1 << bitNumber );
         return res != 0;
     }
@@ -354,7 +342,7 @@ public class BitString implements Serializable
 
         StringBuffer sb = new StringBuffer();
 
-        for ( int i = 0; i < nbBits; i++ )
+        for ( int i = nbBits; i > 0; i-- )
         {
 
             if ( getBit( i ) )

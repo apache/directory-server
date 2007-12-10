@@ -93,16 +93,16 @@ public interface SearchRequest extends ManyReplyRequest, AbandonableRequest
      * 
      * @return the alias handling parameter enumeration.
      */
-    DerefAliasesEnum getDerefAliases();
+    AliasDerefMode getDerefAliases();
 
 
     /**
      * Sets the alias handling parameter.
      * 
-     * @param derefAliases
+     * @param aliasDerefAliases
      *            the alias handling parameter enumeration.
      */
-    void setDerefAliases( DerefAliasesEnum derefAliases );
+    void setDerefAliases( AliasDerefMode aliasDerefAliases );
 
 
     /**

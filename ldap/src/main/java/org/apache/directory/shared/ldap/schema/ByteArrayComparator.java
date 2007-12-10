@@ -36,10 +36,10 @@ public class ByteArrayComparator implements Comparator
     /* (non-Javadoc)
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare( Object byteArray1, Object byteArray2 )
+    public int compare( Object o1, Object o2 )
     {
-        byte[] b1 = ( byte[] ) byteArray1;
-        byte[] b2 = ( byte[] ) byteArray2;
+        byte[] b1 = ( byte[] ) o1;
+        byte[] b2 = ( byte[] ) o2;
 
         // -------------------------------------------------------------------
         // Handle some basis cases

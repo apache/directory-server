@@ -17,10 +17,7 @@
  *  under the License. 
  *  
  */
-package org.apache.directory.shared.ldap.aci;
-
-
-import java.io.Serializable;
+package org.apache.directory.shared.ldap.constants;
 
 
 /**
@@ -29,39 +26,35 @@ import java.io.Serializable;
  * @author <a href="mailto:dev@directory.apache.org">Apache Directory Project</a>
  * @version $Rev$, $Date$
  */
-public class AuthenticationLevel implements Comparable, Serializable
+public enum AuthenticationLevel
 {
-    private static final long serialVersionUID = -6757937682267073130L;
-
     /**
      * No authentication (anonymous access)
      */
-    public static final AuthenticationLevel NONE = new AuthenticationLevel( 0, "none" );
+    NONE( 0, "none" ),
 
     /**
      * Simple authentication (bound with plain-text credentials)
      */
-    public static final AuthenticationLevel SIMPLE = new AuthenticationLevel( 1, "simple" );
+    SIMPLE( 1, "simple" ),
 
     /**
      * Strong authentication (bound with encrypted cerdentials)
      */
-    public static final AuthenticationLevel STRONG = new AuthenticationLevel( 2, "strong" );
-
-    private final int level;
-
+    STRONG( 2, "string" );
+    
+    private int level;
+    
     private final String name;
 
-
-    private AuthenticationLevel(int level, String name)
+    private AuthenticationLevel( int level, String name )
     {
         this.level = level;
         this.name = name;
     }
 
-
     /**
-     * Returns the integet value of this level (greater value, stronger level).
+     * Returns the integer value of this level (greater value, stronger level).
      */
     public int getLevel()
     {
@@ -81,29 +74,5 @@ public class AuthenticationLevel implements Comparable, Serializable
     public String toString()
     {
         return name;
-    }
-
-
-    public boolean equals( Object o )
-    {
-        if ( this == o )
-        {
-            return true;
-        }
-
-        if ( o instanceof AuthenticationLevel )
-        {
-            AuthenticationLevel that = ( AuthenticationLevel ) o;
-            return this.level == that.level;
-        }
-
-        return false;
-    }
-
-
-    public int compareTo( Object o )
-    {
-        AuthenticationLevel that = ( AuthenticationLevel ) o;
-        return this.level - that.level;
     }
 }

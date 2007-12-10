@@ -20,11 +20,9 @@
 package org.apache.directory.shared.ldap.filter;
 
 
-import java.util.Map;
-
 import javax.naming.directory.SearchControls;
 
-import org.apache.directory.shared.ldap.message.DerefAliasesEnum;
+import org.apache.directory.shared.ldap.message.AliasDerefMode;
 
 
 /**
@@ -43,39 +41,22 @@ public class ScopeNode extends AbstractExprNode
     private final String baseDn;
 
     /** the alias dereferencing mode */
-    private final DerefAliasesEnum derefAliases;
+    private final AliasDerefMode aliasDerefAliases;
 
 
     /**
      * Creates a new ScopeNode object.
      * 
-     * @param derefAliases the alias dereferencing mode
+     * @param aliasDerefAliases the alias dereferencing mode
      * @param baseDn the search base
      * @param scope the search scope
      */
-    public ScopeNode(DerefAliasesEnum derefAliases, String baseDn, int scope)
+    public ScopeNode( AliasDerefMode aliasDerefAliases, String baseDn, int scope )
     {
         super();
         this.scope = scope;
         this.baseDn = baseDn;
-        this.derefAliases = derefAliases;
-    }
-
-
-    /**
-     * Creates a new ScopeNode object.
-     * 
-     * @param env the JNDI environment from which to extract the alias
-     *            dereferencing mode
-     * @param baseDn the search base
-     * @param scope the search scope
-     */
-    public ScopeNode( Map<String, DerefAliasesEnum> env, String baseDn, int scope )
-    {
-        super();
-        this.scope = scope;
-        this.baseDn = baseDn;
-        derefAliases = DerefAliasesEnum.getEnum( env );
+        this.aliasDerefAliases = aliasDerefAliases;
     }
 
 
@@ -120,9 +101,9 @@ public class ScopeNode extends AbstractExprNode
      * 
      * @return the alias dereferencing enumeration constant.
      */
-    public DerefAliasesEnum getDerefAliases()
+    public AliasDerefMode getDerefAliases()
     {
-        return derefAliases;
+        return aliasDerefAliases;
     }
 
 
@@ -184,7 +165,7 @@ public class ScopeNode extends AbstractExprNode
     	buf.append( ", '" );
     	buf.append( baseDn );
     	buf.append( "', " );
-    	buf.append( derefAliases );
+    	buf.append( aliasDerefAliases );
     	buf.append( "}" );
     	buf.append( super.toString() );
     	buf.append( ')' );

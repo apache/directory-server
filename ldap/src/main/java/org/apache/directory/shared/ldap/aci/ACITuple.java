@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.directory.shared.ldap.constants.AuthenticationLevel;
+
 
 /**
  * A flatten entity which is converted from an {@link ACIItem}. The tuples are
