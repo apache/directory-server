@@ -453,7 +453,7 @@ public class JdbmIndex implements Index
      */
     public void drop( Object entryId ) throws NamingException
     {
-        NamingEnumeration values = reverse.listValues( entryId );
+        NamingEnumeration<Object> values = reverse.listValues( entryId );
 
         while ( values.hasMore() )
         {

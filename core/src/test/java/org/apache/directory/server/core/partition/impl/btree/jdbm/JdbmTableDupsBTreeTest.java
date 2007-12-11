@@ -238,7 +238,7 @@ public class JdbmTableDupsBTreeTest extends TestCase implements Serializable
         // test the listTuples() method
         // -------------------------------------------------------------------
 
-        NamingEnumeration tuples = table.listTuples();
+        NamingEnumeration<Tuple> tuples = table.listTuples();
         
         assertTrue( tuples.hasMore() ) ;
         tuple = ( Tuple ) tuples.next();
@@ -458,7 +458,7 @@ public class JdbmTableDupsBTreeTest extends TestCase implements Serializable
         // test the listValues(Object) method
         // -------------------------------------------------------------------
 
-        NamingEnumeration values = table.listValues( 0L );
+        NamingEnumeration<Object> values = table.listValues( 0L );
         assertFalse( values.hasMore() );
 
         values = table.listValues( 2L );
@@ -496,7 +496,7 @@ public class JdbmTableDupsBTreeTest extends TestCase implements Serializable
         // put(Object,Object) already tested in setUp() tests the 
         // this instead tests the NamingEnumeration overload
         
-        NamingEnumeration values = new ArrayNE( new Object[] {
+        NamingEnumeration<Object> values = new ArrayNE( new Object[] {
             3L,
             4L,
             5L,

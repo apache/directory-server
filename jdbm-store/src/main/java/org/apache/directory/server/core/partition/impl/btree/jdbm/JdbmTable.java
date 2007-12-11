@@ -966,7 +966,7 @@ public class JdbmTable implements Table
     /**
      * @see Table#listValues(java.lang.Object)
      */
-    public NamingEnumeration listValues( Object key ) throws NamingException
+    public NamingEnumeration<Object> listValues( Object key ) throws NamingException
     {
         if ( !allowsDuplicates )
         {

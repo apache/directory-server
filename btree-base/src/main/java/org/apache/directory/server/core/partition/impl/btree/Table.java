@@ -244,13 +244,12 @@ public interface Table
      * key and enables single next steps across all duplicate records with
      * this key.  This enumeration will only iterate over duplicates of the key.
      * Unlike listTuples(Object) which returns Tuples from the enumerations 
-     * advances methods this call returns an enumeration with just the values
-     * of the key.
+     * this just returns the values of the key.
      * 
      * @param key the key to iterate over
      * @throws NamingException if the underlying browser could not be set
      */
-    NamingEnumeration<Tuple> listValues( Object key ) throws NamingException;
+    NamingEnumeration<Object> listValues( Object key ) throws NamingException;
 
 
     // ------------------------------------------------------------------------
